@@ -1657,16 +1657,6 @@
           <button class="qb-loc-clear" id="qbLocClear" type="button" title="Clear" hidden>✕</button>
         </div>
 
-        <!-- Use Current Location Button -->
-        <div class="qb-loc-use-current">
-          <button type="button" id="qbLocGPS">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/>
-            </svg>
-            Use current location
-          </button>
-        </div>
-
         <!-- Save Address Form (visible when location selected) -->
         <div class="qb-loc-save-form" id="qbLocSaveForm" hidden>
           <div style="padding:12px 14px;border-top:1px solid #f0f0f0">
@@ -3257,7 +3247,6 @@ console.log('🐝 QuickBee Splash Screen Ready');
   var dropdown= document.getElementById('qbLocDropdown');
   var input   = document.getElementById('qbLocInput');
   var clearBtn= document.getElementById('qbLocClear');
-  var gpsBtn  = document.getElementById('qbLocGPS');
   var results = document.getElementById('qbLocResults');
   var titleEl = document.getElementById('qbLocTitle');
   var addressEl = document.getElementById('qbLocAddress');
@@ -3654,62 +3643,6 @@ console.log('🐝 QuickBee Splash Screen Ready');
       listContainer.appendChild(item);
     });
   }
-
-  // GPS / reverse geocode
-  gpsBtn.addEventListener('click', function () {
-    if (!navigator.geolocation) {
-      gpsBtn.textContent = 'Not supported';
-      return;
-    }
-    var origHTML = gpsBtn.innerHTML;
-    gpsBtn.innerHTML = '<span class="qb-loc-spinner" style="border-color:#2563eb;border-top-color:transparent"></span>Locating…';
-    gpsBtn.disabled = true;
-
-    navigator.geolocation.getCurrentPosition(
-      function (pos) {
-        fetch('https://nominatim.openstreetmap.org/reverse?lat=' + pos.coords.latitude
-          + '&lon=' + pos.coords.longitude + '&format=json',
-          { headers: { 'Accept-Language': 'en' } })
-          .then(function (r) { return r.json(); })
-          .then(function (data) {
-            var addr = data.address || {};
-            var name = addr.suburb || addr.neighbourhood || addr.city
-                       || addr.town || addr.village || addr.county || 'Your location';
-
-            // Build detailed address for checkout
-            var detailedAddr = [
-              addr.house_number || '',
-              addr.road || '',
-              addr.neighbourhood || '',
-              addr.suburb || '',
-              addr.city || addr.town || addr.village || '',
-              addr.county || '',
-              addr.state || '',
-              addr.postcode || '',
-              addr.country || ''
-            ].filter(Boolean).join(', ');
-
-            selectLocation({
-              main: name,
-              full: detailedAddr || data.display_name,
-              lat: pos.coords.latitude,
-              lon: pos.coords.longitude
-            });
-            gpsBtn.innerHTML = origHTML;
-            gpsBtn.disabled = false;
-          })
-          .catch(function () {
-            gpsBtn.innerHTML = origHTML;
-            gpsBtn.disabled = false;
-          });
-      },
-      function () {
-        gpsBtn.innerHTML = origHTML;
-        gpsBtn.disabled = false;
-      },
-      { timeout: 8000 }
-    );
-  });
 
   function esc(s) {
     return String(s)
