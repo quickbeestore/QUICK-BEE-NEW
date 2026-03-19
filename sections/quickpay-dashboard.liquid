@@ -1,0 +1,212 @@
+{% comment %}
+  QuickPay Dashboard Section
+  Displays combined wallet balance (QULET + Shopify Store Credit)
+  Shows transaction history, top-up options, and export functionality
+{% endcomment %}
+
+<div class="quickpay-dashboard">
+  <div class="quickpay-header">
+    <h1>💰 QuickPay Wallet</h1>
+    <p class="quickpay-subtitle">Manage your wallet and top up instantly</p>
+  </div>
+
+  {% if customer %}
+    <script type="module">
+      // Store customer data for JavaScript
+      window.quickPayCustomer = {
+        id: "gid://shopify/Customer/{{ customer.id }}",
+        email: "{{ customer.email | escape_javascript }}",
+        firstName: "{{ customer.first_name | escape_javascript }}",
+      };
+    </script>
+
+    <!-- Balance Cards -->
+    <div class="quickpay-balance-section">
+      <div class="quickpay-balance-card main">
+        <div class="balance-label">Total Balance</div>
+        <div class="balance-amount" id="quickPayTotalBalance">—</div>
+        <div class="balance-subtext">QULET Wallet + Store Credit</div>
+      </div>
+
+      <div class="quickpay-balance-card">
+        <div class="balance-label">Wallet</div>
+        <div class="balance-amount" id="quickPayWalletBalance">—</div>
+        <div class="balance-subtext">QULET Balance</div>
+      </div>
+
+      <div class="quickpay-balance-card">
+        <div class="balance-label">Store Credit</div>
+        <div class="balance-amount" id="quickPayStoreCredit">—</div>
+        <div class="balance-subtext">Shopify Credit</div>
+      </div>
+    </div>
+
+    <!-- Top Up Section -->
+    {% render 'quickpay-topup' %}
+
+    <!-- Transaction History -->
+    {% render 'quickpay-transactions' %}
+
+    <!-- Export Section -->
+    {% render 'quickpay-export' %}
+  {% else %}
+    <div class="quickpay-not-logged-in">
+      <p>Please log in to view your QuickPay wallet.</p>
+      <a href="{{ routes.account_login_url }}" class="button">Sign In</a>
+    </div>
+  {% endif %}
+</div>
+
+<script type="module">
+  // Initialize QuickPay Dashboard
+  import { fetchQuickPayBalance, formatCurrency } from './quickpay-utils.js';
+
+  async function initializeDashboard() {
+    try {
+      const { wallet, storeCredit, combined } = await fetchQuickPayBalance();
+
+      // Update balance displays
+      document.getElementById('quickPayTotalBalance').textContent = formatCurrency(combined);
+      document.getElementById('quickPayWalletBalance').textContent = formatCurrency(wallet);
+      document.getElementById('quickPayStoreCredit').textContent = formatCurrency(storeCredit);
+
+      console.log('[QuickPay] Dashboard initialized:', { wallet, storeCredit, combined });
+    } catch (error) {
+      console.error('[QuickPay] Failed to initialize:', error.message);
+      document.getElementById('quickPayTotalBalance').textContent = 'Rs —';
+    }
+  }
+
+  // Initialize on load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeDashboard);
+  } else {
+    initializeDashboard();
+  }
+</script>
+
+{% stylesheet %}
+  .quickpay-dashboard {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+
+  .quickpay-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .quickpay-header h1 {
+    font-size: 28px;
+    margin: 0 0 8px 0;
+    color: var(--color-foreground);
+  }
+
+  .quickpay-subtitle {
+    font-size: 14px;
+    color: var(--color-foreground-muted);
+    margin: 0;
+  }
+
+  .quickpay-balance-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+
+  .quickpay-balance-card {
+    padding: 20px;
+    border-radius: 8px;
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border);
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .quickpay-balance-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .quickpay-balance-card.main {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    grid-column: 1 / -1;
+  }
+
+  .balance-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    opacity: 0.9;
+  }
+
+  .balance-amount {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 4px;
+    font-family: 'Courier New', monospace;
+  }
+
+  .balance-subtext {
+    font-size: 12px;
+    opacity: 0.8;
+  }
+
+  .quickpay-not-logged-in {
+    text-align: center;
+    padding: 40px 20px;
+    background: var(--color-background-secondary);
+    border-radius: 8px;
+  }
+
+  .quickpay-not-logged-in p {
+    margin-bottom: 20px;
+    color: var(--color-foreground-muted);
+  }
+
+  @media (max-width: 749px) {
+    .quickpay-dashboard {
+      margin: 20px auto;
+    }
+
+    .quickpay-header h1 {
+      font-size: 24px;
+    }
+
+    .balance-amount {
+      font-size: 24px;
+    }
+
+    .quickpay-balance-section {
+      gap: 12px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "QuickPay Dashboard",
+  "settings": [
+    {
+      "type": "text",
+      "id": "qulet_api_url",
+      "label": "QULET API URL",
+      "default": "https://quick-pay-beta-production.up.railway.app"
+    },
+    {
+      "type": "text",
+      "id": "esewa_merchant_code",
+      "label": "eSewa Merchant Code"
+    },
+    {
+      "type": "text",
+      "id": "khalti_public_key",
+      "label": "Khalti Public Key"
+    }
+  ]
+}
+{% endschema %}

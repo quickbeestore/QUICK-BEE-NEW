@@ -1,0 +1,1132 @@
+{% comment %}
+  QuickBee Premium Spin Wheel Popup
+  High-converting gamified discount feature with 280-minute cooldown
+  Add to theme.liquid: {% section 'quickbee-spin-wheel-premium' %}
+{% endcomment %}
+
+{% schema %}
+{
+  "name": "Premium Spin Wheel",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enable_popup",
+      "label": "Enable Spin Wheel Popup",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "popup_delay",
+      "label": "Show popup after (seconds)",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "color",
+      "id": "primary_color",
+      "label": "Primary Color",
+      "default": "#f5c518"
+    },
+    {
+      "type": "color",
+      "id": "secondary_color",
+      "label": "Secondary Color",
+      "default": "#1a1a1a"
+    }
+  ],
+  "presets": [
+    {
+      "name": "QuickBee Premium Spin Wheel"
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+  :root {
+    --qb-spin-primary: {{ section.settings.primary_color }};
+    --qb-spin-secondary: {{ section.settings.secondary_color }};
+  }
+
+  /* ── Modal Overlay ── */
+  .qb-spin-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: none !important;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 16px;
+    animation: fadeIn 0.3s ease-out;
+    overflow-y: auto;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .qb-spin-overlay.active {
+    display: flex !important;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* ── Main Popup Container ── */
+  .qb-spin-container {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 24px;
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+    border-radius: 20px;
+    padding: 32px;
+    max-width: 900px;
+    width: calc(100% - 32px);
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow:
+      0 25px 60px rgba(0, 0, 0, 0.2),
+      0 0 60px rgba(245, 197, 24, 0.15);
+    border: 1px solid rgba(245, 197, 24, 0.3);
+    animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .qb-spin-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #888;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  .qb-spin-close:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #222;
+  }
+
+  /* ── Left Section: Wheel Content ── */
+  .qb-spin-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .qb-spin-header {
+    text-align: center;
+    animation: slideDown 0.5s ease-out;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .qb-spin-title {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--qb-spin-secondary);
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+
+  .qb-spin-subtitle {
+    font-size: 15px;
+    color: #666;
+    font-weight: 500;
+    line-height: 1.5;
+    max-width: 380px;
+  }
+
+  /* ── Wheel Section ── */
+  .qb-wheel-wrapper {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    filter: drop-shadow(0 15px 40px rgba(0, 0, 0, 0.15));
+  }
+
+  .qb-wheel-main {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      #FF6B6B 0deg 45deg,
+      #4ECDC4 45deg 90deg,
+      #FFE66D 90deg 135deg,
+      #95E1D3 135deg 180deg,
+      #F38181 180deg 225deg,
+      #AA96DA 225deg 270deg,
+      #FCBAD3 270deg 315deg,
+      #A8D8EA 315deg 360deg
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 8px solid var(--qb-spin-primary);
+    box-shadow:
+      0 0 40px rgba(245, 197, 24, 0.5),
+      inset 0 0 25px rgba(255, 255, 255, 0.4),
+      0 20px 50px rgba(0, 0, 0, 0.25);
+    position: relative;
+    transition: transform 0.1s linear;
+  }
+
+  .qb-wheel-main.spinning {
+    animation: spin-premium 0.8s cubic-bezier(0.17, 0.67, 0.12, 0.98);
+  }
+
+  @keyframes spin-premium {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(3960deg); }
+  }
+
+  .qb-wheel-main::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: repeating-conic-gradient(
+      from 0deg,
+      transparent 0deg 44deg,
+      rgba(255, 255, 255, 0.2) 44deg 46deg
+    );
+    pointer-events: none;
+  }
+
+  /* ── Center Hub ── */
+  .qb-wheel-center {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--qb-spin-primary), #e8b800);
+    border: 5px solid var(--qb-spin-secondary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    font-weight: 900;
+    color: var(--qb-spin-secondary);
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: centerGlow 2s ease-in-out infinite;
+  }
+
+  @keyframes centerGlow {
+    0%, 100% {
+      box-shadow: 0 10px 30px rgba(245, 197, 24, 0.4);
+    }
+    50% {
+      box-shadow: 0 10px 40px rgba(245, 197, 24, 0.8);
+    }
+  }
+
+  /* ── Pointer/Arrow ── */
+  .qb-wheel-pointer {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-top: 24px solid var(--qb-spin-primary);
+    z-index: 20;
+    filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.3));
+  }
+
+  /* ── Spin Button ── */
+  .qb-spin-button-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .qb-spin-button {
+    padding: 16px 48px;
+    background: linear-gradient(135deg, var(--qb-spin-primary), #e8b800);
+    border: none;
+    border-radius: 50px;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--qb-spin-secondary);
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 8px 24px rgba(245, 197, 24, 0.4);
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    min-width: 200px;
+  }
+
+  .qb-spin-button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #e8b800, #d4a400);
+    transform: scale(1.08) translateY(-3px);
+    box-shadow: 0 12px 40px rgba(245, 197, 24, 0.6);
+  }
+
+  .qb-spin-button:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+
+  .qb-spin-button:disabled {
+    background: #ddd;
+    color: #888;
+    cursor: not-allowed;
+    opacity: 0.6;
+    box-shadow: none;
+  }
+
+  .qb-spin-button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  .qb-spin-button:active::after {
+    width: 400px;
+    height: 400px;
+  }
+
+  .qb-cooldown-message {
+    font-size: 13px;
+    color: #888;
+    text-align: center;
+    font-weight: 500;
+    margin-top: 4px;
+  }
+
+  /* ── Right Section: Timer Panel ── */
+  .qb-timer-panel {
+    background: linear-gradient(135deg, rgba(245, 197, 24, 0.1) 0%, rgba(26, 26, 26, 0.05) 100%);
+    border: 2px solid rgba(245, 197, 24, 0.3);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    height: fit-content;
+  }
+
+  .qb-timer-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .qb-timer-display {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--qb-spin-primary);
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    text-align: center;
+    line-height: 1.1;
+  }
+
+  .qb-timer-display.ready {
+    color: #4CAF50;
+    animation: pulse-ready 0.6s ease-out;
+  }
+
+  @keyframes pulse-ready {
+    from {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .qb-timer-ready-text {
+    font-size: 13px;
+    color: #4CAF50;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .qb-timer-badge {
+    width: 12px;
+    height: 12px;
+    background: #4CAF50;
+    border-radius: 50%;
+    animation: timer-pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes timer-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .qb-timer-badge.active {
+    background: var(--qb-spin-primary);
+  }
+
+  /* ── Result Display ── */
+  .qb-result-display {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    z-index: 10001;
+    display: none !important;
+    min-width: 320px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+    animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .qb-result-display.show {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  @keyframes popIn {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.6) rotate(-10deg);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.05) rotate(2deg);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    }
+  }
+
+  .qb-result-emoji {
+    font-size: 60px;
+    animation: bounce-emoji 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes bounce-emoji {
+    0% {
+      transform: scale(0) rotate(-180deg);
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+
+  .qb-result-label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .qb-result-text {
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--qb-spin-secondary);
+  }
+
+  .qb-code-box {
+    background: linear-gradient(135deg, rgba(245, 197, 24, 0.1) 0%, rgba(26, 26, 26, 0.05) 100%);
+    border: 2px solid var(--qb-spin-primary);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .qb-code-text {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--qb-spin-primary);
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    flex: 1;
+    text-align: center;
+  }
+
+  .qb-copy-btn {
+    background: var(--qb-spin-primary);
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: var(--qb-spin-secondary);
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+
+  .qb-copy-btn:hover {
+    background: #e8b800;
+    transform: scale(1.05);
+  }
+
+  .qb-copy-btn.copied {
+    background: #4CAF50;
+    color: white;
+  }
+
+  .qb-conversion-text {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+    margin-top: 8px;
+  }
+
+  .qb-celebrate-confetti {
+    position: fixed;
+    pointer-events: none;
+    z-index: 10002;
+  }
+
+  /* ── Mobile Responsive ── */
+  @media (max-width: 768px) {
+    .qb-spin-overlay {
+      padding: 16px;
+    }
+
+    .qb-spin-container {
+      grid-template-columns: 1fr;
+      padding: 20px;
+      gap: 16px;
+      border-radius: 16px;
+      max-width: 100%;
+    }
+
+    .qb-spin-close {
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      font-size: 20px;
+    }
+
+    .qb-spin-header {
+      margin-bottom: 20px;
+    }
+
+    .qb-timer-panel {
+      grid-column: 1;
+      height: auto;
+      border-radius: 12px;
+      padding: 14px;
+      gap: 12px;
+    }
+
+    .qb-wheel-wrapper {
+      width: 240px;
+      height: 240px;
+    }
+
+    .qb-wheel-pointer {
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 18px solid var(--spin-primary);
+      top: -12px;
+    }
+
+    .qb-wheel-center {
+      width: 60px;
+      height: 60px;
+      font-size: 28px;
+    }
+
+    .qb-spin-title {
+      font-size: 22px;
+    }
+
+    .qb-spin-subtitle {
+      font-size: 13px;
+      max-width: 100%;
+    }
+
+    .qb-spin-button {
+      min-width: 140px;
+      padding: 12px 32px;
+      font-size: 14px;
+    }
+
+    .qb-timer-label {
+      font-size: 10px;
+    }
+
+    .qb-timer-display {
+      font-size: 22px;
+    }
+
+    .qb-result-display {
+      width: 90vw;
+      max-width: 320px;
+      padding: 28px 20px;
+    }
+
+    .qb-result-emoji {
+      font-size: 44px;
+    }
+
+    .qb-result-text {
+      font-size: 18px;
+    }
+
+    .qb-code-box {
+      margin: 10px 0;
+      padding: 10px 12px;
+    }
+
+    .qb-code-text {
+      font-size: 15px;
+    }
+
+    .qb-copy-btn {
+      padding: 6px 10px;
+      font-size: 11px;
+    }
+
+    .qb-conversion-text {
+      font-size: 13px;
+      margin-top: 6px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .qb-spin-overlay {
+      padding: 12px;
+    }
+
+    .qb-spin-container {
+      padding: 16px;
+      gap: 12px;
+      border-radius: 14px;
+    }
+
+    .qb-wheel-wrapper {
+      width: 220px;
+      height: 220px;
+    }
+
+    .qb-wheel {
+      border: 6px solid var(--spin-primary);
+    }
+
+    .qb-wheel-center {
+      width: 54px;
+      height: 54px;
+      font-size: 24px;
+    }
+
+    .qb-spin-title {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .qb-spin-subtitle {
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .qb-spin-button {
+      min-width: 120px;
+      padding: 11px 28px;
+      font-size: 13px;
+    }
+
+    .qb-result-display {
+      width: 85vw;
+      max-width: 290px;
+      padding: 24px 18px;
+    }
+
+    .qb-result-emoji {
+      font-size: 40px;
+    }
+
+    .qb-result-label {
+      font-size: 12px;
+    }
+
+    .qb-result-text {
+      font-size: 16px;
+    }
+
+    .qb-code-box {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .qb-code-text {
+      width: 100%;
+      font-size: 14px;
+    }
+
+    .qb-copy-btn {
+      width: 100%;
+    }
+
+    .qb-timer-panel {
+      padding: 12px;
+    }
+
+    .qb-timer-display {
+      font-size: 20px;
+    }
+
+    .qb-spin-header {
+      margin-bottom: 16px;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .qb-spin-overlay {
+      padding: 8px;
+    }
+
+    .qb-spin-container {
+      padding: 12px;
+      gap: 10px;
+      border-radius: 12px;
+    }
+
+    .qb-wheel-wrapper {
+      width: 180px;
+      height: 180px;
+    }
+
+    .qb-wheel {
+      border: 5px solid var(--spin-primary);
+    }
+
+    .qb-wheel-center {
+      width: 48px;
+      height: 48px;
+      font-size: 20px;
+    }
+
+    .qb-spin-title {
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+
+    .qb-spin-subtitle {
+      font-size: 11px;
+    }
+
+    .qb-spin-button {
+      min-width: 110px;
+      padding: 10px 24px;
+      font-size: 12px;
+    }
+
+    .qb-timer-panel {
+      padding: 10px;
+    }
+
+    .qb-timer-label {
+      font-size: 9px;
+    }
+
+    .qb-timer-display {
+      font-size: 18px;
+    }
+
+    .qb-result-display {
+      width: 85vw;
+      max-width: 250px;
+      padding: 18px 14px;
+    }
+
+    .qb-result-emoji {
+      font-size: 36px;
+    }
+
+    .qb-result-text {
+      font-size: 15px;
+    }
+
+    .qb-code-box {
+      margin: 8px 0;
+    }
+
+    .qb-code-text {
+      font-size: 12px;
+    }
+  }
+</style>
+
+<!-- Modal Overlay -->
+<div class="qb-spin-overlay" id="qbSpinOverlay">
+  <!-- Main Container -->
+  <div class="qb-spin-container">
+    <!-- Close Button -->
+    <button class="qb-spin-close" onclick="qbCloseWheel()" aria-label="Close">✕</button>
+
+    <!-- Left Section: Wheel -->
+    <div class="qb-spin-content">
+      <!-- Header -->
+      <div class="qb-spin-header">
+        <h2 class="qb-spin-title">Spin the QuickBee Wheel</h2>
+        <p class="qb-spin-subtitle">Unlock exclusive discounts, free delivery, and lucky surprise deals on your order.</p>
+      </div>
+
+      <!-- Wheel -->
+      <div class="qb-wheel-wrapper">
+        <div class="qb-wheel-pointer"></div>
+        <div class="qb-wheel-main" id="qbWheelMain">
+          <div class="qb-wheel-center" id="qbWheelCenter">🎁</div>
+        </div>
+      </div>
+
+      <!-- Button Section -->
+      <div class="qb-spin-button-wrapper">
+        <button class="qb-spin-button" id="qbSpinBtn" onclick="qbSpinWheelPremium()">
+          Spin to Win
+        </button>
+        <div class="qb-cooldown-message" id="qbCooldownMsg" style="display: none;"></div>
+      </div>
+    </div>
+
+    <!-- Right Section: Timer Panel -->
+    <div class="qb-timer-panel" id="qbTimerPanel">
+      <div class="qb-timer-label">Next Spin In</div>
+      <div class="qb-timer-display" id="qbTimerDisplay">∞</div>
+      <div id="qbTimerReadyMsg" class="qb-timer-ready-text" style="display: none;">
+        ✓ Your next spin is ready!
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Result Display Modal -->
+<div class="qb-result-display" id="qbResultDisplay">
+  <div class="qb-result-emoji" id="qbResultEmoji">🎉</div>
+  <div class="qb-result-label">Congratulations!</div>
+  <div class="qb-result-text" id="qbResultName">You Won!</div>
+
+  <div class="qb-code-box">
+    <div class="qb-code-text" id="qbResultCode">CODE</div>
+    <button class="qb-copy-btn" id="qbCopyBtn" onclick="qbCopyCode()">COPY</button>
+  </div>
+
+  <p class="qb-conversion-text">Use your reward now before it expires.</p>
+
+  <button class="qb-spin-button" onclick="qbCloseResult()" style="margin-top: 16px; min-width: 200px;">
+    Continue Shopping
+  </button>
+</div>
+
+<script>
+// Test: Script is loading
+console.log('[QB] Spin wheel script loading...');
+
+// Global variables - NOT in IIFE for maximum compatibility
+window.QB_PRIZES = [
+  { name: '10% OFF', code: 'BEE10', emoji: '🐝' },
+  { name: '15% OFF', code: 'SNE15', emoji: '✨' },
+  { name: '28% OFF', code: 'SHI28', emoji: '🔥' },
+  { name: '69% OFF', code: 'BIBI69', emoji: '🎯' },
+  { name: 'FREE DELIVERY', code: 'FRE28', emoji: '🚀' },
+  { name: '5% OFF', code: 'HIVE5', emoji: '🍯' },
+  { name: 'Rs 100 OFF', code: 'QB100', emoji: '💰' },
+  { name: 'Surprise Reward', code: 'LUCKYQB', emoji: '🎁' }
+];
+
+window.QB_COOLDOWN_MS = 280 * 60 * 1000; // 280 minutes
+window.QB_STORAGE_KEY = 'qb_spin_wheel_data';
+window.QB_IS_SPINNING = false;
+window.QB_WHEEL_ROTATION = 0;
+
+// SHOW WHEEL POPUP
+window.qbShowWheel = function() {
+  console.log('[QB] qbShowWheel() called');
+  const overlay = document.getElementById('qbSpinOverlay');
+
+  if (!overlay) {
+    console.error('[QB] ERROR: qbSpinOverlay not found');
+    return;
+  }
+
+  // Force display
+  overlay.classList.add('active');
+  overlay.style.cssText = 'display: flex !important; visibility: visible !important; opacity: 1 !important;';
+
+  console.log('[QB] Wheel popup is now visible');
+};
+
+// CLOSE WHEEL POPUP
+window.qbCloseWheel = function() {
+  console.log('[QB] qbCloseWheel() called');
+  const overlay = document.getElementById('qbSpinOverlay');
+  if (overlay) {
+    overlay.classList.remove('active');
+    overlay.style.cssText = 'display: none !important;';
+  }
+};
+
+// CLOSE RESULT DISPLAY
+window.qbCloseResult = function() {
+  const result = document.getElementById('qbResultDisplay');
+  if (result) result.classList.remove('show');
+  window.qbCloseWheel();
+};
+
+// Initialize on ready
+function qbInitWheel() {
+  console.log('[QB] Init started');
+  const overlay = document.getElementById('qbSpinOverlay');
+  if (!overlay) {
+    console.error('[QB] No overlay in DOM');
+    return;
+  }
+
+  // Update timer
+  window.qbUpdateTimerDisplay();
+
+  // Update every second
+  setInterval(window.qbUpdateTimerDisplay, 1000);
+
+  console.log('[QB] Init complete');
+}
+
+// Initialize on ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', qbInitWheel);
+} else {
+  qbInitWheel();
+}
+
+  // Update timer display
+  window.qbUpdateTimerDisplay = function(wheelData) {
+    wheelData = wheelData || JSON.parse(localStorage.getItem(window.QB_STORAGE_KEY) || '{}');
+    const timerDisplay = document.getElementById('qbTimerDisplay');
+    const timerReadyMsg = document.getElementById('qbTimerReadyMsg');
+    const spinBtn = document.getElementById('qbSpinBtn');
+    const cooldownMsg = document.getElementById('qbCooldownMsg');
+
+    if (!wheelData.lastSpinTime) {
+      timerDisplay.textContent = '∞';
+      timerDisplay.classList.remove('ready');
+      timerReadyMsg.style.display = 'none';
+      spinBtn.disabled = false;
+      cooldownMsg.style.display = 'none';
+      return;
+    }
+
+    const nextSpinTime = wheelData.lastSpinTime + window.QB_COOLDOWN_MS;
+    const now = Date.now();
+    const remainingMs = nextSpinTime - now;
+
+    if (remainingMs <= 0) {
+      timerDisplay.textContent = '∞';
+      timerDisplay.classList.add('ready');
+      timerReadyMsg.style.display = 'block';
+      spinBtn.disabled = false;
+      cooldownMsg.style.display = 'none';
+      localStorage.removeItem(window.QB_STORAGE_KEY);
+      return;
+    }
+
+    // Calculate time remaining
+    const hours = Math.floor(remainingMs / (1000 * 60 * 60));
+    const minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((remainingMs % (1000 * 60)) / 1000);
+
+    timerDisplay.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    timerDisplay.classList.remove('ready');
+    timerReadyMsg.style.display = 'none';
+    spinBtn.disabled = true;
+    cooldownMsg.style.display = 'block';
+    cooldownMsg.innerHTML = `<strong>Buzz!</strong> You already used your spin.<br>Come back in ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')} for your next lucky reward.`;
+  }
+
+  // Main spin function
+  window.qbSpinWheelPremium = function() {
+    if (window.QB_IS_SPINNING) return;
+
+    const wheelData = JSON.parse(localStorage.getItem(window.QB_STORAGE_KEY) || '{}');
+
+    // Check if user already spun recently
+    if (wheelData.lastSpinTime) {
+      const nextSpinTime = wheelData.lastSpinTime + window.QB_COOLDOWN_MS;
+      if (Date.now() < nextSpinTime) {
+        alert('You have already spun the wheel. Try again later!');
+        return;
+      }
+    }
+
+    window.QB_IS_SPINNING = true;
+    const wheel = document.getElementById('qbWheelMain');
+    const spinBtn = document.getElementById('qbSpinBtn');
+
+    spinBtn.disabled = true;
+
+    // Random spin
+    const spins = 6 + Math.random() * 3;
+    const extraDegrees = Math.random() * 360;
+    const totalRotation = spins * 360 + extraDegrees;
+
+    wheel.classList.add('spinning');
+    wheel.style.transform = `rotate(${totalRotation}deg)`;
+    window.QB_WHEEL_ROTATION = totalRotation;
+
+    // Calculate winning prize
+    const normalizedDegrees = (360 - (extraDegrees % 360)) % 360;
+    const prizeIndex = Math.floor(normalizedDegrees / (360 / window.QB_PRIZES.length));
+    const winningPrize = window.QB_PRIZES[prizeIndex];
+
+    // Show result after animation
+    setTimeout(() => {
+      wheel.classList.remove('spinning');
+
+      // Save spin data
+      const newWheelData = {
+        lastSpinTime: Date.now(),
+        lastWinningPrize: winningPrize,
+        totalSpins: (wheelData.totalSpins || 0) + 1
+      };
+      localStorage.setItem(window.QB_STORAGE_KEY, JSON.stringify(newWheelData));
+
+      // Show result
+      window.qbDisplayResult(winningPrize);
+      window.QB_IS_SPINNING = false;
+
+      // Trigger confetti
+      window.qbTriggerConfetti();
+
+      // Update timer
+      setTimeout(window.qbUpdateTimerDisplay, 100, newWheelData);
+    }, 800);
+  };
+
+  // Display result modal
+  window.qbDisplayResult = function(prize) {
+    document.getElementById('qbResultEmoji').textContent = prize.emoji;
+    document.getElementById('qbResultName').textContent = prize.name;
+    document.getElementById('qbResultCode').textContent = prize.code;
+    document.getElementById('qbResultDisplay').classList.add('show');
+  };
+
+  // Copy code to clipboard
+  window.qbCopyCode = function() {
+    const code = document.getElementById('qbResultCode').textContent;
+    const copyBtn = document.getElementById('qbCopyBtn');
+
+    navigator.clipboard.writeText(code).then(() => {
+      const originalText = copyBtn.textContent;
+      copyBtn.textContent = '✓ COPIED';
+      copyBtn.classList.add('copied');
+      setTimeout(() => {
+        copyBtn.textContent = originalText;
+        copyBtn.classList.remove('copied');
+      }, 2000);
+    });
+  };
+
+  // Simple confetti effect
+  window.qbTriggerConfetti = function() {
+    for (let i = 0; i < 30; i++) {
+      const confetti = document.createElement('div');
+      confetti.className = 'qb-celebrate-confetti';
+      confetti.textContent = ['🎉', '🎁', '🎊', '⭐', '✨'][Math.floor(Math.random() * 5)];
+      confetti.style.fontSize = '20px';
+      confetti.style.left = Math.random() * 100 + '%';
+      confetti.style.top = '-20px';
+      confetti.style.opacity = '1';
+      document.body.appendChild(confetti);
+
+      const duration = 2 + Math.random() * 1;
+      const keyframes = `
+        @keyframes fall-${i} {
+          to {
+            transform: translateY(${window.innerHeight + 100}px) rotate(${Math.random() * 360}deg);
+            opacity: 0;
+          }
+        }
+      `;
+      const style = document.createElement('style');
+      style.textContent = keyframes;
+      document.head.appendChild(style);
+      confetti.style.animation = `fall-${i} ${duration}s ease-in forwards`;
+
+      setTimeout(() => confetti.remove(), duration * 1000);
+    }
+  };
+
+// Verify setup
+console.log('[QB] Setup complete. Functions available:');
+console.log('  - qbShowWheel:', typeof window.qbShowWheel);
+console.log('  - qbCloseWheel:', typeof window.qbCloseWheel);
+console.log('  - qbSpinWheelPremium:', typeof window.qbSpinWheelPremium);
+console.log('  - qbCopyCode:', typeof window.qbCopyCode);
+</script>

@@ -1,0 +1,499 @@
+{%- doc -%}
+  QuickPay Top-Up Section
+  Allows customers to add funds via eSewa, Khalti, or Bank Transfer
+{%- enddoc -%}
+
+<div class="quickpay-topup-section">
+  <h2>💳 Add Funds</h2>
+
+  <div class="topup-tabs">
+    <button class="topup-tab active" data-tab="esewa">eSewa</button>
+    <button class="topup-tab" data-tab="khalti">Khalti</button>
+    <button class="topup-tab" data-tab="bank">Bank Transfer</button>
+  </div>
+
+  <!-- eSewa Tab -->
+  <div id="esewa-tab" class="topup-tab-content active">
+    <div class="topup-form">
+      <label for="esewa-amount">Amount (Rs)</label>
+      <input
+        type="number"
+        id="esewa-amount"
+        class="topup-input"
+        placeholder="Enter amount"
+        min="100"
+        step="100"
+      >
+      <p class="topup-info">
+        💡 Minimum: Rs 100 | Processing: Instant
+      </p>
+      <button id="esewa-pay-btn" class="topup-button esewa">
+        Pay with eSewa
+      </button>
+    </div>
+  </div>
+
+  <!-- Khalti Tab -->
+  <div id="khalti-tab" class="topup-tab-content">
+    <div class="topup-form">
+      <label for="khalti-amount">Amount (Rs)</label>
+      <input
+        type="number"
+        id="khalti-amount"
+        class="topup-input"
+        placeholder="Enter amount"
+        min="100"
+        step="100"
+      >
+      <p class="topup-info">
+        💡 Minimum: Rs 100 | Processing: Instant
+      </p>
+      <button id="khalti-pay-btn" class="topup-button khalti">
+        Pay with Khalti
+      </button>
+    </div>
+  </div>
+
+  <!-- Bank Transfer Tab -->
+  <div id="bank-tab" class="topup-tab-content">
+    <div class="topup-form bank-form">
+      <h3>Bank Transfer Details</h3>
+
+      <div class="bank-details">
+        <div class="bank-info-item">
+          <label>Bank Name</label>
+          <p>Nepal Investment Bank (NIBL)</p>
+        </div>
+
+        <div class="bank-info-item">
+          <label>Account Holder</label>
+          <p>QuickBee Pvt. Ltd.</p>
+        </div>
+
+        <div class="bank-info-item">
+          <label>Account Number</label>
+          <p class="copy-text" onclick="copyToClipboard(this)">
+            1234567890 <span class="copy-icon">📋</span>
+          </p>
+        </div>
+
+        <div class="bank-info-item">
+          <label>IFSC Code</label>
+          <p class="copy-text" onclick="copyToClipboard(this)">
+            NIBL0000001 <span class="copy-icon">📋</span>
+          </p>
+        </div>
+
+        <div class="bank-info-item">
+          <label>Reference</label>
+          <p class="copy-text" onclick="copyToClipboard(this)">
+            QUICKBEE-{{ customer.id }} <span class="copy-icon">📋</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="bank-note">
+        <strong>⚠️ Important:</strong>
+        <ul>
+          <li>Use your customer ID as reference for credit</li>
+          <li>Funds are credited within 2-4 business hours</li>
+          <li>Keep the transaction receipt for reference</li>
+        </ul>
+      </div>
+
+      <label for="bank-amount">Expected Amount (Rs)</label>
+      <input
+        type="number"
+        id="bank-amount"
+        class="topup-input"
+        placeholder="Enter amount"
+        min="1000"
+        step="100"
+      >
+
+      <button id="bank-notify-btn" class="topup-button bank">
+        Notify Us of Transfer
+      </button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { refreshBalance } from './quickpay-utils.js';
+
+  // Tab switching
+  document.querySelectorAll('.topup-tab').forEach((tab) => {
+    tab.addEventListener('click', (e) => {
+      const tabName = e.target.dataset.tab;
+
+      // Hide all tabs
+      document.querySelectorAll('.topup-tab-content').forEach((content) => {
+        content.classList.remove('active');
+      });
+
+      // Remove active class from all buttons
+      document.querySelectorAll('.topup-tab').forEach((btn) => {
+        btn.classList.remove('active');
+      });
+
+      // Show selected tab
+      document.getElementById(`${tabName}-tab`).classList.add('active');
+      e.target.classList.add('active');
+    });
+  });
+
+  // eSewa Payment
+  document.getElementById('esewa-pay-btn').addEventListener('click', async () => {
+    const amount = document.getElementById('esewa-amount').value;
+
+    if (!amount || amount < 100) {
+      alert('Minimum amount is Rs 100');
+      return;
+    }
+
+    try {
+      // Redirect to eSewa payment gateway
+      const refId = `QB-${window.quickPayCustomer.id}-${Date.now()}`;
+      const esewaUrl = new URL('https://eSewa.com.np/epay/main');
+      esewaUrl.searchParams.append('amt', amount);
+      esewaUrl.searchParams.append('psc', '0');
+      esewaUrl.searchParams.append('pdc', '0');
+      esewaUrl.searchParams.append('txAmt', '0');
+      esewaUrl.searchParams.append('tAmt', amount);
+      esewaUrl.searchParams.append('pid', refId);
+      esewaUrl.searchParams.append('scd', window.quickPayEsewaCode || 'QUICKBEE');
+      esewaUrl.searchParams.append('su', `${window.location.origin}/quickpay?status=success&amount=${amount}`);
+      esewaUrl.searchParams.append('fu', `${window.location.origin}/quickpay?status=failed`);
+
+      window.location.href = esewaUrl.toString();
+    } catch (error) {
+      console.error('[QuickPay] eSewa error:', error);
+      alert('Failed to process eSewa payment');
+    }
+  });
+
+  // Khalti Payment
+  document.getElementById('khalti-pay-btn').addEventListener('click', async () => {
+    const amount = document.getElementById('khalti-amount').value;
+
+    if (!amount || amount < 100) {
+      alert('Minimum amount is Rs 100');
+      return;
+    }
+
+    // Khalti SDK should be loaded
+    if (typeof Khalti === 'undefined') {
+      alert('Khalti is not available. Please refresh the page.');
+      return;
+    }
+
+    try {
+      const config = {
+        publicKey: window.quickPayKhaltiKey,
+        productIdentity: `QB-${window.quickPayCustomer.id}`,
+        productName: 'QuickPay Wallet Top-Up',
+        productUrl: window.location.href,
+        eventHandler: {
+          onSuccess: async (payload) => {
+            console.log('[QuickPay] Khalti success:', payload);
+            // Send to QULET backend to add credit
+            await addCredit(amount, 'khalti', payload.token);
+          },
+          onError: (error) => {
+            console.error('[QuickPay] Khalti error:', error);
+            alert('Payment failed. Please try again.');
+          },
+          onClose: () => {
+            console.log('[QuickPay] Khalti closed');
+          },
+        },
+        amount: parseInt(amount) * 100, // in paisa
+      };
+
+      const khalti = new Khalti(config);
+      khalti.show();
+    } catch (error) {
+      console.error('[QuickPay] Khalti payment error:', error);
+      alert('Failed to initiate Khalti payment');
+    }
+  });
+
+  // Bank Notification
+  document.getElementById('bank-notify-btn').addEventListener('click', async () => {
+    const amount = document.getElementById('bank-amount').value;
+
+    if (!amount || amount < 1000) {
+      alert('Minimum amount for bank transfer is Rs 1000');
+      return;
+    }
+
+    try {
+      const response = await fetch('{{ routes.account_addresses_url }}/../quickpay/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerId: window.quickPayCustomer.id,
+          email: window.quickPayCustomer.email,
+          amount: parseFloat(amount),
+          type: 'bank_transfer',
+          timestamp: new Date().toISOString(),
+        }),
+      });
+
+      if (response.ok) {
+        alert('✅ Notification sent! We will credit your account within 2-4 business hours.');
+        document.getElementById('bank-amount').value = '';
+      } else {
+        alert('Failed to send notification. Please try again.');
+      }
+    } catch (error) {
+      console.error('[QuickPay] Bank notification error:', error);
+      alert('Error sending notification');
+    }
+  });
+
+  // Add credit to wallet
+  async function addCredit(amount, method, token = null) {
+    try {
+      const response = await fetch('/api/quickpay/add-credit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerId: window.quickPayCustomer.id,
+          amount: parseFloat(amount),
+          method,
+          token,
+        }),
+      });
+
+      if (response.ok) {
+        alert('✅ Payment successful! Your wallet has been credited.');
+        await refreshBalance();
+        // Reload to show new balance
+        window.location.reload();
+      } else {
+        alert('Failed to add credit. Please try again.');
+      }
+    } catch (error) {
+      console.error('[QuickPay] Add credit error:', error);
+    }
+  }
+
+  // Copy to clipboard utility
+  window.copyToClipboard = function (element) {
+    const text = element.textContent.trim().split(' ')[0];
+    navigator.clipboard.writeText(text).then(() => {
+      const original = element.textContent;
+      element.textContent = '✓ Copied!';
+      setTimeout(() => {
+        element.textContent = original;
+      }, 2000);
+    });
+  };
+</script>
+
+{% stylesheet %}
+  .quickpay-topup-section {
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 24px;
+    margin: 40px 0;
+  }
+
+  .quickpay-topup-section h2 {
+    margin: 0 0 20px 0;
+    font-size: 20px;
+    color: var(--color-foreground);
+  }
+
+  .topup-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid var(--color-border);
+  }
+
+  .topup-tab {
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-foreground-muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+  }
+
+  .topup-tab:hover {
+    color: var(--color-foreground);
+  }
+
+  .topup-tab.active {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+  }
+
+  .topup-tab-content {
+    display: none;
+  }
+
+  .topup-tab-content.active {
+    display: block;
+  }
+
+  .topup-form {
+    max-width: 400px;
+  }
+
+  .topup-form label {
+    display: block;
+    margin: 16px 0 8px 0;
+    font-weight: 500;
+    color: var(--color-foreground);
+  }
+
+  .topup-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+
+  .topup-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+  }
+
+  .topup-info {
+    font-size: 12px;
+    color: var(--color-foreground-muted);
+    margin: 8px 0 16px 0;
+  }
+
+  .topup-button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .topup-button.esewa {
+    background: #60bb46;
+    color: white;
+  }
+
+  .topup-button.esewa:hover {
+    background: #52a040;
+  }
+
+  .topup-button.khalti {
+    background: #5b2c6f;
+    color: white;
+  }
+
+  .topup-button.khalti:hover {
+    background: #4a2357;
+  }
+
+  .topup-button.bank {
+    background: #667eea;
+    color: white;
+  }
+
+  .topup-button.bank:hover {
+    background: #5568d3;
+  }
+
+  .bank-form {
+    max-width: 100%;
+  }
+
+  .bank-details {
+    background: var(--color-background);
+    border-radius: 4px;
+    padding: 16px;
+    margin: 16px 0;
+  }
+
+  .bank-info-item {
+    margin-bottom: 12px;
+  }
+
+  .bank-info-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .bank-info-item label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--color-foreground-muted);
+    margin: 0 0 4px 0;
+  }
+
+  .bank-info-item p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--color-foreground);
+  }
+
+  .copy-text {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--color-background-secondary);
+    border-radius: 4px;
+    user-select: none;
+  }
+
+  .copy-text:hover {
+    background: var(--color-border);
+  }
+
+  .copy-icon {
+    opacity: 0.5;
+    font-size: 12px;
+  }
+
+  .bank-note {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 12px;
+    border-radius: 4px;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+
+  .bank-note ul {
+    margin: 8px 0 0 20px;
+    padding: 0;
+  }
+
+  .bank-note li {
+    margin: 4px 0;
+  }
+
+  @media (max-width: 749px) {
+    .topup-tabs {
+      gap: 8px;
+    }
+
+    .topup-tab {
+      padding: 10px 16px;
+      font-size: 12px;
+    }
+  }
+{% endstylesheet %}

@@ -1,0 +1,1130 @@
+{% # Blinkit-Style Product Page Section %}
+
+{% liquid
+  assign product = product
+  assign current_variant = product.selected_or_first_available_variant
+%}
+
+<style>
+  /* Blinkit-Style Product Page - Grocery Delivery Design */
+
+  * {
+    box-sizing: border-box;
+  }
+
+  /* HIDE PREVIEW BUTTONS GLOBALLY */
+  [class*="preview"],
+  [id*="preview"],
+  [class*="quick-view"],
+  [id*="quick-view"],
+  .shopify-section__overlay,
+  .button-preview,
+  .product-preview,
+  [data-testid*="preview"],
+  [role="tooltip"],
+  .tooltip-preview,
+  button[aria-label*="preview"],
+  button[aria-label*="quick"],
+  .preview-button,
+  .quick-view-button {
+    display: none !important;
+  }
+
+  /* Breadcrumb Navigation */
+  .breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 24px;
+    font-size: 13px;
+    color: #666;
+    border-bottom: 1px solid #eee;
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb-nav a {
+    color: #0066cc;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .breadcrumb-nav a:hover {
+    color: #8B0000;
+    text-decoration: underline;
+  }
+
+  .breadcrumb-separator {
+    color: #999;
+    margin: 0 2px;
+  }
+
+  .breadcrumb-current {
+    color: #333;
+    font-weight: 500;
+  }
+
+  /* Main product page container - MOBILE FIRST */
+  .product-page-speed-first {
+    width: 100%;
+    background: #ffffff;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .product-left-column {
+    width: 100% !important;
+    order: 1;
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .product-right-column {
+    width: 100% !important;
+    order: 2;
+    max-width: 100%;
+    padding: 0 !important;
+  }
+
+  /* Tablet: two column layout */
+  @media (min-width: 768px) {
+    .product-page-speed-first {
+      flex-direction: row;
+      padding: 16px;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .product-left-column {
+      flex: 0 0 40%;
+      width: 40%;
+      max-width: 40%;
+    }
+
+    .product-right-column {
+      flex: 1;
+      width: auto;
+      max-width: 60%;
+    }
+  }
+
+  /* Desktop: full two column layout with bigger image */
+  @media (min-width: 1024px) {
+    .product-page-speed-first {
+      flex-direction: row;
+      gap: 32px;
+      padding: 24px;
+      align-items: flex-start;
+    }
+
+    .product-left-column {
+      flex: 0 0 45%;
+      max-width: 45%;
+    }
+
+    .product-right-column {
+      flex: 1;
+      min-width: 0;
+      padding-top: 0;
+    }
+  }
+
+  /* Left column - Product image */
+  .product-left-column {
+    width: 100%;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  .product-image-section {
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
+    max-height: 35vh;
+    height: auto;
+    overflow: hidden;
+    background: #f5f5f5;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 600px) {
+    .product-image-section {
+      max-height: 45vh;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .product-image-section {
+      max-height: 60vh;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .product-image-section {
+      max-height: 70vh;
+    }
+  }
+
+  .product-image-section img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Right column - Product details */
+  .product-right-column {
+    width: 100%;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Product title section */
+  .product-info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .product-name {
+    margin: 0 0 20px 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #000;
+    line-height: 1.4;
+  }
+
+  @media (min-width: 769px) {
+    .product-name {
+      font-size: 32px;
+      margin-bottom: 24px;
+    }
+  }
+
+
+  /* Quantity Selector */
+  .quantity-selector-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .quantity-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    min-width: auto;
+    white-space: nowrap;
+  }
+
+  .quantity-selector {
+    display: flex;
+    align-items: center;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    padding: 0;
+  }
+
+  .quantity-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .quantity-btn:hover {
+    background: #f5f5f5;
+    color: #8B0000;
+  }
+
+  .quantity-input {
+    width: 50px;
+    height: 36px;
+    border: none;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .quantity-input::-webkit-outer-spin-button,
+  .quantity-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Price and Quantity Container */
+  .price-quantity-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px 0;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  /* Price section - Display only, no badge */
+  .price-section {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    flex-wrap: wrap;
+    padding: 0;
+    border: none;
+    margin-bottom: 0;
+  }
+
+  .price-badge {
+    background: transparent;
+    color: #000;
+    padding: 0;
+    border-radius: 0;
+    font-size: 24px;
+    font-weight: 700;
+    min-width: fit-content;
+    box-shadow: none;
+  }
+
+  .price-label {
+    font-size: 11px;
+    color: #999;
+    font-weight: 500;
+    text-decoration: line-through;
+    margin-left: 8px;
+  }
+
+  .original-price {
+    font-size: 12px;
+    color: #666;
+    font-weight: 400;
+  }
+
+  .variant-size-label {
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  /* Status badges */
+  .status-badges {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 12px 0;
+    border-top: 1px solid #DAA520;
+    border-bottom: 1px solid #DAA520;
+  }
+
+  .status-badge {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .riders-badge {
+    background: #fff8e1;
+    color: #8B0000;
+    border: 1px solid #DAA520;
+  }
+
+  .countdown-badge {
+    background: #fff8e1;
+    color: #8B0000;
+    border: 1px solid #DAA520;
+  }
+
+  /* Collapsible sections */
+  .collapsible-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .collapsible-section {
+    border: 1px solid #DAA520;
+    border-top: none;
+    margin: 0;
+  }
+
+  .collapsible-section:first-child {
+    border-top: 1px solid #DAA520;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .collapsible-section:last-child {
+    border-radius: 0 0 8px 8px;
+  }
+
+  .collapsible-header {
+    padding: 16px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    user-select: none;
+    transition: background 0.2s;
+    border: none;
+    width: 100%;
+    color: #000;
+  }
+
+  .collapsible-header:hover {
+    background: #fff8e1;
+  }
+
+  .collapsible-header::after {
+    content: "▼";
+    font-size: 12px;
+    transition: transform 0.2s;
+    color: #8B0000;
+  }
+
+  .collapsible-header.open::after {
+    transform: rotate(180deg);
+  }
+
+  .collapsible-content {
+    padding: 16px;
+    background: white;
+    display: none;
+    animation: slideDown 0.3s ease-out;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+  }
+
+  .collapsible-content.open {
+    display: block;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Add to cart section */
+  .add-to-cart-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: white;
+    border-top: 2px solid #DAA520;
+    margin-top: 0;
+    border-radius: 8px;
+  }
+
+  .add-to-cart-button {
+    width: 100%;
+    padding: 14px 20px;
+    background: #8B0000;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .add-to-cart-button:hover {
+    background: #600000;
+  }
+
+  .add-to-cart-button:active {
+    transform: scale(0.98);
+  }
+
+  /* Product Description Box */
+  .product-description-box {
+    padding: 16px;
+    background: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    margin-top: 12px;
+  }
+
+  .description-title {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .description-content {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #666;
+    margin: 0;
+  }
+
+  .add-to-cart-button.loading {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Toast notifications */
+  .toast-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 14px 20px;
+    background: #333;
+    color: white;
+    border-radius: 6px;
+    font-size: 14px;
+    animation: slideUp 0.3s ease;
+    z-index: 1000;
+    max-width: 300px;
+  }
+
+  .toast-notification.success {
+    background: #27a745;
+  }
+
+  .toast-notification.error {
+    background: #dc3545;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Loading state */
+  .loading {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  /* Accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+    .product-page-speed-first {
+      background: #1a1a1a;
+      color: #fff;
+    }
+
+    .product-info-section,
+    .collapsible-section {
+      border-color: #333;
+    }
+
+    .status-badges {
+      border-color: #333;
+    }
+
+    .product-name {
+      color: #fff;
+    }
+
+    .collapsible-header {
+      background: #2a2a2a;
+      color: #fff;
+    }
+
+    .collapsible-header:hover {
+      background: #333;
+    }
+
+    .collapsible-content {
+      background: #1a1a1a;
+      color: #ccc;
+    }
+
+    .add-to-cart-wrapper {
+      background: #1a1a1a;
+      border-color: #333;
+    }
+
+    .price-label {
+      color: #999;
+    }
+  }
+
+  /* Print styles */
+  @media print {
+    .add-to-cart-wrapper,
+    .price-delivery-banner {
+      display: none;
+    }
+  }
+
+  /* Shopify Product Form Styling */
+  .shopify-product-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Variant Selector Wrapper */
+  .variant-selector-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    margin: 0 0 20px 0;
+  }
+
+  .variant-options-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0;
+  }
+
+  .label-text {
+    color: #333;
+    text-transform: capitalize;
+  }
+
+  /* Variant Pills Container */
+  .variant-pills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 0;
+  }
+
+  /* Variant Pill Button */
+  .variant-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    min-width: 90px;
+    text-align: center;
+  }
+
+  .variant-pill:hover:not(:disabled) {
+    border-color: #DAA520;
+    background: #f9f9f9;
+  }
+
+  .variant-pill.active {
+    border-color: #8B0000;
+    background: #fff8e1;
+    color: #8B0000;
+  }
+
+  .variant-pill:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f5f5f5;
+  }
+
+  .pill-size {
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .pill-price {
+    font-size: 12px;
+    color: #666;
+    font-weight: 600;
+  }
+
+  .variant-pill.active .pill-price {
+    color: #8B0000;
+  }
+
+  .pill-mrp {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 11px;
+    margin-left: 4px;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .product-page-speed-first {
+      flex-direction: column !important;
+      padding: 12px !important;
+      gap: 12px !important;
+    }
+
+    .product-left-column {
+      width: 100% !important;
+      flex: 0 0 auto !important;
+    }
+
+    .product-image-section {
+      width: 100% !important;
+      max-width: 300px !important;
+      height: auto !important;
+      margin: 0 auto;
+    }
+
+    .product-right-column {
+      width: 100% !important;
+      gap: 12px;
+      padding: 12px !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .product-name {
+      font-size: 22px;
+      margin-bottom: 16px;
+    }
+
+    .price-badge {
+      font-size: 22px;
+      padding: 0;
+    }
+
+    .price-quantity-container {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px 0;
+    }
+
+    .price-section {
+      gap: 8px;
+      padding: 0;
+      margin-bottom: 0;
+    }
+
+    .original-price {
+      font-size: 11px;
+    }
+
+    .quantity-selector-wrapper {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .product-right-column {
+      gap: 16px;
+    }
+
+    .variant-selector-wrapper {
+      padding: 0;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .variant-options-label {
+      margin-bottom: 0;
+    }
+
+    .variant-option-group {
+      gap: 8px;
+    }
+
+    .variant-pill-button {
+      padding: 10px 12px;
+      min-width: 70px;
+      font-size: 12px;
+    }
+
+    .variant-pill-size {
+      font-size: 12px;
+    }
+
+    .variant-pill-price {
+      font-size: 11px;
+    }
+
+    .selected-variant-info {
+      margin-top: 8px;
+    }
+
+    .variant-current-selection {
+      font-size: 12px;
+    }
+
+    .collapsible-header {
+      padding: 12px;
+      font-size: 13px;
+    }
+
+    .collapsible-content {
+      padding: 12px;
+      font-size: 13px;
+    }
+
+    .add-to-cart-button {
+      padding: 14px 16px;
+      font-size: 15px;
+    }
+  }
+</style>
+
+<!-- Breadcrumb Navigation -->
+<nav class="breadcrumb-nav" aria-label="breadcrumbs">
+  <a href="/">Home</a>
+  {% if product.collections.first %}
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ product.collections.first.url }}">{{ product.collections.first.title }}</a>
+  {% endif %}
+  <span class="breadcrumb-separator">/</span>
+  <span class="breadcrumb-current">{{ product.title }}</span>
+</nav>
+
+<section class="product-page-speed-first" data-product-id="{{ product.id }}">
+
+  <!-- LEFT COLUMN: Product Image (LARGER) -->
+  <div class="product-left-column">
+    <div class="product-image-section">
+      {% if product.featured_image %}
+        <img
+          src="{{ product.featured_image | image_url: width: 500 }}"
+          alt="{{ product.featured_image.alt }}"
+          loading="lazy"
+        >
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN: Product Details -->
+  <div class="product-right-column">
+
+    <!-- Product Name -->
+    <div class="product-info-section">
+      <h1 class="product-name">{{ product.title }}</h1>
+    </div>
+
+    <!-- Shopify Native Product Form -->
+    <form id="product-form" action="/cart/add" method="post" enctype="multipart/form-data" class="shopify-product-form">
+
+      <!-- Variant Selector - Simple Native Shopify Form -->
+      {% if product.variants.size > 1 %}
+        <div class="variant-selector-wrapper">
+          <div class="variant-options-label">
+            <span class="label-text">Select Unit</span>
+          </div>
+
+          <!-- Variant Selector as Button Pills -->
+          <div class="variant-pills-container" id="variant-pills">
+            {% for variant in product.variants %}
+              <button
+                type="button"
+                class="variant-pill {% if variant.id == current_variant.id %}active{% endif %} {% unless variant.available %}disabled{% endunless %}"
+                data-variant-id="{{ variant.id }}"
+                data-variant-price="{{ variant.price }}"
+                data-variant-compare="{{ variant.compare_at_price }}"
+                {% unless variant.available %}disabled{% endunless %}>
+                <div class="pill-size">{{ variant.title }}</div>
+                <div class="pill-price">
+                  Rs {{ variant.price | money | remove: '.00' | remove: '₹' | remove: ',' }}
+                  {% if variant.compare_at_price > variant.price %}
+                    <span class="pill-mrp">₹{{ variant.compare_at_price | money }}</span>
+                  {% endif %}
+                </div>
+              </button>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Price and Quantity Together -->
+      <div class="price-quantity-container">
+        <!-- Price Display -->
+        <div class="price-section">
+          <div class="price-badge" id="price-display">
+            <div id="main-price">{{ current_variant.price | money }}</div>
+          </div>
+          {% if current_variant.compare_at_price > current_variant.price %}
+            <div class="price-label" id="compare-price">
+              MRP {{ current_variant.compare_at_price | money }}
+            </div>
+          {% endif %}
+          <div class="original-price">(Inclusive of all taxes)</div>
+        </div>
+
+        <!-- Quantity Selector -->
+        <div class="quantity-selector-wrapper">
+          <label for="quantity" class="quantity-label">Quantity</label>
+          <div class="quantity-selector">
+            <button type="button" class="quantity-btn minus-btn" id="qty-minus">−</button>
+            <input type="number" id="quantity" name="quantity" value="1" min="1" max="999" class="quantity-input">
+            <button type="button" class="quantity-btn plus-btn" id="qty-plus">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden Variant ID Input (Shopify required) -->
+      <input
+        type="hidden"
+        name="id"
+        id="variant-id"
+        value="{{ current_variant.id }}"
+      >
+
+      <!-- Add to Cart Button -->
+      <div class="add-to-cart-wrapper">
+        <button
+          type="submit"
+          class="add-to-cart-button"
+          id="add-to-cart-btn"
+          aria-label="Add {{ product.title }} to cart"
+        >
+          ADD TO CART
+        </button>
+      </div>
+
+      <!-- Product Description Box -->
+      {% if product.description %}
+        <div class="product-description-box">
+          <h3 class="description-title">About this product</h3>
+          <div class="description-content">
+            {{ product.description | strip_html | truncatewords: 50 }}
+          </div>
+        </div>
+      {% endif %}
+    </form>
+  </div>
+
+</section>
+
+<!-- Trust Badges Section -->
+{% render 'trust-badges' %}
+
+<!-- Also Purchased Frequently Section -->
+{% render 'also-purchased' %}
+
+<!-- FAQs Section -->
+{% render 'product-faqs' %}
+
+{% schema %}
+{
+  "name": "Speed-First Product Page",
+  "settings": [
+    {
+      "type": "text",
+      "id": "delivery_guarantee_text",
+      "label": "Delivery Guarantee Text",
+      "default": "✓ Guaranteed delivery in 15-30 mins",
+      "info": "Text shown in sticky price banner"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_free_delivery_countdown",
+      "label": "Show Free Delivery Countdown",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "riders_api_endpoint",
+      "label": "Riders Status API Endpoint",
+      "default": "/api/riders-status",
+      "info": "Backend API to fetch real-time riders availability"
+    },
+    {
+      "type": "text",
+      "id": "zone_validation_endpoint",
+      "label": "Zone Validation API Endpoint",
+      "default": "/api/validate-delivery-zone",
+      "info": "Backend API to validate delivery zone"
+    }
+  ],
+  "blocks": []
+}
+{% endschema %}
+
+<script>
+  // Handle variant selection - Update price INSTANTLY when variant changes
+  (function() {
+    const allVariants = {{ product.variants | json }};
+
+    function setupVariantListener() {
+      const pillsContainer = document.getElementById('variant-pills');
+      const mainPrice = document.getElementById('main-price');
+      const hiddenInput = document.querySelector('input[name="id"]');
+
+      if (!pillsContainer || !mainPrice || !hiddenInput) {
+        // Try again in 100ms
+        setTimeout(setupVariantListener, 100);
+        return;
+      }
+
+      const pills = pillsContainer.querySelectorAll('.variant-pill');
+
+      // Update price function
+      function updatePrice(variantId) {
+        const variant = allVariants.find(v => v.id == variantId);
+        if (!variant) return;
+
+        // Update the hidden input for form submission
+        hiddenInput.value = variant.id;
+
+        // Update the displayed price - format as "Rs XXXXX" with no decimals
+        const priceRupees = Math.floor(variant.price / 100);
+        mainPrice.textContent = 'Rs ' + priceRupees;
+      }
+
+      // Add click listeners to all pills
+      pills.forEach(pill => {
+        pill.addEventListener('click', function(e) {
+          e.preventDefault();
+          const variantId = this.dataset.variantId;
+
+          // Remove active class from all pills
+          pills.forEach(p => p.classList.remove('active'));
+
+          // Add active class to clicked pill
+          this.classList.add('active');
+
+          // Update price
+          updatePrice(variantId);
+        });
+      });
+
+      // Set initial active pill
+      const initialPill = pillsContainer.querySelector('.variant-pill.active');
+      if (initialPill) {
+        updatePrice(initialPill.dataset.variantId);
+      }
+    }
+
+    // Start setup when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupVariantListener);
+    } else {
+      setupVariantListener();
+    }
+  })();
+
+  // Quantity Selector + Dynamic Price Handler
+  (function() {
+    const allVariants = {{ product.variants | json }};
+    const minusBtn = document.getElementById('qty-minus');
+    const plusBtn = document.getElementById('qty-plus');
+    const quantityInput = document.getElementById('quantity');
+    const mainPrice = document.getElementById('main-price');
+    const pillsContainer = document.getElementById('variant-pills');
+
+    if (!minusBtn || !plusBtn || !quantityInput || !mainPrice) return;
+
+    // Function to update price based on variant and quantity
+    function updateTotalPrice() {
+      const quantity = parseInt(quantityInput.value) || 1;
+      const activePill = pillsContainer?.querySelector('.variant-pill.active');
+
+      if (!activePill) return;
+
+      const variantId = activePill.dataset.variantId;
+      const variant = allVariants.find(v => v.id == variantId);
+
+      if (!variant) return;
+
+      const basePrice = Math.floor(variant.price / 100);
+      const totalPrice = basePrice * quantity;
+      mainPrice.textContent = 'Rs ' + totalPrice;
+    }
+
+    // Minus button
+    minusBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      let current = parseInt(quantityInput.value) || 1;
+      if (current > 1) {
+        quantityInput.value = current - 1;
+        updateTotalPrice();
+      }
+    });
+
+    // Plus button
+    plusBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      let current = parseInt(quantityInput.value) || 1;
+      quantityInput.value = current + 1;
+      updateTotalPrice();
+    });
+
+    // Direct input
+    quantityInput.addEventListener('change', function() {
+      let value = parseInt(this.value) || 1;
+      if (value < 1) this.value = 1;
+      if (value > 999) this.value = 999;
+      updateTotalPrice();
+    });
+
+    // Also update price when variant pill is clicked (variant change)
+    const pills = pillsContainer?.querySelectorAll('.variant-pill');
+    if (pills) {
+      pills.forEach(pill => {
+        const originalListener = pill.onclick;
+        pill.addEventListener('click', function(e) {
+          setTimeout(updateTotalPrice, 50);
+        });
+      });
+    }
+
+    // Initial price update
+    updateTotalPrice();
+  })();
+</script>

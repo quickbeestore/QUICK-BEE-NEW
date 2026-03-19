@@ -1,0 +1,189 @@
+{% schema %}
+{
+  "name": "QuickBee Hero Section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "hero_title",
+      "label": "Hero Title",
+      "default": "Anything delivered in ~20 minutes"
+    },
+    {
+      "type": "richtext",
+      "id": "hero_description",
+      "label": "Hero Description",
+      "default": "<p>Food, groceries, electronics, hardware, gifts, home essentials, and more across Kathmandu Valley.</p>"
+    },
+    {
+      "type": "color",
+      "id": "bg_color_start",
+      "label": "Background Gradient Start",
+      "default": "#FFF8E8"
+    },
+    {
+      "type": "color",
+      "id": "bg_color_end",
+      "label": "Background Gradient End",
+      "default": "#FFFBF0"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "cta_chip",
+      "name": "CTA Chip",
+      "settings": [
+        {
+          "type": "text",
+          "id": "chip_text",
+          "label": "Chip Text",
+          "default": "Flash Deals"
+        },
+        {
+          "type": "url",
+          "id": "chip_link",
+          "label": "Chip Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "QuickBee Hero Section",
+      "blocks": [
+        {
+          "type": "cta_chip",
+          "settings": {
+            "chip_text": "⚡ Flash Deals"
+          }
+        },
+        {
+          "type": "cta_chip",
+          "settings": {
+            "chip_text": "🚚 Free Delivery"
+          }
+        },
+        {
+          "type": "cta_chip",
+          "settings": {
+            "chip_text": "🐝 Spin & Win"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+.qb-hero {
+  padding: 20px 24px 48px 24px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  align-items: center;
+}
+@media(min-width:1024px) {
+  .qb-hero {
+    grid-template-columns: 1fr 1fr;
+    padding: 24px 48px 60px 48px;
+    gap: 60px;
+  }
+}
+.qb-hero h1 {
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 1.2;
+  color: #111111;
+  margin: 0;
+}
+@media(min-width:1024px) {
+  .qb-hero h1 {
+    font-size: 48px;
+  }
+}
+.qb-hero p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #666;
+  margin: 0;
+}
+.qb-hero-search {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.qb-hero-search input {
+  flex: 1;
+  padding: 14px 16px;
+  border: 2px solid #e8e8e8;
+  border-radius: 28px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+.qb-hero-search input:focus {
+  outline: none;
+  border-color: #F4B400;
+  box-shadow: 0 0 0 3px rgba(244, 180, 0, 0.1);
+}
+.qb-hero-search button {
+  background: #F4B400;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 28px;
+  font-weight: 700;
+  font-size: 16px;
+  color: #111111;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.qb-hero-search button:hover {
+  background: #E8A500;
+  transform: translateY(-2px);
+}
+.qb-hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.qb-chip {
+  background: #fff;
+  border: 1.5px solid #e8e8e8;
+  padding: 10px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111111;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+.qb-chip:hover {
+  border-color: #F4B400;
+  background: #FFF8E8;
+  transform: translateY(-2px);
+}
+</style>
+
+<!-- Hero Section -->
+<section class="qb-hero" style="background: linear-gradient(135deg, {{ section.settings.bg_color_start }} 0%, {{ section.settings.bg_color_end }} 100%)">
+  <div>
+    <h1>{{ section.settings.hero_title }}</h1>
+    {{ section.settings.hero_description }}
+    <form class="qb-hero-search" action="/search" method="get">
+      <input type="text" name="q" placeholder="Search anything..." class="qb-search-input">
+      <button type="submit" class="qb-search-btn">Search</button>
+    </form>
+
+    <div class="qb-hero-actions">
+      {% for block in section.blocks %}
+        {% if block.type == 'cta_chip' %}
+          <a href="{{ block.settings.chip_link | default: '#' }}" class="qb-chip" {{ block.shopify_attributes }}>
+            {{ block.settings.chip_text }}
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>

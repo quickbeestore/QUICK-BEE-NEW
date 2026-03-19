@@ -1,0 +1,455 @@
+{% comment %}
+  QuickBee Lucky Spin Wheel
+  Gamified promotional feature with rotating wheel
+  Add to any page: {% section 'quickbee-spin-wheel' %}
+{% endcomment %}
+
+{% schema %}
+{
+  "name": "QuickBee Spin Wheel",
+  "settings": [
+    {
+      "type": "text",
+      "id": "wheel_title",
+      "label": "Wheel Title",
+      "default": "🎡 Try Your Luck!"
+    },
+    {
+      "type": "text",
+      "id": "wheel_subtitle",
+      "label": "Wheel Subtitle",
+      "default": "Spin & Win Amazing Rewards"
+    },
+    {
+      "type": "text",
+      "id": "spin_button_text",
+      "label": "Spin Button Text",
+      "default": "SPIN THE WHEEL"
+    },
+    {
+      "type": "color",
+      "id": "primary_color",
+      "label": "Primary Color",
+      "default": "#f5c518"
+    },
+    {
+      "type": "color",
+      "id": "secondary_color",
+      "label": "Secondary Color",
+      "default": "#1a1a1a"
+    }
+  ],
+  "presets": [
+    {
+      "name": "QuickBee Spin Wheel"
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+  :root {
+    --spin-primary: {{ section.settings.primary_color }};
+    --spin-secondary: {{ section.settings.secondary_color }};
+  }
+
+  .qb-wheel-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, rgba(245, 197, 24, 0.05) 0%, rgba(26, 26, 26, 0.05) 100%);
+    min-height: 700px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+  }
+
+  .qb-wheel-header {
+    text-align: center;
+    margin-bottom: 30px;
+    animation: sweet-bounce 3s ease-in-out infinite;
+  }
+
+  .qb-wheel-title {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--spin-secondary);
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+
+  .qb-wheel-subtitle {
+    font-size: 16px;
+    color: #666;
+    font-weight: 500;
+  }
+
+  /* ── Main Wheel ── */
+  .qb-wheel-wrapper {
+    position: relative;
+    width: 320px;
+    height: 320px;
+    margin: 20px 0;
+    filter: drop-shadow(0 20px 50px rgba(0, 0, 0, 0.15));
+  }
+
+  .qb-wheel {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      #FF6B6B 0deg 45deg,
+      #4ECDC4 45deg 90deg,
+      #FFE66D 90deg 135deg,
+      #95E1D3 135deg 180deg,
+      #F38181 180deg 225deg,
+      #AA96DA 225deg 270deg,
+      #FCBAD3 270deg 315deg,
+      #A8D8EA 315deg 360deg
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border: 8px solid var(--spin-primary);
+    box-shadow:
+      0 0 30px rgba(245, 197, 24, 0.4),
+      inset 0 0 20px rgba(255, 255, 255, 0.3),
+      0 20px 50px rgba(0, 0, 0, 0.2);
+    transition: transform 0.1s linear;
+  }
+
+  .qb-wheel.spinning {
+    animation: spin-wheel 0.6s cubic-bezier(0.17, 0.67, 0.12, 0.98);
+  }
+
+  @keyframes spin-wheel {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(3600deg);
+    }
+  }
+
+  /* Prize segments text */
+  .qb-wheel::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: repeating-conic-gradient(
+      from 0deg,
+      transparent 0deg 44deg,
+      rgba(255, 255, 255, 0.15) 44deg 46deg
+    );
+    pointer-events: none;
+  }
+
+  /* ── Center Hub ── */
+  .qb-wheel-center {
+    width: 70px;
+    height: 70px;
+    background: var(--spin-primary);
+    border: 4px solid var(--spin-secondary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--spin-secondary);
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    animation: honey-glow 2s ease-in-out infinite;
+  }
+
+  /* ── Pointer Pin ── */
+  .qb-wheel-pointer {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 20px solid var(--spin-primary);
+    z-index: 20;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+  }
+
+  /* ── Spin Button ── */
+  .qb-spin-button {
+    margin-top: 40px;
+    padding: 14px 40px;
+    background: var(--spin-primary);
+    border: none;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--spin-secondary);
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 6px 20px rgba(245, 197, 24, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .qb-spin-button:hover:not(:disabled) {
+    background: #e8b800;
+    transform: scale(1.08) translateY(-2px);
+    box-shadow: 0 10px 30px rgba(245, 197, 24, 0.4);
+  }
+
+  .qb-spin-button:active:not(:disabled) {
+    transform: scale(0.96);
+  }
+
+  .qb-spin-button:disabled {
+    background: #ddd;
+    color: #888;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .qb-spin-button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  .qb-spin-button:active::after {
+    width: 300px;
+    height: 300px;
+  }
+
+  /* ── Result Display ── */
+  .qb-result-display {
+    margin-top: 30px;
+    padding: 20px 30px;
+    background: white;
+    border: 2px solid var(--spin-primary);
+    border-radius: 12px;
+    text-align: center;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 300px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  .qb-result-label {
+    font-size: 12px;
+    color: #888;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .qb-result-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--spin-primary);
+    letter-spacing: 0.5px;
+  }
+
+  .qb-result-emoji {
+    font-size: 28px;
+    animation: spin-emoji 0.6s ease-in-out;
+  }
+
+  @keyframes spin-emoji {
+    0% {
+      transform: scale(0) rotate(-180deg);
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+
+  /* ── Animations ── */
+  @keyframes honey-glow {
+    0%, 100% {
+      box-shadow: 0 8px 24px rgba(245, 197, 24, 0.3);
+    }
+    50% {
+      box-shadow: 0 8px 32px rgba(245, 197, 24, 0.6);
+    }
+  }
+
+  @keyframes sweet-bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .qb-wheel-container {
+      padding: 30px 16px;
+      min-height: 600px;
+    }
+
+    .qb-wheel-wrapper {
+      width: 280px;
+      height: 280px;
+    }
+
+    .qb-wheel {
+      border-width: 6px;
+    }
+
+    .qb-wheel-center {
+      width: 60px;
+      height: 60px;
+      font-size: 28px;
+    }
+
+    .qb-wheel-title {
+      font-size: 24px;
+    }
+
+    .qb-wheel-subtitle {
+      font-size: 14px;
+    }
+
+    .qb-result-display {
+      min-width: 250px;
+      padding: 16px 24px;
+    }
+
+    .qb-spin-button {
+      padding: 12px 32px;
+      font-size: 14px;
+    }
+  }
+</style>
+
+<div class="qb-wheel-container">
+  <div class="qb-wheel-header">
+    <div class="qb-wheel-title">{{ section.settings.wheel_title }}</div>
+    <div class="qb-wheel-subtitle">{{ section.settings.wheel_subtitle }}</div>
+  </div>
+
+  <div class="qb-wheel-wrapper">
+    <div class="qb-wheel-pointer"></div>
+    <div class="qb-wheel" id="qbWheel">
+      <div class="qb-wheel-center" id="qbWheelCenter">🎁</div>
+    </div>
+  </div>
+
+  <button class="qb-spin-button" id="qbSpinBtn" onclick="qbSpinWheel()">
+    {{ section.settings.spin_button_text }}
+  </button>
+
+  <div class="qb-result-display" id="qbResultDisplay" style="display: none;">
+    <div class="qb-result-label">You Won!</div>
+    <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+      <span class="qb-result-emoji" id="qbResultEmoji">🎉</span>
+      <span class="qb-result-text" id="qbResultText">Congratulations!</span>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const prizes = [
+    { name: '10% OFF', emoji: '🎯', discount: 10 },
+    { name: 'FREE DELIVERY', emoji: '🚀', discount: 0 },
+    { name: '20% OFF', emoji: '⭐', discount: 20 },
+    { name: '₹100 CREDIT', emoji: '💰', discount: 0 },
+    { name: '15% OFF', emoji: '🔥', discount: 15 },
+    { name: 'SURPRISE', emoji: '🎁', discount: 25 },
+    { name: '5% OFF', emoji: '✨', discount: 5 },
+    { name: 'FREE ITEM', emoji: '🌟', discount: 0 }
+  ];
+
+  let isSpinning = false;
+
+  window.qbSpinWheel = function() {
+    if (isSpinning) return;
+
+    const wheel = document.getElementById('qbWheel');
+    const spinBtn = document.getElementById('qbSpinBtn');
+    const resultDisplay = document.getElementById('qbResultDisplay');
+
+    isSpinning = true;
+    spinBtn.disabled = true;
+    resultDisplay.style.display = 'none';
+
+    // Random spin amount (multiple full rotations + random offset)
+    const spins = 5 + Math.random() * 3; // 5-8 full rotations
+    const extraDegrees = Math.random() * 360;
+    const totalRotation = spins * 360 + extraDegrees;
+
+    // Add spinning animation
+    wheel.classList.add('spinning');
+    wheel.style.transform = `rotate(${totalRotation}deg)`;
+
+    // Calculate which prize was won
+    const normalizedDegrees = (360 - (extraDegrees % 360)) % 360;
+    const prizeIndex = Math.floor(normalizedDegrees / (360 / prizes.length));
+    const winningPrize = prizes[prizeIndex];
+
+    // Show result after animation
+    setTimeout(() => {
+      wheel.classList.remove('spinning');
+
+      // Display result
+      document.getElementById('qbResultEmoji').textContent = winningPrize.emoji;
+      document.getElementById('qbResultText').textContent = winningPrize.name;
+      resultDisplay.style.display = 'flex';
+
+      // Save to localStorage
+      const spinHistory = JSON.parse(localStorage.getItem('qb_spin_history') || '[]');
+      spinHistory.push({
+        prize: winningPrize.name,
+        emoji: winningPrize.emoji,
+        discount: winningPrize.discount,
+        timestamp: new Date().toISOString()
+      });
+      localStorage.setItem('qb_spin_history', JSON.stringify(spinHistory));
+
+      // Log to console
+      console.log('🎡 Wheel Result:', winningPrize);
+      console.log('Spin History:', spinHistory);
+
+      isSpinning = false;
+      spinBtn.disabled = false;
+    }, 600);
+  };
+
+  // Debug: Show spin history with Ctrl+Shift+W
+  document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'W') {
+      e.preventDefault();
+      const history = JSON.parse(localStorage.getItem('qb_spin_history') || '[]');
+      console.log('📊 Spin History:', history);
+      console.log('Total spins:', history.length);
+    }
+  });
+})();
+</script>

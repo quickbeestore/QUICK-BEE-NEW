@@ -1,0 +1,94 @@
+{%- doc -%}
+  Fetches wallet balance from quick-pay API server-side
+  Renders wallet balance display in header
+{%- enddoc -%}
+
+{% if customer %}
+  <script>
+    // Store customer ID for JavaScript
+    window.customerEmail = "{{ customer.email | escape_javascript }}";
+    window.customerId = "gid://shopify/Customer/{{ customer.id }}";
+  </script>
+
+  <div class="wallet-balance-container" data-customer-id="{{ customer.id }}">
+    <span class="wallet-balance-loading">💰 —</span>
+  </div>
+
+  <script type="module">
+    // Fetch wallet balance on page load
+    async function fetchWalletBalance() {
+      try {
+        const customerId = window.customerId;
+        if (!customerId) return;
+
+        const response = await fetch(
+          `https://quick-pay-beta-production.up.railway.app/api/wallet/${encodeURIComponent(customerId)}`,
+          {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+
+        if (!response.ok) {
+          console.warn('Wallet API error:', response.status);
+          return;
+        }
+
+        const data = await response.json();
+        if (data.success && typeof data.balance === 'number') {
+          const formatted = new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            minimumFractionDigits: 0,
+          }).format(data.balance);
+
+          const container = document.querySelector('.wallet-balance-container');
+          if (container) {
+            container.innerHTML = `💰 ${formatted}`;
+            container.setAttribute('data-balance', data.balance);
+          }
+
+          // Store in session
+          sessionStorage.setItem('wallet-balance', JSON.stringify({
+            balance: data.balance,
+            timestamp: Date.now(),
+          }));
+
+          console.log('[Wallet] Balance loaded:', formatted);
+        }
+      } catch (error) {
+        console.error('[Wallet] Fetch failed:', error.message);
+      }
+    }
+
+    // Fetch on load
+    fetchWalletBalance();
+
+    // Refresh after order
+    document.addEventListener('quickbee:order-complete', fetchWalletBalance);
+  </script>
+
+  <style>
+    .wallet-balance-container {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+
+    .wallet-balance-container:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    @media (max-width: 749px) {
+      .wallet-balance-container {
+        padding: 4px 8px;
+        font-size: 14px;
+      }
+    }
+  </style>
+{% endif %}

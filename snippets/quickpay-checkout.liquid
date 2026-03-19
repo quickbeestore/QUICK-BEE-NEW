@@ -1,0 +1,292 @@
+{% comment %}
+  QuickPay Checkout Integration
+  Allows customers to use wallet balance to pay for orders
+{% endcomment %}
+
+<div class="quickpay-checkout">
+  {% if customer %}
+    <script type="module">
+      window.quickPayCustomer = {
+        id: "gid://shopify/Customer/{{ customer.id }}",
+        email: "{{ customer.email | escape_javascript }}",
+        firstName: "{{ customer.first_name | escape_javascript }}",
+      };
+    </script>
+
+    <div class="quickpay-checkout-section">
+      <h3>💰 QuickPay Wallet</h3>
+
+      <div class="wallet-balance-display">
+        <span class="wallet-label">Available Balance:</span>
+        <span class="wallet-amount" id="checkoutWalletBalance">Loading...</span>
+      </div>
+
+      <div class="wallet-discount-form">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            id="quickpayUseWallet"
+            name="quickpay_use_wallet"
+          />
+          <span>Use QuickPay Wallet for this order</span>
+        </label>
+
+        <div id="quickpayDiscountDetails" style="display: none; margin-top: 12px; padding: 12px; background: #f0f0f0; border-radius: 6px;">
+          <div class="discount-row">
+            <span>Order Total:</span>
+            <span id="discountOrderTotal">—</span>
+          </div>
+          <div class="discount-row">
+            <span>Wallet Amount:</span>
+            <span id="discountWalletAmount">—</span>
+          </div>
+          <div class="discount-row highlight">
+            <span>Final Total:</span>
+            <span id="discountFinalTotal">—</span>
+          </div>
+          <p class="discount-note">
+            Your wallet balance will be applied as a discount at checkout.
+          </p>
+        </div>
+      </div>
+
+      <input
+        type="hidden"
+        id="quickpayDiscount"
+        name="attributes[quickpay_wallet]"
+        value="0"
+      />
+      <input
+        type="hidden"
+        id="quickpayUseWalletFlag"
+        name="attributes[quickpay_use_wallet]"
+        value="false"
+      />
+    </div>
+  {% else %}
+    <div class="quickpay-checkout-login">
+      <p>💰 Log in to use your QuickPay Wallet for checkout</p>
+      <a href="{{ routes.account_login_url }}" class="button button-secondary">Sign In</a>
+    </div>
+  {% endif %}
+</div>
+
+<style>
+  .quickpay-checkout {
+    margin: 20px 0;
+    padding: 16px;
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+  }
+
+  .quickpay-checkout-section h3 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .wallet-balance-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: white;
+    border-radius: 6px;
+    margin-bottom: 16px;
+  }
+
+  .wallet-label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+  }
+
+  .wallet-amount {
+    font-size: 20px;
+    font-weight: 700;
+    color: #667eea;
+    font-family: 'Courier New', monospace;
+  }
+
+  .wallet-discount-form {
+    background: white;
+    padding: 12px;
+    border-radius: 6px;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+  }
+
+  .checkbox-label input[type="checkbox"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+  }
+
+  .discount-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 13px;
+    color: #666;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .discount-row:last-child {
+    border-bottom: none;
+  }
+
+  .discount-row.highlight {
+    font-weight: 600;
+    color: #333;
+    padding: 12px 0;
+    border-top: 1px solid #ddd;
+  }
+
+  .discount-note {
+    margin: 12px 0 0 0;
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+  }
+
+  .quickpay-checkout-login {
+    text-align: center;
+    padding: 20px;
+  }
+
+  .quickpay-checkout-login p {
+    margin-bottom: 12px;
+    color: #666;
+  }
+
+  .button-secondary {
+    background: #667eea;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-block;
+  }
+</style>
+
+<script type="module">
+  import { fetchQuickPayBalance, formatCurrency } from './quickpay-utils.js';
+
+  // Initialize wallet on page load
+  async function initializeCheckoutWallet() {
+    try {
+      const { wallet } = await fetchQuickPayBalance();
+
+      const balanceEl = document.getElementById('checkoutWalletBalance');
+      if (balanceEl) {
+        balanceEl.textContent = formatCurrency(wallet);
+      }
+
+      // Store wallet amount for later use
+      window.quickPayWalletBalance = wallet;
+
+      console.log('[QuickPayCheckout] Wallet loaded:', wallet);
+    } catch (error) {
+      console.error('[QuickPayCheckout] Failed to load wallet:', error);
+      const balanceEl = document.getElementById('checkoutWalletBalance');
+      if (balanceEl) {
+        balanceEl.textContent = 'Rs —';
+      }
+    }
+  }
+
+  // Handle wallet checkbox toggle
+  const useWalletCheckbox = document.getElementById('quickpayUseWallet');
+  if (useWalletCheckbox) {
+    useWalletCheckbox.addEventListener('change', function() {
+      const detailsDiv = document.getElementById('quickpayDiscountDetails');
+      const discountInput = document.getElementById('quickpayDiscount');
+      const flagInput = document.getElementById('quickpayUseWalletFlag');
+
+      if (this.checked) {
+        detailsDiv.style.display = 'block';
+        updateDiscountCalculation();
+
+        // Store wallet amount for checkout
+        const walletAmount = window.quickPayWalletBalance || 0;
+        const orderTotal = getOrderTotal();
+        const appliedAmount = Math.min(walletAmount, orderTotal);
+
+        discountInput.value = appliedAmount.toString();
+        flagInput.value = 'true';
+
+        console.log('[QuickPayCheckout] Wallet enabled:', appliedAmount);
+      } else {
+        detailsDiv.style.display = 'none';
+        discountInput.value = '0';
+        flagInput.value = 'false';
+
+        console.log('[QuickPayCheckout] Wallet disabled');
+      }
+    });
+  }
+
+  // Calculate and display discount
+  function updateDiscountCalculation() {
+    const walletAmount = window.quickPayWalletBalance || 0;
+    const orderTotal = getOrderTotal(); // Requires cart.js integration
+
+    if (orderTotal <= 0) {
+      console.warn('[QuickPayCheckout] Order total not found');
+      return;
+    }
+
+    const finalTotal = Math.max(0, orderTotal - walletAmount);
+    const appliedAmount = Math.min(walletAmount, orderTotal);
+
+    document.getElementById('discountOrderTotal').textContent = formatCurrency(orderTotal);
+    document.getElementById('discountWalletAmount').textContent = formatCurrency(appliedAmount);
+    document.getElementById('discountFinalTotal').textContent = formatCurrency(finalTotal);
+  }
+
+  // Get order total from cart (requires Shopify Cart API)
+  function getOrderTotal() {
+    // This would fetch from Shopify's cart or from a data attribute
+    // For now, return 0 - will need to integrate with actual cart
+    try {
+      // Option 1: From window object if set by cart
+      if (window.cartTotal) {
+        return window.cartTotal;
+      }
+
+      // Option 2: From data attribute on page
+      const cartEl = document.querySelector('[data-cart-total]');
+      if (cartEl) {
+        return parseFloat(cartEl.dataset.cartTotal) || 0;
+      }
+
+      return 0;
+    } catch (e) {
+      console.error('[QuickPayCheckout] Error getting order total:', e);
+      return 0;
+    }
+  }
+
+  // Initialize on load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeCheckoutWallet);
+  } else {
+    initializeCheckoutWallet();
+  }
+
+  // Watch for cart updates
+  document.addEventListener('cart:update', () => {
+    if (document.getElementById('quickpayUseWallet')?.checked) {
+      updateDiscountCalculation();
+    }
+  });
+</script>

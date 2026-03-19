@@ -1,0 +1,206 @@
+{% # Inline Variant Selector (if product has variants) %}
+
+{% if product.variants.size > 1 %}
+<div class="variant-selector-wrapper">
+  <div class="variant-options-label">
+    <span class="label-text">Available options:</span>
+  </div>
+
+  {% for option in product.options %}
+    <div class="variant-option-group">
+      <label for="variant-option-{{ forloop.index }}" class="variant-label">
+        {{ option.name }}
+      </label>
+      <select
+        id="variant-option-{{ forloop.index }}"
+        class="variant-dropdown"
+        data-option-index="{{ forloop.index0 }}"
+      >
+        {% for value in option.values %}
+          <option value="{{ value }}">
+            {{ value }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+  {% endfor %}
+
+  <div class="selected-variant-info">
+    <div class="variant-current-selection">
+      <span class="selection-label">Selected:</span>
+      <span class="selection-value">{{ product.selected_or_first_available_variant.title }}</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .variant-selector-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: linear-gradient(135deg, #fff8e1 0%, #ffffff 100%);
+    border: 1px solid #DAA520;
+    border-radius: 8px;
+    margin: 12px 0;
+  }
+
+  .variant-options-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 4px;
+    border-bottom: 2px solid #DAA520;
+  }
+
+  .label-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: #8B0000;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .variant-option-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .variant-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .variant-dropdown {
+    height: 44px;
+    padding: 10px 12px;
+    border: 2px solid #DAA520;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    background: white;
+    color: #000;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238B0000' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    transition: all 0.2s ease;
+  }
+
+  .variant-dropdown:hover {
+    border-color: #8B0000;
+    box-shadow: 0 2px 8px rgba(139, 0, 0, 0.1);
+  }
+
+  .variant-dropdown:focus,
+  .variant-dropdown:focus-visible {
+    outline: 2px solid #8B0000;
+    outline-offset: 0px;
+    border-color: #8B0000;
+    box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.1);
+  }
+
+  .variant-dropdown:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f5f5f5;
+  }
+
+  .selected-variant-info {
+    padding-top: 8px;
+    border-top: 1px solid #DAA520;
+  }
+
+  .variant-current-selection {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .selection-label {
+    font-weight: 700;
+    color: #8B0000;
+    text-transform: uppercase;
+  }
+
+  .selection-value {
+    color: #333;
+    font-weight: 600;
+  }
+</style>
+
+<script>
+  // Product variants data from Liquid
+  const productVariants = {{ product.variants | json }};
+  const productOptions = {{ product.options | json }};
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const selectors = document.querySelectorAll('.variant-dropdown');
+    if (selectors.length === 0) return;
+
+    // Handle variant selection changes
+    selectors.forEach(selector => {
+      selector.addEventListener('change', function() {
+        updateSelectedVariant();
+      });
+    });
+
+    function updateSelectedVariant() {
+      // Get all selected option values
+      const selectedOptions = [];
+      selectors.forEach(selector => {
+        selectedOptions.push(selector.value);
+      });
+
+      // Find matching variant
+      const matchingVariant = productVariants.find(variant => {
+        return productOptions.every((option, index) => {
+          return variant.option_values && variant.option_values[index] === selectedOptions[index];
+        });
+      });
+
+      if (matchingVariant) {
+        // Update the display with the selected values
+        const selectionValue = document.querySelector('.selection-value');
+        if (selectionValue) {
+          selectionValue.textContent = selectedOptions.join(' / ');
+        }
+
+        // Update form hidden input with correct variant ID
+        const form = document.querySelector('form[action="/cart/add"]') ||
+                     document.querySelector('form[method="post"]') ||
+                     document.querySelector('form');
+        if (form) {
+          const idInput = form.querySelector('input[name="id"]');
+          if (idInput) {
+            idInput.value = matchingVariant.id;
+          }
+        }
+
+        // Update price display
+        const priceDisplay = document.querySelector('.price-tag');
+        if (priceDisplay && matchingVariant.price) {
+          const priceInPounds = (matchingVariant.price / 100).toFixed(2);
+          priceDisplay.textContent = 'Rs' + priceInPounds;
+        }
+
+        // Trigger price update event if it exists
+        const priceUpdateEvent = new CustomEvent('variant-changed', { detail: matchingVariant });
+        document.dispatchEvent(priceUpdateEvent);
+      }
+    }
+
+    // Initialize with first variant
+    updateSelectedVariant();
+  });
+</script>
+{% endif %}

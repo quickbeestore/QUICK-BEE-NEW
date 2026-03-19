@@ -1,0 +1,190 @@
+{% schema %}
+{
+  "name": "Final CTA",
+  "settings": [
+    {
+      "type": "text",
+      "id": "cta_title",
+      "label": "CTA Title",
+      "default": "Need something fast?"
+    },
+    {
+      "type": "richtext",
+      "id": "cta_description",
+      "label": "CTA Description",
+      "default": "<p>Search anything on QuickBee and get it delivered quickly</p>"
+    },
+    {
+      "type": "color",
+      "id": "bg_color_start",
+      "label": "Background Gradient Start",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "bg_color_end",
+      "label": "Background Gradient End",
+      "default": "#1a1a1a"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "shortcut",
+      "name": "Quick Shortcut",
+      "settings": [
+        {
+          "type": "text",
+          "id": "shortcut_text",
+          "label": "Shortcut Text",
+          "default": "Food"
+        },
+        {
+          "type": "url",
+          "id": "shortcut_link",
+          "label": "Shortcut Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Final CTA",
+      "blocks": [
+        {
+          "type": "shortcut",
+          "settings": {
+            "shortcut_text": "🍕 Food"
+          }
+        },
+        {
+          "type": "shortcut",
+          "settings": {
+            "shortcut_text": "🥕 Grocery"
+          }
+        },
+        {
+          "type": "shortcut",
+          "settings": {
+            "shortcut_text": "📱 Electronics"
+          }
+        },
+        {
+          "type": "shortcut",
+          "settings": {
+            "shortcut_text": "🔧 Hardware"
+          }
+        },
+        {
+          "type": "shortcut",
+          "settings": {
+            "shortcut_text": "🎁 Gifts"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+.qb-final-cta {
+  color: #fff;
+  text-align: center;
+  padding: 40px 16px;
+}
+@media(min-width:1024px) {
+  .qb-final-cta {
+    padding: 60px 48px;
+  }
+}
+.qb-final-cta h2 {
+  font-size: 28px;
+  font-weight: 900;
+  margin: 0 0 12px 0;
+  color: #fff;
+}
+@media(min-width:1024px) {
+  .qb-final-cta h2 {
+    font-size: 36px;
+  }
+}
+.qb-final-cta p {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 0 24px 0;
+}
+.qb-final-search {
+  max-width: 500px;
+  margin: 0 auto 24px;
+  display: flex;
+  gap: 10px;
+}
+.qb-final-search input {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 24px;
+  font-size: 14px;
+  font-family: inherit;
+}
+.qb-final-search button {
+  background: #F4B400;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-weight: 700;
+  font-size: 14px;
+  color: #111111;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.qb-final-search button:hover {
+  background: #E8A500;
+  transform: translateY(-2px);
+}
+.qb-shortcuts {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.qb-shortcut-link {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+.qb-shortcut-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+</style>
+
+<!-- Final CTA Section -->
+<section class="qb-final-cta" style="background: linear-gradient(135deg, {{ section.settings.bg_color_start }} 0%, {{ section.settings.bg_color_end }} 100%);">
+  <h2>{{ section.settings.cta_title }}</h2>
+  {{ section.settings.cta_description }}
+
+  <form class="qb-final-search" action="/search" method="get">
+    <input type="text" name="q" placeholder="Search anything..." class="qb-search-input">
+    <button type="submit" class="qb-search-btn">Search</button>
+  </form>
+
+  <div class="qb-shortcuts">
+    {% for block in section.blocks %}
+      {% if block.type == 'shortcut' %}
+        <a href="{{ block.settings.shortcut_link | default: '#' }}" class="qb-shortcut-link" {{ block.shopify_attributes }}>
+          {{ block.settings.shortcut_text }}
+        </a>
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>

@@ -1,0 +1,431 @@
+{%- if product -%}
+  <div class="qb-product-card" data-product-id="{{ product.id }}">
+
+    <!-- Image Section with Delivery Badge -->
+    <div class="qb-product-image-wrapper">
+      {%- if product.featured_image -%}
+        <img
+          src="{{ product.featured_image.src | image_url: width: 400 }}"
+          alt="{{ product.featured_image.alt | default: product.title }}"
+          class="qb-product-image"
+          loading="lazy"
+          decoding="async"
+        />
+      {%- endif -%}
+
+      <!-- Delivery Badge -->
+      <div class="qb-delivery-badge">
+        <span class="qb-delivery-emoji">🚚</span>
+        <span class="qb-delivery-time">
+          {%- if product.metafields.quickbee.delivery_time -%}
+            {{ product.metafields.quickbee.delivery_time.value }} MINS
+          {%- else -%}
+            QUICK DELIVERY
+          {%- endif -%}
+        </span>
+      </div>
+    </div>
+
+    <!-- Product Info Section -->
+    <div class="qb-product-info">
+
+      <!-- Product Name -->
+      <h3 class="qb-product-name">{{ product.title }}</h3>
+
+      <!-- Price -->
+      <div class="qb-product-price">
+        {%- if product.selected_or_first_available_variant -%}
+          Rs {{ product.selected_or_first_available_variant.price | money | remove: '$' | replace: '.00' }}
+        {%- endif -%}
+      </div>
+
+      <!-- Quantity Selector -->
+      <div class="qb-quantity-selector">
+        <button class="qb-qty-btn qb-qty-minus" type="button" aria-label="Decrease quantity">−</button>
+        <input
+          type="number"
+          class="qb-qty-input"
+          value="1"
+          min="1"
+          max="99"
+          aria-label="Quantity"
+        />
+        <button class="qb-qty-btn qb-qty-plus" type="button" aria-label="Increase quantity">+</button>
+      </div>
+
+      <!-- Add to Cart Button -->
+      <button
+        class="qb-add-to-cart-btn"
+        type="button"
+        data-product-id="{{ product.selected_or_first_available_variant.id }}"
+        aria-label="Add {{ product.title }} to cart"
+      >
+        ADD TO CART
+      </button>
+
+    </div>
+  </div>
+{%- endif -%}
+
+<style>
+  :root {
+    --qb-red: #8B0000;
+    --qb-gold: #DAA520;
+    --qb-cream: #fff8e1;
+    --qb-dark: #111111;
+    --qb-light-gray: #f0f0f0;
+    --qb-border-gray: #f0f0f0;
+  }
+
+  .qb-product-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #ffffff;
+    border: 1px solid var(--qb-light-gray);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+    overflow: hidden;
+  }
+
+  .qb-product-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+
+  /* Image Section */
+  .qb-product-image-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    background: #f5f5f5;
+    overflow: hidden;
+    border-radius: 8px 8px 0 0;
+    flex-shrink: 0;
+  }
+
+  .qb-product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .qb-product-card:hover .qb-product-image {
+    transform: scale(1.05);
+  }
+
+  /* Delivery Badge */
+  .qb-delivery-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--qb-red);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 10;
+    white-space: nowrap;
+  }
+
+  .qb-delivery-emoji {
+    font-size: 14px;
+  }
+
+  /* Product Info Section */
+  .qb-product-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    flex-grow: 1;
+  }
+
+  /* Product Name */
+  .qb-product-name {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--qb-dark);
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Price */
+  .qb-product-price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--qb-red);
+    margin: 4px 0;
+  }
+
+  /* Quantity Selector */
+  .qb-quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 0;
+  }
+
+  .qb-qty-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 4px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  .qb-qty-btn:hover {
+    background: var(--qb-light-gray);
+    border-color: #bbb;
+  }
+
+  .qb-qty-btn:active {
+    transform: scale(0.95);
+  }
+
+  .qb-qty-input {
+    flex: 1;
+    max-width: 60px;
+    height: 32px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    padding: 0;
+    /* Hide spinner arrows */
+    appearance: textfield;
+  }
+
+  .qb-qty-input::-webkit-outer-spin-button,
+  .qb-qty-input::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+
+  .qb-qty-input:focus {
+    outline: none;
+    border-color: var(--qb-red);
+    box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.1);
+  }
+
+  /* Add to Cart Button */
+  .qb-add-to-cart-btn {
+    width: 100%;
+    height: 40px;
+    background: var(--qb-red);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    margin-top: auto;
+  }
+
+  .qb-add-to-cart-btn:hover:not(:disabled) {
+    background: #6B0000;
+    transform: scale(1.02);
+  }
+
+  .qb-add-to-cart-btn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .qb-add-to-cart-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .qb-add-to-cart-btn.loading {
+    pointer-events: none;
+  }
+
+  /* Responsive: Tablet (481px - 768px) */
+  @media (max-width: 768px) and (min-width: 481px) {
+    .qb-product-name {
+      font-size: 0.95rem;
+    }
+
+    .qb-product-price {
+      font-size: 1rem;
+    }
+
+    .qb-delivery-badge {
+      font-size: 11px;
+      padding: 5px 8px;
+    }
+
+    .qb-product-info {
+      gap: 6px;
+      padding: 10px;
+    }
+  }
+
+  /* Responsive: Mobile (< 480px) */
+  @media (max-width: 480px) {
+    .qb-product-name {
+      font-size: 0.9rem;
+    }
+
+    .qb-product-price {
+      font-size: 1rem;
+    }
+
+    .qb-delivery-badge {
+      font-size: 10px;
+      padding: 4px 6px;
+      top: 6px;
+      right: 6px;
+    }
+
+    .qb-delivery-emoji {
+      font-size: 12px;
+    }
+
+    .qb-product-info {
+      gap: 6px;
+      padding: 10px;
+    }
+
+    .qb-qty-btn {
+      width: 28px;
+      height: 28px;
+      font-size: 16px;
+    }
+
+    .qb-qty-input {
+      height: 28px;
+      font-size: 12px;
+    }
+
+    .qb-add-to-cart-btn {
+      height: 36px;
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+(function() {
+  const card = document.closest('.qb-product-card');
+  if (!card) return;
+
+  const minusBtn = card.querySelector('.qb-qty-minus');
+  const plusBtn = card.querySelector('.qb-qty-plus');
+  const qtyInput = card.querySelector('.qb-qty-input');
+  const addToCartBtn = card.querySelector('.qb-add-to-cart-btn');
+
+  // Quantity Selector Logic
+  minusBtn?.addEventListener('click', function(e) {
+    e.preventDefault();
+    let current = parseInt(qtyInput.value) || 1;
+    if (current > 1) {
+      qtyInput.value = current - 1;
+    }
+  });
+
+  plusBtn?.addEventListener('click', function(e) {
+    e.preventDefault();
+    let current = parseInt(qtyInput.value) || 1;
+    if (current < 99) {
+      qtyInput.value = current + 1;
+    }
+  });
+
+  qtyInput?.addEventListener('input', function(e) {
+    let value = parseInt(this.value) || 1;
+    if (value < 1) this.value = 1;
+    if (value > 99) this.value = 99;
+  });
+
+  qtyInput?.addEventListener('blur', function() {
+    if (!this.value) this.value = 1;
+  });
+
+  // Add to Cart Logic
+  addToCartBtn?.addEventListener('click', async function(e) {
+    e.preventDefault();
+
+    const variantId = this.dataset.productId;
+    const quantity = parseInt(qtyInput.value) || 1;
+
+    if (!variantId) {
+      console.error('No variant ID found');
+      return;
+    }
+
+    // Show loading state
+    this.classList.add('loading');
+    const originalText = this.textContent;
+    this.textContent = 'Adding...';
+    this.disabled = true;
+
+    try {
+      const response = await fetch(`${window.Shopify?.routes?.root || '/'}cart/add.js`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+          items: [{
+            id: variantId,
+            quantity: quantity
+          }]
+        })
+      });
+
+      if (!response.ok) throw new Error('Add to cart failed');
+
+      // Success state
+      this.textContent = '✓ Added';
+      setTimeout(() => {
+        this.textContent = originalText;
+        this.disabled = false;
+        this.classList.remove('loading');
+        qtyInput.value = 1; // Reset quantity
+      }, 1500);
+
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      this.textContent = 'Try Again';
+      this.disabled = false;
+      this.classList.remove('loading');
+
+      // Show error after 2s
+      setTimeout(() => {
+        this.textContent = originalText;
+      }, 2000);
+    }
+  });
+})();
+</script>
+
+<style>
+  /* Prevent layout shift during loading */
+  .qb-add-to-cart-btn {
+    min-height: 40px;
+  }
+</style>

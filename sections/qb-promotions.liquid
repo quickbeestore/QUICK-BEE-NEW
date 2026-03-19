@@ -1,0 +1,183 @@
+{%- comment -%}
+  QuickBee Promotions Section
+  Main section for banner carousel, promo cards, and popup
+{%- endcomment -%}
+
+<link rel="stylesheet" href="{{ 'qb-promotions.css' | asset_url }}">
+
+<!-- Banner Carousel -->
+{% render 'banner-carousel',
+  banners: section.blocks,
+  speed: section.settings.carousel_speed,
+  show_timers: section.settings.show_timers %}
+
+<!-- Promo Cards Grid -->
+{% if section.settings.show_promo_cards %}
+  <div class="qb-promo-grid" role="region" aria-label="Promotional offers">
+    {% for block in section.blocks %}
+      {% if block.type == 'promo_card' and block.settings.enabled %}
+        {% render 'promo-card', card: block %}
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endif %}
+
+<script src="{{ 'qb-promotions.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "QuickBee Promotions",
+  "settings": [
+    {
+      "type": "select",
+      "id": "carousel_speed",
+      "label": "Banner carousel auto-advance speed",
+      "options": [
+        {"value": "2", "label": "2 seconds"},
+        {"value": "3", "label": "3 seconds"},
+        {"value": "5", "label": "5 seconds"},
+        {"value": "10", "label": "10 seconds"}
+      ],
+      "default": "5"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_timers",
+      "label": "Show countdown timers on banners",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_promo_cards",
+      "label": "Show promotional cards grid",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "banner",
+      "name": "Promotional Banner",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Banner title",
+          "default": "Special Offer"
+        },
+        {
+          "type": "textarea",
+          "id": "subtitle",
+          "label": "Banner subtitle",
+          "default": "Limited time offer"
+        },
+        {
+          "type": "text",
+          "id": "icon",
+          "label": "Icon (emoji only)",
+          "default": "🎉",
+          "info": "Enter a single emoji character"
+        },
+        {
+          "type": "select",
+          "id": "color",
+          "label": "Banner background color",
+          "options": [
+            {"value": "purple", "label": "Purple"},
+            {"value": "pink", "label": "Hot Pink"},
+            {"value": "gold", "label": "Gold"},
+            {"value": "blue", "label": "Blue"},
+            {"value": "green", "label": "Green"},
+            {"value": "teal", "label": "Teal"}
+          ],
+          "default": "purple"
+        },
+        {
+          "type": "text",
+          "id": "cta_text",
+          "label": "CTA button text",
+          "default": "Shop Now"
+        },
+        {
+          "type": "url",
+          "id": "cta_link",
+          "label": "CTA button link"
+        },
+        {
+          "type": "range",
+          "id": "timer_minutes",
+          "min": 1,
+          "max": 101,
+          "step": 1,
+          "label": "Timer duration (minutes)",
+          "default": 60
+        },
+        {
+          "type": "checkbox",
+          "id": "enabled",
+          "label": "Show this banner",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "promo_card",
+      "name": "Promotional Card",
+      "settings": [
+        {
+          "type": "text",
+          "id": "icon",
+          "label": "Card icon (emoji)",
+          "default": "🎁"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Card title",
+          "default": "Free Gift"
+        },
+        {
+          "type": "text",
+          "id": "description",
+          "label": "Card description",
+          "default": "On orders above ₹499"
+        },
+        {
+          "type": "text",
+          "id": "cta_text",
+          "label": "Button text",
+          "default": "Claim Now"
+        },
+        {
+          "type": "url",
+          "id": "cta_link",
+          "label": "Button link"
+        },
+        {
+          "type": "checkbox",
+          "id": "enabled",
+          "label": "Show this card",
+          "default": true
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "QuickBee Promotions",
+      "blocks": [
+        {
+          "type": "banner",
+          "settings": {
+            "title": "🎉 Special Offers Today",
+            "subtitle": "Get up to 50% off on selected items",
+            "icon": "🏷️",
+            "color": "purple",
+            "cta_text": "Shop Now",
+            "timer_minutes": 60
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

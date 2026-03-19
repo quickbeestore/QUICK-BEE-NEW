@@ -1,0 +1,438 @@
+{% comment %}
+  QuickBee Checkout Address Form
+  Integrates with location picker to pre-fill delivery address
+  Add to cart page: {% section 'quickbee-checkout-address' %}
+{% endcomment %}
+
+{% schema %}
+{
+  "name": "QuickBee Checkout Address",
+  "settings": [
+    {
+      "type": "text",
+      "id": "form_title",
+      "label": "Form Title",
+      "default": "Delivery Address"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "Continue to Payment"
+    }
+  ],
+  "presets": [
+    {
+      "name": "QuickBee Checkout Address"
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+  .qb-checkout-section {
+    padding: 24px;
+    background: #fff;
+    border-radius: 8px;
+    margin: 20px 0;
+    max-width: 600px;
+  }
+
+  .qb-checkout-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 20px;
+  }
+
+  .qb-address-preset {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .qb-address-card-select {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #e8e8e8;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+
+  .qb-address-card-select:hover {
+    border-color: #f5c518;
+    background: #fffbe6;
+  }
+
+  .qb-address-card-select.active {
+    border-color: #f5c518;
+    background: #fffbe6;
+  }
+
+  .qb-addr-label-sm {
+    font-size: 12px;
+    font-weight: 700;
+    color: #222;
+  }
+
+  .qb-addr-text-sm {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+  }
+
+  .qb-form-group {
+    margin-bottom: 16px;
+  }
+
+  .qb-form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 6px;
+  }
+
+  .qb-form-input,
+  .qb-form-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #fff;
+    color: #222;
+    transition: border 0.2s;
+  }
+
+  .qb-form-input:focus,
+  .qb-form-select:focus {
+    outline: none;
+    border-color: #f5c518;
+    box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.1);
+  }
+
+  .qb-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .qb-submit-btn {
+    width: 100%;
+    padding: 12px 20px;
+    background: #f5c518;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #222;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 20px;
+  }
+
+  .qb-submit-btn:hover {
+    background: #e8b800;
+  }
+
+  .qb-submit-btn:disabled {
+    background: #ddd;
+    cursor: not-allowed;
+  }
+
+  .qb-form-error {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .qb-success-msg {
+    padding: 12px;
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    border-radius: 6px;
+    color: #166534;
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  .qb-success-msg.show {
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .qb-checkout-section {
+      padding: 16px;
+    }
+    .qb-form-row {
+      grid-template-columns: 1fr;
+    }
+    .qb-address-preset {
+      flex-direction: column;
+      gap: 8px;
+    }
+    .qb-address-card-select {
+      padding: 10px;
+    }
+  }
+</style>
+
+<div class="qb-checkout-section">
+  <h2 class="qb-checkout-title">{{ section.settings.form_title }}</h2>
+
+  <!-- Success Message -->
+  <div class="qb-success-msg" id="qbCheckoutSuccess">
+    ✓ Address saved! You can now proceed to checkout.
+  </div>
+
+  <!-- Debug Info (Remove in production) -->
+  <div style="padding: 10px; background: #f0f0f0; border-radius: 4px; margin-bottom: 16px; font-size: 11px; color: #666; display: none;" id="qbDebugInfo">
+    <strong>Debug:</strong> <span id="qbDebugText">Loading...</span>
+  </div>
+
+  <!-- Saved Addresses Preset -->
+  <div id="qbSavedAddressPresets" style="display: none;">
+    <div style="margin-bottom: 8px; font-size: 12px; font-weight: 600; color: #666;">Quick select saved address:</div>
+    <div class="qb-address-preset" id="qbPresetsList"></div>
+  </div>
+
+  <!-- Checkout Form -->
+  <form id="qbCheckoutForm" onsubmit="return qbHandleCheckout(event)">
+    <div class="qb-form-group">
+      <label class="qb-form-label">Full Name *</label>
+      <input type="text" class="qb-form-input" id="qbFullName" placeholder="Enter your full name" required>
+      <div class="qb-form-error" id="qbNameError"></div>
+    </div>
+
+    <div class="qb-form-group">
+      <label class="qb-form-label">Phone Number *</label>
+      <input type="tel" class="qb-form-input" id="qbPhone" placeholder="Enter your phone number" required>
+      <div class="qb-form-error" id="qbPhoneError"></div>
+    </div>
+
+    <div class="qb-form-group">
+      <label class="qb-form-label">Street Address *</label>
+      <input type="text" class="qb-form-input" id="qbStreet" placeholder="Street address" required>
+      <div class="qb-form-error" id="qbStreetError"></div>
+    </div>
+
+    <div class="qb-form-row">
+      <div class="qb-form-group">
+        <label class="qb-form-label">City *</label>
+        <input type="text" class="qb-form-input" id="qbCity" placeholder="City" required>
+        <div class="qb-form-error" id="qbCityError"></div>
+      </div>
+      <div class="qb-form-group">
+        <label class="qb-form-label">State/Province</label>
+        <input type="text" class="qb-form-input" id="qbState" placeholder="State">
+      </div>
+    </div>
+
+    <div class="qb-form-row">
+      <div class="qb-form-group">
+        <label class="qb-form-label">Postal Code</label>
+        <input type="text" class="qb-form-input" id="qbZip" placeholder="Postal code">
+      </div>
+      <div class="qb-form-group">
+        <label class="qb-form-label">Country *</label>
+        <input type="text" class="qb-form-input" id="qbCountry" placeholder="Country" required>
+      </div>
+    </div>
+
+    <div class="qb-form-group">
+      <label class="qb-form-label">Special Instructions</label>
+      <textarea class="qb-form-input" id="qbInstructions" placeholder="Delivery instructions (optional)" style="resize: vertical; min-height: 80px;"></textarea>
+    </div>
+
+    <button type="submit" class="qb-submit-btn" id="qbCheckoutBtn">{{ section.settings.button_text }}</button>
+  </form>
+
+  <!-- Hidden field to store checkout data -->
+  <input type="hidden" id="qbCheckoutData">
+</div>
+
+<script>
+(function() {
+  var form = document.getElementById('qbCheckoutForm');
+  var successMsg = document.getElementById('qbCheckoutSuccess');
+  var presetsList = document.getElementById('qbPresetsList');
+  var presetsContainer = document.getElementById('qbSavedAddressPresets');
+
+  // Load saved addresses and populate presets
+  function loadSavedAddressPresets() {
+    try {
+      var saved = localStorage.getItem('qb_saved_addresses');
+      var addresses = saved ? JSON.parse(saved) : [];
+
+      console.log('QuickBee Checkout - Saved Addresses:', addresses);
+      console.log('Saved Addresses String:', saved);
+
+      // Update debug info
+      var debugEl = document.getElementById('qbDebugInfo');
+      if (debugEl) {
+        var debugText = document.getElementById('qbDebugText');
+        debugText.textContent = addresses.length + ' saved address(es) found. Key: qb_saved_addresses';
+      }
+
+      if (addresses && addresses.length > 0) {
+        presetsContainer.style.display = 'block';
+        presetsList.innerHTML = '';
+
+        addresses.forEach(function(addr) {
+          var card = document.createElement('button');
+          card.type = 'button';
+          card.className = 'qb-address-card-select';
+
+          var label = addr.label || 'Saved Address';
+          var addressText = addr.address ? addr.address.substring(0, 40) : 'No address';
+
+          card.innerHTML =
+            '<div class="qb-addr-label-sm">' + escapeHtml(label) + '</div>' +
+            '<div class="qb-addr-text-sm">' + escapeHtml(addressText) + (addr.address && addr.address.length > 40 ? '…' : '') + '</div>';
+
+          card.addEventListener('click', function(e) {
+            e.preventDefault();
+            fillFormFromAddress(addr);
+            document.querySelectorAll('.qb-address-card-select').forEach(function(c) {
+              c.classList.remove('active');
+            });
+            card.classList.add('active');
+          });
+
+          presetsList.appendChild(card);
+        });
+      } else {
+        console.log('No saved addresses found in localStorage');
+        presetsContainer.style.display = 'none';
+      }
+    } catch (e) {
+      console.error('Error loading saved addresses:', e);
+      var debugEl = document.getElementById('qbDebugInfo');
+      if (debugEl) {
+        var debugText = document.getElementById('qbDebugText');
+        debugText.textContent = 'Error: ' + e.message;
+      }
+    }
+  }
+
+  // Fill form from saved address
+  function fillFormFromAddress(addr) {
+    var addressParts = parseAddress(addr.address);
+
+    document.getElementById('qbStreet').value = addressParts.street;
+    document.getElementById('qbCity').value = addr.name || addressParts.city;
+    document.getElementById('qbState').value = addressParts.state;
+    document.getElementById('qbZip').value = addressParts.zip;
+    document.getElementById('qbCountry').value = addressParts.country;
+  }
+
+  // Parse address string into components (from Nominatim format)
+  function parseAddress(addrString) {
+    var parts = addrString.split(',').map(function(p) { return p.trim(); });
+
+    // Try to get country (usually last part), state, and city
+    var country = parts.length > 0 ? parts[parts.length - 1] : '';
+    var state = parts.length > 1 ? parts[parts.length - 2] : '';
+    var city = parts.length > 2 ? parts[parts.length - 3] : '';
+    var zip = parts.length > 3 ? parts[parts.length - 4] : '';
+
+    // Street is everything before city
+    var street = parts.slice(0, Math.max(1, parts.length - 3)).join(', ');
+
+    return {
+      street: street || '',
+      city: city || '',
+      state: state || '',
+      zip: zip || '',
+      country: country || 'Nepal'
+    };
+  }
+
+  // Handle checkout form submission
+  window.qbHandleCheckout = function(e) {
+    e.preventDefault();
+
+    var checkoutData = {
+      name: document.getElementById('qbFullName').value,
+      phone: document.getElementById('qbPhone').value,
+      street: document.getElementById('qbStreet').value,
+      city: document.getElementById('qbCity').value,
+      state: document.getElementById('qbState').value,
+      zip: document.getElementById('qbZip').value,
+      country: document.getElementById('qbCountry').value,
+      instructions: document.getElementById('qbInstructions').value,
+      savedAt: new Date().toISOString()
+    };
+
+    // Validate
+    if (!checkoutData.name || !checkoutData.phone || !checkoutData.street || !checkoutData.city || !checkoutData.country) {
+      alert('Please fill in all required fields');
+      return false;
+    }
+
+    // Save to localStorage
+    try {
+      localStorage.setItem('qb_checkout_address', JSON.stringify(checkoutData));
+      window.QB_CHECKOUT_ADDRESS = checkoutData;
+    } catch (e) {}
+
+    // Show success message
+    successMsg.classList.add('show');
+    setTimeout(function() {
+      successMsg.classList.remove('show');
+    }, 3000);
+
+    // Redirect to cart (ready for Shopify checkout)
+    // In a real implementation, this would redirect to Shopify checkout
+    console.log('Checkout Address Saved:', checkoutData);
+    alert('Address saved successfully! Proceed to payment.');
+
+    return false;
+  };
+
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Initialize on load
+  loadSavedAddressPresets();
+
+  // Reload saved addresses when page gets focus (if user saved new address elsewhere)
+  window.addEventListener('focus', function() {
+    console.log('Page focused - reloading saved addresses');
+    loadSavedAddressPresets();
+  });
+
+  // Also listen for storage changes from other tabs/windows
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'qb_saved_addresses') {
+      console.log('Saved addresses changed - reloading');
+      loadSavedAddressPresets();
+    }
+  });
+
+  // Debug mode: Press Ctrl+Shift+D to toggle debug info
+  var debugMode = false;
+  document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+      e.preventDefault();
+      debugMode = !debugMode;
+      var debugEl = document.getElementById('qbDebugInfo');
+      if (debugEl) {
+        debugEl.style.display = debugMode ? 'block' : 'none';
+        console.log('Debug mode:', debugMode ? 'ON' : 'OFF');
+      }
+    }
+  });
+})();
+</script>

@@ -1,0 +1,263 @@
+{%- comment -%}
+Flash Deal Card Snippet
+Renders a reusable product card with 4 section variants
+Parameters:
+  - product: Shopify product object
+  - section: 'carousel', 'just-started', 'biggest-savings', or 'ending-soon'
+{%- endcomment -%}
+
+{%- liquid
+  assign discount_percent = product.metafields.flash_deals.discount_percent | default: 0
+  assign deal_end_time = product.metafields.flash_deals.end_time | default: ''
+  assign stock_left = product.metafields.flash_deals.stock_left | default: 0
+
+  # Get first available variant
+  assign variant = product.variants | first
+  assign variant_id = variant.id
+  assign original_price = variant.original_price
+  assign flash_price = variant.price
+-%}
+
+{% case section %}
+  {% when 'carousel' %}
+    <div class="flash-deal-product-card carousel-product-card">
+      <div class="card-image-wrapper">
+        {% if product.featured_image %}
+          <img
+            src="{{ product.featured_image | image_url: width: 300 }}"
+            alt="{{ product.featured_image.alt | escape }}"
+            class="card-image carousel-product-image"
+            width="300"
+            height="300"
+            loading="lazy"
+          >
+        {% endif %}
+
+        <div class="carousel-badge">FLASH DEAL</div>
+
+        {% if discount_percent > 0 %}
+          <div class="carousel-discount-badge">{{ discount_percent }}%</div>
+        {% endif %}
+      </div>
+
+      <div class="carousel-product-info">
+        {% if deal_end_time != blank %}
+          <div class="carousel-countdown" data-deal-end-time="{{ deal_end_time }}">
+            00:00:00 LEFT
+          </div>
+        {% endif %}
+
+        <div>
+          <h3 class="carousel-product-name">{{ product.title | escape }}</h3>
+
+          <div class="carousel-price">
+            {% if original_price > 0 %}
+              <span class="carousel-price-original">{{ original_price | money }}</span>
+            {% endif %}
+            <span class="carousel-price-flash">{{ flash_price | money }}</span>
+          </div>
+
+          {% if stock_left > 0 %}
+            <div class="carousel-stock" data-stock-left="{{ stock_left }}">
+              {% if stock_left < 5 %}
+                <span>⚠️ Only {{ stock_left }} left!</span>
+              {% else %}
+                <span>{{ stock_left }} in stock</span>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+
+        <button
+          class="carousel-button"
+          data-add-to-cart="true"
+          data-variant-id="{{ variant_id }}"
+          aria-label="Add {{ product.title | escape }} to cart"
+        >
+          ADD TO CART
+        </button>
+      </div>
+    </div>
+
+  {% when 'just-started' %}
+    <div class="flash-deal-product-card just-started-card">
+      <div class="card-image-wrapper">
+        {% if product.featured_image %}
+          <img
+            src="{{ product.featured_image | image_url: width: 300 }}"
+            alt="{{ product.featured_image.alt | escape }}"
+            class="card-image"
+            width="300"
+            height="300"
+            loading="lazy"
+          >
+        {% endif %}
+
+        <div class="card-badge new-deal">NEW</div>
+
+        {% if discount_percent > 0 %}
+          <div class="card-discount-badge">{{ discount_percent }}%</div>
+        {% endif %}
+      </div>
+
+      <div class="card-content">
+        {% if deal_end_time != blank %}
+          <div class="card-countdown" data-deal-end-time="{{ deal_end_time }}">
+            00:00:00 LEFT
+          </div>
+        {% endif %}
+
+        <div>
+          <h3 class="card-title">{{ product.title | escape }}</h3>
+
+          <div class="card-prices">
+            {% if original_price > 0 %}
+              <span class="card-price-original">{{ original_price | money }}</span>
+            {% endif %}
+            <span class="card-price-flash">{{ flash_price | money }}</span>
+          </div>
+
+          {% if stock_left > 0 %}
+            <div class="card-stock" data-stock-left="{{ stock_left }}">
+              {% if stock_left < 5 %}
+                <span>⚠️ Only {{ stock_left }} left!</span>
+              {% else %}
+                <span>{{ stock_left }} in stock</span>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+
+        <button
+          class="card-button"
+          data-add-to-cart="true"
+          data-variant-id="{{ variant_id }}"
+          aria-label="Add {{ product.title | escape }} to cart"
+        >
+          ADD TO CART
+        </button>
+      </div>
+    </div>
+
+  {% when 'biggest-savings' %}
+    <div class="flash-deal-product-card biggest-savings">
+      <div class="card-image-wrapper">
+        {% if product.featured_image %}
+          <img
+            src="{{ product.featured_image | image_url: width: 300 }}"
+            alt="{{ product.featured_image.alt | escape }}"
+            class="card-image"
+            width="300"
+            height="300"
+            loading="lazy"
+          >
+        {% endif %}
+
+        <div class="card-badge new-deal">BIGGEST SAVINGS</div>
+
+        {% if discount_percent > 0 %}
+          <div class="card-discount-badge">{{ discount_percent }}%</div>
+        {% endif %}
+      </div>
+
+      <div class="card-content">
+        {% if deal_end_time != blank %}
+          <div class="card-countdown" data-deal-end-time="{{ deal_end_time }}">
+            00:00:00 LEFT
+          </div>
+        {% endif %}
+
+        <div>
+          <h3 class="card-title">{{ product.title | escape }}</h3>
+
+          <div class="card-prices">
+            {% if original_price > 0 %}
+              <span class="card-price-original">{{ original_price | money }}</span>
+            {% endif %}
+            <span class="card-price-flash">{{ flash_price | money }}</span>
+          </div>
+
+          {% if stock_left > 0 %}
+            <div class="card-stock" data-stock-left="{{ stock_left }}">
+              {% if stock_left < 5 %}
+                <span>⚠️ Only {{ stock_left }} left!</span>
+              {% else %}
+                <span>{{ stock_left }} in stock</span>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+
+        <button
+          class="card-button red"
+          data-add-to-cart="true"
+          data-variant-id="{{ variant_id }}"
+          aria-label="Grab this deal for {{ product.title | escape }}"
+        >
+          GRAB THIS DEAL
+        </button>
+      </div>
+    </div>
+
+  {% when 'ending-soon' %}
+    <div class="flash-deal-product-card ending-soon">
+      <div class="card-image-wrapper">
+        <div class="card-image-overlay"></div>
+        {% if product.featured_image %}
+          <img
+            src="{{ product.featured_image | image_url: width: 300 }}"
+            alt="{{ product.featured_image.alt | escape }}"
+            class="card-image"
+            width="300"
+            height="300"
+            loading="lazy"
+          >
+        {% endif %}
+
+        <div class="card-badge hurry">HURRY!</div>
+
+        {% if discount_percent > 0 %}
+          <div class="card-discount-badge">{{ discount_percent }}%</div>
+        {% endif %}
+      </div>
+
+      <div class="card-content">
+        {% if deal_end_time != blank %}
+          <div class="card-countdown" data-deal-end-time="{{ deal_end_time }}">
+            00:00:00 LEFT
+          </div>
+        {% endif %}
+
+        <div>
+          <h3 class="card-title">{{ product.title | escape }}</h3>
+
+          <div class="card-prices">
+            {% if original_price > 0 %}
+              <span class="card-price-original">{{ original_price | money }}</span>
+            {% endif %}
+            <span class="card-price-flash">{{ flash_price | money }}</span>
+          </div>
+
+          {% if stock_left > 0 %}
+            <div class="card-stock almost-gone" data-stock-left="{{ stock_left }}">
+              {% if stock_left < 5 %}
+                <span>⚠️ Only {{ stock_left }} left!</span>
+              {% else %}
+                <span>{{ stock_left }} in stock</span>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+
+        <button
+          class="card-button red"
+          data-add-to-cart="true"
+          data-variant-id="{{ variant_id }}"
+          aria-label="Grab now: {{ product.title | escape }}"
+        >
+          GRAB NOW
+        </button>
+      </div>
+    </div>
+
+{% endcase %}

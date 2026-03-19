@@ -1,0 +1,420 @@
+{%- doc -%}
+  QuickPay Transaction History
+  Displays wallet transactions with filtering and sorting
+{%- enddoc -%}
+
+<div class="quickpay-transactions-section">
+  <div class="transactions-header">
+    <h2>📊 Transaction History</h2>
+    <button id="refresh-transactions" class="refresh-btn">🔄 Refresh</button>
+  </div>
+
+  <div class="transactions-filters">
+    <select id="filter-type" class="filter-select">
+      <option value="">All Transactions</option>
+      <option value="credit">Credits Only</option>
+      <option value="debit">Debits Only</option>
+    </select>
+
+    <input
+      type="date"
+      id="filter-date-from"
+      class="filter-input"
+      placeholder="From Date"
+    >
+    <input
+      type="date"
+      id="filter-date-to"
+      class="filter-input"
+      placeholder="To Date"
+    >
+
+    <button id="export-btn" class="export-btn">
+      📥 Export CSV
+    </button>
+  </div>
+
+  <div class="transactions-container">
+    <table class="transactions-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Amount</th>
+          <th>Balance</th>
+          <th>Reason</th>
+          <th>Order</th>
+        </tr>
+      </thead>
+      <tbody id="transactions-tbody">
+        <tr>
+          <td colspan="6" class="loading">Loading transactions...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="transactions-pagination">
+    <button id="prev-page" class="page-btn">← Previous</button>
+    <span id="page-info"></span>
+    <button id="next-page" class="page-btn">Next →</button>
+  </div>
+</div>
+
+<script type="module">
+  import { formatCurrency, formatDate, exportTransactionsToCSV } from './quickpay-utils.js';
+
+  const QULET_API = 'https://quick-pay-beta-production.up.railway.app/api';
+  let currentPage = 1;
+  const itemsPerPage = 10;
+  let allTransactions = [];
+
+  // Fetch transactions from QULET
+  async function fetchTransactions() {
+    try {
+      const customerId = window.quickPayCustomer.id;
+      const response = await fetch(
+        `${QULET_API}/wallet/${encodeURIComponent(customerId)}/transactions?limit=100`,
+        {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.success && data.transactions) {
+        allTransactions = data.transactions;
+        renderTransactions();
+        console.log('[QuickPay] Fetched transactions:', allTransactions.length);
+      }
+    } catch (error) {
+      console.error('[QuickPay] Failed to fetch transactions:', error);
+      showError('Failed to load transactions');
+    }
+  }
+
+  // Render transactions table
+  function renderTransactions() {
+    const tbody = document.getElementById('transactions-tbody');
+    const filterType = document.getElementById('filter-type').value;
+    const dateFrom = document.getElementById('filter-date-from').value;
+    const dateTo = document.getElementById('filter-date-to').value;
+
+    // Filter transactions
+    let filtered = allTransactions.filter((tx) => {
+      if (filterType && tx.type !== filterType) return false;
+      if (dateFrom && new Date(tx.createdAt) < new Date(dateFrom)) return false;
+      if (dateTo && new Date(tx.createdAt) > new Date(dateTo)) return false;
+      return true;
+    });
+
+    // Paginate
+    const totalPages = Math.ceil(filtered.length / itemsPerPage);
+    const start = (currentPage - 1) * itemsPerPage;
+    const paged = filtered.slice(start, start + itemsPerPage);
+
+    // Render rows
+    if (paged.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty">No transactions found</td></tr>';
+    } else {
+      tbody.innerHTML = paged
+        .map(
+          (tx) => `
+        <tr class="transaction-row ${tx.type}">
+          <td>${formatDate(tx.createdAt)}</td>
+          <td>
+            <span class="type-badge ${tx.type}">
+              ${tx.type === 'credit' ? '➕' : '➖'} ${tx.type.toUpperCase()}
+            </span>
+          </td>
+          <td class="amount ${tx.type}">Rs ${tx.amount}</td>
+          <td>Rs ${tx.balanceAfter}</td>
+          <td class="reason">${tx.reason || '—'}</td>
+          <td class="order">${tx.orderId ? `<a href="/account/orders/${tx.orderId}">#${tx.orderId.substring(0, 8)}</a>` : '—'}</td>
+        </tr>
+      `
+        )
+        .join('');
+    }
+
+    // Update pagination
+    document.getElementById('page-info').textContent = `Page ${currentPage} of ${totalPages || 1}`;
+    document.getElementById('prev-page').disabled = currentPage === 1;
+    document.getElementById('next-page').disabled = currentPage >= totalPages;
+  }
+
+  // Event listeners
+  document.getElementById('refresh-transactions').addEventListener('click', fetchTransactions);
+
+  document.getElementById('filter-type').addEventListener('change', () => {
+    currentPage = 1;
+    renderTransactions();
+  });
+
+  document.getElementById('filter-date-from').addEventListener('change', () => {
+    currentPage = 1;
+    renderTransactions();
+  });
+
+  document.getElementById('filter-date-to').addEventListener('change', () => {
+    currentPage = 1;
+    renderTransactions();
+  });
+
+  document.getElementById('export-btn').addEventListener('click', () => {
+    exportTransactionsToCSV(allTransactions);
+  });
+
+  document.getElementById('prev-page').addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderTransactions();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+
+  document.getElementById('next-page').addEventListener('click', () => {
+    const totalPages = Math.ceil(allTransactions.length / itemsPerPage);
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderTransactions();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+
+  // Show error message
+  function showError(message) {
+    const tbody = document.getElementById('transactions-tbody');
+    tbody.innerHTML = `<tr><td colspan="6" class="error">${message}</td></tr>`;
+  }
+
+  // Initial fetch
+  fetchTransactions();
+</script>
+
+{% stylesheet %}
+  .quickpay-transactions-section {
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 24px;
+    margin: 40px 0;
+  }
+
+  .transactions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .transactions-header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: var(--color-foreground);
+  }
+
+  .refresh-btn {
+    padding: 8px 16px;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.2s;
+  }
+
+  .refresh-btn:hover {
+    background: var(--color-primary-dark);
+  }
+
+  .transactions-filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .filter-select,
+  .filter-input {
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+
+  .filter-select:focus,
+  .filter-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+  }
+
+  .export-btn {
+    padding: 10px 16px;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+
+  .export-btn:hover {
+    background: #229954;
+  }
+
+  .transactions-container {
+    overflow-x: auto;
+    margin-bottom: 20px;
+  }
+
+  .transactions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .transactions-table thead {
+    background: var(--color-background);
+    border-bottom: 2px solid var(--color-border);
+  }
+
+  .transactions-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-foreground);
+  }
+
+  .transactions-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-foreground);
+  }
+
+  .transaction-row:hover {
+    background: var(--color-background);
+  }
+
+  .transaction-row.credit {
+    --type-color: #27ae60;
+  }
+
+  .transaction-row.debit {
+    --type-color: #e74c3c;
+  }
+
+  .type-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--type-color);
+    color: white;
+  }
+
+  .amount {
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+  }
+
+  .amount.credit {
+    color: #27ae60;
+  }
+
+  .amount.debit {
+    color: #e74c3c;
+  }
+
+  .reason {
+    color: var(--color-foreground-muted);
+  }
+
+  .order a {
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  .order a:hover {
+    text-decoration: underline;
+  }
+
+  .loading,
+  .empty,
+  .error {
+    text-align: center;
+    padding: 40px 12px !important;
+    color: var(--color-foreground-muted);
+  }
+
+  .error {
+    color: #e74c3c;
+    background: #fadbd8;
+  }
+
+  .transactions-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .page-btn {
+    padding: 8px 16px;
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+
+  .page-btn:hover:not(:disabled) {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
+
+  .page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  #page-info {
+    font-size: 13px;
+    color: var(--color-foreground-muted);
+    min-width: 120px;
+    text-align: center;
+  }
+
+  @media (max-width: 749px) {
+    .transactions-filters {
+      flex-direction: column;
+    }
+
+    .filter-select,
+    .filter-input,
+    .export-btn {
+      width: 100%;
+    }
+
+    .transactions-table {
+      font-size: 12px;
+    }
+
+    .transactions-table th,
+    .transactions-table td {
+      padding: 8px;
+    }
+  }
+{% endstylesheet %}

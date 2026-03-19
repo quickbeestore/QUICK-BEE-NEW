@@ -1,0 +1,82 @@
+{% schema %}
+{
+  "name": "Category Navigation",
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section Title",
+      "default": "Browse Categories"
+    },
+    {
+      "type": "range",
+      "id": "collections_limit",
+      "min": 3,
+      "max": 15,
+      "step": 1,
+      "label": "Collections to Show",
+      "default": 9
+    }
+  ],
+  "presets": [
+    {
+      "name": "Category Navigation"
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+.qb-categories {
+  padding: 20px 16px;
+  border-bottom: 1px solid #e8e8e8;
+  overflow-x: auto;
+  display: flex;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  white-space: nowrap;
+}
+.qb-categories a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  text-decoration: none;
+  color: #111111;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border-radius: 12px;
+}
+.qb-categories a:hover {
+  background: #F5F5F5;
+  transform: scale(1.08);
+}
+</style>
+
+<!-- Category Navigation (Dynamic Collections) -->
+<nav class="qb-categories">
+  {% for collection in shop.collections limit: section.settings.collections_limit %}
+    {% unless collection.handle == 'all' or collection.handle == 'frontpage' %}
+      <a href="{{ collection.url }}">
+        <span style="font-size: 24px">
+          {% case collection.handle %}
+            {% when 'food' %}🍔
+            {% when 'grocery' %}🥕
+            {% when 'groceries' %}🥕
+            {% when 'electronics' %}📱
+            {% when 'hardware' %}🔧
+            {% when 'home' %}🏠
+            {% when 'beauty' %}💄
+            {% when 'fashion' %}👕
+            {% when 'gifts' %}🎁
+            {% else %}📦
+          {% endcase %}
+        </span>
+        <span>{{ collection.title | truncate: 12 }}</span>
+      </a>
+    {% endunless %}
+  {% endfor %}
+</nav>

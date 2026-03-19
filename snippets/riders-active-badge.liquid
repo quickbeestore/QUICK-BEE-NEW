@@ -1,0 +1,162 @@
+{% # Delivery Riders Active Badge %}
+
+<div
+  class="riders-badge riders-active"
+  id="riders-badge-{{ product_id }}"
+  data-product-id="{{ product_id }}"
+  data-api-endpoint="{{ section.settings.riders_api_endpoint }}"
+  aria-live="polite"
+  aria-label="Riders active status"
+>
+  <span class="riders-status active"></span>
+  <span class="riders-text">28 riders active</span>
+</div>
+
+<style>
+  .riders-badge {
+    padding: 12px 16px;
+    margin: 8px 0;
+    border-radius: 6px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f0f9f0;
+    border: 1px solid #d1f0d1;
+  }
+
+  .riders-badge.riders-active {
+    background: #f0f9f0;
+    border-color: #22c55e;
+  }
+
+  .riders-badge.riders-inactive {
+    background: #fff9e6;
+    border-color: #fbbf24;
+  }
+
+  .riders-badge.riders-error {
+    display: none;
+  }
+
+  .riders-status {
+    font-size: 16px;
+  }
+
+  .riders-status.active::before {
+    content: '✓';
+    color: #22c55e;
+  }
+
+  .riders-status.inactive::before {
+    content: '⏰';
+    color: #f59e0b;
+  }
+
+  .riders-text {
+    color: #333;
+    font-weight: 500;
+  }
+
+  .riders-badge.riders-active .riders-text {
+    color: #15803d;
+  }
+
+  .riders-badge.riders-inactive .riders-text {
+    color: #b45309;
+  }
+</style>
+
+<script>
+  (function() {
+    const badgeElement = document.querySelector('[data-product-id]');
+    if (!badgeElement) return; // Exit if no badge found
+
+    const endpoint = badgeElement.dataset.apiEndpoint;
+    const productId = badgeElement.dataset.productId;
+    const badge = badgeElement;
+    const cacheKey = `riders-status-${productId}`;
+    const cacheDuration = 30000; // 30 seconds
+
+    async function fetchRidersStatus() {
+      try {
+        // Check cache first
+        const cached = sessionStorage.getItem(cacheKey);
+        if (cached) {
+          const { data, timestamp } = JSON.parse(cached);
+          if (Date.now() - timestamp < cacheDuration) {
+            updateBadge(data.active);
+            return;
+          }
+        }
+
+        // Fetch from API with proper URL encoding
+        const url = new URL(endpoint, window.location.origin);
+        url.searchParams.append('product_id', productId);
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+        const response = await fetch(url.toString(), {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          hideBadge();
+          return;
+        }
+
+        const data = await response.json();
+
+        // Validate response structure
+        if (typeof data !== 'object' || !('active' in data)) {
+          console.warn('Invalid API response format');
+          hideBadge();
+          return;
+        }
+
+        // Cache result
+        sessionStorage.setItem(cacheKey, JSON.stringify({
+          data,
+          timestamp: Date.now()
+        }));
+
+        updateBadge(data.active);
+      } catch (error) {
+        console.warn('Failed to fetch riders status:', error);
+        hideBadge();
+      }
+    }
+
+    function updateBadge(isActive) {
+      const statusEl = badge.querySelector('.riders-status');
+      const textEl = badge.querySelector('.riders-text');
+
+      if (isActive) {
+        badge.classList.remove('riders-inactive', 'riders-error');
+        badge.classList.add('riders-active');
+        statusEl.className = 'riders-status active';
+        textEl.textContent = '28 riders active';
+      } else {
+        badge.classList.remove('riders-active', 'riders-error');
+        badge.classList.add('riders-inactive');
+        statusEl.className = 'riders-status inactive';
+        textEl.textContent = 'No riders available yet';
+      }
+    }
+
+    function hideBadge() {
+      badge.classList.add('riders-error');
+    }
+
+    // Fetch on load
+    fetchRidersStatus();
+
+    // Optional: Poll every 60 seconds
+    // setInterval(fetchRidersStatus, 60000);
+  })();
+</script>

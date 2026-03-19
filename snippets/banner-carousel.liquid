@@ -1,0 +1,53 @@
+{%- comment -%}
+  QuickBee Banner Carousel Snippet
+  Usage: {% render 'banner-carousel', banners: section.blocks, speed: section.settings.carousel_speed, show_timers: section.settings.show_timers %}
+{%- endcomment -%}
+
+{% if banners.size > 0 %}
+  <div class="qb-carousel"
+       data-qb-carousel
+       data-qb-speed="{{ speed | default: 5000 | times: 1000 }}"
+       data-qb-show-timers="{{ show_timers | default: true }}">
+
+    <div class="qb-carousel-inner">
+      {% for banner in banners %}
+        {% if banner.settings.enabled %}
+          <div class="qb-banner banner-{{ banner.settings.color | default: 'purple' }}"
+               data-qb-banner
+               data-qb-timer-minutes="{{ banner.settings.timer_minutes | default: 60 }}">
+
+            <div class="qb-banner-content">
+              {% if banner.settings.title %}
+                <div class="qb-banner-title">{{ banner.settings.title }}</div>
+              {% endif %}
+
+              {% if banner.settings.subtitle %}
+                <div class="qb-banner-subtitle">{{ banner.settings.subtitle }}</div>
+              {% endif %}
+
+              {% if banner.settings.cta_text and banner.settings.cta_link %}
+                <a href="{{ banner.settings.cta_link }}" class="qb-cta-btn">
+                  {{ banner.settings.cta_text }}
+                </a>
+              {% endif %}
+            </div>
+
+            {% if banner.settings.icon %}
+              <div class="qb-banner-icon">{{ banner.settings.icon }}</div>
+            {% endif %}
+
+            {% if show_timers %}
+              <div class="qb-timer" data-qb-timer aria-label="Offer expires in">00:00</div>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <!-- Navigation buttons -->
+    <div class="qb-carousel-nav">
+      <button class="qb-carousel-btn" data-qb-carousel-prev aria-label="Previous banner">‹</button>
+      <button class="qb-carousel-btn" data-qb-carousel-next aria-label="Next banner">›</button>
+    </div>
+  </div>
+{% endif %}

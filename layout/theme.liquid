@@ -1,0 +1,552 @@
+<!doctype html>
+<!-- Live check: 2026-03-08 -->
+<html
+  {% if request.design_mode %}
+    class="shopify-design-mode"
+  {% endif %}
+  lang="{{ request.locale.iso_code }}"
+  style="color-scheme: light only;"
+>
+  <head>
+    {%- if settings.favicon != blank -%}
+      <link
+        rel="icon"
+        type="image/png"
+        href="{{ settings.favicon | image_url: width: 32, height: 32 }}"
+      >
+    {%- endif -%}
+
+    {% comment %} This a way to wait for main content to load when navigating to a new page so that the view transitions can work consistently {% endcomment %}
+    {% if settings.transition_to_main_product or settings.page_transition_enabled %}
+      <link
+        rel="expect"
+        href="#MainContent"
+        blocking="render"
+        id="view-transition-render-blocker"
+      >
+    {% endif %}
+
+    <!-- Prevent dark mode - Force light theme -->
+    <meta name="color-scheme" content="light only">
+    <meta name="theme-color" content="#ffffff">
+
+    {%- render 'meta-tags' -%}
+    {%- render 'stylesheets' -%}
+    {%- render 'fonts' -%}
+    {%- render 'scripts' -%}
+    {%- render 'theme-styles-variables' -%}
+    {%- render 'color-schemes' -%}
+
+    <style>
+      /* ============================================
+         DARK MODE PREVENTION - Force Light Theme
+         ============================================ */
+
+      /* Disable dark mode completely */
+      @media (prefers-color-scheme: dark) {
+        html, body, * {
+          color-scheme: light !important;
+          background-color: #ffffff !important;
+          color: #111111 !important;
+        }
+      }
+
+      /* ============================================
+         MOBILE-FIRST RESPONSIVE DESIGN SYSTEM
+         ============================================ */
+
+      /* GLOBAL MOBILE-FIRST BASE STYLES */
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        width: 100%;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #ffffff !important;
+        color: #111111 !important;
+      }
+
+      body {
+        width: 100%;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        font-size: 14px;
+        line-height: 1.6;
+        background-color: #ffffff !important;
+        color: #111111 !important;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Main content container - mobile first */
+      .page-width-100,
+      .page-width-85,
+      .page-width-80 {
+        width: 100%;
+        max-width: 100vw;
+        margin: 0 auto;
+        padding: 0;
+        overflow-x: hidden;
+      }
+
+      /* Ensure main content respects viewport */
+      main {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        padding-bottom: 65px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 70px);
+      }
+
+      /* Section wrapper - mobile first */
+      .shopify-section {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+      }
+
+      /* Container for grid/flex layouts */
+      .container,
+      [class*="container"] {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 0 12px;
+        overflow-x: hidden;
+      }
+
+      /* Flex containers - ensure proper wrapping on mobile */
+      .flex,
+      [class*="flex"],
+      [style*="display: flex"] {
+        flex-wrap: wrap;
+        width: 100%;
+        overflow-x: hidden;
+      }
+
+      /* Sidebar/navigation - mobile horizontal scroll */
+      .sidebar,
+      [class*="sidebar"],
+      nav {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Product grid - mobile 2 columns (ONLY product grids) */
+      .product-grid {
+        width: 100%;
+        max-width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 10px;
+        overflow-x: hidden;
+      }
+
+      /* Product card - mobile first */
+      .product-card,
+      [class*="product-card"],
+      .card {
+        width: 100%;
+        overflow: hidden;
+        border-radius: 4px;
+      }
+
+      /* Images - responsive */
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      /* Buttons and form elements - touch-friendly on mobile */
+      button, input, select, textarea {
+        font-size: 16px;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      button {
+        min-height: 44px;
+        padding: 10px 12px;
+      }
+
+      /* Variant pills - should NOT be 100% width */
+      .variant-pill,
+      .variant-pills-container button {
+        width: auto !important;
+        max-width: none !important;
+        min-width: 90px;
+      }
+
+      /* TABLET LAYOUT - 600px and up */
+      @media (min-width: 600px) {
+        body {
+          font-size: 15px;
+        }
+
+        .page-width-100,
+        .page-width-85,
+        .page-width-80 {
+          max-width: calc(100% - 24px);
+          padding: 0 12px;
+        }
+
+        .container,
+        [class*="container"] {
+          padding: 0 16px;
+        }
+
+        .product-grid,
+        [class*="product-grid"] {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 12px;
+          padding: 12px;
+        }
+
+        button {
+          font-size: 15px;
+        }
+      }
+
+      /* DESKTOP LAYOUT - 768px and up */
+      @media (min-width: 768px) {
+        body {
+          font-size: 16px;
+        }
+
+        .page-width-100 {
+          max-width: 100%;
+          padding: 0;
+        }
+
+        .page-width-85 {
+          max-width: calc(85% + 24px);
+          padding: 0 12px;
+        }
+
+        .page-width-80 {
+          max-width: calc(80% + 24px);
+          padding: 0 12px;
+        }
+
+        .container,
+        [class*="container"] {
+          padding: 0 20px;
+        }
+
+        .product-grid,
+        [class*="product-grid"] {
+          grid-template-columns: repeat(4, 1fr);
+          gap: 16px;
+          padding: 16px;
+        }
+
+        button {
+          font-size: 16px;
+        }
+      }
+
+      /* LARGE DESKTOP - 1024px and up */
+      @media (min-width: 1024px) {
+        .container,
+        [class*="container"] {
+          padding: 0 24px;
+        }
+
+        .product-grid,
+        [class*="product-grid"] {
+          grid-template-columns: repeat(4, 1fr);
+          gap: 20px;
+          padding: 20px;
+        }
+      }
+
+      /* ============================================
+         HIDE PREVIEW BUTTONS AND OVERLAYS GLOBALLY
+         ============================================ */
+      [class*="preview"],
+      [id*="preview"],
+      [class*="quick-view"],
+      [id*="quick-view"],
+      [class*="modal"],
+      [id*="modal"],
+      [class*="drawer"],
+      [id*="drawer"],
+      [class*="overlay"],
+      [id*="overlay"],
+      .shopify-section__overlay,
+      .button-preview,
+      .product-preview,
+      [data-testid*="preview"],
+      [role="tooltip"],
+      [role="dialog"],
+      .tooltip-preview,
+      button[aria-label*="preview"],
+      button[aria-label*="quick"],
+      .preview-button,
+      .quick-view-button,
+      .shopify-product-preview,
+      .product__preview,
+      .product__modal,
+      .product__drawer,
+      [class*="modal-content"],
+      [class*="drawer-content"],
+      .modal-overlay,
+      .drawer-overlay {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        z-index: -9999 !important;
+      }
+
+      /* Hide pseudo-elements that might show preview */
+      [class*="preview"]::before,
+      [class*="preview"]::after,
+      [class*="quick"]::before,
+      [class*="quick"]::after,
+      button[aria-label*="preview"]::before,
+      button[aria-label*="preview"]::after {
+        display: none !important;
+      }
+
+      /* Disable all modals and overlays */
+      body > [class*="modal"],
+      body > [class*="drawer"],
+      body > [role="dialog"] {
+        display: none !important;
+      }
+
+      /* ============================================
+         HIDE LOADING SPINNERS AND INDICATORS
+         ============================================ */
+      .loading-spinner,
+      .spinner,
+      [class*="loader"],
+      [class*="loading"],
+      [class*="progress"],
+      .loader,
+      .progress-bar,
+      [aria-busy="true"],
+      .add-to-cart-button .spinner,
+      button .loading-spinner,
+      button .spinner {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        clip: rect(0, 0, 0, 0) !important;
+        clip-path: inset(50%) !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        animation: none !important;
+      }
+
+      /* Stop all animations on loading elements */
+      .loading-spinner *,
+      .spinner *,
+      .add-to-cart-button.loading *,
+      button.loading * {
+        animation: none !important;
+      }
+
+      /* Hide loading text */
+      .loading-spinner::after,
+      .loading-spinner::before,
+      .spinner::after,
+      .spinner::before {
+        display: none !important;
+        content: '' !important;
+        animation: none !important;
+      }
+
+      /* Hide button loading state */
+      .add-to-cart-button.loading {
+        opacity: 1 !important;
+        cursor: auto !important;
+      }
+
+      /* Hide all product card loading states and spinners */
+      .product-card__loading,
+      .product-card .loading-spinner,
+      .card__loading,
+      [class*="product-card"] .spinner,
+      [class*="product-card"] .loading-spinner,
+      .product-card__overlay,
+      .card__overlay {
+        display: none !important;
+      }
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="{{ 'quickbee-shared-animations.css' | asset_url }}"
+    >
+
+    {% if request.design_mode %}
+      {%- render 'theme-editor' -%}
+    {% endif %}
+
+    {{ content_for_header }}
+  </head>
+
+  <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">
+    {% render 'skip-to-content-link', href: '#MainContent', text: 'accessibility.skip_to_text' %}
+    <div id="header-group">
+      {% section 'quickbee-header' %}
+    </div>
+
+    <script>
+      // Prevent all modal/drawer/preview functionality and loading spinners from showing
+      (function() {
+        // Hide all modals/drawers and spinners on page load
+        const hideBadElements = () => {
+          // Hide modals and drawers
+          document.querySelectorAll('[class*="modal"], [class*="drawer"], [role="dialog"]').forEach(el => {
+            el.style.display = 'none !important';
+            el.style.visibility = 'hidden';
+            el.style.pointerEvents = 'none';
+          });
+
+          // Remove loading spinners completely
+          document.querySelectorAll('.loading-spinner, .spinner').forEach(el => {
+            if (el.parentElement) {
+              el.remove();
+            }
+          });
+
+          // Hide any elements with loading class
+          document.querySelectorAll('.loading').forEach(el => {
+            el.style.display = 'none !important';
+          });
+        };
+
+        // Run on load
+        hideBadElements();
+
+        // Run when DOM changes to catch dynamically added elements
+        const observer = new MutationObserver(hideBadElements);
+        observer.observe(document.body, { childList: true, subtree: true });
+      })();
+
+      // Inline header height and menu style calculations to prevent layout shift
+      // Note: Updates in calculateHeaderGroupHeight(), updateTransparentHeaderOffset() and setHeaderMenuStyle() utilities.js should be kept in sync with this function
+      (function setHeaderHeighCustomProperties() {
+        /*
+         * Header calculation functions for maintaining CSS variables
+         * Mimic calculateHeaderGroupHeight() in utilities.js
+         */
+        const header = document.querySelector('header-component');
+        const headerGroup = document.querySelector('#header-group');
+        const hasHeaderSection = headerGroup?.querySelector('.header-section');
+
+        if (!header || !headerGroup) return;
+
+        const headerTopRow = header.querySelector('.header__row--top');
+        const headerHeight = header.offsetHeight;
+
+        // Calculate the total height of the header group
+        let headerGroupHeight = 0;
+        const children = headerGroup.children;
+        for (let i = 0; i < children.length; i++) {
+          const element = children[i];
+          if (element === header || !(element instanceof HTMLElement)) continue;
+          headerGroupHeight += element.offsetHeight;
+        }
+
+        // Check for transparent header special case
+        if (header.hasAttribute('transparent') && header.parentElement?.nextElementSibling) {
+          headerGroupHeight += headerHeight;
+        }
+
+        // Set CSS variables
+        document.body.style.setProperty('--header-height', `${headerHeight}px`);
+        document.body.style.setProperty('--header-group-height', `${headerGroupHeight}px`);
+
+        if (headerTopRow) {
+          window.requestAnimationFrame(function () {
+            document.body.style.setProperty('--top-row-height', `${headerTopRow.offsetHeight}px`);
+          });
+        }
+
+        /**
+         * Updates CSS custom properties for transparent header offset calculation
+         * Mimic updateTransparentHeaderOffset() in utilities.js
+         */
+
+        if (!hasHeaderSection || !header?.hasAttribute('transparent')) {
+          document.body.style.setProperty('--transparent-header-offset-boolean', '0');
+          return;
+        }
+
+        const hasImmediateSection = hasHeaderSection.nextElementSibling?.classList.contains('shopify-section');
+
+        const shouldApplyOffset = !hasImmediateSection ? '1' : '0';
+        document.body.style.setProperty('--transparent-header-offset-boolean', shouldApplyOffset);
+      })();
+
+      (function setHeaderMenuStyle() {
+        const headerComponent = document.querySelector('#header-component');
+        if (headerComponent) {
+          const isTouchDevice = 'ontouchstart' in window && navigator.maxTouchPoints > 0;
+          const overflowList = headerComponent?.querySelector('overflow-list');
+          const hasReachedMinimum = overflowList && overflowList.hasAttribute('minimum-reached');
+          headerComponent.dataset.menuStyle = isTouchDevice || hasReachedMinimum ? 'drawer' : 'menu';
+        }
+      })();
+    </script>
+
+    <main
+      id="MainContent"
+      class="content-for-layout"
+      role="main"
+      data-page-transition-enabled="{{ settings.page_transition_enabled }}"
+      data-product-transition="{{ settings.transition_to_main_product }}"
+      data-template="{{ template }}"
+    >
+      {{ content_for_layout }}
+    </main>
+
+    {% render 'search-modal' %}
+
+    {% if settings.quick_add or settings.mobile_quick_add %}
+      {% render 'quick-add-modal' %}
+    {% endif %}
+
+    <script
+      type="module"
+      src="{{ 'wallet-order-complete.js' | asset_url }}"
+      fetchpriority="low"
+    ></script>
+
+    <script
+      src="{{ 'flash-deals.js' | asset_url }}"
+      defer
+    ></script>
+
+    <script
+      src="{{ 'quickbee-shared-carousel.js' | asset_url }}"
+      defer
+    ></script>
+  </body>
+</html>

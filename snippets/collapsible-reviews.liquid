@@ -1,0 +1,171 @@
+{% # Collapsible Reviews Section %}
+
+<div class="collapsible-section reviews-section">
+  <button class="collapsible-header" aria-expanded="false">
+    <span class="header-text">
+      {% if product.reviews %}
+        ⭐ Reviews ({{ product.reviews.size }})
+      {% else %}
+        📝 Reviews
+      {% endif %}
+    </span>
+    <span class="toggle-icon">▼</span>
+  </button>
+
+  <div class="collapsible-content reviews-content" style="display: none;">
+    {% if product.reviews.size > 0 %}
+      <div class="reviews-header">
+        <div class="rating">
+          <span class="stars">⭐⭐⭐⭐⭐</span>
+          <span class="rating-text">{{ product.reviews_average | round: 1 }}/5.0</span>
+        </div>
+        <p class="review-count">{{ product.reviews.size }} reviews</p>
+      </div>
+
+      <div class="reviews-list">
+        {% for review in product.reviews limit: 3 %}
+          <div class="review-item">
+            <div class="review-meta">
+              <span class="reviewer-name">{{ review.author }}</span>
+              <span class="review-rating">⭐ {{ review.rating }}/5</span>
+            </div>
+            <p class="review-text">{{ review.body }}</p>
+            <span class="review-date">{{ review.created_at | date: '%b %d, %Y' }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p style="text-align: center; color: #999; padding: 20px;">No reviews yet. Be the first to review!</p>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+  .collapsible-section {
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  .collapsible-header {
+    width: 100%;
+    padding: 16px;
+    background: #f9f9f9;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: #000;
+    transition: background 0.2s;
+  }
+
+  .collapsible-header:hover {
+    background: #f5f5f5;
+  }
+
+  .toggle-icon {
+    transition: transform 0.3s;
+  }
+
+  .collapsible-header[aria-expanded="true"] .toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  .collapsible-content {
+    padding: 16px;
+    background: white;
+  }
+
+  .reviews-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  .rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .rating-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #000;
+  }
+
+  .review-count {
+    font-size: 13px;
+    color: #666;
+    margin: 0;
+  }
+
+  .reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .review-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .review-item:last-child {
+    border-bottom: none;
+  }
+
+  .review-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .reviewer-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #000;
+  }
+
+  .review-rating {
+    font-size: 13px;
+    color: #666;
+  }
+
+  .review-text {
+    font-size: 13px;
+    color: #333;
+    margin: 8px 0;
+    line-height: 1.5;
+  }
+
+  .review-date {
+    font-size: 12px;
+    color: #999;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const headers = document.querySelectorAll('.collapsible-header');
+
+    headers.forEach(header => {
+      header.addEventListener('click', function() {
+        const isExpanded = this.getAttribute('aria-expanded') === 'true';
+        const content = this.nextElementSibling;
+
+        if (isExpanded) {
+          content.style.display = 'none';
+          this.setAttribute('aria-expanded', 'false');
+        } else {
+          content.style.display = 'block';
+          this.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+  });
+</script>

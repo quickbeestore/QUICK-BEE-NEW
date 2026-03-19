@@ -1,0 +1,174 @@
+{% schema %}
+{
+  "name": "Featured Collections",
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section Title",
+      "default": "Explore More"
+    },
+    {
+      "type": "text",
+      "id": "section_subtitle",
+      "label": "Section Subtitle",
+      "default": "Curated collections for your needs"
+    },
+    {
+      "type": "range",
+      "id": "collections_limit",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "label": "Collections to Show",
+      "default": 8
+    },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card Background Color",
+      "default": "#FFF8E8"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#111111"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured Collections"
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+.qb-section {
+  padding: 40px 16px;
+}
+@media(min-width:1024px) {
+  .qb-section {
+    padding: 60px 48px;
+  }
+}
+.qb-section h2 {
+  font-size: 24px;
+  font-weight: 900;
+  margin: 0 0 24px 0;
+}
+@media(min-width:1024px) {
+  .qb-section h2 {
+    font-size: 32px;
+    margin-bottom: 32px;
+  }
+}
+.qb-section p {
+  font-size: 14px;
+  color: #666;
+  margin: 8px 0 0 0;
+}
+.qb-collections {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 20px;
+}
+@media(min-width:768px) {
+  .qb-collections {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+.qb-collection {
+  border-radius: 16px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 160px;
+  position: relative;
+  overflow: hidden;
+}
+.qb-collection:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+.qb-collection-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+.qb-collection h3 {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0;
+}
+.qb-collection p {
+  font-size: 12px;
+  color: #666;
+  margin: 4px 0 0 0;
+}
+.qb-collection-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 12px;
+}
+.qb-collection-btn {
+  background: #111111;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.qb-collection-btn:hover {
+  background: #F4B400;
+  color: #111111;
+}
+</style>
+
+<!-- Featured Collections -->
+<section class="qb-section">
+  <h2>{{ section.settings.section_title }}</h2>
+  <p>{{ section.settings.section_subtitle }}</p>
+
+  <div class="qb-collections">
+    {% for collection in shop.collections limit: section.settings.collections_limit %}
+      {% unless collection.handle == 'all' or collection.handle == 'frontpage' %}
+        <a href="{{ collection.url }}" class="qb-collection" style="background: linear-gradient(135deg, {{ section.settings.card_bg }} 0%, #F5F5F5 100%); color: {{ section.settings.text_color }};">
+          <div class="qb-collection-icon">
+            {% case collection.handle %}
+              {% when 'grocery' %}🥕
+              {% when 'groceries' %}🥕
+              {% when 'food' %}🍔
+              {% when 'electronics' %}📱
+              {% when 'hardware' %}🔧
+              {% when 'home' %}🏡
+              {% when 'beauty' %}✨
+              {% when 'fashion' %}👕
+              {% when 'gifts' %}🎁
+              {% else %}📦
+            {% endcase %}
+          </div>
+          <div>
+            <h3>{{ collection.title }}</h3>
+            <p>{% if collection.description %}{{ collection.description | strip_html | truncatewords: 5 }}{% else %}Shop from this collection{% endif %}</p>
+          </div>
+          <div class="qb-collection-foot">
+            <span style="font-size: 11px; color: #16A34A; font-weight: 600;">⚡ 18-24 mins</span>
+            <button class="qb-collection-btn">Browse</button>
+          </div>
+        </a>
+      {% endunless %}
+    {% endfor %}
+  </div>
+</section>
