@@ -3461,48 +3461,76 @@ console.log('🐝 QuickBee Splash Screen Ready');
   }
 
   function fetchSuggestions(q) {
-    results.innerHTML = '<li class="qb-loc-loading"><span class="qb-loc-spinner"></span>Searching…</li>';
     focusedIndex = -1;
-    var url = 'https://nominatim.openstreetmap.org/search?q='
-      + encodeURIComponent(q)
-      + '&format=json&limit=6&addressdetails=1';
-    fetch(url, { headers: { 'Accept-Language': 'en' } })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        if (input.value.trim() !== q) return; // stale response
-        renderResults(data);
-      })
-      .catch(function () {
-        results.innerHTML = '<li class="qb-loc-empty">Could not load suggestions.</li>';
-      });
-  }
-
-  function renderResults(data) {
-    results.innerHTML = '';
-    if (!data || data.length === 0) {
-      results.innerHTML = '<li class="qb-loc-empty">No results found.</li>';
+    if (!q.trim()) {
+      results.innerHTML = '';
       return;
     }
-    data.forEach(function (place) {
-      var addr  = place.address || {};
-      var main  = addr.city || addr.town || addr.village || addr.suburb
-                  || addr.county || addr.state || place.display_name.split(',')[0];
-      var parts = place.display_name.split(',');
-      var sub   = parts.slice(0, Math.min(3, parts.length)).join(', ').trim();
 
-      // Build detailed address for checkout
-      var detailedAddr = [
-        addr.house_number || '',
-        addr.road || '',
-        addr.neighbourhood || '',
-        addr.suburb || '',
-        addr.city || addr.town || addr.village || '',
-        addr.county || '',
-        addr.state || '',
-        addr.postcode || '',
-        addr.country || ''
-      ].filter(Boolean).join(', ');
+    // Search locally in QB_AREAS_DATA only (no external APIs)
+    var searchResults = [];
+    var lowerQ = q.toLowerCase();
 
+    // Search through all districts, municipalities, areas, and sub-areas
+    if (areasData && areasData.districts) {
+      areasData.districts.forEach(function(district) {
+        if (district.name.toLowerCase().includes(lowerQ)) {
+          searchResults.push({
+            type: 'district',
+            main: district.name,
+            fullPath: district.name
+          });
+        }
+
+        if (district.municipalities) {
+          district.municipalities.forEach(function(mun) {
+            if (mun.name.toLowerCase().includes(lowerQ)) {
+              searchResults.push({
+                type: 'municipality',
+                main: mun.name,
+                fullPath: district.name + ' → ' + mun.name
+              });
+            }
+
+            if (mun.areas) {
+              mun.areas.forEach(function(area) {
+                if (area.name.toLowerCase().includes(lowerQ)) {
+                  searchResults.push({
+                    type: 'area',
+                    main: area.name,
+                    fullPath: district.name + ' → ' + mun.name + ' → ' + area.name
+                  });
+                }
+
+                if (area.subAreas) {
+                  area.subAreas.forEach(function(subArea) {
+                    if (subArea.name.toLowerCase().includes(lowerQ)) {
+                      searchResults.push({
+                        type: 'subarea',
+                        main: subArea.name,
+                        fullPath: district.name + ' → ' + mun.name + ' → ' + area.name + ' → ' + subArea.name
+                      });
+                    }
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+
+    renderLocalResults(searchResults);
+  }
+
+  function renderLocalResults(searchResults) {
+    results.innerHTML = '';
+    if (!searchResults || searchResults.length === 0) {
+      results.innerHTML = '<li class="qb-loc-empty">No areas found.</li>';
+      return;
+    }
+
+    searchResults.slice(0, 10).forEach(function (result) {
       var li = document.createElement('li');
       li.className = 'qb-loc-result-item';
       li.setAttribute('role', 'option');
@@ -3510,15 +3538,13 @@ console.log('🐝 QuickBee Splash Screen Ready');
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f5c518" stroke-width="2.5" stroke-linecap="round">'
         + '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>'
         + '<circle cx="12" cy="9" r="2" fill="#f5c518" stroke="none"/></svg>'
-        + '<div><div class="qb-loc-result-main">' + esc(main) + '</div>'
-        + '<div class="qb-loc-result-sub">' + esc(sub) + '</div></div>';
+        + '<div><div class="qb-loc-result-main">' + esc(result.main) + '</div>'
+        + '<div class="qb-loc-result-sub">' + esc(result.fullPath) + '</div></div>';
 
       li.addEventListener('click', function () {
         selectLocation({
-          main: main,
-          full: detailedAddr || place.display_name,
-          lat: place.lat,
-          lon: place.lon
+          main: result.main,
+          full: result.fullPath
         });
       });
       results.appendChild(li);
