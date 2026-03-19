@@ -43,12 +43,24 @@
         {%- content_for 'block', id: 'cart-page-title', type: '_cart-title' %}
       </div>
 
+      {%- unless cart.empty? -%}
+        <!-- Urgency: Delivery Countdown Timer -->
+        <div class="cart-page__urgency">
+          {% render 'delivery-countdown-timer' %}
+        </div>
+      {%- endunless -%}
+
       <div class="cart-page__items">
         {%- content_for 'block', id: 'cart-page-items', type: '_cart-products' %}
       </div>
 
       {%- unless cart.empty? -%}
         <div class="cart-page__summary">
+          <!-- Trust Signal: Wallet Balance for Quick Pay -->
+          <div class="cart-page__wallet-reminder">
+            {% render 'wallet-balance' %}
+          </div>
+
           {%- content_for 'block', id: 'cart-page-summary', type: '_cart-summary' -%}
         </div>
       {%- endunless -%}
@@ -96,6 +108,52 @@
 
   .cart-page__title + .cart-page__items {
     margin-block-start: var(--margin-lg);
+  }
+
+  .cart-page__urgency {
+    margin-bottom: var(--margin-md);
+    animation: slideDown 0.4s ease-out;
+  }
+
+  .cart-page__wallet-reminder {
+    padding: 12px 14px;
+    background: linear-gradient(135deg, #f0f4ff 0%, #f9f5ff 100%);
+    border: 1px solid #e5e0ff;
+    border-radius: 8px;
+    margin-bottom: var(--margin-lg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Mobile: Sticky checkout button */
+  @media screen and (max-width: 749px) {
+    .cart-page__summary {
+      position: sticky;
+      bottom: 0;
+      background: #fff;
+      border-top: 1px solid #e5e5e5;
+      padding-top: var(--padding-md) !important;
+      z-index: 10;
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .cart-page__wallet-reminder {
+      flex-direction: column;
+      text-align: center;
+      gap: 8px;
+    }
   }
 
   @media screen and (min-width: 750px) {

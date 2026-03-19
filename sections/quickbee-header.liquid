@@ -3728,6 +3728,26 @@ window.QB_AREAS_DATA = {"districts":[{"id":"kathmandu","name":"Kathmandu","slug"
       localStorage.setItem('qb_location_detail', JSON.stringify(locObj));
       window.QB_LOCATION = locObj;
 
+      // Update cart attributes with location data for Shopify orders
+      if (placeData.locData) {
+        try {
+          fetch('/cart/update.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              attributes: {
+                'delivery_district': placeData.locData.district,
+                'delivery_municipality': placeData.locData.municipality,
+                'delivery_area': placeData.locData.area,
+                'delivery_subarea': placeData.locData.subArea,
+                'delivery_ward': placeData.locData.ward,
+                'delivery_time': placeData.locData.deliveryTime
+              }
+            })
+          });
+        } catch (e) { console.log('Cart attributes update failed'); }
+      }
+
       // Dispatch location change event for weather widget
       window.dispatchEvent(new Event('qb_location_changed'));
     } catch (e) {}

@@ -1,0 +1,447 @@
+{%- doc -%}
+  FAQ Accordion Section - Displays collapsible FAQ items organized by category
+  Supports multiple accordion categories with smooth animations
+  Fully responsive and accessible
+{%- enddoc -%}
+
+<div
+  class="faq-accordion-wrapper"
+  data-section-id="{{ section.id }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+>
+  <div class="section color-{{ section.settings.color_scheme }} section--{{ section.settings.section_width }}">
+    <div class="faq-accordion-container">
+      <!-- Section Title -->
+      {%- if section.settings.title != blank -%}
+        <div class="faq-header">
+          <h2 class="faq-title">{{ section.settings.title }}</h2>
+          {%- if section.settings.description != blank -%}
+            <p class="faq-description">{{ section.settings.description }}</p>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      <!-- FAQ Items by Category -->
+      <div class="faq-items-wrapper">
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when 'category' -%}
+              <div class="faq-category" {{ block.shopify_attributes }}>
+                <div class="faq-category-title">
+                  {{ block.settings.category_name }}
+                </div>
+                <div class="faq-category-items">
+                  {%- for item in section.blocks -%}
+                    {%- if item.settings.category == block.settings.category_name -%}
+                      <div class="faq-item">
+                        <button
+                          class="faq-question"
+                          aria-expanded="false"
+                          aria-controls="faq-answer-{{ item.id }}"
+                        >
+                          <span class="faq-question-text">{{ item.settings.question }}</span>
+                          <svg class="faq-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </button>
+                        <div
+                          class="faq-answer"
+                          id="faq-answer-{{ item.id }}"
+                          hidden
+                        >
+                          <div class="faq-answer-content">
+                            {{ item.settings.answer }}
+                          </div>
+                        </div>
+                      </div>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </div>
+              </div>
+
+            {%- when 'item' -%}
+              {%- if block.settings.category == blank -%}
+                <div class="faq-item" {{ block.shopify_attributes }}>
+                  <button
+                    class="faq-question"
+                    aria-expanded="false"
+                    aria-controls="faq-answer-{{ block.id }}"
+                  >
+                    <span class="faq-question-text">{{ block.settings.question }}</span>
+                    <svg class="faq-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                  <div
+                    class="faq-answer"
+                    id="faq-answer-{{ block.id }}"
+                    hidden
+                  >
+                    <div class="faq-answer-content">
+                      {{ block.settings.answer }}
+                    </div>
+                  </div>
+                </div>
+              {%- endif -%}
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .faq-accordion-wrapper {
+    width: 100%;
+  }
+
+  .faq-accordion-container {
+    max-width: var(--page-width);
+    margin: 0 auto;
+  }
+
+  .faq-header {
+    text-align: center;
+    margin-bottom: var(--margin-6xl);
+  }
+
+  .faq-title {
+    font-size: clamp(24px, 5vw, 42px);
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+
+  .faq-description {
+    font-size: 16px;
+    color: #666;
+    margin: 0;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .faq-items-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--margin-4xl);
+  }
+
+  .faq-category {
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f9f9f9;
+    padding: 24px;
+  }
+
+  .faq-category-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #2563eb;
+  }
+
+  .faq-category-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .faq-item {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+  }
+
+  .faq-item:hover {
+    border-color: #2563eb;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+  }
+
+  .faq-question {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    color: #222;
+    text-align: left;
+    transition: background-color 0.2s ease;
+  }
+
+  .faq-question:hover {
+    background-color: #f5f5f5;
+  }
+
+  .faq-question[aria-expanded="true"] {
+    background-color: #f0f4ff;
+  }
+
+  .faq-question-text {
+    flex: 1;
+  }
+
+  .faq-toggle-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-left: 12px;
+    color: #2563eb;
+    transition: transform 0.3s ease;
+  }
+
+  .faq-question[aria-expanded="true"] .faq-toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  .faq-answer {
+    overflow: hidden;
+    transition: all 0.3s ease;
+    max-height: 0;
+  }
+
+  .faq-answer[open],
+  .faq-answer:not([hidden]) {
+    max-height: 2000px;
+  }
+
+  .faq-answer-content {
+    padding: 16px 20px;
+    background: #fafafa;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #555;
+    border-top: 1px solid #e5e5e5;
+  }
+
+  /* Mobile Optimizations */
+  @media screen and (max-width: 749px) {
+    .faq-accordion-container {
+      padding: 0 16px;
+    }
+
+    .faq-category {
+      padding: 16px 12px;
+    }
+
+    .faq-question {
+      padding: 14px 12px;
+      font-size: 14px;
+    }
+
+    .faq-toggle-icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    .faq-answer-content {
+      padding: 12px 12px;
+      font-size: 13px;
+    }
+
+    .faq-title {
+      font-size: 24px;
+    }
+
+    .faq-description {
+      font-size: 14px;
+    }
+  }
+
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+    .faq-category {
+      background: #1a1a1a;
+    }
+
+    .faq-item,
+    .faq-question {
+      background: #222;
+      color: #fff;
+    }
+
+    .faq-question[aria-expanded="true"] {
+      background-color: #1a3a52;
+    }
+
+    .faq-question:hover {
+      background-color: #333;
+    }
+
+    .faq-answer-content {
+      background: #2a2a2a;
+      color: #ddd;
+      border-top-color: #444;
+    }
+
+    .faq-item {
+      border-color: #444;
+    }
+
+    .faq-item:hover {
+      border-color: #5b9ff5;
+    }
+
+    .faq-title {
+      color: #fff;
+    }
+
+    .faq-category-title {
+      color: #fff;
+      border-bottom-color: #5b9ff5;
+    }
+
+    .faq-description {
+      color: #aaa;
+    }
+  }
+</style>
+
+<script>
+  (function() {
+    const faqWrapper = document.querySelector('[data-section-id="{{ section.id }}"]');
+    if (!faqWrapper) return;
+
+    const questions = faqWrapper.querySelectorAll('.faq-question');
+
+    questions.forEach((question) => {
+      question.addEventListener('click', () => {
+        const answerId = question.getAttribute('aria-controls');
+        const answer = document.getElementById(answerId);
+
+        if (!answer) return;
+
+        const isExpanded = question.getAttribute('aria-expanded') === 'true';
+
+        // Close all other answers
+        questions.forEach((q) => {
+          if (q !== question) {
+            q.setAttribute('aria-expanded', 'false');
+            const otherId = q.getAttribute('aria-controls');
+            const otherAnswer = document.getElementById(otherId);
+            if (otherAnswer) {
+              otherAnswer.hidden = true;
+            }
+          }
+        });
+
+        // Toggle current answer
+        question.setAttribute('aria-expanded', !isExpanded);
+        answer.hidden = isExpanded;
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "FAQ Accordion",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section Title",
+      "default": "Frequently Asked Questions"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Section Description",
+      "default": "Find answers to common questions about our services, policies, and QuickPay wallet."
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section Width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "Page Width"
+        },
+        {
+          "value": "full-width",
+          "label": "Full Width"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color Scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top Padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom Padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "FAQ Category",
+      "settings": [
+        {
+          "type": "text",
+          "id": "category_name",
+          "label": "Category Name",
+          "placeholder": "e.g., Local Kathmandu Delivery"
+        }
+      ]
+    },
+    {
+      "type": "item",
+      "name": "FAQ Item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "category",
+          "label": "Category (Optional)",
+          "placeholder": "Leave empty for uncategorized"
+        },
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "placeholder": "What is your delivery time?"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
