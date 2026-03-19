@@ -3948,6 +3948,174 @@ console.log('🐝 QuickBee Splash Screen Ready');
   // Also reapply periodically in case something else changes it
   setInterval(applyColors, 2000);
 })();
+
+// ═══════════════════════════════════════════════════════════
+// 4-Level Location Picker Integration
+// ═══════════════════════════════════════════════════════════
+(function() {
+  let areasData = null;
+  let selectedDistrict = null;
+  let selectedMunicipality = null;
+  let selectedArea = null;
+
+  // Load areas data
+  fetch('{{ "areas-data.json" | asset_url }}')
+    .then(r => r.json())
+    .then(data => { areasData = data; })
+    .catch(e => console.error('Failed to load areas data:', e));
+
+  // Render sub-areas (4th level) when area is selected
+  function renderSubAreasIfAvailable(district, municipality, area) {
+    if (!areasData) return false;
+
+    const districtData = areasData.districts.find(d => d.id === district);
+    if (!districtData) return false;
+
+    const municipalityData = districtData.municipalities.find(m => m.id === municipality);
+    if (!municipalityData) return false;
+
+    const areaData = municipalityData.areas.find(a => a.id === area);
+    if (!areaData || !areaData.subAreas || areaData.subAreas.length === 0) return false;
+
+    selectedDistrict = district;
+    selectedMunicipality = municipality;
+    selectedArea = area;
+
+    // Render sub-areas list
+    const results = document.getElementById('qbLocResults');
+    if (!results) return false;
+
+    results.innerHTML = '';
+    const pinSvg = '<svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 0C3.243 0 1 2.243 1 5c0 3.25 5 9 5 9s5-5.75 5-9c0-2.757-2.243-5-5-5zm0 7.5A2.5 2.5 0 1 1 6 2.5 2.5 2.5 0 0 1 6 7.5z" fill="#000F9F"/></svg>';
+
+    const breadcrumb = document.createElement('div');
+    breadcrumb.style.cssText = 'padding:12px 14px;border-bottom:1px solid #e5e5e5;font-size:12px;color:#999;display:flex;gap:4px;align-items:center';
+    breadcrumb.innerHTML = `<button type="button" style="background:none;border:none;color:#2563eb;cursor:pointer;padding:0;font-size:12px">← Back</button> <span>${areaData.name}</span>`;
+    breadcrumb.querySelector('button').addEventListener('click', () => {
+      renderAreas(district, municipality);
+    });
+    results.appendChild(breadcrumb);
+
+    areaData.subAreas.forEach(subArea => {
+      const item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid #f0f0f0;transition:background 0.2s';
+      item.innerHTML = `${pinSvg}<span>${subArea.name}</span>`;
+      item.addEventListener('click', () => {
+        selectSubArea(district, municipality, area, subArea.id, subArea.name);
+      });
+      item.addEventListener('mouseenter', () => item.style.background = '#f9f9f9');
+      item.addEventListener('mouseleave', () => item.style.background = 'none');
+      results.appendChild(item);
+    });
+
+    return true;
+  }
+
+  // Override the original selectLocation to check for sub-areas
+  const originalSelectLocation = window.selectLocation;
+  window.selectLocation = function(place) {
+    // If it's from the hierarchy picker, check for sub-areas
+    if (place.hierarchyData) {
+      const { district, municipality, area } = place.hierarchyData;
+      if (renderSubAreasIfAvailable(district, municipality, area)) {
+        return; // Stop here, user needs to select sub-area
+      }
+    }
+    // Otherwise use normal flow
+    originalSelectLocation.call(this, place);
+  };
+
+  function selectSubArea(district, municipality, area, subAreaId, subAreaName) {
+    const areaData = areasData.districts.find(d => d.id === district)
+      .municipalities.find(m => m.id === municipality)
+      .areas.find(a => a.id === area);
+
+    selectLocation({
+      main: subAreaName,
+      full: `${subAreaName}, ${areaData.name}`,
+      hierarchyData: { district, municipality, area, subArea: subAreaId, subAreaName }
+    });
+  }
+
+  // Update the areas rendering to pass hierarchy data
+  function renderAreas(district, municipality) {
+    if (!areasData) return;
+    const districtData = areasData.districts.find(d => d.id === district);
+    if (!districtData) return;
+    const municipalityData = districtData.municipalities.find(m => m.id === municipality);
+    if (!municipalityData) return;
+
+    const results = document.getElementById('qbLocResults');
+    if (!results) return;
+    results.innerHTML = '';
+
+    const breadcrumb = document.createElement('div');
+    breadcrumb.style.cssText = 'padding:12px 14px;border-bottom:1px solid #e5e5e5;font-size:12px;color:#999;display:flex;gap:4px;align-items:center';
+    breadcrumb.innerHTML = `<button type="button" style="background:none;border:none;color:#2563eb;cursor:pointer;padding:0;font-size:12px">← Back</button> <span>${municipalityData.name}</span>`;
+    breadcrumb.querySelector('button').addEventListener('click', () => {
+      renderMunicipalities(district);
+    });
+    results.appendChild(breadcrumb);
+
+    municipalityData.areas.forEach(area => {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:12px 14px;cursor:pointer;border-bottom:1px solid #f0f0f0;transition:background 0.2s';
+      item.textContent = area.name;
+      item.addEventListener('click', () => {
+        window.selectLocation({
+          main: area.name,
+          full: `${area.name}, ${municipalityData.name}`,
+          hierarchyData: { district, municipality, area: area.id }
+        });
+      });
+      item.addEventListener('mouseenter', () => item.style.background = '#f9f9f9');
+      item.addEventListener('mouseleave', () => item.style.background = 'none');
+      results.appendChild(item);
+    });
+  }
+
+  function renderMunicipalities(district) {
+    if (!areasData) return;
+    const districtData = areasData.districts.find(d => d.id === district);
+    if (!districtData) return;
+
+    const results = document.getElementById('qbLocResults');
+    if (!results) return;
+    results.innerHTML = '';
+
+    districtData.municipalities.forEach(municipality => {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:12px 14px;cursor:pointer;border-bottom:1px solid #f0f0f0;transition:background 0.2s;font-weight:500';
+      item.textContent = municipality.name;
+      item.addEventListener('click', () => {
+        renderAreas(district, municipality.id);
+      });
+      item.addEventListener('mouseenter', () => item.style.background = '#f9f9f9');
+      item.addEventListener('mouseleave', () => item.style.background = 'none');
+      results.appendChild(item);
+    });
+  }
+
+  // Expose for rendering from main location picker
+  window.renderQuickBeeHierarchy = function() {
+    if (!areasData) return;
+    const results = document.getElementById('qbLocResults');
+    if (!results) return;
+    results.innerHTML = '';
+
+    areasData.districts.forEach(district => {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:12px 14px;cursor:pointer;border-bottom:1px solid #f0f0f0;transition:background 0.2s;font-weight:600';
+      item.textContent = district.name;
+      item.addEventListener('click', () => {
+        renderMunicipalities(district.id);
+      });
+      item.addEventListener('mouseenter', () => item.style.background = '#f9f9f9');
+      item.addEventListener('mouseleave', () => item.style.background = 'none');
+      results.appendChild(item);
+    });
+  };
+})();
 </script>
 
 </nav>
