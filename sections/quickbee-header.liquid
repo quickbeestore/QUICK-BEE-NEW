@@ -1868,70 +1868,6 @@
           <polyline points="6 9 12 15 18 9"/>
         </svg>
       </button>
-
-      <div class="qb-loc-dropdown" id="qbLocDropdown" hidden>
-        <!-- Hierarchical Location Picker -->
-        <div class="qb-hierarchy-wrapper" id="qbHierarchyWrapper">
-          <div class="qb-hierarchy-level">
-            <label class="qb-hierarchy-label">District</label>
-            <select class="qb-hierarchy-select" id="qbDistrictSelect">
-              <option value="">Select District</option>
-            </select>
-          </div>
-
-          <div class="qb-hierarchy-level">
-            <label class="qb-hierarchy-label">Municipality</label>
-            <select class="qb-hierarchy-select" id="qbMunicipalitySelect" disabled>
-              <option value="">Select Municipality</option>
-            </select>
-          </div>
-
-          <div class="qb-hierarchy-level">
-            <label class="qb-hierarchy-label">Area</label>
-            <select class="qb-hierarchy-select" id="qbAreaSelect" disabled>
-              <option value="">Select Area</option>
-            </select>
-          </div>
-
-          <div class="qb-hierarchy-level">
-            <label class="qb-hierarchy-label">Sub-Area</label>
-            <select class="qb-hierarchy-select" id="qbSubAreaSelect" disabled>
-              <option value="">Select Sub-Area</option>
-            </select>
-          </div>
-
-          <!-- Delivery Time Display -->
-          <div class="qb-delivery-time" id="qbDeliveryTime" hidden>
-            <strong id="qbDeliveryTimeValue">0</strong> mins
-            <div class="qb-delivery-time-label">Estimated delivery time</div>
-          </div>
-
-          <!-- OK Button -->
-          <button type="button" id="qbLocationOkBtn" class="qb-location-ok-btn" hidden style="width:100%;margin-top:12px;padding:10px;background:#f5c518;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:14px;">OK</button>
-        </div>
-
-        <!-- Save Address Form (visible when location selected) -->
-        <div class="qb-loc-save-form" id="qbLocSaveForm" hidden>
-          <div style="padding:12px 14px;border-top:1px solid #f0f0f0">
-            <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:8px">Save location as:</div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap">
-              <button type="button" class="qb-loc-save-btn" data-label="🏠 Home">🏠 Home</button>
-              <button type="button" class="qb-loc-save-btn" data-label="💼 Work">💼 Work</button>
-              <button type="button" class="qb-loc-save-btn" data-label="💖 Other">💖 Other</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Saved Addresses Tab -->
-        <div class="qb-loc-tabs" style="margin-top:8px">
-          <button class="qb-loc-tab" data-tab="saved" style="flex:1">Saved (0)</button>
-        </div>
-        <div class="qb-loc-tab-content" data-tab="saved" hidden>
-          <div id="qbLocSavedList" style="padding:8px 0">
-            <div style="padding:16px 14px;text-align:center;color:#aaa;font-size:13px">No saved addresses yet</div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- Location Modal (moved outside location-wrap to avoid size constraint) -->
@@ -2079,26 +2015,54 @@
       }
     };
 
-    // Generate delivery times for all landmarks
-    var qbDeliveryTimes = {};
-    function generateDeliveryTimes() {
-      var usedTimes = {};
-      Object.keys(qbLocationData).forEach(function(district) {
-        Object.keys(qbLocationData[district]).forEach(function(municipality) {
-          Object.keys(qbLocationData[district][municipality]).forEach(function(area) {
-            qbLocationData[district][municipality][area].forEach(function(landmark) {
-              var time;
-              do {
-                time = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
-              } while (usedTimes[time] && Object.keys(usedTimes).length < 16);
-              usedTimes[time] = true;
-              qbDeliveryTimes[landmark] = time;
-            });
-          });
-        });
-      });
-    }
-    generateDeliveryTimes();
+    // Predefined delivery times for all landmarks (in minutes)
+    var qbDeliveryTimes = {
+      'Narsingh Chowk': 18, 'Saat Ghumti': 17, 'Chhetrapati': 19, 'Z Street': 20, 'Bhagawati Bahal': 21, 'Jyata': 19,
+      'New Baneshwor Chowk': 22, 'Old Baneshwor': 23, 'Minbhawan': 24, 'Thapagaun': 25, 'Shankhamul': 23, 'Buddha Nagar': 24, 'Buddhanagar': 24,
+      'Prime Minister Residence Area': 20, 'Russian Embassy Area': 21, 'Thirbam Sadak': 19, 'Tusal': 20,
+      'Narayan Gopal Chowk': 21, 'Panipokhari': 22, 'Chandol': 23, 'Bhatbhateni': 22, 'Chundevi': 24, 'Bansbari': 23,
+      'Nil Saraswati Marg': 20, 'Ranibari': 21, 'Gairidhara': 19, 'British Embassy Area': 20,
+      'Halchowk': 24, 'Kimdol': 25, 'Chhauni': 26, 'Bijeshwori': 25, 'Dallu Awas': 27,
+      'Kalimati Chowk': 23, 'Kuleshwor': 24, 'Ravibhawan': 25, 'Soalteemode': 26, 'Bafal': 24,
+      'Asan': 17, 'Indra Chowk': 16, 'New Road': 17, 'Basantapur': 18, 'Makhan': 19, 'Freak Street': 18, 'Bangemudha': 17,
+      'Chuchepati': 26, 'Mitrapark': 27, 'Maijubahal': 28, 'Gaurighat': 27, 'Chabahil Stupa Area': 26,
+      'Bouddhanath Stupa Area': 29, 'Tinchuli': 28, 'Jorpati Border': 30, 'Fulbari': 29,
+      'Bagh Bhairab': 28, 'Uma Maheshwar': 29, 'Chilanchu Vihara': 30, 'Samal': 29,
+      'Lachhi': 26, 'Dhumbakhel': 27, 'Khasibazaar': 28,
+      'Tribhuvan University Campus': 25, 'Tyanglaphaant': 26, 'Nayabazaar': 27,
+      'Adinath Temple Area': 30, 'Chobhar Gorge': 31, 'Jal Binayak': 29,
+      'Tribhuvan Park Area': 32, 'Checkpost': 31, 'Godam': 32, 'Baukhel': 33,
+      'Makalu Petrol Pump Area': 28, 'Khasi Bazaar': 29, 'Sita Petrol Pump': 30, 'L.R.I. School Area': 29,
+      'Satungal Bazaar': 35, 'Shreeram Chowk': 36, 'Industrial Area': 37,
+      'Bypass Road': 27, 'Nepaltar Bus Park': 28, 'Mahadevsthan': 26,
+      'Baniyatar Border': 28, 'Tarakeshwor Temple Trail': 29,
+      'Narayanthan': 30, 'Deuba Chowk': 31, 'Golfutar': 32, 'Mandikhatar': 31,
+      'Kapan Gumba': 28, 'Ram Mandir': 29, 'Akhanda Marg': 30, 'Saraswatinagar': 31,
+      'Dakshindhoka': 25, 'Nayabasti': 26, 'Attarkhel': 27, 'Gokarna Mahadev Area': 28,
+      'Mangal Bazar': 20, 'Sundhara': 21, 'Gabahal': 22, 'Mahabouddha': 21, 'Swotha': 23, 'Hakha': 24, 'Saugal': 22,
+      'Zoo Area': 23, 'Ekantakuna Road': 24, 'Bhanimandal': 25, 'Manbhawan': 26,
+      'Kandevtastan': 25, 'Jwagal': 26, 'Sanepa Border': 27, 'UN Park Area': 28,
+      'Thado Dhunga': 24, 'Jhamel Strip': 25, 'British School Area': 26, 'Moksh Area': 27,
+      'Awas Kshetra (Housing Area)': 28, 'Sainbu': 29, 'Karyabinayak': 30, 'Magar Gaun': 31,
+      'Khumaltar': 26, 'Gwarko': 27, 'Hattiban': 28, 'Chapagaun Dobato': 29, 'Nakhipot': 30,
+      'Machhindranath Temple Area': 32, 'Karya Binayak': 33, 'Pharsidol': 34,
+      'Shikali Temple Area': 30, 'Torikhel': 31, 'Rudrayani': 32,
+      'Krishna Mandir': 28, 'Bojepokhari': 29, 'Pawan Prakriti School Area': 30, 'Kist Hospital Area': 31,
+      'Lubhu Bazaar': 32, 'Mahalaxmisthan': 33, 'Changathali': 34,
+      'Botanical Garden Area': 35, 'Naudhara': 36, 'Taukhel': 37, 'Bishankhu Narayan': 36,
+      'Bajrabarahi Temple Area': 34, 'Pyutar': 35, 'Thecho Border': 36,
+      'Balkumari': 33, 'Saraswati Kunda': 34, 'Sunaguthi Border': 35,
+      'Layaku': 25, 'Taumadhi Square (Nyatapola)': 24, 'Pottery Square (Talako)': 26, 'Khauma': 25,
+      'Tachapal': 26, 'Inacho': 27, 'Golmadhi': 28, 'Suryamadhi': 27, 'Sukuldhoka': 29,
+      'Bhairab Temple Area': 27, 'Chyamasingh': 28, 'Byasi': 29, 'Bhelukhel': 30,
+      'Chapacho': 29, 'Nagadesh': 30, 'Bode': 31, 'Mahalaxmi Temple Area': 29,
+      'Highway Area': 27, 'Rastriya Prajatantra Party Office Area': 28, 'Sanothimi Border': 29,
+      'Suryabinayak Temple Area': 26, 'Pandu Bazaar': 27, 'Sallaghari': 28,
+      'Rose Village Area': 25, 'Balkot Chowk': 26, 'Sirutar Border': 27,
+      'Subarna Square': 24, 'Gundu Border': 25, 'Araniko Highway Link': 26,
+      'Changu Temple Area': 22, 'Kilsagal': 23, 'Mahamanjushree': 24,
+      'KMC Hospital Area': 21, 'Nepal Engineering College Area': 22, 'Jhaukhel Border': 23
+    };
 
     var districtSelect = document.getElementById('qbDistrict');
     var municipalitySelect = document.getElementById('qbMunicipality');
