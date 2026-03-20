@@ -1935,6 +1935,79 @@
           </div>
         </div>
       </div>
+
+      <!-- Location Modal -->
+      <div class="qb-location-modal" id="qbLocationModal" hidden>
+        <div class="qb-modal-overlay" id="qbModalOverlay"></div>
+        <div class="qb-modal-content">
+          <!-- Header with Close -->
+          <div class="qb-modal-header">
+            <h2>Select Delivery Location</h2>
+            <button type="button" class="qb-modal-close" id="qbModalClose" aria-label="Close">✕</button>
+          </div>
+
+          <!-- Breadcrumb Navigation -->
+          <div class="qb-breadcrumb" id="qbBreadcrumb">
+            <span class="qb-breadcrumb-item active">District</span>
+            <span class="qb-breadcrumb-sep">/</span>
+            <span class="qb-breadcrumb-item">Municipality</span>
+            <span class="qb-breadcrumb-sep">/</span>
+            <span class="qb-breadcrumb-item">Area</span>
+            <span class="qb-breadcrumb-sep">/</span>
+            <span class="qb-breadcrumb-item">Sub-Area</span>
+          </div>
+
+          <!-- Progress Indicator -->
+          <div class="qb-progress-bar">
+            <div class="qb-progress-fill" id="qbProgressFill" style="width: 0%"></div>
+          </div>
+
+          <!-- Modal Body -->
+          <div class="qb-modal-body">
+            <div class="qb-hierarchy-wrapper" id="qbHierarchyWrapperModal">
+              <div class="qb-hierarchy-level">
+                <label class="qb-hierarchy-label">District</label>
+                <select class="qb-hierarchy-select" id="qbDistrictSelectModal">
+                  <option value="">Select District</option>
+                </select>
+              </div>
+
+              <div class="qb-hierarchy-level">
+                <label class="qb-hierarchy-label">Municipality</label>
+                <select class="qb-hierarchy-select" id="qbMunicipalitySelectModal" disabled>
+                  <option value="">Select Municipality</option>
+                </select>
+              </div>
+
+              <div class="qb-hierarchy-level">
+                <label class="qb-hierarchy-label">Area</label>
+                <select class="qb-hierarchy-select" id="qbAreaSelectModal" disabled>
+                  <option value="">Select Area</option>
+                </select>
+              </div>
+
+              <div class="qb-hierarchy-level">
+                <label class="qb-hierarchy-label">Sub-Area</label>
+                <select class="qb-hierarchy-select" id="qbSubAreaSelectModal" disabled>
+                  <option value="">Select Sub-Area</option>
+                </select>
+              </div>
+
+              <!-- Delivery Time Display -->
+              <div class="qb-delivery-time" id="qbDeliveryTimeModal" hidden>
+                <strong id="qbDeliveryTimeValueModal">0</strong> mins
+                <div class="qb-delivery-time-label">Estimated delivery time</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer with buttons -->
+          <div class="qb-modal-footer">
+            <button class="qb-btn-cancel" id="qbModalCancel">Cancel</button>
+            <button id="qbLocationOkBtnModal" class="qb-btn-primary" hidden>Confirm Location</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Search Bar with Rotating Placeholders -->
@@ -3501,19 +3574,25 @@ window.QB_AREAS_DATA = {"districts":[{"id":"kathmandu","name":"Kathmandu","slug"
 (function () {
   var wrap    = document.getElementById('qbLocationWrap');
   var btn     = document.getElementById('qbLocBtn');
-  var dropdown= document.getElementById('qbLocDropdown');
+  var modal   = document.getElementById('qbLocationModal');
+  var modalOverlay = document.getElementById('qbModalOverlay');
+  var modalClose = document.getElementById('qbModalClose');
+  var modalCancel = document.getElementById('qbModalCancel');
+  var modalConfirm = document.getElementById('qbLocationOkBtnModal');
+  var breadcrumb = document.getElementById('qbBreadcrumb');
+  var progressFill = document.getElementById('qbProgressFill');
   var titleEl = document.getElementById('qbLocTitle');
   var addressEl = document.getElementById('qbLocAddress');
-  if (!btn) return;
+  if (!btn || !modal) return;
 
-  // Hierarchical dropdown elements
-  var districtSelect = document.getElementById('qbDistrictSelect');
-  var municipalitySelect = document.getElementById('qbMunicipalitySelect');
-  var areaSelect = document.getElementById('qbAreaSelect');
-  var subAreaSelect = document.getElementById('qbSubAreaSelect');
+  // Hierarchical modal elements
+  var districtSelect = document.getElementById('qbDistrictSelectModal');
+  var municipalitySelect = document.getElementById('qbMunicipalitySelectModal');
+  var areaSelect = document.getElementById('qbAreaSelectModal');
+  var subAreaSelect = document.getElementById('qbSubAreaSelectModal');
   var currentLocationData = null;
-  var deliveryTimeDisplay = document.getElementById('qbDeliveryTime');
-  var deliveryTimeValue = document.getElementById('qbDeliveryTimeValue');
+  var deliveryTimeDisplay = document.getElementById('qbDeliveryTimeModal');
+  var deliveryTimeValue = document.getElementById('qbDeliveryTimeValueModal');
 
   // Address management
   var currentSelectedPlace = null;
@@ -3612,70 +3691,56 @@ window.QB_AREAS_DATA = {"districts":[{"id":"kathmandu","name":"Kathmandu","slug"
 
   loadSavedAddresses();
 
-  // Toggle dropdown
-  btn.addEventListener('click', function () {
-    var isOpen = !dropdown.hidden;
-    toggleDropdown(!isOpen);
-    // Focus input immediately when dropdown opens
-    if (!isOpen) {
-      setTimeout(function () {
-        input.focus();
-        input.select();
-      }, 50);
-    }
-  });
-
-  // Create or get backdrop
-  var backdrop = document.querySelector('.qb-loc-backdrop') || (function() {
-    var bd = document.createElement('div');
-    bd.className = 'qb-loc-backdrop';
-    document.body.appendChild(bd);
-    return bd;
-  })();
-
-  function toggleDropdown(open) {
-    dropdown.hidden = !open;
-    btn.classList.toggle('open', open);
-    btn.setAttribute('aria-expanded', String(open));
-    backdrop.classList.toggle('show', open);
-
-    // Position dropdown below location button, avoiding sidebar overlap
-    if (open) {
-      var btnRect = btn.getBoundingClientRect();
-      var dropdownHeight = dropdown.offsetHeight || 300;
-      var dropdownWidth = dropdown.offsetWidth || 320;
-      var topPos = btnRect.bottom + 12;
-
-      // Position to avoid left sidebar (80px wide) - start at 85px minimum
-      var leftPos = Math.max(85, btnRect.left);
-
-      // Ensure dropdown fits on screen horizontally
-      if (leftPos + dropdownWidth > window.innerWidth) {
-        leftPos = Math.max(85, window.innerWidth - dropdownWidth - 10);
-      }
-
-      // Ensure dropdown fits vertically
-      if (topPos + dropdownHeight > window.innerHeight) {
-        topPos = Math.max(70, window.innerHeight - dropdownHeight - 20);
-      }
-
-      dropdown.style.position = 'fixed';
-      dropdown.style.top = topPos + 'px';
-      dropdown.style.left = leftPos + 'px';
-      dropdown.style.zIndex = '100001';
-      dropdown.style.maxHeight = Math.min(70 * window.innerHeight / 100, window.innerHeight - topPos - 40) + 'px';
-      dropdown.style.height = 'auto';
-      dropdown.style.overflowY = 'auto';
-      dropdown.style.overflowX = 'hidden';
-      dropdown.style.width = dropdownWidth + 'px';
-    }
+  // Modal open/close functions
+  function openModal() {
+    modal.hidden = false;
+    btn.setAttribute('aria-expanded', 'true');
+    // Reset selects when opening
+    districtSelect.value = '';
+    municipalitySelect.innerHTML = '<option value="">Select Municipality</option>';
+    areaSelect.innerHTML = '<option value="">Select Area</option>';
+    subAreaSelect.innerHTML = '<option value="">Select Sub-Area</option>';
+    updateBreadcrumb(0);
+    updateProgressBar(0);
+    deliveryTimeDisplay.hidden = true;
+    modalConfirm.hidden = true;
   }
 
-  // Close on outside click
-  document.addEventListener('click', function (e) {
-    if (!wrap.contains(e.target) && !dropdown.contains(e.target)) {
-      toggleDropdown(false);
-    }
+  function closeModal() {
+    modal.hidden = true;
+    btn.setAttribute('aria-expanded', 'false');
+  }
+
+  function updateBreadcrumb(level) {
+    var items = breadcrumb.querySelectorAll('.qb-breadcrumb-item');
+    items.forEach(function(item, index) {
+      item.classList.toggle('active', index <= level);
+    });
+  }
+
+  function updateProgressBar(level) {
+    var percentage = (level + 1) * 25;
+    progressFill.style.width = percentage + '%';
+  }
+
+  // Button click to open modal
+  btn.addEventListener('click', function () {
+    openModal();
+  });
+
+  // Close button
+  modalClose.addEventListener('click', function () {
+    closeModal();
+  });
+
+  // Cancel button
+  modalCancel.addEventListener('click', function () {
+    closeModal();
+  });
+
+  // Overlay click to close modal
+  modalOverlay.addEventListener('click', function () {
+    closeModal();
   });
 
   // Populate districts on init
@@ -3694,7 +3759,9 @@ window.QB_AREAS_DATA = {"districts":[{"id":"kathmandu","name":"Kathmandu","slug"
     areaSelect.innerHTML = '<option value="">Select Area</option>';
     subAreaSelect.innerHTML = '<option value="">Select Sub-Area</option>';
     deliveryTimeDisplay.hidden = true;
-    document.getElementById('qbLocationOkBtn').hidden = true;
+    modalConfirm.hidden = true;
+    updateBreadcrumb(0);
+    updateProgressBar(0);
 
     if (!this.value) {
       municipalitySelect.disabled = true;
@@ -3712,16 +3779,23 @@ window.QB_AREAS_DATA = {"districts":[{"id":"kathmandu","name":"Kathmandu","slug"
         municipalitySelect.appendChild(option);
       });
       municipalitySelect.disabled = false;
+      updateBreadcrumb(0);
+      updateProgressBar(0);
     }
   });
 
   // Municipality change → populate areas
   municipalitySelect.addEventListener('change', function() {
     areaSelect.innerHTML = '<option value="">Select Area</option>';
+    subAreaSelect.innerHTML = '<option value="">Select Sub-Area</option>';
     deliveryTimeDisplay.hidden = true;
+    modalConfirm.hidden = true;
+    updateBreadcrumb(1);
+    updateProgressBar(1);
 
     if (!this.value) {
       areaSelect.disabled = true;
+      subAreaSelect.disabled = true;
       return;
     }
 
@@ -3744,7 +3818,9 @@ window.QB_AREAS_DATA = {"districts":[{"id":"kathmandu","name":"Kathmandu","slug"
   areaSelect.addEventListener('change', function() {
     subAreaSelect.innerHTML = '<option value="">Select Sub-Area</option>';
     deliveryTimeDisplay.hidden = true;
-    document.getElementById('qbLocationOkBtn').hidden = true;
+    modalConfirm.hidden = true;
+    updateBreadcrumb(2);
+    updateProgressBar(2);
 
     if (!this.value) {
       subAreaSelect.disabled = true;
@@ -3773,7 +3849,9 @@ window.QB_AREAS_DATA = {"districts":[{"id":"kathmandu","name":"Kathmandu","slug"
   // SubArea change → select location and show delivery time (final selection)
   subAreaSelect.addEventListener('change', function() {
     deliveryTimeDisplay.hidden = true;
-    document.getElementById('qbLocationOkBtn').hidden = true;
+    modalConfirm.hidden = true;
+    updateBreadcrumb(3);
+    updateProgressBar(3);
 
     if (!this.value) {
       return;
@@ -3794,7 +3872,7 @@ window.QB_AREAS_DATA = {"districts":[{"id":"kathmandu","name":"Kathmandu","slug"
       currentDeliveryTime = deliveryTime;
       deliveryTimeValue.textContent = deliveryTime;
       deliveryTimeDisplay.hidden = false;
-      document.getElementById('qbLocationOkBtn').hidden = false;
+      modalConfirm.hidden = false;
 
       var fullPath = district.name + ' → ' + mun.name + ' → ' + area.name + ' → ' + subArea.name;
       currentLocationData = {
@@ -3807,15 +3885,16 @@ window.QB_AREAS_DATA = {"districts":[{"id":"kathmandu","name":"Kathmandu","slug"
     }
   });
 
-  // OK Button click handler
-  document.getElementById('qbLocationOkBtn').addEventListener('click', function() {
+  // Confirm button click handler
+  modalConfirm.addEventListener('click', function() {
     if (!currentLocationData) return;
+    closeModal();
     selectLocation({
       main: currentLocationData.subArea,
       full: currentLocationData.area + ' - ' + currentLocationData.subArea,
-      locData: currentLocationData
+      locData: currentLocationData,
+      deliveryTime: currentLocationData.deliveryTime
     });
-    toggleDropdown(false);
   });
 
   function selectLocation(placeData) {
@@ -3945,7 +4024,7 @@ window.QB_AREAS_DATA = {"districts":[{"id":"kathmandu","name":"Kathmandu","slug"
           // Dispatch location change event for weather widget
           window.dispatchEvent(new Event('qb_location_changed'));
         } catch (e) {}
-        toggleDropdown(false);
+        closeModal();
       });
 
       item.querySelector('.qb-loc-saved-delete').addEventListener('click', function (e) {
