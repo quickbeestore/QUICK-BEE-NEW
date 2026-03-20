@@ -2452,13 +2452,11 @@
     var qbPlaceholderCharIndex = 0;
     var qbIsTyping = true;
     var qbAnimationTimeout = null;
+    var qbIsHomepage = '{{ template }}' === 'index';
 
     function qbAnimatePlaceholder() {
       var searchInput = document.getElementById('qbSearchInput');
-      if (!searchInput) return;
-
-      // Only animate on homepage
-      if ('{{ template }}' !== 'index') return;
+      if (!searchInput || !qbIsHomepage) return;
 
       var currentText = qbPlaceholderTexts[qbPlaceholderIndex];
 
@@ -2488,16 +2486,16 @@
       qbAnimationTimeout = setTimeout(qbAnimatePlaceholder, 80); // Typing/erasing speed
     }
 
-    // Initialize placeholder animation when DOM is ready (homepage only)
+    // Initialize placeholder animation when DOM is ready
     function qbInitPlaceholderAnimation() {
-      if ('{{ template }}' === 'index') {
+      var searchInput = document.getElementById('qbSearchInput');
+      if (!searchInput) return;
+
+      if (qbIsHomepage) {
         qbAnimatePlaceholder();
       } else {
         // Set default placeholder for non-homepage
-        var searchInput = document.getElementById('qbSearchInput');
-        if (searchInput) {
-          searchInput.placeholder = 'Search products, categories...';
-        }
+        searchInput.placeholder = 'Search products, categories...';
       }
     }
 
