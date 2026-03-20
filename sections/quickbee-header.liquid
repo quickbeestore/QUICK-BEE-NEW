@@ -482,8 +482,22 @@
     100% { transform: translateX(-100%); }
   }
 
-  /* Dark mode override for announcement bar */
+  /* Dark mode - Force light theme colors globally */
   @media (prefers-color-scheme: dark) {
+    :root, html, body {
+      color-scheme: light !important;
+      background: #ffffff !important;
+    }
+
+    body {
+      background-color: #ffffff !important;
+      color: #333 !important;
+    }
+
+    * {
+      color-scheme: light !important;
+    }
+
     .qb-announcement {
       background: #000000 !important;
       color: #ffffff !important;
@@ -502,6 +516,45 @@
     .qb-announcement-track span strong {
       color: #ffffff !important;
       forced-color-adjust: none !important;
+    }
+
+    .qb-header {
+      background: #ffffff !important;
+      border-bottom-color: #f0f0f0 !important;
+    }
+
+    .qb-search-bar-wrap {
+      background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%) !important;
+      border-color: #e8e8e8 !important;
+      color: #333 !important;
+    }
+
+    input, textarea, select {
+      background: #ffffff !important;
+      color: #333 !important;
+      border-color: #e0e0e0 !important;
+    }
+
+    .qb-modal, #qbLocModal, [role="dialog"] {
+      background: #ffffff !important;
+      color: #333 !important;
+    }
+
+    .qb-mobile-footer {
+      background: #ffffff !important;
+      border-top-color: #f0f0f0 !important;
+    }
+
+    [class*="button"], [role="button"] {
+      color: inherit !important;
+    }
+
+    h1, h2, h3, h4, h5, h6, p, span, a, label {
+      color: #333 !important;
+    }
+
+    [class*="border"], hr {
+      border-color: #f0f0f0 !important;
     }
   }
 
@@ -772,8 +825,171 @@
   }
 
   .qb-search-input::placeholder {
-    color: #999;
+    color: #bbb;
     font-weight: 400;
+    transition: color 0.3s;
+  }
+
+  /* Search Bar Container */
+  #qbSearchContainer {
+    position: relative;
+    flex: 0 1 700px;
+    min-width: 300px;
+    margin: 0 auto;
+  }
+
+  /* Enhanced Search Bar */
+  .qb-search-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 48px;
+    background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+    border-radius: 12px;
+    padding: 0 16px;
+    border: 2px solid #e8e8e8;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .qb-search-bar-wrap:hover {
+    border-color: #d4d4d4;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
+  }
+
+  .qb-search-bar-wrap:focus-within {
+    border-color: var(--qb-yellow);
+    background: linear-gradient(135deg, #ffffff 0%, #fffef5 100%);
+    box-shadow: 0 8px 28px rgba(255, 193, 7, 0.25), 0 0 0 4px rgba(255, 193, 7, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .qb-search-bar-wrap svg {
+    width: 20px;
+    height: 20px;
+    color: #f5c518;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+
+  .qb-search-bar-wrap:focus-within svg {
+    color: #f5c518;
+    filter: drop-shadow(0 0 4px rgba(245, 197, 24, 0.4));
+  }
+
+  .qb-search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
+    outline: none;
+    padding: 0;
+    font-family: inherit;
+    letter-spacing: 0.3px;
+  }
+
+  .qb-search-bar-wrap:focus-within .qb-search-input::placeholder {
+    color: #ddd;
+  }
+
+  /* Search Dropdown */
+  #qbSearchDropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border-radius: 12px;
+    margin-top: 8px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid #f0f0f0;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-8px) scaleY(0.95);
+    transform-origin: top center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  #qbSearchDropdown.active {
+    max-height: 500px;
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+    pointer-events: auto;
+  }
+
+  .qb-search-section {
+    padding: 16px 0;
+    border-bottom: 1px solid #f5f5f5;
+  }
+
+  .qb-search-section:last-child {
+    border-bottom: none;
+  }
+
+  .qb-search-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 0 16px 8px;
+    margin-bottom: 8px;
+  }
+
+  .qb-search-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #555;
+    text-decoration: none;
+  }
+
+  .qb-search-item:hover {
+    background: #f9f9f9;
+    padding-left: 20px;
+    color: #333;
+  }
+
+  .qb-search-item-icon {
+    font-size: 16px;
+    min-width: 20px;
+  }
+
+  .qb-search-item-text {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .qb-search-item-badge {
+    background: #f5c518;
+    color: #000;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    animation: badge-pulse 2s infinite;
+  }
+
+  @keyframes badge-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.05); }
+  }
+
+  .qb-search-no-results {
+    padding: 24px 16px;
+    text-align: center;
+    color: #999;
+    font-size: 14px;
   }
 
   /* Dropdown - hidden by default */
@@ -788,7 +1004,6 @@
     box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1);
     z-index: 100000;
     max-height: 70vh;
-    overflow-y: auto;
     animation: qb-loc-fade 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     backdrop-filter: blur(10px);
   }
@@ -952,7 +1167,6 @@
   .qb-loc-results {
     list-style: none;
     max-height: 300px;
-    overflow-y: auto;
     padding: 4px 0;
     min-height: 50px;
     display: block !important;
@@ -1176,7 +1390,6 @@
   .qb-modal-body {
     flex: 1;
     padding: 24px;
-    overflow-y: auto;
   }
 
   .qb-modal-footer {
@@ -2160,16 +2373,103 @@
     }
 
     // Search functionality
+    var qbSearchHistory = JSON.parse(localStorage.getItem('qb_search_history') || '[]');
+
     function qbPerformSearch(event) {
       event.preventDefault();
       var searchInput = document.getElementById('qbSearchInput');
       var query = searchInput.value.trim();
 
       if (query.length > 0) {
+        // Add to search history
+        qbSearchHistory = qbSearchHistory.filter(item => item !== query);
+        qbSearchHistory.unshift(query);
+        if (qbSearchHistory.length > 5) qbSearchHistory.pop();
+        localStorage.setItem('qb_search_history', JSON.stringify(qbSearchHistory));
+
         // Redirect to Shopify search results
         window.location.href = '/search?q=' + encodeURIComponent(query);
       }
     }
+
+    function qbShowSearchDropdown() {
+      var dropdown = document.getElementById('qbSearchDropdown');
+      dropdown.classList.add('active');
+      qbUpdateSearchHistory();
+    }
+
+    function qbHideSearchDropdown() {
+      var dropdown = document.getElementById('qbSearchDropdown');
+      dropdown.classList.remove('active');
+    }
+
+    function qbSelectSearch(query) {
+      var searchInput = document.getElementById('qbSearchInput');
+      searchInput.value = query;
+      qbPerformSearch({preventDefault: function(){}});
+    }
+
+    function qbUpdateSearchDropdown() {
+      var query = document.getElementById('qbSearchInput').value.trim().toLowerCase();
+      var resultsContainer = document.getElementById('qbSearchResults');
+
+      if (query.length === 0) {
+        resultsContainer.style.display = 'none';
+        qbUpdateSearchHistory();
+        return;
+      }
+
+      // Simple product matching (you can enhance this with actual product data)
+      var products = [
+        { name: 'Apples', icon: '🍎' },
+        { name: 'Bananas', icon: '🍌' },
+        { name: 'Carrots', icon: '🥕' },
+        { name: 'Tomatoes', icon: '🍅' },
+        { name: 'Broccoli', icon: '🥦' },
+        { name: 'Spinach', icon: '🥬' },
+        { name: 'Milk', icon: '🥛' },
+        { name: 'Cheese', icon: '🧀' },
+        { name: 'Bread', icon: '🍞' },
+        { name: 'Eggs', icon: '🥚' }
+      ];
+
+      var filtered = products.filter(p => p.name.toLowerCase().includes(query));
+
+      if (filtered.length > 0) {
+        resultsContainer.innerHTML = '<div class="qb-search-section" style="padding-top: 8px;"><div class="qb-search-section-title">Search Results</div>';
+        filtered.forEach(function(product) {
+          resultsContainer.innerHTML += '<div class="qb-search-item" onclick="qbSelectSearch(\'' + product.name + '\')"><span class="qb-search-item-icon">' + product.icon + '</span><span class="qb-search-item-text">' + product.name + '</span></div>';
+        });
+        resultsContainer.innerHTML += '</div>';
+        resultsContainer.style.display = 'block';
+      } else {
+        resultsContainer.innerHTML = '<div class="qb-search-no-results">No products found for "' + query + '"</div>';
+        resultsContainer.style.display = 'block';
+      }
+    }
+
+    function qbUpdateSearchHistory() {
+      var historyContainer = document.getElementById('qbSearchHistory');
+      if (qbSearchHistory.length === 0) {
+        historyContainer.style.display = 'none';
+        return;
+      }
+
+      historyContainer.innerHTML = '<div class="qb-search-section"><div class="qb-search-section-title">Recent Searches</div>';
+      qbSearchHistory.forEach(function(item) {
+        historyContainer.innerHTML += '<div class="qb-search-item" onclick="qbSelectSearch(\'' + item.replace(/'/g, "\\'") + '\')"><span class="qb-search-item-icon">⏱</span><span class="qb-search-item-text">' + item + '</span></div>';
+      });
+      historyContainer.innerHTML += '</div>';
+      historyContainer.style.display = 'block';
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+      var container = document.getElementById('qbSearchContainer');
+      if (!container.contains(event.target)) {
+        qbHideSearchDropdown();
+      }
+    });
 
     // Initialize district dropdown with options
     function initializeDistricts() {
@@ -2217,18 +2517,66 @@
     });
     </script>
 
-    <!-- Search Bar with Rotating Placeholders -->
-    <form class="qb-search-bar-wrap" id="qbSearchForm" onsubmit="qbPerformSearch(event)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input
-        type="text"
-        class="qb-search-input"
-        id="qbSearchInput"
-        placeholder="Search products…"
-        aria-label="Search products"
-        autocomplete="off"
-      >
-    </form>
+    <!-- Search Bar with Dropdown -->
+    <div id="qbSearchContainer">
+      <form class="qb-search-bar-wrap" id="qbSearchForm" onsubmit="qbPerformSearch(event)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input
+          type="text"
+          class="qb-search-input"
+          id="qbSearchInput"
+          placeholder="Search products, categories..."
+          aria-label="Search products"
+          autocomplete="off"
+          onkeyup="qbUpdateSearchDropdown()"
+          onfocus="qbShowSearchDropdown()"
+        >
+      </form>
+
+      <!-- Search Dropdown -->
+      <div id="qbSearchDropdown">
+        <div class="qb-search-section">
+          <div class="qb-search-section-title">Quick Access</div>
+          <div class="qb-search-item" onclick="qbSelectSearch('Fresh Groceries')">
+            <span class="qb-search-item-icon">🛒</span>
+            <span class="qb-search-item-text">Fresh Groceries</span>
+            <span class="qb-search-item-badge">Popular</span>
+          </div>
+          <div class="qb-search-item" onclick="qbSelectSearch('Best Sellers')">
+            <span class="qb-search-item-icon">⭐</span>
+            <span class="qb-search-item-text">Best Sellers</span>
+          </div>
+          <div class="qb-search-item" onclick="qbSelectSearch('New Arrivals')">
+            <span class="qb-search-item-icon">✨</span>
+            <span class="qb-search-item-text">New Arrivals</span>
+            <span class="qb-search-item-badge">New</span>
+          </div>
+        </div>
+
+        <div class="qb-search-section">
+          <div class="qb-search-section-title">Categories</div>
+          <div class="qb-search-item" onclick="qbSelectSearch('Vegetables')">
+            <span class="qb-search-item-icon">🥬</span>
+            <span class="qb-search-item-text">Vegetables</span>
+          </div>
+          <div class="qb-search-item" onclick="qbSelectSearch('Fruits')">
+            <span class="qb-search-item-icon">🍎</span>
+            <span class="qb-search-item-text">Fruits</span>
+          </div>
+          <div class="qb-search-item" onclick="qbSelectSearch('Dairy')">
+            <span class="qb-search-item-icon">🥛</span>
+            <span class="qb-search-item-text">Dairy & Eggs</span>
+          </div>
+          <div class="qb-search-item" onclick="qbSelectSearch('Snacks')">
+            <span class="qb-search-item-icon">🍪</span>
+            <span class="qb-search-item-text">Snacks</span>
+          </div>
+        </div>
+
+        <div id="qbSearchResults" style="display: none;"></div>
+        <div id="qbSearchHistory" style="display: none;"></div>
+      </div>
+    </div>
 
     <!-- Spacer -->
     <div style="flex: 1;"></div>
@@ -2394,7 +2742,6 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
-    overflow-y: auto;
   }
   .qb-wheel-overlay.show {
     display: flex !important;
@@ -2621,7 +2968,6 @@
     border-radius: 15px;
     padding: 20px;
     max-height: 350px;
-    overflow-y: auto;
   }
   .qb-prizes-title {
     font-size: 14px;
@@ -2890,7 +3236,6 @@
   }
   .qb-chat-content {
     flex: 1;
-    overflow-y: auto;
     background: #0a0e17;
   }
   .qb-chat-content iframe {
