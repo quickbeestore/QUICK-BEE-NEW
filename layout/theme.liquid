@@ -99,7 +99,13 @@
         padding-bottom: 0;
         overflow-y: auto;
         overflow-x: hidden;
-        height: calc(100vh - var(--header-group-height, 60px));
+        height: calc(100vh - var(--header-group-height, 60px) - 60px);
+      }
+
+      @media (min-width: 768px) {
+        main {
+          height: calc(100vh - var(--header-group-height, 60px));
+        }
       }
 
       /* Section wrapper - mobile first */
@@ -475,6 +481,14 @@
         // Set CSS variables
         document.body.style.setProperty('--header-height', `${headerHeight}px`);
         document.body.style.setProperty('--header-group-height', `${headerGroupHeight}px`);
+
+        // Set main element height to prevent double scrollbars
+        // Account for footer/bottom navigation (estimate 60px for mobile, 0px for desktop)
+        const mainElement = document.querySelector('main');
+        if (mainElement) {
+          const footerHeight = window.innerWidth < 768 ? 60 : 0;
+          mainElement.style.height = `calc(100vh - ${headerGroupHeight}px - ${footerHeight}px)`;
+        }
 
         if (headerTopRow) {
           window.requestAnimationFrame(function () {
