@@ -2564,86 +2564,80 @@
 
     // Initialize checkout form handler
     function qbInitCheckoutHandler() {
-      // Get location data from localStorage
-      function qbAddLocationToCheckout() {
+      function qbAddLocationToCart() {
         var locationDataStr = localStorage.getItem('qb_location_data');
         if (!locationDataStr) return;
 
         try {
           var locationData = JSON.parse(locationDataStr);
-          var locationNote = 'Delivery Location: ' + locationData.landmark +
-                            ' (Area: ' + locationData.area +
+          var locationNote = 'DELIVERY LOCATION: ' + locationData.landmark +
+                            ' | Area: ' + locationData.area +
                             ', Municipality: ' + locationData.municipality +
                             ', District: ' + locationData.district +
-                            ') - Estimated Delivery: ' + locationData.deliveryTime + ' mins';
+                            ' | Est. Delivery: ' + locationData.deliveryTime + ' mins';
 
-          // Try to find and populate note field on checkout page
-          var noteFields = document.querySelectorAll('textarea[name*="note"], textarea[name*="Note"]');
-          if (noteFields.length > 0) {
-            noteFields[0].value = (noteFields[0].value ? noteFields[0].value + '\n' : '') + locationNote;
-          }
+          // Update cart with location note using Shopify's cart API
+          fetch('/cart/update.js', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+              note: locationNote
+            })
+          }).catch(function(err) {
+            console.log('Location note update queued for checkout');
+          });
 
-          // Store in window object for cart/checkout operations
           window.qbLocationNote = locationNote;
         } catch (e) {
-          console.error('Error parsing location data:', e);
+          console.error('Error processing location data:', e);
         }
       }
 
-      // Run immediately and on checkout page loads
-      qbAddLocationToCheckout();
+      // Add location to cart whenever user navigates
+      qbAddLocationToCart();
 
-      // Watch for checkout form submissions
-      document.addEventListener('submit', function(event) {
-        if (event.target.matches('form') ||
-            event.target.getAttribute('action') && event.target.getAttribute('action').includes('checkout')) {
-          qbAddLocationToCheckout();
+      // Watch for checkout page (Shopify hosted checkout has different structure)
+      var checkoutObserver = setInterval(function() {
+        // Check if we're on checkout page by looking for checkout-specific elements
+        var checkoutForm = document.querySelector('form[action*="checkout"]') ||
+                          document.querySelector('[data-step-type="information"]') ||
+                          document.querySelector('.payment-method-list');
+
+        if (checkoutForm && window.location.href.includes('checkout')) {
+          qbAddLocationToCart();
+          clearInterval(checkoutObserver);
         }
-      }, true);
+      }, 500);
 
-      // For AJAX cart additions, use Shopify's native hooks
-      if (window.Shopify && window.Shopify.onCheckout) {
-        window.Shopify.onCheckout(function() {
-          qbAddLocationToCheckout();
-        });
-      }
+      // Clear interval after 10 seconds
+      setTimeout(function() { clearInterval(checkoutObserver); }, 10000);
 
-      // Intercept add-to-cart and checkout button clicks
+      // Intercept checkout button clicks
       document.addEventListener('click', function(event) {
         var button = event.target.closest('button, a');
-        if (button && (button.getAttribute('type') === 'submit' ||
-                      button.classList.contains('shopify-payment-button') ||
-                      button.innerText.toLowerCase().includes('checkout') ||
-                      button.getAttribute('href') && button.getAttribute('href').includes('checkout'))) {
-          qbAddLocationToCheckout();
+        if (button) {
+          var text = button.innerText.toLowerCase();
+          var href = button.getAttribute('href') || '';
+          var action = button.getAttribute('data-action') || '';
+
+          if (text.includes('checkout') || text.includes('continue to') ||
+              href.includes('checkout') || action.includes('checkout')) {
+            qbAddLocationToCart();
+          }
         }
       });
 
-      // Override Shopify cart functions to add location data
-      if (window.Shopify && window.Shopify.cart) {
-        var originalAddToCart = Shopify.addToCart;
-        if (typeof originalAddToCart === 'function') {
-          Shopify.addToCart = function(variantId, quantity, callback) {
-            var locationDataStr = localStorage.getItem('qb_location_data');
-            if (locationDataStr) {
-              try {
-                var locationData = JSON.parse(locationDataStr);
-                var note = 'Delivery Location: ' + locationData.landmark +
-                          ' (Area: ' + locationData.area +
-                          ', Municipality: ' + locationData.municipality +
-                          ', District: ' + locationData.district +
-                          ') - Estimated Delivery: ' + locationData.deliveryTime + ' mins';
-                if (window.Shopify.updateCartNote) {
-                  window.Shopify.updateCartNote(note);
-                }
-              } catch (e) {
-                console.error('Error processing location data:', e);
-              }
-            }
-            return originalAddToCart.call(this, variantId, quantity, callback);
-          };
+      // Also handle form submissions
+      document.addEventListener('submit', function(event) {
+        var form = event.target;
+        var action = form.getAttribute('action') || '';
+        if (action.includes('checkout') || form.classList.contains('cart')) {
+          qbAddLocationToCart();
         }
-      }
+      }, true);
     }
     </script>
 
