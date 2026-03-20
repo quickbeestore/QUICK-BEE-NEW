@@ -1857,8 +1857,7 @@
     <div class="qb-location-wrap" id="qbLocationWrap">
       <button class="qb-loc-btn" id="qbLocBtn" type="button"
         aria-label="Set delivery location" aria-haspopup="listbox" aria-expanded="false"
-        style="position: relative; cursor: pointer;"
-        onclick="document.getElementById('qbLocationModal').style.display='flex';document.getElementById('qbLocationModal').style.visibility='visible';document.getElementById('qbLocationModal').style.opacity='1';">
+        style="position: relative; cursor: pointer;">
         <span class="qb-loc-dot"></span>
         <div class="qb-loc-content">
           <div class="qb-loc-title" id="qbLocTitle">Set location</div>
@@ -3576,25 +3575,26 @@ if (document.readyState === 'loading') {
 }
 
 function initLocationPicker() {
-  var wrap    = document.getElementById('qbLocationWrap');
-  var btn     = document.getElementById('qbLocBtn');
-  var modal   = document.getElementById('qbLocationModal');
-  var modalOverlay = document.getElementById('qbModalOverlay');
-  var modalClose = document.getElementById('qbModalClose');
-  var modalCancel = document.getElementById('qbModalCancel');
-  var modalConfirm = document.getElementById('qbLocationOkBtnModal');
-  var breadcrumb = document.getElementById('qbBreadcrumb');
-  var progressFill = document.getElementById('qbProgressFill');
-  var titleEl = document.getElementById('qbLocTitle');
-  var addressEl = document.getElementById('qbLocAddress');
+  try {
+    var wrap    = document.getElementById('qbLocationWrap');
+    var btn     = document.getElementById('qbLocBtn');
+    var modal   = document.getElementById('qbLocationModal');
+    var modalOverlay = document.getElementById('qbModalOverlay');
+    var modalClose = document.getElementById('qbModalClose');
+    var modalCancel = document.getElementById('qbModalCancel');
+    var modalConfirm = document.getElementById('qbLocationOkBtnModal');
+    var breadcrumb = document.getElementById('qbBreadcrumb');
+    var progressFill = document.getElementById('qbProgressFill');
+    var titleEl = document.getElementById('qbLocTitle');
+    var addressEl = document.getElementById('qbLocAddress');
 
-  // Debug logging
-  console.log('QB Location Picker Init', {
-    btn: !!btn,
-    modal: !!modal,
-    modalClose: !!modalClose,
-    modalCancel: !!modalCancel
-  });
+    // Debug logging
+    console.log('🐝 QB Location Picker Init START', {
+      btn: !!btn,
+      modal: !!modal,
+      modalClose: !!modalClose,
+      modalCancel: !!modalCancel
+    });
 
   // Fallback: search for modal if not found by ID
   if (!modal) {
@@ -3775,9 +3775,20 @@ function initLocationPicker() {
   }
 
   // Button click to open modal
-  btn.addEventListener('click', function () {
-    openModal();
-  });
+  if (btn) {
+    btn.addEventListener('click', function () {
+      console.log('🐝 Location button clicked!');
+      try {
+        openModal();
+        console.log('🐝 Modal opened successfully');
+      } catch (e) {
+        console.error('🐝 Error opening modal:', e);
+      }
+    });
+    console.log('🐝 Click listener attached to location button');
+  } else {
+    console.error('🐝 Button not found - click listener not attached');
+  }
 
   // Close button
   modalClose.addEventListener('click', function () {
@@ -4042,6 +4053,12 @@ function initLocationPicker() {
       setTimeout(function () { btn.textContent = lbl; }, 1500);
     });
   });
+
+  console.log('🐝 QB Location Picker INITIALIZATION COMPLETE ✅');
+  } catch (e) {
+    console.error('🐝 QB Location Picker INITIALIZATION FAILED:', e);
+    console.error('Error details:', e.message, e.stack);
+  }
 
   // Render saved addresses
   function renderSavedAddresses() {
