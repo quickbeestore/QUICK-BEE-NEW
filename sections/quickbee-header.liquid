@@ -902,13 +902,9 @@
 
   /* Search Dropdown */
   #qbSearchDropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
+    position: fixed;
     background: #ffffff;
     border-radius: 12px;
-    margin-top: 8px;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
     border: 1px solid #f0f0f0;
     max-height: 0;
@@ -917,14 +913,19 @@
     transform: translateY(-8px) scaleY(0.95);
     transform-origin: top center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
+    z-index: 10000;
     pointer-events: none;
+    width: calc(100% - 40px);
+    max-width: 700px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px) scaleY(0.95);
+    top: auto;
   }
 
   #qbSearchDropdown.active {
     max-height: 500px;
     opacity: 1;
-    transform: translateY(0) scaleY(1);
+    transform: translateX(-50%) translateY(0) scaleY(1);
     pointer-events: auto;
   }
 
@@ -2399,6 +2400,11 @@
 
     function qbShowSearchDropdown() {
       var dropdown = document.getElementById('qbSearchDropdown');
+      var searchBar = document.querySelector('.qb-search-bar-wrap');
+      if (searchBar) {
+        var rect = searchBar.getBoundingClientRect();
+        dropdown.style.top = (rect.bottom + 8) + 'px';
+      }
       dropdown.classList.add('active');
       qbUpdateSearchHistory();
     }
@@ -2474,6 +2480,20 @@
       if (!container.contains(event.target)) {
         qbHideSearchDropdown();
       }
+    });
+
+    // Recalculate dropdown position on window resize
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        var dropdown = document.getElementById('qbSearchDropdown');
+        var searchBar = document.querySelector('.qb-search-bar-wrap');
+        if (dropdown.classList.contains('active') && searchBar) {
+          var rect = searchBar.getBoundingClientRect();
+          dropdown.style.top = (rect.bottom + 8) + 'px';
+        }
+      }, 100);
     });
 
     // Initialize district dropdown with options
