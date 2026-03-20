@@ -1935,117 +1935,177 @@
     </div>
 
     <!-- Location Modal (moved outside location-wrap to avoid size constraint) -->
-    <!-- 4-Layer Hierarchical Location Picker Modal -->
+    <!-- Location Picker Modal with Save Options -->
     <div id="qbLocModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99999;align-items:center;justify-content:center;">
-      <div style="background:#fff;border-radius:12px;padding:30px;max-width:450px;width:95%;max-height:80vh;overflow-y:auto;box-shadow:0 10px 50px rgba(0,0,0,0.3);">
+      <div style="background:#fff;border-radius:12px;padding:30px;max-width:480px;width:95%;max-height:85vh;overflow-y:auto;box-shadow:0 10px 50px rgba(0,0,0,0.3);">
         <h2 style="margin:0 0 20px 0;font-size:18px;font-weight:700;color:#222;">Select Delivery Location</h2>
 
         <!-- Layer 1: District -->
-        <div style="margin-bottom:16px;">
-          <label style="display:block;font-size:12px;font-weight:600;color:#666;margin-bottom:6px;text-transform:uppercase;">District</label>
-          <select id="qbDistrict" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:6px;font-size:14px;color:#333;background:#fff;cursor:pointer;">
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-size:11px;font-weight:600;color:#666;margin-bottom:5px;text-transform:uppercase;">District</label>
+          <select id="qbDistrict" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;color:#333;background:#fff;cursor:pointer;">
             <option value="">Select District</option>
-            <option value="Kathmandu">Kathmandu</option>
-            <option value="Lalitpur">Lalitpur</option>
-            <option value="Bhaktapur">Bhaktapur</option>
           </select>
         </div>
 
         <!-- Layer 2: Municipality -->
-        <div style="margin-bottom:16px;">
-          <label style="display:block;font-size:12px;font-weight:600;color:#666;margin-bottom:6px;text-transform:uppercase;">Municipality</label>
-          <select id="qbMunicipality" disabled style="width:100%;padding:12px;border:1px solid #ddd;border-radius:6px;font-size:14px;color:#333;background:#fff;cursor:pointer;">
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-size:11px;font-weight:600;color:#666;margin-bottom:5px;text-transform:uppercase;">Municipality</label>
+          <select id="qbMunicipality" disabled style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;color:#999;background:#f5f5f5;cursor:not-allowed;">
             <option value="">Select Municipality</option>
           </select>
         </div>
 
         <!-- Layer 3: Area -->
-        <div style="margin-bottom:16px;">
-          <label style="display:block;font-size:12px;font-weight:600;color:#666;margin-bottom:6px;text-transform:uppercase;">Area</label>
-          <select id="qbArea" disabled style="width:100%;padding:12px;border:1px solid #ddd;border-radius:6px;font-size:14px;color:#333;background:#fff;cursor:pointer;">
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-size:11px;font-weight:600;color:#666;margin-bottom:5px;text-transform:uppercase;">Area</label>
+          <select id="qbArea" disabled style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;color:#999;background:#f5f5f5;cursor:not-allowed;">
             <option value="">Select Area</option>
           </select>
         </div>
 
-        <!-- Layer 4: Sub-Area -->
-        <div style="margin-bottom:20px;">
-          <label style="display:block;font-size:12px;font-weight:600;color:#666;margin-bottom:6px;text-transform:uppercase;">Sub-Area</label>
-          <select id="qbSubArea" disabled style="width:100%;padding:12px;border:1px solid #ddd;border-radius:6px;font-size:14px;color:#333;background:#fff;cursor:pointer;">
-            <option value="">Select Sub-Area</option>
+        <!-- Layer 4: Sub-Area/Landmark -->
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-size:11px;font-weight:600;color:#666;margin-bottom:5px;text-transform:uppercase;">Landmark / Sub-Area</label>
+          <select id="qbSubArea" disabled style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;color:#999;background:#f5f5f5;cursor:not-allowed;">
+            <option value="">Select Landmark</option>
           </select>
         </div>
 
         <!-- Delivery Time Display -->
-        <div id="qbDeliveryTimeDisplay" style="margin-bottom:20px;padding:12px;background:#f9f9f9;border-radius:6px;text-align:center;display:none;">
-          <div style="font-size:12px;color:#666;margin-bottom:4px;text-transform:uppercase;">Estimated Delivery</div>
-          <div style="font-size:20px;font-weight:700;color:#f5c518;"><span id="qbDeliveryTimeValue">--</span> mins</div>
+        <div id="qbDeliveryTimeDisplay" style="margin-bottom:18px;padding:12px;background:#f5f5f5;border-left:4px solid #f5c518;border-radius:4px;display:none;">
+          <div style="font-size:11px;color:#999;margin-bottom:4px;text-transform:uppercase;">⏱ Estimated Delivery</div>
+          <div style="font-size:24px;font-weight:700;color:#f5c518;"><span id="qbDeliveryTimeValue">--</span><span style="font-size:14px;color:#999;margin-left:4px;">mins</span></div>
         </div>
 
-        <div style="display:flex;gap:12px;">
-          <button onclick="qbConfirmLocation()" style="flex:1;padding:12px;background:#f5c518;color:#000;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:14px;">Confirm</button>
-          <button onclick="document.getElementById('qbLocModal').style.display='none'" style="flex:1;padding:12px;background:#eee;color:#333;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Cancel</button>
+        <!-- Save Options -->
+        <div id="qbSaveOptionsContainer" style="margin-bottom:16px;display:none;">
+          <label style="display:block;font-size:11px;font-weight:600;color:#666;margin-bottom:8px;text-transform:uppercase;">Save As</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+            <button onclick="qbSaveLocation('home')" style="padding:10px;background:#fff;color:#333;border:2px solid #ddd;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;transition:all 0.2s;">🏠 Home</button>
+            <button onclick="qbSaveLocation('office')" style="padding:10px;background:#fff;color:#333;border:2px solid #ddd;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;transition:all 0.2s;">💼 Office</button>
+            <button onclick="qbSaveLocation('favorite')" style="padding:10px;background:#fff;color:#333;border:2px solid #ddd;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;transition:all 0.2s;">❤️ Favorite</button>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display:flex;gap:10px;">
+          <button id="qbSelectBtn" onclick="qbSelectLocation()" style="flex:1;padding:12px;background:#e8e8e8;color:#333;border:none;border-radius:6px;cursor:not-allowed;font-weight:600;font-size:14px;opacity:0.5;" disabled>Select Location</button>
+          <button id="qbSaveBtn" onclick="qbShowSaveOptions()" style="flex:1;padding:12px;background:#f5c518;color:#000;border:none;border-radius:6px;cursor:not-allowed;font-weight:600;font-size:14px;opacity:0.5;" disabled>Select & Save</button>
+          <button onclick="document.getElementById('qbLocModal').style.display='none'" style="flex:0.6;padding:12px;background:#eee;color:#666;border:none;border-radius:6px;cursor:pointer;font-size:13px;">✕</button>
         </div>
       </div>
     </div>
 
     <script>
-    // Generate random delivery time between 15-30 minutes
-    function generateRandomDeliveryTime() {
-      return Math.floor(Math.random() * (30 - 15 + 1)) + 15;
-    }
-
-    // Main location data structure
+    // Complete location database for Nepal
     var qbLocationData = {
       'Kathmandu': {
         'Kathmandu Metropolitan City': {
-          'Thamel': ['Thamel', 'Chhetrapati', 'Basantapur'],
-          'Kathmandu Metro': ['Naxal', 'Bhagwan Bahal', 'Lazimpat'],
-          'Patan': ['Patan Durbar Square', 'Jawalakhel', 'Kupondol']
+          'Thamel': ['Narsingh Chowk', 'Saat Ghumti', 'Chhetrapati', 'Z Street', 'Bhagawati Bahal', 'Jyata'],
+          'Baneshwor': ['New Baneshwor Chowk', 'Old Baneshwor', 'Minbhawan', 'Thapagaun', 'Shankhamul', 'Buddha Nagar', 'Buddhanagar'],
+          'Baluwatar': ['Prime Minister Residence Area', 'Russian Embassy Area', 'Thirbam Sadak', 'Tusal'],
+          'Maharajgunj': ['Narayan Gopal Chowk', 'Panipokhari', 'Chandol', 'Bhatbhateni', 'Chundevi', 'Bansbari'],
+          'Lazimpat': ['Nil Saraswati Marg', 'Ranibari', 'Gairidhara', 'British Embassy Area'],
+          'Swayambhu': ['Halchowk', 'Kimdol', 'Chhauni', 'Bijeshwori', 'Dallu Awas'],
+          'Kalimati': ['Kalimati Chowk', 'Kuleshwor', 'Ravibhawan', 'Soalteemode', 'Bafal'],
+          'City Core (Downtown)': ['Asan', 'Indra Chowk', 'New Road', 'Basantapur', 'Makhan', 'Freak Street', 'Bangemudha'],
+          'Chabahil': ['Chuchepati', 'Mitrapark', 'Maijubahal', 'Gaurighat', 'Chabahil Stupa Area'],
+          'Bouddha': ['Bouddhanath Stupa Area', 'Tinchuli', 'Jorpati Border', 'Fulbari']
+        },
+        'Kirtipur Municipality': {
+          'Kirtipur Core': ['Bagh Bhairab', 'Uma Maheshwar', 'Chilanchu Vihara', 'Samal'],
+          'Panga': ['Lachhi', 'Dhumbakhel', 'Khasibazaar'],
+          'University Area': ['Tribhuvan University Campus', 'Tyanglaphaant', 'Nayabazaar'],
+          'Chobhar': ['Adinath Temple Area', 'Chobhar Gorge', 'Jal Binayak']
+        },
+        'Chandragiri Municipality': {
+          'Thankot': ['Tribhuvan Park Area', 'Checkpost', 'Godam', 'Baukhel'],
+          'Kalanki (Outskirts)': ['Makalu Petrol Pump Area', 'Khasi Bazaar', 'Sita Petrol Pump', 'L.R.I. School Area'],
+          'Satungal': ['Satungal Bazaar', 'Shreeram Chowk', 'Industrial Area']
+        },
+        'Tarakeshwor Municipality': {
+          'Nepaltar': ['Bypass Road', 'Nepaltar Bus Park', 'Mahadevsthan'],
+          'Dharmasthali': ['Mahadevsthan', 'Baniyatar Border', 'Tarakeshwor Temple Trail']
+        },
+        'Budhanilkantha Municipality': {
+          'Budhanilkantha Temple Area': ['Narayanthan', 'Deuba Chowk', 'Golfutar', 'Mandikhatar'],
+          'Kapan': ['Kapan Gumba', 'Ram Mandir', 'Akhanda Marg', 'Saraswatinagar']
+        },
+        'Gokarneshwar Municipality': {
+          'Jorpati': ['Dakshindhoka', 'Nayabasti', 'Attarkhel', 'Gokarna Mahadev Area']
         }
       },
       'Lalitpur': {
         'Lalitpur Metropolitan City': {
-          'Lalitpur': ['Jawalakhel', 'Pim Chowk', 'Ekantakuna'],
-          'Kirtipur': ['Kirtipur', 'Naya Bazaar']
+          'Patan Core': ['Mangal Bazar', 'Sundhara', 'Gabahal', 'Mahabouddha', 'Swotha', 'Hakha', 'Saugal'],
+          'Jawalakhel': ['Zoo Area', 'Ekantakuna Road', 'Bhanimandal', 'Manbhawan'],
+          'Kupondole': ['Kandevtastan', 'Jwagal', 'Sanepa Border', 'UN Park Area'],
+          'Jhamsikhel': ['Thado Dhunga', 'Jhamel Strip', 'British School Area', 'Moksh Area'],
+          'Bhaisepati': ['Awas Kshetra (Housing Area)', 'Sainbu', 'Karyabinayak', 'Magar Gaun'],
+          'Satdobato': ['Khumaltar', 'Gwarko', 'Hattiban', 'Chapagaun Dobato', 'Nakhipot'],
+          'Bungamati': ['Machhindranath Temple Area', 'Karya Binayak', 'Pharsidol'],
+          'Khokana': ['Shikali Temple Area', 'Torikhel', 'Rudrayani']
+        },
+        'Mahalaxmi Municipality': {
+          'Imadol': ['Krishna Mandir', 'Bojepokhari', 'Pawan Prakriti School Area', 'Kist Hospital Area'],
+          'Lubhu': ['Lubhu Bazaar', 'Mahalaxmisthan', 'Changathali']
+        },
+        'Godawari Municipality': {
+          'Godawari': ['Botanical Garden Area', 'Naudhara', 'Taukhel', 'Bishankhu Narayan'],
+          'Chapagaun': ['Bajrabarahi Temple Area', 'Pyutar', 'Thecho Border'],
+          'Thecho': ['Balkumari', 'Saraswati Kunda', 'Sunaguthi Border']
         }
       },
       'Bhaktapur': {
         'Bhaktapur Municipality': {
-          'Bhaktapur': ['Bhaktapur Durbar Square', 'Taumadhi', 'Pottery Square']
+          'Durbar Square Area': ['Layaku', 'Taumadhi Square (Nyatapola)', 'Pottery Square (Talako)', 'Khauma'],
+          'Dattatreya': ['Tachapal', 'Inacho', 'Golmadhi', 'Suryamadhi', 'Sukuldhoka'],
+          'Kamalbinayak': ['Bhairab Temple Area', 'Chyamasingh', 'Byasi', 'Bhelukhel']
+        },
+        'Madhyapur Thimi Municipality': {
+          'Thimi Core': ['Balkumari', 'Chapacho', 'Nagadesh', 'Bode', 'Mahalaxmi Temple Area'],
+          'Kaushaltar & Gatthaghar': ['Highway Area', 'Rastriya Prajatantra Party Office Area', 'Sanothimi Border']
+        },
+        'Suryabinayak Municipality': {
+          'Suryabinayak': ['Suryabinayak Temple Area', 'Pandu Bazaar', 'Sallaghari'],
+          'Balkot': ['Rose Village Area', 'Balkot Chowk', 'Sirutar Border'],
+          'Katunje': ['Subarna Square', 'Gundu Border', 'Araniko Highway Link']
+        },
+        'Changunarayan Municipality': {
+          'Changunarayan': ['Changu Temple Area', 'Kilsagal', 'Mahamanjushree'],
+          'Duwakot': ['KMC Hospital Area', 'Nepal Engineering College Area', 'Jhaukhel Border']
         }
       }
     };
 
-    // Delivery times database - each sub-area gets a unique random time (15-30 mins)
-    var qbDeliveryTimes = {
-      // Kathmandu - Kathmandu Metro
-      'Naxal': 22,
-      'Bhagwan Bahal': 18,
-      'Lazimpat': 26,
-      // Kathmandu - Thamel
-      'Thamel': 20,
-      'Chhetrapati': 17,
-      'Basantapur': 25,
-      // Kathmandu - Patan
-      'Patan Durbar Square': 23,
-      'Jawalakhel': 19,
-      'Kupondol': 24,
-      // Lalitpur - Lalitpur
-      'Pim Chowk': 21,
-      'Ekantakuna': 27,
-      // Lalitpur - Kirtipur
-      'Kirtipur': 28,
-      'Naya Bazaar': 16,
-      // Bhaktapur
-      'Bhaktapur Durbar Square': 29,
-      'Taumadhi': 15,
-      'Pottery Square': 30
-    };
+    // Generate delivery times for all landmarks
+    var qbDeliveryTimes = {};
+    function generateDeliveryTimes() {
+      var usedTimes = {};
+      Object.keys(qbLocationData).forEach(function(district) {
+        Object.keys(qbLocationData[district]).forEach(function(municipality) {
+          Object.keys(qbLocationData[district][municipality]).forEach(function(area) {
+            qbLocationData[district][municipality][area].forEach(function(landmark) {
+              var time;
+              do {
+                time = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
+              } while (usedTimes[time] && Object.keys(usedTimes).length < 16);
+              usedTimes[time] = true;
+              qbDeliveryTimes[landmark] = time;
+            });
+          });
+        });
+      });
+    }
+    generateDeliveryTimes();
 
     var districtSelect = document.getElementById('qbDistrict');
     var municipalitySelect = document.getElementById('qbMunicipality');
     var areaSelect = document.getElementById('qbArea');
     var subareaSelect = document.getElementById('qbSubArea');
+    var selectBtn = document.getElementById('qbSelectBtn');
+    var saveBtn = document.getElementById('qbSaveBtn');
 
     districtSelect.addEventListener('change', function() {
       municipalitySelect.innerHTML = '<option value="">Select Municipality</option>';
@@ -2054,6 +2114,12 @@
       municipalitySelect.disabled = true;
       areaSelect.disabled = true;
       subareaSelect.disabled = true;
+      selectBtn.disabled = true;
+      saveBtn.disabled = true;
+      selectBtn.style.opacity = '0.5';
+      selectBtn.style.cursor = 'not-allowed';
+      saveBtn.style.opacity = '0.5';
+      saveBtn.style.cursor = 'not-allowed';
 
       if (this.value) {
         var municipalities = Object.keys(qbLocationData[this.value]);
@@ -2072,6 +2138,12 @@
       subareaSelect.innerHTML = '<option value="">Select Sub-Area</option>';
       areaSelect.disabled = true;
       subareaSelect.disabled = true;
+      selectBtn.disabled = true;
+      saveBtn.disabled = true;
+      selectBtn.style.opacity = '0.5';
+      selectBtn.style.cursor = 'not-allowed';
+      saveBtn.style.opacity = '0.5';
+      saveBtn.style.cursor = 'not-allowed';
 
       if (this.value && districtSelect.value) {
         var areas = Object.keys(qbLocationData[districtSelect.value][this.value]);
@@ -2088,6 +2160,12 @@
     areaSelect.addEventListener('change', function() {
       subareaSelect.innerHTML = '<option value="">Select Sub-Area</option>';
       subareaSelect.disabled = true;
+      selectBtn.disabled = true;
+      saveBtn.disabled = true;
+      selectBtn.style.opacity = '0.5';
+      selectBtn.style.cursor = 'not-allowed';
+      saveBtn.style.opacity = '0.5';
+      saveBtn.style.cursor = 'not-allowed';
 
       if (this.value && districtSelect.value && municipalitySelect.value) {
         var subareas = qbLocationData[districtSelect.value][municipalitySelect.value][this.value];
@@ -2101,38 +2179,82 @@
       }
     });
 
-    // Show delivery time when sub-area is selected
     subareaSelect.addEventListener('change', function() {
       var deliveryTimeDisplay = document.getElementById('qbDeliveryTimeDisplay');
       var deliveryTimeValue = document.getElementById('qbDeliveryTimeValue');
+      var saveOptionsContainer = document.getElementById('qbSaveOptionsContainer');
 
       if (this.value) {
-        var deliveryTime = qbDeliveryTimes[this.value] || generateRandomDeliveryTime();
+        var deliveryTime = qbDeliveryTimes[this.value] || 20;
         deliveryTimeValue.textContent = deliveryTime;
         deliveryTimeDisplay.style.display = 'block';
+        selectBtn.disabled = false;
+        saveBtn.disabled = false;
+        selectBtn.style.opacity = '1';
+        selectBtn.style.cursor = 'pointer';
+        saveBtn.style.opacity = '1';
+        saveBtn.style.cursor = 'pointer';
+        saveOptionsContainer.style.display = 'none';
       } else {
         deliveryTimeDisplay.style.display = 'none';
+        selectBtn.disabled = true;
+        saveBtn.disabled = true;
+        selectBtn.style.opacity = '0.5';
+        selectBtn.style.cursor = 'not-allowed';
+        saveBtn.style.opacity = '0.5';
+        saveBtn.style.cursor = 'not-allowed';
+        saveOptionsContainer.style.display = 'none';
       }
     });
 
-    function qbConfirmLocation() {
+    function qbSelectLocation() {
       if (!subareaSelect.value) {
         alert('Please select all location levels');
         return;
       }
-      var loc = subareaSelect.value;
-      var deliveryTime = qbDeliveryTimes[loc] || generateRandomDeliveryTime();
+      var landmark = subareaSelect.value;
+      var deliveryTime = qbDeliveryTimes[landmark] || 20;
 
-      // Save to localStorage
-      localStorage.setItem('qb_location', loc);
+      localStorage.setItem('qb_location', landmark);
       localStorage.setItem('qb_delivery_time', deliveryTime);
 
-      // Update button display
       var titleEl = document.getElementById('qbLocTitle');
-      titleEl.textContent = loc;
+      titleEl.textContent = landmark;
       titleEl.setAttribute('data-delivery-time', deliveryTime);
 
-      // Close modal
+      document.getElementById('qbLocModal').style.display = 'none';
+    }
+
+    function qbShowSaveOptions() {
+      var saveOptionsContainer = document.getElementById('qbSaveOptionsContainer');
+      saveOptionsContainer.style.display = 'flex';
+    }
+
+    function qbSaveLocation(labelType) {
+      if (!subareaSelect.value) {
+        alert('Please select all location levels');
+        return;
+      }
+      var landmark = subareaSelect.value;
+      var deliveryTime = qbDeliveryTimes[landmark] || 20;
+
+      // Get existing saved locations
+      var savedLocations = JSON.parse(localStorage.getItem('qb_saved_locations') || '{}');
+
+      // Save with label
+      savedLocations[labelType] = {
+        location: landmark,
+        deliveryTime: deliveryTime
+      };
+
+      localStorage.setItem('qb_saved_locations', JSON.stringify(savedLocations));
+      localStorage.setItem('qb_location', landmark);
+      localStorage.setItem('qb_delivery_time', deliveryTime);
+
+      var titleEl = document.getElementById('qbLocTitle');
+      titleEl.textContent = landmark;
+      titleEl.setAttribute('data-delivery-time', deliveryTime);
+
       document.getElementById('qbLocModal').style.display = 'none';
     }
 
