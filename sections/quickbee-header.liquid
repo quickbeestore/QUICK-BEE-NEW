@@ -2369,9 +2369,23 @@
         alert('Please select all location levels');
         return;
       }
+
+      var district = districtSelect.value;
+      var municipality = document.getElementById('qbMunicipality').value;
+      var area = document.getElementById('qbArea').value;
       var landmark = subareaSelect.value;
       var deliveryTime = qbDeliveryTimes[landmark] || 20;
 
+      // Save complete location details to localStorage as JSON
+      var locationData = {
+        district: district,
+        municipality: municipality,
+        area: area,
+        landmark: landmark,
+        deliveryTime: deliveryTime,
+        savedAt: new Date().toISOString()
+      };
+      localStorage.setItem('qb_location_data', JSON.stringify(locationData));
       localStorage.setItem('qb_location', landmark);
       localStorage.setItem('qb_delivery_time', deliveryTime);
 
@@ -2543,7 +2557,94 @@
 
       // Show delivery time if landmark is pre-selected
       setTimeout(showDeliveryTime, 100);
+
+      // Hook into checkout forms to add location data as order note
+      qbInitCheckoutHandler();
     });
+
+    // Initialize checkout form handler
+    function qbInitCheckoutHandler() {
+      // Get location data from localStorage
+      function qbAddLocationToCheckout() {
+        var locationDataStr = localStorage.getItem('qb_location_data');
+        if (!locationDataStr) return;
+
+        try {
+          var locationData = JSON.parse(locationDataStr);
+          var locationNote = 'Delivery Location: ' + locationData.landmark +
+                            ' (Area: ' + locationData.area +
+                            ', Municipality: ' + locationData.municipality +
+                            ', District: ' + locationData.district +
+                            ') - Estimated Delivery: ' + locationData.deliveryTime + ' mins';
+
+          // Try to find and populate note field on checkout page
+          var noteFields = document.querySelectorAll('textarea[name*="note"], textarea[name*="Note"]');
+          if (noteFields.length > 0) {
+            noteFields[0].value = (noteFields[0].value ? noteFields[0].value + '\n' : '') + locationNote;
+          }
+
+          // Store in window object for cart/checkout operations
+          window.qbLocationNote = locationNote;
+        } catch (e) {
+          console.error('Error parsing location data:', e);
+        }
+      }
+
+      // Run immediately and on checkout page loads
+      qbAddLocationToCheckout();
+
+      // Watch for checkout form submissions
+      document.addEventListener('submit', function(event) {
+        if (event.target.matches('form') ||
+            event.target.getAttribute('action') && event.target.getAttribute('action').includes('checkout')) {
+          qbAddLocationToCheckout();
+        }
+      }, true);
+
+      // For AJAX cart additions, use Shopify's native hooks
+      if (window.Shopify && window.Shopify.onCheckout) {
+        window.Shopify.onCheckout(function() {
+          qbAddLocationToCheckout();
+        });
+      }
+
+      // Intercept add-to-cart and checkout button clicks
+      document.addEventListener('click', function(event) {
+        var button = event.target.closest('button, a');
+        if (button && (button.getAttribute('type') === 'submit' ||
+                      button.classList.contains('shopify-payment-button') ||
+                      button.innerText.toLowerCase().includes('checkout') ||
+                      button.getAttribute('href') && button.getAttribute('href').includes('checkout'))) {
+          qbAddLocationToCheckout();
+        }
+      });
+
+      // Override Shopify cart functions to add location data
+      if (window.Shopify && window.Shopify.cart) {
+        var originalAddToCart = Shopify.addToCart;
+        if (typeof originalAddToCart === 'function') {
+          Shopify.addToCart = function(variantId, quantity, callback) {
+            var locationDataStr = localStorage.getItem('qb_location_data');
+            if (locationDataStr) {
+              try {
+                var locationData = JSON.parse(locationDataStr);
+                var note = 'Delivery Location: ' + locationData.landmark +
+                          ' (Area: ' + locationData.area +
+                          ', Municipality: ' + locationData.municipality +
+                          ', District: ' + locationData.district +
+                          ') - Estimated Delivery: ' + locationData.deliveryTime + ' mins';
+                if (window.Shopify.updateCartNote) {
+                  window.Shopify.updateCartNote(note);
+                }
+              } catch (e) {
+                console.error('Error processing location data:', e);
+              }
+            }
+            return originalAddToCart.call(this, variantId, quantity, callback);
+          };
+        }
+      }
+    }
     </script>
 
     <!-- Search Bar with Dropdown -->
