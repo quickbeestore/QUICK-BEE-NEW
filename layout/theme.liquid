@@ -67,15 +67,13 @@
         background-color: var(--color-background);
         color: var(--color-foreground);
         overflow: hidden;
+        display: flex;
+        flex-direction: column;
       }
 
       #header-group {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
+        flex-shrink: 0;
         width: 100%;
-        z-index: 100;
       }
 
       /* Main content container - mobile first */
@@ -94,18 +92,12 @@
         width: 100%;
         max-width: 100%;
         margin: 0;
-        margin-top: var(--header-group-height, 60px);
         padding: 0;
         padding-bottom: 0;
         overflow-y: auto;
         overflow-x: hidden;
-        height: calc(100vh - var(--header-group-height, 60px) - 60px);
-      }
-
-      @media (min-width: 768px) {
-        main {
-          height: calc(100vh - var(--header-group-height, 60px));
-        }
+        flex: 1;
+        min-height: 0;
       }
 
       /* Section wrapper - mobile first */
@@ -481,14 +473,6 @@
         // Set CSS variables
         document.body.style.setProperty('--header-height', `${headerHeight}px`);
         document.body.style.setProperty('--header-group-height', `${headerGroupHeight}px`);
-
-        // Set main element height to prevent double scrollbars
-        // Account for footer/bottom navigation (estimate 60px for mobile, 0px for desktop)
-        const mainElement = document.querySelector('main');
-        if (mainElement) {
-          const footerHeight = window.innerWidth < 768 ? 60 : 0;
-          mainElement.style.height = `calc(100vh - ${headerGroupHeight}px - ${footerHeight}px)`;
-        }
 
         if (headerTopRow) {
           window.requestAnimationFrame(function () {
