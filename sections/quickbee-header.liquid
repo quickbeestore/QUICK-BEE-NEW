@@ -2438,7 +2438,7 @@
       }
     }
 
-    // Typing animation for search placeholder
+    // Typing animation for search placeholder (homepage only)
     var qbPlaceholderTexts = [
       'Fresh Groceries',
       'Best Sellers',
@@ -2451,10 +2451,14 @@
     var qbPlaceholderIndex = 0;
     var qbPlaceholderCharIndex = 0;
     var qbIsTyping = true;
+    var qbAnimationTimeout = null;
 
     function qbAnimatePlaceholder() {
       var searchInput = document.getElementById('qbSearchInput');
       if (!searchInput) return;
+
+      // Only animate on homepage
+      if ('{{ template }}' !== 'index') return;
 
       var currentText = qbPlaceholderTexts[qbPlaceholderIndex];
 
@@ -2465,7 +2469,7 @@
 
         if (qbPlaceholderCharIndex === currentText.length) {
           qbIsTyping = false;
-          setTimeout(qbAnimatePlaceholder, 2000); // Wait before erasing
+          qbAnimationTimeout = setTimeout(qbAnimatePlaceholder, 2000); // Wait before erasing
           return;
         }
       } else {
@@ -2476,19 +2480,31 @@
         if (qbPlaceholderCharIndex === 0) {
           qbIsTyping = true;
           qbPlaceholderIndex = (qbPlaceholderIndex + 1) % qbPlaceholderTexts.length;
-          setTimeout(qbAnimatePlaceholder, 500); // Wait before typing next
+          qbAnimationTimeout = setTimeout(qbAnimatePlaceholder, 500); // Wait before typing next
           return;
         }
       }
 
-      setTimeout(qbAnimatePlaceholder, 80); // Typing/erasing speed
+      qbAnimationTimeout = setTimeout(qbAnimatePlaceholder, 80); // Typing/erasing speed
     }
 
-    // Initialize placeholder animation when DOM is ready
+    // Initialize placeholder animation when DOM is ready (homepage only)
+    function qbInitPlaceholderAnimation() {
+      if ('{{ template }}' === 'index') {
+        qbAnimatePlaceholder();
+      } else {
+        // Set default placeholder for non-homepage
+        var searchInput = document.getElementById('qbSearchInput');
+        if (searchInput) {
+          searchInput.placeholder = 'Search products, categories...';
+        }
+      }
+    }
+
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', qbAnimatePlaceholder);
+      document.addEventListener('DOMContentLoaded', qbInitPlaceholderAnimation);
     } else {
-      qbAnimatePlaceholder();
+      qbInitPlaceholderAnimation();
     }
 
     function qbShowSearchDropdown() {
