@@ -19,7 +19,6 @@ class LocationPicker {
       selectedDistrict: null,
       selectedMunicipality: null,
       selectedArea: null,
-      selectedSubArea: null,
       areasData: null,
       isDetecting: false,
       detectionPermission: null
@@ -425,7 +424,7 @@ class LocationPicker {
   }
 
   /**
-   * Select an area and show sub-areas (level 3 → level 4)
+   * Select an area (final selection - level 4)
    */
   selectArea(districtId, municipalityId, areaId) {
     const district = this.state.areasData.districts.find((d) => d.id === districtId);
@@ -435,107 +434,6 @@ class LocationPicker {
     if (!area) return;
 
     this.state.selectedArea = areaId;
-    this.state.selectedSubArea = null;
-
-    this.renderSubAreaList(district, municipality, area);
-    this.updateBreadcrumb([district.name, municipality.name, area.name]);
-  }
-
-  /**
-   * Render sub-area list (level 4)
-   */
-  renderSubAreaList(district, municipality, area) {
-    const pinSvg = `<svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 0C3.243 0 1 2.243 1 5c0 3.25 5 9 5 9s5-5.75 5-9c0-2.757-2.243-5-5-5zm0 7.5A2.5 2.5 0 1 1 6 2.5 2.5 2.5 0 0 1 6 7.5z" fill="currentColor"/></svg>`;
-
-    const html = `
-      <div class="location-breadcrumb show">
-        <span class="location-breadcrumb__item">${district.name}</span>
-        <span class="location-breadcrumb__separator">/</span>
-        <span class="location-breadcrumb__item">${municipality.name}</span>
-        <span class="location-breadcrumb__separator">/</span>
-        <span class="location-breadcrumb__item">${area.name}</span>
-      </div>
-      <div class="location-item location-item--district location-item--back"
-           role="option"
-           tabindex="0"
-           data-action="back">
-        ← Back to Areas
-      </div>
-      ${area.subAreas
-        .map(
-          (subArea) => `
-        <div class="location-item location-item--subarea"
-             role="option"
-             tabindex="0"
-             data-district-id="${district.id}"
-             data-municipality-id="${municipality.id}"
-             data-area-id="${area.id}"
-             data-subarea-id="${subArea.id}"
-             data-action="select-subarea">
-          <span class="location-item--subarea__marker">${pinSvg}</span>
-          <span class="location-item--subarea__name">${subArea.name}</span>
-        </div>
-      `
-        )
-        .join('')}
-    `;
-
-    this.DOM.dropdown.innerHTML = html;
-
-    // Back button
-    const backBtn = this.DOM.dropdown.querySelector('[data-action="back"]');
-    if (backBtn) {
-      backBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.renderAreaList(district, municipality);
-        this.state.selectedArea = null;
-        this.state.selectedSubArea = null;
-      });
-      backBtn.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          this.renderAreaList(district, municipality);
-        }
-      });
-    }
-
-    // Sub-area listeners
-    this.DOM.dropdown.querySelectorAll('[data-action="select-subarea"]').forEach((item) => {
-      item.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.selectSubArea(
-          item.dataset.districtId,
-          item.dataset.municipalityId,
-          item.dataset.areaId,
-          item.dataset.subareaId
-        );
-      });
-      item.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          this.selectSubArea(
-            item.dataset.districtId,
-            item.dataset.municipalityId,
-            item.dataset.areaId,
-            item.dataset.subareaId
-          );
-        }
-      });
-    });
-  }
-
-  /**
-   * Select a sub-area (final selection - level 4)
-   */
-  selectSubArea(districtId, municipalityId, areaId, subAreaId) {
-    const district = this.state.areasData.districts.find((d) => d.id === districtId);
-    const municipality = district?.municipalities.find((m) => m.id === municipalityId);
-    const area = municipality?.areas.find((a) => a.id === areaId);
-    const subArea = area?.subAreas.find((s) => s.id === subAreaId);
-
-    if (!subArea) return;
-
-    this.state.selectedSubArea = subAreaId;
 
     this.saveLocation({
       districtId,
@@ -544,21 +442,19 @@ class LocationPicker {
       municipalityName: municipality.name,
       areaId,
       areaName: area.name,
-      subAreaId,
-      subAreaName: subArea.name,
       timestamp: new Date().toISOString()
     });
 
-    this.updateButtonDisplay(subArea.name);
+    this.updateButtonDisplay(area.name);
     this.closeDropdown();
 
     this.dispatchLocationChangeEvent({
       district: district.name,
       municipality: municipality.name,
-      area: area.name,
-      subArea: subArea.name
+      area: area.name
     });
   }
+
 
   /**
    * Detect location using geolocation API
@@ -718,7 +614,7 @@ class LocationPicker {
         },
         body: JSON.stringify({
           attributes: {
-            [this.options.cartAttributeKey]: `${locationData.subAreaName || locationData.areaName}, ${locationData.areaName}, ${locationData.municipalityName}`
+            [this.options.cartAttributeKey]: `${locationData.areaName}, ${locationData.municipalityName}`
           }
         })
       });
@@ -741,7 +637,7 @@ class LocationPicker {
     if (saved) {
       try {
         const locationData = JSON.parse(saved);
-        this.updateButtonDisplay(locationData.subAreaName || locationData.areaName);
+        this.updateButtonDisplay(locationData.areaName);
         console.log('[LocationPicker] Location restored:', locationData);
       } catch (error) {
         console.warn('[LocationPicker] Failed to restore location:', error);
