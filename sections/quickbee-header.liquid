@@ -1735,20 +1735,6 @@
             </select>
           </div>
 
-          <div class="qb-hierarchy-level">
-            <label class="qb-hierarchy-label">Sub-Area</label>
-            <select class="qb-hierarchy-select" id="qbSubAreaSelect" disabled>
-              <option value="">Select Sub-Area</option>
-            </select>
-          </div>
-
-          <div class="qb-hierarchy-level">
-            <label class="qb-hierarchy-label">Ward/Locality</label>
-            <select class="qb-hierarchy-select" id="qbWardSelect" disabled>
-              <option value="">Select Ward</option>
-            </select>
-          </div>
-
           <!-- Delivery Time Display -->
           <div class="qb-delivery-time" id="qbDeliveryTime" hidden>
             <strong id="qbDeliveryTimeValue">0</strong> mins
@@ -3560,12 +3546,10 @@ window.QB_AREAS_DATA = {"districts":[{"id":"kathmandu","name":"Kathmandu","slug"
   // Municipality change → populate areas
   municipalitySelect.addEventListener('change', function() {
     areaSelect.innerHTML = '<option value="">Select Area</option>';
-    subAreaSelect.innerHTML = '<option value="">Select Sub-Area</option>';
     deliveryTimeDisplay.hidden = true;
 
     if (!this.value) {
       areaSelect.disabled = true;
-      subAreaSelect.disabled = true;
       return;
     }
 
@@ -3584,99 +3568,36 @@ window.QB_AREAS_DATA = {"districts":[{"id":"kathmandu","name":"Kathmandu","slug"
     }
   });
 
-  // Area change → populate sub-areas
+  // Area change → select location and show delivery time (final selection)
   areaSelect.addEventListener('change', function() {
-    subAreaSelect.innerHTML = '<option value="">Select Sub-Area</option>';
     deliveryTimeDisplay.hidden = true;
 
     if (!this.value) {
-      subAreaSelect.disabled = true;
       return;
     }
 
     var districtId = districtSelect.value;
     var munId = municipalitySelect.value;
-    var district = areasData.districts.find(function(d) { return d.id === districtId; });
-    var mun = district.municipalities.find(function(m) { return m.id === munId; });
-    var area = mun.areas.find(function(a) { return a.id === this.value; }.bind(this));
-
-    if (area && area.subAreas) {
-      area.subAreas.forEach(function(subArea) {
-        var option = document.createElement('option');
-        option.value = subArea.id;
-        option.textContent = subArea.name;
-        subAreaSelect.appendChild(option);
-      });
-      subAreaSelect.disabled = false;
-    }
-  });
-
-  // Sub-area change → select location and show delivery time
-  subAreaSelect.addEventListener('change', function() {
-    wardSelect.innerHTML = '<option value="">Select Ward</option>';
-    deliveryTimeDisplay.hidden = true;
-
-    if (!this.value) {
-      wardSelect.disabled = true;
-      return;
-    }
-
-    var districtId = districtSelect.value;
-    var munId = municipalitySelect.value;
-    var areaId = areaSelect.value;
-    var subAreaId = this.value;
+    var areaId = this.value;
 
     var district = areasData.districts.find(function(d) { return d.id === districtId; });
     var mun = district.municipalities.find(function(m) { return m.id === munId; });
     var area = mun.areas.find(function(a) { return a.id === areaId; });
-    var subArea = area.subAreas.find(function(s) { return s.id === subAreaId; });
 
-    if (subArea && subArea.wards) {
-      subArea.wards.forEach(function(ward) {
-        var option = document.createElement('option');
-        option.value = ward.id;
-        option.textContent = ward.name;
-        wardSelect.appendChild(option);
-      });
-      wardSelect.disabled = false;
-    }
-  });
-
-  // Ward change → select location and show delivery time
-  wardSelect.addEventListener('change', function() {
-    if (!this.value) {
-      deliveryTimeDisplay.hidden = true;
-      return;
-    }
-
-    var districtId = districtSelect.value;
-    var munId = municipalitySelect.value;
-    var areaId = areaSelect.value;
-    var subAreaId = subAreaSelect.value;
-    var wardId = this.value;
-
-    var district = areasData.districts.find(function(d) { return d.id === districtId; });
-    var mun = district.municipalities.find(function(m) { return m.id === munId; });
-    var area = mun.areas.find(function(a) { return a.id === areaId; });
-    var subArea = area.subAreas.find(function(s) { return s.id === subAreaId; });
-    var ward = subArea.wards.find(function(w) { return w.id === wardId; });
-
-    if (ward) {
-      var deliveryTime = ward.deliveryTime || 20;
+    if (area) {
+      var deliveryTime = area.deliveryTime || 20;
       currentDeliveryTime = deliveryTime;
       deliveryTimeValue.textContent = deliveryTime;
       deliveryTimeDisplay.hidden = false;
 
-      var fullPath = district.name + ' → ' + mun.name + ' → ' + area.name + ' → ' + subArea.name + ' → ' + ward.name;
+      var fullPath = district.name + ' → ' + mun.name + ' → ' + area.name;
       selectLocation({
-        main: ward.name,
+        main: area.name,
         full: fullPath,
         locData: {
           district: district.name,
           municipality: mun.name,
           area: area.name,
-          subArea: subArea.name,
-          ward: ward.name,
           deliveryTime: deliveryTime
         }
       });
@@ -3712,7 +3633,7 @@ window.QB_AREAS_DATA = {"districts":[{"id":"kathmandu","name":"Kathmandu","slug"
         savedAt: new Date().toISOString()
       };
 
-      // Add detailed location data (5 levels) if available
+      // Add detailed location data (4 levels) if available
       if (placeData.locData) {
         locObj.locData = placeData.locData;
         // Create order note/message for Shopify
@@ -3720,8 +3641,6 @@ window.QB_AREAS_DATA = {"districts":[{"id":"kathmandu","name":"Kathmandu","slug"
           'District: ' + placeData.locData.district + '\n' +
           'Municipality: ' + placeData.locData.municipality + '\n' +
           'Area: ' + placeData.locData.area + '\n' +
-          'Sub-Area: ' + placeData.locData.subArea + '\n' +
-          'Ward/Locality: ' + placeData.locData.ward + '\n' +
           'Estimated Delivery Time: ' + placeData.locData.deliveryTime + ' minutes';
       }
 
