@@ -1975,6 +1975,12 @@
           </select>
         </div>
 
+        <!-- Delivery Time Display -->
+        <div id="qbDeliveryTimeDisplay" style="margin-bottom:20px;padding:12px;background:#f9f9f9;border-radius:6px;text-align:center;display:none;">
+          <div style="font-size:12px;color:#666;margin-bottom:4px;text-transform:uppercase;">Estimated Delivery</div>
+          <div style="font-size:20px;font-weight:700;color:#f5c518;"><span id="qbDeliveryTimeValue">--</span> mins</div>
+        </div>
+
         <div style="display:flex;gap:12px;">
           <button onclick="qbConfirmLocation()" style="flex:1;padding:12px;background:#f5c518;color:#000;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:14px;">Confirm</button>
           <button onclick="document.getElementById('qbLocModal').style.display='none'" style="flex:1;padding:12px;background:#eee;color:#333;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Cancel</button>
@@ -1983,6 +1989,12 @@
     </div>
 
     <script>
+    // Generate random delivery time between 15-30 minutes
+    function generateRandomDeliveryTime() {
+      return Math.floor(Math.random() * (30 - 15 + 1)) + 15;
+    }
+
+    // Main location data structure
     var qbLocationData = {
       'Kathmandu': {
         'Kathmandu Metropolitan City': {
@@ -2002,6 +2014,32 @@
           'Bhaktapur': ['Bhaktapur Durbar Square', 'Taumadhi', 'Pottery Square']
         }
       }
+    };
+
+    // Delivery times database - each sub-area gets a unique random time (15-30 mins)
+    var qbDeliveryTimes = {
+      // Kathmandu - Kathmandu Metro
+      'Naxal': 22,
+      'Bhagwan Bahal': 18,
+      'Lazimpat': 26,
+      // Kathmandu - Thamel
+      'Thamel': 20,
+      'Chhetrapati': 17,
+      'Basantapur': 25,
+      // Kathmandu - Patan
+      'Patan Durbar Square': 23,
+      'Jawalakhel': 19,
+      'Kupondol': 24,
+      // Lalitpur - Lalitpur
+      'Pim Chowk': 21,
+      'Ekantakuna': 27,
+      // Lalitpur - Kirtipur
+      'Kirtipur': 28,
+      'Naya Bazaar': 16,
+      // Bhaktapur
+      'Bhaktapur Durbar Square': 29,
+      'Taumadhi': 15,
+      'Pottery Square': 30
     };
 
     var districtSelect = document.getElementById('qbDistrict');
@@ -2063,21 +2101,50 @@
       }
     });
 
+    // Show delivery time when sub-area is selected
+    subareaSelect.addEventListener('change', function() {
+      var deliveryTimeDisplay = document.getElementById('qbDeliveryTimeDisplay');
+      var deliveryTimeValue = document.getElementById('qbDeliveryTimeValue');
+
+      if (this.value) {
+        var deliveryTime = qbDeliveryTimes[this.value] || generateRandomDeliveryTime();
+        deliveryTimeValue.textContent = deliveryTime;
+        deliveryTimeDisplay.style.display = 'block';
+      } else {
+        deliveryTimeDisplay.style.display = 'none';
+      }
+    });
+
     function qbConfirmLocation() {
       if (!subareaSelect.value) {
         alert('Please select all location levels');
         return;
       }
       var loc = subareaSelect.value;
+      var deliveryTime = qbDeliveryTimes[loc] || generateRandomDeliveryTime();
+
+      // Save to localStorage
       localStorage.setItem('qb_location', loc);
-      document.getElementById('qbLocTitle').textContent = loc;
+      localStorage.setItem('qb_delivery_time', deliveryTime);
+
+      // Update button display
+      var titleEl = document.getElementById('qbLocTitle');
+      titleEl.textContent = loc;
+      titleEl.setAttribute('data-delivery-time', deliveryTime);
+
+      // Close modal
       document.getElementById('qbLocModal').style.display = 'none';
     }
 
     window.addEventListener('load', function() {
       var saved = localStorage.getItem('qb_location');
+      var deliveryTime = localStorage.getItem('qb_delivery_time');
       if (saved) {
-        document.getElementById('qbLocTitle').textContent = saved;
+        var titleEl = document.getElementById('qbLocTitle');
+        titleEl.textContent = saved;
+        if (deliveryTime) {
+          titleEl.setAttribute('data-delivery-time', deliveryTime);
+        }
       }
     });
     </script>
