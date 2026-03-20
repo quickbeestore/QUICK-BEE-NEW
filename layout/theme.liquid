@@ -495,16 +495,59 @@
         const mainElement = document.querySelector('main');
         const footerGroup = document.querySelector('#footer-group');
 
-        if (mainElement && footerGroup) {
-          // Get actual footer height
-          const footerHeight = footerGroup.offsetHeight;
+        // Function to detect actual footer height
+        const detectFooterHeight = () => {
+          // Look for common footer elements
+          let footerHeight = 0;
 
-          // Set main element positions based on actual header and footer heights
+          // Check for bottom navigation or footer-like elements
+          const footerElements = document.querySelectorAll('[class*="footer"], [class*="bottom"], [id*="footer"]');
+          footerElements.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            const elementTop = window.innerHeight - rect.height;
+            if (elementTop > footerGroup.getBoundingClientRect().top) {
+              footerHeight = Math.max(footerHeight, rect.height);
+            }
+          });
+
+          // If no footer found, measure from actual DOM
+          if (footerHeight === 0) {
+            // Default to footer-group height or 60px if empty
+            footerHeight = footerGroup.offsetHeight || 60;
+          }
+
+          return footerHeight;
+        };
+
+        if (mainElement) {
+          // Set top position based on header
           mainElement.style.top = `${headerGroupHeight}px`;
+
+          // Detect and set bottom position based on footer
+          const footerHeight = detectFooterHeight();
           mainElement.style.bottom = `${footerHeight}px`;
 
           // Set CSS variables for future reference
+          document.body.style.setProperty('--header-group-height', `${headerGroupHeight}px`);
           document.body.style.setProperty('--footer-height', `${footerHeight}px`);
+
+          // Recalculate on window resize
+          window.addEventListener('resize', () => {
+            const newFooterHeight = detectFooterHeight();
+            mainElement.style.bottom = `${newFooterHeight}px`;
+          });
+
+          // Observe DOM changes to recalculate footer height
+          const observer = new MutationObserver(() => {
+            window.requestAnimationFrame(() => {
+              const newFooterHeight = detectFooterHeight();
+              if (newFooterHeight > 0) {
+                mainElement.style.bottom = `${newFooterHeight}px`;
+              }
+            });
+          });
+
+          observer.observe(document.body, { childList: true, subtree: true, attributes: false });
         }
 
         if (headerTopRow) {
