@@ -67,20 +67,26 @@
         background-color: var(--color-background);
         color: var(--color-foreground);
         overflow: hidden;
-        display: flex;
-        flex-direction: column;
       }
 
       #header-group {
-        flex-shrink: 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
         width: 100%;
+        z-index: 100;
       }
 
       #footer-group {
-        flex-shrink: 0;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
         width: 100%;
         height: auto;
         min-height: 60px;
+        z-index: 99;
       }
 
       /* Main content container - mobile first */
@@ -103,8 +109,12 @@
         padding-bottom: 0;
         overflow-y: auto;
         overflow-x: hidden;
-        flex: 1;
-        min-height: 0;
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: var(--header-group-height, 60px);
+        bottom: 60px;
+        z-index: 1;
       }
 
       /* Section wrapper - mobile first */
@@ -477,9 +487,15 @@
           headerGroupHeight += headerHeight;
         }
 
-        // Set CSS variables
+        // Set CSS variables for layout positioning
         document.body.style.setProperty('--header-height', `${headerHeight}px`);
         document.body.style.setProperty('--header-group-height', `${headerGroupHeight}px`);
+
+        // Update main element position based on actual header height
+        const mainElement = document.querySelector('main');
+        if (mainElement) {
+          mainElement.style.top = `${headerGroupHeight}px`;
+        }
 
         if (headerTopRow) {
           window.requestAnimationFrame(function () {
