@@ -2438,6 +2438,59 @@
       }
     }
 
+    // Typing animation for search placeholder
+    var qbPlaceholderTexts = [
+      'Fresh Groceries',
+      'Best Sellers',
+      'New Arrivals',
+      'Vegetables',
+      'Fruits',
+      'Dairy & Eggs',
+      'Snacks'
+    ];
+    var qbPlaceholderIndex = 0;
+    var qbPlaceholderCharIndex = 0;
+    var qbIsTyping = true;
+
+    function qbAnimatePlaceholder() {
+      var searchInput = document.getElementById('qbSearchInput');
+      if (!searchInput) return;
+
+      var currentText = qbPlaceholderTexts[qbPlaceholderIndex];
+
+      if (qbIsTyping) {
+        // Typing effect
+        qbPlaceholderCharIndex++;
+        searchInput.placeholder = currentText.substring(0, qbPlaceholderCharIndex) + '|';
+
+        if (qbPlaceholderCharIndex === currentText.length) {
+          qbIsTyping = false;
+          setTimeout(qbAnimatePlaceholder, 2000); // Wait before erasing
+          return;
+        }
+      } else {
+        // Erasing effect
+        qbPlaceholderCharIndex--;
+        searchInput.placeholder = currentText.substring(0, qbPlaceholderCharIndex) + '|';
+
+        if (qbPlaceholderCharIndex === 0) {
+          qbIsTyping = true;
+          qbPlaceholderIndex = (qbPlaceholderIndex + 1) % qbPlaceholderTexts.length;
+          setTimeout(qbAnimatePlaceholder, 500); // Wait before typing next
+          return;
+        }
+      }
+
+      setTimeout(qbAnimatePlaceholder, 80); // Typing/erasing speed
+    }
+
+    // Initialize placeholder animation when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', qbAnimatePlaceholder);
+    } else {
+      qbAnimatePlaceholder();
+    }
+
     function qbShowSearchDropdown() {
       var dropdown = document.getElementById('qbSearchDropdown');
       var searchBar = document.querySelector('.qb-search-bar-wrap');
