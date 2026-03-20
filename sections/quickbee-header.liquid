@@ -3584,28 +3584,25 @@ console.log('🐝 QuickBee Splash Screen Ready');
   var districtSelect = document.getElementById('qbDistrictSelectModal');
 
   if (!btn || !modal) {
-    console.error('🐝 Location picker elements not found');
+    console.error('🐝 Location picker elements NOT found!', {btn: !!btn, modal: !!modal});
     return;
   }
+
+  console.log('🐝 Location picker elements FOUND - initializing', {btn: !!btn, modal: !!modal});
 
   // Open modal
   function openModal() {
     console.log('🐝 Opening location modal...');
-    modal.style.display = 'flex';
-    modal.style.visibility = 'visible';
-    modal.style.opacity = '1';
-    modal.style.pointerEvents = 'auto';
-    modal.setAttribute('hidden', false);
+    modal.style.cssText = 'display: flex !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important;';
+    modal.removeAttribute('hidden');
     btn.setAttribute('aria-expanded', 'true');
+    console.log('🐝 Modal styles applied');
   }
 
   // Close modal
   function closeModal() {
     console.log('🐝 Closing location modal...');
-    modal.style.display = 'none';
-    modal.style.visibility = 'hidden';
-    modal.style.opacity = '0';
-    modal.style.pointerEvents = 'none';
+    modal.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important;';
     modal.setAttribute('hidden', '');
     btn.setAttribute('aria-expanded', 'false');
   }
@@ -3653,11 +3650,14 @@ console.log('🐝 QuickBee Splash Screen Ready');
   }
 
   // Event listeners
+  console.log('🐝 Attaching click listener to button...');
   btn.addEventListener('click', function(e) {
     e.preventDefault();
-    console.log('🐝 Button clicked!');
+    e.stopPropagation();
+    console.log('🐝 Button clicked! Opening modal now...');
     openModal();
   });
+  console.log('🐝 Click listener attached successfully');
 
   closeBtn && closeBtn.addEventListener('click', closeModal);
   cancelBtn && cancelBtn.addEventListener('click', closeModal);
