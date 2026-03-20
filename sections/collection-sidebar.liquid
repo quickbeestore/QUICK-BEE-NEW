@@ -748,13 +748,59 @@
       this.appendChild(qtyInput);
     }
 
-    // Mark first collection as active and load its products
-    const firstCategory = document.querySelector('.qb-sidebar-category');
-    if (firstCategory) {
-      firstCategory.classList.add('active');
-      const collectionHandle = firstCategory.dataset.collectionHandle;
-      loadCollectionProducts(collectionHandle);
+    // Auto-detect and scroll to active collection from URL
+    function initializeActiveCategory() {
+      const currentPath = window.location.pathname.toLowerCase();
+      const collectionMatch = currentPath.match(/\/collections\/([^\/]+)/);
+      const currentCollection = collectionMatch ? collectionMatch[1] : null;
+
+      const categories = document.querySelectorAll('.qb-sidebar-category');
+      let activeCategory = null;
+      let collectionHandle = null;
+
+      if (currentCollection) {
+        // Find category matching current URL
+        categories.forEach(category => {
+          if (category.dataset.collectionHandle === currentCollection) {
+            activeCategory = category;
+            collectionHandle = currentCollection;
+          }
+        });
+      }
+
+      // Fallback to first category if no match found
+      if (!activeCategory) {
+        activeCategory = categories[0];
+        collectionHandle = activeCategory?.dataset.collectionHandle;
+      }
+
+      if (activeCategory && collectionHandle) {
+        // Mark as active
+        categories.forEach(cat => cat.classList.remove('active'));
+        activeCategory.classList.add('active');
+
+        // Scroll into view
+        const sidebar = document.getElementById('qb-collection-sidebar')?.querySelector('.qb-sidebar');
+        if (sidebar) {
+          const categoryTop = activeCategory.offsetTop;
+          const categoryHeight = activeCategory.offsetHeight;
+          const sidebarHeight = sidebar.clientHeight;
+          const scrollTop = sidebar.scrollTop;
+
+          // Calculate scroll position to center the active category
+          const scrollTo = categoryTop - (sidebarHeight / 2) + (categoryHeight / 2);
+          sidebar.scrollTop = Math.max(0, scrollTo);
+        }
+
+        // Update title and load products
+        const collectionTitle = activeCategory.dataset.collectionTitle;
+        document.querySelector('.qb-collection-title').textContent = collectionTitle;
+        loadCollectionProducts(collectionHandle);
+      }
     }
+
+    // Initialize with active category
+    initializeActiveCategory();
 
     // Initial attachment of listeners
     attachProductListeners();
