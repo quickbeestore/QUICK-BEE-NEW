@@ -113,7 +113,7 @@
         left: 0;
         right: 0;
         top: var(--header-group-height, 60px);
-        bottom: 60px;
+        bottom: var(--footer-height, 60px);
         z-index: 1;
       }
 
@@ -491,10 +491,20 @@
         document.body.style.setProperty('--header-height', `${headerHeight}px`);
         document.body.style.setProperty('--header-group-height', `${headerGroupHeight}px`);
 
-        // Update main element position based on actual header height
+        // Calculate footer height and update main element position
         const mainElement = document.querySelector('main');
-        if (mainElement) {
+        const footerGroup = document.querySelector('#footer-group');
+
+        if (mainElement && footerGroup) {
+          // Get actual footer height
+          const footerHeight = footerGroup.offsetHeight;
+
+          // Set main element positions based on actual header and footer heights
           mainElement.style.top = `${headerGroupHeight}px`;
+          mainElement.style.bottom = `${footerHeight}px`;
+
+          // Set CSS variables for future reference
+          document.body.style.setProperty('--footer-height', `${footerHeight}px`);
         }
 
         if (headerTopRow) {
