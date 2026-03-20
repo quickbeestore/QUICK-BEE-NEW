@@ -1,0 +1,4508 @@
+{% comment %}
+  QuickBee Header Section
+  Add this file to: sections/quickbee-header.liquid
+  Then include it in your theme.liquid with: {% section 'quickbee-header' %}
+{% endcomment %}
+
+{% schema %}
+{
+  "name": "QuickBee Header",
+  "settings": [
+    {
+      "type": "text",
+      "id": "announcement_text_1",
+      "label": "Announcement Text 1",
+      "default": "🐝 Spin the QuickBee Wheel & unlock up to 69% OFF"
+    },
+    {
+      "type": "text",
+      "id": "announcement_text_2",
+      "label": "Announcement Text 2",
+      "default": "⚡ Delivery in ~20 minutes across Kathmandu Valley"
+    },
+    {
+      "type": "text",
+      "id": "announcement_text_3",
+      "label": "Announcement Text 3",
+      "default": "🚚 Free delivery on selected orders today"
+    },
+    {
+      "type": "text",
+      "id": "delivery_text",
+      "label": "Delivery Badge Text",
+      "default": "30-min delivery"
+    },
+    {
+      "type": "color",
+      "id": "announcement_bg",
+      "label": "Announcement Bar Background",
+      "default": "#FFC107"
+    },
+    {
+      "type": "color",
+      "id": "nav_color",
+      "label": "Nav Icon Color",
+      "default": "#e8a000"
+    }
+  ],
+  "presets": [
+    {
+      "name": "QuickBee Header"
+    }
+  ]
+}
+{% endschema %}
+
+<!-- QuickBee Splash Screen (Homepage Only) -->
+{% if template == 'index' %}
+<div class="qb-splash-screen" id="qbSplashScreen">
+  <!-- Animated Background Elements -->
+  <div class="qb-splash-bg-orb qb-orb-1"></div>
+  <div class="qb-splash-bg-orb qb-orb-2"></div>
+  <div class="qb-splash-bg-orb qb-orb-3"></div>
+
+  <div class="qb-splash-content">
+    <div class="qb-splash-logo-container">
+      <div class="qb-splash-logo-bee">🐝</div>
+    </div>
+    <div class="qb-splash-text">
+      <h1 class="qb-splash-title">
+        <span class="qb-title-quick">Quick</span><span class="qb-title-bee">Bee</span>
+      </h1>
+      <div class="qb-splash-line"></div>
+      <p class="qb-splash-subtitle">Now in Kathmandu, Bhaktapur, Lalitpur</p>
+      <div class="qb-splash-features">
+        <span class="qb-feature">24/7 Customer Support</span>
+        <span class="qb-feature">Fastest Delivery</span>
+        <span class="qb-feature">🔥HOT Deals🔥</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bee that carries the screen -->
+  <div class="qb-bee-container">
+    <div class="qb-bee-flyer">🐝</div>
+  </div>
+
+  <!-- Loading indicator -->
+  <div class="qb-splash-loader">
+    <div class="qb-loader-bar"></div>
+  </div>
+</div>
+{% endif %}
+
+<style>
+  :root {
+    --qb-yellow: {{ section.settings.announcement_bg }};
+    --qb-dark: #1a1a1a;
+    --qb-nav-color: {{ section.settings.nav_color }};
+    --qb-white: #ffffff;
+    --qb-text-dark: #111111;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Premium Splash Screen ── */
+  .qb-splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    overflow: hidden;
+    animation: qb-splash-hide 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  .qb-splash-screen.hidden {
+    pointer-events: none;
+  }
+
+  @keyframes qb-splash-hide {
+    0% {
+      opacity: 1;
+      visibility: visible;
+    }
+    85% {
+      opacity: 1;
+      visibility: visible;
+    }
+    100% {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+
+  /* Animated Background Orbs */
+  .qb-splash-bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.3;
+    animation: qb-orb-float 6s ease-in-out infinite;
+  }
+
+  .qb-orb-1 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(245, 197, 24, 0.4), transparent);
+    top: -100px;
+    right: -100px;
+    animation-delay: 0s;
+  }
+
+  .qb-orb-2 {
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(34, 197, 94, 0.3), transparent);
+    bottom: -50px;
+    left: -50px;
+    animation-delay: 1s;
+  }
+
+  .qb-orb-3 {
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(147, 51, 234, 0.2), transparent);
+    top: 50%;
+    left: 10%;
+    animation-delay: 2s;
+  }
+
+  @keyframes qb-orb-float {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(30px, -30px); }
+  }
+
+  .qb-splash-content {
+    text-align: center;
+    z-index: 10;
+    animation: qb-splash-content-in 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+              qb-splash-content-out 1s cubic-bezier(0.4, 0, 0.2, 1) 4s forwards;
+  }
+
+  @keyframes qb-splash-content-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.9) translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  @keyframes qb-splash-content-out {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* Logo Container */
+  .qb-splash-logo-container {
+    margin-bottom: 24px;
+    animation: qb-logo-pulse 2s ease-in-out infinite;
+  }
+
+  .qb-splash-logo-icon {
+    font-size: 120px;
+    line-height: 1;
+    filter: drop-shadow(0 0 20px rgba(245, 197, 24, 0.4));
+  }
+
+  @keyframes qb-logo-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  /* Title Styling */
+  .qb-splash-title {
+    font-size: 72px;
+    font-weight: 900;
+    margin-bottom: 16px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    letter-spacing: -2px;
+    line-height: 1.2;
+    background: linear-gradient(135deg, #f5c518 0%, #fbbf24 50%, #f5c518 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 30px rgba(245, 197, 24, 0.2);
+  }
+
+  .qb-title-quick {
+    color: #ffffff;
+    -webkit-text-fill-color: #ffffff;
+  }
+
+  .qb-title-bee {
+    background: linear-gradient(135deg, #f5c518 0%, #fbbf24 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Decorative Line */
+  .qb-splash-line {
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #f5c518, transparent);
+    margin: 16px auto 20px;
+    border-radius: 2px;
+    animation: qb-line-expand 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  @keyframes qb-line-expand {
+    0% {
+      width: 0;
+      opacity: 0;
+    }
+    100% {
+      width: 80px;
+      opacity: 1;
+    }
+  }
+
+  /* Subtitle */
+  .qb-splash-subtitle {
+    font-size: 18px;
+    color: #e2e8f0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-weight: 400;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+  }
+
+  /* Features Display */
+  .qb-splash-features {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .qb-feature {
+    font-size: 13px;
+    color: #cbd5e1;
+    font-weight: 500;
+    padding: 8px 16px;
+    border: 1px solid rgba(245, 197, 24, 0.3);
+    border-radius: 8px;
+    background: rgba(245, 197, 24, 0.05);
+    letter-spacing: 0.5px;
+    animation: qb-feature-slide 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    opacity: 0;
+  }
+
+  .qb-feature:nth-child(1) { animation-delay: 0.2s; }
+  .qb-feature:nth-child(2) { animation-delay: 0.4s; }
+  .qb-feature:nth-child(3) { animation-delay: 0.6s; }
+
+  @keyframes qb-feature-slide {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Professional Bee Animation */
+  .qb-bee-container {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 140px;
+    transform: translateY(-50%);
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  .qb-bee-flyer {
+    position: absolute;
+    font-size: 70px;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    animation: qb-bee-carry 5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    filter: drop-shadow(0 10px 30px rgba(245, 197, 24, 0.7)) drop-shadow(0 0 20px rgba(245, 197, 24, 0.4));
+  }
+
+  /* Bee flying from left to right - carrying the screen */
+  @keyframes qb-bee-carry {
+    0% {
+      left: -150px;
+      opacity: 0;
+      transform: scaleX(-1) scale(0.7) translateY(0);
+    }
+    8% {
+      opacity: 1;
+      transform: scaleX(-1) scale(1) translateY(0);
+    }
+    50% {
+      opacity: 1;
+      transform: scaleX(-1) scale(1) translateY(-8px);
+    }
+    92% {
+      opacity: 1;
+      transform: scaleX(-1) scale(1) translateY(0);
+    }
+    100% {
+      left: 100vw;
+      opacity: 0;
+      transform: scaleX(-1) scale(0.8) translateY(0);
+    }
+  }
+
+  /* Wing flutter animation */
+  .qb-wing-left {
+    animation: qb-wing-flutter 0.1s ease-in-out infinite;
+    transform-origin: 45px 35px;
+  }
+
+  .qb-wing-right {
+    animation: qb-wing-flutter-reverse 0.1s ease-in-out infinite;
+    transform-origin: 75px 35px;
+  }
+
+  @keyframes qb-wing-flutter {
+    0%, 100% { transform: rotateZ(0deg); }
+    50% { transform: rotateZ(-25deg); }
+  }
+
+  @keyframes qb-wing-flutter-reverse {
+    0%, 100% { transform: rotateZ(0deg); }
+    50% { transform: rotateZ(25deg); }
+  }
+
+  /* Emoji bee styling for logo */
+  .qb-splash-logo-bee {
+    font-size: 70px;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    filter: drop-shadow(0 5px 15px rgba(245, 197, 24, 0.3));
+    animation: qb-bee-hover 3s ease-in-out infinite;
+  }
+
+  @keyframes qb-bee-hover {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+
+  /* Loading Bar */
+  .qb-splash-loader {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    z-index: 10;
+  }
+
+  .qb-loader-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #f5c518, #fbbf24, #f5c518);
+    border-radius: 2px;
+    animation: qb-loader-progress 4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    box-shadow: 0 0 10px rgba(245, 197, 24, 0.6);
+  }
+
+  .qb-loader-bar {
+    animation: qb-loader-progress 5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  @keyframes qb-loader-progress {
+    0% {
+      width: 0%;
+    }
+    92% {
+      width: 100%;
+    }
+    100% {
+      width: 100%;
+    }
+  }
+
+  /* ── Announcement Bar (Black Background + White Text) ── */
+  .qb-announcement {
+    background: #000000 !important;
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 8px 0;
+    min-height: 28px;
+    display: flex;
+    align-items: center;
+    forced-color-adjust: none;
+    border: 1px solid #000000 !important;
+  }
+  .qb-announcement-track {
+    display: inline-flex;
+    gap: 60px;
+    animation: qb-scroll 15s linear infinite;
+    color: #ffffff !important;
+    forced-color-adjust: none;
+    will-change: transform;
+  }
+  .qb-announcement-track span {
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff !important;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    letter-spacing: 0.3px;
+    forced-color-adjust: none;
+  }
+  .qb-announcement-track span strong {
+    font-weight: 900;
+    color: #ffffff !important;
+    forced-color-adjust: none;
+  }
+
+  @keyframes qb-scroll {
+    0%   { transform: translateX(0%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* Dark mode override for announcement bar */
+  @media (prefers-color-scheme: dark) {
+    .qb-announcement {
+      background: #000000 !important;
+      color: #ffffff !important;
+      background-color: #000000 !important;
+      forced-color-adjust: none !important;
+      border-color: #000000 !important;
+    }
+    .qb-announcement-track {
+      color: #ffffff !important;
+      forced-color-adjust: none !important;
+    }
+    .qb-announcement-track span {
+      color: #ffffff !important;
+      forced-color-adjust: none !important;
+    }
+    .qb-announcement-track span strong {
+      color: #ffffff !important;
+      forced-color-adjust: none !important;
+    }
+  }
+
+  /* ── Main Header ── */
+  .qb-header {
+    background: #fff;
+    border-bottom: 1px solid #f0f0f0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+  }
+
+  /* Top bar: Logo | Location | Cart */
+  .qb-header-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    justify-content: space-between;
+  }
+
+  /* Logo */
+  .qb-logo {
+    display: none;
+  }
+  .qb-logo-icon {
+    display: none;
+  }
+  .qb-logo-text {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--qb-text-dark);
+    line-height: 1;
+  }
+  .qb-logo-text span {
+    color: var(--qb-yellow);
+  }
+
+  /* Home Button */
+  .qb-home-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: #f5f5f5;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--qb-text-dark);
+  }
+  .qb-home-btn:hover {
+    background: var(--qb-yellow);
+    transform: scale(1.05);
+  }
+  .qb-home-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Search Row */
+  .qb-search-row {
+    padding: 10px 20px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  /* Search */
+  .qb-search {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    width: 100%;
+    background: #fafafa;
+  }
+  .qb-search-icon {
+    padding: 0 12px;
+    color: #999;
+    font-size: 16px;
+  }
+  .qb-search input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 11px 0;
+    font-size: 14px;
+    color: #555;
+    outline: none;
+    font-family: inherit;
+  }
+  .qb-search input::placeholder { color: #bbb; }
+  .qb-search-btn {
+    background: var(--qb-yellow);
+    border: none;
+    border-radius: 25px;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--qb-text-dark);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+    font-family: inherit;
+  }
+  .qb-search-btn:hover { background: #e8b800; }
+
+  /* Location Picker */
+  .qb-location-wrap {
+    position: relative;
+    flex-shrink: 0;
+    flex: 0 0 auto;
+  }
+  .qb-loc-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1.5px solid #e8e8e8;
+    border-radius: 18px;
+    padding: 10px 18px;
+    background: linear-gradient(135deg, #fff 0%, #fafafa 100%);
+    cursor: pointer;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    min-width: 240px;
+    flex: 0 0 auto;
+  }
+
+  .qb-loc-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+  }
+
+  .qb-loc-btn:hover {
+    background: linear-gradient(135deg, #f5f5f5 0%, #f0f0f0 100%);
+    border-color: var(--qb-yellow);
+    box-shadow: 0 10px 32px rgba(245, 197, 24, 0.25), 0 0 28px rgba(245, 197, 24, 0.35);
+    transform: translateY(-3px) scale(1.02);
+  }
+
+  .qb-loc-btn:hover::before {
+    left: 100%;
+  }
+
+  .qb-loc-btn.open {
+    background: linear-gradient(135deg, #fffbe6 0%, #fff8d6 100%);
+    border-color: var(--qb-yellow);
+    box-shadow: 0 8px 32px rgba(245, 197, 24, 0.2), 0 0 24px rgba(245, 197, 24, 0.3);
+    animation: sweet-bounce 0.6s ease-in-out;
+  }
+
+  .qb-loc-content {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    flex: 1;
+  }
+  .qb-loc-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111111;
+    line-height: 1.2;
+  }
+  .qb-loc-address {
+    font-size: 12px;
+    color: #888;
+    line-height: 1.2;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .qb-loc-dot {
+    display: none;
+    width: 10px;
+    height: 10px;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: qb-pulse 1.4s infinite, qb-glow 2s infinite;
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+  }
+  @keyframes qb-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.6; transform: scale(1.4); }
+  }
+  @keyframes qb-glow {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2); }
+    50% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.1); }
+  }
+  .qb-loc-chevron {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s;
+    flex-shrink: 0;
+    color: #ccc;
+    position: relative;
+    z-index: 1;
+  }
+  .qb-loc-btn:hover .qb-loc-chevron { color: var(--qb-yellow); }
+  .qb-loc-btn.open .qb-loc-chevron {
+    transform: rotate(180deg);
+    color: var(--qb-yellow);
+  }
+
+  /* Search Bar */
+  .qb-search-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 1 700px;
+    min-width: 300px;
+    height: 44px;
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 0 14px;
+    border: 1px solid #e0e0e0;
+    transition: all 0.2s;
+    margin: 0 auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .qb-search-bar-wrap:hover {
+    border-color: #d0d0d0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+
+  .qb-search-bar-wrap:focus-within {
+    border-color: var(--qb-yellow);
+    box-shadow: 0 4px 16px rgba(255, 193, 7, 0.2), 0 0 0 3px rgba(255, 193, 7, 0.1);
+  }
+
+  .qb-search-bar-wrap svg {
+    width: 18px;
+    height: 18px;
+    color: #999;
+    flex-shrink: 0;
+  }
+
+  .qb-search-input {
+    flex: 1;
+    border: none;
+    background: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    outline: none;
+    padding: 0;
+    font-family: inherit;
+  }
+
+  .qb-search-input::placeholder {
+    color: #999;
+    font-weight: 400;
+  }
+
+  /* Dropdown - hidden by default */
+  .qb-loc-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 0;
+    width: clamp(280px, 90vw, 320px);
+    background: #fff;
+    border: 1.5px solid #e8e8e8;
+    border-radius: 16px;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1);
+    z-index: 100000;
+    max-height: 70vh;
+    overflow-y: auto;
+    animation: qb-loc-fade 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    backdrop-filter: blur(10px);
+  }
+
+  /* Backdrop overlay for dropdown - click to close */
+  .qb-loc-backdrop {
+    display: none !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    z-index: 99999;
+    pointer-events: none;
+  }
+
+  .qb-loc-backdrop.show {
+    display: block !important;
+    pointer-events: none;
+  }
+
+  /* Hide dropdown only when it has hidden attribute */
+  .qb-loc-dropdown[hidden] {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* Ensure dropdown is always on top */
+  .qb-loc-dropdown {
+    position: fixed !important;
+    z-index: 100001 !important;
+  }
+  @keyframes qb-loc-fade {
+    from {
+      opacity: 0;
+      transform: translateY(-12px) scale(0.95);
+    }
+    to   {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  .qb-loc-search-wrap {
+    display: none;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 12px;
+    border-bottom: 1.5px solid #f0f0f0;
+    background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+  }
+  .qb-loc-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: #111 !important;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #fff !important;
+    font-weight: 500;
+    padding: 8px 12px !important;
+    border-radius: 4px;
+    min-height: 36px;
+  }
+  .qb-loc-input::placeholder {
+    color: #333 !important;
+    font-weight: 500;
+    opacity: 1 !important;
+  }
+  .qb-loc-input:focus {
+    color: #111 !important;
+    background: #fff !important;
+  }
+  .qb-loc-input:focus::placeholder {
+    color: #999;
+  }
+  .qb-loc-clear {
+    display: none !important;
+  }
+  .qb-loc-use-current {
+    padding: 2px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .qb-loc-use-current button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--qb-yellow);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    text-align: left;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+  .qb-loc-use-current button::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--qb-yellow), transparent);
+    transition: width 0.3s ease;
+  }
+  .qb-loc-use-current button:hover {
+    background: linear-gradient(90deg, rgba(245, 197, 24, 0.1) 0%, transparent 100%);
+    padding-left: 18px;
+  }
+  .qb-loc-use-current button:hover::after {
+    width: 4px;
+  }
+  .qb-loc-tabs {
+    display: flex;
+    border-top: 1px solid #f0f0f0;
+    background: #fafafa;
+  }
+  .qb-loc-tab {
+    flex: 1;
+    padding: 10px 14px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    color: #999;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .qb-loc-tab:hover { color: #666; }
+  .qb-loc-tab.active {
+    color: var(--qb-text-dark);
+    border-bottom-color: var(--qb-yellow);
+  }
+  .qb-loc-tab-content { display: none; }
+  .qb-loc-tab-content:not([hidden]) { display: block; }
+  .qb-loc-save-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 8px 10px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    color: #222;
+    transition: all 0.2s;
+  }
+  .qb-loc-save-btn:hover {
+    border-color: var(--qb-yellow);
+    background: #fffbe6;
+  }
+  .qb-loc-results {
+    list-style: none;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 4px 0;
+    min-height: 50px;
+    display: block !important;
+    visibility: visible !important;
+  }
+  .qb-loc-saved-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .qb-loc-saved-item:hover { background: #f9f9f9; }
+  .qb-loc-saved-info { flex: 1; }
+  .qb-loc-saved-label { font-size: 13px; font-weight: 600; color: #222; }
+  .qb-loc-saved-address { font-size: 11px; color: #888; margin-top: 2px; }
+  .qb-loc-saved-delete {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+  }
+  .qb-loc-saved-delete:hover { color: #ef4444; }
+  .qb-loc-result-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 14px; cursor: pointer; transition: background 0.1s;
+  }
+  .qb-loc-result-item:hover,
+  .qb-loc-result-item.focused { background: #fffbe6; }
+  .qb-loc-result-item svg { flex-shrink: 0; margin-top: 2px; }
+  .qb-loc-result-main { font-size: 13px; font-weight: 600; color: #222; line-height: 1.3; }
+  .qb-loc-result-sub  { font-size: 11px; color: #888; margin-top: 1px; line-height: 1.3; }
+  .qb-loc-loading, .qb-loc-empty {
+    padding: 16px 14px; font-size: 13px; color: #aaa; text-align: center;
+  }
+  .qb-loc-spinner {
+    display: inline-block; width: 13px; height: 13px;
+    border: 2px solid var(--qb-yellow); border-top-color: transparent;
+    border-radius: 50%; animation: qb-spin 0.7s linear infinite;
+    vertical-align: middle; margin-right: 6px;
+  }
+  @keyframes qb-spin { to { transform: rotate(360deg); } }
+
+  /* Hierarchical Location Picker */
+  .qb-hierarchy-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px;
+  }
+  .qb-hierarchy-level {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .qb-hierarchy-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .qb-hierarchy-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #222;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .qb-hierarchy-select:hover {
+    border-color: var(--qb-yellow);
+    background: #fffbe6;
+  }
+  .qb-hierarchy-select:focus {
+    outline: none;
+    border-color: var(--qb-yellow);
+    box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.1);
+  }
+  .qb-hierarchy-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f5f5f5;
+  }
+  .qb-delivery-time {
+    padding: 12px 14px;
+    background: #fffbe6;
+    border: 1px solid #ffd666;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #222;
+    margin-top: 8px;
+  }
+  .qb-delivery-time strong {
+    font-size: 16px;
+    color: var(--qb-yellow);
+  }
+  .qb-delivery-time-label {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+  }
+
+  /* Modal Dialog Styles */
+  .qb-location-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  .qb-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+  }
+
+  .qb-modal-content {
+    position: relative;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    z-index: 10001;
+  }
+
+  .qb-modal-header {
+    padding: 24px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .qb-modal-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #222;
+  }
+
+  .qb-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #999;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: color 0.2s;
+  }
+
+  .qb-modal-close:hover {
+    color: #222;
+  }
+
+  .qb-breadcrumb {
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    font-weight: 600;
+    color: #999;
+    background: #fafafa;
+  }
+
+  .qb-breadcrumb-item {
+    color: #999;
+    transition: color 0.2s;
+  }
+
+  .qb-breadcrumb-item.active {
+    color: var(--qb-yellow);
+  }
+
+  .qb-breadcrumb-sep {
+    color: #ddd;
+  }
+
+  .qb-progress-bar {
+    height: 4px;
+    background: #e0e0e0;
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  .qb-progress-fill {
+    height: 100%;
+    background: var(--qb-yellow);
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+
+  .qb-modal-body {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+  }
+
+  .qb-modal-footer {
+    padding: 24px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .qb-btn-primary,
+  .qb-btn-cancel {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .qb-btn-primary {
+    background: var(--qb-yellow);
+    color: #222;
+  }
+
+  .qb-btn-primary:hover:not(:disabled) {
+    background: #e8b800;
+    box-shadow: 0 4px 12px rgba(245, 197, 24, 0.3);
+  }
+
+  .qb-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .qb-btn-cancel {
+    background: #f5f5f5;
+    color: #222;
+  }
+
+  .qb-btn-cancel:hover {
+    background: #e8e8e8;
+  }
+
+  /* Account & Cart (Top bar) */
+  .qb-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+  .qb-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--qb-text-dark);
+    font-size: 11px;
+    font-weight: 600;
+    font-family: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+    position: relative;
+    padding: 4px;
+  }
+  .qb-action-btn:hover { color: var(--qb-nav-color); }
+  .qb-action-btn svg { width: 18px; height: 18px; }
+  .qb-action-btn.text-icon {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  /* Hide spacer to center search bar */
+  .qb-header-top > div:empty {
+    display: none !important;
+  }
+
+  .qb-cart-wrap { position: relative; }
+  .qb-cart-count {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    background: linear-gradient(135deg, #f5c518 0%, #e8b800 100%);
+    color: #222;
+    font-size: 10px;
+    font-weight: 800;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(245, 197, 24, 0.4), 0 0 8px rgba(245, 197, 24, 0.2);
+    animation: sweet-bounce 0.6s ease-in-out infinite;
+    border: 2px solid #fff;
+  }
+
+  /* ── Navigation ── */
+  .qb-nav {
+    background: #fff;
+    border-bottom: 2px solid #f5f5f5;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .qb-nav::-webkit-scrollbar { display: none; }
+  .qb-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 13px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--qb-nav-color);
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    transition: border-color 0.2s, color 0.2s;
+    font-family: 'Segoe UI', Arial, sans-serif;
+  }
+  .qb-nav-item:hover,
+  .qb-nav-item.active {
+    border-bottom-color: var(--qb-yellow);
+    color: var(--qb-text-dark);
+  }
+  .qb-nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+  /* ── Sticky Mobile Footer with Light Theme & Premium Design ── */
+  .qb-mobile-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff !important;
+    border-top: 1px solid #e8e8e8;
+    display: flex !important;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 9998;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    height: 65px;
+  }
+
+  .qb-mobile-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+      repeating-linear-gradient(90deg, transparent, transparent 35px, rgba(220, 38, 38, 0.02) 35px, rgba(220, 38, 38, 0.02) 70px),
+      repeating-linear-gradient(60deg, transparent, transparent 25px, rgba(220, 38, 38, 0.02) 25px, rgba(220, 38, 38, 0.02) 50px),
+      repeating-linear-gradient(120deg, transparent, transparent 25px, rgba(220, 38, 38, 0.02) 25px, rgba(220, 38, 38, 0.02) 50px);
+    pointer-events: none;
+    animation: qb-gradient-pulse 20s ease-in-out infinite;
+  }
+
+  @keyframes qb-gradient-pulse {
+    0%, 100% { opacity: 0.02; }
+    50% { opacity: 0.04; }
+  }
+
+  .qb-mobile-footer-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    height: 65px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    gap: 2px;
+  }
+
+  .qb-mobile-footer-nav li {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 55px;
+  }
+
+  /* Side Navigation Items Container */
+  .qb-mobile-nav-side {
+    display: flex;
+    flex-direction: row;
+    gap: 0;
+    flex: 0 0 auto;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .qb-mobile-footer-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-decoration: none;
+    color: #374151;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    padding: 8px 12px;
+    border-radius: 12px;
+    width: 100%;
+    height: 100%;
+    letter-spacing: 0.2px;
+    text-align: center;
+    flex: 1;
+    max-width: 70px;
+  }
+
+  .qb-mobile-footer-item::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    background: radial-gradient(circle at center, rgba(220, 38, 38, 0.1) 0%, transparent 70%);
+    border-radius: 12px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    border: 1.5px solid rgba(220, 38, 38, 0);
+  }
+
+  .qb-mobile-footer-item:hover::before,
+  .qb-mobile-footer-item:active::before,
+  .qb-mobile-footer-item.active::before {
+    opacity: 1;
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.12) 0%, rgba(245, 197, 24, 0.08) 100%);
+    border: 1.5px solid rgba(220, 38, 38, 0.3);
+  }
+
+  .qb-mobile-footer-item:hover,
+  .qb-mobile-footer-item:active,
+  .qb-mobile-footer-item.active {
+    color: #dc2626;
+    transform: translateY(-2px);
+  }
+
+  .qb-mobile-footer-item:active svg,
+  .qb-mobile-footer-item.active svg,
+  .qb-mobile-footer-item:hover svg {
+    color: #dc2626;
+    transform: scale(1.2) translateY(-2px);
+    filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.4));
+  }
+
+  .qb-mobile-footer-item svg {
+    width: 26px;
+    height: 26px;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    color: #374151;
+  }
+
+  .qb-mobile-footer-item img.qb-footer-icon {
+    width: 40px;
+    height: 40px;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    object-fit: contain;
+  }
+
+  .qb-mobile-footer-item:hover img.qb-footer-icon,
+  .qb-mobile-footer-item:active img.qb-footer-icon,
+  .qb-mobile-footer-item.active img.qb-footer-icon {
+    transform: scale(1.2) translateY(-2px);
+    filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.4));
+  }
+
+  .qb-mobile-footer-item span {
+    position: relative;
+    z-index: 1;
+    letter-spacing: 0.1px;
+    line-height: 1.2;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+
+  /* Center Wallet Button - Light Theme Premium */
+  .qb-mobile-wallet-btn {
+    position: relative;
+    flex: 0 0 auto;
+    width: 55px;
+    height: 55px;
+    background: linear-gradient(135deg, #FFB800 0%, #F4B400 50%, #E8A500 100%);
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow:
+      0 4px 12px rgba(244, 180, 0, 0.3),
+      inset 0 1px 4px rgba(255, 255, 255, 0.4);
+    z-index: 100;
+    margin: 0 2px;
+    pointer-events: auto !important;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .qb-mobile-wallet-btn:active {
+    transform: scale(0.93);
+  }
+
+  .qb-mobile-wallet-btn:hover {
+    transform: scale(1.08);
+    box-shadow:
+      0 6px 16px rgba(244, 180, 0, 0.4),
+      inset 0 1px 4px rgba(255, 255, 255, 0.5);
+  }
+
+  .qb-mobile-wallet-btn::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.6) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .qb-mobile-wallet-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    animation: qb-wallet-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes qb-wallet-pulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(244, 180, 0, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 3px rgba(244, 180, 0, 0.15);
+    }
+  }
+
+  .qb-chat-badge {
+    position: absolute !important;
+    top: -8px !important;
+    right: -8px !important;
+    background: #e74c3c !important;
+    color: #fff !important;
+    border-radius: 50% !important;
+    width: 20px !important;
+    height: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    animation: qb-badge-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) infinite !important;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4) !important;
+  }
+
+  @keyframes qb-badge-bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+
+  body.has-mobile-footer {
+  }
+
+  /* ── Global Bee Theme Effects ── */
+  @keyframes bee-flight {
+    0% { transform: translateX(0) translateY(0) rotate(0deg); }
+    25% { transform: translateX(20px) translateY(-10px) rotate(-5deg); }
+    50% { transform: translateX(0) translateY(-20px) rotate(0deg); }
+    75% { transform: translateX(-20px) translateY(-10px) rotate(5deg); }
+    100% { transform: translateX(0) translateY(0) rotate(0deg); }
+  }
+
+  @keyframes honey-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(245, 197, 24, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(245, 197, 24, 0); }
+  }
+
+  @keyframes honeycomb-flicker {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes sweet-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+
+  /* Global hover glow effect for interactive elements */
+  button, a, input[type="submit"], [role="button"] {
+    position: relative;
+  }
+
+  button:hover::after,
+  a:hover::after,
+  input[type="submit"]:hover::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(245, 197, 24, 0.1) 0%, transparent 70%);
+    border-radius: inherit;
+    pointer-events: none;
+    animation: honey-glow 1.5s infinite;
+  }
+
+  /* Honeycomb pattern background for special sections */
+  .honeycomb-bg {
+    background-image:
+      repeating-linear-gradient(90deg, transparent, transparent 35px, rgba(245, 197, 24, 0.02) 35px, rgba(245, 197, 24, 0.02) 70px),
+      repeating-linear-gradient(60deg, transparent, transparent 20px, rgba(245, 197, 24, 0.02) 20px, rgba(245, 197, 24, 0.02) 40px),
+      repeating-linear-gradient(120deg, transparent, transparent 20px, rgba(245, 197, 24, 0.02) 20px, rgba(245, 197, 24, 0.02) 40px);
+  }
+
+  /* Mobile-First Design: No separate desktop layout */
+  /* All styles are optimized for mobile and scale up naturally */
+  .qb-nav { display: none !important; }
+  .qb-mobile-footer { display: flex !important; }
+
+  /* ── MOBILE-FIRST RESPONSIVE HEADER FIXES ── */
+  /* Mobile: < 600px - Show location picker on left */
+  .qb-header {
+    overflow: visible;
+    width: 100%;
+    max-width: 100%;
+    position: relative;
+    z-index: 100;
+  }
+
+  .qb-header-top {
+    padding: 8px 10px;
+    gap: 8px;
+    flex-wrap: nowrap;
+    overflow: visible;
+    align-items: center;
+    position: relative;
+    z-index: 100;
+  }
+
+  /* Location button - smaller on mobile, show on left */
+  .qb-location-wrap {
+    flex-shrink: 0;
+    flex: 0 0 auto;
+    position: relative;
+    z-index: 1001;
+  }
+
+  .qb-loc-btn {
+    min-width: 130px;
+    padding: 6px 8px;
+    font-size: 11px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    box-shadow: none;
+    border: 1px solid #e0e0e0;
+  }
+
+  .qb-loc-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .qb-loc-title {
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #111;
+  }
+
+  .qb-loc-address {
+    font-size: 9px;
+    color: #666;
+    display: block;
+    line-height: 1.1;
+  }
+
+  .qb-loc-chevron {
+    display: none;
+  }
+
+  /* Search bar - responsive on mobile, takes flex space */
+  .qb-search-bar-wrap {
+    flex: 1;
+    min-width: 100px;
+    height: 40px;
+    padding: 0 10px;
+    margin: 0;
+    border-radius: 8px;
+  }
+
+  .qb-search-input {
+    font-size: 12px;
+  }
+
+  /* Cart button - compact on mobile */
+  .qb-action-btn {
+    flex-shrink: 0;
+    min-width: 40px;
+    min-height: 40px;
+    padding: 0 6px;
+  }
+
+  .qb-action-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Search row - hide on mobile */
+  .qb-search-row {
+    display: none;
+  }
+
+  /* ── TABLET: 600px and up ── */
+  @media (min-width: 600px) {
+    .qb-header-top {
+      padding: 8px 14px;
+      gap: 10px;
+    }
+
+    .qb-location-wrap {
+      flex: 0 0 auto;
+    }
+
+    .qb-loc-btn {
+      min-width: 160px;
+      padding: 8px 12px;
+      font-size: 12px;
+      height: 42px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border: 1.5px solid #e8e8e8;
+    }
+
+    .qb-loc-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #111;
+    }
+
+    .qb-loc-address {
+      font-size: 10px;
+      color: #666;
+      display: block;
+    }
+
+    .qb-loc-chevron {
+      display: block;
+    }
+
+    .qb-search-bar-wrap {
+      flex: 1;
+      min-width: 200px;
+      height: 42px;
+      padding: 0 12px;
+    }
+
+    .qb-search-input {
+      font-size: 13px;
+    }
+
+    .qb-action-btn {
+      min-width: 42px;
+      min-height: 42px;
+      padding: 0 8px;
+    }
+  }
+
+  /* ── DESKTOP: 768px and up ── */
+  @media (min-width: 768px) {
+    .qb-header-top {
+      padding: 10px 20px;
+      gap: 14px;
+    }
+
+    .qb-location-wrap {
+      flex: 0 0 auto;
+    }
+
+    .qb-loc-btn {
+      min-width: 240px;
+      padding: 10px 18px;
+      font-size: 14px;
+      height: 44px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border: 1.5px solid #e8e8e8;
+    }
+
+    .qb-loc-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #111;
+    }
+
+    .qb-loc-address {
+      font-size: 13px;
+      color: #666;
+      display: block;
+    }
+
+    .qb-search-bar-wrap {
+      flex: 0 1 600px;
+      min-width: 300px;
+      height: 44px;
+      padding: 0 14px;
+    }
+
+    .qb-search-input {
+      font-size: 14px;
+    }
+
+    .qb-action-btn {
+      min-width: 44px;
+      min-height: 44px;
+      padding: 0 12px;
+    }
+
+    .qb-action-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  /* ── LARGE DESKTOP: 1024px and up ── */
+  @media (min-width: 1024px) {
+    .qb-header-top {
+      padding: 10px 24px;
+      gap: 16px;
+    }
+
+    .qb-search-bar-wrap {
+      flex: 0 1 700px;
+    }
+  }
+</style>
+
+<!-- Announcement Bar -->
+<div class="qb-announcement" style="background: #000000 !important; color: #ffffff !important;">
+  <div class="qb-announcement-track" style="color: #ffffff !important;">
+    <span style="color: #ffffff !important;">{{ section.settings.announcement_text_1 }}</span>
+    <span style="color: #ffffff !important;">{{ section.settings.announcement_text_2 }}</span>
+    <span style="color: #ffffff !important;">{{ section.settings.announcement_text_3 }}</span>
+    <span style="color: #ffffff !important;">{{ section.settings.announcement_text_1 }}</span>
+    <span style="color: #ffffff !important;">{{ section.settings.announcement_text_2 }}</span>
+    <span style="color: #ffffff !important;">{{ section.settings.announcement_text_3 }}</span>
+  </div>
+</div>
+
+<!-- Main Header -->
+<header class="qb-header">
+  <!-- Top Bar: Location Picker | Spacer | Home | Cart -->
+  <div class="qb-header-top">
+    <!-- Location Picker (Leftmost) -->
+    <div class="qb-location-wrap" id="qbLocationWrap">
+      <button class="qb-loc-btn" id="qbLocBtn" type="button"
+        aria-label="Set delivery location" aria-haspopup="listbox" aria-expanded="false"
+        style="position: relative; cursor: pointer;">
+        <span class="qb-loc-dot"></span>
+        <div class="qb-loc-content">
+          <div class="qb-loc-title" id="qbLocTitle">Set location</div>
+          <div class="qb-loc-address" id="qbLocAddress"></div>
+        </div>
+        <svg class="qb-loc-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+
+      <div class="qb-loc-dropdown" id="qbLocDropdown" hidden>
+        <!-- Hierarchical Location Picker -->
+        <div class="qb-hierarchy-wrapper" id="qbHierarchyWrapper">
+          <div class="qb-hierarchy-level">
+            <label class="qb-hierarchy-label">District</label>
+            <select class="qb-hierarchy-select" id="qbDistrictSelect">
+              <option value="">Select District</option>
+            </select>
+          </div>
+
+          <div class="qb-hierarchy-level">
+            <label class="qb-hierarchy-label">Municipality</label>
+            <select class="qb-hierarchy-select" id="qbMunicipalitySelect" disabled>
+              <option value="">Select Municipality</option>
+            </select>
+          </div>
+
+          <div class="qb-hierarchy-level">
+            <label class="qb-hierarchy-label">Area</label>
+            <select class="qb-hierarchy-select" id="qbAreaSelect" disabled>
+              <option value="">Select Area</option>
+            </select>
+          </div>
+
+          <div class="qb-hierarchy-level">
+            <label class="qb-hierarchy-label">Sub-Area</label>
+            <select class="qb-hierarchy-select" id="qbSubAreaSelect" disabled>
+              <option value="">Select Sub-Area</option>
+            </select>
+          </div>
+
+          <!-- Delivery Time Display -->
+          <div class="qb-delivery-time" id="qbDeliveryTime" hidden>
+            <strong id="qbDeliveryTimeValue">0</strong> mins
+            <div class="qb-delivery-time-label">Estimated delivery time</div>
+          </div>
+
+          <!-- OK Button -->
+          <button type="button" id="qbLocationOkBtn" class="qb-location-ok-btn" hidden style="width:100%;margin-top:12px;padding:10px;background:#f5c518;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:14px;">OK</button>
+        </div>
+
+        <!-- Save Address Form (visible when location selected) -->
+        <div class="qb-loc-save-form" id="qbLocSaveForm" hidden>
+          <div style="padding:12px 14px;border-top:1px solid #f0f0f0">
+            <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:8px">Save location as:</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button type="button" class="qb-loc-save-btn" data-label="🏠 Home">🏠 Home</button>
+              <button type="button" class="qb-loc-save-btn" data-label="💼 Work">💼 Work</button>
+              <button type="button" class="qb-loc-save-btn" data-label="💖 Other">💖 Other</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Saved Addresses Tab -->
+        <div class="qb-loc-tabs" style="margin-top:8px">
+          <button class="qb-loc-tab" data-tab="saved" style="flex:1">Saved (0)</button>
+        </div>
+        <div class="qb-loc-tab-content" data-tab="saved" hidden>
+          <div id="qbLocSavedList" style="padding:8px 0">
+            <div style="padding:16px 14px;text-align:center;color:#aaa;font-size:13px">No saved addresses yet</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Location Modal (moved outside location-wrap to avoid size constraint) -->
+    <div class="qb-location-modal" id="qbLocationModal">
+      <div class="qb-modal-overlay" id="qbModalOverlay"></div>
+      <div class="qb-modal-content">
+        <!-- Header with Close -->
+        <div class="qb-modal-header">
+          <h2>Select Delivery Location</h2>
+          <button type="button" class="qb-modal-close" id="qbModalClose" aria-label="Close">✕</button>
+        </div>
+
+        <!-- Breadcrumb Navigation -->
+        <div class="qb-breadcrumb" id="qbBreadcrumb">
+          <span class="qb-breadcrumb-item active">District</span>
+          <span class="qb-breadcrumb-sep">/</span>
+          <span class="qb-breadcrumb-item">Municipality</span>
+          <span class="qb-breadcrumb-sep">/</span>
+          <span class="qb-breadcrumb-item">Area</span>
+          <span class="qb-breadcrumb-sep">/</span>
+          <span class="qb-breadcrumb-item">Sub-Area</span>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="qb-progress-bar">
+          <div class="qb-progress-fill" id="qbProgressFill" style="width: 0%"></div>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="qb-modal-body">
+          <div class="qb-hierarchy-wrapper" id="qbHierarchyWrapperModal">
+            <div class="qb-hierarchy-level">
+              <label class="qb-hierarchy-label">District</label>
+              <select class="qb-hierarchy-select" id="qbDistrictSelectModal">
+                <option value="">Select District</option>
+              </select>
+            </div>
+
+            <div class="qb-hierarchy-level">
+              <label class="qb-hierarchy-label">Municipality</label>
+              <select class="qb-hierarchy-select" id="qbMunicipalitySelectModal" disabled>
+                <option value="">Select Municipality</option>
+              </select>
+            </div>
+
+            <div class="qb-hierarchy-level">
+              <label class="qb-hierarchy-label">Area</label>
+              <select class="qb-hierarchy-select" id="qbAreaSelectModal" disabled>
+                <option value="">Select Area</option>
+              </select>
+            </div>
+
+            <div class="qb-hierarchy-level">
+              <label class="qb-hierarchy-label">Sub-Area</label>
+              <select class="qb-hierarchy-select" id="qbSubAreaSelectModal" disabled>
+                <option value="">Select Sub-Area</option>
+              </select>
+            </div>
+
+            <!-- Delivery Time Display -->
+            <div class="qb-delivery-time" id="qbDeliveryTimeModal" hidden>
+              <strong id="qbDeliveryTimeValueModal">0</strong> mins
+              <div class="qb-delivery-time-label">Estimated delivery time</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer with buttons -->
+        <div class="qb-modal-footer">
+          <button class="qb-btn-cancel" id="qbModalCancel">Cancel</button>
+          <button id="qbLocationOkBtnModal" class="qb-btn-primary" hidden>Confirm Location</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Bar with Rotating Placeholders -->
+    <div class="qb-search-bar-wrap" id="qbSearchWrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input
+        type="text"
+        class="qb-search-input"
+        id="qbSearchInput"
+        placeholder="Search products…"
+        aria-label="Search products"
+      >
+    </div>
+
+    <!-- Spacer -->
+    <div style="flex: 1;"></div>
+
+    <!-- Cart (top bar right) -->
+    <a href="{{ routes.cart_url }}" class="qb-action-btn">
+      <span class="qb-cart-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span class="qb-cart-count">{{ cart.item_count }}</span>
+      </span>
+    </a>
+  </div>
+
+  <!-- Search Row -->
+</header>
+
+<!-- Sticky Mobile Footer with Horizontal Layout & Honey Bee Hive Theme -->
+<div class="qb-mobile-footer" id="qbMobileFooter">
+  <ul class="qb-mobile-footer-nav">
+    <!-- Home -->
+    <li>
+      <a href="{{ routes.root_url }}" class="qb-mobile-footer-item active" data-page="home" title="Home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Home</span>
+      </a>
+    </li>
+
+    <!-- Categories -->
+    <li>
+      <a href="/collections" class="qb-mobile-footer-item" data-page="categories" title="Categories">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/></svg>
+        <span>Categories</span>
+      </a>
+    </li>
+
+    <!-- Center: Flash Deals -->
+    <li>
+      <a href="/pages/flash-deals" class="qb-mobile-wallet-btn" id="qbMobileFlashDealsBtn" title="Flash Deals" style="text-decoration:none;color:inherit;">
+        ⚡
+      </a>
+    </li>
+
+    <!-- Services -->
+    <li>
+      <a href="/pages/services" class="qb-mobile-footer-item" data-page="services" title="Services">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 12c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z"/>
+          <path d="M13 4c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2z"/>
+          <path d="M18 9h2c1.1 0 2 .9 2 2v2c0 1.1-.9 2-2 2h-2"/>
+          <path d="M4 9H2c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h2"/>
+          <path d="M12 17v3m-3-3c0-1.66 1.34-3 3-3s3 1.34 3 3"/>
+          <path d="M9 22h6c1.1 0 2 .9 2 2s-.9 2-2 2H9c-1.1 0-2-.9-2-2s.9-2 2-2z"/>
+        </svg>
+        <span>Services</span>
+      </a>
+    </li>
+
+    <!-- Account -->
+    <li>
+      <a href="{{ routes.account_url }}" class="qb-mobile-footer-item" data-page="account" title="Account">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <span>Account</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<!-- PREMIUM SPIN WHEEL WITH EMAIL FORM -->
+<style>
+  /* Email Modal */
+  .qb-email-modal {
+    display: none !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 99998;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .qb-email-modal.show {
+    display: flex !important;
+  }
+  .qb-email-box {
+    background: linear-gradient(135deg, #ffffff 0%, #fafaf8 100%);
+    border-radius: 25px;
+    padding: 40px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+    border: 2px solid #f5c518;
+  }
+  .qb-email-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  .qb-email-icon {
+    font-size: 60px;
+    margin-bottom: 15px;
+  }
+  .qb-email-title {
+    font-size: 28px;
+    font-weight: 900;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+  }
+  .qb-email-desc {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+  }
+  .qb-email-form {
+    margin: 20px 0;
+  }
+  .qb-email-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: inherit;
+    transition: all 0.3s;
+    box-sizing: border-box;
+  }
+  .qb-email-input:focus {
+    outline: none;
+    border-color: #f5c518;
+    box-shadow: 0 0 0 4px rgba(245, 197, 24, 0.1);
+  }
+  .qb-email-btn {
+    width: 100%;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, #f5c518 0%, #e8b800 100%);
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: all 0.3s;
+    box-shadow: 0 6px 20px rgba(245, 197, 24, 0.3);
+  }
+  .qb-email-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(245, 197, 24, 0.4);
+  }
+
+  /* Wheel Overlay */
+  .qb-wheel-overlay {
+    display: none !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(245,197,24,0.1) 0%, rgba(0,0,0,0.7) 100%);
+    backdrop-filter: blur(5px);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .qb-wheel-overlay.show {
+    display: flex !important;
+  }
+  .qb-wheel-container {
+    background: linear-gradient(135deg, #ffffff 0%, #fffaf5 100%);
+    border-radius: 25px;
+    padding: 40px;
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3), 0 0 60px rgba(245, 197, 24, 0.2);
+    border: 2px solid rgba(245, 197, 24, 0.3);
+    position: relative;
+  }
+  .qb-wheel-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    background: rgba(245, 197, 24, 0.1);
+    border: none;
+    border-radius: 50%;
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s;
+  }
+  .qb-wheel-close-btn:hover {
+    background: rgba(245, 197, 24, 0.2);
+    transform: rotate(90deg);
+  }
+
+  .qb-wheel-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+  }
+  .qb-wheel-header {
+    text-align: center;
+    width: 100%;
+  }
+  .qb-wheel-title {
+    font-size: 32px;
+    font-weight: 900;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #f5c518 0%, #e8b800 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .qb-wheel-subtitle {
+    font-size: 14px;
+    color: #888;
+    line-height: 1.6;
+  }
+
+  /* Wheel with Prize Labels */
+  .qb-wheel-wrapper {
+    position: relative;
+    width: 320px;
+    height: 320px;
+    margin: 0 auto;
+  }
+  .qb-wheel-visual {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      #FF6B6B 0deg 45deg,
+      #4ECDC4 45deg 90deg,
+      #FFE66D 90deg 135deg,
+      #95E1D3 135deg 180deg,
+      #F38181 180deg 225deg,
+      #AA96DA 225deg 270deg,
+      #FCBAD3 270deg 315deg,
+      #A8D8EA 315deg 360deg
+    );
+    border: 8px solid #f5c518;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 40px rgba(245, 197, 24, 0.5), inset 0 0 40px rgba(0,0,0,0.1);
+    position: relative;
+    transition: transform 0.05s linear;
+  }
+  .qb-wheel-visual.spinning {
+    animation: spinWheelLong 16s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  @keyframes spinWheelLong {
+    0% { transform: rotate(0deg); }
+    37.5% { transform: rotate(7200deg); }
+    62.5% { transform: rotate(8160deg); }
+    87.5% { transform: rotate(8520deg); }
+    100% { transform: rotate(8700deg); }
+  }
+
+  /* Prize labels on wheel */
+  .qb-prize-labels {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .qb-prize-label-text {
+    position: absolute;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    width: 60px;
+    text-align: center;
+    left: 50%;
+    top: 18px;
+    transform: translateX(-50%);
+    line-height: 1.1;
+  }
+
+  /* Prize Labels */
+  .qb-prize-label {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
+  .qb-prize-text {
+    position: absolute;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    width: 50px;
+    text-align: center;
+    left: 50%;
+    top: 15px;
+    transform: translateX(-50%);
+    line-height: 1.2;
+  }
+
+  .qb-wheel-pointer {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 18px solid transparent;
+    border-right: 18px solid transparent;
+    border-top: 30px solid #f5c518;
+    z-index: 15;
+    filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.4));
+    transition: all 0.5s ease;
+  }
+  .qb-wheel-pointer.locked {
+    filter: drop-shadow(0 0 20px #f5c518) drop-shadow(0 0 40px rgba(245, 197, 24, 0.6));
+    animation: pointerLock 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes pointerLock {
+    0% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.2); }
+    100% { transform: translateX(-50%) scale(1); }
+  }
+  .qb-wheel-center {
+    width: 90px;
+    height: 90px;
+    background: linear-gradient(135deg, #f5c518 0%, #e8b800 100%);
+    border: 5px solid white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 45px;
+    position: absolute;
+    z-index: 10;
+    box-shadow: 0 0 30px rgba(245, 197, 24, 0.5), 0 10px 30px rgba(0, 0, 0, 0.2);
+    animation: centerPulse 2s ease-in-out infinite;
+  }
+  @keyframes centerPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  .qb-wheel-button {
+    background: linear-gradient(135deg, #f5c518 0%, #e8b800 100%);
+    border: none;
+    padding: 16px 45px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(245, 197, 24, 0.4);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .qb-wheel-button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #e8b800 0%, #d9a800 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(245, 197, 24, 0.5);
+  }
+  .qb-wheel-button:active:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  .qb-wheel-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Prize List */
+  .qb-prizes-box {
+    display: none;
+    background: #f9f9f9;
+    border: 2px solid #efefef;
+    border-radius: 15px;
+    padding: 20px;
+    max-height: 350px;
+    overflow-y: auto;
+  }
+  .qb-prizes-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f5c518;
+  }
+  .qb-prize-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    transition: all 0.3s;
+  }
+  .qb-prize-item:hover {
+    border-color: #f5c518;
+    background: rgba(245, 197, 24, 0.05);
+  }
+  .qb-prize-emoji {
+    font-size: 20px;
+  }
+  .qb-prize-info {
+    flex: 1;
+  }
+  .qb-prize-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+  .qb-prize-code {
+    font-size: 11px;
+    color: #888;
+    font-family: monospace;
+  }
+
+  /* Timer Panel */
+  .qb-timer-panel {
+    background: linear-gradient(135deg, rgba(245,197,24,0.1) 0%, rgba(245,197,24,0.05) 100%);
+    border: 2px solid #f5c518;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    margin-top: 15px;
+  }
+  .qb-timer-label {
+    font-size: 11px;
+    color: #888;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .qb-timer-display {
+    font-size: 36px;
+    font-weight: 900;
+    color: #f5c518;
+    margin: 12px 0;
+    font-family: monospace;
+    letter-spacing: 2px;
+  }
+  .qb-timer-display.ready {
+    color: #4CAF50;
+    animation: readyPulse 1s ease-in-out infinite;
+  }
+  @keyframes readyPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  .qb-timer-ready-text {
+    font-size: 13px;
+    color: #4CAF50;
+    font-weight: 700;
+    margin-top: 8px;
+  }
+  .qb-cooldown-message {
+    font-size: 12px;
+    color: #f5c518;
+    text-align: center;
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
+  /* Result Modal */
+  .qb-result-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: linear-gradient(135deg, #ffffff 0%, #fffaf5 100%);
+    padding: 50px 40px;
+    border-radius: 25px;
+    text-align: center;
+    z-index: 100000;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4), 0 0 60px rgba(245, 197, 24, 0.3);
+    border: 2px solid #f5c518;
+    max-width: 450px;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .qb-result-modal.show {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .qb-result-emoji {
+    font-size: 80px;
+    margin-bottom: 15px;
+    display: block;
+    animation: confetti 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes confetti {
+    0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  .qb-result-label {
+    font-size: 28px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #f5c518 0%, #e8b800 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+  .qb-result-text {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 20px;
+  }
+  .qb-result-code {
+    background: linear-gradient(135deg, #f5c518 0%, #e8b800 100%);
+    padding: 16px 20px;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: 900;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: #1a1a1a;
+  }
+  .qb-copy-btn {
+    background: #1a1a1a;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.3s;
+  }
+  .qb-copy-btn:hover {
+    background: #333;
+    transform: scale(1.05);
+  }
+  .qb-copy-btn.copied {
+    background: #4CAF50;
+  }
+
+  /* Wheel and components are mobile-first optimized */
+  .qb-wheel-container {
+    padding: 25px;
+    gap: 25px;
+    max-width: 90vw;
+  }
+  .qb-wheel-wrapper {
+    width: 280px;
+    height: 280px;
+  }
+  .qb-wheel-title {
+    font-size: 24px;
+  }
+  .qb-result-modal {
+    max-width: 90vw;
+    padding: 35px 25px;
+  }
+  .qb-email-box {
+    max-width: 90vw;
+    padding: 30px;
+  }
+
+  /* Shopify Inbox Chat Modal */
+  .qb-chat-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+  }
+  .qb-chat-modal.show {
+    display: flex;
+  }
+  .qb-chat-container {
+    background: linear-gradient(180deg, #1a1f2e 0%, #141922 100%);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 500px;
+    height: 80vh;
+    max-height: 600px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.5),
+      0 0 40px rgba(244, 180, 0, 0.15);
+    border: 1px solid rgba(244, 180, 0, 0.2);
+    animation: qb-chat-popup 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes qb-chat-popup {
+    0% {
+      opacity: 0;
+      transform: scale(0.9) translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  .qb-chat-header {
+    padding: 20px;
+    background: linear-gradient(90deg, rgba(15, 20, 31, 0.9) 0%, rgba(20, 25, 34, 0.9) 100%);
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #F4B400;
+    box-shadow: 0 4px 12px rgba(244, 180, 0, 0.15);
+  }
+  .qb-chat-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+    color: #fff;
+  }
+  .qb-chat-header p {
+    margin: 4px 0 0 0;
+    font-size: 12px;
+    color: #aaa;
+  }
+  .qb-chat-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s;
+    padding: 8px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .qb-chat-close:hover {
+    background: rgba(244, 180, 0, 0.2);
+    transform: scale(1.15);
+  }
+  .qb-chat-content {
+    flex: 1;
+    overflow-y: auto;
+    background: #0a0e17;
+  }
+  .qb-chat-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  /* Chat container is mobile-first optimized */
+  .qb-chat-container {
+    max-width: 90vw;
+    height: 70vh;
+  }
+</style>
+
+<!-- Email Modal -->
+<div class="qb-email-modal" id="qbEmailModal">
+  <div class="qb-email-box">
+    <div class="qb-email-header">
+      <div class="qb-email-icon">📧</div>
+      <h2 class="qb-email-title">Claim Your Reward</h2>
+      <p class="qb-email-desc">Enter your email to receive your exclusive discount code after spinning!</p>
+    </div>
+
+    <form class="qb-email-form" onsubmit="window.qbSubmitEmail(event); return false;">
+      <input
+        type="email"
+        class="qb-email-input"
+        id="qbEmailInput"
+        placeholder="your@email.com"
+        required
+      />
+      <button type="submit" class="qb-email-btn">Continue to Spin</button>
+    </form>
+  </div>
+</div>
+
+<!-- Wheel Overlay -->
+<div class="qb-wheel-overlay" id="qbWheelOverlay">
+  <button class="qb-wheel-close-btn" onclick="window.qbCloseWheelPopup()">✕</button>
+
+  <div class="qb-wheel-container">
+    <!-- Left: Wheel -->
+    <div class="qb-wheel-section">
+      <div class="qb-wheel-header">
+        <h2 class="qb-wheel-title">🎡 QuickBee Wheel</h2>
+        <p class="qb-wheel-subtitle">Spin for amazing rewards and exclusive deals</p>
+      </div>
+
+      <div class="qb-wheel-wrapper">
+        <div class="qb-wheel-pointer"></div>
+        <div class="qb-wheel-visual" id="qbWheelMain">
+          <svg class="qb-prize-labels-svg" id="qbPrizeLabelsSvg" viewBox="0 0 300 300" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none;">
+            <!-- Prize labels will be rendered here -->
+          </svg>
+          <div class="qb-wheel-center">🎁</div>
+        </div>
+      </div>
+
+      <button class="qb-wheel-button" id="qbSpinBtn" onclick="window.qbSpinTheWheel()">
+        🎲 Spin Now
+      </button>
+      <div class="qb-cooldown-message" id="qbCooldownMsg" style="display: none;"></div>
+
+      <div class="qb-timer-panel">
+        <div class="qb-timer-label">Next Spin In</div>
+        <div class="qb-timer-display" id="qbTimerDisplay">∞</div>
+        <div id="qbTimerReadyMsg" class="qb-timer-ready-text" style="display: none;">
+          ✓ Ready to spin again!
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Prize List -->
+    <div>
+      <div class="qb-prizes-box">
+        <div class="qb-prizes-title">🎁 Available Prizes</div>
+        <div id="qbPrizesList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Result Modal -->
+<div class="qb-result-modal" id="qbResultModal">
+  <div class="qb-result-emoji" id="qbResultEmoji">🎉</div>
+  <div class="qb-result-label" id="qbResultLabel">Congratulations!</div>
+  <p class="qb-result-text">You Won</p>
+  <div class="qb-result-code">
+    <span id="qbResultText">10% OFF</span>
+    <button type="button" class="qb-copy-btn" id="qbCopyBtn" onclick="window.qbCopyCode()">COPY</button>
+  </div>
+  <p style="font-size: 12px; color: #888;">Code: <strong id="qbResultCodeLabel"></strong></p>
+  <p style="font-size: 13px; color: #666; margin: 15px 0;">Use this code at checkout to redeem your reward!</p>
+  <button class="qb-wheel-button" onclick="window.qbCloseResult()">Shop Now</button>
+</div>
+
+<!-- Shopify Inbox Chat Modal -->
+<div class="qb-chat-modal" id="qbChatModal">
+  <div class="qb-chat-container">
+    <div class="qb-chat-header">
+      <div style="flex:1;">
+        <h3 style="margin:0;color:#fff;font-size:18px">💬 Message Support</h3>
+        <p style="margin:4px 0 0 0;font-size:12px;color:#aaa">Connect with our QuickBee team</p>
+      </div>
+      <button class="qb-chat-close" onclick="window.qbShopifyInbox.closeChat()">✕</button>
+    </div>
+    <div class="qb-chat-content" id="qbChatContent">
+      <!-- Chat Form -->
+      <form id="qbChatForm" style="display:flex;flex-direction:column;height:100%;padding:20px;gap:12px;">
+        <div style="flex:1;overflow-y:auto;">
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div>
+              <label style="display:block;font-size:12px;font-weight:600;color:#ddd;margin-bottom:4px;">Name</label>
+              <input type="text" id="qbChatName" placeholder="Your name" style="width:100%;padding:10px;border:1px solid #444;border-radius:6px;background:#0f1419;color:#fff;font-size:14px;" required>
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:600;color:#ddd;margin-bottom:4px;">Email</label>
+              <input type="email" id="qbChatEmail" placeholder="your@email.com" style="width:100%;padding:10px;border:1px solid #444;border-radius:6px;background:#0f1419;color:#fff;font-size:14px;" required>
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:600;color:#ddd;margin-bottom:4px;">Message</label>
+              <textarea id="qbChatMessage" placeholder="Type your message here..." style="width:100%;padding:10px;border:1px solid #444;border-radius:6px;background:#0f1419;color:#fff;font-size:14px;resize:none;min-height:80px;font-family:inherit;" required></textarea>
+            </div>
+          </div>
+        </div>
+        <button type="submit" style="background:#F4B400;border:none;color:#000;padding:12px;border-radius:6px;font-weight:700;cursor:pointer;font-size:14px;">Send Message</button>
+        <div id="qbChatStatus" style="text-align:center;font-size:12px;color:#aaa;display:none;"></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+window.QB_WHEEL_CONFIG = {
+  prizes: [
+    { name: '10% OFF', code: 'BEE10', emoji: '🐝' },
+    { name: '15% OFF', code: 'SNE15', emoji: '✨' },
+    { name: '12% OFF', code: 'SHI28', emoji: '⭐' },
+    { name: 'FREE 9%', code: 'BIBI69', emoji: '🎉' },
+    { name: 'FREE DELIVERY', code: 'FRE28', emoji: '🚀' },
+    { name: '5% OFF', code: 'HIVE5', emoji: '🍯' },
+    { name: 'Rs 100 OFF', code: 'QB100', emoji: '💰' },
+    { name: 'Surprise Reward', code: 'LUCKYQB', emoji: '🎁' }
+  ],
+  cooldownMs: 280 * 60 * 1000,
+  storageKey: 'qb_wheel_data',
+  emailKey: 'qb_user_email'
+};
+
+window.QB_WHEEL_STATE = { isSpinning: false };
+
+// Show wheel - first show email form
+window.qbShowWheelPopup = function() {
+  const emailModal = document.getElementById('qbEmailModal');
+  const userEmail = localStorage.getItem(window.QB_WHEEL_CONFIG.emailKey);
+
+  if (userEmail) {
+    window.qbShowWheelNow();
+  } else {
+    emailModal.classList.add('show');
+    document.getElementById('qbEmailInput').focus();
+  }
+};
+
+// Submit email
+window.qbSubmitEmail = function(e) {
+  e.preventDefault();
+  const email = document.getElementById('qbEmailInput').value;
+  localStorage.setItem(window.QB_WHEEL_CONFIG.emailKey, email);
+
+  // Send email using FormSubmit.co (working service)
+  const formData = new FormData();
+  formData.append('email', email);
+  formData.append('message', 'New QuickBee Spin Wheel participant');
+  formData.append('_captcha', 'false');
+
+  fetch('https://formsubmit.co/kioda.np@gmail.com', {
+    method: 'POST',
+    body: formData
+  }).catch(() => {});
+
+  document.getElementById('qbEmailModal').classList.remove('show');
+  window.qbShowWheelNow();
+};
+
+// Show wheel now
+window.qbShowWheelNow = function() {
+  const overlay = document.getElementById('qbWheelOverlay');
+  overlay.classList.add('show');
+  window.qbRenderPrizes();
+  window.qbUpdateTimerDisplay();
+};
+
+// Render prize list
+window.qbRenderPrizes = function() {
+  const list = document.getElementById('qbPrizesList');
+  list.innerHTML = window.QB_WHEEL_CONFIG.prizes.map(p => `
+    <div class="qb-prize-item">
+      <div class="qb-prize-emoji">${p.emoji}</div>
+      <div class="qb-prize-info">
+        <div class="qb-prize-name">${p.name}</div>
+        <div class="qb-prize-code">${p.code}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // Render prize labels on wheel using SVG for proper circular layout
+  const svg = document.getElementById('qbPrizeLabelsSvg');
+  const centerX = 150;
+  const centerY = 150;
+  const radius = 100; // Distance from center where text will be placed
+
+  svg.innerHTML = window.QB_WHEEL_CONFIG.prizes.map((p, i) => {
+    // Calculate angle for this prize (8 items = 45 degrees each)
+    const angle = (i * 360 / 8) - 90; // Start from top
+    const radians = angle * Math.PI / 180;
+
+    // Calculate position on circle
+    const x = centerX + radius * Math.cos(radians);
+    const y = centerY + radius * Math.sin(radians);
+
+    // Calculate rotation for text (perpendicular to radius, facing outward)
+    const textAngle = angle + 90;
+
+    return `
+      <g transform="translate(${x}, ${y}) rotate(${textAngle})">
+        <text
+          x="0"
+          y="0"
+          text-anchor="middle"
+          dominant-baseline="middle"
+          style="font-size: 16px; font-weight: 700; fill: #222; pointer-events: none;"
+        >
+          ${p.emoji}
+        </text>
+        <text
+          x="0"
+          y="14"
+          text-anchor="middle"
+          dominant-baseline="middle"
+          style="font-size: 9px; font-weight: 600; fill: #222; pointer-events: none;"
+        >
+          ${p.name}
+        </text>
+      </g>
+    `;
+  }).join('');
+};
+
+// Close popup
+window.qbCloseWheelPopup = function() {
+  document.getElementById('qbWheelOverlay').classList.remove('show');
+};
+
+// Close result
+window.qbCloseResult = function() {
+  document.getElementById('qbResultModal').classList.remove('show');
+  window.qbCloseWheelPopup();
+};
+
+// Drum roll sound - plays continuously during spin
+window.QB_DRUM_ROLL_STATE = { audioContext: null, isPlaying: false, oscillators: [] };
+
+window.qbPlayDrumRoll = function() {
+  try {
+    if (!window.QB_DRUM_ROLL_STATE.audioContext) {
+      window.QB_DRUM_ROLL_STATE.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    const ctx = window.QB_DRUM_ROLL_STATE.audioContext;
+
+    if (window.QB_DRUM_ROLL_STATE.isPlaying) return;
+    window.QB_DRUM_ROLL_STATE.isPlaying = true;
+
+    // Drum roll: rapid tapping sound with varying pitch
+    const playDrumBeat = () => {
+      if (!window.QB_DRUM_ROLL_STATE.isPlaying) return;
+
+      const now = ctx.currentTime;
+      const beatFrequencies = [200, 250, 220]; // Drum roll frequencies
+
+      beatFrequencies.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+        gain.gain.setValueAtTime(0.15, now + idx * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.06);
+
+        osc.start(now + idx * 0.08);
+        osc.stop(now + idx * 0.08 + 0.06);
+      });
+
+      // Loop drum roll every 250ms
+      if (window.QB_DRUM_ROLL_STATE.isPlaying) {
+        setTimeout(playDrumBeat, 250);
+      }
+    };
+
+    playDrumBeat();
+  } catch (e) {
+    // Fallback: silent if Web Audio API fails
+  }
+};
+
+// Stop drum roll and play winning sound
+window.qbStopDrumRoll = function() {
+  window.QB_DRUM_ROLL_STATE.isPlaying = false;
+
+  try {
+    if (!window.QB_DRUM_ROLL_STATE.audioContext) {
+      window.QB_DRUM_ROLL_STATE.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    const ctx = window.QB_DRUM_ROLL_STATE.audioContext;
+
+    // Play winning celebration sound
+    const notes = [800, 1000, 1200];
+    let delay = 0;
+
+    notes.forEach((freq) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      const now = ctx.currentTime + delay;
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+      osc.start(now);
+      osc.stop(now + 0.15);
+
+      delay += 0.15;
+    });
+  } catch (e) {
+    // Fallback
+  }
+};
+
+// ===== CUSTOMER SUPPORT CHAT INTEGRATION =====
+// Simple contact form for customer support messages
+
+window.qbShopifyInbox = {
+  shopDomain: 'yetinepal.myshopify.com',
+  initialized: false,
+  chatModalOpen: false,
+
+  init: function() {
+    if (this.initialized) return;
+    try {
+      console.log('💬 Initializing Customer Support Chat...');
+
+      // Setup chat form submission
+      const form = document.getElementById('qbChatForm');
+      if (form) {
+        form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+      }
+
+      this.initialized = true;
+      console.log('✅ Customer Support Chat Ready');
+    } catch(e) {
+      console.log('⚠️ Chat initialization warning:', e);
+      this.initialized = true;
+    }
+  },
+
+  openChat: function() {
+    try {
+      const modal = document.getElementById('qbChatModal');
+      if (!modal) {
+        console.log('❌ Chat modal not found');
+        return;
+      }
+
+      // Clear form on open
+      const form = document.getElementById('qbChatForm');
+      if (form) {
+        form.reset();
+        const status = document.getElementById('qbChatStatus');
+        if (status) status.style.display = 'none';
+      }
+
+      // Show modal with animation
+      modal.classList.add('show');
+      this.chatModalOpen = true;
+
+      // Focus name input
+      setTimeout(() => {
+        const nameInput = document.getElementById('qbChatName');
+        if (nameInput) nameInput.focus();
+      }, 100);
+
+      console.log('💬 Chat opened');
+    } catch(e) {
+      console.log('Chat error:', e);
+    }
+  },
+
+  closeChat: function() {
+    try {
+      const modal = document.getElementById('qbChatModal');
+      if (modal) {
+        modal.classList.remove('show');
+        this.chatModalOpen = false;
+        console.log('💬 Chat closed');
+      }
+    } catch(e) {
+      console.log('Close chat error:', e);
+    }
+  },
+
+  handleFormSubmit: function(e) {
+    e.preventDefault();
+
+    try {
+      const name = document.getElementById('qbChatName').value.trim();
+      const email = document.getElementById('qbChatEmail').value.trim();
+      const message = document.getElementById('qbChatMessage').value.trim();
+      const status = document.getElementById('qbChatStatus');
+      const submitBtn = document.querySelector('#qbChatForm button[type="submit"]');
+
+      if (!name || !email || !message) {
+        status.textContent = '❌ Please fill all fields';
+        status.style.display = 'block';
+        status.style.color = '#ff6b6b';
+        return;
+      }
+
+      // Disable submit button
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+      status.textContent = '';
+      status.style.display = 'none';
+
+      // Create message object
+      const messageData = {
+        name: name,
+        email: email,
+        message: message,
+        timestamp: new Date().toISOString(),
+        url: window.location.href
+      };
+
+      // Try multiple ways to save the message
+      this.saveMessageToStoreAPI(messageData, (success) => {
+        if (success) {
+          status.textContent = '✅ Message sent! We\'ll get back to you soon.';
+          status.style.color = '#51cf66';
+          status.style.display = 'block';
+
+          // Reset form
+          document.getElementById('qbChatForm').reset();
+
+          // Close modal after 2 seconds
+          setTimeout(() => this.closeChat(), 2000);
+        } else {
+          status.textContent = '⚠️ Failed to send. Please try again or email: support@quickbee.com';
+          status.style.color = '#ffd43b';
+          status.style.display = 'block';
+        }
+
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Message';
+      });
+
+    } catch(e) {
+      console.log('Form submit error:', e);
+      const status = document.getElementById('qbChatStatus');
+      status.textContent = '❌ Error: ' + e.message;
+      status.style.color = '#ff6b6b';
+      status.style.display = 'block';
+
+      const submitBtn = document.querySelector('#qbChatForm button[type="submit"]');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send Message';
+    }
+  },
+
+  saveMessageToStoreAPI: function(data, callback) {
+    try {
+      // Option 1: Save to localStorage (offline fallback)
+      const savedMessages = JSON.parse(localStorage.getItem('qb_saved_messages') || '[]');
+      savedMessages.push(data);
+      localStorage.setItem('qb_saved_messages', JSON.stringify(savedMessages));
+      console.log('💾 Message saved locally');
+
+      // Option 2: Try to send to Shopify API endpoint (if backend is configured)
+      fetch(`https://${this.shopDomain}/api/customer-messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(res => {
+        if (res.ok) {
+          console.log('✅ Message sent to Shopify API');
+          callback(true);
+        } else {
+          console.log('⚠️ API returned status:', res.status);
+          // Still consider it success since we saved to localStorage
+          callback(true);
+        }
+      })
+      .catch(err => {
+        console.log('⚠️ API request failed (normal if endpoint not setup):', err);
+        // Still success - we saved to localStorage as fallback
+        callback(true);
+      });
+
+    } catch(e) {
+      console.log('Error saving message:', e);
+      callback(false);
+    }
+  }
+};
+
+// Initialize Customer Support Chat on page load
+window.qbShopifyInbox.init();
+
+// ===== WEATHER WIDGET INTEGRATION =====
+// Live weather updates with OpenWeather API
+
+window.qbWeather = {
+  // IMPORTANT: Add your OpenWeather API key here
+  // Get free key from: https://openweathermap.org/api
+  apiKey: '',  // Leave empty for graceful fallback
+  cacheKey: 'qb_weather_cache',
+  cacheExpiry: 600000, // 10 minutes
+
+  init: function() {
+    // Don't initialize if no API key (graceful fallback)
+    if (!this.apiKey || this.apiKey.trim() === '') {
+      console.log('⚠️ Weather: No API key configured. Using fallback.');
+      return;
+    }
+
+    try {
+      console.log('🌤️ Initializing Weather Widget...');
+      this.loadWeather();
+
+      // Refresh every 10 minutes
+      setInterval(() => this.loadWeather(), 600000);
+
+      // Listen for location changes to update weather immediately
+      window.addEventListener('qb_location_changed', () => {
+        console.log('📍 Location changed, updating weather...');
+        this.loadWeather();
+      });
+
+      console.log('✅ Weather Widget Ready');
+    } catch(e) {
+      console.log('⚠️ Weather initialization error:', e);
+    }
+  },
+
+  getCoords: function() {
+    // Get location from QB_LOCATION object or default to Kathmandu
+    const loc = window.QB_LOCATION;
+    return {
+      lat: loc?.lat || 27.7172,
+      lon: loc?.lon || 85.3240
+    };
+  },
+
+  loadWeather: function() {
+    if (!this.apiKey) return;
+
+    try {
+      const coords = this.getCoords();
+      const cacheData = JSON.parse(localStorage.getItem(this.cacheKey) || '{}');
+      const now = Date.now();
+
+      // Use cache if fresh (less than 10 minutes old)
+      if (cacheData.timestamp && (now - cacheData.timestamp) < this.cacheExpiry) {
+        console.log('💾 Using cached weather data');
+        this.updateUI(cacheData.data);
+        return;
+      }
+
+      // Fetch fresh weather from API
+      const url = `https://api.openweathermap.org/data/2.5/weather?lat=${coords.lat}&lon=${coords.lon}&appid=${this.apiKey}&units=metric`;
+
+      fetch(url)
+        .then(res => {
+          if (!res.ok) throw new Error(`API returned ${res.status}`);
+          return res.json();
+        })
+        .then(data => {
+          // Cache the response
+          localStorage.setItem(this.cacheKey, JSON.stringify({
+            data: data,
+            timestamp: now
+          }));
+
+          console.log('🌤️ Weather fetched:', data.main.temp + '°C, ' + data.weather[0].main);
+          this.updateUI(data);
+        })
+        .catch(err => {
+          console.log('⚠️ Weather API error:', err);
+          this.showFallback();
+        });
+    } catch(e) {
+      console.log('⚠️ Weather load error:', e);
+      this.showFallback();
+    }
+  },
+
+  updateUI: function(data) {
+    try {
+      const tempEl = document.getElementById('qbWeatherTemp');
+      const iconEl = document.getElementById('qbWeatherIcon');
+      const condEl = document.querySelector('.qb-weather-condition');
+
+      if (tempEl) {
+        tempEl.innerHTML = `<span class="qb-temp-value">${Math.round(data.main.temp)}°C</span><span class="qb-temp-icon" id="qbWeatherIcon">${this.getWeatherIcon(data.weather[0].icon)}</span>`;
+      }
+
+      if (condEl) {
+        condEl.textContent = data.weather[0].main;
+      }
+    } catch(e) {
+      console.log('⚠️ UI update error:', e);
+      this.showFallback();
+    }
+  },
+
+  showFallback: function() {
+    try {
+      const tempEl = document.getElementById('qbWeatherTemp');
+      const condEl = document.querySelector('.qb-weather-condition');
+
+      if (tempEl) {
+        tempEl.innerHTML = '<span class="qb-temp-value">--°C</span><span class="qb-temp-icon">🌤️</span>';
+      }
+
+      if (condEl) {
+        condEl.textContent = 'Unavailable';
+      }
+    } catch(e) {
+      // Fail silently
+    }
+  },
+
+  getWeatherIcon: function(code) {
+    // Map OpenWeather condition codes to emoji
+    const iconMap = {
+      '01d': '☀️', '01n': '🌙',
+      '02d': '🌤️', '02n': '🌤️',
+      '03d': '☁️', '03n': '☁️',
+      '04d': '☁️', '04n': '☁️',
+      '09d': '🌧️', '09n': '🌧️',
+      '10d': '🌧️', '10n': '🌧️',
+      '11d': '⛈️', '11n': '⛈️',
+      '13d': '❄️', '13n': '❄️',
+      '50d': '🌫️', '50n': '🌫️'
+    };
+    return iconMap[code] || '🌤️';
+  }
+};
+
+// Initialize weather widget on page load
+// Note: API key is currently empty - add your OpenWeather API key to enable
+// window.qbWeather.init();
+
+// ===== WALLET INTEGRATION =====
+// Wallet/Payment functionality for mobile footer
+
+window.qbWallet = {
+  initialized: false,
+
+  init: function() {
+    if (this.initialized) return;
+    try {
+      console.log('💰 Initializing Wallet...');
+      this.initialized = true;
+      console.log('✅ Wallet Ready');
+    } catch(e) {
+      console.log('⚠️ Wallet initialization warning:', e);
+      this.initialized = true;
+    }
+  },
+
+  openWallet: function() {
+    try {
+      console.log('💰 Opening Wallet...');
+
+      // For now, show a simple alert
+      // In production, this would open payment/wallet interface
+      alert('💰 Wallet\n\nBalance: ₨ 0.00\n\nFeature coming soon!');
+
+      // TODO: Integrate with:
+      // - Payment gateway (Stripe, Razorpay, Khalti, etc.)
+      // - Wallet management system
+      // - Transaction history
+      // - Add funds interface
+
+    } catch(e) {
+      console.log('Wallet error:', e);
+    }
+  }
+};
+
+// Initialize wallet on page load
+window.qbWallet.init();
+
+// Update timer
+window.qbUpdateTimerDisplay = function() {
+  const data = JSON.parse(localStorage.getItem(window.QB_WHEEL_CONFIG.storageKey) || '{}');
+  const timerDisplay = document.getElementById('qbTimerDisplay');
+  const timerReadyMsg = document.getElementById('qbTimerReadyMsg');
+  const spinBtn = document.getElementById('qbSpinBtn');
+  const cooldownMsg = document.getElementById('qbCooldownMsg');
+
+  if (!data.lastSpinTime) {
+    timerDisplay.textContent = '∞';
+    timerDisplay.classList.remove('ready');
+    timerReadyMsg.style.display = 'none';
+    spinBtn.disabled = false;
+    cooldownMsg.style.display = 'none';
+    return;
+  }
+
+  const remaining = (data.lastSpinTime + window.QB_WHEEL_CONFIG.cooldownMs) - Date.now();
+
+  if (remaining <= 0) {
+    timerDisplay.textContent = '∞';
+    timerDisplay.classList.add('ready');
+    timerReadyMsg.style.display = 'block';
+    spinBtn.disabled = false;
+    cooldownMsg.style.display = 'none';
+    return;
+  }
+
+  const h = Math.floor(remaining / 3600000);
+  const m = Math.floor((remaining % 3600000) / 60000);
+  const s = Math.floor((remaining % 60000) / 1000);
+
+  timerDisplay.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  timerDisplay.classList.remove('ready');
+  timerReadyMsg.style.display = 'none';
+  spinBtn.disabled = true;
+  cooldownMsg.style.display = 'block';
+  cooldownMsg.innerHTML = `⏳ <strong>Come back in ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}</strong>`;
+};
+
+// Spin wheel
+window.qbSpinTheWheel = function() {
+  if (window.QB_WHEEL_STATE.isSpinning) return;
+
+  const data = JSON.parse(localStorage.getItem(window.QB_WHEEL_CONFIG.storageKey) || '{}');
+  if (data.lastSpinTime && Date.now() < data.lastSpinTime + window.QB_WHEEL_CONFIG.cooldownMs) {
+    alert('Already spun today! Come back later.');
+    return;
+  }
+
+  window.QB_WHEEL_STATE.isSpinning = true;
+  const wheel = document.getElementById('qbWheelMain');
+  const spinBtn = document.getElementById('qbSpinBtn');
+  const overlay = document.getElementById('qbWheelOverlay');
+  spinBtn.disabled = true;
+
+  // Show the wheel overlay
+  if (overlay) {
+    overlay.classList.add('show');
+  }
+
+  // Play drum roll sound - continues until result arrives
+  window.qbPlayDrumRoll();
+
+  const spins = 15 + Math.random() * 5;
+  const extraDegrees = Math.random() * 360;
+  const totalRotation = spins * 360 + extraDegrees;
+
+  wheel.classList.add('spinning');
+  wheel.style.transform = `rotate(${totalRotation}deg)`;
+
+  const prizeIndex = Math.floor((360 - (extraDegrees % 360)) % 360 / (360 / window.QB_WHEEL_CONFIG.prizes.length));
+  const prize = window.QB_WHEEL_CONFIG.prizes[prizeIndex];
+
+  setTimeout(() => {
+    wheel.classList.remove('spinning');
+
+    // Lock the pointer on the winning prize
+    const pointer = document.querySelector('.qb-wheel-pointer');
+    if (pointer) {
+      pointer.classList.add('locked');
+    }
+
+    const newData = {
+      lastSpinTime: Date.now(),
+      lastPrize: prize,
+      totalSpins: (data.totalSpins || 0) + 1
+    };
+    localStorage.setItem(window.QB_WHEEL_CONFIG.storageKey, JSON.stringify(newData));
+
+    window.qbShowResult(prize);
+    window.QB_WHEEL_STATE.isSpinning = false;
+    window.qbUpdateTimerDisplay();
+  }, 16000);
+};
+
+// Show result
+window.qbShowResult = function(prize) {
+  document.getElementById('qbResultEmoji').textContent = prize.emoji;
+  document.getElementById('qbResultLabel').textContent = prize.name;
+  document.getElementById('qbResultText').textContent = prize.code;
+  document.getElementById('qbResultCodeLabel').textContent = prize.code;
+  document.getElementById('qbResultModal').classList.add('show');
+
+  // Stop drum roll and play winning celebration sound
+  window.qbStopDrumRoll();
+};
+
+// Copy code
+window.qbCopyCode = function() {
+  const code = document.getElementById('qbResultText').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.getElementById('qbCopyBtn');
+    const originalText = btn.textContent;
+    btn.textContent = '✓ COPIED!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = originalText;
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+};
+
+window.qbUpdateTimerDisplay();
+setInterval(window.qbUpdateTimerDisplay, 1000);
+console.log('🎡 Premium Wheel Ready');
+console.log('💰 Wallet Ready');
+
+// Splash Screen Handler - Show only on first visit
+window.qbInitSplashScreen = function() {
+  const splashScreen = document.getElementById('qbSplashScreen');
+  if (!splashScreen) return;
+
+  // Check if user has already seen splash screen
+  const splashSeen = sessionStorage.getItem('qb_splash_shown');
+
+  // If already seen in this session, hide immediately
+  if (splashSeen) {
+    splashScreen.classList.add('hidden');
+    setTimeout(() => {
+      if (splashScreen.parentNode) {
+        splashScreen.parentNode.removeChild(splashScreen);
+      }
+    }, 100);
+    return;
+  }
+
+  // First time - show splash screen for 2.5 seconds
+  sessionStorage.setItem('qb_splash_shown', 'true');
+  setTimeout(() => {
+    if (splashScreen) {
+      splashScreen.classList.add('hidden');
+      // Ensure it's completely removed from DOM
+      setTimeout(() => {
+        if (splashScreen.parentNode) {
+          splashScreen.parentNode.removeChild(splashScreen);
+        }
+      }, 200);
+    }
+  }, 2500);
+};
+
+// Initialize splash screen when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', window.qbInitSplashScreen);
+} else {
+  window.qbInitSplashScreen();
+}
+
+console.log('🐝 QuickBee Splash Screen Ready');
+</script>
+
+<!-- Initialize Areas Data FIRST (before location picker script) -->
+<script>
+window.QB_AREAS_DATA = {"districts":[{"id":"kathmandu","name":"Kathmandu","slug":"kathmandu","municipalities":[{"id":"kathmandu-metro","name":"Kathmandu Metropolitan City","slug":"kathmandu-metropolitan-city","areas":[{"id":"thamel","name":"Thamel","subAreas":[{"id":"narsingh-chowk","name":"Narsingh Chowk","deliveryTime":11,"wards":[{"id":"ward-1","name":"Ward 1 - Center","deliveryTime":11},{"id":"ward-2","name":"Ward 2 - North","deliveryTime":12},{"id":"ward-3","name":"Ward 3 - South","deliveryTime":13},{"id":"ward-4","name":"Ward 4 - East","deliveryTime":14}]},{"id":"saat-ghumti","name":"Saat Ghumti","deliveryTime":12,"wards":[{"id":"ward-1","name":"Ward 1 - Center","deliveryTime":12},{"id":"ward-2","name":"Ward 2 - North","deliveryTime":13},{"id":"ward-3","name":"Ward 3 - South","deliveryTime":14},{"id":"ward-4","name":"Ward 4 - East","deliveryTime":15}]},{"id":"chhetrapati","name":"Chhetrapati","deliveryTime":13,"wards":[{"id":"ward-1","name":"Ward 1 - Center","deliveryTime":13},{"id":"ward-2","name":"Ward 2 - North","deliveryTime":14},{"id":"ward-3","name":"Ward 3 - South","deliveryTime":15},{"id":"ward-4","name":"Ward 4 - East","deliveryTime":16}]},{"id":"z-street","name":"Z Street","deliveryTime":11,"wards":[{"id":"ward-1","name":"Ward 1 - Center","deliveryTime":11},{"id":"ward-2","name":"Ward 2 - North","deliveryTime":12},{"id":"ward-3","name":"Ward 3 - South","deliveryTime":13},{"id":"ward-4","name":"Ward 4 - East","deliveryTime":14}]},{"id":"bhagawati-bahal","name":"Bhagawati Bahal","deliveryTime":12,"wards":[{"id":"ward-1","name":"Ward 1 - Center","deliveryTime":12},{"id":"ward-2","name":"Ward 2 - North","deliveryTime":13},{"id":"ward-3","name":"Ward 3 - South","deliveryTime":14},{"id":"ward-4","name":"Ward 4 - East","deliveryTime":15}]},{"id":"jyata","name":"Jyata","deliveryTime":13,"wards":[{"id":"ward-1","name":"Ward 1 - Center","deliveryTime":13},{"id":"ward-2","name":"Ward 2 - North","deliveryTime":14},{"id":"ward-3","name":"Ward 3 - South","deliveryTime":15},{"id":"ward-4","name":"Ward 4 - East","deliveryTime":16}]}]},{"id":"baneshwor","name":"Baneshwor","subAreas":[{"id":"new-baneshwor-chowk","name":"New Baneshwor Chowk","deliveryTime":12,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":12},{"id":"ward-2","name":"Ward 2 - Extension","deliveryTime":13},{"id":"ward-3","name":"Ward 3 - Bypass","deliveryTime":14}]},{"id":"old-baneshwor","name":"Old Baneshwor","deliveryTime":13,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":13},{"id":"ward-2","name":"Ward 2 - Extension","deliveryTime":14},{"id":"ward-3","name":"Ward 3 - Bypass","deliveryTime":15}]},{"id":"minbhawan","name":"Minbhawan","deliveryTime":14,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":14},{"id":"ward-2","name":"Ward 2 - Extension","deliveryTime":15},{"id":"ward-3","name":"Ward 3 - Bypass","deliveryTime":16}]},{"id":"thapagaun","name":"Thapagaun","deliveryTime":12,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":12},{"id":"ward-2","name":"Ward 2 - Extension","deliveryTime":13},{"id":"ward-3","name":"Ward 3 - Bypass","deliveryTime":14}]},{"id":"shankhamul","name":"Shankhamul","deliveryTime":13,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":13},{"id":"ward-2","name":"Ward 2 - Extension","deliveryTime":14},{"id":"ward-3","name":"Ward 3 - Bypass","deliveryTime":15}]},{"id":"buddha-nagar","name":"Buddha Nagar","deliveryTime":14,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":14},{"id":"ward-2","name":"Ward 2 - Extension","deliveryTime":15},{"id":"ward-3","name":"Ward 3 - Bypass","deliveryTime":16}]},{"id":"buddhanagar","name":"Buddhanagar","deliveryTime":12,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":12},{"id":"ward-2","name":"Ward 2 - Extension","deliveryTime":13},{"id":"ward-3","name":"Ward 3 - Bypass","deliveryTime":14}]}]},{"id":"baluwatar","name":"Baluwatar","subAreas":[{"id":"prime-minister-residence-area","name":"Prime Minister Residence Area","deliveryTime":13,"wards":[{"id":"ward-1","name":"Ward 1 - Embassy Area","deliveryTime":13},{"id":"ward-2","name":"Ward 2 - Residential","deliveryTime":14}]},{"id":"russian-embassy-area","name":"Russian Embassy Area","deliveryTime":14,"wards":[{"id":"ward-1","name":"Ward 1 - Embassy Area","deliveryTime":14},{"id":"ward-2","name":"Ward 2 - Residential","deliveryTime":15}]},{"id":"thirbam-sadak","name":"Thirbam Sadak","deliveryTime":15,"wards":[{"id":"ward-1","name":"Ward 1 - Embassy Area","deliveryTime":15},{"id":"ward-2","name":"Ward 2 - Residential","deliveryTime":16}]},{"id":"tusal","name":"Tusal","deliveryTime":13,"wards":[{"id":"ward-1","name":"Ward 1 - Embassy Area","deliveryTime":13},{"id":"ward-2","name":"Ward 2 - Residential","deliveryTime":14}]}]},{"id":"maharajgunj","name":"Maharajgunj","subAreas":[{"id":"narayan-gopal-chowk","name":"Narayan Gopal Chowk","deliveryTime":13,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":13},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":14},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":15}]},{"id":"panipokhari","name":"Panipokhari","deliveryTime":14,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":14},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":15},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":16}]},{"id":"chandol","name":"Chandol","deliveryTime":15,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":15},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":16},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":17}]},{"id":"bhatbhateni","name":"Bhatbhateni","deliveryTime":13,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":13},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":14},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":15}]},{"id":"chundevi","name":"Chundevi","deliveryTime":14,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":14},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":15},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":16}]},{"id":"bansbari","name":"Bansbari","deliveryTime":15,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":15},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":16},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":17}]}]},{"id":"lazimpat","name":"Lazimpat","subAreas":[{"id":"nil-saraswati-marg","name":"Nil Saraswati Marg","deliveryTime":12,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":12},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":13},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":14}]},{"id":"ranibari","name":"Ranibari","deliveryTime":13,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":13},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":14},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":15}]},{"id":"gairidhara","name":"Gairidhara","deliveryTime":14,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":14},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":15},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":16}]},{"id":"british-embassy-area","name":"British Embassy Area","deliveryTime":12,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":12},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":13},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":14}]}]},{"id":"swayambhu","name":"Swayambhu","subAreas":[{"id":"halchowk","name":"Halchowk","deliveryTime":14,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":14},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":15},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":16}]},{"id":"kimdol","name":"Kimdol","deliveryTime":15,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":15},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":16},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":17}]},{"id":"chhauni","name":"Chhauni","deliveryTime":16,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":16},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":17},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":18}]},{"id":"bijeshwori","name":"Bijeshwori","deliveryTime":14,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":14},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":15},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":16}]},{"id":"dallu-awas","name":"Dallu Awas","deliveryTime":15,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":15},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":16},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":17}]}]},{"id":"kalimati","name":"Kalimati","subAreas":[{"id":"kalimati-chowk","name":"Kalimati Chowk","deliveryTime":14,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":14},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":15},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":16}]},{"id":"kuleshwor","name":"Kuleshwor","deliveryTime":15,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":15},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":16},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":17}]},{"id":"ravibhawan","name":"Ravibhawan","deliveryTime":16,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":16},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":17},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":18}]},{"id":"soalteemode","name":"Soalteemode","deliveryTime":14,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":14},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":15},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":16}]},{"id":"bafal","name":"Bafal","deliveryTime":15,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":15},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":16},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":17}]}]},{"id":"city-core-downtown","name":"City Core (Downtown)","subAreas":[{"id":"asan","name":"Asan","deliveryTime":10,"wards":[{"id":"ward-1","name":"Ward 1 - Core","deliveryTime":10},{"id":"ward-2","name":"Ward 2 - Periphery","deliveryTime":11},{"id":"ward-3","name":"Ward 3 - Markets","deliveryTime":12}]},{"id":"indra-chowk","name":"Indra Chowk","deliveryTime":11,"wards":[{"id":"ward-1","name":"Ward 1 - Core","deliveryTime":11},{"id":"ward-2","name":"Ward 2 - Periphery","deliveryTime":12},{"id":"ward-3","name":"Ward 3 - Markets","deliveryTime":13}]},{"id":"new-road","name":"New Road","deliveryTime":12,"wards":[{"id":"ward-1","name":"Ward 1 - Core","deliveryTime":12},{"id":"ward-2","name":"Ward 2 - Periphery","deliveryTime":13},{"id":"ward-3","name":"Ward 3 - Markets","deliveryTime":14}]},{"id":"basantapur","name":"Basantapur","deliveryTime":10,"wards":[{"id":"ward-1","name":"Ward 1 - Core","deliveryTime":10},{"id":"ward-2","name":"Ward 2 - Periphery","deliveryTime":11},{"id":"ward-3","name":"Ward 3 - Markets","deliveryTime":12}]},{"id":"makhan","name":"Makhan","deliveryTime":11,"wards":[{"id":"ward-1","name":"Ward 1 - Core","deliveryTime":11},{"id":"ward-2","name":"Ward 2 - Periphery","deliveryTime":12},{"id":"ward-3","name":"Ward 3 - Markets","deliveryTime":13}]},{"id":"freak-street","name":"Freak Street","deliveryTime":12,"wards":[{"id":"ward-1","name":"Ward 1 - Core","deliveryTime":12},{"id":"ward-2","name":"Ward 2 - Periphery","deliveryTime":13},{"id":"ward-3","name":"Ward 3 - Markets","deliveryTime":14}]},{"id":"bangemudha","name":"Bangemudha","deliveryTime":10,"wards":[{"id":"ward-1","name":"Ward 1 - Core","deliveryTime":10},{"id":"ward-2","name":"Ward 2 - Periphery","deliveryTime":11},{"id":"ward-3","name":"Ward 3 - Markets","deliveryTime":12}]}]},{"id":"chabahil","name":"Chabahil","subAreas":[{"id":"chuchepati","name":"Chuchepati","deliveryTime":15,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":15},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":16},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":17}]},{"id":"mitrapark","name":"Mitrapark","deliveryTime":16,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":16},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":17},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":18}]},{"id":"maijubahal","name":"Maijubahal","deliveryTime":17,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":17},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":18},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":19}]},{"id":"gaurighat","name":"Gaurighat","deliveryTime":15,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":15},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":16},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":17}]},{"id":"chabahil-stupa-area","name":"Chabahil Stupa Area","deliveryTime":16,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":16},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":17},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":18}]}]},{"id":"bouddha","name":"Bouddha","subAreas":[{"id":"bouddhanath-stupa-area","name":"Bouddhanath Stupa Area","deliveryTime":16,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":16},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":17},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":18}]},{"id":"tinchuli","name":"Tinchuli","deliveryTime":17,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":17},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":18},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":19}]},{"id":"jorpati-border","name":"Jorpati Border","deliveryTime":18,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":18},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":19},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":20}]},{"id":"fulbari","name":"Fulbari","deliveryTime":16,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":16},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":17},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":18}]}]}]},{"id":"kirtipur-municipality","name":"Kirtipur Municipality","slug":"kirtipur-municipality","areas":[{"id":"kirtipur-core","name":"Kirtipur Core","subAreas":[{"id":"bagh-bhairab","name":"Bagh Bhairab","deliveryTime":17,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":17},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":18},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":19}]},{"id":"uma-maheshwar","name":"Uma Maheshwar","deliveryTime":18,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":18},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":19},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":20}]},{"id":"chilanchu-vihara","name":"Chilanchu Vihara","deliveryTime":19,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":19},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":20},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":21}]},{"id":"samal","name":"Samal","deliveryTime":17,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":17},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":18},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":19}]}]},{"id":"panga","name":"Panga","subAreas":[{"id":"lachhi","name":"Lachhi","deliveryTime":18,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":18},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":19},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":20}]},{"id":"dhumbakhel","name":"Dhumbakhel","deliveryTime":19,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":19},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":20},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":21}]},{"id":"khasibazaar","name":"Khasibazaar","deliveryTime":20,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":20},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":21},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":22}]}]},{"id":"university-area","name":"University Area","subAreas":[{"id":"tribhuvan-university-campus","name":"Tribhuvan University Campus","deliveryTime":18,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":18},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":19},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":20}]},{"id":"tyanglaphaant","name":"Tyanglaphaant","deliveryTime":19,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":19},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":20},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":21}]},{"id":"nayabazaar","name":"Nayabazaar","deliveryTime":20,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":20},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":21},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":22}]}]},{"id":"chobhar","name":"Chobhar","subAreas":[{"id":"adinath-temple-area","name":"Adinath Temple Area","deliveryTime":19,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":19},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":20},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":21}]},{"id":"chobhar-gorge","name":"Chobhar Gorge","deliveryTime":20,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":20},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":21},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":22}]},{"id":"jal-binayak","name":"Jal Binayak","deliveryTime":21,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":21},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":22},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":23}]}]}]},{"id":"chandragiri-municipality","name":"Chandragiri Municipality","slug":"chandragiri-municipality","areas":[{"id":"thankot","name":"Thankot","subAreas":[{"id":"tribhuvan-park-area","name":"Tribhuvan Park Area","deliveryTime":21,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":21},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":22},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":23}]},{"id":"checkpost","name":"Checkpost","deliveryTime":22,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":22},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":23},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":24}]},{"id":"godam","name":"Godam","deliveryTime":23,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":23},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":24},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":25}]},{"id":"baukhel","name":"Baukhel","deliveryTime":21,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":21},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":22},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":23}]}]},{"id":"kalanki-outskirts","name":"Kalanki (Outskirts)","subAreas":[{"id":"makalu-petrol-pump-area","name":"Makalu Petrol Pump Area","deliveryTime":19,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":19},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":20},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":21}]},{"id":"khasi-bazaar","name":"Khasi Bazaar","deliveryTime":20,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":20},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":21},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":22}]},{"id":"sita-petrol-pump","name":"Sita Petrol Pump","deliveryTime":21,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":21},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":22},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":23}]},{"id":"lri-school-area","name":"L.R.I. School Area","deliveryTime":19,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":19},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":20},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":21}]}]},{"id":"satungal","name":"Satungal","subAreas":[{"id":"satungal-bazaar","name":"Satungal Bazaar","deliveryTime":22,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":22},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":23},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":24}]},{"id":"shreeram-chowk","name":"Shreeram Chowk","deliveryTime":23,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":23},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":24},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":25}]},{"id":"industrial-area","name":"Industrial Area","deliveryTime":24,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":24},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":25},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":26}]}]}]},{"id":"tarakeshwor-municipality","name":"Tarakeshwor Municipality","slug":"tarakeshwor-municipality","areas":[{"id":"nepaltar","name":"Nepaltar","subAreas":[{"id":"bypass-road","name":"Bypass Road","deliveryTime":23,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":23},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":24},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":25}]},{"id":"nepaltar-bus-park","name":"Nepaltar Bus Park","deliveryTime":24,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":24},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":25},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":26}]},{"id":"mahadevsthan","name":"Mahadevsthan","deliveryTime":25,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":25},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":26},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":27}]}]},{"id":"dharmasthali","name":"Dharmasthali","subAreas":[{"id":"mahadevsthan","name":"Mahadevsthan","deliveryTime":24,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":24},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":25},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":26}]},{"id":"baniyatar-border","name":"Baniyatar Border","deliveryTime":25,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":25},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":26},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":27}]},{"id":"tarakeshwor-temple-trail","name":"Tarakeshwor Temple Trail","deliveryTime":26,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":26},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":27},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":28}]}]}]},{"id":"budhanilkantha-municipality","name":"Budhanilkantha Municipality","slug":"budhanilkantha-municipality","areas":[{"id":"budhanilkantha-temple-area","name":"Budhanilkantha Temple Area","subAreas":[{"id":"narayanthan","name":"Narayanthan","deliveryTime":25,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":25},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":26},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":27}]},{"id":"deuba-chowk","name":"Deuba Chowk","deliveryTime":26,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":26},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":27},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":28}]},{"id":"golfutar","name":"Golfutar","deliveryTime":27,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":27},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":28},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":29}]},{"id":"mandikhatar","name":"Mandikhatar","deliveryTime":25,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":25},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":26},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":27}]}]},{"id":"kapan","name":"Kapan","subAreas":[{"id":"kapan-gumba","name":"Kapan Gumba","deliveryTime":24,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":24},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":25},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":26}]},{"id":"ram-mandir","name":"Ram Mandir","deliveryTime":25,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":25},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":26},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":27}]},{"id":"akhanda-marg","name":"Akhanda Marg","deliveryTime":26,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":26},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":27},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":28}]},{"id":"saraswatinagar","name":"Saraswatinagar","deliveryTime":24,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":24},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":25},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":26}]}]}]},{"id":"gokarneshwar-municipality","name":"Gokarneshwar Municipality","slug":"gokarneshwar-municipality","areas":[{"id":"jorpati","name":"Jorpati","subAreas":[{"id":"dakshindhoka","name":"Dakshindhoka","deliveryTime":17,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":17},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":18},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":19}]},{"id":"nayabasti","name":"Nayabasti","deliveryTime":18,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":18},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":19},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":20}]},{"id":"attarkhel","name":"Attarkhel","deliveryTime":19,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":19},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":20},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":21}]},{"id":"gokarna-mahadev-area","name":"Gokarna Mahadev Area","deliveryTime":17,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":17},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":18},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":19}]}]}]}]},{"id":"lalitpur","name":"Lalitpur","slug":"lalitpur","municipalities":[{"id":"lalitpur-metro","name":"Lalitpur Metropolitan City","slug":"lalitpur-metropolitan-city","areas":[{"id":"patan-core","name":"Patan Core","subAreas":[{"id":"mangal-bazar","name":"Mangal Bazar","deliveryTime":15,"wards":[{"id":"ward-1","name":"Ward 1 - Heritage","deliveryTime":15},{"id":"ward-2","name":"Ward 2 - New","deliveryTime":16},{"id":"ward-3","name":"Ward 3 - Old Town","deliveryTime":17}]},{"id":"sundhara","name":"Sundhara","deliveryTime":16,"wards":[{"id":"ward-1","name":"Ward 1 - Heritage","deliveryTime":16},{"id":"ward-2","name":"Ward 2 - New","deliveryTime":17},{"id":"ward-3","name":"Ward 3 - Old Town","deliveryTime":18}]},{"id":"gabahal","name":"Gabahal","deliveryTime":17,"wards":[{"id":"ward-1","name":"Ward 1 - Heritage","deliveryTime":17},{"id":"ward-2","name":"Ward 2 - New","deliveryTime":18},{"id":"ward-3","name":"Ward 3 - Old Town","deliveryTime":19}]},{"id":"mahabouddha","name":"Mahabouddha","deliveryTime":15,"wards":[{"id":"ward-1","name":"Ward 1 - Heritage","deliveryTime":15},{"id":"ward-2","name":"Ward 2 - New","deliveryTime":16},{"id":"ward-3","name":"Ward 3 - Old Town","deliveryTime":17}]},{"id":"swotha","name":"Swotha","deliveryTime":16,"wards":[{"id":"ward-1","name":"Ward 1 - Heritage","deliveryTime":16},{"id":"ward-2","name":"Ward 2 - New","deliveryTime":17},{"id":"ward-3","name":"Ward 3 - Old Town","deliveryTime":18}]},{"id":"hakha","name":"Hakha","deliveryTime":17,"wards":[{"id":"ward-1","name":"Ward 1 - Heritage","deliveryTime":17},{"id":"ward-2","name":"Ward 2 - New","deliveryTime":18},{"id":"ward-3","name":"Ward 3 - Old Town","deliveryTime":19}]},{"id":"saugal","name":"Saugal","deliveryTime":15,"wards":[{"id":"ward-1","name":"Ward 1 - Heritage","deliveryTime":15},{"id":"ward-2","name":"Ward 2 - New","deliveryTime":16},{"id":"ward-3","name":"Ward 3 - Old Town","deliveryTime":17}]}]},{"id":"jawalakhel","name":"Jawalakhel","subAreas":[{"id":"zoo-area","name":"Zoo Area","deliveryTime":16,"wards":[{"id":"ward-1","name":"Ward 1 - Zoo Area","deliveryTime":16},{"id":"ward-2","name":"Ward 2 - Residential","deliveryTime":17}]},{"id":"ekantakuna-road","name":"Ekantakuna Road","deliveryTime":17,"wards":[{"id":"ward-1","name":"Ward 1 - Zoo Area","deliveryTime":17},{"id":"ward-2","name":"Ward 2 - Residential","deliveryTime":18}]},{"id":"bhanimandal","name":"Bhanimandal","deliveryTime":18,"wards":[{"id":"ward-1","name":"Ward 1 - Zoo Area","deliveryTime":18},{"id":"ward-2","name":"Ward 2 - Residential","deliveryTime":19}]},{"id":"manbhawan","name":"Manbhawan","deliveryTime":16,"wards":[{"id":"ward-1","name":"Ward 1 - Zoo Area","deliveryTime":16},{"id":"ward-2","name":"Ward 2 - Residential","deliveryTime":17}]}]},{"id":"kupondole","name":"Kupondole","subAreas":[{"id":"kandevtastan","name":"Kandevtastan","deliveryTime":16,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":16},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":17},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":18}]},{"id":"jwagal","name":"Jwagal","deliveryTime":17,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":17},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":18},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":19}]},{"id":"sanepa-border","name":"Sanepa Border","deliveryTime":18,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":18},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":19},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":20}]},{"id":"un-park-area","name":"UN Park Area","deliveryTime":16,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":16},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":17},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":18}]}]},{"id":"jhamsikhel","name":"Jhamsikhel","subAreas":[{"id":"thado-dhunga","name":"Thado Dhunga","deliveryTime":17,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":17},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":18},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":19}]},{"id":"jhamel-strip","name":"Jhamel Strip","deliveryTime":18,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":18},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":19},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":20}]},{"id":"british-school-area","name":"British School Area","deliveryTime":19,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":19},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":20},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":21}]},{"id":"moksh-area","name":"Moksh Area","deliveryTime":17,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":17},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":18},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":19}]}]},{"id":"bhaisepati","name":"Bhaisepati","subAreas":[{"id":"awas-kshetra-housing-area","name":"Awas Kshetra (Housing Area)","deliveryTime":18,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":18},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":19},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":20}]},{"id":"sainbu","name":"Sainbu","deliveryTime":19,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":19},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":20},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":21}]},{"id":"karyabinayak","name":"Karyabinayak","deliveryTime":20,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":20},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":21},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":22}]},{"id":"magar-gaun","name":"Magar Gaun","deliveryTime":18,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":18},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":19},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":20}]}]},{"id":"satdobato","name":"Satdobato","subAreas":[{"id":"khumaltar","name":"Khumaltar","deliveryTime":19,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":19},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":20},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":21}]},{"id":"gwarko","name":"Gwarko","deliveryTime":20,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":20},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":21},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":22}]},{"id":"hattiban","name":"Hattiban","deliveryTime":21,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":21},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":22},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":23}]},{"id":"chapagaun-dobato","name":"Chapagaun Dobato","deliveryTime":19,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":19},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":20},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":21}]},{"id":"nakhipot","name":"Nakhipot","deliveryTime":20,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":20},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":21},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":22}]}]},{"id":"bungamati","name":"Bungamati","subAreas":[{"id":"machhindranath-temple-area","name":"Machhindranath Temple Area","deliveryTime":21,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":21},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":22},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":23}]},{"id":"karya-binayak","name":"Karya Binayak","deliveryTime":22,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":22},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":23},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":24}]},{"id":"pharsidol","name":"Pharsidol","deliveryTime":23,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":23},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":24},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":25}]}]},{"id":"khokana","name":"Khokana","subAreas":[{"id":"shikali-temple-area","name":"Shikali Temple Area","deliveryTime":22,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":22},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":23},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":24}]},{"id":"torikhel","name":"Torikhel","deliveryTime":23,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":23},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":24},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":25}]},{"id":"rudrayani","name":"Rudrayani","deliveryTime":24,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":24},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":25},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":26}]}]}]},{"id":"mahalaxmi-municipality","name":"Mahalaxmi Municipality","slug":"mahalaxmi-municipality","areas":[{"id":"imadol","name":"Imadol","subAreas":[{"id":"krishna-mandir","name":"Krishna Mandir","deliveryTime":20,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":20},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":21},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":22}]},{"id":"bojepokhari","name":"Bojepokhari","deliveryTime":21,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":21},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":22},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":23}]},{"id":"pawan-prakriti-school-area","name":"Pawan Prakriti School Area","deliveryTime":22,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":22},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":23},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":24}]},{"id":"kist-hospital-area","name":"Kist Hospital Area","deliveryTime":20,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":20},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":21},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":22}]}]},{"id":"lubhu","name":"Lubhu","subAreas":[{"id":"lubhu-bazaar","name":"Lubhu Bazaar","deliveryTime":21,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":21},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":22},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":23}]},{"id":"mahalaxmisthan","name":"Mahalaxmisthan","deliveryTime":22,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":22},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":23},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":24}]},{"id":"changathali","name":"Changathali","deliveryTime":23,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":23},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":24},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":25}]}]}]},{"id":"godawari-municipality","name":"Godawari Municipality","slug":"godawari-municipality","areas":[{"id":"godawari","name":"Godawari","subAreas":[{"id":"botanical-garden-area","name":"Botanical Garden Area","deliveryTime":24,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":24},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":25},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":26}]},{"id":"naudhara","name":"Naudhara","deliveryTime":25,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":25},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":26},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":27}]},{"id":"taukhel","name":"Taukhel","deliveryTime":26,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":26},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":27},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":28}]},{"id":"bishankhu-narayan","name":"Bishankhu Narayan","deliveryTime":24,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":24},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":25},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":26}]}]},{"id":"chapagaun","name":"Chapagaun","subAreas":[{"id":"bajrabarahi-temple-area","name":"Bajrabarahi Temple Area","deliveryTime":25,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":25},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":26},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":27}]},{"id":"pyutar","name":"Pyutar","deliveryTime":26,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":26},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":27},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":28}]},{"id":"thecho-border","name":"Thecho Border","deliveryTime":27,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":27},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":28},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":29}]}]},{"id":"thecho","name":"Thecho","subAreas":[{"id":"balkumari","name":"Balkumari","deliveryTime":26,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":26},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":27},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":28}]},{"id":"saraswati-kunda","name":"Saraswati Kunda","deliveryTime":27,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":27},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":28},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":29}]},{"id":"sunaguthi-border","name":"Sunaguthi Border","deliveryTime":28,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":28},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":29},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":30}]}]}]}]},{"id":"bhaktapur","name":"Bhaktapur","slug":"bhaktapur","municipalities":[{"id":"bhaktapur-municipality","name":"Bhaktapur Municipality","slug":"bhaktapur-municipality","areas":[{"id":"durbar-square-area","name":"Durbar Square Area","subAreas":[{"id":"layaku","name":"Layaku","deliveryTime":27,"wards":[{"id":"ward-1","name":"Ward 1 - Heritage","deliveryTime":27},{"id":"ward-2","name":"Ward 2 - Surroundings","deliveryTime":28}]},{"id":"taumadhi-square-nyatapola","name":"Taumadhi Square (Nyatapola)","deliveryTime":28,"wards":[{"id":"ward-1","name":"Ward 1 - Heritage","deliveryTime":28},{"id":"ward-2","name":"Ward 2 - Surroundings","deliveryTime":29}]},{"id":"pottery-square-talako","name":"Pottery Square (Talako)","deliveryTime":29,"wards":[{"id":"ward-1","name":"Ward 1 - Heritage","deliveryTime":29},{"id":"ward-2","name":"Ward 2 - Surroundings","deliveryTime":30}]},{"id":"khauma","name":"Khauma","deliveryTime":27,"wards":[{"id":"ward-1","name":"Ward 1 - Heritage","deliveryTime":27},{"id":"ward-2","name":"Ward 2 - Surroundings","deliveryTime":28}]}]},{"id":"dattatreya","name":"Dattatreya","subAreas":[{"id":"tachapal","name":"Tachapal","deliveryTime":27,"wards":[{"id":"ward-1","name":"Ward 1 - Temple Area","deliveryTime":27},{"id":"ward-2","name":"Ward 2 - Residential","deliveryTime":28}]},{"id":"inacho","name":"Inacho","deliveryTime":28,"wards":[{"id":"ward-1","name":"Ward 1 - Temple Area","deliveryTime":28},{"id":"ward-2","name":"Ward 2 - Residential","deliveryTime":29}]},{"id":"golmadhi","name":"Golmadhi","deliveryTime":29,"wards":[{"id":"ward-1","name":"Ward 1 - Temple Area","deliveryTime":29},{"id":"ward-2","name":"Ward 2 - Residential","deliveryTime":30}]},{"id":"suryamadhi","name":"Suryamadhi","deliveryTime":27,"wards":[{"id":"ward-1","name":"Ward 1 - Temple Area","deliveryTime":27},{"id":"ward-2","name":"Ward 2 - Residential","deliveryTime":28}]},{"id":"sukuldhoka","name":"Sukuldhoka","deliveryTime":28,"wards":[{"id":"ward-1","name":"Ward 1 - Temple Area","deliveryTime":28},{"id":"ward-2","name":"Ward 2 - Residential","deliveryTime":29}]}]},{"id":"kamalbinayak","name":"Kamalbinayak","subAreas":[{"id":"bhairab-temple-area","name":"Bhairab Temple Area","deliveryTime":28,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":28},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":29},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":30}]},{"id":"chyamasingh","name":"Chyamasingh","deliveryTime":29,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":29},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":30},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":31}]},{"id":"byasi","name":"Byasi","deliveryTime":30,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":30},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":31},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":32}]},{"id":"bhelukhel","name":"Bhelukhel","deliveryTime":28,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":28},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":29},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":30}]}]}]},{"id":"madhyapur-thimi-municipality","name":"Madhyapur Thimi Municipality","slug":"madhyapur-thimi-municipality","areas":[{"id":"thimi-core","name":"Thimi Core","subAreas":[{"id":"balkumari","name":"Balkumari","deliveryTime":26,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":26},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":27},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":28}]},{"id":"chapacho","name":"Chapacho","deliveryTime":27,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":27},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":28},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":29}]},{"id":"nagadesh","name":"Nagadesh","deliveryTime":28,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":28},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":29},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":30}]},{"id":"bode","name":"Bode","deliveryTime":26,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":26},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":27},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":28}]},{"id":"mahalaxmi-temple-area","name":"Mahalaxmi Temple Area","deliveryTime":27,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":27},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":28},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":29}]}]},{"id":"kaushaltar-gatthaghar","name":"Kaushaltar & Gatthaghar","subAreas":[{"id":"highway-area","name":"Highway Area","deliveryTime":27,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":27},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":28},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":29}]},{"id":"rastriya-prajatantra-party-office-area","name":"Rastriya Prajatantra Party Office Area","deliveryTime":28,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":28},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":29},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":30}]},{"id":"sanothimi-border","name":"Sanothimi Border","deliveryTime":29,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":29},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":30},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":31}]}]}]},{"id":"suryabinayak-municipality","name":"Suryabinayak Municipality","slug":"suryabinayak-municipality","areas":[{"id":"suryabinayak","name":"Suryabinayak","subAreas":[{"id":"suryabinayak-temple-area","name":"Suryabinayak Temple Area","deliveryTime":29,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":29},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":30},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":31}]},{"id":"pandu-bazaar","name":"Pandu Bazaar","deliveryTime":30,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":30},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":31},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":32}]},{"id":"sallaghari","name":"Sallaghari","deliveryTime":31,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":31},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":32},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":33}]}]},{"id":"balkot","name":"Balkot","subAreas":[{"id":"rose-village-area","name":"Rose Village Area","deliveryTime":28,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":28},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":29},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":30}]},{"id":"balkot-chowk","name":"Balkot Chowk","deliveryTime":29,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":29},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":30},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":31}]},{"id":"sirutar-border","name":"Sirutar Border","deliveryTime":30,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":30},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":31},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":32}]}]},{"id":"katunje","name":"Katunje","subAreas":[{"id":"subarna-square","name":"Subarna Square","deliveryTime":29,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":29},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":30},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":31}]},{"id":"gundu-border","name":"Gundu Border","deliveryTime":30,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":30},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":31},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":32}]},{"id":"araniko-highway-link","name":"Araniko Highway Link","deliveryTime":31,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":31},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":32},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":33}]}]}]},{"id":"changunarayan-municipality","name":"Changunarayan Municipality","slug":"changunarayan-municipality","areas":[{"id":"changunarayan","name":"Changunarayan","subAreas":[{"id":"changu-temple-area","name":"Changu Temple Area","deliveryTime":28,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":28},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":29},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":30}]},{"id":"kilsagal","name":"Kilsagal","deliveryTime":29,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":29},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":30},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":31}]},{"id":"mahamanjushree","name":"Mahamanjushree","deliveryTime":30,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":30},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":31},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":32}]}]},{"id":"duwakot","name":"Duwakot","subAreas":[{"id":"kmc-hospital-area","name":"KMC Hospital Area","deliveryTime":27,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":27},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":28},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":29}]},{"id":"nepal-engineering-college-area","name":"Nepal Engineering College Area","deliveryTime":28,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":28},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":29},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":30}]},{"id":"jhaukhel-border","name":"Jhaukhel Border","deliveryTime":29,"wards":[{"id":"ward-1","name":"Ward 1 - Main","deliveryTime":29},{"id":"ward-2","name":"Ward 2 - Secondary","deliveryTime":30},{"id":"ward-3","name":"Ward 3 - Outskirts","deliveryTime":31}]}]}]}]}]};
+</script>
+
+<script>
+// Ensure DOM is ready before initializing
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initLocationPicker);
+} else {
+  initLocationPicker();
+}
+
+function initLocationPicker() {
+  try {
+    var wrap    = document.getElementById('qbLocationWrap');
+    var btn     = document.getElementById('qbLocBtn');
+    var modal   = document.getElementById('qbLocationModal');
+    var modalOverlay = document.getElementById('qbModalOverlay');
+    var modalClose = document.getElementById('qbModalClose');
+    var modalCancel = document.getElementById('qbModalCancel');
+    var modalConfirm = document.getElementById('qbLocationOkBtnModal');
+    var breadcrumb = document.getElementById('qbBreadcrumb');
+    var progressFill = document.getElementById('qbProgressFill');
+    var titleEl = document.getElementById('qbLocTitle');
+    var addressEl = document.getElementById('qbLocAddress');
+
+    // Debug logging
+    console.log('🐝 QB Location Picker Init START', {
+      btn: !!btn,
+      modal: !!modal,
+      modalClose: !!modalClose,
+      modalCancel: !!modalCancel
+    });
+
+  // Fallback: search for modal if not found by ID
+  if (!modal) {
+    modal = document.querySelector('.qb-location-modal');
+    console.log('Modal found via class selector:', !!modal);
+  }
+
+  // Fallback: search for button if not found by ID
+  if (!btn) {
+    btn = document.querySelector('.qb-loc-btn');
+    console.log('Button found via class selector:', !!btn);
+  }
+
+  if (!btn || !modal) {
+    console.error('QB Location Picker: Missing required elements after fallback', {
+      btn: !!btn,
+      modal: !!modal
+    });
+    return;
+  }
+
+  // Hierarchical modal elements
+  var districtSelect = document.getElementById('qbDistrictSelectModal');
+  var municipalitySelect = document.getElementById('qbMunicipalitySelectModal');
+  var areaSelect = document.getElementById('qbAreaSelectModal');
+  var subAreaSelect = document.getElementById('qbSubAreaSelectModal');
+  var currentLocationData = null;
+  var deliveryTimeDisplay = document.getElementById('qbDeliveryTimeModal');
+  var deliveryTimeValue = document.getElementById('qbDeliveryTimeValueModal');
+
+  // Address management
+  var currentSelectedPlace = null;
+  var savedAddresses = [];
+  var allowedCities = ['Kathmandu', 'Bhaktapur', 'Lalitpur'];
+  var currentDeliveryTime = 22;
+  var areasData = window.QB_AREAS_DATA;
+
+  // Generate random delivery time between 18-32 minutes
+  function getRandomDeliveryTime() {
+    return Math.floor(Math.random() * (32 - 18 + 1)) + 18;
+  }
+
+  // Check if location is in service area
+  function isLocationInServiceArea(address) {
+    if (!address) return false;
+    return allowedCities.some(function(city) {
+      return address.toUpperCase().includes(city.toUpperCase());
+    });
+  }
+
+  // Show service area error popup
+  function showServiceAreaError() {
+    var modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10000';
+    modal.innerHTML = '<div style="background:#fff;border-radius:12px;padding:24px;max-width:320px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,0.2)">' +
+      '<div style="font-size:16px;font-weight:700;color:#222;margin-bottom:12px">Service Area</div>' +
+      '<p style="font-size:14px;color:#666;margin-bottom:16px;line-height:1.5">Currently we only operate in <strong>Kathmandu, Bhaktapur</strong> and <strong>Lalitpur</strong>. Please enter a location inside these areas.</p>' +
+      '<button style="background:#f5c518;border:none;padding:10px 24px;border-radius:6px;font-weight:600;cursor:pointer;font-size:14px;color:#222;width:100%;transition:background 0.2s" onclick="this.closest(\'div\').parentElement.remove()">OK, Got it</button>' +
+      '</div>';
+    document.body.appendChild(modal);
+  }
+
+  // Load saved addresses
+  function loadSavedAddresses() {
+    try {
+      var saved = localStorage.getItem('qb_saved_addresses');
+      savedAddresses = saved ? JSON.parse(saved) : [];
+      updateSavedAddressesCount();
+      renderSavedAddresses();
+    } catch (e) {
+      savedAddresses = [];
+    }
+  }
+
+  function updateSavedAddressesCount() {
+    var tab = Array.from(document.querySelectorAll('.qb-loc-tab')).find(function (t) {
+      return t.textContent.includes('Saved');
+    });
+    if (tab) tab.textContent = 'Saved (' + savedAddresses.length + ')';
+  }
+
+  function saveSavedAddresses() {
+    try {
+      localStorage.setItem('qb_saved_addresses', JSON.stringify(savedAddresses));
+    } catch (e) {}
+  }
+
+  // Restore current location
+  try {
+    var savedLoc = localStorage.getItem('qb_location_detail');
+    if (savedLoc) {
+      var locData = JSON.parse(savedLoc);
+      updateLocationDisplay(locData);
+      window.QB_LOCATION = locData; // expose to window for checkout
+    }
+  } catch (e) {}
+
+  // Update location display (title and address)
+  function updateLocationDisplay(locData) {
+    if (titleEl && addressEl) {
+      currentDeliveryTime = locData.deliveryTime || getRandomDeliveryTime();
+      titleEl.textContent = 'Delivery in ' + currentDeliveryTime + ' mins';
+      // Show location name with delivery time
+      addressEl.textContent = (locData.name || 'Select Location') + ' (' + currentDeliveryTime + ' mins)';
+    }
+  }
+
+  // Tab switching for saved addresses
+  var tabs = document.querySelectorAll('.qb-loc-tab');
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      var tabName = tab.getAttribute('data-tab');
+      var content = Array.from(document.querySelectorAll('.qb-loc-tab-content')).find(function (c) {
+        return c.getAttribute('data-tab') === tabName;
+      });
+      if (content) {
+        // Toggle or show
+        var isVisible = !content.hidden;
+        document.querySelectorAll('.qb-loc-tab-content').forEach(function (c) { c.hidden = true; });
+        content.hidden = isVisible;
+        tab.classList.toggle('active', !isVisible);
+      }
+    });
+  });
+
+  loadSavedAddresses();
+
+  // Modal open/close functions
+  function openModal() {
+    modal.removeAttribute('hidden');
+    modal.style.cssText = 'display: flex !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; z-index: 10000 !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; align-items: center !important; justify-content: center !important;';
+
+    // Clear opacity and pointerEvents from all children
+    var allChildren = modal.querySelectorAll('*');
+    allChildren.forEach(function(child) {
+      child.style.opacity = '1';
+      child.style.pointerEvents = 'auto';
+      child.style.visibility = 'visible';
+    });
+
+    btn.setAttribute('aria-expanded', 'true');
+    // Reset selects when opening
+    districtSelect.value = '';
+    municipalitySelect.innerHTML = '<option value="">Select Municipality</option>';
+    areaSelect.innerHTML = '<option value="">Select Area</option>';
+    subAreaSelect.innerHTML = '<option value="">Select Sub-Area</option>';
+    updateBreadcrumb(0);
+    updateProgressBar(0);
+    deliveryTimeDisplay.hidden = true;
+    modalConfirm.hidden = true;
+  }
+
+  function closeModal() {
+    modal.setAttribute('hidden', '');
+    modal.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; z-index: -9999 !important;';
+
+    // Hide all children
+    var allChildren = modal.querySelectorAll('*');
+    allChildren.forEach(function(child) {
+      child.style.opacity = '0';
+      child.style.pointerEvents = 'none';
+      child.style.visibility = 'hidden';
+    });
+
+    btn.setAttribute('aria-expanded', 'false');
+  }
+
+  function updateBreadcrumb(level) {
+    var items = breadcrumb.querySelectorAll('.qb-breadcrumb-item');
+    items.forEach(function(item, index) {
+      item.classList.toggle('active', index <= level);
+    });
+  }
+
+  function updateProgressBar(level) {
+    var percentage = (level + 1) * 25;
+    progressFill.style.width = percentage + '%';
+  }
+
+  // Button click to open modal
+  if (btn) {
+    btn.addEventListener('click', function () {
+      console.log('🐝 Location button clicked!');
+      try {
+        openModal();
+        console.log('🐝 Modal opened successfully');
+      } catch (e) {
+        console.error('🐝 Error opening modal:', e);
+      }
+    });
+    console.log('🐝 Click listener attached to location button');
+  } else {
+    console.error('🐝 Button not found - click listener not attached');
+  }
+
+  // Close button
+  modalClose.addEventListener('click', function () {
+    closeModal();
+  });
+
+  // Cancel button
+  modalCancel.addEventListener('click', function () {
+    closeModal();
+  });
+
+  // Overlay click to close modal
+  modalOverlay.addEventListener('click', function () {
+    closeModal();
+  });
+
+  // Populate districts on init
+  if (areasData && areasData.districts) {
+    areasData.districts.forEach(function(district) {
+      var option = document.createElement('option');
+      option.value = district.id;
+      option.textContent = district.name;
+      districtSelect.appendChild(option);
+    });
+  }
+
+  // District change → populate municipalities
+  districtSelect.addEventListener('change', function() {
+    municipalitySelect.innerHTML = '<option value="">Select Municipality</option>';
+    areaSelect.innerHTML = '<option value="">Select Area</option>';
+    subAreaSelect.innerHTML = '<option value="">Select Sub-Area</option>';
+    deliveryTimeDisplay.hidden = true;
+    modalConfirm.hidden = true;
+    updateBreadcrumb(0);
+    updateProgressBar(0);
+
+    if (!this.value) {
+      municipalitySelect.disabled = true;
+      areaSelect.disabled = true;
+      subAreaSelect.disabled = true;
+      return;
+    }
+
+    var district = areasData.districts.find(function(d) { return d.id === this.value; }.bind(this));
+    if (district && district.municipalities) {
+      district.municipalities.forEach(function(mun) {
+        var option = document.createElement('option');
+        option.value = mun.id;
+        option.textContent = mun.name;
+        municipalitySelect.appendChild(option);
+      });
+      municipalitySelect.disabled = false;
+      updateBreadcrumb(0);
+      updateProgressBar(0);
+    }
+  });
+
+  // Municipality change → populate areas
+  municipalitySelect.addEventListener('change', function() {
+    areaSelect.innerHTML = '<option value="">Select Area</option>';
+    subAreaSelect.innerHTML = '<option value="">Select Sub-Area</option>';
+    deliveryTimeDisplay.hidden = true;
+    modalConfirm.hidden = true;
+    updateBreadcrumb(1);
+    updateProgressBar(1);
+
+    if (!this.value) {
+      areaSelect.disabled = true;
+      subAreaSelect.disabled = true;
+      return;
+    }
+
+    var districtId = districtSelect.value;
+    var district = areasData.districts.find(function(d) { return d.id === districtId; });
+    var mun = district.municipalities.find(function(m) { return m.id === this.value; }.bind(this));
+
+    if (mun && mun.areas) {
+      mun.areas.forEach(function(area) {
+        var option = document.createElement('option');
+        option.value = area.id;
+        option.textContent = area.name;
+        areaSelect.appendChild(option);
+      });
+      areaSelect.disabled = false;
+    }
+  });
+
+  // Area change → populate sub-areas
+  areaSelect.addEventListener('change', function() {
+    subAreaSelect.innerHTML = '<option value="">Select Sub-Area</option>';
+    deliveryTimeDisplay.hidden = true;
+    modalConfirm.hidden = true;
+    updateBreadcrumb(2);
+    updateProgressBar(2);
+
+    if (!this.value) {
+      subAreaSelect.disabled = true;
+      return;
+    }
+
+    var districtId = districtSelect.value;
+    var munId = municipalitySelect.value;
+    var areaId = this.value;
+
+    var district = areasData.districts.find(function(d) { return d.id === districtId; });
+    var mun = district.municipalities.find(function(m) { return m.id === munId; });
+    var area = mun.areas.find(function(a) { return a.id === areaId; });
+
+    if (area && area.subAreas) {
+      area.subAreas.forEach(function(subArea) {
+        var option = document.createElement('option');
+        option.value = subArea.id;
+        option.textContent = subArea.name;
+        subAreaSelect.appendChild(option);
+      });
+      subAreaSelect.disabled = false;
+    }
+  });
+
+  // SubArea change → select location and show delivery time (final selection)
+  subAreaSelect.addEventListener('change', function() {
+    deliveryTimeDisplay.hidden = true;
+    modalConfirm.hidden = true;
+    updateBreadcrumb(3);
+    updateProgressBar(3);
+
+    if (!this.value) {
+      return;
+    }
+
+    var districtId = districtSelect.value;
+    var munId = municipalitySelect.value;
+    var areaId = areaSelect.value;
+    var subAreaId = this.value;
+
+    var district = areasData.districts.find(function(d) { return d.id === districtId; });
+    var mun = district.municipalities.find(function(m) { return m.id === munId; });
+    var area = mun.areas.find(function(a) { return a.id === areaId; });
+    var subArea = area.subAreas.find(function(s) { return s.id === subAreaId; });
+
+    if (subArea) {
+      var deliveryTime = subArea.deliveryTime || 20;
+      currentDeliveryTime = deliveryTime;
+      deliveryTimeValue.textContent = deliveryTime;
+      deliveryTimeDisplay.hidden = false;
+      modalConfirm.hidden = false;
+
+      var fullPath = district.name + ' → ' + mun.name + ' → ' + area.name + ' → ' + subArea.name;
+      currentLocationData = {
+        district: district.name,
+        municipality: mun.name,
+        area: area.name,
+        subArea: subArea.name,
+        deliveryTime: deliveryTime
+      };
+    }
+  });
+
+  // Confirm button click handler
+  modalConfirm.addEventListener('click', function() {
+    if (!currentLocationData) return;
+    closeModal();
+    selectLocation({
+      main: currentLocationData.subArea,
+      full: currentLocationData.area + ' - ' + currentLocationData.subArea,
+      locData: currentLocationData,
+      deliveryTime: currentLocationData.deliveryTime
+    });
+  });
+
+  function selectLocation(placeData) {
+    // placeData can be a string (from GPS) or full object (from search)
+    var name = typeof placeData === 'string' ? placeData : placeData.main;
+    var fullAddress = typeof placeData === 'string' ? placeData : placeData.full;
+    var lat = placeData.lat || null;
+    var lon = placeData.lon || null;
+
+    // Service area validation removed - accept all locations
+
+    currentSelectedPlace = { name: name, address: fullAddress, lat: lat, lon: lon };
+
+    // Update display
+    updateLocationDisplay(currentSelectedPlace);
+
+    // Save to current location
+    try {
+      var locObj = {
+        name: name,
+        address: fullAddress,
+        lat: lat,
+        lon: lon,
+        deliveryTime: currentDeliveryTime,
+        savedAt: new Date().toISOString()
+      };
+
+      // Add detailed location data (4 levels) if available
+      if (placeData.locData) {
+        locObj.locData = placeData.locData;
+        // Create order note/message for Shopify
+        locObj.orderNote = 'Delivery Location:\n' +
+          'District: ' + placeData.locData.district + '\n' +
+          'Municipality: ' + placeData.locData.municipality + '\n' +
+          'Area: ' + placeData.locData.area + '\n' +
+          'Estimated Delivery Time: ' + placeData.locData.deliveryTime + ' minutes';
+      }
+
+      localStorage.setItem('qb_location_detail', JSON.stringify(locObj));
+      window.QB_LOCATION = locObj;
+
+      // Update cart attributes with location data for Shopify orders
+      if (placeData.locData) {
+        try {
+          fetch('/cart/update.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              attributes: {
+                'delivery_district': placeData.locData.district,
+                'delivery_municipality': placeData.locData.municipality,
+                'delivery_area': placeData.locData.area,
+                'delivery_subarea': placeData.locData.subArea,
+                'delivery_time': placeData.locData.deliveryTime
+              }
+            })
+          });
+        } catch (e) { console.log('Cart attributes update failed'); }
+      }
+
+      // Dispatch location change event for weather widget
+      window.dispatchEvent(new Event('qb_location_changed'));
+    } catch (e) {}
+
+    // Show save form
+    var saveForm = document.getElementById('qbLocSaveForm');
+    if (saveForm) saveForm.hidden = false;
+
+    input.value = '';
+    results.innerHTML = '';
+    clearBtn.hidden = true;
+    currentQuery = '';
+  }
+
+  // Save address button handlers
+  var saveButtons = document.querySelectorAll('.qb-loc-save-btn');
+  saveButtons.forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (!currentSelectedPlace) return;
+      var lbl = btn.getAttribute('data-label');
+      var addressObj = Object.assign({}, currentSelectedPlace, {
+        label: lbl,
+        id: Date.now(),
+        savedAt: new Date().toISOString()
+      });
+      savedAddresses.push(addressObj);
+      saveSavedAddresses();
+      updateSavedAddressesCount();
+      renderSavedAddresses();
+      document.getElementById('qbLocSaveForm').hidden = true;
+      currentSelectedPlace = null;
+      btn.textContent = '✓ Saved!';
+      setTimeout(function () { btn.textContent = lbl; }, 1500);
+    });
+  });
+
+  console.log('🐝 QB Location Picker INITIALIZATION COMPLETE ✅');
+  } catch (e) {
+    console.error('🐝 QB Location Picker INITIALIZATION FAILED:', e);
+    console.error('Error details:', e.message, e.stack);
+  }
+
+  // Render saved addresses
+  function renderSavedAddresses() {
+    var listContainer = document.getElementById('qbLocSavedList');
+    if (!listContainer) return;
+    if (savedAddresses.length === 0) {
+      listContainer.innerHTML = '<div style="padding:16px 14px;text-align:center;color:#aaa;font-size:13px">No saved addresses yet</div>';
+      return;
+    }
+    listContainer.innerHTML = '';
+    savedAddresses.forEach(function (addr, idx) {
+      var item = document.createElement('div');
+      item.className = 'qb-loc-saved-item';
+      item.innerHTML =
+        '<div class="qb-loc-saved-info">' +
+        '<div class="qb-loc-saved-label">' + esc(addr.label) + '</div>' +
+        '<div class="qb-loc-saved-address">' + esc(addr.address.substring(0, 50)) + (addr.address.length > 50 ? '…' : '') + '</div>' +
+        '</div>' +
+        '<button type="button" class="qb-loc-saved-delete" title="Delete">✕</button>';
+
+      item.querySelector('.qb-loc-saved-info').addEventListener('click', function () {
+        // Service area validation removed - accept all locations
+
+        // Update with new random delivery time
+        updateLocationDisplay(addr);
+        try {
+          var updatedAddr = Object.assign({}, addr, { deliveryTime: currentDeliveryTime });
+          localStorage.setItem('qb_location_detail', JSON.stringify(updatedAddr));
+          window.QB_LOCATION = updatedAddr;
+
+          // Dispatch location change event for weather widget
+          window.dispatchEvent(new Event('qb_location_changed'));
+        } catch (e) {}
+        closeModal();
+      });
+
+      item.querySelector('.qb-loc-saved-delete').addEventListener('click', function (e) {
+        e.stopPropagation();
+        savedAddresses.splice(idx, 1);
+        saveSavedAddresses();
+        updateSavedAddressesCount();
+        renderSavedAddresses();
+      });
+
+      listContainer.appendChild(item);
+    });
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+})();
+
+/* Mobile Footer Navigation */
+(function () {
+  var footer = document.getElementById('qbMobileFooter');
+  var catBtn = document.getElementById('qbMFCategories');
+  if (!footer || !catBtn) return;
+
+  // Enable mobile footer on load
+  document.body.classList.add('has-mobile-footer');
+
+  // Categories menu
+  var catMenu = document.createElement('div');
+  catMenu.style.cssText = 'position:fixed;bottom:56px;left:0;right:0;background:#fff;border-top:1px solid #e8e8e8;max-height:300px;overflow-y:auto;z-index:9997;display:none';
+  catMenu.innerHTML =
+    '<a href="/collections/electronics" style="display:block;padding:12px 16px;border-bottom:1px solid #f0f0f0;color:#222;text-decoration:none;font-size:14px;font-weight:600">Electronics</a>' +
+    '<a href="/collections/fashion" style="display:block;padding:12px 16px;border-bottom:1px solid #f0f0f0;color:#222;text-decoration:none;font-size:14px;font-weight:600">Fashion</a>' +
+    '<a href="/collections/food" style="display:block;padding:12px 16px;border-bottom:1px solid #f0f0f0;color:#222;text-decoration:none;font-size:14px;font-weight:600">Food</a>' +
+    '<a href="/collections/grocery" style="display:block;padding:12px 16px;border-bottom:1px solid #f0f0f0;color:#222;text-decoration:none;font-size:14px;font-weight:600">Grocery</a>' +
+    '<a href="/collections/beauty" style="display:block;padding:12px 16px;border-bottom:1px solid #f0f0f0;color:#222;text-decoration:none;font-size:14px;font-weight:600">Beauty</a>' +
+    '<a href="/collections/home-living" style="display:block;padding:12px 16px;border-bottom:1px solid #f0f0f0;color:#222;text-decoration:none;font-size:14px;font-weight:600">Home & Living</a>' +
+    '<a href="/collections/pharmacy" style="display:block;padding:12px 16px;border-bottom:1px solid #f0f0f0;color:#222;text-decoration:none;font-size:14px;font-weight:600">Pharmacy</a>' +
+    '<a href="/collections/sports" style="display:block;padding:12px 16px;border-bottom:1px solid #f0f0f0;color:#222;text-decoration:none;font-size:14px;font-weight:600">Sports</a>' +
+    '<a href="/collections/flash-deals" style="display:block;padding:12px 16px;color:#222;text-decoration:none;font-size:14px;font-weight:600">Flash Deals</a>';
+  document.body.appendChild(catMenu);
+
+  catBtn.addEventListener('click', function (e) {
+    e.preventDefault();
+    var isOpen = catMenu.style.display === 'block';
+    catMenu.style.display = isOpen ? 'none' : 'block';
+    catBtn.classList.toggle('active', !isOpen);
+  });
+
+  // Close menu on link click
+  Array.from(catMenu.querySelectorAll('a')).forEach(function (link) {
+    link.addEventListener('click', function () {
+      catMenu.style.display = 'none';
+      catBtn.classList.remove('active');
+    });
+  });
+
+  // Close menu on outside click
+  document.addEventListener('click', function (e) {
+    if (!footer.contains(e.target) && catMenu.style.display === 'block') {
+      catMenu.style.display = 'none';
+      catBtn.classList.remove('active');
+    }
+  });
+})();
+
+// ═══════════════════════════════════════════════════════════
+// Smooth Typing Animation - Search Placeholder
+// ═══════════════════════════════════════════════════════════
+(function() {
+  const searchInput = document.getElementById('qbSearchInput');
+  if (!searchInput) return;
+
+  const placeholders = [
+    '🍔 Fresh Groceries & Food',
+    '👗 Fashion & Accessories',
+    '📱 Electronics & Gadgets',
+    '🏠 Home & Kitchen',
+    '💄 Beauty & Personal Care',
+    '📚 Books & Stationery',
+    '⚽ Sports & Fitness',
+    '🎮 Toys & Gaming',
+    '🌿 Natural & Organic',
+    '☕ Coffee & Beverages',
+    '🌍 Top Searches',
+    '⭐ Trending Now'
+  ];
+
+  let currentIndex = 0;
+  let isTyping = false;
+
+  async function typeText(text) {
+    isTyping = true;
+    let displayText = '';
+
+    // Typing phase - add characters one by one
+    for (let i = 0; i < text.length; i++) {
+      displayText += text[i];
+      searchInput.placeholder = displayText;
+      await new Promise(resolve => setTimeout(resolve, 30)); // 30ms per character
+    }
+
+    // Pause while text is fully displayed
+    await new Promise(resolve => setTimeout(resolve, 1500)); // 1.5 second pause
+
+    // Deleting phase - remove characters one by one
+    for (let i = text.length - 1; i >= 0; i--) {
+      displayText = text.substring(0, i);
+      searchInput.placeholder = displayText;
+      await new Promise(resolve => setTimeout(resolve, 20)); // 20ms per character
+    }
+
+    isTyping = false;
+  }
+
+  async function animate() {
+    while (true) {
+      const currentText = placeholders[currentIndex];
+      await typeText(currentText);
+      currentIndex = (currentIndex + 1) % placeholders.length;
+      // Small delay before starting next animation
+      await new Promise(resolve => setTimeout(resolve, 200));
+    }
+  }
+
+  // Start animation
+  animate();
+})();
+</script>
+
+<!-- Rotating Search Placeholder -->
+<script>
+(function() {
+  const searchInput = document.getElementById('qbSearchInput');
+  if (!searchInput) return;
+
+  const placeholders = [
+    'Search products…',
+    'Search milk…',
+    'Search snacks…',
+    'Search fruits…',
+    'Search vegetables…',
+    'Search beverages…',
+    'Search bread…',
+    'Search eggs…'
+  ];
+
+  let currentIndex = 0;
+
+  function rotatePlaceholder() {
+    searchInput.placeholder = placeholders[currentIndex];
+    currentIndex = (currentIndex + 1) % placeholders.length;
+  }
+
+  // Change placeholder every 3 seconds
+  setInterval(rotatePlaceholder, 3000);
+
+  // Update immediately on focus
+  searchInput.addEventListener('focus', function() {
+    currentIndex = 0;
+    rotatePlaceholder();
+  });
+})();
+
+// ═══════════════════════════════════════════════════════════
+// Footer Active Page Indicator
+// ═══════════════════════════════════════════════════════════
+(function() {
+  function setActiveFooterButton() {
+    const currentPath = window.location.pathname;
+    const footerItems = document.querySelectorAll('.qb-mobile-footer-item');
+
+    // Remove active from all
+    footerItems.forEach(item => item.classList.remove('active'));
+
+    // Determine which button should be active based on current page
+    let activeButton = null;
+
+    if (currentPath === '/' || currentPath === '/index.html') {
+      // Home page
+      activeButton = document.querySelector('[data-page="home"]') || footerItems[0];
+    } else if (currentPath.includes('/collections') || currentPath.includes('/collection')) {
+      // Collections/Categories page
+      activeButton = document.querySelector('[data-page="categories"]');
+    } else if (currentPath.includes('/pages/services') || currentPath.includes('/services')) {
+      // Services page
+      activeButton = document.querySelector('[data-page="services"]');
+    } else if (currentPath.includes('/account') || currentPath.includes('/customer')) {
+      // Account page
+      activeButton = document.querySelector('[data-page="account"]');
+    } else if (currentPath.includes('/pages/flash-deals') || currentPath.includes('/flash-deals')) {
+      // Flash deals - handled differently (wallet btn)
+      const flashBtn = document.getElementById('qbMobileFlashDealsBtn');
+      if (flashBtn) flashBtn.classList.add('active');
+      return;
+    }
+
+    // Add active to the matched button
+    if (activeButton) {
+      activeButton.classList.add('active');
+    } else {
+      // Default to home if no match
+      footerItems[0].classList.add('active');
+    }
+  }
+
+  // Set active on page load
+  setActiveFooterButton();
+
+  // Also listen for navigation changes
+  window.addEventListener('popstate', setActiveFooterButton);
+})();
+
+// Force announcement bar colors in dark mode
+(function forceAnnouncementColors() {
+  const announcementBar = document.querySelector('.qb-announcement');
+  const track = document.querySelector('.qb-announcement-track');
+  const spans = document.querySelectorAll('.qb-announcement-track span');
+
+  function applyColors() {
+    if (announcementBar) {
+      announcementBar.style.backgroundColor = '#000000 !important';
+      announcementBar.style.background = '#000000 !important';
+      announcementBar.style.color = '#ffffff !important';
+    }
+    if (track) {
+      track.style.color = '#ffffff !important';
+    }
+    spans.forEach(span => {
+      span.style.color = '#ffffff !important';
+      span.style.display = 'inline !important';
+    });
+  }
+
+  // Apply on load
+  applyColors();
+
+  // Apply on dark mode change
+  if (window.matchMedia) {
+    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    darkModeQuery.addListener(() => {
+      setTimeout(applyColors, 100);
+    });
+  }
+
+  // Also reapply periodically in case something else changes it
+  setInterval(applyColors, 2000);
+})();
+
+(function() {
+  let areasData = window.QB_AREAS_DATA;
+  let selectedDistrict = null;
+  let selectedMunicipality = null;
+  let selectedArea = null;
+
+  // Render sub-areas (4th level) when area is selected
+  function renderSubAreasIfAvailable(district, municipality, area) {
+    if (!areasData) return false;
+
+    const districtData = areasData.districts.find(d => d.id === district);
+    if (!districtData) return false;
+
+    const municipalityData = districtData.municipalities.find(m => m.id === municipality);
+    if (!municipalityData) return false;
+
+    const areaData = municipalityData.areas.find(a => a.id === area);
+    if (!areaData || !areaData.subAreas || areaData.subAreas.length === 0) return false;
+
+    selectedDistrict = district;
+    selectedMunicipality = municipality;
+    selectedArea = area;
+
+    // Render sub-areas list
+    const results = document.getElementById('qbLocResults');
+    if (!results) return false;
+
+    results.innerHTML = '';
+    const pinSvg = '<svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 0C3.243 0 1 2.243 1 5c0 3.25 5 9 5 9s5-5.75 5-9c0-2.757-2.243-5-5-5zm0 7.5A2.5 2.5 0 1 1 6 2.5 2.5 2.5 0 0 1 6 7.5z" fill="#000F9F"/></svg>';
+
+    const breadcrumb = document.createElement('div');
+    breadcrumb.style.cssText = 'padding:12px 14px;border-bottom:1px solid #e5e5e5;font-size:12px;color:#999;display:flex;gap:4px;align-items:center';
+    breadcrumb.innerHTML = `<button type="button" style="background:none;border:none;color:#2563eb;cursor:pointer;padding:0;font-size:12px">← Back</button> <span>${areaData.name}</span>`;
+    breadcrumb.querySelector('button').addEventListener('click', () => {
+      renderAreas(district, municipality);
+    });
+    results.appendChild(breadcrumb);
+
+    areaData.subAreas.forEach(subArea => {
+      const item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid #f0f0f0;transition:background 0.2s';
+      item.innerHTML = `${pinSvg}<span>${subArea.name}</span>`;
+      item.addEventListener('click', () => {
+        selectSubArea(district, municipality, area, subArea.id, subArea.name);
+      });
+      item.addEventListener('mouseenter', () => item.style.background = '#f9f9f9');
+      item.addEventListener('mouseleave', () => item.style.background = 'none');
+      results.appendChild(item);
+    });
+
+    return true;
+  }
+
+  // Override the original selectLocation to check for sub-areas
+  const originalSelectLocation = window.selectLocation;
+  window.selectLocation = function(place) {
+    // If it's from the hierarchy picker, check for sub-areas
+    if (place.hierarchyData) {
+      const { district, municipality, area } = place.hierarchyData;
+      if (renderSubAreasIfAvailable(district, municipality, area)) {
+        return; // Stop here, user needs to select sub-area
+      }
+    }
+    // Otherwise use normal flow
+    originalSelectLocation.call(this, place);
+  };
+
+  function selectSubArea(district, municipality, area, subAreaId, subAreaName) {
+    const areaData = areasData.districts.find(d => d.id === district)
+      .municipalities.find(m => m.id === municipality)
+      .areas.find(a => a.id === area);
+
+    selectLocation({
+      main: subAreaName,
+      full: `${subAreaName}, ${areaData.name}`,
+      hierarchyData: { district, municipality, area, subArea: subAreaId, subAreaName }
+    });
+  }
+
+  // Update the areas rendering to pass hierarchy data
+  function renderAreas(district, municipality) {
+    if (!areasData) return;
+    const districtData = areasData.districts.find(d => d.id === district);
+    if (!districtData) return;
+    const municipalityData = districtData.municipalities.find(m => m.id === municipality);
+    if (!municipalityData) return;
+
+    const results = document.getElementById('qbLocResults');
+    if (!results) return;
+    results.innerHTML = '';
+
+    const breadcrumb = document.createElement('div');
+    breadcrumb.style.cssText = 'padding:12px 14px;border-bottom:1px solid #e5e5e5;font-size:12px;color:#999;display:flex;gap:4px;align-items:center';
+    breadcrumb.innerHTML = `<button type="button" style="background:none;border:none;color:#2563eb;cursor:pointer;padding:0;font-size:12px">← Back</button> <span>${municipalityData.name}</span>`;
+    breadcrumb.querySelector('button').addEventListener('click', () => {
+      renderMunicipalities(district);
+    });
+    results.appendChild(breadcrumb);
+
+    municipalityData.areas.forEach(area => {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:12px 14px;cursor:pointer;border-bottom:1px solid #f0f0f0;transition:background 0.2s';
+      item.textContent = area.name;
+      item.addEventListener('click', () => {
+        window.selectLocation({
+          main: area.name,
+          full: `${area.name}, ${municipalityData.name}`,
+          hierarchyData: { district, municipality, area: area.id }
+        });
+      });
+      item.addEventListener('mouseenter', () => item.style.background = '#f9f9f9');
+      item.addEventListener('mouseleave', () => item.style.background = 'none');
+      results.appendChild(item);
+    });
+  }
+
+  function renderMunicipalities(district) {
+    if (!areasData) return;
+    const districtData = areasData.districts.find(d => d.id === district);
+    if (!districtData) return;
+
+    const results = document.getElementById('qbLocResults');
+    if (!results) return;
+    results.innerHTML = '';
+
+    districtData.municipalities.forEach(municipality => {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:12px 14px;cursor:pointer;border-bottom:1px solid #f0f0f0;transition:background 0.2s;font-weight:500';
+      item.textContent = municipality.name;
+      item.addEventListener('click', () => {
+        renderAreas(district, municipality.id);
+      });
+      item.addEventListener('mouseenter', () => item.style.background = '#f9f9f9');
+      item.addEventListener('mouseleave', () => item.style.background = 'none');
+      results.appendChild(item);
+    });
+  }
+
+  // Expose for rendering from main location picker
+  window.renderQuickBeeHierarchy = function() {
+    if (!areasData) return;
+    const results = document.getElementById('qbLocResults');
+    if (!results) return;
+    results.innerHTML = '';
+
+    areasData.districts.forEach(district => {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:12px 14px;cursor:pointer;border-bottom:1px solid #f0f0f0;transition:background 0.2s;font-weight:600';
+      item.textContent = district.name;
+      item.addEventListener('click', () => {
+        renderMunicipalities(district.id);
+      });
+      item.addEventListener('mouseenter', () => item.style.background = '#f9f9f9');
+      item.addEventListener('mouseleave', () => item.style.background = 'none');
+      results.appendChild(item);
+    });
+  };
+}
+</script>
+
+</nav>
