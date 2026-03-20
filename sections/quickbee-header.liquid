@@ -2505,6 +2505,53 @@
       qbInitPlaceholderAnimation();
     }
 
+    // Update active footer item based on current page
+    function qbUpdateMobileFooter() {
+      var currentPath = window.location.pathname.toLowerCase();
+      var footerItems = document.querySelectorAll('.qb-mobile-footer-item');
+
+      // Remove active class from all items
+      footerItems.forEach(function(item) {
+        item.classList.remove('active');
+      });
+
+      // Determine which item should be active
+      var activeItem = null;
+
+      if (currentPath === '/' || currentPath === '') {
+        // Home page
+        activeItem = document.querySelector('.qb-mobile-footer-item[data-page="home"]');
+      } else if (currentPath.includes('/collections')) {
+        // Categories page
+        activeItem = document.querySelector('.qb-mobile-footer-item[data-page="categories"]');
+      } else if (currentPath.includes('/pages/services')) {
+        // Services page
+        activeItem = document.querySelector('.qb-mobile-footer-item[data-page="services"]');
+      } else if (currentPath.includes('/account')) {
+        // Account page
+        activeItem = document.querySelector('.qb-mobile-footer-item[data-page="account"]');
+      } else if (currentPath.includes('/pages/flash-deals')) {
+        // Flash Deals page (special case - no data-page attribute)
+        var flashDealsBtn = document.querySelector('.qb-mobile-wallet-btn');
+        if (flashDealsBtn) {
+          flashDealsBtn.style.opacity = '1';
+          flashDealsBtn.style.transform = 'scale(1.2)';
+        }
+      }
+
+      // Add active class to current page
+      if (activeItem) {
+        activeItem.classList.add('active');
+      }
+    }
+
+    // Initialize footer on page load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', qbUpdateMobileFooter);
+    } else {
+      qbUpdateMobileFooter();
+    }
+
     function qbShowSearchDropdown() {
       var dropdown = document.getElementById('qbSearchDropdown');
       var searchBar = document.querySelector('.qb-search-bar-wrap');
@@ -2811,7 +2858,7 @@
   <ul class="qb-mobile-footer-nav">
     <!-- Home -->
     <li>
-      <a href="{{ routes.root_url }}" class="qb-mobile-footer-item active" data-page="home" title="Home">
+      <a href="{{ routes.root_url }}" class="qb-mobile-footer-item" data-page="home" title="Home">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         <span>Home</span>
       </a>
