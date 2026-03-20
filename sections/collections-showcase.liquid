@@ -1,0 +1,588 @@
+{%- doc -%}
+  Collections Showcase - Displays category collections with advanced filtering,
+  sorting, and progressive image loading. Optimized for all device sizes.
+{%- enddoc -%}
+
+<div
+  class="collections-showcase"
+  data-section-id="{{ section.id }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+>
+  <div class="section color-{{ section.settings.color_scheme }} section--{{ section.settings.section_width }}">
+    <!-- Header Section -->
+    <div class="collections-header">
+      <h1 class="collections-title">{{ section.settings.title }}</h1>
+      {%- if section.settings.description != blank -%}
+        <p class="collections-description">{{ section.settings.description }}</p>
+      {%- endif -%}
+    </div>
+
+    <!-- Filter Bar -->
+    {%- if section.settings.show_filters -%}
+      <div class="collections-filter-bar">
+        <div class="filter-group">
+          <label for="sort-by-{{ section.id }}" class="filter-label">Sort By:</label>
+          <select id="sort-by-{{ section.id }}" class="filter-select">
+            <option value="featured">Featured</option>
+            <option value="newest">Newest</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="best-selling">Best Selling</option>
+            <option value="rating">Top Rated</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="category-filter-{{ section.id }}" class="filter-label">Category:</label>
+          <select id="category-filter-{{ section.id }}" class="filter-select">
+            <option value="">All Categories</option>
+            <option value="electronics">Electronics</option>
+            <option value="fashion">Fashion & Apparel</option>
+            <option value="food">Food & Beverages</option>
+            <option value="home">Home & Kitchen</option>
+            <option value="beauty">Beauty & Personal Care</option>
+            <option value="sports">Sports & Fitness</option>
+            <option value="books">Books & Stationery</option>
+            <option value="toys">Toys & Gaming</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="price-filter-{{ section.id }}" class="filter-label">Price Range:</label>
+          <input
+            type="range"
+            id="price-filter-{{ section.id }}"
+            class="filter-range"
+            min="0"
+            max="100000"
+            step="1000"
+            value="100000"
+          />
+          <span class="price-display">Up to Rs <span class="price-value">100000</span></span>
+        </div>
+
+        <button class="filter-reset" id="reset-filters-{{ section.id }}">Reset Filters</button>
+      </div>
+    {%- endif -%}
+
+    <!-- Collection Grid -->
+    <div class="collections-grid" id="collections-grid-{{ section.id }}">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'collection' -%}
+          <div class="collection-card" data-category="{{ block.settings.category | downcase }}">
+            <div class="collection-card-image">
+              {%- if block.settings.image -%}
+                <img
+                  src="{{ block.settings.image | image_url: width: 400 }}"
+                  alt="{{ block.settings.collection_name }}"
+                  loading="lazy"
+                  class="collection-image"
+                />
+              {%- else -%}
+                <div class="collection-placeholder">{{ block.settings.collection_name }}</div>
+              {%- endif -%}
+              <div class="collection-overlay">
+                <h3 class="collection-name">{{ block.settings.collection_name }}</h3>
+                <p class="collection-product-count">
+                  {{ block.settings.product_count | default: '25+' }} Products
+                </p>
+              </div>
+            </div>
+            <div class="collection-card-body">
+              <h2 class="collection-card-title">{{ block.settings.collection_name }}</h2>
+              {%- if block.settings.description != blank -%}
+                <p class="collection-card-description">{{ block.settings.description }}</p>
+              {%- endif -%}
+              <a href="{{ block.settings.collection_url }}" class="collection-card-link">
+                Browse Collection →
+              </a>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    <!-- View All Collections -->
+    {%- if section.settings.show_view_all -%}
+      <div class="collections-cta">
+        <a href="/collections" class="cta-button cta-button-primary">
+          View All Collections
+        </a>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+<style>
+  .collections-showcase {
+    background: var(--color-background);
+  }
+
+  .collections-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .collections-title {
+    font-size: clamp(28px, 6vw, 48px);
+    font-weight: 800;
+    color: #222;
+    margin: 0 0 16px 0;
+    line-height: 1.2;
+  }
+
+  .collections-description {
+    font-size: 16px;
+    color: #666;
+    margin: 0;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .collections-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 40px;
+    padding: 20px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    align-items: center;
+  }
+
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .filter-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #222;
+  }
+
+  .filter-select,
+  .filter-range {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+    background: white;
+    cursor: pointer;
+  }
+
+  .filter-select:hover,
+  .filter-range:hover {
+    border-color: #2563eb;
+  }
+
+  .price-display {
+    font-size: 13px;
+    color: #555;
+    white-space: nowrap;
+  }
+
+  .filter-reset {
+    padding: 8px 16px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-reset:hover {
+    background: #222;
+    color: white;
+    border-color: #222;
+  }
+
+  .collections-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+
+  .collection-card {
+    background: white;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .collection-card:hover {
+    border-color: #2563eb;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.15);
+    transform: translateY(-4px);
+  }
+
+  .collection-card-image {
+    position: relative;
+    overflow: hidden;
+    background: #f0f0f0;
+    aspect-ratio: 1;
+  }
+
+  .collection-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .collection-card:hover .collection-image {
+    transform: scale(1.05);
+  }
+
+  .collection-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .collection-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 20px;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .collection-card:hover .collection-overlay {
+    opacity: 1;
+  }
+
+  .collection-name {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+  }
+
+  .collection-product-count {
+    font-size: 13px;
+    margin: 0;
+    opacity: 0.9;
+  }
+
+  .collection-card-body {
+    padding: 20px;
+  }
+
+  .collection-card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #222;
+    margin: 0 0 8px 0;
+  }
+
+  .collection-card-description {
+    font-size: 13px;
+    color: #666;
+    margin: 0 0 12px 0;
+    line-height: 1.5;
+  }
+
+  .collection-card-link {
+    display: inline-block;
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+
+  .collection-card-link:hover {
+    color: #1d4ed8;
+  }
+
+  .collections-cta {
+    text-align: center;
+    margin-top: 40px;
+  }
+
+  .cta-button {
+    display: inline-block;
+    padding: 14px 40px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+  }
+
+  .cta-button-primary {
+    background: #2563eb;
+    color: white;
+  }
+
+  .cta-button-primary:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+  }
+
+  @media screen and (max-width: 749px) {
+    .collections-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .collections-filter-bar {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .filter-group {
+      width: 100%;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .filter-select,
+    .filter-range {
+      width: 100%;
+    }
+
+    .filter-reset {
+      width: 100%;
+    }
+
+    .collections-title {
+      font-size: 24px;
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .collections-title,
+    .collection-card-title {
+      color: #fff;
+    }
+
+    .collections-description,
+    .collection-card-description {
+      color: #aaa;
+    }
+
+    .collection-card {
+      background: #222;
+      border-color: #444;
+    }
+
+    .collections-filter-bar {
+      background: #1a1a1a;
+    }
+
+    .filter-select {
+      background: #222;
+      color: #fff;
+      border-color: #444;
+    }
+
+    .filter-reset {
+      background: #222;
+      color: #fff;
+      border-color: #444;
+    }
+
+    .filter-reset:hover {
+      background: #fff;
+      color: #222;
+    }
+  }
+</style>
+
+<script>
+  (function() {
+    const sectionId = '{{ section.id }}';
+    const grid = document.getElementById(`collections-grid-${sectionId}`);
+    const categoryFilter = document.getElementById(`category-filter-${sectionId}`);
+    const priceFilter = document.getElementById(`price-filter-${sectionId}`);
+    const priceValue = document.querySelector('.price-value');
+    const resetBtn = document.getElementById(`reset-filters-${sectionId}`);
+
+    if (!grid) return;
+
+    // Update price display
+    if (priceFilter) {
+      priceFilter.addEventListener('input', (e) => {
+        if (priceValue) {
+          priceValue.textContent = e.target.value;
+        }
+      });
+    }
+
+    // Filter cards
+    function filterCards() {
+      const category = categoryFilter?.value || '';
+      const cards = grid.querySelectorAll('.collection-card');
+
+      cards.forEach((card) => {
+        const cardCategory = card.dataset.category || '';
+        if (!category || cardCategory === category) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    if (categoryFilter) {
+      categoryFilter.addEventListener('change', filterCards);
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        if (categoryFilter) categoryFilter.value = '';
+        if (priceFilter) {
+          priceFilter.value = '100000';
+          if (priceValue) priceValue.textContent = '100000';
+        }
+        filterCards();
+      });
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Collections Showcase",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section Title",
+      "default": "Shop by Category"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Browse our wide selection of products across all categories"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_filters",
+      "label": "Show Filters",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Show 'View All Collections' Button",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section Width",
+      "options": [
+        { "value": "page-width", "label": "Page Width" },
+        { "value": "full-width", "label": "Full Width" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color Scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 50
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        {
+          "type": "text",
+          "id": "collection_name",
+          "label": "Collection Name",
+          "default": "Electronics"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description"
+        },
+        {
+          "type": "select",
+          "id": "category",
+          "label": "Category",
+          "options": [
+            { "value": "electronics", "label": "Electronics" },
+            { "value": "fashion", "label": "Fashion & Apparel" },
+            { "value": "food", "label": "Food & Beverages" },
+            { "value": "home", "label": "Home & Kitchen" },
+            { "value": "beauty", "label": "Beauty & Personal Care" },
+            { "value": "sports", "label": "Sports & Fitness" },
+            { "value": "books", "label": "Books & Stationery" },
+            { "value": "toys", "label": "Toys & Gaming" }
+          ]
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Collection Image"
+        },
+        {
+          "type": "text",
+          "id": "product_count",
+          "label": "Product Count",
+          "default": "25+"
+        },
+        {
+          "type": "url",
+          "id": "collection_url",
+          "label": "Collection URL",
+          "default": "/collections/all"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

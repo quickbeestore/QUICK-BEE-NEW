@@ -1,0 +1,574 @@
+{%- doc -%}
+  Product Testimonials - Displays customer reviews with ratings,
+  carousel, and verified buyer badges for social proof and trust.
+{%- enddoc -%}
+
+<div
+  class="testimonials-section"
+  data-section-id="{{ section.id }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+>
+  <div class="section color-{{ section.settings.color_scheme }} section--{{ section.settings.section_width }}">
+    <!-- Header -->
+    <div class="testimonials-header">
+      <h2 class="testimonials-title">{{ section.settings.title }}</h2>
+      {%- if section.settings.description != blank -%}
+        <p class="testimonials-description">{{ section.settings.description }}</p>
+      {%- endif -%}
+
+      <!-- Trust Stats -->
+      <div class="trust-stats">
+        <div class="stat">
+          <div class="stat-value">{{ section.settings.total_reviews | default: '2500+' }}</div>
+          <div class="stat-label">Reviews</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">{{ section.settings.average_rating | default: '4.8' }}/5</div>
+          <div class="stat-label">Average Rating</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">{{ section.settings.verified_buyers | default: '98%' }}</div>
+          <div class="stat-label">Verified Buyers</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Testimonials Carousel -->
+    <div class="testimonials-carousel" id="testimonials-carousel-{{ section.id }}">
+      <div class="testimonials-track" id="testimonials-track-{{ section.id }}">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'testimonial' -%}
+            <div class="testimonial-card">
+              <!-- Rating Stars -->
+              <div class="rating-stars">
+                {%- for i in (1..5) -%}
+                  <svg
+                    class="star {% if i <= block.settings.rating %}filled{% endif %}"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                {%- endfor -%}
+              </div>
+
+              <!-- Review Text -->
+              <p class="testimonial-text">{{ block.settings.review }}</p>
+
+              <!-- Customer Info -->
+              <div class="testimonial-author">
+                {%- if block.settings.image -%}
+                  <img
+                    src="{{ block.settings.image | image_url: width: 40 }}"
+                    alt="{{ block.settings.customer_name }}"
+                    class="author-image"
+                  />
+                {%- endif -%}
+
+                <div class="author-info">
+                  <div class="author-name">{{ block.settings.customer_name }}</div>
+                  <div class="author-details">
+                    {%- if block.settings.verified_purchase -%}
+                      <span class="verified-badge">✓ Verified Purchase</span>
+                    {%- endif -%}
+                    {%- if block.settings.product_name != blank -%}
+                      <span class="product-name">{{ block.settings.product_name }}</span>
+                    {%- endif -%}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Helpful Counter -->
+              {%- if block.settings.show_helpful -%}
+                <div class="helpful-count">
+                  <button class="helpful-btn" title="Mark as helpful">👍</button>
+                  <span class="helpful-number">{{ block.settings.helpful_count | default: '42' }} people found this helpful</span>
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      <!-- Navigation -->
+      <button class="carousel-button prev" id="prev-{{ section.id }}" aria-label="Previous review">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="carousel-button next" id="next-{{ section.id }}" aria-label="Next review">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M9 19l7-7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- View All Reviews CTA -->
+    {%- if section.settings.show_cta -%}
+      <div class="testimonials-cta">
+        <a href="{{ section.settings.reviews_page_url }}" class="cta-button">
+          See All Reviews & Ratings
+        </a>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+<style>
+  .testimonials-section {
+    background: var(--color-background);
+  }
+
+  .testimonials-header {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+
+  .testimonials-title {
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 800;
+    color: #222;
+    margin: 0 0 16px 0;
+  }
+
+  .testimonials-description {
+    font-size: 16px;
+    color: #666;
+    margin: 0 0 32px 0;
+  }
+
+  .trust-stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #2563eb;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: #666;
+    font-weight: 600;
+  }
+
+  .testimonials-carousel {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+
+  .testimonials-track {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    transition: transform 0.3s ease;
+  }
+
+  .testimonial-card {
+    background: white;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    padding: 24px;
+    transition: all 0.3s ease;
+  }
+
+  .testimonial-card:hover {
+    border-color: #2563eb;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.1);
+    transform: translateY(-4px);
+  }
+
+  .rating-stars {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+
+  .star {
+    color: #ddd;
+    transition: color 0.2s;
+  }
+
+  .star.filled {
+    color: #fbbf24;
+  }
+
+  .testimonial-text {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+    margin: 0 0 16px 0;
+  }
+
+  .testimonial-author {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .author-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .author-info {
+    flex: 1;
+  }
+
+  .author-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #222;
+  }
+
+  .author-details {
+    font-size: 12px;
+    color: #999;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .verified-badge {
+    color: #10b981;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .product-name {
+    color: #2563eb;
+  }
+
+  .helpful-count {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #999;
+  }
+
+  .helpful-btn {
+    background: none;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.2s;
+  }
+
+  .helpful-btn:hover {
+    transform: scale(1.2);
+  }
+
+  .carousel-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: white;
+    border: 1px solid #e5e5e5;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #222;
+    transition: all 0.2s;
+    z-index: 10;
+  }
+
+  .carousel-button:hover {
+    background: #2563eb;
+    color: white;
+    border-color: #2563eb;
+  }
+
+  .carousel-button.prev {
+    left: 16px;
+  }
+
+  .carousel-button.next {
+    right: 16px;
+  }
+
+  .testimonials-cta {
+    text-align: center;
+  }
+
+  .cta-button {
+    display: inline-block;
+    padding: 14px 40px;
+    background: #2563eb;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 14px;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+  }
+
+  .cta-button:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+  }
+
+  @media screen and (max-width: 749px) {
+    .trust-stats {
+      gap: 24px;
+    }
+
+    .testimonials-track {
+      grid-template-columns: 1fr;
+    }
+
+    .carousel-button {
+      width: 36px;
+      height: 36px;
+      font-size: 18px;
+    }
+
+    .carousel-button.prev {
+      left: 8px;
+    }
+
+    .carousel-button.next {
+      right: 8px;
+    }
+
+    .testimonial-card {
+      padding: 16px;
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .testimonial-card {
+      background: #222;
+      border-color: #444;
+    }
+
+    .testimonial-card:hover {
+      border-color: #5b9ff5;
+    }
+
+    .testimonial-text,
+    .author-details {
+      color: #aaa;
+    }
+
+    .author-name {
+      color: #fff;
+    }
+
+    .carousel-button {
+      background: #222;
+      border-color: #444;
+      color: #fff;
+    }
+
+    .carousel-button:hover {
+      background: #5b9ff5;
+      border-color: #5b9ff5;
+    }
+  }
+</style>
+
+<script>
+  (function() {
+    const sectionId = '{{ section.id }}';
+    const track = document.getElementById(`testimonials-track-${sectionId}`);
+    const prevBtn = document.getElementById(`prev-${sectionId}`);
+    const nextBtn = document.getElementById(`next-${sectionId}`);
+
+    if (!track || !prevBtn || !nextBtn) return;
+
+    let currentIndex = 0;
+    const cards = track.querySelectorAll('.testimonial-card');
+    const cardWidth = cards[0]?.offsetWidth || 340;
+    const gap = 24;
+
+    function scroll(direction) {
+      currentIndex += direction;
+      const maxIndex = Math.max(0, cards.length - 3);
+      currentIndex = Math.max(0, Math.min(currentIndex, maxIndex));
+
+      const offset = -currentIndex * (cardWidth + gap);
+      track.style.transform = `translateX(${offset}px)`;
+
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === maxIndex;
+    }
+
+    prevBtn.addEventListener('click', () => scroll(-1));
+    nextBtn.addEventListener('click', () => scroll(1));
+
+    // Initial state
+    scroll(0);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Product Testimonials",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Loved by Our Customers"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "See what thousands of satisfied customers are saying about QuickBee"
+    },
+    {
+      "type": "text",
+      "id": "total_reviews",
+      "label": "Total Reviews Count",
+      "default": "2500+"
+    },
+    {
+      "type": "text",
+      "id": "average_rating",
+      "label": "Average Rating",
+      "default": "4.8"
+    },
+    {
+      "type": "text",
+      "id": "verified_buyers",
+      "label": "Verified Buyers %",
+      "default": "98%"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cta",
+      "label": "Show 'View All Reviews' CTA",
+      "default": true
+    },
+    {
+      "type": "url",
+      "id": "reviews_page_url",
+      "label": "Reviews Page URL",
+      "default": "/pages/reviews"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section Width",
+      "options": [
+        { "value": "page-width", "label": "Page Width" },
+        { "value": "full-width", "label": "Full Width" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color Scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top Padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom Padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 50
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "Rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 5
+        },
+        {
+          "type": "textarea",
+          "id": "review",
+          "label": "Review Text",
+          "default": "Best shopping experience! Fast delivery, great products, and excellent customer service. Highly recommended!"
+        },
+        {
+          "type": "text",
+          "id": "customer_name",
+          "label": "Customer Name",
+          "default": "John Doe"
+        },
+        {
+          "type": "text",
+          "id": "product_name",
+          "label": "Product Name (Optional)"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Customer Avatar"
+        },
+        {
+          "type": "checkbox",
+          "id": "verified_purchase",
+          "label": "Verified Purchase",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_helpful",
+          "label": "Show Helpful Counter",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "helpful_count",
+          "label": "Helpful Count",
+          "default": "42"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
