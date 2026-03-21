@@ -971,23 +971,38 @@
 {% endstylesheet %}
 
 {% javascript %}
-  window.__quickbeeCartInit = function() {
-    const wrapper = document.querySelector('.cart-wrapper');
-    if (!wrapper) return false;
-    if (wrapper.querySelector('.cart-empty') || wrapper.querySelector('.cart-layout')) return false;
+  (function injectEmptyCart() {
+    const cartWrapper = document.querySelector('.cart-wrapper');
 
-    const html = `<div class="cart-empty"><div class="empty-icon">🐝</div><h1 class="empty-title">Your Hive is Empty</h1><p class="empty-text">Time to fill your basket with delicious goodies!</p><a href="/collections/all" class="empty-button">Start Shopping</a></div>`;
-    wrapper.insertAdjacentHTML('beforeend', html);
-    return true;
-  };
+    // Exit if cart wrapper not found or already has content
+    if (!cartWrapper) return;
+    if (cartWrapper.querySelector('.cart-empty') || cartWrapper.querySelector('.cart-layout')) return;
 
-  // Try to inject every 100ms for up to 5 seconds
-  let attempts = 0;
-  const interval = setInterval(function() {
-    if (window.__quickbeeCartInit() || ++attempts > 50) {
-      clearInterval(interval);
-    }
-  }, 100);
+    // Inject empty state HTML
+    const emptyHTML = '<div class="cart-empty"><div class="empty-icon">🐝</div><h1 class="empty-title">Your Hive is Empty</h1><p class="empty-text">Time to fill your basket with delicious goodies!</p><a href="/collections/all" class="empty-button">Start Shopping</a></div>';
+    cartWrapper.insertAdjacentHTML('beforeend', emptyHTML);
+  })();
+
+  // If initial check didn't work, retry periodically
+  if (!document.querySelector('.cart-empty') && !document.querySelector('.cart-layout')) {
+    let retries = 0;
+    const retryInterval = setInterval(function() {
+      const wrapper = document.querySelector('.cart-wrapper');
+      if (!wrapper) {
+        if (++retries > 100) clearInterval(retryInterval);
+        return;
+      }
+
+      if (!wrapper.querySelector('.cart-empty') && !wrapper.querySelector('.cart-layout')) {
+        const emptyHTML = '<div class="cart-empty"><div class="empty-icon">🐝</div><h1 class="empty-title">Your Hive is Empty</h1><p class="empty-text">Time to fill your basket with delicious goodies!</p><a href="/collections/all" class="empty-button">Start Shopping</a></div>';
+        wrapper.insertAdjacentHTML('beforeend', emptyHTML);
+      }
+
+      if (document.querySelector('.cart-empty')) {
+        clearInterval(retryInterval);
+      }
+    }, 200);
+  }
 {% endjavascript %}
 
 {% schema %}
