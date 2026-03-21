@@ -365,6 +365,17 @@
     outline: none;
   }
 
+  /* Hide default number input spinners */
+  .qty-value::-webkit-outer-spin-button,
+  .qty-value::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+  }
+
+  .qty-value[type=number] {
+    -moz-appearance: textfield !important;
+  }
+
   .update-btn,
   .remove-btn {
     width: 36px;
@@ -676,6 +687,27 @@
   }
 
 {% endstylesheet %}
+
+{% javascript %}
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle quantity +/- buttons
+    document.querySelectorAll('.qty-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const input = this.closest('.quantity-input').querySelector('.qty-value');
+        let value = parseInt(input.value) || 0;
+
+        if (this.classList.contains('minus')) {
+          value = Math.max(0, value - 1);
+        } else if (this.classList.contains('plus')) {
+          value = value + 1;
+        }
+
+        input.value = value;
+      });
+    });
+  });
+{% endjavascript %}
 
 {% schema %}
 {
