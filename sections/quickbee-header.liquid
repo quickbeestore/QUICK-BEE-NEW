@@ -2693,7 +2693,10 @@
           localStorage.setItem('qb_search_history', JSON.stringify(history));
         }
 
-        // Show history
+        // Trending searches
+        const trendingSearches = ['Dairy Products', 'Fresh Vegetables', 'Snacks', 'Beverages', 'Frozen Foods'];
+
+        // Show history or trending
         function showHistory() {
           console.log('🐝 Showing history...');
           const history = getHistory();
@@ -2740,12 +2743,29 @@
               });
             }
           } else {
-            // No history - show empty state
+            // No history - show trending searches instead
             if (historySection) historySection.hidden = true;
-            if (emptyMessage) {
-              emptyMessage.hidden = false;
-              emptyMessage.innerHTML = '<div class="qb-search-empty-icon">🔍</div><div>Start typing to search or see suggestions</div>';
+            if (suggestionsSection) {
+              suggestionsSection.hidden = false;
+              if (suggestionItems) {
+                suggestionItems.innerHTML = '';
+                trendingSearches.forEach(trend => {
+                  const div = document.createElement('div');
+                  div.className = 'qb-suggestion-item';
+                  div.setAttribute('data-type', 'trending');
+                  div.innerHTML = `<div class="qb-suggestion-icon"></div><div class="qb-suggestion-text">${trend}</div>`;
+
+                  div.addEventListener('click', () => {
+                    searchInput.value = trend;
+                    addToHistory(trend);
+                    window.location = `/search?q=${encodeURIComponent(trend)}`;
+                  });
+
+                  suggestionItems.appendChild(div);
+                });
+              }
             }
+            if (emptyMessage) emptyMessage.hidden = true;
           }
 
           // Show dropdown
