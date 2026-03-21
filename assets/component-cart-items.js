@@ -38,6 +38,38 @@ class CartItemsComponent extends Component {
     document.addEventListener(ThemeEvents.cartUpdate, this.#handleCartUpdate);
     document.addEventListener(ThemeEvents.discountUpdate, this.handleDiscountUpdate);
     document.addEventListener(ThemeEvents.quantitySelectorUpdate, this.#debouncedOnChange);
+
+    // Try to inject empty state if cart is empty
+    this.#injectEmptyStateOnLoad();
+  }
+
+  /**
+   * Injects the empty cart HTML if the cart is empty.
+   * This replaces the Shopify javascript block that doesn't execute.
+   */
+  #injectEmptyStateOnLoad() {
+    // Start after a small delay to ensure DOM is ready
+    setTimeout(() => {
+      let attempts = 0;
+      const interval = setInterval(() => {
+        const wrapper = this.querySelector('.cart-wrapper');
+        if (!wrapper) {
+          if (++attempts > 50) clearInterval(interval);
+          return;
+        }
+
+        // Don't inject if empty state or cart layout already exists
+        if (wrapper.querySelector('.cart-empty') || wrapper.querySelector('.cart-layout')) {
+          clearInterval(interval);
+          return;
+        }
+
+        // Inject the empty state HTML
+        const html = '<div class="cart-empty"><div class="empty-icon">🐝</div><h1 class="empty-title">Your Hive is Empty</h1><p class="empty-text">Time to fill your basket with delicious goodies!</p><a href="/collections/all" class="empty-button">Start Shopping</a></div>';
+        wrapper.insertAdjacentHTML('beforeend', html);
+        clearInterval(interval);
+      }, 100);
+    }, 50);
   }
 
   disconnectedCallback() {
