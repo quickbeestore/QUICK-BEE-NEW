@@ -347,15 +347,24 @@ class QuickBeeSearchBar {
 
     // Set initial placeholder
     if (this.#elements.placeholderText) {
-      this.#elements.placeholderText.textContent = this.#rotatingPlaceholders[this.#placeholderIndex];
+      this.#updatePlaceholder();
     }
 
     this.#placeholderInterval = setInterval(() => {
-      if (document.activeElement !== this.#elements.searchInput && this.#elements.placeholderText) {
+      if (document.activeElement !== this.#elements.searchInput && this.#elements.placeholderText && !this.#elements.searchInput.value) {
         this.#placeholderIndex = (this.#placeholderIndex + 1) % this.#rotatingPlaceholders.length;
-        this.#elements.placeholderText.textContent = this.#rotatingPlaceholders[this.#placeholderIndex];
+        this.#updatePlaceholder();
       }
     }, QuickBeeSearchBar.PLACEHOLDER_INTERVAL);
+  }
+
+  /**
+   * Update placeholder text
+   */
+  #updatePlaceholder() {
+    if (this.#elements.placeholderText) {
+      this.#elements.placeholderText.textContent = this.#rotatingPlaceholders[this.#placeholderIndex];
+    }
   }
 
   /**
