@@ -2647,8 +2647,6 @@
 
     <!-- Inline Search Bar Initialization -->
     <script>
-      console.log('🐝 QuickBEE Search Bar Script Loading...');
-
       (function() {
         const searchInput = document.getElementById('qbSearchInput');
         const dropdown = document.getElementById('qbSearchDropdown');
@@ -2656,23 +2654,9 @@
         const historyItems = document.querySelector('.qb-history-items');
         const clearBtn = document.getElementById('qbClearHistory');
         const suggestionsSection = document.getElementById('qbSearchSuggestions');
-        const suggestionItems = document.querySelector('.qb-suggestion-items');
         const emptyMessage = document.getElementById('qbSearchEmpty');
 
-        console.log('🐝 Elements Check:', {
-          searchInput: !!searchInput,
-          dropdown: !!dropdown,
-          historySection: !!historySection,
-          historyItems: !!historyItems,
-          clearBtn: !!clearBtn
-        });
-
-        if (!searchInput || !dropdown) {
-          console.error('🐝 ERROR: Search bar elements missing!', { searchInput, dropdown });
-          return;
-        }
-
-        console.log('🐝 Elements found! Initializing...');
+        if (!searchInput || !dropdown) return;
 
         // Get history
         function getHistory() {
@@ -2693,22 +2677,17 @@
           localStorage.setItem('qb_search_history', JSON.stringify(history));
         }
 
-        // Trending searches
-        const trendingSearches = ['Dairy Products', 'Fresh Vegetables', 'Snacks', 'Beverages', 'Frozen Foods'];
-
-        // Show history or trending
+        // Show history
         function showHistory() {
-          console.log('🐝 Showing history...');
           const history = getHistory();
-          console.log('🐝 History items:', history);
 
           // Hide suggestions section
           if (suggestionsSection) suggestionsSection.hidden = true;
+          if (emptyMessage) emptyMessage.hidden = true;
 
           if (history.length > 0) {
-            // Show history, hide empty state
+            // Show history
             if (historySection) historySection.hidden = false;
-            if (emptyMessage) emptyMessage.hidden = true;
 
             // Render history items
             if (historyItems) {
@@ -2718,19 +2697,14 @@
                 div.className = 'qb-history-item';
                 div.innerHTML = `<span>${item}</span><button class="qb-remove-history" type="button">×</button>`;
 
-                // Item click
                 div.addEventListener('click', (e) => {
-                  if (e.target.classList.contains('qb-remove-history')) {
-                    return; // Don't search if remove button clicked
-                  }
+                  if (e.target.classList.contains('qb-remove-history')) return;
                   searchInput.value = item;
                   addToHistory(item);
                   window.location = `/search?q=${encodeURIComponent(item)}`;
                 });
 
-                // Remove button
-                const removeBtn = div.querySelector('.qb-remove-history');
-                removeBtn.addEventListener('click', (e) => {
+                div.querySelector('.qb-remove-history').addEventListener('click', (e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   let h = getHistory();
@@ -2743,32 +2717,14 @@
               });
             }
           } else {
-            // No history - show trending searches instead
+            // No history - show empty state
             if (historySection) historySection.hidden = true;
-            if (suggestionsSection) {
-              suggestionsSection.hidden = false;
-              if (suggestionItems) {
-                suggestionItems.innerHTML = '';
-                trendingSearches.forEach(trend => {
-                  const div = document.createElement('div');
-                  div.className = 'qb-suggestion-item';
-                  div.setAttribute('data-type', 'trending');
-                  div.innerHTML = `<div class="qb-suggestion-icon"></div><div class="qb-suggestion-text">${trend}</div>`;
-
-                  div.addEventListener('click', () => {
-                    searchInput.value = trend;
-                    addToHistory(trend);
-                    window.location = `/search?q=${encodeURIComponent(trend)}`;
-                  });
-
-                  suggestionItems.appendChild(div);
-                });
-              }
+            if (emptyMessage) {
+              emptyMessage.hidden = false;
+              emptyMessage.innerHTML = '<div class="qb-search-empty-icon">🔍</div><div>Start typing to search</div>';
             }
-            if (emptyMessage) emptyMessage.hidden = true;
           }
 
-          // Show dropdown
           showDropdown();
         }
 
@@ -2781,7 +2737,6 @@
             dropdown.style.opacity = '1 !important';
           }
           positionDropdown();
-          console.log('🐝 Dropdown shown');
         }
 
         // Hide dropdown
@@ -2791,7 +2746,6 @@
             dropdown.style.display = 'none';
             dropdown.style.visibility = 'hidden';
           }
-          console.log('🐝 Dropdown hidden');
         }
 
         // Position dropdown below search input
@@ -2800,51 +2754,24 @@
 
           try {
             const rect = searchInput.getBoundingClientRect();
-            const gap = 12; // Increased gap for better spacing
-
-            console.log('🐝 Search rect:', {
-              bottom: Math.round(rect.bottom),
-              left: Math.round(rect.left),
-              width: Math.round(rect.width),
-              right: Math.round(rect.right)
-            });
+            const gap = 12;
 
             dropdown.style.position = 'fixed !important';
             dropdown.style.top = (rect.bottom + gap) + 'px';
             dropdown.style.left = rect.left + 'px';
             dropdown.style.width = rect.width + 'px';
             dropdown.style.zIndex = '999999 !important';
-
-            console.log('🐝 Dropdown positioned at:', {
-              top: Math.round(rect.bottom + gap) + 'px',
-              left: Math.round(rect.left) + 'px',
-              width: Math.round(rect.width) + 'px'
-            });
           } catch (e) {
-            console.error('🐝 Position error:', e);
+            // Silently fail
           }
         }
 
         // Events
-        searchInput.addEventListener('focus', () => {
-          console.log('🐝 Search input focused');
-          showHistory();
-        });
-
-        searchInput.addEventListener('blur', () => {
-          console.log('🐝 Search input blurred');
-          setTimeout(hideDropdown, 200);
-        });
-
+        searchInput.addEventListener('focus', showHistory);
+        searchInput.addEventListener('blur', () => setTimeout(hideDropdown, 200));
         searchInput.addEventListener('input', (e) => {
-          const value = e.target.value.trim();
-          console.log('🐝 Search input changed:', value);
-
-          if (value.length < 2) {
+          if (e.target.value.trim().length < 2) {
             showHistory();
-          } else {
-            // Here you could add live search functionality
-            showHistory(); // For now just show history
           }
         });
 
@@ -2863,21 +2790,17 @@
           clearBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('🐝 Clearing search history');
             localStorage.removeItem('qb_search_history');
             showHistory();
           });
         }
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', (e) => {
           const container = document.getElementById('qbSearchContainer');
           if (container && !container.contains(e.target) && dropdown && !dropdown.contains(e.target)) {
             hideDropdown();
           }
         });
-
-        console.log('🐝 Search bar initialized successfully');
       })();
     </script>
 
