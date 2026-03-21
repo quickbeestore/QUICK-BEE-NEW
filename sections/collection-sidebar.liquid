@@ -765,13 +765,40 @@
       this.appendChild(qtyInput);
     }
 
-    // Mark first collection as active and load its products
-    const firstCategory = document.querySelector('.qb-sidebar-category');
-    if (firstCategory) {
-      firstCategory.classList.add('active');
-      const collectionHandle = firstCategory.dataset.collectionHandle;
-      loadCollectionProducts(collectionHandle);
+    // Auto-load collection from URL or default to first
+    function initializeCollectionFromURL() {
+      // Extract collection handle from URL
+      const urlPath = window.location.pathname;
+      const match = urlPath.match(/\/collections\/([^/?]+)/);
+      const collectionHandleFromURL = match ? match[1] : null;
+
+      let categoryToLoad = document.querySelector('.qb-sidebar-category');
+
+      // If URL contains a collection, find and use that instead
+      if (collectionHandleFromURL) {
+        const urlCategory = document.querySelector(
+          `.qb-sidebar-category[data-collection-handle="${collectionHandleFromURL}"]`
+        );
+        if (urlCategory) {
+          categoryToLoad = urlCategory;
+        }
+      }
+
+      // Load the selected collection
+      if (categoryToLoad) {
+        categoryToLoad.classList.add('active');
+        const collectionHandle = categoryToLoad.dataset.collectionHandle;
+        loadCollectionProducts(collectionHandle);
+
+        // Scroll collection button into view
+        setTimeout(() => {
+          categoryToLoad.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      }
     }
+
+    // Initialize on page load
+    initializeCollectionFromURL();
 
     // Initial attachment of listeners
     attachProductListeners();
