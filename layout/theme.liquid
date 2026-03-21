@@ -112,7 +112,7 @@
         position: fixed;
         left: 0;
         right: 0;
-        top: var(--header-group-height, 60px);
+        top: var(--header-group-height, 120px);
         bottom: var(--footer-height, 60px);
         z-index: 1;
       }
@@ -457,6 +457,15 @@
         observer.observe(document.body, { childList: true, subtree: true });
       })();
 
+      // Calculate and update layout immediately
+      const updateMainElementPosition = () => {
+        const mainElement = document.querySelector('main');
+        const headerGroup = document.querySelector('#header-group');
+        if (mainElement && headerGroup) {
+          mainElement.style.top = `${headerGroup.offsetHeight}px`;
+        }
+      };
+
       // Inline header height and menu style calculations to prevent layout shift
       // Note: Updates in calculateHeaderGroupHeight(), updateTransparentHeaderOffset() and setHeaderMenuStyle() utilities.js should be kept in sync with this function
       (function setHeaderHeighCustomProperties() {
@@ -490,6 +499,9 @@
         // Set CSS variables for layout positioning
         document.body.style.setProperty('--header-height', `${headerHeight}px`);
         document.body.style.setProperty('--header-group-height', `${headerGroupHeight}px`);
+
+        // Update main element position immediately
+        updateMainElementPosition();
 
         // Calculate footer height and update main element position
         const mainElement = document.querySelector('main');
@@ -581,6 +593,12 @@
           headerComponent.dataset.menuStyle = isTouchDevice || hasReachedMinimum ? 'drawer' : 'menu';
         }
       })();
+
+      // Update main element position immediately on page load
+      updateMainElementPosition();
+
+      // Also update on window load to catch dynamic content
+      window.addEventListener('load', updateMainElementPosition);
     </script>
 
     <main
