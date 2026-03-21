@@ -140,8 +140,8 @@ class QuickBeeSearchBar {
     // Focus/blur for placeholder rotation and dropdown visibility
     this.#elements.searchInput.addEventListener('focus', () => {
       this.#stopPlaceholderRotation();
-      if (this.#elements.placeholderText) {
-        this.#elements.placeholderText.style.display = 'none';
+      if (this.#elements.placeholderText && !this.#elements.searchInput.value) {
+        this.#elements.placeholderText.style.opacity = '0';
       }
       this.#showDropdown();
       if (!this.#elements.searchInput.value) {
@@ -154,7 +154,7 @@ class QuickBeeSearchBar {
       setTimeout(() => {
         this.#hideDropdown();
         if (this.#elements.placeholderText && !this.#elements.searchInput.value) {
-          this.#elements.placeholderText.style.display = 'inline-block';
+          this.#elements.placeholderText.style.opacity = '1';
         }
         this.#startPlaceholderRotation();
       }, 200);
@@ -182,7 +182,8 @@ class QuickBeeSearchBar {
   #onSearchInput(query) {
     // Hide placeholder text when user types
     if (this.#elements.placeholderText) {
-      this.#elements.placeholderText.style.display = query.length > 0 ? 'none' : 'inline-block';
+      this.#elements.placeholderText.style.opacity = query.length > 0 ? '0' : '1';
+      this.#elements.placeholderText.style.pointerEvents = query.length > 0 ? 'none' : 'auto';
     }
 
     if (this.#searchDebounceTimer) {
