@@ -1918,7 +1918,7 @@
         <!-- Action Buttons -->
         <div style="display:flex;gap:10px;">
           <button id="qbSelectBtn" onclick="qbSelectLocation()" style="flex:1;padding:12px;background:#e8e8e8;color:#333;border:none;border-radius:6px;cursor:not-allowed;font-weight:600;font-size:14px;opacity:0.5;" disabled>Select Location</button>
-          <button onclick="document.getElementById('qbLocModal').style.display='none'" style="flex:0.4;padding:12px;background:#eee;color:#666;border:none;border-radius:6px;cursor:pointer;font-size:13px;">✕</button>
+          <button onclick="qbCloseLocationModal()" style="flex:0.4;padding:12px;background:#eee;color:#666;border:none;border-radius:6px;cursor:pointer;font-size:13px;">✕</button>
         </div>
       </div>
     </div>
@@ -2054,14 +2054,19 @@
       'KMC Hospital Area': 21, 'Nepal Engineering College Area': 22, 'Jhaukhel Border': 23
     };
 
-    var districtSelect = document.getElementById('qbDistrict');
-    var municipalitySelect = document.getElementById('qbMunicipality');
-    var areaSelect = document.getElementById('qbArea');
-    var subareaSelect = document.getElementById('qbSubArea');
-    var selectBtn = document.getElementById('qbSelectBtn');
-    var saveBtn = document.getElementById('qbSaveBtn');
+    function attachLocationSelectors() {
+      var districtSelect = document.getElementById('qbDistrict');
+      var municipalitySelect = document.getElementById('qbMunicipality');
+      var areaSelect = document.getElementById('qbArea');
+      var subareaSelect = document.getElementById('qbSubArea');
+      var selectBtn = document.getElementById('qbSelectBtn');
 
-    districtSelect.addEventListener('change', function() {
+      if (!districtSelect || !municipalitySelect || !areaSelect || !subareaSelect || !selectBtn) {
+        console.error('Location select elements not found');
+        return;
+      }
+
+      districtSelect.addEventListener('change', function() {
       municipalitySelect.innerHTML = '<option value="">Select Municipality</option>';
       areaSelect.innerHTML = '<option value="">Select Area</option>';
       subareaSelect.innerHTML = '<option value="">Select Sub-Area</option>';
@@ -2069,11 +2074,8 @@
       areaSelect.disabled = true;
       subareaSelect.disabled = true;
       selectBtn.disabled = true;
-      saveBtn.disabled = true;
       selectBtn.style.opacity = '0.5';
       selectBtn.style.cursor = 'not-allowed';
-      saveBtn.style.opacity = '0.5';
-      saveBtn.style.cursor = 'not-allowed';
 
       if (this.value) {
         var municipalities = Object.keys(qbLocationData[this.value]);
@@ -2087,79 +2089,65 @@
       }
     });
 
-    municipalitySelect.addEventListener('change', function() {
-      areaSelect.innerHTML = '<option value="">Select Area</option>';
-      subareaSelect.innerHTML = '<option value="">Select Sub-Area</option>';
-      areaSelect.disabled = true;
-      subareaSelect.disabled = true;
-      selectBtn.disabled = true;
-      saveBtn.disabled = true;
-      selectBtn.style.opacity = '0.5';
-      selectBtn.style.cursor = 'not-allowed';
-      saveBtn.style.opacity = '0.5';
-      saveBtn.style.cursor = 'not-allowed';
-
-      if (this.value && districtSelect.value) {
-        var areas = Object.keys(qbLocationData[districtSelect.value][this.value]);
-        areas.forEach(function(a) {
-          var opt = document.createElement('option');
-          opt.value = a;
-          opt.textContent = a;
-          areaSelect.appendChild(opt);
-        });
-        areaSelect.disabled = false;
-      }
-    });
-
-    areaSelect.addEventListener('change', function() {
-      subareaSelect.innerHTML = '<option value="">Select Sub-Area</option>';
-      subareaSelect.disabled = true;
-      selectBtn.disabled = true;
-      saveBtn.disabled = true;
-      selectBtn.style.opacity = '0.5';
-      selectBtn.style.cursor = 'not-allowed';
-      saveBtn.style.opacity = '0.5';
-      saveBtn.style.cursor = 'not-allowed';
-
-      if (this.value && districtSelect.value && municipalitySelect.value) {
-        var subareas = qbLocationData[districtSelect.value][municipalitySelect.value][this.value];
-        subareas.forEach(function(s) {
-          var opt = document.createElement('option');
-          opt.value = s;
-          opt.textContent = s;
-          subareaSelect.appendChild(opt);
-        });
-        subareaSelect.disabled = false;
-      }
-    });
-
-    subareaSelect.addEventListener('change', function() {
-      var deliveryTimeDisplay = document.getElementById('qbDeliveryTimeDisplay');
-      var deliveryTimeValue = document.getElementById('qbDeliveryTimeValue');
-      var saveOptionsContainer = document.getElementById('qbSaveOptionsContainer');
-
-      if (this.value) {
-        var deliveryTime = qbDeliveryTimes[this.value] || 20;
-        deliveryTimeValue.textContent = deliveryTime;
-        deliveryTimeDisplay.style.display = 'block';
-        selectBtn.disabled = false;
-        saveBtn.disabled = false;
-        selectBtn.style.opacity = '1';
-        selectBtn.style.cursor = 'pointer';
-        saveBtn.style.opacity = '1';
-        saveBtn.style.cursor = 'pointer';
-        saveOptionsContainer.style.display = 'none';
-      } else {
-        deliveryTimeDisplay.style.display = 'none';
+      municipalitySelect.addEventListener('change', function() {
+        areaSelect.innerHTML = '<option value="">Select Area</option>';
+        subareaSelect.innerHTML = '<option value="">Select Sub-Area</option>';
+        areaSelect.disabled = true;
+        subareaSelect.disabled = true;
         selectBtn.disabled = true;
-        saveBtn.disabled = true;
         selectBtn.style.opacity = '0.5';
         selectBtn.style.cursor = 'not-allowed';
-        saveBtn.style.opacity = '0.5';
-        saveBtn.style.cursor = 'not-allowed';
-        saveOptionsContainer.style.display = 'none';
-      }
-    });
+
+        if (this.value && districtSelect.value) {
+          var areas = Object.keys(qbLocationData[districtSelect.value][this.value]);
+          areas.forEach(function(a) {
+            var opt = document.createElement('option');
+            opt.value = a;
+            opt.textContent = a;
+            areaSelect.appendChild(opt);
+          });
+          areaSelect.disabled = false;
+        }
+      });
+
+      areaSelect.addEventListener('change', function() {
+        subareaSelect.innerHTML = '<option value="">Select Sub-Area</option>';
+        subareaSelect.disabled = true;
+        selectBtn.disabled = true;
+        selectBtn.style.opacity = '0.5';
+        selectBtn.style.cursor = 'not-allowed';
+
+        if (this.value && districtSelect.value && municipalitySelect.value) {
+          var subareas = qbLocationData[districtSelect.value][municipalitySelect.value][this.value];
+          subareas.forEach(function(s) {
+            var opt = document.createElement('option');
+            opt.value = s;
+            opt.textContent = s;
+            subareaSelect.appendChild(opt);
+          });
+          subareaSelect.disabled = false;
+        }
+      });
+
+      subareaSelect.addEventListener('change', function() {
+        var deliveryTimeDisplay = document.getElementById('qbDeliveryTimeDisplay');
+        var deliveryTimeValue = document.getElementById('qbDeliveryTimeValue');
+
+        if (this.value) {
+          var deliveryTime = qbDeliveryTimes[this.value] || 20;
+          deliveryTimeValue.textContent = deliveryTime;
+          deliveryTimeDisplay.style.display = 'block';
+          selectBtn.disabled = false;
+          selectBtn.style.opacity = '1';
+          selectBtn.style.cursor = 'pointer';
+        } else {
+          deliveryTimeDisplay.style.display = 'none';
+          selectBtn.disabled = true;
+          selectBtn.style.opacity = '0.5';
+          selectBtn.style.cursor = 'not-allowed';
+        }
+      });
+    }
 
     function qbSelectLocation() {
       if (!subareaSelect.value) {
@@ -2180,7 +2168,11 @@
       addressEl.style.fontSize = '12px';
       addressEl.style.color = '#666';
 
-      document.getElementById('qbLocModal').style.display = 'none';
+      var modal = document.getElementById('qbLocModal');
+      modal.style.display = 'none';
+      modal.style.visibility = 'hidden';
+      modal.style.opacity = '0';
+      modal.style.pointerEvents = 'none';
     }
 
 
@@ -2208,12 +2200,26 @@
 
     // Open location modal and restore previous selection
     function qbOpenLocationModal() {
-      document.getElementById('qbLocModal').style.display = 'flex';
+      var modal = document.getElementById('qbLocModal');
+      modal.style.display = 'flex';
+      modal.style.visibility = 'visible';
+      modal.style.opacity = '1';
+      modal.style.pointerEvents = 'auto';
       setTimeout(showDeliveryTime, 50);
+    }
+
+    // Close location modal
+    function qbCloseLocationModal() {
+      var modal = document.getElementById('qbLocModal');
+      modal.style.display = 'none';
+      modal.style.visibility = 'hidden';
+      modal.style.opacity = '0';
+      modal.style.pointerEvents = 'none';
     }
 
     window.addEventListener('load', function() {
       initializeDistricts();
+      attachLocationSelectors();
 
       var saved = localStorage.getItem('qb_location');
       var deliveryTime = localStorage.getItem('qb_delivery_time');
