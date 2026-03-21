@@ -1,5 +1,3 @@
-
-
 {% capture cart_page_more_blocks_content %}
   <div class="cart-page__more-blocks">
     {%- content_for 'blocks' -%}
@@ -12,13 +10,8 @@
 >
   <template id="empty-cart-template">
     <div class="section-background color-{{ section.settings.color_scheme }}"></div>
-    <div
-      class="section color-{{ section.settings.color_scheme }} section--{{ section.settings.section_width }}"
-    >
-      <div
-        class="cart-page spacing-style{% if cart.empty? %} cart-page--empty{% endif %}"
-        style="{% render 'spacing-style', settings: section.settings %}"
-      >
+    <div class="section color-{{ section.settings.color_scheme }} section--{{ section.settings.section_width }}">
+      <div class="cart-page spacing-style{% if cart.empty? %} cart-page--empty{% endif %}" style="{% render 'spacing-style', settings: section.settings %}">
         <div class="cart-page__title">
           {%- content_for 'block', id: 'cart-page-title', type: '_cart-title', force_empty: true %}
         </div>
@@ -32,50 +25,61 @@
 
   {% # theme-check-disable UniqueStaticBlockId %}
   <div class="section-background color-{{ section.settings.color_scheme }}"></div>
-  <div
-    class="section color-{{ section.settings.color_scheme }} section--{{ section.settings.section_width }}"
-  >
-    <div
-      class="cart-page spacing-style{% if cart.empty? %} cart-page--empty{% endif %}"
-      style="{% render 'spacing-style', settings: section.settings %}"
-    >
-      <div class="cart-page__title">
-        {%- content_for 'block', id: 'cart-page-title', type: '_cart-title' %}
+  <div class="section color-{{ section.settings.color_scheme }} section--{{ section.settings.section_width }}">
+    <div class="cart-page spacing-style{% if cart.empty? %} cart-page--empty{% endif %}" style="{% render 'spacing-style', settings: section.settings %}">
+      <!-- CART HEADER -->
+      <div class="cart-page__header">
+        <h1 class="cart-page__title">
+          {%- content_for 'block', id: 'cart-page-title', type: '_cart-title' %}
+        </h1>
       </div>
 
       {%- unless cart.empty? -%}
-        <!-- Urgency: Delivery Countdown Timer -->
+        <!-- URGENCY BANNER -->
         <div class="cart-page__urgency">
           {% render 'delivery-countdown-timer' %}
         </div>
-      {%- endunless -%}
 
-      <div class="cart-page__items">
-        {%- content_for 'block', id: 'cart-page-items', type: '_cart-products' %}
-      </div>
-
-      {%- unless cart.empty? -%}
-        <div class="cart-page__summary">
-          <!-- Trust Signal: Wallet Balance for Quick Pay -->
-          <div class="cart-page__wallet-reminder">
-            {% render 'wallet-balance' %}
+        <!-- MAIN CONTENT: Items List + Summary -->
+        <div class="cart-page__container">
+          <!-- LEFT: Cart Items -->
+          <div class="cart-page__items-section">
+            <div class="cart-page__items">
+              {%- content_for 'block', id: 'cart-page-items', type: '_cart-products' %}
+            </div>
           </div>
 
-          {%- content_for 'block', id: 'cart-page-summary', type: '_cart-summary' -%}
-        </div>
-      {%- endunless -%}
+          <!-- RIGHT: Order Summary (Sticky on Desktop) -->
+          <div class="cart-page__summary-section">
+            <div class="cart-page__summary-sticky">
+              <!-- Wallet Balance Reminder -->
+              <div class="cart-page__wallet-reminder">
+                {% render 'wallet-balance' %}
+              </div>
 
-      {{ cart_page_more_blocks_content }}
+              <!-- Order Summary -->
+              <div class="cart-page__summary">
+                {%- content_for 'block', id: 'cart-page-summary', type: '_cart-summary' -%}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RECOMMENDATIONS SECTION -->
+        {{ cart_page_more_blocks_content }}
+      {%- endunless -%}
     </div>
   </div>
   {% # theme-check-enable UniqueStaticBlockId %}
 </cart-items-component>
 
 {% stylesheet %}
+  /* BASE CART PAGE STYLING */
   .cart-page {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 0 var(--padding-5xl);
+    gap: var(--gap-lg);
+    width: 100%;
   }
 
   .cart-page--empty {
@@ -83,51 +87,28 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    min-height: 60vh;
   }
 
-  .cart-page--empty .cart-page__title,
-  .cart-page--empty .cart-page__more-blocks {
-    margin-top: var(--margin-6xl);
+  /* HEADER */
+  .cart-page__header {
+    padding-bottom: var(--padding-lg);
+    border-bottom: 1px solid #e5e5e5;
   }
 
-  .cart-page__more-blocks {
-    width: 100%;
-    grid-column: 1 / -1;
-    margin-top: var(--margin-5xl);
-    padding-top: var(--padding-5xl);
-    border-top: 1px solid #e5e5e5;
+  .cart-page__title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
-  .cart-page--empty .cart-title {
-    text-align: center;
-  }
-
-  .cart-page__main {
-    grid-column: 1;
-  }
-
-  .cart-page__summary {
-    padding-top: var(--padding-xl);
-  }
-
-  .cart-page__title + .cart-page__items {
-    margin-block-start: var(--margin-lg);
-  }
-
+  /* URGENCY BANNER */
   .cart-page__urgency {
-    margin-bottom: var(--margin-md);
+    margin: var(--margin-lg) 0;
     animation: slideDown 0.4s ease-out;
-  }
-
-  .cart-page__wallet-reminder {
-    padding: 12px 14px;
-    background: linear-gradient(135deg, #f0f4ff 0%, #f9f5ff 100%);
-    border: 1px solid #e5e0ff;
-    border-radius: 8px;
-    margin-bottom: var(--margin-lg);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
   }
 
   @keyframes slideDown {
@@ -141,64 +122,214 @@
     }
   }
 
-  /* Mobile: Sticky checkout button */
+  /* MAIN CONTAINER - Two-column layout for desktop */
+  .cart-page__container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--gap-2xl);
+    width: 100%;
+  }
+
+  .cart-page__items-section {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .cart-page__items {
+    width: 100%;
+  }
+
+  .cart-page__summary-section {
+    width: 100%;
+    order: 2;
+  }
+
+  /* SUMMARY STICKY */
+  .cart-page__summary-sticky {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e5e5e5;
+    padding: var(--padding-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-lg);
+  }
+
+  /* WALLET REMINDER */
+  .cart-page__wallet-reminder {
+    background: linear-gradient(135deg, #f0f4ff 0%, #f9f5ff 100%);
+    border: 1px solid #e5e0ff;
+    border-radius: 6px;
+    padding: var(--padding-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* ORDER SUMMARY */
+  .cart-page__summary {
+    border-top: 1px solid #e5e5e5;
+    padding-top: var(--padding-md);
+  }
+
+  .cart-page__more-blocks {
+    width: 100%;
+    grid-column: 1 / -1;
+    margin-top: var(--margin-5xl);
+    padding-top: var(--padding-5xl);
+    border-top: 2px solid #e5e5e5;
+  }
+
+  /* ============================================================================
+     MOBILE: Stack items and summary vertically (max-width: 749px)
+     ============================================================================ */
   @media screen and (max-width: 749px) {
-    .cart-page__summary {
+    .cart-page__header {
+      padding-top: var(--padding-md);
+      padding-bottom: var(--padding-md);
+    }
+
+    .cart-page__title {
+      font-size: 24px;
+      margin-bottom: var(--margin-md);
+    }
+
+    .cart-page__urgency {
+      margin: var(--margin-md) 0;
+    }
+
+    .cart-page__container {
+      grid-template-columns: 1fr;
+      gap: var(--gap-lg);
+    }
+
+    .cart-page__items-section {
+      order: 1;
+    }
+
+    .cart-page__summary-section {
+      order: 2;
       position: sticky;
       bottom: 0;
-      background: #fff;
-      border-top: 1px solid #e5e5e5;
-      padding-top: var(--padding-md) !important;
       z-index: 10;
+    }
+
+    .cart-page__summary-sticky {
+      background: white;
+      border-radius: 0;
+      border: 1px solid #e5e5e5;
+      border-bottom: none;
       box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+      padding: var(--padding-md);
+      gap: var(--gap-md);
+      border-top: 1px solid #e5e5e5;
     }
 
     .cart-page__wallet-reminder {
       flex-direction: column;
       text-align: center;
-      gap: 8px;
-    }
-  }
-
-  @media screen and (min-width: 750px) {
-    .cart-page {
-      grid-template-columns: 1fr min(50vw, var(--sidebar-width));
-      grid-template-rows: min-content min-content 1fr auto;
+      gap: var(--gap-sm);
     }
 
     .cart-page__summary {
-      display: grid;
-      height: 100%;
-      grid-column: 2;
-      grid-row: 1 / -1;
-      align-self: stretch;
-      grid-template-rows: subgrid;
-      padding-top: 0;
+      padding-top: var(--padding-sm);
+    }
+  }
 
-      /* needed to support blurred effect from hero section */
-      position: relative;
+  /* ============================================================================
+     TABLET: Two-column layout (750px - 1023px)
+     ============================================================================ */
+  @media screen and (min-width: 750px) and (max-width: 1023px) {
+    .cart-page__container {
+      grid-template-columns: 1fr 350px;
+      gap: var(--gap-2xl);
+      align-items: start;
+    }
+
+    .cart-page__items-section {
+      order: 1;
+    }
+
+    .cart-page__summary-section {
+      order: 2;
+      position: sticky;
+      top: 100px;
+    }
+
+    .cart-page__summary-sticky {
+      top: 0;
+    }
+  }
+
+  /* ============================================================================
+     DESKTOP: Two-column layout (1024px+)
+     ============================================================================ */
+  @media screen and (min-width: 1024px) {
+    .cart-page__container {
+      grid-template-columns: 1fr 380px;
+      gap: var(--gap-4xl);
+      align-items: start;
+    }
+
+    .cart-page__items-section {
+      order: 1;
+    }
+
+    .cart-page__summary-section {
+      order: 2;
+      position: sticky;
+      top: 120px;
+    }
+
+    .cart-page__summary-sticky {
+      top: 0;
+    }
+
+    .cart-page__title {
+      font-size: 36px;
+      margin-bottom: var(--margin-lg);
+    }
+  }
+
+  /* ============================================================================
+     DARK MODE SUPPORT
+     ============================================================================ */
+  @media (prefers-color-scheme: dark) {
+    .cart-page {
+      color-scheme: light;
+    }
+
+    .cart-page__header {
+      border-color: #ddd;
+      background: white;
+    }
+
+    .cart-page__title {
+      color: #1a1a1a !important;
+      color-scheme: light !important;
+    }
+
+    .cart-page__summary-sticky {
+      background: white !important;
+      border-color: #ddd;
+    }
+
+    .cart-page__wallet-reminder {
+      background: linear-gradient(135deg, #f0f4ff 0%, #f9f5ff 100%);
+      border-color: #e5e0ff;
+      color-scheme: light;
+    }
+
+    .cart-page__summary {
+      border-color: #ddd;
     }
 
     .cart-page__more-blocks {
-      grid-column: 1 / -1;
-      grid-row: auto;
-    }
-
-    .section--page-width .cart-page:has(.cart-summary--extend) {
-      grid-column: 2 / 4;
-      grid-template-columns: 1fr minmax(
-          var(--sidebar-width),
-          calc((100vw - var(--page-width)) / 2 + var(--sidebar-width))
-        );
+      border-color: #ddd;
     }
   }
 
-  @media screen and (min-width: 1400px) {
-    .cart-page {
-      grid-template-columns: 1fr var(--sidebar-width);
-    }
-  }
-
+  /* Animations */
   html:active-view-transition-type(empty-cart-page) {
     .cart-items-component {
       view-transition-name: cart-page-content;
