@@ -4282,39 +4282,35 @@ if (document.readyState === 'loading') {
 }
 
 // Announcement bar ticker animation
-(function() {
-  function initAnnouncement() {
-    const track = document.querySelector('.qb-announcement-track');
-    if (!track) return;
-
-    // Disable CSS animation
-    track.style.animation = 'none !important';
-    track.style.animationName = 'none !important';
-
-    const startTime = Date.now();
-    const DURATION = 15000; // 15 seconds
-
-    function animate() {
-      const elapsed = (Date.now() - startTime) % DURATION;
-      const progress = elapsed / DURATION;
-      track.style.transform = `translateX(${-(progress * 100)}%)`;
-      requestAnimationFrame(animate);
-    }
-
-    animate();
+window.qbInitAnnouncementTicker = function() {
+  const track = document.querySelector('.qb-announcement-track');
+  if (!track) {
+    console.log('Announcement track not found');
+    return;
   }
 
-  // Ensure it runs on DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAnnouncement);
-  } else {
-    // DOM already ready
-    initAnnouncement();
+  track.style.animation = 'none !important';
+  track.style.animationName = 'none !important';
+
+  const startTime = Date.now();
+  const DURATION = 15000;
+
+  function animate() {
+    const elapsed = (Date.now() - startTime) % DURATION;
+    const progress = elapsed / DURATION;
+    track.style.transform = `translateX(${-(progress * 100)}%)`;
+    requestAnimationFrame(animate);
   }
 
-  // Also expose globally for debugging
-  window.qbInitAnnouncementTicker = initAnnouncement;
-})();
+  animate();
+  console.log('Announcement ticker initialized');
+};
+
+// Run immediately and on DOM ready
+document.addEventListener('DOMContentLoaded', window.qbInitAnnouncementTicker);
+if (document.readyState !== 'loading') {
+  window.qbInitAnnouncementTicker();
+}
 
 // Update active footer item based on current page
 window.qbUpdateActiveFooterItem = function() {
