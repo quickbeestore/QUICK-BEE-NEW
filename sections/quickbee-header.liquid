@@ -4281,35 +4281,38 @@ if (document.readyState === 'loading') {
   window.qbInitSplashScreen();
 }
 
-// Fix announcement bar animation
+// Fix announcement bar animation with force-reload approach
 window.qbFixAnnouncementAnimation = function() {
   const track = document.querySelector('.qb-announcement-track');
   if (track) {
-    // Remove existing inline animation styles
-    track.style.animation = '';
+    // Clear all animation styles first
+    track.style.cssText = track.style.cssText.split('animation').join('');
 
-    // Force reflow to reset animation
+    // Force reflow to reset animation state
     void track.offsetHeight;
+    void track.offsetWidth;
 
-    // Apply animation via inline style with all properties
-    track.style.animation = 'qb-scroll 15s linear infinite';
-    track.style.animationPlayState = 'running';
-
-    // Also apply via individual properties to ensure they take effect
-    track.style.animationName = 'qb-scroll';
-    track.style.animationDuration = '15s';
-    track.style.animationTimingFunction = 'linear';
-    track.style.animationIterationCount = 'infinite';
+    // Apply animation with maximum specificity
+    track.style.setProperty('animation-name', 'qb-scroll', 'important');
+    track.style.setProperty('animation-duration', '15s', 'important');
+    track.style.setProperty('animation-timing-function', 'linear', 'important');
+    track.style.setProperty('animation-iteration-count', 'infinite', 'important');
+    track.style.setProperty('animation-play-state', 'running', 'important');
   }
 };
 
 // Initialize announcement animation
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', function() {
+    // Run immediately and also with delays to catch any overrides
+    window.qbFixAnnouncementAnimation();
     setTimeout(window.qbFixAnnouncementAnimation, 100);
+    setTimeout(window.qbFixAnnouncementAnimation, 500);
   });
 } else {
+  window.qbFixAnnouncementAnimation();
   setTimeout(window.qbFixAnnouncementAnimation, 100);
+  setTimeout(window.qbFixAnnouncementAnimation, 500);
 }
 
 // Update active footer item based on current page
