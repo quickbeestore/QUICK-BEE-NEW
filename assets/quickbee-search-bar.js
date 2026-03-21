@@ -161,6 +161,17 @@ class QuickBeeSearchBar {
         this.#hideDropdown();
       }
     });
+
+    // Clear history button
+    const clearBtn = document.getElementById('qbClearHistory');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.#clearAllHistory();
+        this.#showHistory();
+      });
+    }
   }
 
   /**
@@ -200,21 +211,49 @@ class QuickBeeSearchBar {
   }
 
   /**
-   * Show suggestions for the query
+   * Show suggestions for the query (creative & smart)
    */
   #showSuggestions(query) {
     const categories = window.__QUICKBEE_SEARCH_DATA__?.categories || [];
     const normalized = this.#normalizeString(query);
-    const suggestions = new Set();
+    const suggestions = [];
+    const seen = new Set();
 
-    // Add matching categories
+    // 1. Add trending searches from history that match
+    const history = this.#getHistory();
+    const trendingMatches = history.filter(item =>
+      this.#normalizeString(item).includes(normalized) && item !== query
+    );
+    trendingMatches.slice(0, 2).forEach(item => {
+      suggestions.push(item);
+      seen.add(this.#normalizeString(item));
+    });
+
+    // 2. Add matching categories with action text
     categories.forEach(cat => {
-      if (this.#normalizeString(cat).includes(normalized)) {
-        suggestions.add(cat);
+      if (this.#normalizeString(cat).includes(normalized) && !seen.has(this.#normalizeString(cat))) {
+        suggestions.push(`Browse ${cat}`);
+        seen.add(this.#normalizeString(cat));
       }
     });
 
-    this.#searchState.suggestions = Array.from(suggestions).slice(0, 5);
+    // 3. Add smart suggestion: "View deals in [category]" for matching categories
+    categories.forEach(cat => {
+      if (this.#normalizeString(cat).includes(normalized) && suggestions.length < 4) {
+        const dealsText = `Deals in ${cat}`;
+        if (!seen.has(this.#normalizeString(dealsText))) {
+          suggestions.push(dealsText);
+          seen.add(this.#normalizeString(dealsText));
+        }
+      }
+    });
+
+    // 4. Add the original query as a suggestion if it's different
+    if (!seen.has(normalized) && query.length >= 2) {
+      suggestions.push(`Search for "${query}"`);
+    }
+
+    this.#searchState.suggestions = suggestions.slice(0, 5);
 
     // Render suggestions
     if (this.#elements.suggestionItems) {
@@ -355,6 +394,13 @@ class QuickBeeSearchBar {
     let history = this.#getHistory();
     history = history.filter(h => h !== item);
     localStorage.setItem(QuickBeeSearchBar.SEARCH_HISTORY_KEY, JSON.stringify(history));
+  }
+
+  /**
+   * Clear all search history
+   */
+  #clearAllHistory() {
+    localStorage.removeItem(QuickBeeSearchBar.SEARCH_HISTORY_KEY);
   }
 
   /**
