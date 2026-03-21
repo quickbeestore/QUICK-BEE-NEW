@@ -5,7 +5,7 @@
     class="shopify-design-mode"
   {% endif %}
   lang="{{ request.locale.iso_code }}"
-  style="color-scheme: light;"
+  style="color-scheme: light dark;"
 >
   <head>
     {%- if settings.favicon != blank -%}
@@ -69,19 +69,6 @@
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        scrollbar-gutter: stable;
-      }
-
-      #header-group {
-        width: 100%;
-        flex-shrink: 0;
-      }
-
-      #footer-group {
-        width: 100%;
-        height: auto;
-        flex-shrink: 0;
-        min-height: 60px;
       }
 
       /* Main content container - mobile first */
@@ -95,7 +82,7 @@
         overflow-x: hidden;
       }
 
-      /* Ensure main content respects viewport and fixed header/footer */
+      /* Ensure main content respects viewport */
       main {
         width: 100%;
         max-width: 100%;
@@ -104,34 +91,9 @@
         padding-bottom: 65px;
         overflow-y: auto;
         overflow-x: hidden;
-        flex: 1;
-        min-height: 0;
-      }
-
-      /* Force light mode on all main content - override dark mode */
-      main,
-      main * {
-        color-scheme: light !important;
-      }
-
-      /* Override all color scheme classes to use light colors */
-      main [class*="color-"],
-      [class*="color-"]:has(> main) {
-        --color-background: #ffffff !important;
-        --color-background-rgb: 255, 255, 255 !important;
-        --color-foreground: #000000 !important;
-        --color-foreground-rgb: 0, 0, 0 !important;
-        --color-foreground-heading: #000000 !important;
-        --color-foreground-heading-rgb: 0, 0, 0 !important;
-        background-color: #ffffff !important;
-        color: #000000 !important;
-      }
-
-      /* Remove mobile footer padding on desktop */
-      @media (min-width: 750px) {
-        main {
-          padding-bottom: 0;
-        }
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 70px);
       }
 
       /* Section wrapper - mobile first */
@@ -421,38 +383,6 @@
       .card__overlay {
         display: none !important;
       }
-
-      /* FORCE LIGHT MODE WHEN BROWSER DARK MODE IS ON */
-      @media (prefers-color-scheme: dark) {
-        :root,
-        html,
-        body,
-        main {
-          color-scheme: light !important;
-          background-color: #ffffff !important;
-        }
-
-        main,
-        main * {
-          color-scheme: light !important;
-          background-color: #ffffff !important;
-          color: #000000 !important;
-        }
-
-        main [class*="color-"],
-        main .group-block[class*="color-"] {
-          --color-background: #ffffff !important;
-          --color-background-rgb: 255, 255, 255 !important;
-          --color-foreground: #000000 !important;
-          --color-foreground-rgb: 0, 0, 0 !important;
-          background-color: #ffffff !important;
-          color: #000000 !important;
-        }
-
-        main .shopify-section {
-          background-color: #ffffff !important;
-        }
-      }
     </style>
 
     <link
@@ -506,15 +436,6 @@
         observer.observe(document.body, { childList: true, subtree: true });
       })();
 
-      // Calculate and update layout immediately
-      const updateMainElementPosition = () => {
-        const mainElement = document.querySelector('main');
-        const headerGroup = document.querySelector('#header-group');
-        if (mainElement && headerGroup) {
-          mainElement.style.top = `${headerGroup.offsetHeight}px`;
-        }
-      };
-
       // Inline header height and menu style calculations to prevent layout shift
       // Note: Updates in calculateHeaderGroupHeight(), updateTransparentHeaderOffset() and setHeaderMenuStyle() utilities.js should be kept in sync with this function
       (function setHeaderHeighCustomProperties() {
@@ -545,71 +466,9 @@
           headerGroupHeight += headerHeight;
         }
 
-        // Set CSS variables for layout positioning
+        // Set CSS variables
         document.body.style.setProperty('--header-height', `${headerHeight}px`);
         document.body.style.setProperty('--header-group-height', `${headerGroupHeight}px`);
-
-        // Update main element position immediately
-        updateMainElementPosition();
-
-        // Calculate footer height and update main element position
-        const mainElement = document.querySelector('main');
-        const footerGroup = document.querySelector('#footer-group');
-
-        // Function to detect actual footer height
-        const detectFooterHeight = () => {
-          // Look for common footer elements
-          let footerHeight = 0;
-
-          // Check for bottom navigation or footer-like elements
-          const footerElements = document.querySelectorAll('[class*="footer"], [class*="bottom"], [id*="footer"]');
-          footerElements.forEach(el => {
-            const rect = el.getBoundingClientRect();
-            const elementTop = window.innerHeight - rect.height;
-            if (elementTop > footerGroup.getBoundingClientRect().top) {
-              footerHeight = Math.max(footerHeight, rect.height);
-            }
-          });
-
-          // If no footer found, measure from actual DOM
-          if (footerHeight === 0) {
-            // Default to footer-group height or 60px if empty
-            footerHeight = footerGroup.offsetHeight || 60;
-          }
-
-          return footerHeight;
-        };
-
-        if (mainElement) {
-          // Set top position based on header
-          mainElement.style.top = `${headerGroupHeight}px`;
-
-          // Detect and set bottom position based on footer
-          const footerHeight = detectFooterHeight();
-          mainElement.style.bottom = `${footerHeight}px`;
-
-          // Set CSS variables for future reference
-          document.body.style.setProperty('--header-group-height', `${headerGroupHeight}px`);
-          document.body.style.setProperty('--footer-height', `${footerHeight}px`);
-
-          // Recalculate on window resize
-          window.addEventListener('resize', () => {
-            const newFooterHeight = detectFooterHeight();
-            mainElement.style.bottom = `${newFooterHeight}px`;
-          });
-
-          // Observe DOM changes to recalculate footer height
-          const observer = new MutationObserver(() => {
-            window.requestAnimationFrame(() => {
-              const newFooterHeight = detectFooterHeight();
-              if (newFooterHeight > 0) {
-                mainElement.style.bottom = `${newFooterHeight}px`;
-              }
-            });
-          });
-
-          observer.observe(document.body, { childList: true, subtree: true, attributes: false });
-        }
 
         if (headerTopRow) {
           window.requestAnimationFrame(function () {
@@ -642,12 +501,6 @@
           headerComponent.dataset.menuStyle = isTouchDevice || hasReachedMinimum ? 'drawer' : 'menu';
         }
       })();
-
-      // Update main element position immediately on page load
-      updateMainElementPosition();
-
-      // Also update on window load to catch dynamic content
-      window.addEventListener('load', updateMainElementPosition);
     </script>
 
     <main
@@ -660,9 +513,6 @@
     >
       {{ content_for_layout }}
     </main>
-
-    <div id="footer-group">
-    </div>
 
     {% render 'search-modal' %}
 
