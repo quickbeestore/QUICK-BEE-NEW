@@ -1,12 +1,9 @@
 /**
  * QuickBEE Search Bar Component
- * Implements 6 features:
- * 1. Live product search
- * 2. Autocomplete suggestions
- * 3. Dropdown results
- * 4. Rotating placeholders
- * 5. Search filters (category, price)
- * 6. Search history
+ * Simple & clean search with:
+ * 1. Typing animation (rotating placeholders)
+ * 2. Recent search history
+ * 3. Search suggestions
  */
 
 class QuickBeeSearchBar {
@@ -14,9 +11,7 @@ class QuickBeeSearchBar {
   static SEARCH_HISTORY_KEY = 'qb_search_history';
   static MAX_HISTORY_ITEMS = 10;
   static DEBOUNCE_DELAY = 300;
-  static FILTER_DEBOUNCE_DELAY = 500;
   static PLACEHOLDER_INTERVAL = 3000;
-  static MAX_RESULTS = 8;
   static MAX_SUGGESTIONS = 5;
 
   // Rotating placeholder texts
@@ -31,10 +26,6 @@ class QuickBeeSearchBar {
   // State
   #searchState = {
     query: '',
-    selectedCategory: '',
-    priceMin: 0,
-    priceMax: 999,
-    results: [],
     suggestions: []
   };
 
@@ -44,17 +35,10 @@ class QuickBeeSearchBar {
     searchInput: null,
     placeholderText: null,
     dropdown: null,
-    filtersSection: null,
-    categoryFilter: null,
-    priceMin: null,
-    priceMax: null,
-    priceDisplay: null,
     historySection: null,
     historyItems: null,
     suggestionsSection: null,
     suggestionItems: null,
-    resultsSection: null,
-    resultItems: null,
     emptyMessage: null
   };
 
@@ -62,7 +46,6 @@ class QuickBeeSearchBar {
   #placeholderIndex = 0;
   #placeholderInterval = null;
   #searchDebounceTimer = null;
-  #filterDebounceTimer = null;
 
   constructor(containerElement) {
     if (!containerElement) {
@@ -185,17 +168,6 @@ class QuickBeeSearchBar {
       }
     });
 
-    // Category filter change
-    this.#elements.categoryFilter.addEventListener('change', (e) => {
-      this.#onFilterChange();
-    });
-
-    // Price range filters
-    if (this.#elements.priceMin && this.#elements.priceMax) {
-      this.#elements.priceMin.addEventListener('input', () => this.#onFilterChange());
-      this.#elements.priceMax.addEventListener('input', () => this.#onFilterChange());
-    }
-
     // Click outside dropdown to close
     document.addEventListener('click', (e) => {
       if (!this.#elements.container.contains(e.target)) {
@@ -217,13 +189,15 @@ class QuickBeeSearchBar {
       clearTimeout(this.#searchDebounceTimer);
     }
 
+    this.#searchState.query = query;
+
     this.#searchDebounceTimer = setTimeout(() => {
       if (query.length < 2) {
         this.#showHistory();
         return;
       }
 
-      this.#searchProducts(query);
+      this.#showSuggestions(query);
     }, QuickBeeSearchBar.DEBOUNCE_DELAY);
   }
 
@@ -238,171 +212,54 @@ class QuickBeeSearchBar {
   }
 
   /**
-   * Handle filter changes - debounced
+   * Show suggestions for the query
    */
-  #onFilterChange() {
-    if (this.#filterDebounceTimer) {
-      clearTimeout(this.#filterDebounceTimer);
-    }
-
-    this.#filterDebounceTimer = setTimeout(() => {
-      // Update filter state
-      this.#searchState.selectedCategory = this.#elements.categoryFilter.value;
-      this.#searchState.priceMin = parseFloat(this.#elements.priceMin.value) || 0;
-      this.#searchState.priceMax = parseFloat(this.#elements.priceMax.value) || 999;
-
-      // Update price display
-      if (this.#elements.priceDisplay) {
-        this.#elements.priceDisplay.textContent = `$${this.#searchState.priceMin} - $${this.#searchState.priceMax}`;
-      }
-
-      // Re-apply search with new filters
-      if (this.#searchState.query.length >= 2) {
-        this.#searchProducts(this.#searchState.query);
-      }
-    }, QuickBeeSearchBar.FILTER_DEBOUNCE_DELAY);
-  }
-
-  /**
-   * Fetch and display search results
-   */
-  async #searchProducts(query) {
-    this.#searchState.query = query;
-
-    try {
-      // Fetch from Shopify's search endpoint
-      const response = await fetch(`/search.json?q=${encodeURIComponent(query)}`);
-      if (!response.ok) throw new Error('Search failed');
-
-      const data = await response.json();
-
-      // Apply filters
-      let filtered = (data.results || []).filter(product => {
-        const meetsCategory = !this.#searchState.selectedCategory ||
-          (product.type && product.type.includes(this.#searchState.selectedCategory));
-
-        const price = product.price ? Math.floor(product.price / 100) : 0;
-        const meetsPriceMin = price >= this.#searchState.priceMin;
-        const meetsPriceMax = price <= this.#searchState.priceMax;
-
-        return meetsCategory && meetsPriceMin && meetsPriceMax;
-      });
-
-      // Store and render
-      this.#searchState.results = filtered.slice(0, QuickBeeSearchBar.MAX_RESULTS);
-      this.#generateSuggestions(query);
-      this.#renderResults();
-    } catch (error) {
-      console.error('Search error:', error);
-      this.#showEmptyMessage('Search failed. Please try again.');
-    }
-  }
-
-  /**
-   * Generate autocomplete suggestions from results and categories
-   */
-  #generateSuggestions(query) {
+  #showSuggestions(query) {
+    const categories = window.__QUICKBEE_SEARCH_DATA__?.categories || [];
     const normalized = this.#normalizeString(query);
     const suggestions = new Set();
 
-    // Add matching product titles (first word only)
-    this.#searchState.results.forEach(product => {
-      if (product.title) {
-        const titleLower = this.#normalizeString(product.title);
-        if (titleLower.includes(normalized)) {
-          const firstWord = product.title.split(' ')[0];
-          suggestions.add(firstWord);
-        }
-      }
-    });
-
     // Add matching categories
-    const categories = window.__QUICKBEE_SEARCH_DATA__.categories || [];
     categories.forEach(cat => {
       if (this.#normalizeString(cat).includes(normalized)) {
         suggestions.add(cat);
       }
     });
 
-    this.#searchState.suggestions = Array.from(suggestions).slice(0, QuickBeeSearchBar.MAX_SUGGESTIONS);
-  }
-
-  /**
-   * Render search results in dropdown
-   */
-  #renderResults() {
-    const { results, suggestions } = this.#searchState;
-
-    // Hide history and suggestions if we have results
-    if (results.length > 0) {
-      this.#elements.historySection.hidden = true;
-    }
+    this.#searchState.suggestions = Array.from(suggestions).slice(0, 5);
 
     // Render suggestions
     this.#elements.suggestionItems.innerHTML = '';
-    if (suggestions.length > 0) {
+    if (this.#searchState.suggestions.length > 0) {
       this.#elements.suggestionsSection.hidden = false;
-      suggestions.forEach(suggestion => {
+      this.#elements.historySection.hidden = true;
+      this.#elements.emptyMessage.hidden = true;
+
+      this.#searchState.suggestions.forEach(suggestion => {
         const div = document.createElement('div');
         div.className = 'qb-suggestion-item';
         div.textContent = suggestion;
         div.addEventListener('click', () => {
           this.#elements.searchInput.value = suggestion;
-          this.#searchProducts(suggestion);
+          this.#onSearchSubmit(suggestion);
         });
         this.#elements.suggestionItems.appendChild(div);
       });
     } else {
       this.#elements.suggestionsSection.hidden = true;
-    }
-
-    // Render product results
-    this.#elements.resultItems.innerHTML = '';
-    if (results.length > 0) {
-      this.#elements.resultsSection.hidden = false;
-      this.#elements.emptyMessage.hidden = true;
-
-      results.forEach(product => {
-        const div = document.createElement('div');
-        div.className = 'qb-result-item';
-
-        // Get image URL
-        const imageUrl = product.featured_image?.url || product.image?.src || '';
-        const imageSrc = imageUrl ? this.#normalizeImageUrl(imageUrl) : '';
-
-        // Format price
-        const price = product.price ? `$${(product.price / 100).toFixed(2)}` : 'N/A';
-
-        div.innerHTML = `
-          ${imageSrc ? `<img src="${imageSrc}" alt="${product.title}" class="qb-result-image">` : '<div class="qb-result-image"></div>'}
-          <div class="qb-result-info">
-            <h4 class="qb-result-title">${this.#escapeHtml(product.title || '')}</h4>
-            <p class="qb-result-price">${price}</p>
-          </div>
-        `;
-
-        div.addEventListener('click', () => {
-          this.#addToHistory(this.#searchState.query);
-          window.location = product.url;
-        });
-
-        this.#elements.resultItems.appendChild(div);
-      });
-    } else if (this.#searchState.query.length >= 2) {
-      this.#elements.resultsSection.hidden = true;
+      this.#elements.historySection.hidden = true;
       this.#elements.emptyMessage.hidden = false;
-      this.#elements.suggestionsSection.hidden = true;
     }
 
     this.#showDropdown();
   }
+
 
   /**
    * Show search history (when input is empty)
    */
   #showHistory() {
     this.#elements.suggestionsSection.hidden = true;
-    this.#elements.resultsSection.hidden = true;
     this.#elements.emptyMessage.hidden = true;
 
     const history = this.#getHistory();
@@ -420,7 +277,7 @@ class QuickBeeSearchBar {
 
         const removeBtn = document.createElement('button');
         removeBtn.className = 'qb-remove-history';
-        removeBtn.textContent = '✕';
+        removeBtn.textContent = '×';
         removeBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           this.#removeFromHistory(item);
@@ -430,7 +287,7 @@ class QuickBeeSearchBar {
 
         div.addEventListener('click', () => {
           this.#elements.searchInput.value = item;
-          this.#searchProducts(item);
+          this.#onSearchSubmit(item);
         });
 
         this.#elements.historyItems.appendChild(div);
@@ -442,17 +299,6 @@ class QuickBeeSearchBar {
     this.#showDropdown();
   }
 
-  /**
-   * Show empty message
-   */
-  #showEmptyMessage(message) {
-    this.#elements.historySection.hidden = true;
-    this.#elements.suggestionsSection.hidden = true;
-    this.#elements.resultsSection.hidden = true;
-    this.#elements.emptyMessage.hidden = false;
-    this.#elements.emptyMessage.textContent = message;
-    this.#showDropdown();
-  }
 
   /**
    * Add search query to history
@@ -562,27 +408,6 @@ class QuickBeeSearchBar {
    */
   #normalizeString(str) {
     return (str || '').toLowerCase().trim();
-  }
-
-  /**
-   * Normalize image URL for Shopify
-   */
-  #normalizeImageUrl(url) {
-    if (!url) return '';
-    // Add size parameter for optimization
-    if (url.includes('?')) {
-      return url.replace('?', '?width=100&height=100&crop=center&');
-    }
-    return `${url}?width=100&height=100&crop=center`;
-  }
-
-  /**
-   * Escape HTML to prevent XSS
-   */
-  #escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
   }
 }
 
