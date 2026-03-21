@@ -2150,7 +2150,9 @@
     }
 
     function qbSelectLocation() {
-      if (!subareaSelect.value) {
+      console.log('qbSelectLocation v5 - selecting location');
+      var subareaSelect = document.getElementById('qbSubArea');
+      if (!subareaSelect || !subareaSelect.value) {
         alert('Please select all location levels');
         return;
       }
@@ -2189,16 +2191,18 @@
       });
     }
 
-    // Show delivery time for selected landmark
+    // Show delivery time for selected landmark (v3)
     function showDeliveryTime() {
-      if (subareaSelect.value) {
-        var deliveryTimeDisplay = document.getElementById('qbDeliveryTimeDisplay');
-        var deliveryTimeValue = document.getElementById('qbDeliveryTimeValue');
-        var deliveryTime = qbDeliveryTimes[subareaSelect.value] || 20;
-        deliveryTimeValue.textContent = deliveryTime;
-        deliveryTimeDisplay.style.display = 'block';
-      }
+      console.log('showDeliveryTime called');
+      var subareaSelect = document.getElementById('qbSubArea');
+      if (!subareaSelect || !subareaSelect.value) return;
+      var deliveryTimeDisplay = document.getElementById('qbDeliveryTimeDisplay');
+      var deliveryTimeValue = document.getElementById('qbDeliveryTimeValue');
+      var deliveryTime = qbDeliveryTimes[subareaSelect.value] || 20;
+      deliveryTimeValue.textContent = deliveryTime;
+      deliveryTimeDisplay.style.display = 'block';
     }
+    // Cache bust - v3
 
     // Open location modal and restore previous selection
     function qbOpenLocationModal() {
@@ -2207,7 +2211,7 @@
       modal.style.visibility = 'visible';
       modal.style.opacity = '1';
       modal.style.pointerEvents = 'auto';
-      setTimeout(showDeliveryTime, 50);
+      // setTimeout(showDeliveryTime, 50); // v4 cache bust
     }
 
     // Close location modal
@@ -2238,7 +2242,7 @@
       }
 
       // Show delivery time if landmark is pre-selected
-      setTimeout(showDeliveryTime, 100);
+      // setTimeout(showDeliveryTime, 100); // v4 cache bust
     });
     </script>
 
