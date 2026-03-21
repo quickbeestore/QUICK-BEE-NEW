@@ -3,6 +3,7 @@
  * Simple & clean search with:
  * 1. Typing animation (rotating placeholders)
  * 2. Recent search history
+ * Cache bust: 2026-03-22 12:16 UTC
  * 3. Search suggestions
  */
 
@@ -123,12 +124,14 @@ class QuickBeeSearchBar {
 
     // Focus/blur for placeholder rotation and dropdown visibility
     this.#elements.searchInput.addEventListener('focus', () => {
+      console.log('Search input focused');
       this.#stopPlaceholderRotation();
       if (this.#elements.placeholderText && !this.#elements.searchInput.value) {
         this.#elements.placeholderText.style.opacity = '0';
       }
       this.#showDropdown();
       if (!this.#elements.searchInput.value) {
+        console.log('Input is empty, showing history');
         this.#showHistory();
       }
     });
@@ -260,6 +263,7 @@ class QuickBeeSearchBar {
    * Show search history (when input is empty)
    */
   #showHistory() {
+    console.log('showHistory called, historySection:', !!this.#elements.historySection);
     if (this.#elements.suggestionsSection) {
       this.#elements.suggestionsSection.hidden = true;
     }
@@ -268,6 +272,7 @@ class QuickBeeSearchBar {
     }
 
     const history = this.#getHistory();
+    console.log('History items:', history.length);
     if (this.#elements.historyItems) {
       this.#elements.historyItems.innerHTML = '';
     }
