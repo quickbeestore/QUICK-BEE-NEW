@@ -176,109 +176,7 @@
   additional_blocks: additional_blocks
 %}
 
-<style>
-  /* Force light mode styling on product page - override all color schemes */
-  main .product-information,
-  main .product-information.color-1,
-  main .product-information.color-2,
-  main .product-information.color-3,
-  main .product-information.color-4,
-  main .product-information.color-5,
-  main .product-information.color-6,
-  [class*="color-"] .product-information,
-  [class*="color-"].product-information {
-    color-scheme: light !important;
-    --color-background: #faf8f3 !important;
-    --color-background-rgb: 250, 248, 243 !important;
-    --color-background-secondary: #f5f0e8 !important;
-    --color-foreground: #000000 !important;
-    --color-foreground-rgb: 0, 0, 0 !important;
-    --color-foreground-heading: #000000 !important;
-    --color-foreground-heading-rgb: 0, 0, 0 !important;
-    background-color: #faf8f3 !important;
-    color: #000 !important;
-  }
-
-  /* Override color scheme classes globally within product section */
-  main [class*="color-"],
-  main .group-block[class*="color-"] {
-    --color-background: #faf8f3 !important;
-    --color-background-rgb: 250, 248, 243 !important;
-    --color-foreground: #000000 !important;
-    --color-foreground-rgb: 0, 0, 0 !important;
-  }
-
-  .product-information,
-  .product-information * {
-    color-scheme: light !important;
-  }
-
-  .section-background {
-    background-color: #faf8f3 !important;
-  }
-
-  .product-information h1,
-  .product-information h2,
-  .product-information h3,
-  .product-information h4,
-  .product-information h5,
-  .product-information h6,
-  .product-information p,
-  .product-information span,
-  .product-information label,
-  .product-information div {
-    color: #000 !important;
-  }
-
-  /* Force light mode button colors - override all color schemes */
-  .add-to-cart-button {
-    color: #ffffff !important;
-    background-color: #8B0000 !important;
-    border-color: #8B0000 !important;
-  }
-
-  .add-to-cart-button * {
-    color: #ffffff !important;
-  }
-
-  .add-to-cart-button:hover {
-    background-color: #a00000 !important;
-    border-color: #a00000 !important;
-    color: #ffffff !important;
-  }
-
-  /* Force light mode on all product page sections */
-  .product-information section,
-  section[data-section-type="product"] {
-    background-color: white !important;
-    color: #000 !important;
-    color-scheme: light !important;
-  }
-
-  /* Force light on color scheme sections */
-  [class*="color-"] {
-    color-scheme: light !important;
-  }
-
-  /* Override ALL color scheme classes */
-  [class*="color-"] {
-    background-color: #faf8f3 !important;
-    color: #000 !important;
-  }
-
-  .color-background-1,
-  .color-background-2,
-  [class*="popover_color_scheme"] {
-    background-color: #faf8f3 !important;
-    color: #000 !important;
-  }
-
-  /* Remove dark overlays */
-  .product-information .group-block__media-wrapper {
-    background-image: none !important;
-    background-color: #faf8f3 !important;
-  }
-
+{% stylesheet %}
   .sticky-add-to-cart__bar {
     position: fixed;
     bottom: 20px;
@@ -460,33 +358,7 @@
       white-space: nowrap;
     }
   }
-
-  /* FORCE LIGHT MODE WHEN BROWSER DARK MODE IS ON */
-  @media (prefers-color-scheme: dark) {
-    .product-information {
-      color-scheme: light !important;
-      background-color: #ffffff !important;
-      color: #000000 !important;
-      --color-background: #ffffff !important;
-      --color-foreground: #000000 !important;
-    }
-
-    .product-information,
-    .product-information * {
-      color-scheme: light !important;
-      background-color: #ffffff !important;
-      color: #000000 !important;
-    }
-
-    .product-information [class*="color-"],
-    .product-information .group-block {
-      background-color: #ffffff !important;
-      color: #000000 !important;
-      --color-background: #ffffff !important;
-      --color-foreground: #000000 !important;
-    }
-  }
-</style>
+{% endstylesheet %}
 
 {% schema %}
 {
@@ -599,42 +471,3 @@
   "presets": []
 }
 {% endschema %}
-
-<script>
-  // Force button text color to white in dark mode
-  function forceButtonTextColor() {
-    // Find all buttons
-    const buttons = document.querySelectorAll('[class*="button"]');
-
-    buttons.forEach(btn => {
-      // Set inline style with !important using setAttribute
-      btn.setAttribute('style', btn.getAttribute('style') + '; color: #ffffff !important;');
-
-      // Also force all text content inside
-      const allElements = btn.querySelectorAll('*');
-      allElements.forEach(el => {
-        el.style.color = '#ffffff';
-      });
-
-      // Direct text nodes
-      btn.childNodes.forEach(node => {
-        if (node.nodeType === Node.TEXT_NODE) {
-          node.parentNode.style.color = '#ffffff';
-        }
-      });
-    });
-  }
-
-  // Run on page load
-  document.addEventListener('DOMContentLoaded', forceButtonTextColor);
-
-  // Also run immediately
-  forceButtonTextColor();
-
-  // Run periodically
-  setInterval(forceButtonTextColor, 500);
-
-  // Watch for DOM changes
-  const observer = new MutationObserver(forceButtonTextColor);
-  observer.observe(document.body, { childList: true, subtree: true });
-</script>

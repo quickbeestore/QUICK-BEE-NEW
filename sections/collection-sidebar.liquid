@@ -136,10 +136,10 @@
       padding: 10px 12px;
       border-bottom: 1px solid #eee;
       display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: column;
+      align-items: flex-start;
       gap: 10px;
+      flex-wrap: wrap;
       background: #fff;
       z-index: 99;
       flex-shrink: 0;
@@ -164,7 +164,7 @@
       display: flex;
       gap: 8px;
       align-items: center;
-      width: auto;
+      width: 100%;
     }
 
     .qb-sort-select {
@@ -176,7 +176,7 @@
       font-size: 12px;
       color: #333;
       transition: all 0.2s;
-      width: auto;
+      width: 100%;
       min-height: 36px;
     }
 
@@ -298,9 +298,9 @@
 
     .qb-add-btn {
       width: 100%;
-      background: var(--qb-red);
-      color: white;
-      border: none;
+      background: var(--qb-red) !important;
+      color: white !important;
+      border: none !important;
       border-radius: 4px;
       padding: 8px 10px;
       font-size: 12px;
@@ -308,10 +308,27 @@
       cursor: pointer;
       transition: all 0.2s;
       min-height: 36px;
+      color-scheme: light !important;
     }
 
     .qb-add-btn:active {
-      background: #6b0000;
+      background: #6b0000 !important;
+      color: white !important;
+    }
+
+    /* Dark mode support for collection buttons */
+    @media (prefers-color-scheme: dark) {
+      .qb-add-btn {
+        background: var(--qb-red) !important;
+        color: white !important;
+        border: none !important;
+        color-scheme: light !important;
+      }
+
+      .qb-add-btn:active {
+        background: #6b0000 !important;
+        color: white !important;
+      }
     }
 
     /* TABLET: 600px and up - slightly larger grid */
@@ -748,59 +765,13 @@
       this.appendChild(qtyInput);
     }
 
-    // Auto-detect and scroll to active collection from URL
-    function initializeActiveCategory() {
-      const currentPath = window.location.pathname.toLowerCase();
-      const collectionMatch = currentPath.match(/\/collections\/([^\/]+)/);
-      const currentCollection = collectionMatch ? collectionMatch[1] : null;
-
-      const categories = document.querySelectorAll('.qb-sidebar-category');
-      let activeCategory = null;
-      let collectionHandle = null;
-
-      if (currentCollection) {
-        // Find category matching current URL
-        categories.forEach(category => {
-          if (category.dataset.collectionHandle === currentCollection) {
-            activeCategory = category;
-            collectionHandle = currentCollection;
-          }
-        });
-      }
-
-      // Fallback to first category if no match found
-      if (!activeCategory) {
-        activeCategory = categories[0];
-        collectionHandle = activeCategory?.dataset.collectionHandle;
-      }
-
-      if (activeCategory && collectionHandle) {
-        // Mark as active
-        categories.forEach(cat => cat.classList.remove('active'));
-        activeCategory.classList.add('active');
-
-        // Scroll into view
-        const sidebar = document.getElementById('qb-collection-sidebar')?.querySelector('.qb-sidebar');
-        if (sidebar) {
-          const categoryTop = activeCategory.offsetTop;
-          const categoryHeight = activeCategory.offsetHeight;
-          const sidebarHeight = sidebar.clientHeight;
-          const scrollTop = sidebar.scrollTop;
-
-          // Calculate scroll position to center the active category
-          const scrollTo = categoryTop - (sidebarHeight / 2) + (categoryHeight / 2);
-          sidebar.scrollTop = Math.max(0, scrollTo);
-        }
-
-        // Update title and load products
-        const collectionTitle = activeCategory.dataset.collectionTitle;
-        document.querySelector('.qb-collection-title').textContent = collectionTitle;
-        loadCollectionProducts(collectionHandle);
-      }
+    // Mark first collection as active and load its products
+    const firstCategory = document.querySelector('.qb-sidebar-category');
+    if (firstCategory) {
+      firstCategory.classList.add('active');
+      const collectionHandle = firstCategory.dataset.collectionHandle;
+      loadCollectionProducts(collectionHandle);
     }
-
-    // Initialize with active category
-    initializeActiveCategory();
 
     // Initial attachment of listeners
     attachProductListeners();
