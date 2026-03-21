@@ -365,6 +365,46 @@
       .card__overlay {
         display: none !important;
       }
+
+      /* ============================================
+         MODAL AND DIALOG STYLING
+         ============================================ */
+      /* Modal backdrops - ensure they're visible */
+      [role="dialog"]::backdrop,
+      dialog::backdrop,
+      [class*="backdrop"],
+      [id*="backdrop"] {
+        background-color: rgba(0, 0, 0, 0.5) !important;
+        opacity: 1 !important;
+        display: block !important;
+      }
+
+      /* Dialog elements - ensure they're visible and properly styled */
+      dialog,
+      [role="dialog"] {
+        background-color: white !important;
+        opacity: 1 !important;
+        display: flex !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        z-index: 9999 !important;
+        border: none !important;
+        border-radius: 8px !important;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
+      }
+
+      /* Ensure modal containers show with proper styling */
+      [class*="modal-container"],
+      [class*="dialog-container"],
+      [class*="modal-content"],
+      [class*="dialog-content"] {
+        background-color: white !important;
+        opacity: 1 !important;
+        display: block !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        z-index: 9998 !important;
+      }
     </style>
 
     <link
@@ -386,35 +426,29 @@
     </div>
 
     <script>
-      // Prevent all modal/drawer/preview functionality and loading spinners from showing
+      // Hide loading spinners but allow modals/dialogs to display
       (function() {
-        // Hide all modals/drawers and spinners on page load
-        const hideBadElements = () => {
-          // Hide modals and drawers
-          document.querySelectorAll('[class*="modal"], [class*="drawer"], [role="dialog"]').forEach(el => {
-            el.style.display = 'none !important';
-            el.style.visibility = 'hidden';
-            el.style.pointerEvents = 'none';
-          });
-
+        const hideLoadingElements = () => {
           // Remove loading spinners completely
           document.querySelectorAll('.loading-spinner, .spinner').forEach(el => {
-            if (el.parentElement) {
+            if (el.parentElement && !el.closest('[role="dialog"]') && !el.closest('dialog')) {
               el.remove();
             }
           });
 
-          // Hide any elements with loading class
+          // Hide any elements with loading class (except in modals)
           document.querySelectorAll('.loading').forEach(el => {
-            el.style.display = 'none !important';
+            if (!el.closest('[role="dialog"]') && !el.closest('dialog')) {
+              el.style.display = 'none !important';
+            }
           });
         };
 
         // Run on load
-        hideBadElements();
+        hideLoadingElements();
 
         // Run when DOM changes to catch dynamically added elements
-        const observer = new MutationObserver(hideBadElements);
+        const observer = new MutationObserver(hideLoadingElements);
         observer.observe(document.body, { childList: true, subtree: true });
       })();
 
