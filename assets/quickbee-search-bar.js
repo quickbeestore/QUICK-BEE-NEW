@@ -468,11 +468,24 @@ class QuickBeeSearchBar {
 
     const searchRect = this.#elements.searchInput.getBoundingClientRect();
     const dropdown = this.#elements.dropdown;
+    const isMobile = window.innerWidth <= 640;
 
     // Position dropdown below search input
     dropdown.style.top = (searchRect.bottom + 8) + 'px';
-    dropdown.style.left = searchRect.left + 'px';
-    dropdown.style.width = searchRect.width + 'px';
+
+    if (isMobile) {
+      // Mobile: full width dropdown aligned to viewport
+      dropdown.style.left = '0';
+      dropdown.style.right = '0';
+      dropdown.style.width = '100vw';
+      dropdown.style.marginLeft = 'calc(-50vw + 50%)';
+    } else {
+      // Desktop: align with search bar
+      dropdown.style.left = searchRect.left + 'px';
+      dropdown.style.right = 'auto';
+      dropdown.style.width = searchRect.width + 'px';
+      dropdown.style.marginLeft = '0';
+    }
   }
 
   /**
