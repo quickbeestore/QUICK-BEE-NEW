@@ -272,18 +272,11 @@
       [id*="preview"],
       [class*="quick-view"],
       [id*="quick-view"],
-      [class*="modal"],
-      [id*="modal"],
-      [class*="drawer"],
-      [id*="drawer"],
-      [class*="overlay"],
-      [id*="overlay"],
       .shopify-section__overlay,
       .button-preview,
       .product-preview,
       [data-testid*="preview"],
       [role="tooltip"],
-      [role="dialog"],
       .tooltip-preview,
       button[aria-label*="preview"],
       button[aria-label*="quick"],
@@ -292,11 +285,7 @@
       .shopify-product-preview,
       .product__preview,
       .product__modal,
-      .product__drawer,
-      [class*="modal-content"],
-      [class*="drawer-content"],
-      .modal-overlay,
-      .drawer-overlay {
+      .product__drawer {
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
@@ -311,13 +300,6 @@
       [class*="quick"]::after,
       button[aria-label*="preview"]::before,
       button[aria-label*="preview"]::after {
-        display: none !important;
-      }
-
-      /* Disable all modals and overlays */
-      body > [class*="modal"],
-      body > [class*="drawer"],
-      body > [role="dialog"] {
         display: none !important;
       }
 
@@ -383,6 +365,72 @@
       .card__overlay {
         display: none !important;
       }
+
+      /* Hide all modals/dialogs by default - they show when opened */
+      dialog,
+      [role="dialog"],
+      [class*="modal"],
+      [class*="drawer"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+
+      /* ============================================
+         MODAL AND DIALOG STYLING - ONLY WHEN OPEN
+         ============================================ */
+      /* Modal backdrops - ensure they're visible when dialog is open */
+      dialog[open]::backdrop {
+        background-color: rgba(0, 0, 0, 0.5) !important;
+        opacity: 1 !important;
+        display: block !important;
+      }
+
+      /* Dialog elements - only style when open */
+      dialog[open] {
+        background-color: white !important;
+        opacity: 1 !important;
+        display: flex !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        z-index: 9999 !important;
+        border: none !important;
+        border-radius: 8px !important;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
+      }
+
+      /* Style dialogs with role and active state */
+      [role="dialog"].active,
+      [role="dialog"][open] {
+        background-color: white !important;
+        opacity: 1 !important;
+        display: flex !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        z-index: 9999 !important;
+      }
+
+      /* Modal containers when active */
+      [class*="modal-container"].active,
+      [class*="dialog-container"].active,
+      [class*="modal-content"].active,
+      [class*="dialog-content"].active {
+        background-color: white !important;
+        opacity: 1 !important;
+        display: block !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        z-index: 9998 !important;
+      }
+
+      /* Location modal - allow reopening */
+      #qbLocModal[style*="display: flex"] {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+      }
     </style>
 
     <link
@@ -404,35 +452,29 @@
     </div>
 
     <script>
-      // Prevent all modal/drawer/preview functionality and loading spinners from showing
+      // Hide loading spinners but allow modals/dialogs to display
       (function() {
-        // Hide all modals/drawers and spinners on page load
-        const hideBadElements = () => {
-          // Hide modals and drawers
-          document.querySelectorAll('[class*="modal"], [class*="drawer"], [role="dialog"]').forEach(el => {
-            el.style.display = 'none !important';
-            el.style.visibility = 'hidden';
-            el.style.pointerEvents = 'none';
-          });
-
+        const hideLoadingElements = () => {
           // Remove loading spinners completely
           document.querySelectorAll('.loading-spinner, .spinner').forEach(el => {
-            if (el.parentElement) {
+            if (el.parentElement && !el.closest('[role="dialog"]') && !el.closest('dialog')) {
               el.remove();
             }
           });
 
-          // Hide any elements with loading class
+          // Hide any elements with loading class (except in modals)
           document.querySelectorAll('.loading').forEach(el => {
-            el.style.display = 'none !important';
+            if (!el.closest('[role="dialog"]') && !el.closest('dialog')) {
+              el.style.display = 'none !important';
+            }
           });
         };
 
         // Run on load
-        hideBadElements();
+        hideLoadingElements();
 
         // Run when DOM changes to catch dynamically added elements
-        const observer = new MutationObserver(hideBadElements);
+        const observer = new MutationObserver(hideLoadingElements);
         observer.observe(document.body, { childList: true, subtree: true });
       })();
 
