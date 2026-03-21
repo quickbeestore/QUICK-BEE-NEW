@@ -620,3 +620,42 @@
   "presets": []
 }
 {% endschema %}
+
+<script>
+  // Force button text color to white in dark mode
+  function forceButtonTextColor() {
+    // Find all buttons
+    const buttons = document.querySelectorAll('[class*="button"]');
+
+    buttons.forEach(btn => {
+      // Set inline style with !important using setAttribute
+      btn.setAttribute('style', btn.getAttribute('style') + '; color: #ffffff !important;');
+
+      // Also force all text content inside
+      const allElements = btn.querySelectorAll('*');
+      allElements.forEach(el => {
+        el.style.color = '#ffffff';
+      });
+
+      // Direct text nodes
+      btn.childNodes.forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          node.parentNode.style.color = '#ffffff';
+        }
+      });
+    });
+  }
+
+  // Run on page load
+  document.addEventListener('DOMContentLoaded', forceButtonTextColor);
+
+  // Also run immediately
+  forceButtonTextColor();
+
+  // Run periodically
+  setInterval(forceButtonTextColor, 500);
+
+  // Watch for DOM changes
+  const observer = new MutationObserver(forceButtonTextColor);
+  observer.observe(document.body, { childList: true, subtree: true });
+</script>
