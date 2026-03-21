@@ -123,39 +123,59 @@
 {% endstylesheet %}
 
 <script>
-  // Force light mode on product details
-  document.addEventListener('DOMContentLoaded', function() {
+  // Force light mode on product details - with MutationObserver for continuous enforcement
+  function applyLightMode() {
     const productDetails = document.getElementById('ProductInformation-{{ section.id }}');
     if (productDetails) {
-      // Force light mode colors
-      productDetails.style.backgroundColor = '#faf8f3';
-      productDetails.style.color = '#000000';
-      productDetails.style.colorScheme = 'light';
+      // Force light mode colors on main container
+      productDetails.style.backgroundColor = '#faf8f3 !important';
+      productDetails.style.color = '#000000 !important';
+      productDetails.style.colorScheme = 'light !important';
 
       // Apply to group blocks
       const groupBlocks = productDetails.querySelectorAll('.group-block');
       groupBlocks.forEach(block => {
-        block.style.backgroundColor = '#faf8f3';
-        block.style.color = '#000000';
-        block.style.colorScheme = 'light';
+        block.style.backgroundColor = '#faf8f3 !important';
+        block.style.color = '#000000 !important';
+        block.style.colorScheme = 'light !important';
       });
 
       // Remove dark overlay/media wrappers
       const mediaWrappers = productDetails.querySelectorAll('.group-block__media-wrapper');
       mediaWrappers.forEach(wrapper => {
-        wrapper.style.backgroundColor = '#faf8f3';
-        wrapper.style.backgroundImage = 'none';
-        wrapper.style.display = 'none';
+        wrapper.style.backgroundColor = '#faf8f3 !important';
+        wrapper.style.backgroundImage = 'none !important';
+        wrapper.style.display = 'none !important';
       });
 
-      // Force all text elements to be visible black
-      const allElements = productDetails.querySelectorAll('*');
-      allElements.forEach(el => {
-        el.style.backgroundColor = '';
-        el.style.color = '#000000';
+      // Force text colors on headings and text
+      const textElements = productDetails.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, label, div');
+      textElements.forEach(el => {
+        const computedStyle = window.getComputedStyle(el);
+        if (el.style.color === '' || el.style.color === 'rgb(128, 128, 128)' || el.style.color.includes('gray') || el.style.color === 'rgb(102, 102, 102)') {
+          el.style.color = '#000000 !important';
+        }
       });
     }
-  });
+  }
+
+  // Apply on load
+  document.addEventListener('DOMContentLoaded', applyLightMode);
+
+  // Reapply every 500ms to ensure light mode stays on
+  setInterval(applyLightMode, 500);
+
+  // Also apply with MutationObserver for any DOM changes
+  const productDetails = document.getElementById('ProductInformation-{{ section.id }}');
+  if (productDetails) {
+    const observer = new MutationObserver(applyLightMode);
+    observer.observe(productDetails, {
+      attributes: true,
+      attributeFilter: ['style', 'class'],
+      subtree: true,
+      characterData: false
+    });
+  }
 </script>
 
 {% schema %}
