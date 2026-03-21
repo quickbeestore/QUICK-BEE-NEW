@@ -161,6 +161,17 @@ class QuickBeeSearchBar {
         this.#hideDropdown();
       }
     });
+
+    // Clear history button
+    const clearBtn = document.getElementById('qbClearHistory');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.#clearAllHistory();
+        this.#showHistory();
+      });
+    }
   }
 
   /**
@@ -355,6 +366,13 @@ class QuickBeeSearchBar {
     let history = this.#getHistory();
     history = history.filter(h => h !== item);
     localStorage.setItem(QuickBeeSearchBar.SEARCH_HISTORY_KEY, JSON.stringify(history));
+  }
+
+  /**
+   * Clear all search history
+   */
+  #clearAllHistory() {
+    localStorage.removeItem(QuickBeeSearchBar.SEARCH_HISTORY_KEY);
   }
 
   /**
