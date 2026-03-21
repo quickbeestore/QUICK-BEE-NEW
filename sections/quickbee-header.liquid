@@ -1019,24 +1019,23 @@
     content: "🔍";
   }
 
+  /* Empty State */
   .qb-search-empty {
-    padding: 32px 16px;
+    padding: 24px 16px;
     text-align: center;
-    color: #999;
+    color: #5f6368;
     font-size: 14px;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
   }
 
   .qb-search-empty-icon {
     font-size: 32px;
-    margin-bottom: 12px;
-  }
-
-  /* Empty State */
-  .qb-search-empty {
-    padding: 16px;
-    text-align: center;
-    color: #9aa0a6;
-    font-size: 14px;
+    margin: 0;
   }
 
   /* Responsive */
@@ -2688,19 +2687,17 @@
           const history = getHistory();
           console.log('🐝 History items:', history);
 
-          // Hide other sections
+          // Hide suggestions section
           if (suggestionsSection) suggestionsSection.hidden = true;
-          if (emptyMessage) emptyMessage.hidden = true;
 
-          // Show history or empty
-          if (historySection) {
-            historySection.hidden = history.length === 0;
-          }
+          if (history.length > 0) {
+            // Show history, hide empty state
+            if (historySection) historySection.hidden = false;
+            if (emptyMessage) emptyMessage.hidden = true;
 
-          // Render history items
-          if (historyItems) {
-            historyItems.innerHTML = '';
-            if (history.length > 0) {
+            // Render history items
+            if (historyItems) {
+              historyItems.innerHTML = '';
               history.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'qb-history-item';
@@ -2729,6 +2726,13 @@
 
                 historyItems.appendChild(div);
               });
+            }
+          } else {
+            // No history - show empty state
+            if (historySection) historySection.hidden = true;
+            if (emptyMessage) {
+              emptyMessage.hidden = false;
+              emptyMessage.innerHTML = '<div class="qb-search-empty-icon">🔍</div><div>Start typing to search or see suggestions</div>';
             }
           }
 
