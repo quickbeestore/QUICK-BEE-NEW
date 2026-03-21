@@ -366,22 +366,29 @@
         display: none !important;
       }
 
+      /* Hide all modals/dialogs by default - they show when opened */
+      dialog,
+      [role="dialog"],
+      [class*="modal"],
+      [class*="drawer"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+
       /* ============================================
-         MODAL AND DIALOG STYLING
+         MODAL AND DIALOG STYLING - ONLY WHEN OPEN
          ============================================ */
-      /* Modal backdrops - ensure they're visible */
-      [role="dialog"]::backdrop,
-      dialog::backdrop,
-      [class*="backdrop"],
-      [id*="backdrop"] {
+      /* Modal backdrops - ensure they're visible when dialog is open */
+      dialog[open]::backdrop {
         background-color: rgba(0, 0, 0, 0.5) !important;
         opacity: 1 !important;
         display: block !important;
       }
 
-      /* Dialog elements - ensure they're visible and properly styled */
-      dialog,
-      [role="dialog"] {
+      /* Dialog elements - only style when open */
+      dialog[open] {
         background-color: white !important;
         opacity: 1 !important;
         display: flex !important;
@@ -393,11 +400,22 @@
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
       }
 
-      /* Ensure modal containers show with proper styling */
-      [class*="modal-container"],
-      [class*="dialog-container"],
-      [class*="modal-content"],
-      [class*="dialog-content"] {
+      /* Style dialogs with role and active state */
+      [role="dialog"].active,
+      [role="dialog"][open] {
+        background-color: white !important;
+        opacity: 1 !important;
+        display: flex !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        z-index: 9999 !important;
+      }
+
+      /* Modal containers when active */
+      [class*="modal-container"].active,
+      [class*="dialog-container"].active,
+      [class*="modal-content"].active,
+      [class*="dialog-content"].active {
         background-color: white !important;
         opacity: 1 !important;
         display: block !important;
