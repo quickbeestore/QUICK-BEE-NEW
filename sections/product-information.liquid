@@ -624,12 +624,24 @@
 <script>
   // Force button text color to white in dark mode
   function forceButtonTextColor() {
-    const buttons = document.querySelectorAll('.button, .add-to-cart-button, .sticky-add-to-cart__button');
+    // Find all buttons
+    const buttons = document.querySelectorAll('[class*="button"]');
+
     buttons.forEach(btn => {
-      btn.style.setProperty('color', '#ffffff', 'important');
-      const textNodes = btn.querySelectorAll('span, div, p, a');
-      textNodes.forEach(node => {
-        node.style.setProperty('color', '#ffffff', 'important');
+      // Set inline style with !important using setAttribute
+      btn.setAttribute('style', btn.getAttribute('style') + '; color: #ffffff !important;');
+
+      // Also force all text content inside
+      const allElements = btn.querySelectorAll('*');
+      allElements.forEach(el => {
+        el.style.color = '#ffffff';
+      });
+
+      // Direct text nodes
+      btn.childNodes.forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          node.parentNode.style.color = '#ffffff';
+        }
       });
     });
   }
@@ -637,6 +649,13 @@
   // Run on page load
   document.addEventListener('DOMContentLoaded', forceButtonTextColor);
 
-  // Run periodically to catch dynamically added buttons
-  setInterval(forceButtonTextColor, 1000);
+  // Also run immediately
+  forceButtonTextColor();
+
+  // Run periodically
+  setInterval(forceButtonTextColor, 500);
+
+  // Watch for DOM changes
+  const observer = new MutationObserver(forceButtonTextColor);
+  observer.observe(document.body, { childList: true, subtree: true });
 </script>
