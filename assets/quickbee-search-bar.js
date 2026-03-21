@@ -1,0 +1,436 @@
+/**
+ * QuickBEE Search Bar Component
+ * Simple & clean search with:
+ * 1. Typing animation (rotating placeholders)
+ * 2. Recent search history
+ * 3. Search suggestions
+ */
+
+class QuickBeeSearchBar {
+  // Constants
+  static SEARCH_HISTORY_KEY = 'qb_search_history';
+  static MAX_HISTORY_ITEMS = 10;
+  static DEBOUNCE_DELAY = 300;
+  static PLACEHOLDER_INTERVAL = 3000;
+  static MAX_SUGGESTIONS = 5;
+
+  // Rotating placeholder texts
+  #rotatingPlaceholders = [
+    'Search products…',
+    'Find groceries…',
+    'Browse deals…',
+    'Search by name…',
+    'Discover items…'
+  ];
+
+  // State
+  #searchState = {
+    query: '',
+    suggestions: []
+  };
+
+  // DOM elements (will be populated via refs)
+  #elements = {
+    container: null,
+    searchInput: null,
+    placeholderText: null,
+    dropdown: null,
+    historySection: null,
+    historyItems: null,
+    suggestionsSection: null,
+    suggestionItems: null,
+    emptyMessage: null
+  };
+
+  // Timers
+  #placeholderIndex = 0;
+  #placeholderInterval = null;
+  #searchDebounceTimer = null;
+
+  constructor(containerElement) {
+    if (!containerElement) {
+      console.error('QuickBeeSearchBar: container element not found');
+      return;
+    }
+
+    this.#elements.container = containerElement;
+
+    // Get all required elements using ref attributes
+    this.#mapElements();
+
+    // Validate required elements
+    if (!this.#validateElements()) {
+      console.error('QuickBeeSearchBar: required elements not found');
+      return;
+    }
+
+    // Initialize
+    this.#init();
+  }
+
+  /**
+   * Map DOM elements using ref attributes
+   */
+  #mapElements() {
+    // Map by ID
+    this.#elements.searchInput = this.#elements.container.querySelector('#qbSearchInput');
+    this.#elements.dropdown = this.#elements.container.querySelector('#qbSearchDropdown');
+
+    // Map by class (fallback for sections that may not have IDs)
+    this.#elements.historySection = this.#elements.container.querySelector('.qb-search-history');
+    this.#elements.suggestionsSection = this.#elements.container.querySelector('.qb-search-suggestions');
+    this.#elements.emptyMessage = this.#elements.container.querySelector('.qb-search-empty');
+
+    // Map container items directly
+    this.#elements.historyItems = this.#elements.container.querySelector('.qb-history-items');
+    this.#elements.suggestionItems = this.#elements.container.querySelector('.qb-suggestion-items');
+
+    // Map placeholder text span
+    this.#elements.placeholderText = this.#elements.container.querySelector('.qb-search-placeholder-text');
+  }
+
+  /**
+   * Validate that all required elements are present
+   */
+  #validateElements() {
+    const required = ['searchInput', 'dropdown', 'historyItems', 'suggestionItems'];
+    for (const key of required) {
+      if (!this.#elements[key]) {
+        console.warn(`QuickBeeSearchBar: missing element: ${key}`);
+      }
+    }
+    return this.#elements.searchInput && this.#elements.dropdown;
+  }
+
+  /**
+   * Initialize the search bar
+   */
+  #init() {
+    this.#attachEventListeners();
+    this.#startPlaceholderRotation();
+    this.#positionDropdown();
+    window.addEventListener('resize', () => this.#positionDropdown());
+  }
+
+  /**
+   * Attach all event listeners
+   */
+  #attachEventListeners() {
+    // Input event - live search with debounce
+    this.#elements.searchInput.addEventListener('input', (e) => {
+      this.#onSearchInput(e.target.value);
+    });
+
+    // Focus/blur for placeholder rotation and dropdown visibility
+    this.#elements.searchInput.addEventListener('focus', () => {
+      this.#stopPlaceholderRotation();
+      if (this.#elements.placeholderText && !this.#elements.searchInput.value) {
+        this.#elements.placeholderText.style.opacity = '0';
+      }
+      this.#showDropdown();
+      if (!this.#elements.searchInput.value) {
+        this.#showHistory();
+      }
+    });
+
+    this.#elements.searchInput.addEventListener('blur', () => {
+      // Delay hide to allow click handlers to fire
+      setTimeout(() => {
+        this.#hideDropdown();
+        if (this.#elements.placeholderText && !this.#elements.searchInput.value) {
+          this.#elements.placeholderText.style.opacity = '1';
+        }
+        this.#startPlaceholderRotation();
+      }, 200);
+    });
+
+    // Enter key - submit search
+    this.#elements.searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        this.#onSearchSubmit(this.#elements.searchInput.value);
+      }
+    });
+
+    // Click outside dropdown to close
+    document.addEventListener('click', (e) => {
+      if (!this.#elements.container.contains(e.target)) {
+        this.#hideDropdown();
+      }
+    });
+  }
+
+  /**
+   * Handle search input - debounced
+   */
+  #onSearchInput(query) {
+    // Hide placeholder text when user types
+    if (this.#elements.placeholderText) {
+      this.#elements.placeholderText.style.opacity = query.length > 0 ? '0' : '1';
+      this.#elements.placeholderText.style.pointerEvents = query.length > 0 ? 'none' : 'auto';
+    }
+
+    if (this.#searchDebounceTimer) {
+      clearTimeout(this.#searchDebounceTimer);
+    }
+
+    this.#searchState.query = query;
+
+    this.#searchDebounceTimer = setTimeout(() => {
+      if (query.length < 2) {
+        this.#showHistory();
+        return;
+      }
+
+      this.#showSuggestions(query);
+    }, QuickBeeSearchBar.DEBOUNCE_DELAY);
+  }
+
+  /**
+   * Handle search submission (Enter key)
+   */
+  #onSearchSubmit(query) {
+    if (query.length >= 2) {
+      this.#addToHistory(query);
+      window.location = `${window.__QUICKBEE_SEARCH_DATA__.searchRoute}?q=${encodeURIComponent(query)}`;
+    }
+  }
+
+  /**
+   * Show suggestions for the query
+   */
+  #showSuggestions(query) {
+    const categories = window.__QUICKBEE_SEARCH_DATA__?.categories || [];
+    const normalized = this.#normalizeString(query);
+    const suggestions = new Set();
+
+    // Add matching categories
+    categories.forEach(cat => {
+      if (this.#normalizeString(cat).includes(normalized)) {
+        suggestions.add(cat);
+      }
+    });
+
+    this.#searchState.suggestions = Array.from(suggestions).slice(0, 5);
+
+    // Render suggestions
+    if (this.#elements.suggestionItems) {
+      this.#elements.suggestionItems.innerHTML = '';
+    }
+    if (this.#searchState.suggestions.length > 0) {
+      if (this.#elements.suggestionsSection) {
+        this.#elements.suggestionsSection.hidden = false;
+      }
+      if (this.#elements.historySection) {
+        this.#elements.historySection.hidden = true;
+      }
+      if (this.#elements.emptyMessage) {
+        this.#elements.emptyMessage.hidden = true;
+      }
+
+      this.#searchState.suggestions.forEach(suggestion => {
+        const div = document.createElement('div');
+        div.className = 'qb-suggestion-item';
+        div.textContent = suggestion;
+        div.addEventListener('click', () => {
+          this.#elements.searchInput.value = suggestion;
+          this.#onSearchSubmit(suggestion);
+        });
+        if (this.#elements.suggestionItems) {
+          this.#elements.suggestionItems.appendChild(div);
+        }
+      });
+    } else {
+      if (this.#elements.suggestionsSection) {
+        this.#elements.suggestionsSection.hidden = true;
+      }
+      if (this.#elements.historySection) {
+        this.#elements.historySection.hidden = true;
+      }
+      if (this.#elements.emptyMessage) {
+        this.#elements.emptyMessage.hidden = false;
+      }
+    }
+
+    this.#showDropdown();
+  }
+
+
+  /**
+   * Show search history (when input is empty)
+   */
+  #showHistory() {
+    if (this.#elements.suggestionsSection) {
+      this.#elements.suggestionsSection.hidden = true;
+    }
+    if (this.#elements.emptyMessage) {
+      this.#elements.emptyMessage.hidden = true;
+    }
+
+    const history = this.#getHistory();
+    if (this.#elements.historyItems) {
+      this.#elements.historyItems.innerHTML = '';
+    }
+
+    if (history.length > 0) {
+      if (this.#elements.historySection) {
+        this.#elements.historySection.hidden = false;
+      }
+      history.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'qb-history-item';
+
+        const text = document.createElement('span');
+        text.textContent = item;
+        div.appendChild(text);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'qb-remove-history';
+        removeBtn.textContent = '×';
+        removeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.#removeFromHistory(item);
+          this.#showHistory();
+        });
+        div.appendChild(removeBtn);
+
+        div.addEventListener('click', () => {
+          this.#elements.searchInput.value = item;
+          this.#onSearchSubmit(item);
+        });
+
+        if (this.#elements.historyItems) {
+          this.#elements.historyItems.appendChild(div);
+        }
+      });
+    } else {
+      if (this.#elements.historySection) {
+        this.#elements.historySection.hidden = true;
+      }
+    }
+
+    this.#showDropdown();
+  }
+
+
+  /**
+   * Add search query to history
+   */
+  #addToHistory(query) {
+    if (!query || query.length < 2) return;
+
+    let history = this.#getHistory();
+    // Remove duplicate if exists
+    history = history.filter(item => item !== query);
+    // Add to front
+    history.unshift(query);
+    // Limit size
+    history = history.slice(0, QuickBeeSearchBar.MAX_HISTORY_ITEMS);
+
+    localStorage.setItem(QuickBeeSearchBar.SEARCH_HISTORY_KEY, JSON.stringify(history));
+  }
+
+  /**
+   * Get search history from localStorage
+   */
+  #getHistory() {
+    try {
+      const stored = localStorage.getItem(QuickBeeSearchBar.SEARCH_HISTORY_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch (error) {
+      console.warn('Failed to read search history:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Remove item from history
+   */
+  #removeFromHistory(item) {
+    let history = this.#getHistory();
+    history = history.filter(h => h !== item);
+    localStorage.setItem(QuickBeeSearchBar.SEARCH_HISTORY_KEY, JSON.stringify(history));
+  }
+
+  /**
+   * Start rotating placeholders
+   */
+  #startPlaceholderRotation() {
+    if (this.#placeholderInterval) return;
+
+    // Set initial placeholder
+    if (this.#elements.placeholderText) {
+      this.#updatePlaceholder();
+    }
+
+    this.#placeholderInterval = setInterval(() => {
+      if (document.activeElement !== this.#elements.searchInput && this.#elements.placeholderText && !this.#elements.searchInput.value) {
+        this.#placeholderIndex = (this.#placeholderIndex + 1) % this.#rotatingPlaceholders.length;
+        this.#updatePlaceholder();
+      }
+    }, QuickBeeSearchBar.PLACEHOLDER_INTERVAL);
+  }
+
+  /**
+   * Update placeholder text
+   */
+  #updatePlaceholder() {
+    if (this.#elements.placeholderText) {
+      this.#elements.placeholderText.textContent = this.#rotatingPlaceholders[this.#placeholderIndex];
+    }
+  }
+
+  /**
+   * Stop rotating placeholders
+   */
+  #stopPlaceholderRotation() {
+    if (this.#placeholderInterval) {
+      clearInterval(this.#placeholderInterval);
+      this.#placeholderInterval = null;
+    }
+  }
+
+  /**
+   * Show dropdown
+   */
+  #showDropdown() {
+    if (this.#elements.dropdown) {
+      this.#elements.dropdown.hidden = false;
+      this.#positionDropdown();
+    }
+  }
+
+  /**
+   * Hide dropdown
+   */
+  #hideDropdown() {
+    if (this.#elements.dropdown) {
+      this.#elements.dropdown.hidden = true;
+    }
+  }
+
+  /**
+   * Position dropdown below search input
+   */
+  #positionDropdown() {
+    if (!this.#elements.dropdown || !this.#elements.searchInput) return;
+
+    const searchRect = this.#elements.searchInput.getBoundingClientRect();
+    const dropdown = this.#elements.dropdown;
+
+    // Position dropdown below search input
+    dropdown.style.top = (searchRect.bottom + 8) + 'px';
+    dropdown.style.left = searchRect.left + 'px';
+    dropdown.style.width = searchRect.width + 'px';
+  }
+
+  /**
+   * Normalize string for comparison
+   */
+  #normalizeString(str) {
+    return (str || '').toLowerCase().trim();
+  }
+}
+
+// Export for module usage
+export default QuickBeeSearchBar;
