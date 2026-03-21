@@ -812,18 +812,26 @@
     z-index: 999999 !important;
     background: white !important;
     border: 1px solid #dadce0 !important;
-    border-radius: 8px !important;
-    box-shadow: 0 2px 5px 1px rgba(64, 60, 67, 0.16) !important;
-    max-height: 400px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    max-height: 500px !important;
     overflow-y: auto !important;
     min-width: 300px !important;
-    top: auto !important;
-    left: auto !important;
-    right: auto !important;
-    bottom: auto !important;
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
+    animation: qb-dropdown-slide-down 0.2s ease-out !important;
+  }
+
+  @keyframes qb-dropdown-slide-down {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .qb-search-dropdown[hidden],
@@ -2635,8 +2643,6 @@
 
     <!-- Inline Search Bar Initialization -->
     <script>
-      console.log('🐝 QuickBEE Search Bar Script Loading...');
-
       (function() {
         const searchInput = document.getElementById('qbSearchInput');
         const dropdown = document.getElementById('qbSearchDropdown');
@@ -2644,23 +2650,9 @@
         const historyItems = document.querySelector('.qb-history-items');
         const clearBtn = document.getElementById('qbClearHistory');
         const suggestionsSection = document.getElementById('qbSearchSuggestions');
-        const suggestionItems = document.querySelector('.qb-suggestion-items');
         const emptyMessage = document.getElementById('qbSearchEmpty');
 
-        console.log('🐝 Elements Check:', {
-          searchInput: !!searchInput,
-          dropdown: !!dropdown,
-          historySection: !!historySection,
-          historyItems: !!historyItems,
-          clearBtn: !!clearBtn
-        });
-
-        if (!searchInput || !dropdown) {
-          console.error('🐝 ERROR: Search bar elements missing!', { searchInput, dropdown });
-          return;
-        }
-
-        console.log('🐝 Elements found! Initializing...');
+        if (!searchInput || !dropdown) return;
 
         // Get history
         function getHistory() {
@@ -2681,18 +2673,23 @@
           localStorage.setItem('qb_search_history', JSON.stringify(history));
         }
 
-        // Show history
-        function showHistory() {
-          console.log('🐝 Showing history...');
-          const history = getHistory();
-          console.log('🐝 History items:', history);
+        // Trending searches
+        const trendingSearches = [
+          { text: 'Dairy Products' },
+          { text: 'Fresh Vegetables' },
+          { text: 'Snacks & Sweets' },
+          { text: 'Beverages' },
+          { text: 'Frozen Foods' }
+        ];
 
-          // Hide suggestions section
-          if (suggestionsSection) suggestionsSection.hidden = true;
+        // Show history or trending searches
+        function showHistory() {
+          const history = getHistory();
 
           if (history.length > 0) {
-            // Show history, hide empty state
+            // Show history
             if (historySection) historySection.hidden = false;
+            if (suggestionsSection) suggestionsSection.hidden = true;
             if (emptyMessage) emptyMessage.hidden = true;
 
             // Render history items
@@ -2703,19 +2700,14 @@
                 div.className = 'qb-history-item';
                 div.innerHTML = `<span>${item}</span><button class="qb-remove-history" type="button">×</button>`;
 
-                // Item click
                 div.addEventListener('click', (e) => {
-                  if (e.target.classList.contains('qb-remove-history')) {
-                    return; // Don't search if remove button clicked
-                  }
+                  if (e.target.classList.contains('qb-remove-history')) return;
                   searchInput.value = item;
                   addToHistory(item);
                   window.location = `/search?q=${encodeURIComponent(item)}`;
                 });
 
-                // Remove button
-                const removeBtn = div.querySelector('.qb-remove-history');
-                removeBtn.addEventListener('click', (e) => {
+                div.querySelector('.qb-remove-history').addEventListener('click', (e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   let h = getHistory();
@@ -2728,15 +2720,32 @@
               });
             }
           } else {
-            // No history - show empty state
+            // Show trending searches
             if (historySection) historySection.hidden = true;
-            if (emptyMessage) {
-              emptyMessage.hidden = false;
-              emptyMessage.innerHTML = '<div class="qb-search-empty-icon">🔍</div><div>Start typing to search or see suggestions</div>';
+            if (emptyMessage) emptyMessage.hidden = true;
+            if (suggestionsSection) {
+              suggestionsSection.hidden = false;
+              const suggestionItemsEl = document.querySelector('.qb-suggestion-items');
+              if (suggestionItemsEl) {
+                suggestionItemsEl.innerHTML = '';
+                trendingSearches.forEach(trend => {
+                  const div = document.createElement('div');
+                  div.className = 'qb-suggestion-item';
+                  div.setAttribute('data-type', 'trending');
+                  div.innerHTML = `<div class="qb-suggestion-icon"></div><div class="qb-suggestion-text">${trend.text}</div>`;
+
+                  div.addEventListener('click', () => {
+                    searchInput.value = trend.text;
+                    addToHistory(trend.text);
+                    window.location = `/search?q=${encodeURIComponent(trend.text)}`;
+                  });
+
+                  suggestionItemsEl.appendChild(div);
+                });
+              }
             }
           }
 
-          // Show dropdown
           showDropdown();
         }
 
@@ -2749,7 +2758,6 @@
             dropdown.style.opacity = '1 !important';
           }
           positionDropdown();
-          console.log('🐝 Dropdown shown');
         }
 
         // Hide dropdown
@@ -2759,7 +2767,6 @@
             dropdown.style.display = 'none';
             dropdown.style.visibility = 'hidden';
           }
-          console.log('🐝 Dropdown hidden');
         }
 
         // Position dropdown below search input
@@ -2768,49 +2775,24 @@
 
           try {
             const rect = searchInput.getBoundingClientRect();
-            console.log('🐝 Search rect:', {
-              bottom: Math.round(rect.bottom),
-              left: Math.round(rect.left),
-              width: Math.round(rect.width),
-              right: Math.round(rect.right)
-            });
+            const gap = 12;
 
             dropdown.style.position = 'fixed !important';
-            dropdown.style.top = (rect.bottom + 8) + 'px';
+            dropdown.style.top = (rect.bottom + gap) + 'px';
             dropdown.style.left = rect.left + 'px';
             dropdown.style.width = rect.width + 'px';
             dropdown.style.zIndex = '999999 !important';
-
-            console.log('🐝 Dropdown positioned at:', {
-              top: Math.round(rect.bottom + 8) + 'px',
-              left: Math.round(rect.left) + 'px',
-              width: Math.round(rect.width) + 'px'
-            });
           } catch (e) {
-            console.error('🐝 Position error:', e);
+            // Silently fail
           }
         }
 
         // Events
-        searchInput.addEventListener('focus', () => {
-          console.log('🐝 Search input focused');
-          showHistory();
-        });
-
-        searchInput.addEventListener('blur', () => {
-          console.log('🐝 Search input blurred');
-          setTimeout(hideDropdown, 200);
-        });
-
+        searchInput.addEventListener('focus', showHistory);
+        searchInput.addEventListener('blur', () => setTimeout(hideDropdown, 200));
         searchInput.addEventListener('input', (e) => {
-          const value = e.target.value.trim();
-          console.log('🐝 Search input changed:', value);
-
-          if (value.length < 2) {
+          if (e.target.value.trim().length < 2) {
             showHistory();
-          } else {
-            // Here you could add live search functionality
-            showHistory(); // For now just show history
           }
         });
 
@@ -2829,21 +2811,17 @@
           clearBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('🐝 Clearing search history');
             localStorage.removeItem('qb_search_history');
             showHistory();
           });
         }
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', (e) => {
           const container = document.getElementById('qbSearchContainer');
           if (container && !container.contains(e.target) && dropdown && !dropdown.contains(e.target)) {
             hideDropdown();
           }
         });
-
-        console.log('🐝 Search bar initialized successfully');
       })();
     </script>
 
