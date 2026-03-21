@@ -131,8 +131,14 @@ class QuickBeeSearchBar {
       }
       this.#showDropdown();
       if (!this.#elements.searchInput.value) {
-        console.log('Input is empty, showing history');
-        this.#showHistory();
+        console.log('Input is empty, showing history or suggestions');
+        const history = this.#getHistory();
+        if (history.length > 0) {
+          this.#showHistory();
+        } else {
+          // Show initial suggestions if no history
+          this.#showInitialSuggestions();
+        }
       }
     });
 
@@ -211,6 +217,73 @@ class QuickBeeSearchBar {
   }
 
   /**
+   * Show initial suggestions when search bar is focused but empty
+   */
+  #showInitialSuggestions() {
+    const categories = window.__QUICKBEE_SEARCH_DATA__?.categories || [];
+    const suggestions = [];
+
+    // Show top 3-4 categories as "Browse" suggestions
+    categories.slice(0, Math.min(4, categories.length)).forEach(cat => {
+      suggestions.push(`Browse ${cat}`);
+    });
+
+    // Add a trending/popular suggestion
+    if (categories.length > 0) {
+      suggestions.push(`Popular in ${categories[0]}`);
+    }
+
+    this.#searchState.suggestions = suggestions;
+
+    // Render suggestions
+    if (this.#elements.suggestionItems) {
+      this.#elements.suggestionItems.innerHTML = '';
+    }
+
+    if (this.#searchState.suggestions.length > 0) {
+      if (this.#elements.suggestionsSection) {
+        this.#elements.suggestionsSection.hidden = false;
+      }
+      if (this.#elements.historySection) {
+        this.#elements.historySection.hidden = true;
+      }
+      if (this.#elements.emptyMessage) {
+        this.#elements.emptyMessage.hidden = true;
+      }
+
+      this.#searchState.suggestions.forEach(suggestion => {
+        const div = document.createElement('div');
+        div.className = 'qb-suggestion-item';
+
+        let suggestionType = suggestion.includes('Browse') ? 'browse' : 'trending';
+        div.setAttribute('data-type', suggestionType);
+
+        const iconEl = document.createElement('div');
+        iconEl.className = 'qb-suggestion-icon';
+
+        const textEl = document.createElement('div');
+        textEl.className = 'qb-suggestion-text';
+        textEl.textContent = suggestion;
+
+        div.appendChild(iconEl);
+        div.appendChild(textEl);
+
+        div.addEventListener('click', () => {
+          const cleanText = suggestion.replace('Browse ', '').replace('Popular in ', '');
+          this.#elements.searchInput.value = cleanText;
+          this.#onSearchSubmit(cleanText);
+        });
+
+        if (this.#elements.suggestionItems) {
+          this.#elements.suggestionItems.appendChild(div);
+        }
+      });
+    }
+
+    this.#showDropdown();
+  }
+
+  /**
    * Show suggestions for the query (creative & smart)
    */
   #showSuggestions(query) {
@@ -273,11 +346,61 @@ class QuickBeeSearchBar {
       this.#searchState.suggestions.forEach(suggestion => {
         const div = document.createElement('div');
         div.className = 'qb-suggestion-item';
-        div.textContent = suggestion;
+
+        // Determine suggestion type and icon
+        let suggestionType = 'search';
+        let displayText = suggestion;
+        let badge = '';
+
+        const history = this.#getHistory();
+        const isTrending = history.includes(suggestion) && suggestion !== query;
+
+        if (isTrending && !suggestion.includes('Browse') && !suggestion.includes('Deals') && !suggestion.includes('Search for')) {
+          suggestionType = 'trending';
+          badge = 'TRENDING';
+        } else if (suggestion.includes('Browse')) {
+          suggestionType = 'browse';
+        } else if (suggestion.includes('Deals')) {
+          suggestionType = 'deals';
+        } else if (suggestion.includes('Search for')) {
+          suggestionType = 'search';
+        }
+
+        div.setAttribute('data-type', suggestionType);
+
+        // Build the suggestion item HTML
+        const iconEl = document.createElement('div');
+        iconEl.className = 'qb-suggestion-icon';
+
+        const textEl = document.createElement('div');
+        textEl.className = 'qb-suggestion-text';
+        textEl.textContent = displayText;
+
+        div.appendChild(iconEl);
+        div.appendChild(textEl);
+
+        if (badge) {
+          const badgeEl = document.createElement('div');
+          badgeEl.className = 'qb-suggestion-badge';
+          badgeEl.textContent = badge;
+          div.appendChild(badgeEl);
+        }
+
         div.addEventListener('click', () => {
-          this.#elements.searchInput.value = suggestion;
-          this.#onSearchSubmit(suggestion);
+          // Extract clean text (remove "Browse ", "Deals in ", etc.)
+          let cleanText = suggestion;
+          if (suggestion.includes('Browse ')) {
+            cleanText = suggestion.replace('Browse ', '');
+          } else if (suggestion.includes('Deals in ')) {
+            cleanText = suggestion.replace('Deals in ', '');
+          } else if (suggestion.includes('Search for "')) {
+            cleanText = suggestion.replace('Search for "', '').replace('"', '');
+          }
+
+          this.#elements.searchInput.value = cleanText;
+          this.#onSearchSubmit(cleanText);
         });
+
         if (this.#elements.suggestionItems) {
           this.#elements.suggestionItems.appendChild(div);
         }
