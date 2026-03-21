@@ -3,6 +3,7 @@
  * Simple & clean search with:
  * 1. Typing animation (rotating placeholders)
  * 2. Recent search history
+ * Cache bust: 2026-03-22 12:16 UTC
  * 3. Search suggestions
  */
 
@@ -72,34 +73,18 @@ class QuickBeeSearchBar {
    * Map DOM elements using ref attributes
    */
   #mapElements() {
-    const refs = {
-      searchInput: 'qbSearchInput',
-      dropdown: 'qbSearchDropdown',
-      filtersSection: 'qbSearchFilters',
-      categoryFilter: 'qbCategoryFilter',
-      priceMin: 'qbPriceMin',
-      priceMax: 'qbPriceMax',
-      priceDisplay: 'qb-price-range',
-      historySection: 'qbSearchHistory',
-      historyItems: 'history items container',
-      suggestionsSection: 'qbSearchSuggestions',
-      suggestionItems: 'suggestion items container',
-      resultsSection: 'qbSearchResults',
-      resultItems: 'result items container',
-      emptyMessage: 'qbSearchEmpty'
-    };
+    // Map by ID
+    this.#elements.searchInput = this.#elements.container.querySelector('#qbSearchInput');
+    this.#elements.dropdown = this.#elements.container.querySelector('#qbSearchDropdown');
 
-    for (const [key, id] of Object.entries(refs)) {
-      const el = this.#elements.container.querySelector(`[id="${id}"]`);
-      if (el) {
-        this.#elements[key] = el;
-      }
-    }
+    // Map by class (fallback for sections that may not have IDs)
+    this.#elements.historySection = this.#elements.container.querySelector('.qb-search-history');
+    this.#elements.suggestionsSection = this.#elements.container.querySelector('.qb-search-suggestions');
+    this.#elements.emptyMessage = this.#elements.container.querySelector('.qb-search-empty');
 
     // Map container items directly
     this.#elements.historyItems = this.#elements.container.querySelector('.qb-history-items');
     this.#elements.suggestionItems = this.#elements.container.querySelector('.qb-suggestion-items');
-    this.#elements.resultItems = this.#elements.container.querySelector('.qb-result-items');
 
     // Map placeholder text span
     this.#elements.placeholderText = this.#elements.container.querySelector('.qb-search-placeholder-text');
@@ -109,7 +94,7 @@ class QuickBeeSearchBar {
    * Validate that all required elements are present
    */
   #validateElements() {
-    const required = ['searchInput', 'dropdown', 'filtersSection', 'categoryFilter', 'historyItems', 'suggestionItems', 'resultItems'];
+    const required = ['searchInput', 'dropdown', 'historyItems', 'suggestionItems'];
     for (const key of required) {
       if (!this.#elements[key]) {
         console.warn(`QuickBeeSearchBar: missing element: ${key}`);
@@ -139,12 +124,14 @@ class QuickBeeSearchBar {
 
     // Focus/blur for placeholder rotation and dropdown visibility
     this.#elements.searchInput.addEventListener('focus', () => {
+      console.log('Search input focused');
       this.#stopPlaceholderRotation();
       if (this.#elements.placeholderText && !this.#elements.searchInput.value) {
         this.#elements.placeholderText.style.opacity = '0';
       }
       this.#showDropdown();
       if (!this.#elements.searchInput.value) {
+        console.log('Input is empty, showing history');
         this.#showHistory();
       }
     });
@@ -230,11 +217,19 @@ class QuickBeeSearchBar {
     this.#searchState.suggestions = Array.from(suggestions).slice(0, 5);
 
     // Render suggestions
-    this.#elements.suggestionItems.innerHTML = '';
+    if (this.#elements.suggestionItems) {
+      this.#elements.suggestionItems.innerHTML = '';
+    }
     if (this.#searchState.suggestions.length > 0) {
-      this.#elements.suggestionsSection.hidden = false;
-      this.#elements.historySection.hidden = true;
-      this.#elements.emptyMessage.hidden = true;
+      if (this.#elements.suggestionsSection) {
+        this.#elements.suggestionsSection.hidden = false;
+      }
+      if (this.#elements.historySection) {
+        this.#elements.historySection.hidden = true;
+      }
+      if (this.#elements.emptyMessage) {
+        this.#elements.emptyMessage.hidden = true;
+      }
 
       this.#searchState.suggestions.forEach(suggestion => {
         const div = document.createElement('div');
@@ -244,12 +239,20 @@ class QuickBeeSearchBar {
           this.#elements.searchInput.value = suggestion;
           this.#onSearchSubmit(suggestion);
         });
-        this.#elements.suggestionItems.appendChild(div);
+        if (this.#elements.suggestionItems) {
+          this.#elements.suggestionItems.appendChild(div);
+        }
       });
     } else {
-      this.#elements.suggestionsSection.hidden = true;
-      this.#elements.historySection.hidden = true;
-      this.#elements.emptyMessage.hidden = false;
+      if (this.#elements.suggestionsSection) {
+        this.#elements.suggestionsSection.hidden = true;
+      }
+      if (this.#elements.historySection) {
+        this.#elements.historySection.hidden = true;
+      }
+      if (this.#elements.emptyMessage) {
+        this.#elements.emptyMessage.hidden = false;
+      }
     }
 
     this.#showDropdown();
@@ -260,14 +263,24 @@ class QuickBeeSearchBar {
    * Show search history (when input is empty)
    */
   #showHistory() {
-    this.#elements.suggestionsSection.hidden = true;
-    this.#elements.emptyMessage.hidden = true;
+    console.log('showHistory called, historySection:', !!this.#elements.historySection);
+    if (this.#elements.suggestionsSection) {
+      this.#elements.suggestionsSection.hidden = true;
+    }
+    if (this.#elements.emptyMessage) {
+      this.#elements.emptyMessage.hidden = true;
+    }
 
     const history = this.#getHistory();
-    this.#elements.historyItems.innerHTML = '';
+    console.log('History items:', history.length);
+    if (this.#elements.historyItems) {
+      this.#elements.historyItems.innerHTML = '';
+    }
 
     if (history.length > 0) {
-      this.#elements.historySection.hidden = false;
+      if (this.#elements.historySection) {
+        this.#elements.historySection.hidden = false;
+      }
       history.forEach(item => {
         const div = document.createElement('div');
         div.className = 'qb-history-item';
@@ -291,10 +304,14 @@ class QuickBeeSearchBar {
           this.#onSearchSubmit(item);
         });
 
-        this.#elements.historyItems.appendChild(div);
+        if (this.#elements.historyItems) {
+          this.#elements.historyItems.appendChild(div);
+        }
       });
     } else {
-      this.#elements.historySection.hidden = true;
+      if (this.#elements.historySection) {
+        this.#elements.historySection.hidden = true;
+      }
     }
 
     this.#showDropdown();
@@ -403,14 +420,13 @@ class QuickBeeSearchBar {
   #positionDropdown() {
     if (!this.#elements.dropdown || !this.#elements.searchInput) return;
 
-    const rect = this.#elements.searchInput.getBoundingClientRect();
-    const containerRect = this.#elements.container.getBoundingClientRect();
+    const searchRect = this.#elements.searchInput.getBoundingClientRect();
+    const dropdown = this.#elements.dropdown;
 
-    this.#elements.dropdown.style.position = 'fixed';
-    this.#elements.dropdown.style.top = `${rect.bottom + 8}px`;
-    this.#elements.dropdown.style.left = `${containerRect.left}px`;
-    this.#elements.dropdown.style.right = 'auto';
-    this.#elements.dropdown.style.width = `${rect.width}px`;
+    // Position dropdown below search input
+    dropdown.style.top = (searchRect.bottom + 8) + 'px';
+    dropdown.style.left = searchRect.left + 'px';
+    dropdown.style.width = searchRect.width + 'px';
   }
 
   /**
