@@ -3,8 +3,8 @@
  * Simple & clean search with:
  * 1. Typing animation (rotating placeholders)
  * 2. Recent search history
- * Cache bust: 2026-03-22 12:16 UTC
- * 3. Search suggestions
+ * Cache bust: 2026-03-22 12:36 UTC - Smart recommendations with icons
+ * 3. Search suggestions with icons and badges
  */
 
 class QuickBeeSearchBar {
