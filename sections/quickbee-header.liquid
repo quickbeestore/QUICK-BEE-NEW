@@ -4309,12 +4309,33 @@ window.qbInitAnnouncementTicker = function() {
 };
 
 // Initialize announcement ticker
+function initAnnouncementTicker() {
+  if (typeof window.qbInitAnnouncementTicker === 'function') {
+    window.qbInitAnnouncementTicker();
+  } else {
+    // Fallback: define and run inline if function not found
+    const track = document.querySelector('.qb-announcement-track');
+    if (track) {
+      track.style.animation = 'none !important';
+      const startTime = Date.now();
+      const animationDuration = 15000;
+      function animate() {
+        const elapsed = (Date.now() - startTime) % animationDuration;
+        const progress = elapsed / animationDuration;
+        track.style.transform = `translateX(${-(progress * 100)}%)`;
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
+  }
+}
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(window.qbInitAnnouncementTicker, 100);
+    setTimeout(initAnnouncementTicker, 100);
   });
 } else {
-  setTimeout(window.qbInitAnnouncementTicker, 100);
+  setTimeout(initAnnouncementTicker, 100);
 }
 
 // Update active footer item based on current page
