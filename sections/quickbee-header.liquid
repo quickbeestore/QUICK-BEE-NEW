@@ -1914,21 +1914,11 @@
           <div style="font-size:24px;font-weight:700;color:#f5c518;"><span id="qbDeliveryTimeValue">--</span><span style="font-size:14px;color:#999;margin-left:4px;">mins</span></div>
         </div>
 
-        <!-- Save Options -->
-        <div id="qbSaveOptionsContainer" style="margin-bottom:16px;display:none;">
-          <label style="display:block;font-size:11px;font-weight:600;color:#666;margin-bottom:8px;text-transform:uppercase;">Save As</label>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-            <button onclick="qbSaveLocation('home')" style="padding:10px;background:#fff;color:#333;border:2px solid #ddd;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;transition:all 0.2s;">🏠 Home</button>
-            <button onclick="qbSaveLocation('office')" style="padding:10px;background:#fff;color:#333;border:2px solid #ddd;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;transition:all 0.2s;">💼 Office</button>
-            <button onclick="qbSaveLocation('favorite')" style="padding:10px;background:#fff;color:#333;border:2px solid #ddd;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;transition:all 0.2s;">❤️ Favorite</button>
-          </div>
-        </div>
 
         <!-- Action Buttons -->
         <div style="display:flex;gap:10px;">
           <button id="qbSelectBtn" onclick="qbSelectLocation()" style="flex:1;padding:12px;background:#e8e8e8;color:#333;border:none;border-radius:6px;cursor:not-allowed;font-weight:600;font-size:14px;opacity:0.5;" disabled>Select Location</button>
-          <button id="qbSaveBtn" onclick="qbShowSaveOptions()" style="flex:1;padding:12px;background:#f5c518;color:#000;border:none;border-radius:6px;cursor:not-allowed;font-weight:600;font-size:14px;opacity:0.5;" disabled>Select & Save</button>
-          <button onclick="document.getElementById('qbLocModal').style.display='none'" style="flex:0.6;padding:12px;background:#eee;color:#666;border:none;border-radius:6px;cursor:pointer;font-size:13px;">✕</button>
+          <button onclick="document.getElementById('qbLocModal').style.display='none'" style="flex:0.4;padding:12px;background:#eee;color:#666;border:none;border-radius:6px;cursor:pointer;font-size:13px;">✕</button>
         </div>
       </div>
     </div>
@@ -2193,42 +2183,6 @@
       document.getElementById('qbLocModal').style.display = 'none';
     }
 
-    function qbShowSaveOptions() {
-      var saveOptionsContainer = document.getElementById('qbSaveOptionsContainer');
-      saveOptionsContainer.style.display = 'flex';
-    }
-
-    function qbSaveLocation(labelType) {
-      if (!subareaSelect.value) {
-        alert('Please select all location levels');
-        return;
-      }
-      var landmark = subareaSelect.value;
-      var deliveryTime = qbDeliveryTimes[landmark] || 20;
-
-      // Get existing saved locations
-      var savedLocations = JSON.parse(localStorage.getItem('qb_saved_locations') || '{}');
-
-      // Save with label
-      savedLocations[labelType] = {
-        location: landmark,
-        deliveryTime: deliveryTime
-      };
-
-      localStorage.setItem('qb_saved_locations', JSON.stringify(savedLocations));
-      localStorage.setItem('qb_location', landmark);
-      localStorage.setItem('qb_delivery_time', deliveryTime);
-
-      var titleEl = document.getElementById('qbLocTitle');
-      var addressEl = document.getElementById('qbLocAddress');
-      titleEl.textContent = landmark;
-      titleEl.setAttribute('data-delivery-time', deliveryTime);
-      addressEl.textContent = deliveryTime + ' mins';
-      addressEl.style.fontSize = '12px';
-      addressEl.style.color = '#666';
-
-      document.getElementById('qbLocModal').style.display = 'none';
-    }
 
     // Initialize district dropdown with options
     function initializeDistricts() {
