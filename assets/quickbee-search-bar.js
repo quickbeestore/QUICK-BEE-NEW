@@ -3,7 +3,7 @@
  * Simple & clean search with:
  * 1. Typing animation (rotating placeholders)
  * 2. Recent search history
- * Cache bust: 2026-03-22 12:36 UTC - Smart recommendations with icons
+ * Cache bust: 2026-03-22 12:38 UTC - Fix dropdown visibility with explicit display control
  * 3. Search suggestions with icons and badges
  */
 
@@ -570,7 +570,11 @@ class QuickBeeSearchBar {
   #showDropdown() {
     if (this.#elements.dropdown) {
       this.#elements.dropdown.hidden = false;
+      this.#elements.dropdown.style.display = 'block';
+      console.log('Dropdown shown, hidden attribute:', this.#elements.dropdown.hidden);
       this.#positionDropdown();
+    } else {
+      console.error('Dropdown element not found');
     }
   }
 
@@ -580,6 +584,7 @@ class QuickBeeSearchBar {
   #hideDropdown() {
     if (this.#elements.dropdown) {
       this.#elements.dropdown.hidden = true;
+      this.#elements.dropdown.style.display = 'none';
     }
   }
 
