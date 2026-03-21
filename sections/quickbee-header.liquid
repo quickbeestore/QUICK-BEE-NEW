@@ -2606,31 +2606,31 @@
         >
         <span class="qb-search-placeholder-text"></span>
       </div>
+    </div>
 
-      <!-- Search Dropdown -->
-      <div id="qbSearchDropdown" class="qb-search-dropdown" hidden ref="dropdown">
-        <!-- Search History -->
-        <div id="qbSearchHistory" class="qb-search-history" ref="historySection" hidden>
-          <div class="qb-history-header">
-            <span class="qb-history-title">Recent Searches</span>
-            <button class="qb-history-clear" id="qbClearHistory" type="button">Clear recent searches</button>
-          </div>
-          <div class="qb-history-items" ref="historyItems"></div>
+    <!-- Search Dropdown - Outside Search Container to avoid clipping -->
+    <div id="qbSearchDropdown" class="qb-search-dropdown" hidden ref="dropdown">
+      <!-- Search History -->
+      <div id="qbSearchHistory" class="qb-search-history" ref="historySection" hidden>
+        <div class="qb-history-header">
+          <span class="qb-history-title">Recent Searches</span>
+          <button class="qb-history-clear" id="qbClearHistory" type="button">Clear recent searches</button>
         </div>
+        <div class="qb-history-items" ref="historyItems"></div>
+      </div>
 
-        <!-- Suggestions -->
-        <div id="qbSearchSuggestions" class="qb-search-suggestions" ref="suggestionsSection" hidden>
-          <div class="qb-suggestions-header">
-            <span class="qb-suggestions-title">Suggestions</span>
-          </div>
-          <div class="qb-suggestion-items" ref="suggestionItems"></div>
+      <!-- Suggestions -->
+      <div id="qbSearchSuggestions" class="qb-search-suggestions" ref="suggestionsSection" hidden>
+        <div class="qb-suggestions-header">
+          <span class="qb-suggestions-title">Suggestions</span>
         </div>
+        <div class="qb-suggestion-items" ref="suggestionItems"></div>
+      </div>
 
-        <!-- Empty State -->
-        <div id="qbSearchEmpty" class="qb-search-empty" ref="emptyMessage" hidden>
-          <div class="qb-search-empty-icon">🔍</div>
-          <div>No suggestions found</div>
-        </div>
+      <!-- Empty State -->
+      <div id="qbSearchEmpty" class="qb-search-empty" ref="emptyMessage" hidden>
+        <div class="qb-search-empty-icon">🔍</div>
+        <div>No suggestions found</div>
       </div>
     </div>
 
@@ -2644,12 +2644,16 @@
         const historySection = document.getElementById('qbSearchHistory');
         const historyItems = document.querySelector('.qb-history-items');
         const clearBtn = document.getElementById('qbClearHistory');
+        const suggestionsSection = document.getElementById('qbSearchSuggestions');
+        const suggestionItems = document.querySelector('.qb-suggestion-items');
+        const emptyMessage = document.getElementById('qbSearchEmpty');
 
         console.log('🐝 Elements Check:', {
           searchInput: !!searchInput,
           dropdown: !!dropdown,
           historySection: !!historySection,
-          historyItems: !!historyItems
+          historyItems: !!historyItems,
+          clearBtn: !!clearBtn
         });
 
         if (!searchInput || !dropdown) {
@@ -2668,63 +2672,115 @@
           }
         }
 
+        // Add to history
+        function addToHistory(query) {
+          if (query.length < 2) return;
+          let history = getHistory();
+          history = history.filter(h => h !== query);
+          history.unshift(query);
+          history = history.slice(0, 10);
+          localStorage.setItem('qb_search_history', JSON.stringify(history));
+        }
+
         // Show history
         function showHistory() {
           console.log('🐝 Showing history...');
-          if (historyItems) historyItems.innerHTML = '';
           const history = getHistory();
           console.log('🐝 History items:', history);
 
-          if (historySection) historySection.hidden = history.length === 0;
+          // Hide other sections
+          if (suggestionsSection) suggestionsSection.hidden = true;
+          if (emptyMessage) emptyMessage.hidden = true;
+
+          // Show history or empty
+          if (historySection) {
+            historySection.hidden = history.length === 0;
+          }
+
+          // Render history items
+          if (historyItems) {
+            historyItems.innerHTML = '';
+            if (history.length > 0) {
+              history.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'qb-history-item';
+                div.innerHTML = `<span>${item}</span><button class="qb-remove-history" type="button">×</button>`;
+
+                // Item click
+                div.addEventListener('click', (e) => {
+                  if (e.target.classList.contains('qb-remove-history')) {
+                    return; // Don't search if remove button clicked
+                  }
+                  searchInput.value = item;
+                  addToHistory(item);
+                  window.location = `/search?q=${encodeURIComponent(item)}`;
+                });
+
+                // Remove button
+                const removeBtn = div.querySelector('.qb-remove-history');
+                removeBtn.addEventListener('click', (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  let h = getHistory();
+                  h = h.filter(x => x !== item);
+                  localStorage.setItem('qb_search_history', JSON.stringify(h));
+                  showHistory();
+                });
+
+                historyItems.appendChild(div);
+              });
+            }
+          }
+
+          // Show dropdown
+          showDropdown();
+        }
+
+        // Show dropdown
+        function showDropdown() {
           if (dropdown) {
-            dropdown.hidden = false;
-            dropdown.style.display = 'block';
-            dropdown.style.visibility = 'visible';
-            dropdown.style.opacity = '1';
+            dropdown.removeAttribute('hidden');
+            dropdown.style.display = 'block !important';
+            dropdown.style.visibility = 'visible !important';
+            dropdown.style.opacity = '1 !important';
           }
           positionDropdown();
-          console.log('🐝 Dropdown visible:', dropdown.hidden === false);
-
-          if (historyItems && history.length > 0) {
-            history.forEach(item => {
-              const div = document.createElement('div');
-              div.className = 'qb-history-item';
-              div.innerHTML = `<span>${item}</span><button class="qb-remove-history">×</button>`;
-              div.addEventListener('click', () => {
-                searchInput.value = item;
-                window.location = `/search?q=${encodeURIComponent(item)}`;
-              });
-              historyItems.appendChild(div);
-            });
-          }
+          console.log('🐝 Dropdown shown');
         }
 
         // Hide dropdown
         function hideDropdown() {
           if (dropdown) {
-            dropdown.hidden = true;
+            dropdown.setAttribute('hidden', '');
             dropdown.style.display = 'none';
+            dropdown.style.visibility = 'hidden';
           }
+          console.log('🐝 Dropdown hidden');
         }
 
         // Position dropdown below search input
         function positionDropdown() {
+          if (!dropdown) return;
+
           try {
             const rect = searchInput.getBoundingClientRect();
-            console.log('🐝 Search rect:', { bottom: rect.bottom, left: rect.left, width: rect.width });
+            console.log('🐝 Search rect:', {
+              bottom: Math.round(rect.bottom),
+              left: Math.round(rect.left),
+              width: Math.round(rect.width),
+              right: Math.round(rect.right)
+            });
 
-            dropdown.style.position = 'fixed';
+            dropdown.style.position = 'fixed !important';
             dropdown.style.top = (rect.bottom + 8) + 'px';
             dropdown.style.left = rect.left + 'px';
             dropdown.style.width = rect.width + 'px';
-            dropdown.style.zIndex = '999999';
+            dropdown.style.zIndex = '999999 !important';
 
-            console.log('🐝 Dropdown positioned:', {
-              top: dropdown.style.top,
-              left: dropdown.style.left,
-              width: dropdown.style.width,
-              display: dropdown.style.display,
-              hidden: dropdown.hidden
+            console.log('🐝 Dropdown positioned at:', {
+              top: Math.round(rect.bottom + 8) + 'px',
+              left: Math.round(rect.left) + 'px',
+              width: Math.round(rect.width) + 'px'
             });
           } catch (e) {
             console.error('🐝 Position error:', e);
@@ -2733,16 +2789,35 @@
 
         // Events
         searchInput.addEventListener('focus', () => {
-          positionDropdown();
+          console.log('🐝 Search input focused');
           showHistory();
         });
-        searchInput.addEventListener('blur', () => setTimeout(hideDropdown, 200));
-        searchInput.addEventListener('input', (e) => {
-          if (e.target.value.length < 2) showHistory();
+
+        searchInput.addEventListener('blur', () => {
+          console.log('🐝 Search input blurred');
+          setTimeout(hideDropdown, 200);
         });
+
+        searchInput.addEventListener('input', (e) => {
+          const value = e.target.value.trim();
+          console.log('🐝 Search input changed:', value);
+
+          if (value.length < 2) {
+            showHistory();
+          } else {
+            // Here you could add live search functionality
+            showHistory(); // For now just show history
+          }
+        });
+
         searchInput.addEventListener('keydown', (e) => {
           if (e.key === 'Enter') {
-            window.location = `/search?q=${encodeURIComponent(searchInput.value)}`;
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            if (query.length >= 2) {
+              addToHistory(query);
+              window.location = `/search?q=${encodeURIComponent(query)}`;
+            }
           }
         });
 
@@ -2750,18 +2825,21 @@
           clearBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
+            console.log('🐝 Clearing search history');
             localStorage.removeItem('qb_search_history');
             showHistory();
           });
         }
 
+        // Close dropdown when clicking outside
         document.addEventListener('click', (e) => {
-          if (!document.getElementById('qbSearchContainer').contains(e.target)) {
+          const container = document.getElementById('qbSearchContainer');
+          if (container && !container.contains(e.target) && dropdown && !dropdown.contains(e.target)) {
             hideDropdown();
           }
         });
 
-        console.log('Search bar initialized');
+        console.log('🐝 Search bar initialized successfully');
       })();
     </script>
 
