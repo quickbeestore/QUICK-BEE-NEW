@@ -1,5 +1,5 @@
 {% capture cart_page_more_blocks_content %}
-  <div class="cart-page__recommendations">
+  <div class="cart-recommendations">
     {%- content_for 'blocks' -%}
   </div>
 {% endcapture %}
@@ -11,11 +11,10 @@
   <template id="empty-cart-template">
     <div class="section-background color-{{ section.settings.color_scheme }}"></div>
     <div class="section color-{{ section.settings.color_scheme }} section--{{ section.settings.section_width }}">
-      <div class="cart-page cart-page--empty" style="{% render 'spacing-style', settings: section.settings %}">
-        <div class="cart-empty__icon">🛒</div>
-        <h1 class="cart-empty__title">Your cart is empty</h1>
-        <p class="cart-empty__text">Start shopping to add items to your cart</p>
-        <a href="/" class="cart-empty__button">Continue Shopping</a>
+      <div class="cart--empty" style="{% render 'spacing-style', settings: section.settings %}">
+        <div class="empty-icon">🛒</div>
+        <h1 class="empty-title">Your cart is empty</h1>
+        <a href="/" class="empty-button">Start Shopping</a>
       </div>
     </div>
   </template>
@@ -23,144 +22,244 @@
   {% # theme-check-disable UniqueStaticBlockId %}
   <div class="section-background color-{{ section.settings.color_scheme }}"></div>
   <div class="section color-{{ section.settings.color_scheme }} section--{{ section.settings.section_width }}">
-    <div class="cart-page-wrapper" style="{% render 'spacing-style', settings: section.settings %}">
+    <div class="cart-wrapper">
 
-      <!-- SINGLE UNIFIED CART CONTAINER - All content flows here -->
-      <div class="cart-unified">
+      <!-- COMPACT MOBILE-FIRST HEADER -->
+      <div class="cart-header-compact">
+        <h1 class="cart-title">Cart</h1>
+        <span class="item-badge">{{ cart.item_count }}</span>
+      </div>
 
-        <!-- HEADER WITH GRADIENT -->
-        <div class="cart-header">
-          <div class="cart-header__content">
-            <h1 class="cart-header__title">Shopping Cart</h1>
-            <p class="cart-header__subtitle">{{ cart.item_count }} item{% if cart.item_count != 1 %}s{% endif %}</p>
+      {%- unless cart.empty? -%}
+
+        <!-- QUICK DELIVERY INFO -->
+        <div class="delivery-chip">
+          ⚡ 15-30 min delivery • {% render 'delivery-countdown-timer' %}
+        </div>
+
+        <!-- ITEMS LIST - OPTIMIZED FOR MOBILE -->
+        <div class="items-section">
+          <div class="cart-items-list">
+            {%- content_for 'block', id: 'cart-page-items', type: '_cart-products' %}
           </div>
         </div>
 
-        {%- unless cart.empty? -%}
-
-          <!-- DELIVERY INFO BANNER -->
-          <div class="cart-delivery-banner">
-            <div class="delivery-badge">⚡ Fast Delivery</div>
-            <div class="delivery-text">Expected in 15-30 minutes</div>
-            {% render 'delivery-countdown-timer' %}
+        <!-- STICKY ORDER SUMMARY (appears above footer) -->
+        <div class="summary-sticky">
+          <div class="wallet-section">
+            {% render 'wallet-balance' %}
           </div>
-
-          <!-- ITEMS SECTION -->
-          <div class="cart-items-container">
-            <div class="items-header">
-              <h2 class="items-header__title">Items</h2>
-              <span class="items-count">{{ cart.item_count }}</span>
-            </div>
-
-            <div class="cart-items-list">
-              {%- content_for 'block', id: 'cart-page-items', type: '_cart-products' %}
-            </div>
+          <div class="price-breakdown">
+            {%- content_for 'block', id: 'cart-page-summary', type: '_cart-summary' -%}
           </div>
+        </div>
 
-          <!-- ORDER SUMMARY SECTION -->
-          <div class="order-summary-container">
-            <div class="summary-divider"></div>
+        <!-- RECOMMENDATIONS SECTION -->
+        {% if cart_page_more_blocks_content != blank %}
+          {{ cart_page_more_blocks_content }}
+        {% endif %}
 
-            <div class="order-summary">
-              <h2 class="summary-title">Order Summary</h2>
+      {%- endunless -%}
 
-              <!-- Wallet Balance -->
-              <div class="wallet-section">
-                {% render 'wallet-balance' %}
-              </div>
-
-              <!-- Price Breakdown -->
-              <div class="price-breakdown">
-                {%- content_for 'block', id: 'cart-page-summary', type: '_cart-summary' -%}
-              </div>
-            </div>
-          </div>
-
-          <!-- RECOMMENDATIONS SECTION -->
-          {% if cart_page_more_blocks_content != blank %}
-            {{ cart_page_more_blocks_content }}
-          {% endif %}
-
-        {%- endunless -%}
-
-      </div> <!-- /cart-unified -->
-
-    </div> <!-- /cart-page-wrapper -->
-  </div> <!-- /section -->
+    </div>
+  </div>
   {% # theme-check-enable UniqueStaticBlockId %}
 </cart-items-component>
 
 {% stylesheet %}
   /* ============================================================================
-     UNIFIED CART PAGE - SINGLE SCROLLABLE DESIGN WITH AMAZING ANIMATIONS
+     PROFESSIONAL MOBILE-FIRST CART - COMPACT & EFFICIENT
      ============================================================================ */
 
-  /* BASE STYLES */
-  .cart-page-wrapper {
+  /* BASE - ZERO UNNECESSARY SPACING */
+  .cart-wrapper {
     width: 100%;
-    background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+    background: #fff;
     overflow: visible;
   }
 
-  .cart-unified {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    width: 100%;
-    overflow: visible;
-  }
-
-  /* EMPTY STATE */
-  .cart-page--empty {
+  .cart--empty {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 70vh;
-    gap: 20px;
+    min-height: 60vh;
+    gap: 16px;
+    padding: 40px 20px;
   }
 
-  .cart-empty__icon {
-    font-size: 80px;
+  .empty-icon {
+    font-size: 72px;
     animation: float 3s ease-in-out infinite;
   }
 
   @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
   }
 
-  .cart-empty__title {
-    font-size: 32px;
+  .empty-title {
+    font-size: 24px;
     font-weight: 700;
     color: #1a1a1a;
     margin: 0;
   }
 
-  .cart-empty__text {
-    font-size: 16px;
-    color: #666;
-    margin: 0;
-  }
-
-  .cart-empty__button {
-    padding: 14px 32px;
+  .empty-button {
+    padding: 12px 28px;
     background: #8B0000;
     color: white;
     text-decoration: none;
-    border-radius: 8px;
+    border-radius: 6px;
     font-weight: 600;
-    transition: all 0.3s ease;
-    margin-top: 20px;
+    font-size: 14px;
+    transition: all 0.2s ease;
   }
 
-  .cart-empty__button:hover {
-    background: #600000;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(139, 0, 0, 0.2);
+  .empty-button:active {
+    transform: scale(0.95);
   }
 
-  /* Ensure single scrollbar - prevent nested scrollbars */
+  /* ============================================================================
+     COMPACT HEADER - STICKY
+     ============================================================================ */
+  .cart-header-compact {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #8B0000 0%, #600000 100%);
+    padding: 14px 16px;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  }
+
+  .cart-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+  }
+
+  .item-badge {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    backdrop-filter: blur(4px);
+  }
+
+  /* ============================================================================
+     QUICK DELIVERY CHIP - COMPACT
+     ============================================================================ */
+  .delivery-chip {
+    background: linear-gradient(90deg, #fff8e1 0%, #fffbf0 100%);
+    border-bottom: 2px solid #DAA520;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #8B0000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    animation: slideDown 0.3s ease-out;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ============================================================================
+     ITEMS SECTION - OPTIMIZED FOR MOBILE
+     ============================================================================ */
+  .items-section {
+    padding: 12px 0;
+  }
+
+  .cart-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 12px;
+  }
+
+  .cart-items-list > * {
+    animation: itemFade 0.3s ease-out;
+  }
+
+  @keyframes itemFade {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ============================================================================
+     STICKY SUMMARY ABOVE FOOTER
+     ============================================================================ */
+  .summary-sticky {
+    position: sticky;
+    bottom: 65px;
+    background: white;
+    border-top: 1px solid #e5e5e5;
+    border-bottom: 1px solid #e5e5e5;
+    padding: 12px 16px;
+    margin-top: 8px;
+    z-index: 50;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+  }
+
+  .wallet-section {
+    background: linear-gradient(135deg, #f0f4ff 0%, #f9f5ff 100%);
+    border: 1px solid #e5e0ff;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 12px;
+  }
+
+  .price-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+  }
+
+  .price-breakdown > * {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    line-height: 1.4;
+  }
+
+  /* ============================================================================
+     RECOMMENDATIONS
+     ============================================================================ */
+  .cart-recommendations {
+    padding: 20px 0;
+    margin-top: 12px;
+    border-top: 1px dashed #e5e5e5;
+  }
+
+  /* ============================================================================
+     ENSURE SINGLE SCROLLBAR
+     ============================================================================ */
   .section,
   .section-background,
   .cart-items-component,
@@ -171,7 +270,6 @@
     max-height: none !important;
   }
 
-  /* Force document-level scrolling */
   html {
     overflow-y: scroll !important;
     scroll-behavior: smooth;
@@ -182,423 +280,40 @@
     height: auto !important;
   }
 
-  /* HEADER WITH GRADIENT */
-  .cart-header {
-    background: linear-gradient(135deg, #8B0000 0%, #600000 100%);
-    padding: 32px 24px;
-    color: white;
-    animation: headerSlideDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  @keyframes headerSlideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .cart-header__content {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .cart-header__title {
-    font-size: 36px;
-    font-weight: 800;
-    margin: 0 0 8px 0;
-    letter-spacing: 0.5px;
-  }
-
-  .cart-header__subtitle {
-    font-size: 16px;
-    opacity: 0.95;
-    margin: 0;
-    animation: subtitleFadeIn 0.8s ease-out 0.2s backwards;
-  }
-
-  @keyframes subtitleFadeIn {
-    from {
-      opacity: 0;
-      transform: translateX(-10px);
-    }
-    to {
-      opacity: 0.95;
-      transform: translateX(0);
-    }
-  }
-
-  /* DELIVERY BANNER */
-  .cart-delivery-banner {
-    background: linear-gradient(90deg, #fff8e1 0%, #fff5d6 100%);
-    border-bottom: 3px solid #DAA520;
-    padding: 16px 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    animation: bannerSlideUp 0.5s ease-out 0.1s backwards;
-  }
-
-  @keyframes bannerSlideUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .delivery-badge {
-    background: #DAA520;
-    color: #8B0000;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    white-space: nowrap;
-    animation: badgePulse 2s ease-in-out infinite;
-  }
-
-  @keyframes badgePulse {
-    0%, 100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.05);
-    }
-  }
-
-  .delivery-text {
-    font-size: 14px;
-    color: #8B0000;
-    font-weight: 600;
-    flex: 1;
-  }
-
-  /* ITEMS CONTAINER */
-  .cart-items-container {
-    padding: 32px 24px;
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-  }
-
-  .items-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    padding-bottom: 16px;
-    border-bottom: 2px solid #e5e5e5;
-    animation: itemsHeaderFade 0.6s ease-out 0.2s backwards;
-  }
-
-  @keyframes itemsHeaderFade {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  .items-header__title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin: 0;
-  }
-
-  .items-count {
-    background: #8B0000;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-  }
-
-  .cart-items-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  /* ORDER SUMMARY */
-  .order-summary-container {
-    padding: 0 24px;
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-  }
-
-  .summary-divider {
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #DAA520, transparent);
-    margin: 40px 0 32px 0;
-    animation: dividerExpand 0.8s ease-out 0.3s backwards;
-  }
-
-  @keyframes dividerExpand {
-    from {
-      transform: scaleX(0);
-    }
-    to {
-      transform: scaleX(1);
-    }
-  }
-
-  .order-summary {
-    background: white;
-    border-radius: 12px;
-    padding: 28px;
-    border: 2px solid #e5e5e5;
-    animation: summarySlideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.35s backwards;
-  }
-
-  @keyframes summarySlideUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .summary-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin: 0 0 20px 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .summary-title::before {
-    content: '✓';
-    width: 24px;
-    height: 24px;
-    background: #8B0000;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 800;
-    animation: checkmarkBounce 0.6s ease-out 0.4s backwards;
-  }
-
-  @keyframes checkmarkBounce {
-    0% {
-      opacity: 0;
-      transform: scale(0);
-    }
-    50% {
-      transform: scale(1.2);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  /* WALLET SECTION */
-  .wallet-section {
-    background: linear-gradient(135deg, #f0f4ff 0%, #f9f5ff 100%);
-    border: 2px solid #e5e0ff;
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 20px;
-    animation: walletFadeIn 0.6s ease-out 0.45s backwards;
-  }
-
-  @keyframes walletFadeIn {
-    from {
-      opacity: 0;
-      transform: translateX(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  /* PRICE BREAKDOWN */
-  .price-breakdown {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .price-breakdown > * {
-    animation: priceRowSlide 0.5s ease-out backwards;
-  }
-
-  @keyframes priceRowSlide {
-    from {
-      opacity: 0;
-      transform: translateX(-15px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  /* RECOMMENDATIONS */
-  .cart-page__recommendations {
-    padding: 48px 24px;
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-    border-top: 3px dashed #e5e5e5;
-    animation: recommendationsFadeIn 0.8s ease-out 0.5s backwards;
-  }
-
-  @keyframes recommendationsFadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
   /* ============================================================================
-     MOBILE RESPONSIVE
-     ============================================================================ */
-  @media screen and (max-width: 749px) {
-    .cart-header {
-      padding: 24px 16px;
-    }
-
-    .cart-header__title {
-      font-size: 28px;
-    }
-
-    .cart-header__subtitle {
-      font-size: 14px;
-    }
-
-    .cart-delivery-banner {
-      padding: 12px 16px;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .delivery-text {
-      flex-basis: 100%;
-    }
-
-    .cart-items-container {
-      padding: 24px 16px;
-    }
-
-    .order-summary-container {
-      padding: 0 16px;
-    }
-
-    .order-summary {
-      padding: 20px;
-    }
-
-    .summary-title {
-      font-size: 16px;
-    }
-
-    .cart-page__recommendations {
-      padding: 32px 16px;
-    }
-
-    .items-header {
-      margin-bottom: 16px;
-    }
-
-    .items-header__title {
-      font-size: 18px;
-    }
-  }
-
-  /* TABLET RESPONSIVE */
-  @media screen and (min-width: 750px) and (max-width: 1023px) {
-    .cart-header {
-      padding: 28px 24px;
-    }
-
-    .cart-header__title {
-      font-size: 32px;
-    }
-  }
-
-  /* DESKTOP RESPONSIVE */
-  @media screen and (min-width: 1024px) {
-    .cart-header {
-      padding: 40px 32px;
-    }
-
-    .cart-header__title {
-      font-size: 40px;
-    }
-
-    .order-summary {
-      max-width: 500px;
-    }
-  }
-
-  /* ============================================================================
-     DARK MODE SUPPORT - MAINTAIN LIGHT THEME
+     DARK MODE - MAINTAIN LIGHT THEME
      ============================================================================ */
   @media (prefers-color-scheme: dark) {
-    .cart-page-wrapper {
-      background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%) !important;
+    .cart-wrapper {
+      background: #fff !important;
       color-scheme: light !important;
     }
 
-    .cart-header {
+    .cart-header-compact {
       background: linear-gradient(135deg, #8B0000 0%, #600000 100%) !important;
       color-scheme: light !important;
     }
 
-    .cart-header__title,
-    .cart-header__subtitle {
+    .cart-title {
       color: #ffffff !important;
       color-scheme: light !important;
     }
 
-    .cart-delivery-banner {
-      background: linear-gradient(90deg, #fff8e1 0%, #fff5d6 100%) !important;
+    .item-badge {
+      background: rgba(255, 255, 255, 0.25) !important;
+      color: white !important;
+      color-scheme: light !important;
+    }
+
+    .delivery-chip {
+      background: linear-gradient(90deg, #fff8e1 0%, #fffbf0 100%) !important;
       border-color: #DAA520 !important;
-      color-scheme: light !important;
-    }
-
-    .delivery-badge {
-      background: #DAA520 !important;
       color: #8B0000 !important;
       color-scheme: light !important;
     }
 
-    .delivery-text {
-      color: #8B0000 !important;
-      color-scheme: light !important;
-    }
-
-    .items-header__title,
-    .summary-title {
-      color: #1a1a1a !important;
-      color-scheme: light !important;
-    }
-
-    .order-summary {
-      background: #ffffff !important;
+    .summary-sticky {
+      background: white !important;
       border-color: #e5e5e5 !important;
       color-scheme: light !important;
     }
@@ -609,67 +324,73 @@
       color-scheme: light !important;
     }
 
-    .cart-empty__title {
+    .empty-title {
       color: #1a1a1a !important;
-      color-scheme: light !important;
-    }
-
-    .cart-empty__text {
-      color: #666 !important;
-      color-scheme: light !important;
-    }
-
-    .summary-divider {
-      background: linear-gradient(90deg, transparent, #DAA520, transparent) !important;
     }
   }
 
-  /* SMOOTH TRANSITIONS FOR ITEM CHANGES */
-  .cart-items-list > * {
-    animation: itemSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  @keyframes itemSlideIn {
-    from {
-      opacity: 0;
-      transform: translateX(-20px);
+  /* ============================================================================
+     TABLET - 750PX+
+     ============================================================================ */
+  @media (min-width: 750px) {
+    .cart-header-compact {
+      padding: 16px 24px;
     }
-    to {
-      opacity: 1;
-      transform: translateX(0);
+
+    .cart-title {
+      font-size: 24px;
     }
-  }
 
-  /* VIEW TRANSITION ANIMATIONS */
-  html:active-view-transition-type(empty-cart-page) {
-    .cart-items-component {
-      view-transition-name: cart-page-content;
+    .delivery-chip {
+      padding: 12px 24px;
+      font-size: 14px;
     }
-  }
 
-  ::view-transition-old(cart-page-content) {
-    animation: cart-page-old 0.3s ease-out forwards;
-  }
+    .items-section {
+      padding: 16px 24px;
+    }
 
-  ::view-transition-new(cart-page-content) {
-    animation: cart-page-new 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  }
+    .cart-items-list {
+      padding: 0;
+      gap: 12px;
+    }
 
-  @keyframes cart-page-old {
-    to {
-      opacity: 0;
-      filter: blur(8px);
+    .summary-sticky {
+      padding: 16px 24px;
+      margin-top: 12px;
+    }
+
+    .cart-recommendations {
+      padding: 32px 24px;
     }
   }
 
-  @keyframes cart-page-new {
-    from {
-      opacity: 0;
-      filter: blur(8px);
+  /* ============================================================================
+     DESKTOP - 1024PX+
+     ============================================================================ */
+  @media (min-width: 1024px) {
+    .cart-header-compact {
+      padding: 18px 32px;
     }
-    to {
-      opacity: 1;
-      filter: blur(0);
+
+    .cart-title {
+      font-size: 28px;
+    }
+
+    .delivery-chip {
+      padding: 14px 32px;
+    }
+
+    .items-section {
+      padding: 20px 32px;
+    }
+
+    .summary-sticky {
+      padding: 18px 32px;
+    }
+
+    .cart-recommendations {
+      padding: 40px 32px;
     }
   }
 {% endstylesheet %}
