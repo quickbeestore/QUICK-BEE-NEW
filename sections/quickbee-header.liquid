@@ -808,15 +808,22 @@
 
   /* Search Dropdown - Google Style */
   .qb-search-dropdown {
-    position: fixed;
-    z-index: 999999;
-    background: white;
-    border: 1px solid #dadce0;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px 1px rgba(64, 60, 67, 0.16);
-    max-height: 400px;
-    overflow-y: auto;
-    min-width: 300px;
+    position: fixed !important;
+    z-index: 999999 !important;
+    background: white !important;
+    border: 1px solid #dadce0 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 5px 1px rgba(64, 60, 67, 0.16) !important;
+    max-height: 400px !important;
+    overflow-y: auto !important;
+    min-width: 300px !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 
   .qb-search-dropdown[hidden],
@@ -2584,33 +2591,6 @@
     };
     </script>
 
-    <!-- Search Bar Component Script -->
-    <script type="module">
-      import QuickBeeSearchBar from '{{ "quickbee-search-bar.js" | asset_url }}';
-
-      function initSearchBar() {
-        const searchContainer = document.getElementById('qbSearchContainer');
-        if (searchContainer) {
-          console.log('Initializing QuickBeeSearchBar...');
-          try {
-            new QuickBeeSearchBar(searchContainer);
-            console.log('QuickBeeSearchBar initialized successfully');
-          } catch (error) {
-            console.error('Error initializing QuickBeeSearchBar:', error);
-          }
-        } else {
-          console.warn('qbSearchContainer not found');
-        }
-      }
-
-      // Try immediate init first
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initSearchBar);
-      } else {
-        // DOM already loaded
-        setTimeout(initSearchBar, 100);
-      }
-    </script>
 
     <!-- Search Bar Container (Centered & Wide) -->
     <div class="qb-search-container" id="qbSearchContainer">
@@ -2626,33 +2606,242 @@
         >
         <span class="qb-search-placeholder-text"></span>
       </div>
+    </div>
 
-      <!-- Search Dropdown -->
-      <div id="qbSearchDropdown" class="qb-search-dropdown" hidden ref="dropdown">
-        <!-- Search History -->
-        <div id="qbSearchHistory" class="qb-search-history" ref="historySection" hidden>
-          <div class="qb-history-header">
-            <span class="qb-history-title">Recent Searches</span>
-            <button class="qb-history-clear" id="qbClearHistory" type="button">Clear recent searches</button>
-          </div>
-          <div class="qb-history-items" ref="historyItems"></div>
+    <!-- Search Dropdown - Outside Search Container to avoid clipping -->
+    <div id="qbSearchDropdown" class="qb-search-dropdown" hidden ref="dropdown">
+      <!-- Search History -->
+      <div id="qbSearchHistory" class="qb-search-history" ref="historySection" hidden>
+        <div class="qb-history-header">
+          <span class="qb-history-title">Recent Searches</span>
+          <button class="qb-history-clear" id="qbClearHistory" type="button">Clear recent searches</button>
         </div>
+        <div class="qb-history-items" ref="historyItems"></div>
+      </div>
 
-        <!-- Suggestions -->
-        <div id="qbSearchSuggestions" class="qb-search-suggestions" ref="suggestionsSection" hidden>
-          <div class="qb-suggestions-header">
-            <span class="qb-suggestions-title">Suggestions</span>
-          </div>
-          <div class="qb-suggestion-items" ref="suggestionItems"></div>
+      <!-- Suggestions -->
+      <div id="qbSearchSuggestions" class="qb-search-suggestions" ref="suggestionsSection" hidden>
+        <div class="qb-suggestions-header">
+          <span class="qb-suggestions-title">Suggestions</span>
         </div>
+        <div class="qb-suggestion-items" ref="suggestionItems"></div>
+      </div>
 
-        <!-- Empty State -->
-        <div id="qbSearchEmpty" class="qb-search-empty" ref="emptyMessage" hidden>
-          <div class="qb-search-empty-icon">🔍</div>
-          <div>No suggestions found</div>
-        </div>
+      <!-- Empty State -->
+      <div id="qbSearchEmpty" class="qb-search-empty" ref="emptyMessage" hidden>
+        <div class="qb-search-empty-icon">🔍</div>
+        <div>No suggestions found</div>
       </div>
     </div>
+
+    <!-- Inline Search Bar Initialization -->
+    <script>
+      console.log('🐝 QuickBEE Search Bar Script Loading...');
+
+      (function() {
+        const searchInput = document.getElementById('qbSearchInput');
+        const dropdown = document.getElementById('qbSearchDropdown');
+        const historySection = document.getElementById('qbSearchHistory');
+        const historyItems = document.querySelector('.qb-history-items');
+        const clearBtn = document.getElementById('qbClearHistory');
+        const suggestionsSection = document.getElementById('qbSearchSuggestions');
+        const suggestionItems = document.querySelector('.qb-suggestion-items');
+        const emptyMessage = document.getElementById('qbSearchEmpty');
+
+        console.log('🐝 Elements Check:', {
+          searchInput: !!searchInput,
+          dropdown: !!dropdown,
+          historySection: !!historySection,
+          historyItems: !!historyItems,
+          clearBtn: !!clearBtn
+        });
+
+        if (!searchInput || !dropdown) {
+          console.error('🐝 ERROR: Search bar elements missing!', { searchInput, dropdown });
+          return;
+        }
+
+        console.log('🐝 Elements found! Initializing...');
+
+        // Get history
+        function getHistory() {
+          try {
+            return JSON.parse(localStorage.getItem('qb_search_history') || '[]');
+          } catch {
+            return [];
+          }
+        }
+
+        // Add to history
+        function addToHistory(query) {
+          if (query.length < 2) return;
+          let history = getHistory();
+          history = history.filter(h => h !== query);
+          history.unshift(query);
+          history = history.slice(0, 10);
+          localStorage.setItem('qb_search_history', JSON.stringify(history));
+        }
+
+        // Show history
+        function showHistory() {
+          console.log('🐝 Showing history...');
+          const history = getHistory();
+          console.log('🐝 History items:', history);
+
+          // Hide other sections
+          if (suggestionsSection) suggestionsSection.hidden = true;
+          if (emptyMessage) emptyMessage.hidden = true;
+
+          // Show history or empty
+          if (historySection) {
+            historySection.hidden = history.length === 0;
+          }
+
+          // Render history items
+          if (historyItems) {
+            historyItems.innerHTML = '';
+            if (history.length > 0) {
+              history.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'qb-history-item';
+                div.innerHTML = `<span>${item}</span><button class="qb-remove-history" type="button">×</button>`;
+
+                // Item click
+                div.addEventListener('click', (e) => {
+                  if (e.target.classList.contains('qb-remove-history')) {
+                    return; // Don't search if remove button clicked
+                  }
+                  searchInput.value = item;
+                  addToHistory(item);
+                  window.location = `/search?q=${encodeURIComponent(item)}`;
+                });
+
+                // Remove button
+                const removeBtn = div.querySelector('.qb-remove-history');
+                removeBtn.addEventListener('click', (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  let h = getHistory();
+                  h = h.filter(x => x !== item);
+                  localStorage.setItem('qb_search_history', JSON.stringify(h));
+                  showHistory();
+                });
+
+                historyItems.appendChild(div);
+              });
+            }
+          }
+
+          // Show dropdown
+          showDropdown();
+        }
+
+        // Show dropdown
+        function showDropdown() {
+          if (dropdown) {
+            dropdown.removeAttribute('hidden');
+            dropdown.style.display = 'block !important';
+            dropdown.style.visibility = 'visible !important';
+            dropdown.style.opacity = '1 !important';
+          }
+          positionDropdown();
+          console.log('🐝 Dropdown shown');
+        }
+
+        // Hide dropdown
+        function hideDropdown() {
+          if (dropdown) {
+            dropdown.setAttribute('hidden', '');
+            dropdown.style.display = 'none';
+            dropdown.style.visibility = 'hidden';
+          }
+          console.log('🐝 Dropdown hidden');
+        }
+
+        // Position dropdown below search input
+        function positionDropdown() {
+          if (!dropdown) return;
+
+          try {
+            const rect = searchInput.getBoundingClientRect();
+            console.log('🐝 Search rect:', {
+              bottom: Math.round(rect.bottom),
+              left: Math.round(rect.left),
+              width: Math.round(rect.width),
+              right: Math.round(rect.right)
+            });
+
+            dropdown.style.position = 'fixed !important';
+            dropdown.style.top = (rect.bottom + 8) + 'px';
+            dropdown.style.left = rect.left + 'px';
+            dropdown.style.width = rect.width + 'px';
+            dropdown.style.zIndex = '999999 !important';
+
+            console.log('🐝 Dropdown positioned at:', {
+              top: Math.round(rect.bottom + 8) + 'px',
+              left: Math.round(rect.left) + 'px',
+              width: Math.round(rect.width) + 'px'
+            });
+          } catch (e) {
+            console.error('🐝 Position error:', e);
+          }
+        }
+
+        // Events
+        searchInput.addEventListener('focus', () => {
+          console.log('🐝 Search input focused');
+          showHistory();
+        });
+
+        searchInput.addEventListener('blur', () => {
+          console.log('🐝 Search input blurred');
+          setTimeout(hideDropdown, 200);
+        });
+
+        searchInput.addEventListener('input', (e) => {
+          const value = e.target.value.trim();
+          console.log('🐝 Search input changed:', value);
+
+          if (value.length < 2) {
+            showHistory();
+          } else {
+            // Here you could add live search functionality
+            showHistory(); // For now just show history
+          }
+        });
+
+        searchInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            if (query.length >= 2) {
+              addToHistory(query);
+              window.location = `/search?q=${encodeURIComponent(query)}`;
+            }
+          }
+        });
+
+        if (clearBtn) {
+          clearBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🐝 Clearing search history');
+            localStorage.removeItem('qb_search_history');
+            showHistory();
+          });
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+          const container = document.getElementById('qbSearchContainer');
+          if (container && !container.contains(e.target) && dropdown && !dropdown.contains(e.target)) {
+            hideDropdown();
+          }
+        });
+
+        console.log('🐝 Search bar initialized successfully');
+      })();
+    </script>
 
     <!-- Cart (top bar right - larger) -->
     <a href="{{ routes.cart_url }}" class="qb-action-btn qb-cart-btn-large">
