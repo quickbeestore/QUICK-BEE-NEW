@@ -808,15 +808,22 @@
 
   /* Search Dropdown - Google Style */
   .qb-search-dropdown {
-    position: fixed;
-    z-index: 999999;
-    background: white;
-    border: 1px solid #dadce0;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px 1px rgba(64, 60, 67, 0.16);
-    max-height: 400px;
-    overflow-y: auto;
-    min-width: 300px;
+    position: fixed !important;
+    z-index: 999999 !important;
+    background: white !important;
+    border: 1px solid #dadce0 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 5px 1px rgba(64, 60, 67, 0.16) !important;
+    max-height: 400px !important;
+    overflow-y: auto !important;
+    min-width: 300px !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 
   .qb-search-dropdown[hidden],
@@ -2671,8 +2678,13 @@
           console.log('🐝 History items:', history);
 
           if (historySection) historySection.hidden = history.length === 0;
-          if (dropdown) dropdown.hidden = false;
-          if (dropdown) dropdown.style.display = 'block';
+          if (dropdown) {
+            dropdown.hidden = false;
+            dropdown.style.display = 'block';
+            dropdown.style.visibility = 'visible';
+            dropdown.style.opacity = '1';
+          }
+          positionDropdown();
           console.log('🐝 Dropdown visible:', dropdown.hidden === false);
 
           if (historyItems && history.length > 0) {
@@ -2697,8 +2709,22 @@
           }
         }
 
+        // Position dropdown below search input
+        function positionDropdown() {
+          const rect = searchInput.getBoundingClientRect();
+          dropdown.style.position = 'fixed';
+          dropdown.style.top = (rect.bottom + 8) + 'px';
+          dropdown.style.left = rect.left + 'px';
+          dropdown.style.width = rect.width + 'px';
+          dropdown.style.zIndex = '999999';
+          console.log('🐝 Dropdown positioned:', { top: dropdown.style.top, left: dropdown.style.left, width: dropdown.style.width });
+        }
+
         // Events
-        searchInput.addEventListener('focus', showHistory);
+        searchInput.addEventListener('focus', () => {
+          positionDropdown();
+          showHistory();
+        });
         searchInput.addEventListener('blur', () => setTimeout(hideDropdown, 200));
         searchInput.addEventListener('input', (e) => {
           if (e.target.value.length < 2) showHistory();
