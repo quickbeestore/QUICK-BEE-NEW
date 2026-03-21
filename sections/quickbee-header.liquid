@@ -809,7 +809,7 @@
   /* Search Dropdown - Google Style */
   .qb-search-dropdown {
     position: fixed;
-    z-index: 999999 !important;
+    z-index: 999999;
     background: white;
     border: 1px solid #dadce0;
     border-radius: 8px;
@@ -817,15 +817,14 @@
     max-height: 400px;
     overflow-y: auto;
     min-width: 300px;
-    display: none !important;
   }
 
-  .qb-search-dropdown:not([hidden]) {
-    display: block !important;
-  }
-
-  .qb-search-dropdown[hidden] {
+  .qb-search-dropdown[hidden],
+  .qb-search-history[hidden],
+  .qb-search-suggestions[hidden],
+  .qb-search-empty[hidden] {
     display: none !important;
+    visibility: hidden !important;
   }
 
   .qb-search-dropdown::-webkit-scrollbar {
@@ -2589,12 +2588,28 @@
     <script type="module">
       import QuickBeeSearchBar from '{{ "quickbee-search-bar.js" | asset_url }}';
 
-      document.addEventListener('DOMContentLoaded', () => {
+      function initSearchBar() {
         const searchContainer = document.getElementById('qbSearchContainer');
         if (searchContainer) {
-          new QuickBeeSearchBar(searchContainer);
+          console.log('Initializing QuickBeeSearchBar...');
+          try {
+            new QuickBeeSearchBar(searchContainer);
+            console.log('QuickBeeSearchBar initialized successfully');
+          } catch (error) {
+            console.error('Error initializing QuickBeeSearchBar:', error);
+          }
+        } else {
+          console.warn('qbSearchContainer not found');
         }
-      });
+      }
+
+      // Try immediate init first
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSearchBar);
+      } else {
+        // DOM already loaded
+        setTimeout(initSearchBar, 100);
+      }
     </script>
 
     <!-- Search Bar Container (Centered & Wide) -->

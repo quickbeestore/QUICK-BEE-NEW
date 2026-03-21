@@ -3,7 +3,7 @@
  * Simple & clean search with:
  * 1. Typing animation (rotating placeholders)
  * 2. Recent search history
- * Cache bust: 2026-03-22 12:38 UTC - Fix dropdown visibility with explicit display control
+ * Cache bust: 2026-03-22 12:40 UTC - Fix initialization timing and dropdown visibility
  * 3. Search suggestions with icons and badges
  */
 
