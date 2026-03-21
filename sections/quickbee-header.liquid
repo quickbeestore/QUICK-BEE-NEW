@@ -4315,24 +4315,27 @@ if (document.readyState === 'loading') {
   window.qbUpdateActiveFooterItem();
 }
 
-// Announcement bar ticker animation - moved to ensure execution
-window.qbInitAnnouncementTicker = function() {
+// Announcement bar ticker animation - inline execution
+(function startAnnouncementTicker() {
   const track = document.querySelector('.qb-announcement-track');
-  if (track) {
-    track.style.animation = 'none !important';
-    track.style.animationName = 'none !important';
-    const startTime = Date.now();
-    const DURATION = 15000;
-    function animate() {
-      const elapsed = (Date.now() - startTime) % DURATION;
-      const progress = elapsed / DURATION;
-      track.style.transform = `translateX(${-(progress * 100)}%)`;
-      requestAnimationFrame(animate);
-    }
-    animate();
+  if (!track) return;
+
+  track.style.animation = 'none !important';
+  track.style.animationName = 'none !important';
+
+  const startTime = Date.now();
+  const DURATION = 15000;
+
+  function animate() {
+    const elapsed = (Date.now() - startTime) % DURATION;
+    const progress = elapsed / DURATION;
+    track.style.transform = `translateX(${-(progress * 100)}%)`;
+    requestAnimationFrame(animate);
   }
-};
-setTimeout(window.qbInitAnnouncementTicker, 50);
+
+  // Start animation
+  animate();
+})();
 
 console.log('🐝 QuickBee Splash Screen Ready');
 </script>
