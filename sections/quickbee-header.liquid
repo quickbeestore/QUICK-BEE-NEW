@@ -2629,6 +2629,93 @@
       </div>
     </div>
 
+    <!-- Inline Search Bar Initialization -->
+    <script>
+      (function() {
+        const searchInput = document.getElementById('qbSearchInput');
+        const dropdown = document.getElementById('qbSearchDropdown');
+        const historySection = document.getElementById('qbSearchHistory');
+        const historyItems = document.querySelector('.qb-history-items');
+        const clearBtn = document.getElementById('qbClearHistory');
+
+        console.log('Search bar inline init:', { searchInput: !!searchInput, dropdown: !!dropdown });
+
+        if (!searchInput || !dropdown) {
+          console.error('Search bar elements missing');
+          return;
+        }
+
+        // Get history
+        function getHistory() {
+          try {
+            return JSON.parse(localStorage.getItem('qb_search_history') || '[]');
+          } catch {
+            return [];
+          }
+        }
+
+        // Show history
+        function showHistory() {
+          if (historyItems) historyItems.innerHTML = '';
+          const history = getHistory();
+
+          if (historySection) historySection.hidden = history.length === 0;
+          if (dropdown) dropdown.hidden = false;
+          if (dropdown) dropdown.style.display = 'block';
+
+          if (historyItems && history.length > 0) {
+            history.forEach(item => {
+              const div = document.createElement('div');
+              div.className = 'qb-history-item';
+              div.innerHTML = `<span>${item}</span><button class="qb-remove-history">×</button>`;
+              div.addEventListener('click', () => {
+                searchInput.value = item;
+                window.location = `/search?q=${encodeURIComponent(item)}`;
+              });
+              historyItems.appendChild(div);
+            });
+          }
+        }
+
+        // Hide dropdown
+        function hideDropdown() {
+          if (dropdown) {
+            dropdown.hidden = true;
+            dropdown.style.display = 'none';
+          }
+        }
+
+        // Events
+        searchInput.addEventListener('focus', showHistory);
+        searchInput.addEventListener('blur', () => setTimeout(hideDropdown, 200));
+        searchInput.addEventListener('input', (e) => {
+          if (e.target.value.length < 2) showHistory();
+        });
+        searchInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            window.location = `/search?q=${encodeURIComponent(searchInput.value)}`;
+          }
+        });
+
+        if (clearBtn) {
+          clearBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            localStorage.removeItem('qb_search_history');
+            showHistory();
+          });
+        }
+
+        document.addEventListener('click', (e) => {
+          if (!document.getElementById('qbSearchContainer').contains(e.target)) {
+            hideDropdown();
+          }
+        });
+
+        console.log('Search bar initialized');
+      })();
+    </script>
+
     <!-- Cart (top bar right - larger) -->
     <a href="{{ routes.cart_url }}" class="qb-action-btn qb-cart-btn-large">
       <span class="qb-cart-wrap">
