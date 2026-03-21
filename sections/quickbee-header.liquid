@@ -2677,17 +2677,25 @@
           localStorage.setItem('qb_search_history', JSON.stringify(history));
         }
 
-        // Show history
+        // Trending searches
+        const trendingSearches = [
+          { icon: '🔥', text: 'Dairy Products' },
+          { icon: '🥬', text: 'Fresh Vegetables' },
+          { icon: '🍫', text: 'Snacks & Sweets' },
+          { icon: '🥤', text: 'Beverages' },
+          { icon: '🧊', text: 'Frozen Foods' }
+        ];
+
+        // Show history or trending searches
         function showHistory() {
           const history = getHistory();
-
-          // Hide suggestions section
-          if (suggestionsSection) suggestionsSection.hidden = true;
-          if (emptyMessage) emptyMessage.hidden = true;
+          const suggestionItemsEl = document.querySelector('.qb-suggestion-items');
 
           if (history.length > 0) {
             // Show history
             if (historySection) historySection.hidden = false;
+            if (suggestionsSection) suggestionsSection.hidden = true;
+            if (emptyMessage) emptyMessage.hidden = true;
 
             // Render history items
             if (historyItems) {
@@ -2717,11 +2725,28 @@
               });
             }
           } else {
-            // No history - show empty state
+            // Show trending searches
             if (historySection) historySection.hidden = true;
-            if (emptyMessage) {
-              emptyMessage.hidden = false;
-              emptyMessage.innerHTML = '<div class="qb-search-empty-icon">🔍</div><div>Start typing to search</div>';
+            if (emptyMessage) emptyMessage.hidden = true;
+            if (suggestionsSection) {
+              suggestionsSection.hidden = false;
+              if (suggestionItemsEl) {
+                suggestionItemsEl.innerHTML = '';
+                trendingSearches.forEach(trend => {
+                  const div = document.createElement('div');
+                  div.className = 'qb-suggestion-item';
+                  div.setAttribute('data-type', 'trending');
+                  div.innerHTML = `<div class="qb-suggestion-icon">${trend.icon}</div><div class="qb-suggestion-text">${trend.text}</div>`;
+
+                  div.addEventListener('click', () => {
+                    searchInput.value = trend.text;
+                    addToHistory(trend.text);
+                    window.location = `/search?q=${encodeURIComponent(trend.text)}`;
+                  });
+
+                  suggestionItemsEl.appendChild(div);
+                });
+              }
             }
           }
 
