@@ -776,6 +776,229 @@
     font-weight: 400;
   }
 
+  /* Search Container - Relative positioning for dropdown */
+  .qb-search-container {
+    position: relative;
+    flex: 1;
+    max-width: 400px;
+  }
+
+  /* Search Dropdown Container */
+  .qb-search-dropdown {
+    position: fixed;
+    z-index: 10000;
+    background: white;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-height: 500px;
+    overflow-y: auto;
+    animation: qb-search-fade-in 0.2s ease-out;
+    min-width: 300px;
+  }
+
+  @keyframes qb-search-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Filter Section */
+  .qb-search-filters {
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .qb-filter-select {
+    padding: 8px 12px;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    background: white;
+    font-family: inherit;
+  }
+
+  .qb-price-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .qb-price-filter input[type="range"] {
+    width: 80px;
+    cursor: pointer;
+  }
+
+  .qb-price-range {
+    font-weight: 500;
+    color: #333;
+  }
+
+  /* Search Sections */
+  .qb-search-history,
+  .qb-search-suggestions,
+  .qb-search-results {
+    padding: 0;
+    margin: 0;
+  }
+
+  .qb-search-section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #999;
+    padding: 8px 12px 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* History Items */
+  .qb-history-items,
+  .qb-suggestion-items,
+  .qb-result-items {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .qb-history-item,
+  .qb-suggestion-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.15s;
+  }
+
+  .qb-history-item:hover,
+  .qb-suggestion-item:hover {
+    background-color: #f9f9f9;
+  }
+
+  .qb-history-item:last-child,
+  .qb-suggestion-item:last-child {
+    border-bottom: none;
+  }
+
+  .qb-remove-history {
+    opacity: 0;
+    cursor: pointer;
+    padding: 4px;
+    color: #ccc;
+    transition: opacity 0.15s, color 0.15s;
+    background: none;
+    border: none;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .qb-remove-history:hover {
+    color: #999;
+  }
+
+  .qb-history-item:hover .qb-remove-history {
+    opacity: 1;
+  }
+
+  /* Product Result Items */
+  .qb-result-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #f5f5f5;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    transition: background-color 0.15s;
+  }
+
+  .qb-result-item:hover {
+    background-color: #f9f9f9;
+  }
+
+  .qb-result-item:last-child {
+    border-bottom: none;
+  }
+
+  .qb-result-image {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+    flex-shrink: 0;
+  }
+
+  .qb-result-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .qb-result-title {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #333;
+  }
+
+  .qb-result-price {
+    font-size: 12px;
+    color: #999;
+    margin: 4px 0 0;
+  }
+
+  /* Empty State */
+  .qb-search-empty {
+    padding: 24px 12px;
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .qb-search-dropdown {
+      left: -12px !important;
+      right: -12px !important;
+      border-radius: 0;
+      max-height: 60vh;
+    }
+
+    .qb-search-filters {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .qb-filter-select,
+    .qb-price-filter {
+      width: 100%;
+    }
+
+    .qb-price-filter {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .qb-price-filter input[type="range"] {
+      width: 100%;
+    }
+  }
+
   /* Dropdown - hidden by default */
   .qb-loc-dropdown {
     position: absolute;
@@ -2244,18 +2467,86 @@
       // Show delivery time if landmark is pre-selected
       // setTimeout(showDeliveryTime, 100); // v4 cache bust
     });
+
+    // Inject search data for search bar component
+    window.__QUICKBEE_SEARCH_DATA__ = {
+      categories: [
+        {% for collection in shop.collections %}
+          "{{ collection.title }}"{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ],
+      searchRoute: {{ routes.search_url | json }}
+    };
     </script>
 
-    <!-- Search Bar with Rotating Placeholders -->
-    <div class="qb-search-bar-wrap" id="qbSearchWrap">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input
-        type="text"
-        class="qb-search-input"
-        id="qbSearchInput"
-        placeholder="Search products…"
-        aria-label="Search products"
-      >
+    <!-- Search Bar Component Script -->
+    <script type="module">
+      import QuickBeeSearchBar from '{{ "quickbee-search-bar.js" | asset_url }}';
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const searchContainer = document.getElementById('qbSearchContainer');
+        if (searchContainer) {
+          new QuickBeeSearchBar(searchContainer);
+        }
+      });
+    </script>
+
+    <!-- Search Bar Container -->
+    <div class="qb-search-container" id="qbSearchContainer">
+      <div class="qb-search-bar-wrap" id="qbSearchWrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input
+          type="text"
+          class="qb-search-input"
+          id="qbSearchInput"
+          ref="searchInput"
+          placeholder="Search products…"
+          aria-label="Search products"
+          autocomplete="off"
+        >
+      </div>
+
+      <!-- Search Dropdown -->
+      <div id="qbSearchDropdown" class="qb-search-dropdown" hidden ref="dropdown">
+        <!-- Filter Controls -->
+        <div class="qb-search-filters" ref="filtersSection">
+          <select id="qbCategoryFilter" ref="categoryFilter" class="qb-filter-select">
+            <option value="">All Categories</option>
+            {%- for collection in shop.collections -%}
+              <option value="{{ collection.title }}">{{ collection.title }}</option>
+            {%- endfor -%}
+          </select>
+          <div class="qb-price-filter">
+            <label>Price:</label>
+            <input type="range" id="qbPriceMin" ref="priceMin" min="0" max="999" value="0" step="10">
+            <input type="range" id="qbPriceMax" ref="priceMax" min="0" max="999" value="999" step="10">
+            <span class="qb-price-range" ref="priceDisplay">$0 - $999</span>
+          </div>
+        </div>
+
+        <!-- Search History (shown when input is empty) -->
+        <div class="qb-search-history" ref="historySection" hidden>
+          <div class="qb-search-section-title">Recent Searches</div>
+          <div class="qb-history-items" ref="historyItems"></div>
+        </div>
+
+        <!-- Autocomplete Suggestions -->
+        <div class="qb-search-suggestions" ref="suggestionsSection" hidden>
+          <div class="qb-search-section-title">Suggestions</div>
+          <div class="qb-suggestion-items" ref="suggestionItems"></div>
+        </div>
+
+        <!-- Product Results -->
+        <div class="qb-search-results" ref="resultsSection" hidden>
+          <div class="qb-search-section-title">Products</div>
+          <div class="qb-result-items" ref="resultItems"></div>
+        </div>
+
+        <!-- No Results Message -->
+        <div class="qb-search-empty" ref="emptyMessage" hidden>
+          No products found
+        </div>
+      </div>
     </div>
 
     <!-- Spacer -->
