@@ -2758,7 +2758,7 @@
   <ul class="qb-mobile-footer-nav">
     <!-- Home -->
     <li>
-      <a href="{{ routes.root_url }}" class="qb-mobile-footer-item active" data-page="home" title="Home">
+      <a href="{{ routes.root_url }}" class="qb-mobile-footer-item" data-page="home" title="Home">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         <span>Home</span>
       </a>
@@ -4276,6 +4276,39 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', window.qbInitSplashScreen);
 } else {
   window.qbInitSplashScreen();
+}
+
+// Update active footer item based on current page
+window.qbUpdateActiveFooterItem = function() {
+  const pathname = window.location.pathname;
+  const footerItems = document.querySelectorAll('.qb-mobile-footer-item');
+
+  // Remove active class from all items
+  footerItems.forEach(item => item.classList.remove('active'));
+
+  // Determine which item should be active based on current URL
+  let activePage = 'home'; // default
+
+  if (pathname.includes('/collections')) {
+    activePage = 'categories';
+  } else if (pathname.includes('/account')) {
+    activePage = 'account';
+  } else if (pathname.includes('/pages/services')) {
+    activePage = 'services';
+  }
+
+  // Add active class to the correct item
+  const activeItem = document.querySelector(`.qb-mobile-footer-item[data-page="${activePage}"]`);
+  if (activeItem) {
+    activeItem.classList.add('active');
+  }
+};
+
+// Initialize footer active state
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', window.qbUpdateActiveFooterItem);
+} else {
+  window.qbUpdateActiveFooterItem();
 }
 
 console.log('🐝 QuickBee Splash Screen Ready');
