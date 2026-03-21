@@ -2591,8 +2591,6 @@
     };
     </script>
 
-    <!-- Search Bar Component Script -->
-    <script src="{{ 'quickbee-search-bar-v2.js' | asset_url }}" defer></script>
 
     <!-- Search Bar Container (Centered & Wide) -->
     <div class="qb-search-container" id="qbSearchContainer">
@@ -2711,13 +2709,26 @@
 
         // Position dropdown below search input
         function positionDropdown() {
-          const rect = searchInput.getBoundingClientRect();
-          dropdown.style.position = 'fixed';
-          dropdown.style.top = (rect.bottom + 8) + 'px';
-          dropdown.style.left = rect.left + 'px';
-          dropdown.style.width = rect.width + 'px';
-          dropdown.style.zIndex = '999999';
-          console.log('🐝 Dropdown positioned:', { top: dropdown.style.top, left: dropdown.style.left, width: dropdown.style.width });
+          try {
+            const rect = searchInput.getBoundingClientRect();
+            console.log('🐝 Search rect:', { bottom: rect.bottom, left: rect.left, width: rect.width });
+
+            dropdown.style.position = 'fixed';
+            dropdown.style.top = (rect.bottom + 8) + 'px';
+            dropdown.style.left = rect.left + 'px';
+            dropdown.style.width = rect.width + 'px';
+            dropdown.style.zIndex = '999999';
+
+            console.log('🐝 Dropdown positioned:', {
+              top: dropdown.style.top,
+              left: dropdown.style.left,
+              width: dropdown.style.width,
+              display: dropdown.style.display,
+              hidden: dropdown.hidden
+            });
+          } catch (e) {
+            console.error('🐝 Position error:', e);
+          }
         }
 
         // Events
