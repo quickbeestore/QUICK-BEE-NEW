@@ -37,20 +37,23 @@
           ⚡ 15-30 min delivery • {% render 'delivery-countdown-timer' %}
         </div>
 
-        <!-- ITEMS LIST - OPTIMIZED FOR MOBILE -->
-        <div class="items-section">
-          <div class="cart-items-list">
-            {%- content_for 'block', id: 'cart-page-items', type: '_cart-products' %}
+        <!-- TWO-COLUMN LAYOUT: ITEMS LEFT, SUMMARY RIGHT -->
+        <div class="cart-layout">
+          <!-- ITEMS LIST - LEFT COLUMN -->
+          <div class="items-section">
+            <div class="cart-items-list">
+              {%- content_for 'block', id: 'cart-page-items', type: '_cart-products' %}
+            </div>
           </div>
-        </div>
 
-        <!-- STICKY ORDER SUMMARY (appears above footer) -->
-        <div class="summary-sticky">
-          <div class="wallet-section">
-            {% render 'wallet-balance' %}
-          </div>
-          <div class="price-breakdown">
-            {%- content_for 'block', id: 'cart-page-summary', type: '_cart-summary' -%}
+          <!-- STICKY ORDER SUMMARY - RIGHT COLUMN -->
+          <div class="summary-sticky">
+            <div class="wallet-section">
+              {% render 'wallet-balance' %}
+            </div>
+            <div class="price-breakdown">
+              {%- content_for 'block', id: 'cart-page-summary', type: '_cart-summary' -%}
+            </div>
           </div>
         </div>
 
@@ -182,10 +185,19 @@
   }
 
   /* ============================================================================
-     ITEMS SECTION - OPTIMIZED FOR MOBILE
+     TWO-COLUMN LAYOUT: ITEMS LEFT, SUMMARY RIGHT
      ============================================================================ */
-  .items-section {
+  .cart-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     padding: 12px 0;
+  }
+
+  /* ITEMS SECTION - LEFT COLUMN (FULL WIDTH ON MOBILE) */
+  .items-section {
+    flex: 1;
+    min-width: 0;
   }
 
   .cart-items-list {
@@ -211,18 +223,14 @@
   }
 
   /* ============================================================================
-     STICKY SUMMARY ABOVE FOOTER
+     STICKY SUMMARY - RIGHT COLUMN (FIXED ON DESKTOP)
      ============================================================================ */
   .summary-sticky {
-    position: sticky;
-    bottom: 65px;
     background: white;
-    border-top: 1px solid #e5e5e5;
-    border-bottom: 1px solid #e5e5e5;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
     padding: 12px 16px;
-    margin-top: 8px;
     z-index: 50;
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
   }
 
   .wallet-section {
@@ -316,6 +324,7 @@
       background: white !important;
       border-color: #e5e5e5 !important;
       color-scheme: light !important;
+      box-shadow: none !important;
     }
 
     .wallet-section {
@@ -330,7 +339,7 @@
   }
 
   /* ============================================================================
-     TABLET - 750PX+
+     TABLET - 750PX+ (TWO-COLUMN LAYOUT BEGINS)
      ============================================================================ */
   @media (min-width: 750px) {
     .cart-header-compact {
@@ -346,8 +355,16 @@
       font-size: 14px;
     }
 
-    .items-section {
+    .cart-layout {
+      flex-direction: row;
+      gap: 20px;
       padding: 16px 24px;
+      align-items: flex-start;
+    }
+
+    .items-section {
+      flex: 2;
+      padding: 0;
     }
 
     .cart-items-list {
@@ -356,8 +373,12 @@
     }
 
     .summary-sticky {
-      padding: 16px 24px;
-      margin-top: 12px;
+      flex: 1;
+      position: sticky;
+      top: 60px;
+      padding: 16px;
+      height: fit-content;
+      margin-top: 0;
     }
 
     .cart-recommendations {
@@ -366,7 +387,7 @@
   }
 
   /* ============================================================================
-     DESKTOP - 1024PX+
+     DESKTOP - 1024PX+ (OPTIMIZED TWO-COLUMN)
      ============================================================================ */
   @media (min-width: 1024px) {
     .cart-header-compact {
@@ -381,12 +402,19 @@
       padding: 14px 32px;
     }
 
-    .items-section {
+    .cart-layout {
       padding: 20px 32px;
+      gap: 32px;
+    }
+
+    .items-section {
+      flex: 2.5;
     }
 
     .summary-sticky {
-      padding: 18px 32px;
+      flex: 1;
+      padding: 20px;
+      top: 70px;
     }
 
     .cart-recommendations {
