@@ -4281,33 +4281,6 @@ if (document.readyState === 'loading') {
   window.qbInitSplashScreen();
 }
 
-// Announcement bar ticker animation
-window.qbInitAnnouncementTicker = function() {
-  const track = document.querySelector('.qb-announcement-track');
-  if (!track) return;
-
-  track.style.animation = 'none !important';
-  track.style.animationName = 'none !important';
-
-  const startTime = Date.now();
-  const DURATION = 15000;
-
-  function animate() {
-    const elapsed = (Date.now() - startTime) % DURATION;
-    const progress = elapsed / DURATION;
-    track.style.transform = `translateX(${-(progress * 100)}%)`;
-    requestAnimationFrame(animate);
-  }
-
-  animate();
-};
-
-// Initialize announcement ticker with delay to ensure DOM is ready
-setTimeout(function() {
-  if (typeof window.qbInitAnnouncementTicker === 'function') {
-    window.qbInitAnnouncementTicker();
-  }
-}, 100);
 
 // Update active footer item based on current page
 window.qbUpdateActiveFooterItem = function() {
@@ -4341,6 +4314,25 @@ if (document.readyState === 'loading') {
 } else {
   window.qbUpdateActiveFooterItem();
 }
+
+// Announcement bar ticker animation - moved to ensure execution
+window.qbInitAnnouncementTicker = function() {
+  const track = document.querySelector('.qb-announcement-track');
+  if (track) {
+    track.style.animation = 'none !important';
+    track.style.animationName = 'none !important';
+    const startTime = Date.now();
+    const DURATION = 15000;
+    function animate() {
+      const elapsed = (Date.now() - startTime) % DURATION;
+      const progress = elapsed / DURATION;
+      track.style.transform = `translateX(${-(progress * 100)}%)`;
+      requestAnimationFrame(animate);
+    }
+    animate();
+  }
+};
+setTimeout(window.qbInitAnnouncementTicker, 50);
 
 console.log('🐝 QuickBee Splash Screen Ready');
 </script>
