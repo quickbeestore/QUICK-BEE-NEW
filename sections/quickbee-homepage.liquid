@@ -681,38 +681,31 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <!-- Flash Deals -->
   <section class="qb-section">
     <h2>⚡ Flash Deals</h2>
-    <div class="qb-grid">
-      {% if collections.dairy.products.size > 0 %}
-        {% assign products = collections.dairy.products | limit: 4 %}
-      {% elsif collections.vegetables.products.size > 0 %}
-        {% assign products = collections.vegetables.products | limit: 4 %}
-      {% elsif collections.oral-care.products.size > 0 %}
-        {% assign products = collections.oral-care.products | limit: 4 %}
-      {% else %}
-        {% for col in collections %}
-          {% if col.handle != 'all' and col.products.size > 0 %}
-            {% assign products = col.products | limit: 4 %}
-            {% break %}
-          {% endif %}
-        {% endfor %}
-      {% endif %}
+    <div class="qb-product-grid">
+      {% assign products = shop.products | limit: 4 %}
       {% if products.size > 0 %}
         {% for product in products %}
-          <a href="{{ product.url }}" class="qb-product">
-            <div class="qb-product-img">
+          <div class="qb-product-card">
+            <div class="qb-product-image-wrap" style="cursor: pointer;" data-product-url="{{ product.url }}">
               {% if product.featured_image %}
-                <img src="{{ product.featured_image | image_url: width: 300 }}" alt="{{ product.title }}">
+                <img src="{{ product.featured_image | img_url: '300x300' }}" alt="{{ product.title }}" class="qb-product-image" style="cursor: pointer;">
               {% else %}
-                💎
+                <div style="width:100%; height:100%; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">No Image</div>
               {% endif %}
+              <div class="qb-delivery-badge">⚡ 18-22 mins</div>
             </div>
-            <div class="qb-product-info">
-              <div class="qb-product-name">{{ product.title | truncatewords: 3 }}</div>
-              <div class="qb-product-price">Rs {{ product.price | money_without_currency | remove: "Rs" | remove: "," }}</div>
-              <div class="qb-product-delivery">⚡ 18-22 mins</div>
-              <button type="button" class="qb-product-btn" onclick="fetch('{{ routes.cart_add_url }}', { method: 'POST', body: new FormData(Object.assign(document.createElement('form'), { innerHTML: '<input name=id value={{ product.variants.first.id }}><input name=quantity value=1>' })) }).then(() => window.location.href = '{{ routes.cart_url }}')">Add</button>
+            <h3 class="qb-product-name">{{ product.title }}</h3>
+            <div class="qb-product-price">Rs {{ product.price | divided_by: 100 }}</div>
+            <div class="qb-qty-selector">
+              <button class="qb-qty-btn">−</button>
+              <input type="number" class="qb-qty-input" value="1" min="1">
+              <button class="qb-qty-btn">+</button>
             </div>
-          </a>
+            <form action="/cart/add" method="post" class="product-form">
+              <input type="hidden" name="id" value="{{ product.variants.first.id }}">
+              <button type="submit" class="qb-add-btn">ADD TO CART</button>
+            </form>
+          </div>
         {% endfor %}
       {% else %}
         <div class="qb-empty">No products available</div>
@@ -724,20 +717,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <section class="qb-section">
     <h2>🔥 Trending Now</h2>
     <div class="qb-product-grid">
-      {% if collections.groceries.products.size > 0 %}
-        {% assign trending = collections.groceries.products | limit: 4 %}
-      {% elsif collections.snacks.products.size > 0 %}
-        {% assign trending = collections.snacks.products | limit: 4 %}
-      {% elsif collections.dairy.products.size > 0 %}
-        {% assign trending = collections.dairy.products | limit: 4 %}
-      {% else %}
-        {% for col in collections %}
-          {% if col.handle != 'all' and col.products.size > 0 %}
-            {% assign trending = col.products | limit: 4 %}
-            {% break %}
-          {% endif %}
-        {% endfor %}
-      {% endif %}
+      {% assign trending = shop.products | limit: 4 %}
       {% if trending.size > 0 %}
         {% for product in trending %}
           <div class="qb-product-card">
@@ -772,20 +752,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <section class="qb-section">
     <h2>✨ New Arrivals</h2>
     <div class="qb-product-grid">
-      {% if collections.snacks.products.size > 0 %}
-        {% assign new_arrivals = collections.snacks.products | limit: 4 %}
-      {% elsif collections.dairy.products.size > 0 %}
-        {% assign new_arrivals = collections.dairy.products | limit: 4 %}
-      {% elsif collections.vegetables.products.size > 0 %}
-        {% assign new_arrivals = collections.vegetables.products | limit: 4 %}
-      {% else %}
-        {% for col in collections %}
-          {% if col.handle != 'all' and col.products.size > 0 %}
-            {% assign new_arrivals = col.products | limit: 4 %}
-            {% break %}
-          {% endif %}
-        {% endfor %}
-      {% endif %}
+      {% assign new_arrivals = shop.products | limit: 4 | offset: 4 %}
       {% if new_arrivals.size > 0 %}
         {% for product in new_arrivals %}
           <div class="qb-product-card">
@@ -819,38 +786,31 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <!-- Featured -->
   <section class="qb-section">
     <h2>⭐ Featured</h2>
-    <div class="qb-grid">
-      {% if collections.vegetables.products.size > 0 %}
-        {% assign featured = collections.vegetables.products | limit: 4 %}
-      {% elsif collections.oral-care.products.size > 0 %}
-        {% assign featured = collections.oral-care.products | limit: 4 %}
-      {% elsif collections.snacks.products.size > 0 %}
-        {% assign featured = collections.snacks.products | limit: 4 %}
-      {% else %}
-        {% for col in collections %}
-          {% if col.handle != 'all' and col.products.size > 0 %}
-            {% assign featured = col.products | limit: 4 %}
-            {% break %}
-          {% endif %}
-        {% endfor %}
-      {% endif %}
+    <div class="qb-product-grid">
+      {% assign featured = shop.products | limit: 4 | offset: 8 %}
       {% if featured.size > 0 %}
         {% for product in featured %}
-          <a href="{{ product.url }}" class="qb-product">
-            <div class="qb-product-img">
+          <div class="qb-product-card">
+            <div class="qb-product-image-wrap" style="cursor: pointer;" data-product-url="{{ product.url }}">
               {% if product.featured_image %}
-                <img src="{{ product.featured_image | image_url: width: 300 }}" alt="{{ product.title }}">
+                <img src="{{ product.featured_image | img_url: '300x300' }}" alt="{{ product.title }}" class="qb-product-image" style="cursor: pointer;">
               {% else %}
-                ⭐
+                <div style="width:100%; height:100%; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">No Image</div>
               {% endif %}
+              <div class="qb-delivery-badge">⚡ 18-22 mins</div>
             </div>
-            <div class="qb-product-info">
-              <div class="qb-product-name">{{ product.title | truncatewords: 3 }}</div>
-              <div class="qb-product-price">Rs {{ product.price | money_without_currency | remove: "Rs" | remove: "," }}</div>
-              <div class="qb-product-delivery">⚡ 18-22 mins</div>
-              <button type="button" class="qb-product-btn" onclick="fetch('{{ routes.cart_add_url }}', { method: 'POST', body: new FormData(Object.assign(document.createElement('form'), { innerHTML: '<input name=id value={{ product.variants.first.id }}><input name=quantity value=1>' })) }).then(() => window.location.href = '{{ routes.cart_url }}')">Add</button>
+            <h3 class="qb-product-name">{{ product.title }}</h3>
+            <div class="qb-product-price">Rs {{ product.price | divided_by: 100 }}</div>
+            <div class="qb-qty-selector">
+              <button class="qb-qty-btn">−</button>
+              <input type="number" class="qb-qty-input" value="1" min="1">
+              <button class="qb-qty-btn">+</button>
             </div>
-          </a>
+            <form action="/cart/add" method="post" class="product-form">
+              <input type="hidden" name="id" value="{{ product.variants.first.id }}">
+              <button type="submit" class="qb-add-btn">ADD TO CART</button>
+            </form>
+          </div>
         {% endfor %}
       {% else %}
         <div class="qb-empty">No products available</div>
