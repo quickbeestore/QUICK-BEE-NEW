@@ -1,0 +1,96 @@
+{% comment %}
+  Promotional Banners Section
+  Displays clickable banner ads on homepage linking to collections
+{% endcomment %}
+
+<div class="promotional-banners-grid">
+  {% assign banners = "banner-groceries.png|/collections/groceries|Buy 1 Get 1 Free,banner-clothes-washing.png|/collections/clothes-washing|Clothes Washing 24/7,banner-vegetables.png|/collections/vegetables|Fresh Vegetables,banner-dairy.png|/collections/dairy|Dairy Products,banner-drinks.png|/collections/drinks|Drinks 24/7,banner-groceries-more.png|/collections/groceries|Groceries & More" | split: "," %}
+
+  {% for banner_data in banners %}
+    {% assign banner_parts = banner_data | split: "|" %}
+    {% assign image = banner_parts[0] %}
+    {% assign link = banner_parts[1] %}
+    {% assign alt = banner_parts[2] %}
+
+    <a href="{{ link }}" class="promo-banner-link">
+      <div class="promo-banner">
+        <img
+          src="{{ image | asset_url }}"
+          alt="{{ alt }}"
+          loading="lazy"
+          class="promo-banner-img"
+        />
+      </div>
+    </a>
+  {% endfor %}
+</div>
+
+<style>
+  .promotional-banners-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin: 32px 0;
+    padding: 0 16px;
+  }
+
+  .promo-banner-link {
+    text-decoration: none;
+    display: block;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .promo-banner-link:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .promo-banner {
+    overflow: hidden;
+    border-radius: 8px;
+    height: 200px;
+  }
+
+  .promo-banner-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .promo-banner-link:hover .promo-banner-img {
+    transform: scale(1.05);
+  }
+
+  @media (max-width: 768px) {
+    .promotional-banners-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .promo-banner {
+      height: 180px;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Promotional Banners",
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section Title",
+      "default": "Featured Collections"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Promotional Banners"
+    }
+  ]
+}
+{% endschema %}
