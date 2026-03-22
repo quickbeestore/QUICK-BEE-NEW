@@ -2120,7 +2120,7 @@
 
 <!-- Announcement Bar -->
 <div class="qb-announcement" style="background: #000000 !important; color: #ffffff !important;">
-  <div class="qb-announcement-track" style="color: #ffffff !important; animation: qb-scroll 15s linear infinite !important;">
+  <div class="qb-announcement-track" style="color: #ffffff !important;" data-animate="true">
     <span style="color: #ffffff !important;">{{ section.settings.announcement_text_1 }}</span>
     <span style="color: #ffffff !important;">{{ section.settings.announcement_text_2 }}</span>
     <span style="color: #ffffff !important;">{{ section.settings.announcement_text_3 }}</span>
@@ -4313,6 +4313,22 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', window.qbUpdateActiveFooterItem);
 } else {
   window.qbUpdateActiveFooterItem();
+}
+
+// Announcement bar animation
+const announcementTrack = document.querySelector('[data-animate="true"]');
+if (announcementTrack) {
+  const startTime = Date.now();
+  const DURATION = 15000; // 15 seconds
+
+  function animateAnnouncement() {
+    const elapsed = (Date.now() - startTime) % DURATION;
+    const progress = (elapsed / DURATION) * 100;
+    announcementTrack.style.transform = `translateX(-${progress}%)`;
+    requestAnimationFrame(animateAnnouncement);
+  }
+
+  requestAnimationFrame(animateAnnouncement);
 }
 
 // Mobile footer page detection
