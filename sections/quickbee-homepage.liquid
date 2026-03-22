@@ -637,26 +637,26 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <div class="qb-hp">
   <!-- All Promotional Banners -->
   <div class="qb-banners">
-    <!-- New Collection Banners -->
-    <a href="/collections/groceries" class="qb-banner-item">
-      <img src="{{ 'banner-groceries.png' | asset_url }}" alt="Groceries - Buy 1 Get 1 Free">
+    <!-- Original 4 Banners -->
+    <a href="/collections/yeti-kafe" class="qb-banner-item">
+      <img src="{{ 'hero-banner.png' | asset_url }}" alt="Yeti Kafe Collection">
     </a>
-    <a href="/collections/clothes-washing" class="qb-banner-item">
-      <img src="{{ 'banner-clothes-washing.png' | asset_url }}" alt="Clothes Washing - 24/7 Service">
+    <a href="/collections/farm-fresh" class="qb-banner-item">
+      <img src="{{ 'banner-farm-fresh.png' | asset_url }}" alt="Farm Fresh - Get your daily essentials delivered">
     </a>
-    <a href="/collections/vegetables" class="qb-banner-item">
-      <img src="{{ 'banner-vegetables.png' | asset_url }}" alt="Vegetables - Fresh Farm Vegetables">
+    <a href="/collections/pet-care" class="qb-banner-item">
+      <img src="{{ 'banner-pet-care.png' | asset_url }}" alt="Pet Care - Everything Your Pet Loves Delivered">
     </a>
-    <a href="/collections/dairy" class="qb-banner-item">
-      <img src="{{ 'banner-dairy.png' | asset_url }}" alt="Dairy Products - Milk, Yogurt, Butter">
+    <a href="/collections/baby-care" class="qb-banner-item">
+      <img src="{{ 'banner-baby-care.png' | asset_url }}" alt="Baby Care - Made Easy">
     </a>
   </div>
 
-  <!-- Groceries -->
+  <!-- Yeti Kafe -->
   <section class="qb-section">
-    <h2>🛒 Groceries</h2>
+    <h2>☕ Yeti Kafe</h2>
     <div class="qb-product-grid">
-      {% assign products = collections.groceries.products | limit: 4 %}
+      {% assign products = collections.yeti-kafe.products | limit: 4 %}
       {% if products.size > 0 %}
         {% for product in products %}
           <div class="qb-product-card">
@@ -687,11 +687,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     </div>
   </section>
 
-<!-- Vegetables -->
+  <!-- Farm Fresh -->
   <section class="qb-section">
-    <h2>🥬 Vegetables</h2>
+    <h2>🥕 Farm Fresh</h2>
     <div class="qb-product-grid">
-      {% assign new_arrivals = collections.vegetables.products | limit: 4 %}
+      {% assign new_arrivals = collections.farm-fresh.products | limit: 4 %}
       {% if new_arrivals.size > 0 %}
         {% for product in new_arrivals %}
           <div class="qb-product-card">
@@ -722,13 +722,48 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     </div>
   </section>
 
-  <!-- Dairy -->
+  <!-- Pet Care -->
   <section class="qb-section">
-    <h2>🥛 Dairy</h2>
+    <h2>🐕 Pet Care</h2>
     <div class="qb-product-grid">
-      {% assign featured = collections.dairy.products | limit: 4 %}
+      {% assign featured = collections.pet-care.products | limit: 4 %}
       {% if featured.size > 0 %}
         {% for product in featured %}
+          <div class="qb-product-card">
+            <div class="qb-product-image-wrap" style="cursor: pointer;" data-product-url="{{ product.url }}">
+              {% if product.featured_image %}
+                <img src="{{ product.featured_image | img_url: '300x300' }}" alt="{{ product.title }}" class="qb-product-image" style="cursor: pointer;">
+              {% else %}
+                <div style="width:100%; height:100%; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">No Image</div>
+              {% endif %}
+              <div class="qb-delivery-badge">⚡ 18-22 mins</div>
+            </div>
+            <h3 class="qb-product-name">{{ product.title }}</h3>
+            <div class="qb-product-price">Rs {{ product.price | divided_by: 100 }}</div>
+            <div class="qb-qty-selector">
+              <button class="qb-qty-btn">−</button>
+              <input type="number" class="qb-qty-input" value="1" min="1">
+              <button class="qb-qty-btn">+</button>
+            </div>
+            <form action="/cart/add" method="post" class="product-form">
+              <input type="hidden" name="id" value="{{ product.variants.first.id }}">
+              <button type="submit" class="qb-add-btn">ADD TO CART</button>
+            </form>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="qb-empty">No products available</div>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- Baby Care -->
+  <section class="qb-section">
+    <h2>👶 Baby Care</h2>
+    <div class="qb-product-grid">
+      {% assign babies = collections.baby-care.products | limit: 4 %}
+      {% if babies.size > 0 %}
+        {% for product in babies %}
           <div class="qb-product-card">
             <div class="qb-product-image-wrap" style="cursor: pointer;" data-product-url="{{ product.url }}">
               {% if product.featured_image %}
