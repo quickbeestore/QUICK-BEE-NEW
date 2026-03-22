@@ -458,7 +458,10 @@
   .qb-announcement-track {
     display: inline-flex;
     gap: 60px;
-    animation: qb-scroll 15s linear infinite;
+    animation-name: qb-scroll !important;
+    animation-duration: 15s !important;
+    animation-timing-function: linear !important;
+    animation-iteration-count: infinite !important;
     color: #ffffff !important;
     forced-color-adjust: none;
     will-change: transform;
@@ -478,8 +481,8 @@
   }
 
   @keyframes qb-scroll {
-    0%   { transform: translateX(0%); }
-    100% { transform: translateX(-100%); }
+    0%   { transform: translateX(0%) !important; }
+    100% { transform: translateX(-100%) !important; }
   }
 
   /* Dark mode override for announcement bar */
@@ -2758,7 +2761,7 @@
   <ul class="qb-mobile-footer-nav">
     <!-- Home -->
     <li>
-      <a href="{{ routes.root_url }}" class="qb-mobile-footer-item active" data-page="home" title="Home">
+      <a href="{{ routes.root_url }}" class="qb-mobile-footer-item" data-page="home" title="Home">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         <span>Home</span>
       </a>
@@ -4277,6 +4280,85 @@ if (document.readyState === 'loading') {
 } else {
   window.qbInitSplashScreen();
 }
+
+
+// Update active footer item based on current page
+window.qbUpdateActiveFooterItem = function() {
+  const pathname = window.location.pathname;
+  const footerItems = document.querySelectorAll('.qb-mobile-footer-item');
+
+  // Remove active class from all items
+  footerItems.forEach(item => item.classList.remove('active'));
+
+  // Determine which item should be active based on current URL
+  let activePage = 'home'; // default
+
+  if (pathname.includes('/collections')) {
+    activePage = 'categories';
+  } else if (pathname.includes('/account')) {
+    activePage = 'account';
+  } else if (pathname.includes('/pages/services')) {
+    activePage = 'services';
+  }
+
+  // Add active class to the correct item
+  const activeItem = document.querySelector(`.qb-mobile-footer-item[data-page="${activePage}"]`);
+  if (activeItem) {
+    activeItem.classList.add('active');
+  }
+};
+
+// Initialize footer active state
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', window.qbUpdateActiveFooterItem);
+} else {
+  window.qbUpdateActiveFooterItem();
+}
+
+// Announcement bar animation - slower speed for smooth scrolling
+const qbAnnTrack = document.querySelector('.qb-announcement-track');
+if (qbAnnTrack) {
+  const qbStart = Date.now();
+  const qbDur = 30000; // 30 seconds - slower animation
+
+  function qbAnimate() {
+    const qbElapsed = (Date.now() - qbStart) % qbDur;
+    const qbProg = (qbElapsed / qbDur) * 100;
+    qbAnnTrack.style.transform = `translateX(-${qbProg}%)`;
+    requestAnimationFrame(qbAnimate);
+  }
+
+  requestAnimationFrame(qbAnimate);
+}
+
+// Mobile footer page detection
+function setActiveMobileFooterItem() {
+  const footerItems = document.querySelectorAll('.qb-mobile-footer-item');
+  const currentPath = window.location.pathname;
+
+  footerItems.forEach(item => {
+    item.classList.remove('active');
+  });
+
+  let activePage = 'home';
+
+  if (currentPath === '/' || currentPath === '') {
+    activePage = 'home';
+  } else if (currentPath.includes('/collections')) {
+    activePage = 'categories';
+  } else if (currentPath.includes('/account')) {
+    activePage = 'account';
+  } else if (currentPath.includes('/pages/services')) {
+    activePage = 'services';
+  }
+
+  const activeItem = document.querySelector(`[data-page="${activePage}"]`);
+  if (activeItem) {
+    activeItem.classList.add('active');
+  }
+}
+
+setActiveMobileFooterItem();
 
 console.log('🐝 QuickBee Splash Screen Ready');
 </script>
