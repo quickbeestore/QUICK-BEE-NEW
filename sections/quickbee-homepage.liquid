@@ -227,44 +227,44 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   }
 }
 
-/* Trending Grid - Simple 2x3 layout */
-.qb-trending-grid {
+/* Product Grid - 2x3 mobile, 4x2 desktop */
+.qb-product-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   margin-bottom: 16px;
 }
 
 @media(max-width: 767px) {
-  .qb-trending-grid {
-    grid-template-columns: 1fr;
+  .qb-product-grid {
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
 
-  .qb-trending-grid .qb-product {
+  .qb-product-grid .qb-product {
     min-height: 240px;
   }
 }
 
 @media(min-width: 768px) and (max-width: 1023px) {
-  .qb-trending-grid {
+  .qb-product-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 14px;
   }
 
-  .qb-trending-grid .qb-product {
+  .qb-product-grid .qb-product {
     min-height: 260px;
   }
 }
 
 @media(min-width: 1024px) {
-  .qb-trending-grid {
-    grid-template-columns: repeat(3, 1fr);
+  .qb-product-grid {
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
   }
 
-  .qb-trending-grid .qb-product {
-    min-height: 280px;
+  .qb-product-grid .qb-product {
+    min-height: 240px;
   }
 }
 
@@ -562,11 +562,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     </div>
   </section>
 
-  <!-- Trending -->
+  <!-- Trending Now -->
   <section class="qb-section">
     <h2>🔥 Trending Now</h2>
-    <div class="qb-trending-grid">
-      {% assign trending = shop.products | sort: "created_at" | reverse | limit: 6 | offset: 0 %}
+    <div class="qb-product-grid">
+      {% assign trending = shop.products | sort: "created_at" | reverse | limit: 8 | offset: 0 %}
       {% if trending.size > 0 %}
         {% for product in trending %}
           <a href="{{ product.url }}" class="qb-product">
@@ -581,6 +581,35 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
               <div class="qb-product-name">{{ product.title | truncatewords: 3 }}</div>
               <div class="qb-product-price">Rs {{ product.price | money_without_currency | remove: "Rs" | remove: "," }}</div>
               <div class="qb-product-delivery">⚡ 17-21 mins</div>
+              <button type="button" class="qb-product-btn" onclick="fetch('{{ routes.cart_add_url }}', { method: 'POST', body: new FormData(Object.assign(document.createElement('form'), { innerHTML: '<input name=id value={{ product.variants.first.id }}><input name=quantity value=1>' })) }).then(() => window.location.href = '{{ routes.cart_url }}')">Add</button>
+            </div>
+          </a>
+        {% endfor %}
+      {% else %}
+        <div class="qb-empty">No products available</div>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- New Arrivals -->
+  <section class="qb-section">
+    <h2>✨ New Arrivals</h2>
+    <div class="qb-product-grid">
+      {% assign new_arrivals = shop.products | sort: "created_at" | reverse | limit: 8 | offset: 8 %}
+      {% if new_arrivals.size > 0 %}
+        {% for product in new_arrivals %}
+          <a href="{{ product.url }}" class="qb-product">
+            <div class="qb-product-img">
+              {% if product.featured_image %}
+                <img src="{{ product.featured_image | image_url: width: 300 }}" alt="{{ product.title }}">
+              {% else %}
+                ✨
+              {% endif %}
+            </div>
+            <div class="qb-product-info">
+              <div class="qb-product-name">{{ product.title | truncatewords: 3 }}</div>
+              <div class="qb-product-price">Rs {{ product.price | money_without_currency | remove: "Rs" | remove: "," }}</div>
+              <div class="qb-product-delivery">⚡ 18-22 mins</div>
               <button type="button" class="qb-product-btn" onclick="fetch('{{ routes.cart_add_url }}', { method: 'POST', body: new FormData(Object.assign(document.createElement('form'), { innerHTML: '<input name=id value={{ product.variants.first.id }}><input name=quantity value=1>' })) }).then(() => window.location.href = '{{ routes.cart_url }}')">Add</button>
             </div>
           </a>
