@@ -1,0 +1,504 @@
+{% comment %}
+  YETI KAFE 3D Bouquet Maker Section
+  - Interactive 3D bouquet customization
+  - Real-time flower selection
+  - Mobile-first responsive design
+{% endcomment %}
+
+<div id="yeti-bouquet-maker" class="yeti-bouquet-container">
+  <div id="root"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/react@18.2.0/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/index.js"></script>
+<script src="https://cdn.skypack.dev/three@r128"></script>
+
+<script type="module">
+  import React, { useState, useEffect, useRef } from 'https://cdn.skypack.dev/react@18.2.0';
+  import ReactDOM from 'https://cdn.skypack.dev/react-dom@18.2.0/client';
+  import * as THREE from 'https://cdn.skypack.dev/three@r128';
+
+  const FLOWERS = [
+    { type: 'rose', emoji: '🌹', name: 'Rose', price: 99, color: '#FF1744' },
+    { type: 'colored-rose', emoji: '🌷', name: 'Colored Rose', price: 120, color: '#FF6090' },
+    { type: 'carnation', emoji: '🌸', name: 'Carnation', price: 80, color: '#FF80AB' },
+    { type: 'gerbera', emoji: '🌼', name: 'Gerbera', price: 60, color: '#FFD700' },
+    { type: 'sunflower', emoji: '🌻', name: 'Sunflower', price: 450, color: '#FFC300' },
+    { type: 'lily', emoji: '🌺', name: 'Lily', price: 650, color: '#FF69B4' },
+  ];
+
+  const PACKAGING = [
+    { id: 'standard', name: 'Standard Packaging', price: 250 },
+    { id: 'premium', name: 'Premium Packaging', price: 350 },
+  ];
+
+  function App() {
+    const mountRef = useRef(null);
+    const sceneRef = useRef(null);
+    const rendererRef = useRef(null);
+    const flowersGroupRef = useRef(null);
+
+    const [bouquet, setBouquet] = useState({
+      rose: 0,
+      'colored-rose': 0,
+      carnation: 0,
+      gerbera: 0,
+      sunflower: 0,
+      lily: 0,
+    });
+
+    const [packaging, setPackaging] = useState('standard');
+    const [rotation, setRotation] = useState({ x: 0, y: 0 });
+    const [isMouseDown, setIsMouseDown] = useState(false);
+    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+    useEffect(() => {
+      if (!mountRef.current) return;
+
+      const scene = new THREE.Scene();
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 512);
+        gradient.addColorStop(0, '#1e293b');
+        gradient.addColorStop(0.5, '#0f172a');
+        gradient.addColorStop(1, '#020617');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 512, 512);
+      }
+      const texture = new THREE.CanvasTexture(canvas);
+      scene.background = texture;
+      sceneRef.current = scene;
+
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        mountRef.current.clientWidth / mountRef.current.clientHeight,
+        0.1,
+        1000
+      );
+      camera.position.z = 5;
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
+      renderer.shadowMap.enabled = true;
+      mountRef.current.appendChild(renderer.domElement);
+      rendererRef.current = renderer;
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+
+      const keyLight = new THREE.DirectionalLight(0xffd6ff, 1.2);
+      keyLight.position.set(6, 12, 8);
+      keyLight.castShadow = true;
+      keyLight.shadow.mapSize.width = 2048;
+      keyLight.shadow.mapSize.height = 2048;
+      scene.add(keyLight);
+
+      const fillLight = new THREE.DirectionalLight(0x6fb3ff, 0.4);
+      fillLight.position.set(-6, 8, -5);
+      scene.add(fillLight);
+
+      const rimLight = new THREE.DirectionalLight(0xff6b9d, 0.3);
+      rimLight.position.set(8, 5, -10);
+      scene.add(rimLight);
+
+      const flowersGroup = new THREE.Group();
+      scene.add(flowersGroup);
+      flowersGroupRef.current = flowersGroup;
+
+      const vaseGeometry = new THREE.ConeGeometry(0.6, 1.5, 32);
+      const vaseMaterial = new THREE.MeshStandardMaterial({
+        color: 0xd8c4d8,
+        metalness: 0.2,
+        roughness: 0.3,
+        emissive: 0x3d2e3d,
+        emissiveIntensity: 0.1,
+      });
+      const vase = new THREE.Mesh(vaseGeometry, vaseMaterial);
+      vase.position.y = -1.5;
+      vase.castShadow = true;
+      vase.receiveShadow = true;
+      scene.add(vase);
+
+      const animate = () => {
+        requestAnimationFrame(animate);
+        if (flowersGroup) {
+          flowersGroup.rotation.x = rotation.x;
+          flowersGroup.rotation.y = rotation.y;
+        }
+        renderer.render(scene, camera);
+      };
+
+      animate();
+
+      const handleResize = () => {
+        if (!mountRef.current) return;
+        const width = mountRef.current.clientWidth;
+        const height = mountRef.current.clientHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+      };
+
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        window.removeEventListener('resize', handleResize);
+        mountRef.current?.removeChild(renderer.domElement);
+      };
+    }, []);
+
+    useEffect(() => {
+      if (!flowersGroupRef.current || !sceneRef.current) return;
+
+      while (flowersGroupRef.current.children.length > 0) {
+        flowersGroupRef.current.removeChild(flowersGroupRef.current.children[0]);
+      }
+
+      let flowerIndex = 0;
+      const colors = {
+        rose: 0xff1744,
+        'colored-rose': 0xff6090,
+        carnation: 0xff80ab,
+        gerbera: 0xffd700,
+        sunflower: 0xffc300,
+        lily: 0xff69b4,
+      };
+
+      FLOWERS.forEach((flower) => {
+        const quantity = bouquet[flower.type] || 0;
+        for (let i = 0; i < quantity; i++) {
+          const petalGeometry = new THREE.SphereGeometry(0.15, 32, 32);
+          const petalMaterial = new THREE.MeshStandardMaterial({
+            color: colors[flower.type],
+            metalness: 0.15,
+            roughness: 0.6,
+            emissive: colors[flower.type],
+            emissiveIntensity: 0.15,
+          });
+
+          const petal = new THREE.Mesh(petalGeometry, petalMaterial);
+
+          const totalFlowers = Object.values(bouquet).reduce((a, b) => a + b, 0);
+          const angle = totalFlowers > 0 ? (flowerIndex / totalFlowers) * Math.PI * 2 : 0;
+          const radius = 1 + Math.random() * 0.5;
+          petal.position.x = Math.cos(angle) * radius;
+          petal.position.z = Math.sin(angle) * radius;
+          petal.position.y = 0.5 + Math.random() * 1;
+          petal.castShadow = true;
+          petal.receiveShadow = true;
+
+          flowersGroupRef.current?.add(petal);
+          flowerIndex++;
+        }
+      });
+    }, [bouquet]);
+
+    const handleMouseDown = (e) => {
+      setIsMouseDown(true);
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+
+    const handleMouseMove = (e) => {
+      if (!isMouseDown) return;
+
+      const deltaX = e.clientX - mousePos.x;
+      const deltaY = e.clientY - mousePos.y;
+
+      setRotation((prev) => ({
+        x: prev.x + deltaY * 0.01,
+        y: prev.y + deltaX * 0.01,
+      }));
+
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+
+    const handleMouseUp = () => {
+      setIsMouseDown(false);
+    };
+
+    const updateQuantity = (type, delta) => {
+      setBouquet((prev) => ({
+        ...prev,
+        [type]: Math.max(0, (prev[type] || 0) + delta),
+      }));
+    };
+
+    const calculateTotal = () => {
+      const flowersTotal = Object.entries(bouquet).reduce((total, [type, qty]) => {
+        const flower = FLOWERS.find((f) => f.type === type);
+        return total + (flower?.price || 0) * qty;
+      }, 0);
+
+      const packagingPrice = PACKAGING.find((p) => p.id === packaging)?.price || 250;
+      return flowersTotal + packagingPrice;
+    };
+
+    const totalFlowers = Object.values(bouquet).reduce((a, b) => a + b, 0);
+
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #0f172a, #020617)', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ background: 'linear-gradient(to right, #0f172a, #0f172a)', borderBottom: '1px solid #334155', padding: '24px', textAlign: 'left' }}>
+          <h1 style={{ fontSize: '32px', fontWeight: 'bold', background: 'linear-gradient(to right, #fb7185, #fbcfe8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', margin: '0 0 8px 0' }}>
+            🌹 YETI KAFE Bouquet Studio
+          </h1>
+          <p style={{ color: '#94a3b8', margin: 0, fontSize: '14px' }}>Customize your perfect floral arrangement in real-time</p>
+        </div>
+
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px', padding: '16px', maxWidth: '600px', margin: '0 auto', width: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
+            <div style={{ flex: 1, background: 'linear-gradient(to b, #1e293b, #0f172a)', borderRadius: '12px', overflow: 'hidden', border: '1px solid #334155', boxShadow: '0 20px 25px rgba(0,0,0,0.5)', position: 'relative' }}>
+              <div
+                ref={mountRef}
+                style={{ width: '100%', height: '400px', cursor: 'grab', position: 'relative' }}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+              />
+
+              <div style={{ position: 'absolute', bottom: '16px', left: '16px', right: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(10px)', padding: '8px 16px', borderRadius: '8px', border: '1px solid #475569', fontSize: '14px', color: '#cbd5e1' }}>
+                <span>🖱️ Drag to rotate • Scroll to zoom</span>
+                <span style={{ fontWeight: '600', color: '#fb7185' }}>{totalFlowers} flowers</span>
+              </div>
+
+              <button
+                onClick={() => {
+                  setBouquet({ rose: 0, 'colored-rose': 0, carnation: 0, gerbera: 0, sunflower: 0, lily: 0 });
+                  setRotation({ x: 0, y: 0 });
+                }}
+                style={{ position: 'absolute', top: '16px', right: '16px', background: '#475569', color: 'white', padding: '6px 12px', fontSize: '12px', border: '1px solid #475569', borderRadius: '6px', cursor: 'pointer' }}
+              >
+                ⟲ Reset
+              </button>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
+            <div style={{ background: 'linear-gradient(to b, #1e293b, #0f172a)', borderRadius: '12px', border: '1px solid #334155', boxShadow: '0 20px 25px rgba(0,0,0,0.3)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ background: 'linear-gradient(to right, rgba(217, 70, 91, 0.2), rgba(236, 72, 153, 0.2))', borderBottom: '1px solid #334155', padding: '16px', paddingTop: '12px', paddingBottom: '12px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#f97316', margin: 0 }}>🎨 Choose Flowers</h2>
+              </div>
+
+              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px' }}>
+                {FLOWERS.map((flower) => {
+                  const isSelected = (bouquet[flower.type] || 0) > 0;
+                  return (
+                    <div
+                      key={flower.type}
+                      style={{
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: `2px solid ${isSelected ? '#f43f5e' : '#475569'}`,
+                        background: isSelected ? 'rgba(244, 63, 94, 0.2)' : 'rgba(15, 23, 42, 0.5)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        boxShadow: isSelected ? '0 0 12px rgba(244, 63, 94, 0.2)' : 'none',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+                          <span style={{ fontSize: '24px' }}>{flower.emoji}</span>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p style={{ fontSize: '14px', fontWeight: '600', color: '#e2e8f0', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{flower.name}</p>
+                            <p style={{ fontSize: '12px', color: '#94a3b8', margin: '4px 0 0 0' }}>Rs {flower.price}</p>
+                          </div>
+                        </div>
+                        {isSelected && (
+                          <span style={{ fontSize: '12px', fontWeight: 'bold', background: '#ef4444', color: 'white', padding: '4px 8px', borderRadius: '9999px', marginLeft: '8px' }}>
+                            {bouquet[flower.type]}
+                          </span>
+                        )}
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <button
+                          onClick={() => updateQuantity(flower.type, -1)}
+                          style={{
+                            flex: 1,
+                            background: '#334155',
+                            color: '#cbd5e1',
+                            padding: '12px 0',
+                            borderRadius: '6px',
+                            fontWeight: '600',
+                            fontSize: '14px',
+                            transition: 'all 0.2s',
+                            border: 'none',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          −
+                        </button>
+                        <button
+                          onClick={() => updateQuantity(flower.type, 1)}
+                          style={{
+                            flex: 1,
+                            background: '#dc2626',
+                            color: 'white',
+                            padding: '12px 0',
+                            borderRadius: '6px',
+                            fontWeight: '600',
+                            fontSize: '14px',
+                            transition: 'all 0.2s',
+                            border: 'none',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div style={{ background: 'linear-gradient(to b, #1e293b, #0f172a)', borderRadius: '12px', border: '1px solid #334155', boxShadow: '0 20px 25px rgba(0,0,0,0.3)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ background: 'linear-gradient(to right, rgba(236, 72, 153, 0.2), rgba(217, 70, 91, 0.2))', borderBottom: '1px solid #334155', padding: '12px 16px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#f472b6', margin: 0 }}>✨ Summary</h3>
+              </div>
+
+              <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <p style={{ fontSize: '11px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', margin: '0 0 8px 0', letterSpacing: '0.05em' }}>📦 Packaging</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {PACKAGING.map((pkg) => (
+                      <label key={pkg.id} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '8px',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        background: packaging === pkg.id ? 'rgba(244, 63, 94, 0.2)' : 'rgba(15, 23, 42, 0.5)',
+                        border: packaging === pkg.id ? '1px solid #f43f5e' : '1px solid #334155',
+                      }}>
+                        <input
+                          type="radio"
+                          name="packaging"
+                          value={pkg.id}
+                          checked={packaging === pkg.id}
+                          onChange={(e) => setPackaging(e.target.value)}
+                          style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                        />
+                        <span style={{ fontSize: '14px', fontWeight: '600', color: '#e2e8f0', flex: 1 }}>{pkg.name}</span>
+                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#fb7185' }}>+Rs {pkg.price}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ borderTop: '1px solid #334155', paddingTop: '16px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
+                      <span style={{ color: '#94a3b8' }}>Flowers:</span>
+                      <span style={{ fontWeight: '600', color: '#e2e8f0' }}>
+                        Rs {Object.entries(bouquet).reduce((total, [type, qty]) => {
+                          const flower = FLOWERS.find((f) => f.type === type);
+                          return total + (flower?.price || 0) * qty;
+                        }, 0)}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
+                      <span style={{ color: '#94a3b8' }}>Packaging:</span>
+                      <span style={{ fontWeight: '600', color: '#e2e8f0' }}>Rs {PACKAGING.find((p) => p.id === packaging)?.price || 250}</span>
+                    </div>
+                  </div>
+
+                  <div style={{ background: 'linear-gradient(to right, #dc2626, #ec4899)', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
+                    <p style={{ fontSize: '11px', color: '#fce7f3', textTransform: 'uppercase', fontWeight: 'bold', margin: '0 0 4px 0', letterSpacing: '0.05em' }}>Total Price</p>
+                    <p style={{ fontSize: '28px', fontWeight: 'bold', color: 'white', margin: 0 }}>Rs {calculateTotal()}</p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <button
+                    onClick={() => alert(`Bouquet saved! Total: Rs ${calculateTotal()}`)}
+                    style={{
+                      width: '100%',
+                      background: '#475569',
+                      color: 'white',
+                      fontWeight: '600',
+                      padding: '8px',
+                      fontSize: '14px',
+                      transition: 'all 0.2s',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    💾 Save Design
+                  </button>
+                  <button
+                    onClick={() => alert(`Added to cart! Total: Rs ${calculateTotal()}`)}
+                    style={{
+                      width: '100%',
+                      background: 'linear-gradient(to right, #dc2626, #ec4899)',
+                      color: 'white',
+                      fontWeight: '600',
+                      padding: '8px',
+                      fontSize: '14px',
+                      transition: 'all 0.2s',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      boxShadow: '0 10px 15px rgba(220, 38, 38, 0.2)',
+                    }}
+                  >
+                    🛒 Add to Cart
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ borderTop: '1px solid #334155', background: 'rgba(15, 23, 42, 0.5)', backdropFilter: 'blur(10px)', padding: '16px', textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>
+          <p style={{ margin: 0 }}>✓ Fresh flowers • ✓ Handpicked with care • ⏱️ 30-90 min delivery</p>
+        </div>
+      </div>
+    );
+  }
+
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<App />);
+</script>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  #root {
+    width: 100%;
+    height: 100%;
+  }
+
+  .yeti-bouquet-container {
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  button {
+    transition: all 0.2s ease;
+  }
+
+  button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  button:active {
+    transform: translateY(0);
+  }
+</style>
