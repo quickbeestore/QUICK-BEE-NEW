@@ -1,0 +1,85 @@
+{% comment %}
+  Collection Banner Section
+  Automatically displays promotional banners for each collection based on collection handle
+{% endcomment %}
+
+{% liquid
+  assign banner_image = ''
+  assign collection_handle = collection.handle | default: ''
+
+  case collection_handle
+    when 'groceries'
+      assign banner_image = 'ChatGPT Image Mar 22, 2026, 09_11_06 PM.png'
+    when 'clothes-washing', 'laundry'
+      assign banner_image = 'ChatGPT Image Mar 22, 2026, 09_12_01 PM.png'
+    when 'vegetables', 'fresh-vegetables'
+      assign banner_image = 'ChatGPT Image Mar 22, 2026, 09_12_36 PM.png'
+    when 'dairy', 'dairy-products'
+      assign banner_image = 'ChatGPT Image Mar 22, 2026, 09_16_41 PM.png'
+    when 'drinks', 'beverages'
+      assign banner_image = 'q.png'
+    else
+      assign banner_image = 'ChatGPT Image Mar 22, 2026, 09_24_28 PM.png'
+  endcase
+%}
+
+<div class="collection-banner">
+  {% if banner_image %}
+    <div class="collection-banner-image">
+      <img
+        src="{{ banner_image | asset_url }}"
+        alt="{{ collection.title }} Promotion"
+        loading="lazy"
+        class="banner-img"
+        style="width: 100%; height: auto; display: block;"
+      />
+    </div>
+  {% endif %}
+</div>
+
+<style>
+  .collection-banner {
+    position: relative;
+    margin-bottom: 2rem;
+  }
+
+  .collection-banner-image {
+    overflow: hidden;
+    border-radius: 8px;
+  }
+
+  .banner-img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Collection Banner",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "banner_image",
+      "label": "Banner Image"
+    },
+    {
+      "type": "text",
+      "id": "banner_link",
+      "label": "Banner Link (optional)"
+    },
+    {
+      "type": "text",
+      "id": "link_text",
+      "label": "Link Text",
+      "default": "View Collection"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection Banner"
+    }
+  ]
+}
+{% endschema %}
