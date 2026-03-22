@@ -711,7 +711,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <section class="qb-section">
     <h2>🔥 Trending Now</h2>
     <div class="qb-product-grid">
-      {% assign trending = collections.groceries.products | limit: 8 %}
+      {% for collection in collections %}
+        {% if collection.handle != 'all' and collection.products.size > 0 %}
+          {% assign trending = collection.products | limit: 8 %}
+          {% break %}
+        {% endif %}
+      {% endfor %}
       {% if trending.size > 0 %}
         {% for product in trending %}
           <div class="qb-product-card">
@@ -746,7 +751,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <section class="qb-section">
     <h2>✨ New Arrivals</h2>
     <div class="qb-product-grid">
-      {% assign new_arrivals = collections.snacks.products | limit: 8 %}
+      {% assign count = 0 %}
+      {% for collection in collections %}
+        {% if collection.handle != 'all' and collection.products.size > 0 %}
+          {% assign count = count | plus: 1 %}
+          {% if count == 2 %}
+            {% assign new_arrivals = collection.products | limit: 8 %}
+            {% break %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
       {% if new_arrivals.size > 0 %}
         {% for product in new_arrivals %}
           <div class="qb-product-card">
