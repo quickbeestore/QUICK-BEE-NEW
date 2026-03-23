@@ -2531,14 +2531,23 @@
       attachLocationSelectors();
 
       var saved = localStorage.getItem('qb_location');
-      var deliveryTime = localStorage.getItem('qb_delivery_time');
+      var deliveryTimeStr = localStorage.getItem('qb_delivery_time');
       if (saved) {
         var titleEl = document.getElementById('qbLocTitle');
         var addressEl = document.getElementById('qbLocAddress');
         titleEl.textContent = saved;
-        if (deliveryTime) {
-          titleEl.setAttribute('data-delivery-time', deliveryTime);
-          addressEl.textContent = deliveryTime + ' mins';
+        if (deliveryTimeStr) {
+          try {
+            // Parse JSON object format
+            var deliveryObj = JSON.parse(deliveryTimeStr);
+            var displayTime = deliveryObj.range || deliveryObj.minTime + ' mins';
+            addressEl.textContent = displayTime;
+            titleEl.setAttribute('data-delivery-time', deliveryObj.minTime);
+          } catch (e) {
+            // Fallback for legacy number format
+            addressEl.textContent = deliveryTimeStr + ' mins';
+            titleEl.setAttribute('data-delivery-time', deliveryTimeStr);
+          }
           addressEl.style.fontSize = '12px';
           addressEl.style.color = '#666';
         }
