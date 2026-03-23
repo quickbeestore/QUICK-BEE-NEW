@@ -579,5 +579,72 @@
     ></script>
 
     <script src="{{ 'cart-injection.js' | asset_url }}" defer></script>
+
+    <!-- Global Delivery Time System -->
+    <script>
+      (function() {
+        // Initialize global delivery time from localStorage
+        function initGlobalDeliveryTime() {
+          const stored = localStorage.getItem('qb_delivery_time');
+
+          if (stored) {
+            try {
+              window.QB_DELIVERY_TIME = JSON.parse(stored);
+            } catch (e) {
+              window.QB_DELIVERY_TIME = getDefaultDeliveryTime();
+            }
+          } else {
+            window.QB_DELIVERY_TIME = getDefaultDeliveryTime();
+          }
+
+          updateAllDeliveryBadges();
+        }
+
+        function getDefaultDeliveryTime() {
+          return {
+            minTime: 18,
+            maxTime: 22,
+            range: '18-22 mins',
+            updatedAt: new Date().toISOString()
+          };
+        }
+
+        function updateAllDeliveryBadges() {
+          const range = window.QB_DELIVERY_TIME?.range || '18-22 mins';
+          const badges = document.querySelectorAll('.qb-delivery-badge');
+          badges.forEach(badge => {
+            badge.textContent = `⚡ ${range}`;
+          });
+        }
+
+        function saveDeliveryTimeToStorage() {
+          try {
+            localStorage.setItem('qb_delivery_time', JSON.stringify(window.QB_DELIVERY_TIME));
+          } catch (e) {
+            console.warn('Failed to save delivery time:', e);
+          }
+        }
+
+        // Listen for location changes globally
+        window.addEventListener('locationSelected', (event) => {
+          // Delivery time will be updated by location modal
+          setTimeout(() => {
+            saveDeliveryTimeToStorage();
+            updateAllDeliveryBadges();
+          }, 100);
+        });
+
+        // Initialize on page load
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initGlobalDeliveryTime);
+        } else {
+          initGlobalDeliveryTime();
+        }
+
+        // Expose functions globally
+        window.updateDeliveryBadges = updateAllDeliveryBadges;
+        window.saveDeliveryTime = saveDeliveryTimeToStorage;
+      })();
+    </script>
   </body>
 </html>
