@@ -657,12 +657,30 @@
           }, 100);
         });
 
+        // Force update ALL product badges on page
+        function forceUpdateAllBadges() {
+          const range = window.QB_DELIVERY_TIME?.range || '18-22 mins';
+          // Update both qb-delivery-badge and qb-product-delivery classes
+          const badges = document.querySelectorAll('.qb-delivery-badge, .qb-product-delivery');
+          badges.forEach(badge => {
+            badge.textContent = `⚡ ${range}`;
+          });
+        }
+
         // Initialize on page load
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', initGlobalDeliveryTime);
         } else {
           initGlobalDeliveryTime();
         }
+
+        // Force update badges immediately after init
+        setTimeout(forceUpdateAllBadges, 100);
+
+        // Listen for location changes
+        window.addEventListener('locationSelected', () => {
+          setTimeout(forceUpdateAllBadges, 100);
+        });
 
         // Expose functions globally
         window.updateDeliveryBadges = updateAllDeliveryBadges;
