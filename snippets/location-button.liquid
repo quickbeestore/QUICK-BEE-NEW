@@ -65,24 +65,46 @@ Add this to your header for easy access to location selection
 
 <button class="qb-location-btn-header" id="qbLocationHeaderBtn" title="Change delivery location">
   <span class="qb-location-icon">📍</span>
-  <span class="qb-location-text" id="qbLocationDisplay">Select Location</span>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
+    <span class="qb-location-text" id="qbLocationDisplay">Select Location</span>
+    <span id="qbLocationTime" style="font-size: 12px; color: #666;"></span>
+  </div>
 </button>
 
 <script>
 (function() {
   const btn = document.getElementById('qbLocationHeaderBtn');
   const display = document.getElementById('qbLocationDisplay');
+  const timeDisplay = document.getElementById('qbLocationTime');
 
-  // Update button text with current location
+  // Update button text with current location and delivery time
   function updateLocationDisplay() {
     try {
-      const saved = localStorage.getItem('qb_selected_location');
-      if (saved) {
-        const location = JSON.parse(saved);
+      const savedLocation = localStorage.getItem('qb_selected_location');
+      const savedDeliveryTime = localStorage.getItem('qb_delivery_time');
+
+      if (savedLocation) {
+        const location = JSON.parse(savedLocation);
         const shortCity = location.city.substring(0, 15);
         display.textContent = shortCity || 'Select Location';
+
+        // Add delivery time if available
+        if (savedDeliveryTime) {
+          try {
+            const deliveryData = JSON.parse(savedDeliveryTime);
+            if (deliveryData.range) {
+              timeDisplay.textContent = deliveryData.range;
+            }
+          } catch (e) {
+            // Ignore delivery time parse errors
+            timeDisplay.textContent = '';
+          }
+        } else {
+          timeDisplay.textContent = '';
+        }
       } else {
         display.textContent = 'Select Location';
+        timeDisplay.textContent = '';
       }
     } catch (e) {
       console.error('Error updating location display:', e);
