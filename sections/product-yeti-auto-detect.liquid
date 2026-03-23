@@ -314,16 +314,77 @@
         <span class="yetikafe-tag">🌿 Fresh Ingredients</span>
       </div>
 
+      <!-- Variants -->
+      {% if product.available and product.variants.size > 1 %}
+        <div style="background: white; padding: 16px; border-radius: 12px; border: 1px solid #F0E6D2; margin-bottom: 20px;">
+          <div style="font-size: 14px; font-weight: 700; color: var(--yeti-dark); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Select Options</div>
+          {% for option in product.options_with_values %}
+            <div style="margin-bottom: 12px;">
+              <label style="font-size: 12px; color: #666; font-weight: 600; display: block; margin-bottom: 6px;">{{ option.name }}</label>
+              <select id="select-{{ option.name | slugify }}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; cursor: pointer;">
+                {% for value in option.values %}
+                  <option value="{{ value }}">{{ value }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Quantity Selector -->
+      <div style="background: white; padding: 16px; border-radius: 12px; border: 1px solid #F0E6D2; margin-bottom: 20px;">
+        <div style="font-size: 14px; font-weight: 700; color: var(--yeti-dark); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Quantity</div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button id="qty-minus" style="width: 40px; height: 40px; border: 1px solid var(--yeti-accent); background: white; border-radius: 6px; cursor: pointer; font-size: 18px; font-weight: bold; color: var(--yeti-primary);">−</button>
+          <input type="number" id="product-qty" value="1" min="1" style="width: 60px; text-align: center; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+          <button id="qty-plus" style="width: 40px; height: 40px; border: 1px solid var(--yeti-accent); background: white; border-radius: 6px; cursor: pointer; font-size: 18px; font-weight: bold; color: var(--yeti-primary);">+</button>
+        </div>
+      </div>
+
       <div class="yetikafe-cta-section">
-        <button class="yetikafe-add-btn" onclick="alert('Add to cart: {{ product.title }}')">
-          🛒 Add to Cart
-        </button>
+        <form id="yeti-add-form" method="post" action="/cart/add" style="width: 100%;">
+          <input type="hidden" name="id" id="variant-id" value="{{ product.variants.first.id }}">
+          <input type="hidden" name="quantity" id="final-qty" value="1">
+          <button type="submit" class="yetikafe-add-btn" id="yeti-add-btn" {% unless product.available %}disabled{% endunless %}>
+            🛒 {% if product.available %}Add to Cart{% else %}Out of Stock{% endif %}
+          </button>
+        </form>
       </div>
 
       <div style="text-align: center; padding: 16px; background: white; border-radius: 8px; border: 1px solid #F0E6D2; margin-top: 20px;">
         <p style="font-size: 12px; color: #666; margin: 0;">
           ✨ Part of the Yeti Kafe Collection - Premium café beverages & food items
         </p>
+      </div>
+
+      <!-- Recently Purchased Slider -->
+      <div style="margin-top: 40px; padding-top: 40px; border-top: 2px solid #F0E6D2;">
+        <h2 style="font-size: 24px; font-weight: 900; color: var(--yeti-dark); margin-bottom: 24px; text-align: center;">🔥 Top Rated from Yeti Kafe</h2>
+
+        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-behavior: smooth;" id="yeti-slider">
+          <div style="display: flex; gap: 16px; padding-bottom: 16px;">
+            {% assign yeti_products = shop.collections.yeti-kafe.products | limit: 5 %}
+            {% for item in yeti_products %}
+              {% unless item.id == product.id %}
+                <a href="{{ item.url }}" style="flex: 0 0 calc(50% - 8px); text-decoration: none; color: inherit; min-width: 160px;">
+                  <div style="background: white; border-radius: 12px; overflow: hidden; border: 1px solid #F0E6D2; transition: all 0.3s ease; cursor: pointer;">
+                    <div style="width: 100%; aspect-ratio: 1; background: #f5f5f5; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                      {% if item.featured_image %}
+                        <img src="{{ item.featured_image | image_url: width: 300 }}" alt="{{ item.title }}" style="width: 100%; height: 100%; object-fit: contain; padding: 8px;">
+                      {% else %}
+                        <div style="font-size: 48px;">☕</div>
+                      {% endif %}
+                    </div>
+                    <div style="padding: 12px;">
+                      <div style="font-size: 12px; font-weight: 700; color: var(--yeti-primary); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 6px;">{{ item.title | truncatewords: 2 }}</div>
+                      <div style="font-size: 16px; font-weight: 900; color: var(--yeti-primary);">Rs {{ item.price | money_without_currency }}</div>
+                    </div>
+                  </div>
+                </a>
+              {% endunless %}
+            {% endfor %}
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -348,9 +409,67 @@
         setTimeout(updateDeliveryBadge, 50);
       });
     })();
+
+    // Quantity and variant handling
+    (function() {
+      const qtyMinus = document.getElementById('qty-minus');
+      const qtyPlus = document.getElementById('qty-plus');
+      const qtyInput = document.getElementById('product-qty');
+      const finalQty = document.getElementById('final-qty');
+      const variantId = document.getElementById('variant-id');
+      const addForm = document.getElementById('yeti-add-form');
+
+      if (qtyMinus) {
+        qtyMinus.addEventListener('click', function(e) {
+          e.preventDefault();
+          let val = parseInt(qtyInput.value) || 1;
+          if (val > 1) {
+            qtyInput.value = val - 1;
+            finalQty.value = qtyInput.value;
+          }
+        });
+      }
+
+      if (qtyPlus) {
+        qtyPlus.addEventListener('click', function(e) {
+          e.preventDefault();
+          let val = parseInt(qtyInput.value) || 1;
+          qtyInput.value = val + 1;
+          finalQty.value = qtyInput.value;
+        });
+      }
+
+      if (qtyInput) {
+        qtyInput.addEventListener('change', function() {
+          finalQty.value = Math.max(1, parseInt(this.value) || 1);
+        });
+      }
+
+      // Handle variant selection
+      const variantSelects = document.querySelectorAll('[id^="select-"]');
+      variantSelects.forEach(select => {
+        select.addEventListener('change', function() {
+          // Find matching variant
+          const selectedOptions = {};
+          variantSelects.forEach(s => {
+            const optionName = s.id.replace('select-', '').replace(/-/g, ' ');
+            selectedOptions[optionName] = s.value;
+          });
+
+          // Update variant ID based on selection
+          const variant = findVariantByOptions(selectedOptions);
+          if (variant) {
+            variantId.value = variant.id;
+          }
+        });
+      });
+
+      function findVariantByOptions(options) {
+        // This would need the product variants data
+        // For now, just return the first available variant
+        return {{ product.variants.first | json }};
+      }
+    })();
   </script>
 
-{% else %}
-  <!-- Default Product Template -->
-  {% section 'product-information-speed-first' %}
 {% endif %}
