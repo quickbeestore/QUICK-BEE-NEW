@@ -2460,18 +2460,68 @@
       addressEl.style.fontSize = '12px';
       addressEl.style.color = '#666';
 
-      // Update ALL product delivery badges immediately
+      // Update ALL product delivery badges immediately with multiple strategies
       var displayText = deliveryTime + '-' + (deliveryTime + 4) + ' mins';
+      var updatedCount = 0;
+
+      // Comprehensive badge update strategy
+      // First pass: Find badges by class selectors
       var badges = document.querySelectorAll('.qb-delivery-badge, .qb-product-delivery, .qb-sync-badge');
       badges.forEach(function(badge) {
-        badge.textContent = '⚡ ' + displayText;
+        badge.innerHTML = '⚡ ' + displayText;
+        badge.setAttribute('data-badge-synced', new Date().toISOString());
+        updatedCount++;
       });
-      console.log('Updated ' + badges.length + ' product badges to: ⚡ ' + displayText);
+
+      console.log('Selector pass: Updated ' + updatedCount + ' badges with class selectors');
+
+      // Second pass: Find any remaining badge-like elements
+      if (updatedCount === 0) {
+        var allElements = document.querySelectorAll('div, span');
+        allElements.forEach(function(el) {
+          var text = el.textContent || '';
+          if ((text.includes('⚡') && text.includes('mins')) && el.children.length === 0) {
+            el.innerHTML = '⚡ ' + displayText;
+            updatedCount++;
+          }
+        });
+        console.log('Fallback pass: Updated ' + updatedCount + ' additional badges');
+      }
+
+      console.log('Total badges updated to: ⚡ ' + displayText);
+      window.QB_LAST_BADGE_UPDATE = { time: new Date().toISOString(), range: displayText, count: updatedCount };
 
       // Dispatch event for other listeners
       window.dispatchEvent(new CustomEvent('locationSelected', {
         detail: { landmark: landmark, deliveryTime: deliveryTime }
       }));
+
+      // Update again after delay to catch any async-rendered or newly added badges
+      setTimeout(function() {
+        var delayedBadges = document.querySelectorAll('.qb-delivery-badge, .qb-product-delivery, .qb-sync-badge');
+        var delayedCount = 0;
+        delayedBadges.forEach(function(badge) {
+          if (!badge.innerHTML.includes(displayText)) {
+            badge.innerHTML = '⚡ ' + displayText;
+            delayedCount++;
+          }
+        });
+        if (delayedCount > 0) {
+          console.log('Delayed update: Updated ' + delayedCount + ' additional badges');
+        }
+      }, 100);
+
+      // Final verification after another delay
+      setTimeout(function() {
+        var verifyBadges = document.querySelectorAll('.qb-delivery-badge, .qb-product-delivery, .qb-sync-badge');
+        var correctCount = 0;
+        verifyBadges.forEach(function(badge) {
+          if (badge.innerHTML.includes(displayText)) {
+            correctCount++;
+          }
+        });
+        console.log('Verification: ' + correctCount + '/' + verifyBadges.length + ' badges display "' + displayText + '"');
+      }, 200);
 
       var modal = document.getElementById('qbLocModal');
       modal.style.display = 'none';

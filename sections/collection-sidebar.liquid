@@ -638,6 +638,21 @@
 
 <script>
   (function() {
+    // Helper to get delivery range reliably from window or localStorage
+    function getDeliveryRange() {
+      if (window.QB_DELIVERY_TIME?.range) {
+        return window.QB_DELIVERY_TIME.range;
+      }
+      try {
+        const stored = localStorage.getItem('qb_delivery_time');
+        if (stored) {
+          const obj = JSON.parse(stored);
+          if (obj.range) return obj.range;
+        }
+      } catch (e) {}
+      return '18-22 mins';
+    }
+
     const sidebar = document.getElementById('category-sidebar');
     const productGrid = document.getElementById('product-grid');
     const collectionTitle = document.querySelector('.qb-collection-title');
@@ -739,7 +754,7 @@
       // Get product URL - construct from handle if not available
       const productUrl = product.url || `/products/${product.handle}`;
 
-      const deliveryRange = (window.QB_DELIVERY_TIME?.range) || '18-22 mins';
+      const deliveryRange = getDeliveryRange();
       card.innerHTML = `
         <div class="qb-product-image-wrap" style="cursor: pointer;" data-product-url="${productUrl}">
           ${productImage}
@@ -903,14 +918,34 @@
     }
 
     // Sync badges when location changes
-    window.addEventListener('locationSelected', function() {
+    window.addEventListener('locationSelected', function(e) {
+      console.log('locationSelected event received in collection-sidebar');
       setTimeout(function() {
         const range = window.QB_DELIVERY_TIME?.range || '18-22 mins';
-        const badges = document.querySelectorAll('.qb-delivery-badge, .qb-sync-badge');
+
+        // Update visible badges using multiple strategies
+        let updated = 0;
+
+        // Strategy 1: Target specific badge classes
+        const badges = document.querySelectorAll('.qb-delivery-badge, .qb-sync-badge, .qb-product-delivery');
         badges.forEach(function(badge) {
-          badge.textContent = '⚡ ' + range;
+          badge.innerHTML = '⚡ ' + range;
+          updated++;
         });
-        console.log('Updated ' + badges.length + ' collection badges to: ⚡ ' + range);
+
+        // Strategy 2: Find all elements with "mins" text
+        const allElements = document.querySelectorAll('*');
+        allElements.forEach(function(el) {
+          if (el.children.length === 0) { // Only leaf nodes
+            const text = el.textContent || '';
+            if (text.includes('⚡') && text.includes('mins') && text.length < 30) {
+              el.innerHTML = '⚡ ' + range;
+              updated++;
+            }
+          }
+        });
+
+        console.log('Collection sidebar: Updated ' + updated + ' badges to: ⚡ ' + range);
       }, 50);
     });
   })();
