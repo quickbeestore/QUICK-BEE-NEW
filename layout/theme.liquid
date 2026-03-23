@@ -657,12 +657,41 @@
           }, 100);
         });
 
+        // Extract delivery time from location button display
+        function extractTimeFromLocationButton() {
+          const locationBtn = document.querySelector('[id*="location"], [class*="location"]') ||
+                              document.querySelector('button:has-text("Set delivery")') ||
+                              Array.from(document.querySelectorAll('button')).find(btn => btn.textContent.includes('mins'));
+
+          if (locationBtn && locationBtn.textContent) {
+            const timeMatch = locationBtn.textContent.match(/(\d+)\s*mins?/i);
+            if (timeMatch) {
+              const mins = parseInt(timeMatch[1]);
+              return `${mins}-${mins + 4} mins`;
+            }
+          }
+          return null;
+        }
+
         // Initialize on page load
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', initGlobalDeliveryTime);
         } else {
           initGlobalDeliveryTime();
         }
+
+        // Fallback: Check location button periodically for actual delivery time
+        setInterval(() => {
+          const locationTime = extractTimeFromLocationButton();
+          if (locationTime && window.QB_DELIVERY_TIME?.range !== locationTime) {
+            window.QB_DELIVERY_TIME = {
+              range: locationTime,
+              updatedAt: new Date().toISOString()
+            };
+            saveDeliveryTimeToStorage();
+            updateAllDeliveryBadges();
+          }
+        }, 1000);
 
         // Expose functions globally
         window.updateDeliveryBadges = updateAllDeliveryBadges;
