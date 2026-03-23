@@ -309,7 +309,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 /* CAROUSEL CARD - Improved Design */
 .qb-carousel-card {
-  flex: 0 0 280px;
+  flex: 0 0 calc(50% - 8px);
   background: white;
   border-radius: 16px;
   overflow: hidden;
@@ -319,6 +319,18 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   flex-direction: column;
   scroll-snap-align: start;
   cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .qb-carousel-card {
+    flex: 0 0 calc(33.333% - 11px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .qb-carousel-card {
+    flex: 0 0 280px;
+  }
 }
 
 .qb-carousel-card:hover {
@@ -1271,9 +1283,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
     // Update all product badges with current delivery time
     function updateAllDeliveryBadges() {
-      const badges = document.querySelectorAll('.qb-delivery-badge');
       const range = window.QB_DELIVERY_TIME?.range || '18-22 mins';
-      badges.forEach(badge => {
+
+      // Update regular delivery badges
+      const regularBadges = document.querySelectorAll('.qb-delivery-badge');
+      regularBadges.forEach(badge => {
+        badge.textContent = `⚡ ${range}`;
+      });
+
+      // Update carousel delivery badges
+      const carouselBadges = document.querySelectorAll('.qb-carousel-badge');
+      carouselBadges.forEach(badge => {
         badge.textContent = `⚡ ${range}`;
       });
     }
