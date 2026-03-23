@@ -2469,26 +2469,34 @@
       var badges = document.querySelectorAll('.qb-delivery-badge, .qb-product-delivery, .qb-sync-badge');
       badges.forEach(function(badge) {
         badge.innerHTML = '⚡ ' + displayText;
-        badge.setAttribute('data-badge-synced', new Date().toISOString());
         updatedCount++;
       });
 
-      console.log('Selector pass: Updated ' + updatedCount + ' badges with class selectors');
+      console.log('Pass 1: Updated ' + updatedCount + ' badges with class selectors');
 
-      // Second pass: Find any remaining badge-like elements
-      if (updatedCount === 0) {
-        var allElements = document.querySelectorAll('div, span');
-        allElements.forEach(function(el) {
-          var text = el.textContent || '';
-          if ((text.includes('⚡') && text.includes('mins')) && el.children.length === 0) {
-            el.innerHTML = '⚡ ' + displayText;
-            updatedCount++;
-          }
-        });
-        console.log('Fallback pass: Updated ' + updatedCount + ' additional badges');
+      // Second pass: Find ALL elements with time patterns (e.g., "18-22 mins")
+      var timePatternUpdates = 0;
+      var allElements = document.querySelectorAll('*');
+      allElements.forEach(function(el) {
+        var text = el.textContent || '';
+        var html = el.innerHTML || '';
+
+        // Match patterns like "18-22 mins", "⚡ 18-22 mins", etc.
+        if ((text.match(/\d{1,2}-\d{1,2}\s*mins/) || (text.includes('⚡') && text.includes('mins'))) &&
+            el.children.length === 0 &&
+            text.length < 50) {
+          el.innerHTML = '⚡ ' + displayText;
+          el.classList.add('qb-delivery-badge');
+          timePatternUpdates++;
+        }
+      });
+
+      if (timePatternUpdates > 0) {
+        updatedCount += timePatternUpdates;
+        console.log('Pass 2: Updated ' + timePatternUpdates + ' additional badges via time pattern matching');
       }
 
-      console.log('Total badges updated to: ⚡ ' + displayText);
+      console.log('Total: Updated ' + updatedCount + ' badges to: ⚡ ' + displayText);
       window.QB_LAST_BADGE_UPDATE = { time: new Date().toISOString(), range: displayText, count: updatedCount };
 
       // Dispatch event for other listeners

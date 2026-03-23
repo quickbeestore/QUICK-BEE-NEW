@@ -98,6 +98,23 @@
     z-index: 10;
   }
 
+  .qb-delivery-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: #c41e3a;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    z-index: 11;
+  }
+
+  .qb-search-badge {
+    background: #1a1a1a;
+  }
+
   .qb-product-info {
     flex: 1;
     padding: 12px;
@@ -284,6 +301,8 @@
                   </div>
                 {% endif %}
 
+                <div class="qb-delivery-badge qb-search-badge">⚡ 18-22 mins</div>
+
                 {% if product.compare_at_price > product.price %}
                   <span class="qb-product-badge">Sale</span>
                 {% endif %}
@@ -293,9 +312,9 @@
                 <h3 class="qb-product-title">{{ product.title }}</h3>
 
                 <div class="qb-product-price-wrap">
-                  <span class="qb-product-price">₹{{ product.price | money_without_currency }}</span>
+                  <span class="qb-product-price">Rs {{ product.price | money_without_currency }}</span>
                   {% if product.compare_at_price > product.price %}
-                    <span class="qb-product-price-original">₹{{ product.compare_at_price | money_without_currency }}</span>
+                    <span class="qb-product-price-original">Rs {{ product.compare_at_price | money_without_currency }}</span>
                   {% endif %}
                 </div>
 
@@ -316,6 +335,39 @@
     </div>
   {% endif %}
 </div>
+
+<script>
+  // Initialize delivery badges from global state
+  (function() {
+    function initializeSearchBadges() {
+      const range = window.QB_DELIVERY_TIME?.range || '18-22 mins';
+      const badges = document.querySelectorAll('.qb-search-badge');
+      badges.forEach(badge => {
+        badge.innerHTML = '⚡ ' + range;
+      });
+      console.log('Search results: Initialized ' + badges.length + ' badges to: ⚡ ' + range);
+    }
+
+    // Initialize on page load or when script runs
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeSearchBadges);
+    } else {
+      initializeSearchBadges();
+    }
+
+    // Sync badges when location changes
+    window.addEventListener('locationSelected', function() {
+      setTimeout(function() {
+        const range = window.QB_DELIVERY_TIME?.range || '18-22 mins';
+        const badges = document.querySelectorAll('.qb-search-badge');
+        badges.forEach(function(badge) {
+          badge.innerHTML = '⚡ ' + range;
+        });
+        console.log('Search results: Updated ' + badges.length + ' badges to: ⚡ ' + range);
+      }, 50);
+    });
+  })();
+</script>
 
 {% schema %}
 {

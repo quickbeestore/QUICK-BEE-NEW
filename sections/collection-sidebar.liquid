@@ -714,6 +714,18 @@
             // Replace current grid with fetched products
             productGrid.innerHTML = fetchedProductGrid.innerHTML;
 
+            // Process badges in fetched HTML to ensure they have our update classes
+            const currentDelivery = window.QB_DELIVERY_TIME?.range || '18-22 mins';
+            const allBadges = productGrid.querySelectorAll('[class*="mins"], [class*="badge"]');
+            allBadges.forEach(badge => {
+              const text = badge.textContent || '';
+              if (text.includes('mins') || text.includes('delivery')) {
+                badge.classList.add('qb-delivery-badge');
+                badge.classList.add('qb-sync-badge');
+                badge.innerHTML = '⚡ ' + currentDelivery;
+              }
+            });
+
             // Re-attach event listeners to newly loaded products
             attachProductListeners();
           } else {
@@ -922,24 +934,31 @@
       console.log('locationSelected event received in collection-sidebar');
       setTimeout(function() {
         const range = window.QB_DELIVERY_TIME?.range || '18-22 mins';
-
-        // Update visible badges using multiple strategies
         let updated = 0;
 
-        // Strategy 1: Target specific badge classes
-        const badges = document.querySelectorAll('.qb-delivery-badge, .qb-sync-badge, .qb-product-delivery');
-        badges.forEach(function(badge) {
+        // Strategy 1: Update badges by class
+        const classBadges = document.querySelectorAll('.qb-delivery-badge, .qb-sync-badge, .qb-product-delivery');
+        classBadges.forEach(function(badge) {
           badge.innerHTML = '⚡ ' + range;
           updated++;
         });
 
-        // Strategy 2: Find all elements with "mins" text
-        const allElements = document.querySelectorAll('*');
+        // Strategy 2: Find ALL elements containing "mins" text and update them
+        const productGrid = document.querySelector('[class*="product-grid"]') || document.querySelector('ul') || document.body;
+        const allElements = productGrid.querySelectorAll('*');
+
         allElements.forEach(function(el) {
-          if (el.children.length === 0) { // Only leaf nodes
-            const text = el.textContent || '';
-            if (text.includes('⚡') && text.includes('mins') && text.length < 30) {
-              el.innerHTML = '⚡ ' + range;
+          const text = el.textContent || '';
+          const html = el.innerHTML || '';
+
+          // Look for time badges: "18-22 mins", "⚡ 18-22 mins", or similar patterns
+          if ((text.match(/\d{1,2}-\d{1,2}\s*mins/) || (text.includes('⚡') && text.includes('mins'))) &&
+              el.children.length === 0 &&
+              text.length < 50) {
+            const oldHtml = el.innerHTML;
+            el.innerHTML = '⚡ ' + range;
+            el.classList.add('qb-delivery-badge');
+            if (oldHtml !== el.innerHTML) {
               updated++;
             }
           }
