@@ -7,18 +7,17 @@ Add this to your header for easy access to location selection
   .qb-location-btn-header {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
+    gap: 12px;
+    padding: 10px 14px;
     background: #f8f9fa;
     border: 1px solid #e8e8e8;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: #222;
     transition: all 0.2s;
     text-decoration: none;
-    white-space: nowrap;
   }
 
   .qb-location-btn-header:hover {
@@ -32,14 +31,30 @@ Add this to your header for easy access to location selection
   }
 
   .qb-location-icon {
-    font-size: 16px;
+    font-size: 18px;
   }
 
-  .qb-location-text {
-    max-width: 120px;
+  .qb-location-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    max-width: 140px;
+  }
+
+  .qb-location-name {
+    max-width: 140px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  .qb-location-time {
+    font-size: 11px;
+    color: #666;
+    font-weight: 500;
   }
 
   @media (max-width: 640px) {
@@ -48,13 +63,13 @@ Add this to your header for easy access to location selection
       font-size: 12px;
     }
 
-    .qb-location-text {
+    .qb-location-info {
       display: none;
     }
 
     .qb-location-btn-header {
-      width: 32px;
-      height: 32px;
+      width: 40px;
+      height: 40px;
       padding: 0;
       display: flex;
       align-items: center;
@@ -65,49 +80,61 @@ Add this to your header for easy access to location selection
 
 <button class="qb-location-btn-header" id="qbLocationHeaderBtn" title="Change delivery location">
   <span class="qb-location-icon">📍</span>
-  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
-    <span class="qb-location-text" id="qbLocationDisplay">Select Location</span>
-    <span id="qbLocationTime" style="font-size: 12px; color: #666;"></span>
+  <div class="qb-location-info">
+    <div class="qb-location-name" id="qbLocationName">Select Location</div>
+    <div class="qb-location-time" id="qbLocationTime"></div>
   </div>
 </button>
 
 <script>
 (function() {
   const btn = document.getElementById('qbLocationHeaderBtn');
-  const display = document.getElementById('qbLocationDisplay');
+  const nameDisplay = document.getElementById('qbLocationName');
   const timeDisplay = document.getElementById('qbLocationTime');
 
-  // Update button text with current location and delivery time
+  // Update button display with location and delivery time
   function updateLocationDisplay() {
     try {
-      const savedLocation = localStorage.getItem('qb_selected_location');
-      const savedDeliveryTime = localStorage.getItem('qb_delivery_time');
+      // Get saved location
+      const savedLocationStr = localStorage.getItem('qb_selected_location');
+      const savedDeliveryStr = localStorage.getItem('qb_delivery_time');
 
-      if (savedLocation) {
-        const location = JSON.parse(savedLocation);
-        const shortCity = location.city.substring(0, 15);
-        display.textContent = shortCity || 'Select Location';
+      // Update location name
+      if (savedLocationStr) {
+        try {
+          const location = JSON.parse(savedLocationStr);
+          if (location && location.city) {
+            const cityName = location.city.substring(0, 20);
+            nameDisplay.textContent = cityName;
+          }
+        } catch (e) {
+          nameDisplay.textContent = 'Select Location';
+        }
+      } else {
+        nameDisplay.textContent = 'Select Location';
+      }
 
-        // Add delivery time if available
-        if (savedDeliveryTime) {
-          try {
-            const deliveryData = JSON.parse(savedDeliveryTime);
-            if (deliveryData.range) {
-              timeDisplay.textContent = deliveryData.range;
-            }
-          } catch (e) {
-            // Ignore delivery time parse errors
+      // Update delivery time - extract ONLY the range value
+      if (savedDeliveryStr) {
+        try {
+          const deliveryObj = JSON.parse(savedDeliveryStr);
+          if (deliveryObj && deliveryObj.range) {
+            // Only display the range value, nothing else
+            timeDisplay.textContent = deliveryObj.range;
+          } else {
             timeDisplay.textContent = '';
           }
-        } else {
+        } catch (e) {
+          // If parsing fails, clear the time display
           timeDisplay.textContent = '';
         }
       } else {
-        display.textContent = 'Select Location';
         timeDisplay.textContent = '';
       }
     } catch (e) {
       console.error('Error updating location display:', e);
+      nameDisplay.textContent = 'Select Location';
+      timeDisplay.textContent = '';
     }
   }
 
@@ -116,15 +143,18 @@ Add this to your header for easy access to location selection
     e.preventDefault();
     if (window.showLocationModal) {
       window.showLocationModal();
-    } else {
-      console.warn('Location modal not loaded');
     }
   });
 
-  // Update on location change
-  window.addEventListener('locationSelected', updateLocationDisplay);
+  // Listen for location changes
+  window.addEventListener('locationSelected', () => {
+    setTimeout(updateLocationDisplay, 100);
+  });
 
   // Initial update
   updateLocationDisplay();
+
+  // Periodic check to ensure display stays correct
+  setInterval(updateLocationDisplay, 2000);
 })();
 </script>
