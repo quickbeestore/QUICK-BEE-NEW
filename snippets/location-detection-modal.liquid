@@ -674,33 +674,64 @@ function initLocationModal() {
     goToStep('form');
   }
 
-  // Estimate Delivery Time & Update Product Badges
-  function estimateDeliveryTime() {
-    // Get actual delivery time from location (if available)
-    // Otherwise use a default estimate
-    let deliveryRange = '18-22 mins';
+  // Calculate delivery time based on coordinates
+  function calculateDeliveryTime(lat, lng) {
+    // Central point (warehouse location) - Kathmandu center
+    const warehouseLat = 27.7172;
+    const warehouseLng = 85.3240;
 
-    // Try to extract delivery time from the location display
-    const locationDisplay = document.querySelector('[data-location-time]');
-    if (locationDisplay && locationDisplay.getAttribute('data-location-time')) {
-      deliveryRange = locationDisplay.getAttribute('data-location-time');
+    // Calculate distance using Haversine formula
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371; // Earth radius in km
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a =
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
     }
 
-    // Parse the range to extract min and max times
-    const timeMatch = deliveryRange.match(/(\d+)-?(\d+)?/);
-    let minTime = 18, maxTime = 22;
-    if (timeMatch) {
-      minTime = parseInt(timeMatch[1]);
-      maxTime = parseInt(timeMatch[2]) || minTime + 4;
-    }
+    const distanceKm = getDistance(warehouseLat, warehouseLng, lat, lng);
 
-    // Save to global state for product cards to use
-    window.QB_DELIVERY_TIME = {
+    // Estimate delivery time: base 10 mins + 1 min per km
+    // Max out at 60 mins
+    const estimatedMins = Math.min(Math.round(10 + (distanceKm * 1.5)), 60);
+    const minTime = Math.max(estimatedMins - 4, 5); // -4 mins buffer, minimum 5
+    const maxTime = Math.min(estimatedMins + 4, 60); // +4 mins buffer, max 60
+
+    return {
       minTime: minTime,
       maxTime: maxTime,
       range: `${minTime}-${maxTime} mins`,
+      distanceKm: distanceKm,
+      estimatedMins: estimatedMins,
       updatedAt: new Date().toISOString()
     };
+  }
+
+  // Estimate Delivery Time & Update Product Badges
+  function estimateDeliveryTime() {
+    let deliveryData;
+
+    // If we have coordinates, calculate based on distance
+    if (formInputs.lat.value && formInputs.lng.value) {
+      const lat = parseFloat(formInputs.lat.value);
+      const lng = parseFloat(formInputs.lng.value);
+      deliveryData = calculateDeliveryTime(lat, lng);
+    } else {
+      // Fallback to default estimate
+      deliveryData = {
+        minTime: 18,
+        maxTime: 22,
+        range: '18-22 mins',
+        updatedAt: new Date().toISOString()
+      };
+    }
+
+    // Save to global state for product cards to use
+    window.QB_DELIVERY_TIME = deliveryData;
 
     // Save to localStorage for persistence across pages
     try {
@@ -790,10 +821,14 @@ function initLocationModal() {
     }, 1500);
   }
 
-  // Form input validation
+  // Form input validation & delivery time update
   [formInputs.street, formInputs.city].forEach(input => {
     input.addEventListener('input', updateButtonState);
   });
+
+  // Recalculate delivery time when coordinates change
+  formInputs.lat.addEventListener('change', estimateDeliveryTime);
+  formInputs.lng.addEventListener('change', estimateDeliveryTime);
 
   // Event Listeners
   closeBtn.addEventListener('click', hideModal);
