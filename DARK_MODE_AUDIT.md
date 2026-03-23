@@ -72,7 +72,7 @@ Could support true dark mode by:
 - **Theme:** QUICK-BEE-NEW/main (#152863342782)
 - **Changes Committed:** Yes
 - **Changes Deployed:** Yes (via `shopify theme push --theme QUICK-BEE-NEW/main --allow-live`)
-- **Live URL:** https://yetinepal.myshopify.com
+- **Live URL:** https://quickbee.store
 
 ## Test Checklist
 - [x] ADD TO CART button text is white in light mode
