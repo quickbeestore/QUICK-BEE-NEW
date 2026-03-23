@@ -757,9 +757,36 @@ function initLocationModal() {
     successAddress.textContent = `${address.street}, ${address.city}`;
     goToStep('success');
 
+    // Get the delivery time that was displayed in the modal
+    const displayedDeliveryTime = deliveryTime.textContent;
+
     // Auto-close and trigger event
     setTimeout(() => {
       hideModal();
+
+      // Save delivery time to global state and localStorage
+      window.QB_DELIVERY_TIME = {
+        range: displayedDeliveryTime,
+        updatedAt: new Date().toISOString()
+      };
+
+      try {
+        localStorage.setItem('qb_delivery_time', JSON.stringify(window.QB_DELIVERY_TIME));
+      } catch (e) {
+        console.warn('Failed to save delivery time:', e);
+      }
+
+      // Update all product badges immediately
+      if (window.updateDeliveryBadges) {
+        window.updateDeliveryBadges();
+      } else {
+        // Fallback if function not available yet
+        const badges = document.querySelectorAll('.qb-delivery-badge');
+        badges.forEach(badge => {
+          badge.textContent = `⚡ ${displayedDeliveryTime}`;
+        });
+      }
+
       window.dispatchEvent(new CustomEvent('locationSelected', { detail: address }));
       if (window.QB_LOCATION_CALLBACK) {
         window.QB_LOCATION_CALLBACK(address);
