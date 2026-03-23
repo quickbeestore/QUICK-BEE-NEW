@@ -1,0 +1,108 @@
+{% comment %}
+QuickBEE Location Button - Triggers Location Detection Modal
+Add this to your header for easy access to location selection
+{% endcomment %}
+
+<style>
+  .qb-location-btn-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border: 1px solid #e8e8e8;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: #222;
+    transition: all 0.2s;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .qb-location-btn-header:hover {
+    background: #f0f1f3;
+    border-color: #7a14ac;
+    color: #7a14ac;
+  }
+
+  .qb-location-btn-header:active {
+    transform: scale(0.95);
+  }
+
+  .qb-location-icon {
+    font-size: 16px;
+  }
+
+  .qb-location-text {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    .qb-location-btn-header {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .qb-location-text {
+      display: none;
+    }
+
+    .qb-location-btn-header {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+</style>
+
+<button class="qb-location-btn-header" id="qbLocationHeaderBtn" title="Change delivery location">
+  <span class="qb-location-icon">📍</span>
+  <span class="qb-location-text" id="qbLocationDisplay">Select Location</span>
+</button>
+
+<script>
+(function() {
+  const btn = document.getElementById('qbLocationHeaderBtn');
+  const display = document.getElementById('qbLocationDisplay');
+
+  // Update button text with current location
+  function updateLocationDisplay() {
+    try {
+      const saved = localStorage.getItem('qb_selected_location');
+      if (saved) {
+        const location = JSON.parse(saved);
+        const shortCity = location.city.substring(0, 15);
+        display.textContent = shortCity || 'Select Location';
+      } else {
+        display.textContent = 'Select Location';
+      }
+    } catch (e) {
+      console.error('Error updating location display:', e);
+    }
+  }
+
+  // Click handler
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (window.showLocationModal) {
+      window.showLocationModal();
+    } else {
+      console.warn('Location modal not loaded');
+    }
+  });
+
+  // Update on location change
+  window.addEventListener('locationSelected', updateLocationDisplay);
+
+  // Initial update
+  updateLocationDisplay();
+})();
+</script>
