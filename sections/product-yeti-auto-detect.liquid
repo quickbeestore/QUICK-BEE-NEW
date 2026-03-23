@@ -406,7 +406,7 @@
           <h1 class="yeti-product-title">{{ product.title }}</h1>
           <div class="yeti-product-meta">
             <span>📍 Yeti Kafe</span>
-            <span>⭐ Premium Quality</span>
+            <span>☁️ Cloud Cafe</span>
           </div>
         </div>
 
@@ -569,6 +569,7 @@
       // Variant selection
       const variantId = document.getElementById('variant-id');
       const variantSelects = document.querySelectorAll('[id^="select-"]');
+      const allVariants = {{ product.variants | json }};
 
       variantSelects.forEach(select => {
         select.addEventListener('change', function() {
@@ -581,12 +582,46 @@
           const variant = findVariantByOptions(selectedOptions);
           if (variant) {
             variantId.value = variant.id;
+
+            // Update price
+            const priceEl = document.querySelector('.yeti-current-price');
+            if (priceEl && variant.price) {
+              priceEl.textContent = 'Rs ' + (variant.price / 100).toFixed(2);
+            }
+
+            // Update original price
+            const origPriceEl = document.querySelector('.yeti-original-price');
+            if (origPriceEl && variant.compare_at_price) {
+              origPriceEl.textContent = 'Rs ' + (variant.compare_at_price / 100).toFixed(2);
+            }
+
+            // Update discount badge
+            const discountEl = document.querySelector('.yeti-discount-badge');
+            if (discountEl && variant.compare_at_price > variant.price) {
+              const discount = Math.round((variant.compare_at_price - variant.price) / variant.compare_at_price * 100);
+              discountEl.textContent = discount + '% OFF';
+            }
+
+            // Update availability
+            const addBtn = document.querySelector('[name="add"]');
+            if (addBtn) {
+              addBtn.disabled = !variant.available;
+              addBtn.textContent = variant.available ? 'Add to Cart' : 'Out of Stock';
+            }
           }
         });
       });
 
       function findVariantByOptions(options) {
-        return {{ product.variants.first | json }};
+        return allVariants.find(variant => {
+          // Match each selected option to the variant's option values
+          const optionNames = Object.keys(options);
+          return optionNames.every((optionName, index) => {
+            const selectedValue = options[optionName];
+            const variantOptionKey = 'option' + (index + 1);
+            return variant[variantOptionKey] === selectedValue;
+          });
+        }) || allVariants[0];
       }
     })();
   </script>
