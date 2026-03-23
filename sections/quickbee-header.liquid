@@ -2137,9 +2137,9 @@
     <!-- Location Picker (Leftmost) -->
     <div class="qb-location-wrap" id="qbLocationWrap">
       <button class="qb-loc-btn" id="qbLocBtn" type="button"
-        aria-label="Set delivery location" aria-haspopup="dialog" aria-expanded="false"
+        aria-label="Set delivery location" aria-haspopup="listbox" aria-expanded="false"
         style="position: relative; cursor: pointer;"
-        onclick="window.showLocationModal()">
+        onclick="qbOpenLocationModal()">
         <span class="qb-loc-dot"></span>
         <div class="qb-loc-content">
           <div class="qb-loc-title" id="qbLocTitle">Set location</div>
@@ -2151,8 +2151,58 @@
       </button>
     </div>
 
-    <!-- QuickBEE Location Detection Modal (GPS Auto-Detection) -->
-    {% render 'location-detection-modal' %}
+    <!-- Location Modal (moved outside location-wrap to avoid size constraint) -->
+    <!-- Location Picker Modal with Save Options -->
+    <div id="qbLocModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99999;align-items:center;justify-content:center;">
+      <div style="background:#fff;border-radius:12px;padding:30px;max-width:480px;width:95%;max-height:85vh;overflow-y:auto;box-shadow:0 10px 50px rgba(0,0,0,0.3);">
+        <h2 style="margin:0 0 20px 0;font-size:18px;font-weight:700;color:#222;">Select Delivery Location</h2>
+
+        <!-- Layer 1: District -->
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-size:11px;font-weight:600;color:#666;margin-bottom:5px;text-transform:uppercase;">District</label>
+          <select id="qbDistrict" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;color:#333;background:#fff;cursor:pointer;">
+            <option value="">Select District</option>
+          </select>
+        </div>
+
+        <!-- Layer 2: Municipality -->
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-size:11px;font-weight:600;color:#666;margin-bottom:5px;text-transform:uppercase;">Municipality</label>
+          <select id="qbMunicipality" disabled style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;color:#999;background:#f5f5f5;cursor:not-allowed;">
+            <option value="">Select Municipality</option>
+          </select>
+        </div>
+
+        <!-- Layer 3: Area -->
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-size:11px;font-weight:600;color:#666;margin-bottom:5px;text-transform:uppercase;">Area</label>
+          <select id="qbArea" disabled style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;color:#999;background:#f5f5f5;cursor:not-allowed;">
+            <option value="">Select Area</option>
+          </select>
+        </div>
+
+        <!-- Layer 4: Sub-Area/Landmark -->
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-size:11px;font-weight:600;color:#666;margin-bottom:5px;text-transform:uppercase;">Landmark / Sub-Area</label>
+          <select id="qbSubArea" disabled style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;color:#999;background:#f5f5f5;cursor:not-allowed;">
+            <option value="">Select Landmark</option>
+          </select>
+        </div>
+
+        <!-- Delivery Time Display -->
+        <div id="qbDeliveryTimeDisplay" style="margin-bottom:18px;padding:12px;background:#f5f5f5;border-left:4px solid #f5c518;border-radius:4px;display:none;">
+          <div style="font-size:11px;color:#999;margin-bottom:4px;text-transform:uppercase;">⏱ Estimated Delivery</div>
+          <div style="font-size:24px;font-weight:700;color:#f5c518;"><span id="qbDeliveryTimeValue">--</span><span style="font-size:14px;color:#999;margin-left:4px;">mins</span></div>
+        </div>
+
+
+        <!-- Action Buttons -->
+        <div style="display:flex;gap:10px;">
+          <button id="qbSelectBtn" onclick="qbSelectLocation()" style="flex:1;padding:12px;background:#e8e8e8;color:#333;border:none;border-radius:6px;cursor:not-allowed;font-weight:600;font-size:14px;opacity:0.5;" disabled>Select Location</button>
+          <button onclick="qbCloseLocationModal()" style="flex:0.4;padding:12px;background:#eee;color:#666;border:none;border-radius:6px;cursor:pointer;font-size:13px;">✕</button>
+        </div>
+      </div>
+    </div>
 
     <script>
     // Complete location database for Nepal
