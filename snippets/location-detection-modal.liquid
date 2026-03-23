@@ -1,0 +1,777 @@
+{% comment %}
+QuickBEE Location Detection Modal
+Provides GPS auto-detection and manual location entry
+With delivery time estimation based on location
+{% endcomment %}
+
+<style>
+  /* Modal Backdrop */
+  .qb-location-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-in-out;
+  }
+
+  .qb-location-backdrop.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Modal Container */
+  .qb-location-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+    z-index: 1001;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  .qb-location-modal.active {
+    display: flex;
+    flex-direction: column;
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translate(-50%, -50%) scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* Modal Header */
+  .qb-location-header {
+    padding: 24px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .qb-location-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #222;
+    margin: 0;
+  }
+
+  .qb-location-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: #999;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .qb-location-close:hover {
+    color: #222;
+    transform: scale(1.1);
+  }
+
+  /* Modal Body */
+  .qb-location-body {
+    padding: 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Step Indicator */
+  .qb-location-step {
+    display: none;
+  }
+
+  .qb-location-step.active {
+    display: block;
+    animation: fadeIn 0.2s ease-in-out;
+  }
+
+  /* Step 1: Choose Detection Method */
+  .qb-location-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .qb-location-method-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border: 2px solid #e8e8e8;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+
+  .qb-location-method-btn:hover {
+    border-color: #7a14ac;
+    background: rgba(122, 20, 172, 0.05);
+  }
+
+  .qb-location-method-btn:active {
+    transform: scale(0.98);
+  }
+
+  .qb-location-method-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+  }
+
+  .qb-location-method-text {
+    flex: 1;
+  }
+
+  .qb-location-method-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #222;
+    margin: 0 0 4px;
+  }
+
+  .qb-location-method-desc {
+    font-size: 13px;
+    color: #666;
+    margin: 0;
+  }
+
+  /* Step 2: Auto Detection */
+  .qb-location-detecting {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  .qb-location-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #f0f0f0;
+    border-top-color: #7a14ac;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .qb-location-detecting-text {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+  }
+
+  /* Step 3: Form */
+  .qb-location-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .qb-location-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .qb-location-form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #222;
+  }
+
+  .qb-location-form-input {
+    padding: 10px 12px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    background: white;
+    color: #222;
+    transition: all 0.2s;
+  }
+
+  .qb-location-form-input:focus {
+    outline: none;
+    border-color: #7a14ac;
+    box-shadow: 0 0 0 3px rgba(122, 20, 172, 0.1);
+  }
+
+  .qb-location-form-input::placeholder {
+    color: #999;
+  }
+
+  .qb-location-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* Delivery Info */
+  .qb-location-delivery-info {
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #7a14ac;
+  }
+
+  .qb-location-delivery-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    margin: 0 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .qb-location-delivery-time {
+    font-size: 18px;
+    font-weight: 700;
+    color: #7a14ac;
+    margin: 0;
+  }
+
+  .qb-location-delivery-subtext {
+    font-size: 12px;
+    color: #999;
+    margin: 4px 0 0;
+  }
+
+  /* Error Message */
+  .qb-location-error {
+    padding: 12px;
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    border-radius: 6px;
+    color: #dc2626;
+    font-size: 13px;
+    display: none;
+  }
+
+  .qb-location-error.show {
+    display: block;
+  }
+
+  /* Modal Footer */
+  .qb-location-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    gap: 12px;
+  }
+
+  .qb-location-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .qb-location-btn-cancel {
+    background: #f5f5f5;
+    color: #222;
+  }
+
+  .qb-location-btn-cancel:hover {
+    background: #efefef;
+  }
+
+  .qb-location-btn-primary {
+    background: #7a14ac;
+    color: white;
+  }
+
+  .qb-location-btn-primary:hover {
+    background: #5a0d8c;
+  }
+
+  .qb-location-btn-primary:disabled {
+    background: #ddd;
+    cursor: not-allowed;
+  }
+
+  /* Success State */
+  .qb-location-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  .qb-location-success-icon {
+    font-size: 48px;
+    animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes scaleIn {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+  }
+
+  .qb-location-success-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #222;
+    margin: 0;
+  }
+
+  .qb-location-success-text {
+    font-size: 13px;
+    color: #666;
+    margin: 0;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .qb-location-modal {
+      width: 95%;
+      border-radius: 12px 12px 0 0;
+      max-height: 80vh;
+      bottom: 0;
+      top: auto;
+      transform: translate(-50%, 100%);
+    }
+
+    .qb-location-modal.active {
+      transform: translate(-50%, 0);
+    }
+
+    .qb-location-form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .qb-location-header {
+      padding: 16px;
+    }
+
+    .qb-location-body {
+      padding: 16px;
+    }
+
+    .qb-location-footer {
+      padding: 12px 16px;
+    }
+  }
+</style>
+
+<!-- Location Modal -->
+<div class="qb-location-backdrop" id="qbLocationBackdrop"></div>
+<div class="qb-location-modal" id="qbLocationModal">
+
+  <!-- Header -->
+  <div class="qb-location-header">
+    <h2 class="qb-location-title">📍 Select Location</h2>
+    <button class="qb-location-close" id="qbLocationClose" aria-label="Close">&times;</button>
+  </div>
+
+  <!-- Body -->
+  <div class="qb-location-body">
+
+    <!-- Error Message -->
+    <div class="qb-location-error" id="qbLocationError"></div>
+
+    <!-- Step 1: Choose Method -->
+    <div class="qb-location-step active" id="qbLocationStep1">
+      <div class="qb-location-methods">
+        <button type="button" class="qb-location-method-btn" id="qbDetectAutoBtn">
+          <div class="qb-location-method-icon">📡</div>
+          <div class="qb-location-method-text">
+            <h3 class="qb-location-method-title">Detect Automatically</h3>
+            <p class="qb-location-method-desc">Use GPS to find your location</p>
+          </div>
+        </button>
+        <button type="button" class="qb-location-method-btn" id="qbAddManualBtn">
+          <div class="qb-location-method-icon">✎</div>
+          <div class="qb-location-method-text">
+            <h3 class="qb-location-method-title">Add Manually</h3>
+            <p class="qb-location-method-desc">Enter your address manually</p>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Detecting GPS -->
+    <div class="qb-location-step" id="qbLocationStep2">
+      <div class="qb-location-detecting">
+        <div class="qb-location-spinner"></div>
+        <p class="qb-location-detecting-text">Finding your location...</p>
+      </div>
+    </div>
+
+    <!-- Step 3: Address Form -->
+    <div class="qb-location-step" id="qbLocationStep3">
+      <form class="qb-location-form" id="qbLocationForm">
+        <div class="qb-location-form-group">
+          <label class="qb-location-form-label">Street Address *</label>
+          <input
+            type="text"
+            class="qb-location-form-input"
+            id="qbLocationStreet"
+            placeholder="Enter street address"
+            required
+          >
+        </div>
+
+        <div class="qb-location-form-row">
+          <div class="qb-location-form-group">
+            <label class="qb-location-form-label">City *</label>
+            <input
+              type="text"
+              class="qb-location-form-input"
+              id="qbLocationCity"
+              placeholder="City"
+              required
+            >
+          </div>
+          <div class="qb-location-form-group">
+            <label class="qb-location-form-label">Postal Code</label>
+            <input
+              type="text"
+              class="qb-location-form-input"
+              id="qbLocationZip"
+              placeholder="Postal code"
+            >
+          </div>
+        </div>
+
+        <div class="qb-location-form-group">
+          <label class="qb-location-form-label">Latitude</label>
+          <input
+            type="number"
+            class="qb-location-form-input"
+            id="qbLocationLat"
+            placeholder="Latitude"
+            step="0.0001"
+            readonly
+          >
+        </div>
+
+        <div class="qb-location-form-group">
+          <label class="qb-location-form-label">Longitude</label>
+          <input
+            type="number"
+            class="qb-location-form-input"
+            id="qbLocationLng"
+            placeholder="Longitude"
+            step="0.0001"
+            readonly
+          >
+        </div>
+
+        <!-- Delivery Info -->
+        <div class="qb-location-delivery-info" id="qbDeliveryInfo" style="display: none;">
+          <div class="qb-location-delivery-title">Estimated Delivery</div>
+          <p class="qb-location-delivery-time" id="qbDeliveryTime">—</p>
+          <p class="qb-location-delivery-subtext">Get it faster with QuickBEE ⚡</p>
+        </div>
+      </form>
+    </div>
+
+    <!-- Step 4: Success -->
+    <div class="qb-location-step" id="qbLocationStep4">
+      <div class="qb-location-success">
+        <div class="qb-location-success-icon">✓</div>
+        <h3 class="qb-location-success-title">Location Selected</h3>
+        <p class="qb-location-success-text" id="qbSuccessAddress">Redirecting...</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="qb-location-footer">
+    <button type="button" class="qb-location-btn qb-location-btn-cancel" id="qbLocationCancel">Cancel</button>
+    <button type="button" class="qb-location-btn qb-location-btn-primary" id="qbLocationSelect">Select Location</button>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  // DOM Elements
+  const backdrop = document.getElementById('qbLocationBackdrop');
+  const modal = document.getElementById('qbLocationModal');
+  const closeBtn = document.getElementById('qbLocationClose');
+  const cancelBtn = document.getElementById('qbLocationCancel');
+  const selectBtn = document.getElementById('qbLocationSelect');
+
+  const detectAutoBtn = document.getElementById('qbDetectAutoBtn');
+  const addManualBtn = document.getElementById('qbAddManualBtn');
+
+  const steps = {
+    method: document.getElementById('qbLocationStep1'),
+    detecting: document.getElementById('qbLocationStep2'),
+    form: document.getElementById('qbLocationStep3'),
+    success: document.getElementById('qbLocationStep4')
+  };
+
+  const formInputs = {
+    street: document.getElementById('qbLocationStreet'),
+    city: document.getElementById('qbLocationCity'),
+    zip: document.getElementById('qbLocationZip'),
+    lat: document.getElementById('qbLocationLat'),
+    lng: document.getElementById('qbLocationLng')
+  };
+
+  const errorMsg = document.getElementById('qbLocationError');
+  const deliveryInfo = document.getElementById('qbDeliveryInfo');
+  const deliveryTime = document.getElementById('qbDeliveryTime');
+  const successAddress = document.getElementById('qbSuccessAddress');
+
+  let currentStep = 'method';
+  let detectionMode = null; // 'auto' or 'manual'
+  let selectedCoords = null;
+
+  // Show/Hide Modal
+  function showModal() {
+    modal.classList.add('active');
+    backdrop.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function hideModal() {
+    modal.classList.remove('active');
+    backdrop.classList.remove('active');
+    document.body.style.overflow = '';
+    resetForm();
+  }
+
+  // Navigate Steps
+  function goToStep(stepName) {
+    Object.values(steps).forEach(step => step.classList.remove('active'));
+    steps[stepName].classList.add('active');
+    currentStep = stepName;
+    updateButtonState();
+  }
+
+  function showError(message) {
+    errorMsg.textContent = message;
+    errorMsg.classList.add('show');
+    setTimeout(() => errorMsg.classList.remove('show'), 5000);
+  }
+
+  function updateButtonState() {
+    const isFormValid = formInputs.street.value && formInputs.city.value;
+    selectBtn.disabled = currentStep === 'form' && !isFormValid;
+
+    if (currentStep === 'method' || currentStep === 'detecting') {
+      selectBtn.style.display = 'none';
+      cancelBtn.style.display = 'block';
+    } else if (currentStep === 'success') {
+      selectBtn.style.display = 'none';
+      cancelBtn.style.display = 'none';
+    } else {
+      selectBtn.style.display = 'block';
+      cancelBtn.style.display = 'block';
+    }
+  }
+
+  // Detect Location via GPS
+  function detectLocation() {
+    goToStep('detecting');
+    detectionMode = 'auto';
+
+    if (!navigator.geolocation) {
+      showError('Geolocation not supported by your browser');
+      goToStep('method');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        const { latitude, longitude } = position.coords;
+        selectedCoords = { latitude, longitude };
+
+        formInputs.lat.value = latitude.toFixed(6);
+        formInputs.lng.value = longitude.toFixed(6);
+
+        // Reverse geocode to get address
+        reverseGeocode(latitude, longitude);
+      },
+      function(error) {
+        let errorMsg = 'Unable to detect location';
+        if (error.code === 1) errorMsg = 'Location access denied. Please enable it in settings.';
+        if (error.code === 2) errorMsg = 'Location service unavailable.';
+        if (error.code === 3) errorMsg = 'Location request timed out.';
+
+        showError(errorMsg);
+        goToStep('method');
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  }
+
+  // Reverse Geocode (convert coords to address)
+  function reverseGeocode(lat, lng) {
+    // Using Open-Meteo Geocoding API (free, no API key required)
+    fetch(`https://geocoding-api.open-meteo.com/v1/search?latitude=${lat}&longitude=${lng}&language=en`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.results && data.results.length > 0) {
+          const place = data.results[0];
+          formInputs.street.value = `${place.address || 'Location'}`;
+          formInputs.city.value = place.name || '';
+          if (place.postal_code) formInputs.zip.value = place.postal_code;
+        }
+        estimateDeliveryTime();
+        goToStep('form');
+      })
+      .catch(err => {
+        console.log('Geocoding failed, showing form anyway');
+        estimateDeliveryTime();
+        goToStep('form');
+      });
+  }
+
+  // Add Manually
+  function addManually() {
+    detectionMode = 'manual';
+    formInputs.lat.value = '';
+    formInputs.lng.value = '';
+    Object.values(formInputs).forEach(input => input.value = '');
+    goToStep('form');
+  }
+
+  // Estimate Delivery Time
+  function estimateDeliveryTime() {
+    // Simulated delivery time calculation
+    // In production, this would call your backend API
+    const baseTime = 16;
+    const varianceTime = Math.floor(Math.random() * 5);
+    const estimatedTime = baseTime + varianceTime;
+
+    deliveryTime.textContent = `${estimatedTime}-${estimatedTime + 5} mins`;
+    deliveryInfo.style.display = 'block';
+  }
+
+  // Form Validation & Selection
+  function handleSelectLocation() {
+    if (currentStep !== 'form') return;
+
+    const address = {
+      street: formInputs.street.value,
+      city: formInputs.city.value,
+      zip: formInputs.zip.value,
+      latitude: formInputs.lat.value,
+      longitude: formInputs.lng.value,
+      mode: detectionMode,
+      timestamp: new Date().toISOString()
+    };
+
+    if (!address.street || !address.city) {
+      showError('Please fill in street and city');
+      return;
+    }
+
+    // Save to localStorage
+    try {
+      localStorage.setItem('qb_selected_location', JSON.stringify(address));
+      window.QB_SELECTED_LOCATION = address;
+    } catch (e) {
+      console.error('Failed to save location:', e);
+    }
+
+    // Show success
+    successAddress.textContent = `${address.street}, ${address.city}`;
+    goToStep('success');
+
+    // Auto-close and trigger event
+    setTimeout(() => {
+      hideModal();
+      window.dispatchEvent(new CustomEvent('locationSelected', { detail: address }));
+      if (window.QB_LOCATION_CALLBACK) {
+        window.QB_LOCATION_CALLBACK(address);
+      }
+    }, 1500);
+  }
+
+  // Form input validation
+  [formInputs.street, formInputs.city].forEach(input => {
+    input.addEventListener('input', updateButtonState);
+  });
+
+  // Event Listeners
+  closeBtn.addEventListener('click', hideModal);
+  backdrop.addEventListener('click', hideModal);
+  cancelBtn.addEventListener('click', hideModal);
+
+  detectAutoBtn.addEventListener('click', detectLocation);
+  addManualBtn.addEventListener('click', addManually);
+
+  selectBtn.addEventListener('click', handleSelectLocation);
+
+  // Keyboard
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('active')) {
+      hideModal();
+    }
+  });
+
+  // Reset
+  function resetForm() {
+    Object.values(formInputs).forEach(input => input.value = '');
+    deliveryInfo.style.display = 'none';
+    errorMsg.classList.remove('show');
+    currentStep = null;
+    detectionMode = null;
+    selectedCoords = null;
+    goToStep('method');
+  }
+
+  // Public API
+  window.showLocationModal = showModal;
+  window.hideLocationModal = hideModal;
+  window.getSelectedLocation = () => window.QB_SELECTED_LOCATION;
+
+  // Auto-show on page load if location not set
+  document.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('qb_selected_location');
+    if (!saved) {
+      // Optional: auto-show on first visit
+      // showModal();
+    }
+  });
+})();
+</script>
