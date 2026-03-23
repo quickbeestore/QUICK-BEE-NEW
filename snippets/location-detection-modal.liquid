@@ -655,8 +655,16 @@ function initLocationModal() {
           formInputs.city.value = place.name || '';
           if (place.postal_code) formInputs.zip.value = place.postal_code;
         }
+        // Calculate delivery time FIRST
         estimateDeliveryTime();
+        // Show form
         goToStep('form');
+        // Ensure delivery time is visible
+        setTimeout(() => {
+          if (deliveryTime.textContent && deliveryTime.textContent !== '—') {
+            console.log('Delivery time calculated:', deliveryTime.textContent);
+          }
+        }, 50);
       })
       .catch(err => {
         console.log('Geocoding failed, showing form anyway');
@@ -792,25 +800,34 @@ function initLocationModal() {
     setTimeout(() => {
       hideModal();
 
-      // Extract delivery time from modal display or use default
-      let deliveryTimeText = deliveryTime.textContent || '18-22 mins';
+      // Get the currently calculated delivery time from global state
+      // This was set by estimateDeliveryTime() during form interaction
+      const deliveryTimeData = window.QB_DELIVERY_TIME || {};
+      const deliveryTimeText = deliveryTimeData.range || deliveryTime.textContent || '18-22 mins';
+
+      console.log('Saving delivery time:', deliveryTimeText);
 
       // Save delivery time to global state and localStorage
       window.QB_DELIVERY_TIME = {
         range: deliveryTimeText,
+        minTime: deliveryTimeData.minTime,
+        maxTime: deliveryTimeData.maxTime,
         updatedAt: new Date().toISOString()
       };
 
       try {
         localStorage.setItem('qb_delivery_time', JSON.stringify(window.QB_DELIVERY_TIME));
+        console.log('Saved to localStorage:', window.QB_DELIVERY_TIME);
       } catch (e) {
         console.warn('Failed to save delivery time:', e);
       }
 
-      // Update all product badges immediately
-      const badges = document.querySelectorAll('.qb-delivery-badge');
+      // Update all product badges immediately with full selector list
+      const badges = document.querySelectorAll('.qb-delivery-badge, .qb-product-delivery, .qb-sync-badge');
+      console.log('Found', badges.length, 'badges to update');
       badges.forEach(badge => {
         badge.textContent = `⚡ ${deliveryTimeText}`;
+        badge.setAttribute('data-delivery-time', deliveryTimeText);
       });
 
       // Also dispatch event for any listeners

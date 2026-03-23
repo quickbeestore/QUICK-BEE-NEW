@@ -2441,7 +2441,16 @@
       var deliveryTime = qbDeliveryTimes[landmark] || 20;
 
       localStorage.setItem('qb_location', landmark);
-      localStorage.setItem('qb_delivery_time', deliveryTime);
+
+      // Save as object with range property (for consistency with location modal)
+      var deliveryObj = {
+        range: deliveryTime + '-' + (deliveryTime + 4) + ' mins',
+        minTime: deliveryTime,
+        maxTime: deliveryTime + 4,
+        updatedAt: new Date().toISOString()
+      };
+      localStorage.setItem('qb_delivery_time', JSON.stringify(deliveryObj));
+      window.QB_DELIVERY_TIME = deliveryObj;
 
       var titleEl = document.getElementById('qbLocTitle');
       var addressEl = document.getElementById('qbLocAddress');
@@ -2450,6 +2459,19 @@
       addressEl.textContent = deliveryTime + ' mins';
       addressEl.style.fontSize = '12px';
       addressEl.style.color = '#666';
+
+      // Update ALL product delivery badges immediately
+      var displayText = deliveryTime + '-' + (deliveryTime + 4) + ' mins';
+      var badges = document.querySelectorAll('.qb-delivery-badge, .qb-product-delivery, .qb-sync-badge');
+      badges.forEach(function(badge) {
+        badge.textContent = '⚡ ' + displayText;
+      });
+      console.log('Updated ' + badges.length + ' product badges to: ⚡ ' + displayText);
+
+      // Dispatch event for other listeners
+      window.dispatchEvent(new CustomEvent('locationSelected', {
+        detail: { landmark: landmark, deliveryTime: deliveryTime }
+      }));
 
       var modal = document.getElementById('qbLocModal');
       modal.style.display = 'none';
