@@ -674,16 +674,38 @@ function initLocationModal() {
     goToStep('form');
   }
 
-  // Estimate Delivery Time
+  // Estimate Delivery Time & Update Product Badges
   function estimateDeliveryTime() {
     // Simulated delivery time calculation
     // In production, this would call your backend API
-    const baseTime = 16;
-    const varianceTime = Math.floor(Math.random() * 5);
+    const baseTime = 18;
+    const varianceTime = Math.floor(Math.random() * 4);
     const estimatedTime = baseTime + varianceTime;
+    const deliveryRange = `${estimatedTime}-${estimatedTime + 4} mins`;
 
-    deliveryTime.textContent = `${estimatedTime}-${estimatedTime + 5} mins`;
+    // Save to global state for product cards to use
+    window.QB_DELIVERY_TIME = {
+      minTime: estimatedTime,
+      maxTime: estimatedTime + 4,
+      range: deliveryRange,
+      updatedAt: new Date().toISOString()
+    };
+
+    // Update display in modal
+    deliveryTime.textContent = deliveryRange;
     deliveryInfo.style.display = 'block';
+
+    // Update all product delivery badges on page
+    updateProductDeliveryBadges();
+  }
+
+  // Update all product delivery badges
+  function updateProductDeliveryBadges() {
+    const badges = document.querySelectorAll('.qb-delivery-badge');
+    const range = window.QB_DELIVERY_TIME?.range || '18-22 mins';
+    badges.forEach(badge => {
+      badge.textContent = `⚡ ${range}`;
+    });
   }
 
   // Form Validation & Selection
