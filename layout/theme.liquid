@@ -583,7 +583,7 @@
     <!-- Global Delivery Time System -->
     <script>
       (function() {
-        // Initialize global delivery time from localStorage
+        // Initialize global delivery time from localStorage or page location display
         function initGlobalDeliveryTime() {
           const stored = localStorage.getItem('qb_delivery_time');
 
@@ -594,10 +594,33 @@
               window.QB_DELIVERY_TIME = getDefaultDeliveryTime();
             }
           } else {
-            window.QB_DELIVERY_TIME = getDefaultDeliveryTime();
+            // Try to get delivery time from location display on page
+            window.QB_DELIVERY_TIME = extractDeliveryTimeFromPage() || getDefaultDeliveryTime();
           }
 
           updateAllDeliveryBadges();
+        }
+
+        function extractDeliveryTimeFromPage() {
+          // Look for location time display in various formats
+          const locationBtn = document.querySelector('[data-location-time]');
+          if (locationBtn) {
+            const timeStr = locationBtn.getAttribute('data-location-time');
+            if (timeStr) {
+              const timeMatch = timeStr.match(/(\d+)-?(\d+)?/);
+              if (timeMatch) {
+                const minTime = parseInt(timeMatch[1]);
+                const maxTime = parseInt(timeMatch[2]) || minTime + 4;
+                return {
+                  minTime,
+                  maxTime,
+                  range: `${minTime}-${maxTime} mins`,
+                  updatedAt: new Date().toISOString()
+                };
+              }
+            }
+          }
+          return null;
         }
 
         function getDefaultDeliveryTime() {

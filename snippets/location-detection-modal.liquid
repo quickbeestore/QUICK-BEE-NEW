@@ -676,18 +676,29 @@ function initLocationModal() {
 
   // Estimate Delivery Time & Update Product Badges
   function estimateDeliveryTime() {
-    // Simulated delivery time calculation
-    // In production, this would call your backend API
-    const baseTime = 18;
-    const varianceTime = Math.floor(Math.random() * 4);
-    const estimatedTime = baseTime + varianceTime;
-    const deliveryRange = `${estimatedTime}-${estimatedTime + 4} mins`;
+    // Get actual delivery time from location (if available)
+    // Otherwise use a default estimate
+    let deliveryRange = '18-22 mins';
+
+    // Try to extract delivery time from the location display
+    const locationDisplay = document.querySelector('[data-location-time]');
+    if (locationDisplay && locationDisplay.getAttribute('data-location-time')) {
+      deliveryRange = locationDisplay.getAttribute('data-location-time');
+    }
+
+    // Parse the range to extract min and max times
+    const timeMatch = deliveryRange.match(/(\d+)-?(\d+)?/);
+    let minTime = 18, maxTime = 22;
+    if (timeMatch) {
+      minTime = parseInt(timeMatch[1]);
+      maxTime = parseInt(timeMatch[2]) || minTime + 4;
+    }
 
     // Save to global state for product cards to use
     window.QB_DELIVERY_TIME = {
-      minTime: estimatedTime,
-      maxTime: estimatedTime + 4,
-      range: deliveryRange,
+      minTime: minTime,
+      maxTime: maxTime,
+      range: `${minTime}-${maxTime} mins`,
       updatedAt: new Date().toISOString()
     };
 
@@ -699,7 +710,7 @@ function initLocationModal() {
     }
 
     // Update display in modal
-    deliveryTime.textContent = deliveryRange;
+    deliveryTime.textContent = window.QB_DELIVERY_TIME.range;
     deliveryInfo.style.display = 'block';
 
     // Update all product delivery badges on page
