@@ -1,6 +1,5 @@
 {% comment %}
-QuickBEE Location Button - Triggers Location Detection Modal
-Add this to your header for easy access to location selection
+QuickBEE Location Button - Clean, Simple, No JSON Display
 {% endcomment %}
 
 <style>
@@ -17,17 +16,12 @@ Add this to your header for easy access to location selection
     font-weight: 600;
     color: #222;
     transition: all 0.2s;
-    text-decoration: none;
   }
 
   .qb-location-btn-header:hover {
     background: #f0f1f3;
     border-color: #7a14ac;
     color: #7a14ac;
-  }
-
-  .qb-location-btn-header:active {
-    transform: scale(0.95);
   }
 
   .qb-location-icon {
@@ -39,16 +33,15 @@ Add this to your header for easy access to location selection
     flex-direction: column;
     align-items: flex-start;
     gap: 2px;
-    max-width: 140px;
+    max-width: 150px;
   }
 
   .qb-location-name {
-    max-width: 140px;
+    max-width: 150px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     font-weight: 600;
-    font-size: 13px;
   }
 
   .qb-location-time {
@@ -58,103 +51,69 @@ Add this to your header for easy access to location selection
   }
 
   @media (max-width: 640px) {
-    .qb-location-btn-header {
-      padding: 6px 10px;
-      font-size: 12px;
-    }
-
     .qb-location-info {
       display: none;
-    }
-
-    .qb-location-btn-header {
-      width: 40px;
-      height: 40px;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
   }
 </style>
 
-<button class="qb-location-btn-header" id="qbLocationHeaderBtn" title="Change delivery location">
+<button class="qb-location-btn-header" id="qbLocationBtn" title="Change delivery location">
   <span class="qb-location-icon">📍</span>
   <div class="qb-location-info">
-    <div class="qb-location-name" id="qbLocationName">Select Location</div>
-    <div class="qb-location-time" id="qbLocationTime"></div>
+    <div class="qb-location-name">Select Location</div>
+    <div class="qb-location-time">—</div>
   </div>
 </button>
 
 <script>
 (function() {
-  const btn = document.getElementById('qbLocationHeaderBtn');
-  const nameDisplay = document.getElementById('qbLocationName');
-  const timeDisplay = document.getElementById('qbLocationTime');
+  const btn = document.getElementById('qbLocationBtn');
+  const nameEl = btn.querySelector('.qb-location-name');
+  const timeEl = btn.querySelector('.qb-location-time');
 
-  // Update button display with location and delivery time
-  function updateLocationDisplay() {
-    try {
-      // Get saved location
-      const savedLocationStr = localStorage.getItem('qb_selected_location');
-      const savedDeliveryStr = localStorage.getItem('qb_delivery_time');
-
-      // Update location name
-      if (savedLocationStr) {
-        try {
-          const location = JSON.parse(savedLocationStr);
-          if (location && location.city) {
-            const cityName = location.city.substring(0, 20);
-            nameDisplay.textContent = cityName;
-          }
-        } catch (e) {
-          nameDisplay.textContent = 'Select Location';
-        }
-      } else {
-        nameDisplay.textContent = 'Select Location';
+  function updateDisplay() {
+    // Get location
+    const locStr = localStorage.getItem('qb_selected_location');
+    if (locStr) {
+      try {
+        const loc = JSON.parse(locStr);
+        nameEl.textContent = (loc.city || 'Select Location').substring(0, 20);
+      } catch (e) {
+        nameEl.textContent = 'Select Location';
       }
+    } else {
+      nameEl.textContent = 'Select Location';
+    }
 
-      // Update delivery time - extract ONLY the range value
-      if (savedDeliveryStr) {
-        try {
-          const deliveryObj = JSON.parse(savedDeliveryStr);
-          if (deliveryObj && deliveryObj.range) {
-            // Only display the range value, nothing else
-            timeDisplay.textContent = deliveryObj.range;
-          } else {
-            timeDisplay.textContent = '';
-          }
-        } catch (e) {
-          // If parsing fails, clear the time display
-          timeDisplay.textContent = '';
-        }
-      } else {
-        timeDisplay.textContent = '';
+    // Get delivery time - ONLY THE RANGE VALUE
+    const delStr = localStorage.getItem('qb_delivery_time');
+    if (delStr) {
+      try {
+        const del = JSON.parse(delStr);
+        // CRITICAL: Only set the range value, NEVER the entire object
+        const rangeValue = del.range || '';
+        // Clean it to remove any quotes or extra characters
+        timeEl.textContent = String(rangeValue).replace(/"/g, '').trim();
+      } catch (e) {
+        timeEl.textContent = '—';
       }
-    } catch (e) {
-      console.error('Error updating location display:', e);
-      nameDisplay.textContent = 'Select Location';
-      timeDisplay.textContent = '';
+    } else {
+      timeEl.textContent = '—';
     }
   }
 
-  // Click handler
-  btn.addEventListener('click', (e) => {
+  // Click to open modal
+  btn.addEventListener('click', e => {
     e.preventDefault();
-    if (window.showLocationModal) {
-      window.showLocationModal();
-    }
+    if (window.showLocationModal) window.showLocationModal();
   });
 
-  // Listen for location changes
+  // Update on location selected
   window.addEventListener('locationSelected', () => {
-    setTimeout(updateLocationDisplay, 100);
+    setTimeout(updateDisplay, 50);
   });
 
   // Initial update
-  updateLocationDisplay();
-
-  // Periodic check to ensure display stays correct
-  setInterval(updateLocationDisplay, 2000);
+  updateDisplay();
 })();
 </script>
