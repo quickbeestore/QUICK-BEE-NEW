@@ -101,7 +101,7 @@
 
     <!-- CHECKOUT BUTTON (Sticky) -->
     <div class="checkout-section">
-      <a href="{{ routes.checkout_url }}" class="checkout-btn">🐝 Checkout Now</a>
+      <button type="button" class="checkout-btn" id="qb-checkout-btn">🐝 Checkout Now</button>
     </div>
 
     {%- endif -%}
@@ -519,6 +519,47 @@
       if (this.value < 1) this.value = 1;
       this.closest('.qty-form').submit();
     });
+  });
+
+  // ── Checkout with location + delivery time as order note ──
+  document.getElementById('qb-checkout-btn').addEventListener('click', function() {
+    const btn = this;
+    btn.textContent = 'Processing...';
+    btn.disabled = true;
+
+    // Read location & delivery time from localStorage
+    const location = localStorage.getItem('qb_location') || '';
+    let deliveryRange = '';
+    try {
+      const dt = JSON.parse(localStorage.getItem('qb_delivery_time') || '{}');
+      deliveryRange = dt.range || '';
+    } catch(e) {}
+
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+    const note = [
+      location ? 'Delivery Location: ' + location : '',
+      deliveryRange ? 'Estimated Delivery: ' + deliveryRange : '',
+      'Order Time: ' + dateStr + ' ' + timeStr
+    ].filter(Boolean).join(' | ');
+
+    // POST note to cart, then redirect to checkout
+    fetch('/cart/update.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        note: note,
+        attributes: {
+          'Delivery Location': location,
+          'Estimated Delivery': deliveryRange,
+          'Order Time': dateStr + ' ' + timeStr
+        }
+      })
+    })
+    .then(() => { window.location.href = '{{ routes.checkout_url }}'; })
+    .catch(() => { window.location.href = '{{ routes.checkout_url }}'; });
   });
 </script>
 
