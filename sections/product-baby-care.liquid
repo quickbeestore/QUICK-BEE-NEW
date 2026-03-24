@@ -340,13 +340,14 @@
           </div>
 
           <!-- Variants -->
-          {% if product.variants.size > 1 %}
+          {% if product.available and product.variants.size > 1 %}
             <div class="baby-variants-section">
               <label class="baby-section-label">Choose Options</label>
-              {% for option in product.options %}
-                <select class="baby-select" id="select-{{ option }}" name="options[{{ option }}]">
-                  {% for value in product.variants | map: 'options' | uniq %}
-                    <option value="{{ value[forloop.index0] }}">{{ value[forloop.index0] }}</option>
+              {% for option in product.options_with_values %}
+                <select class="baby-select" id="select-{{ option.name | slugify }}" name="options[{{ option.name }}]">
+                  <option disabled selected>{{ option.name }}</option>
+                  {% for value in option.values %}
+                    <option value="{{ value }}">{{ value }}</option>
                   {% endfor %}
                 </select>
               {% endfor %}
@@ -457,17 +458,19 @@
       const allVariants = {{ product.variants | json }};
       const variantSelects = document.querySelectorAll('.baby-select');
       const variantId = document.getElementById('variant-id');
+      const productOptions = {{ product.options | json }};
 
       variantSelects.forEach(select => {
         select.addEventListener('change', function() {
           const selectedOptions = {};
-          variantSelects.forEach(s => {
-            const optionName = s.id.replace('select-', '').replace(/-/g, ' ');
-            selectedOptions[optionName] = s.value;
+          variantSelects.forEach((s, index) => {
+            if (s.value) {
+              selectedOptions[productOptions[index]] = s.value;
+            }
           });
 
           const variant = allVariants.find(v => {
-            return Object.keys(selectedOptions).every((optionName, index) => {
+            return productOptions.every((optionName, index) => {
               return v.options[index] === selectedOptions[optionName];
             });
           });
