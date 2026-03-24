@@ -1,28 +1,186 @@
 
+<style>
+  .qb-404-page {
+    background: #ffffff;
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
 
-<div class="section-background color-{{ section.settings.color_scheme }}"></div>
-<div
-  class="
-    section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }}
-    {% if section.settings.section_height != "" %} {{ section.settings.section_height | prepend: "section--height-" }}{% endif %}
-  "
->
-  <div>
-    <div
-      class="
-        spacing-style
-        layout-panel-flex
-        layout-panel-flex--column
-        section-content-wrapper
-        mobile-column
-      "
-      style="
-        {% render 'layout-panel-style', settings: section.settings %}
-        {% render 'spacing-style', settings: section.settings %}
-      "
-    >
-      {% content_for 'blocks' %}
+  /* Honeycomb background pattern */
+  .qb-404-page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50V18L28 2l28 16v32L28 66zm0-6l22-12.7V22.7L28 10 6 22.7v24.6L28 60z' fill='%23F4B400' fill-opacity='0.06'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .qb-404-content {
+    position: relative;
+    z-index: 1;
+    max-width: 360px;
+  }
+
+  /* Bee animation */
+  .qb-404-bee-wrap {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+
+  .qb-404-bee {
+    font-size: 80px;
+    display: block;
+    animation: bee-float 3s ease-in-out infinite;
+    filter: drop-shadow(0 12px 24px rgba(244, 180, 0, 0.3));
+  }
+
+  .qb-404-shadow {
+    width: 60px;
+    height: 10px;
+    background: radial-gradient(ellipse, rgba(0,0,0,0.15) 0%, transparent 70%);
+    margin: 0 auto;
+    animation: shadow-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes bee-float {
+    0%, 100% { transform: translateY(0px) rotate(-5deg); }
+    50% { transform: translateY(-18px) rotate(5deg); }
+  }
+
+  @keyframes shadow-pulse {
+    0%, 100% { transform: scaleX(1); opacity: 0.5; }
+    50% { transform: scaleX(0.6); opacity: 0.2; }
+  }
+
+  /* 404 number */
+  .qb-404-number {
+    font-size: 96px;
+    font-weight: 900;
+    line-height: 1;
+    margin: 20px 0 0;
+    background: linear-gradient(135deg, #F4B400 0%, #E8A000 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -4px;
+  }
+
+  .qb-404-title {
+    font-size: 22px;
+    font-weight: 900;
+    color: #1a1a1a;
+    margin: 8px 0 12px;
+  }
+
+  .qb-404-subtitle {
+    font-size: 14px;
+    color: #777;
+    line-height: 1.7;
+    margin: 0 0 32px;
+  }
+
+  /* Buttons */
+  .qb-404-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .qb-404-btn-primary {
+    display: block;
+    background: linear-gradient(135deg, #F4B400 0%, #E8A000 100%);
+    color: #1a1a1a;
+    text-decoration: none;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 800;
+    box-shadow: 0 4px 20px rgba(244, 180, 0, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    letter-spacing: 0.2px;
+  }
+
+  .qb-404-btn-primary:active {
+    transform: scale(0.97);
+    box-shadow: 0 2px 10px rgba(244, 180, 0, 0.25);
+  }
+
+  .qb-404-btn-secondary {
+    display: block;
+    background: #f5f5f5;
+    color: #555;
+    text-decoration: none;
+    padding: 13px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s ease;
+  }
+
+  .qb-404-btn-secondary:active {
+    background: #ebebeb;
+  }
+
+  /* Quick links */
+  .qb-404-quick {
+    margin-top: 32px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .qb-404-quick-link {
+    background: #FFF9E6;
+    border: 1px solid #FFE580;
+    color: #1a1a1a;
+    text-decoration: none;
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background 0.2s ease;
+  }
+
+  .qb-404-quick-link:active {
+    background: #FFE580;
+  }
+</style>
+
+<div class="qb-404-page">
+  <div class="qb-404-content">
+
+    <div class="qb-404-bee-wrap">
+      <span class="qb-404-bee">🐝</span>
+      <div class="qb-404-shadow"></div>
     </div>
+
+    <div class="qb-404-number">404</div>
+    <h1 class="qb-404-title">Lost in the Hive!</h1>
+    <p class="qb-404-subtitle">Oops — our busy bee couldn't find this page. It may have been moved, removed, or maybe never existed.</p>
+
+    <div class="qb-404-actions">
+      <a href="{{ routes.root_url }}" class="qb-404-btn-primary">🏠 Back to QuickBee Home</a>
+      <a href="{{ routes.all_products_collection_url }}" class="qb-404-btn-secondary">Browse All Products</a>
+    </div>
+
+    <div class="qb-404-quick">
+      <a href="/collections" class="qb-404-quick-link">📦 Categories</a>
+      <a href="/pages/services" class="qb-404-quick-link">🔧 Services</a>
+      <a href="{{ routes.cart_url }}" class="qb-404-quick-link">🛒 Cart</a>
+      <a href="{{ routes.account_url }}" class="qb-404-quick-link">👤 Account</a>
+    </div>
+
   </div>
 </div>
 
