@@ -313,8 +313,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   background: white;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: none;
+  border: none;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   scroll-snap-align: start;
@@ -334,8 +335,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 }
 
 .qb-carousel-card:hover {
-  box-shadow: 0 12px 32px rgba(244, 180, 0, 0.25);
-  transform: translateY(-8px);
+  transform: translateY(-4px);
 }
 
 /* CAROUSEL IMAGE */
@@ -353,8 +353,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .qb-carousel-image-wrap img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  padding: 12px;
+  object-fit: cover;
+  padding: 0;
+  display: block;
   transition: transform 0.3s ease;
 }
 
@@ -1101,9 +1102,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
                   <div class="qb-no-image">📷</div>
                 {% endif %}
                 <div class="qb-carousel-badge">⚡ 18-22 mins</div>
-                {% if product.compare_at_price and product.compare_at_price > product.price %}
-                  <div class="qb-discount-badge">{{ product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price | round }}% OFF</div>
-                {% endif %}
               </div>
               <div class="qb-carousel-content">
                 <h3 class="qb-carousel-title">{{ product.title }}</h3>
@@ -1262,41 +1260,49 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <script>
   // Initialize delivery time system
   function initDeliveryTimeSystem() {
-    // Set default delivery time if not set
+    // Always load from localStorage first — this is the source of truth
+    try {
+      const stored = localStorage.getItem('qb_delivery_time');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.range) window.QB_DELIVERY_TIME = parsed;
+      }
+    } catch(e) {}
+
+    // Fallback default only if nothing in localStorage
     if (!window.QB_DELIVERY_TIME) {
-      window.QB_DELIVERY_TIME = {
-        minTime: 18,
-        maxTime: 22,
-        range: '18-22 mins',
-        updatedAt: new Date().toISOString()
-      };
+      window.QB_DELIVERY_TIME = { minTime: 18, maxTime: 22, range: '18-22 mins' };
     }
 
-    // Update all product badges with current delivery time
     function updateAllDeliveryBadges() {
       const range = window.QB_DELIVERY_TIME?.range || '18-22 mins';
-
-      // Update regular delivery badges
-      const regularBadges = document.querySelectorAll('.qb-delivery-badge');
-      regularBadges.forEach(badge => {
-        badge.textContent = `⚡ ${range}`;
-      });
-
-      // Update carousel delivery badges
-      const carouselBadges = document.querySelectorAll('.qb-carousel-badge');
-      carouselBadges.forEach(badge => {
-        badge.textContent = `⚡ ${range}`;
+      const text = '⚡ ' + range.replace(' mins', ' MINS');
+      document.querySelectorAll('.qb-delivery-badge, .qb-carousel-badge, .qb-delivery-time-text').forEach(el => {
+        if (el.classList.contains('qb-delivery-time-text')) {
+          el.textContent = range;
+        } else {
+          el.textContent = text;
+        }
       });
     }
 
-    // Listen for location changes
-    window.addEventListener('locationSelected', (event) => {
-      // Delivery time will be updated by the location modal
-      // Just refresh the badges here
+    // Listen for location changes from header
+    window.addEventListener('locationSelected', () => {
+      try {
+        const stored = localStorage.getItem('qb_delivery_time');
+        if (stored) window.QB_DELIVERY_TIME = JSON.parse(stored);
+      } catch(e) {}
       setTimeout(updateAllDeliveryBadges, 100);
     });
 
-    // Initial update
+    window.addEventListener('qb_location_changed', () => {
+      try {
+        const stored = localStorage.getItem('qb_delivery_time');
+        if (stored) window.QB_DELIVERY_TIME = JSON.parse(stored);
+      } catch(e) {}
+      setTimeout(updateAllDeliveryBadges, 100);
+    });
+
     updateAllDeliveryBadges();
   }
 
