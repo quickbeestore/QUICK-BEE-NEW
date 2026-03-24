@@ -444,6 +444,55 @@
           finalQty.value = Math.max(1, parseInt(this.value) || 1);
         });
       }
+
+      // Variant change handling
+      const allVariants = {{ product.variants | json }};
+      const variantSelects = document.querySelectorAll('.baby-select');
+      const variantId = document.getElementById('variant-id');
+
+      variantSelects.forEach(select => {
+        select.addEventListener('change', function() {
+          const selectedOptions = {};
+          variantSelects.forEach(s => {
+            const optionName = s.id.replace('select-', '').replace(/-/g, ' ');
+            selectedOptions[optionName] = s.value;
+          });
+
+          const variant = allVariants.find(v => {
+            return Object.keys(selectedOptions).every((optionName, index) => {
+              return v.options[index] === selectedOptions[optionName];
+            });
+          });
+
+          if (variant) {
+            variantId.value = variant.id;
+
+            // Update price
+            const priceEl = document.querySelector('.baby-price-current');
+            if (priceEl && variant.price) {
+              priceEl.textContent = 'Rs ' + (variant.price / 100);
+            }
+
+            // Update original price
+            const origPriceEl = document.querySelector('.baby-price-original');
+            if (origPriceEl && variant.compare_at_price) {
+              origPriceEl.textContent = 'Rs ' + (variant.compare_at_price / 100);
+            } else if (origPriceEl) {
+              origPriceEl.style.display = 'none';
+            }
+
+            // Update discount badge
+            const discountEl = document.querySelector('.baby-discount-badge');
+            if (discountEl && variant.compare_at_price && variant.compare_at_price > variant.price) {
+              const discount = Math.round((variant.compare_at_price - variant.price) * 100 / variant.compare_at_price);
+              discountEl.textContent = discount + '% OFF';
+              discountEl.style.display = 'inline-block';
+            } else if (discountEl) {
+              discountEl.style.display = 'none';
+            }
+          }
+        });
+      });
     })();
   </script>
 
