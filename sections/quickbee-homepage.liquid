@@ -944,60 +944,45 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <style>
   /* Perfect 5-Column Banner Grid (Mobile-First) */
   .qb-banners-perfect {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 12px;
-    padding: 0 16px 0 16px;
+    padding: 16px;
+    max-width: 1000px;
     margin: 0 auto;
-    width: 100%;
-    max-width: 100%;
+    auto-rows: auto;
   }
 
   .qb-banners-perfect > .qb-banner-large1,
   .qb-banners-perfect > .qb-banner-large2 {
-    width: 100%;
+    grid-column: 1 / -1;
     max-width: 100%;
-    flex-basis: 100%;
-  }
-
-  .qb-banners-perfect > .qb-banner-row1 {
-    flex: 1 1 calc(25% - 9px);
-    min-width: 100px;
   }
 
   /* Mobile: Stack to 2 columns */
   @media(max-width: 767px) {
     .qb-banners-perfect {
+      grid-template-columns: repeat(2, 1fr);
       gap: 10px;
-      padding: 0 12px 0 12px;
-    }
-
-    .qb-banners-perfect > .qb-banner-row1 {
-      flex: 1 1 calc(50% - 5px);
+      padding: 12px;
     }
   }
 
   /* Tablet: 4 columns */
   @media(min-width: 768px) and (max-width: 1023px) {
     .qb-banners-perfect {
+      grid-template-columns: repeat(4, 1fr);
       gap: 12px;
-      padding: 0 16px 0 16px;
-    }
-
-    .qb-banners-perfect > .qb-banner-row1 {
-      flex: 1 1 calc(25% - 9px);
+      padding: 16px;
     }
   }
 
   /* Desktop: 4 columns */
   @media(min-width: 1024px) {
     .qb-banners-perfect {
+      grid-template-columns: repeat(4, 1fr);
       gap: 16px;
-      padding: 0 16px 0 16px;
-    }
-
-    .qb-banners-perfect > .qb-banner-row1 {
-      flex: 1 1 calc(25% - 12px);
+      padding: 20px 16px;
     }
   }
 
@@ -1049,7 +1034,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   .qb-banner-item {
     position: relative;
     display: block;
-    overflow: visible;
+    overflow: hidden;
     border-radius: 8px;
     text-decoration: none;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -1066,8 +1051,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     height: auto;
     display: block;
     object-fit: contain;
-    object-position: center;
-    max-width: 100%;
   }
 </style>
 
@@ -1102,13 +1085,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   </div>
 
   <!-- Yeti Kafe - Modern Horizontal Carousel -->
+  {% assign yeti_products = collections.yeti-kafe.products %}
+  {% if yeti_products.size > 0 %}
   <section class="qb-section">
     <h2>☕ Yeti Kafe</h2>
     <div class="qb-carousel-container">
       <div class="qb-carousel-scroll">
-        {% assign products = collections.yeti-kafe.products %}
-        {% if products.size > 0 %}
-          {% for product in products %}
+          {% for product in yeti_products %}
             <div class="qb-carousel-card">
               <div class="qb-carousel-image-wrap" data-product-url="{{ product.url }}" style="cursor: pointer;">
                 {% if product.featured_image %}
@@ -1137,19 +1120,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
               </div>
             </div>
           {% endfor %}
-        {% else %}
-          <div class="qb-empty">No products available</div>
-        {% endif %}
       </div>
     </div>
   </section>
+  {% endif %}
 
   <!-- Farm Fresh -->
+  {% assign new_arrivals = collections.farm-fresh.products %}
+  {% if new_arrivals.size > 0 %}
   <section class="qb-section">
     <h2>🥕 Farm Fresh</h2>
     <div class="qb-product-grid">
-      {% assign new_arrivals = collections.farm-fresh.products %}
-      {% if new_arrivals.size > 0 %}
         {% for product in new_arrivals limit: 4 %}
           <div class="qb-product-card">
             <div class="qb-product-image-wrap" style="cursor: pointer;" data-product-url="{{ product.url }}">
@@ -1173,18 +1154,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
             </form>
           </div>
         {% endfor %}
-      {% else %}
-        <div class="qb-empty">No products available</div>
-      {% endif %}
     </div>
   </section>
+  {% endif %}
 
   <!-- Pet Care -->
+  {% assign featured = collections.pet-care.products %}
+  {% if featured.size > 0 %}
   <section class="qb-section">
     <h2>🐕 Pet Care</h2>
     <div class="qb-product-grid">
-      {% assign featured = collections.pet-care.products %}
-      {% if featured.size > 0 %}
         {% for product in featured limit: 4 %}
           <div class="qb-product-card">
             <div class="qb-product-image-wrap" style="cursor: pointer;" data-product-url="{{ product.url }}">
@@ -1208,18 +1187,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
             </form>
           </div>
         {% endfor %}
-      {% else %}
-        <div class="qb-empty">No products available</div>
-      {% endif %}
     </div>
   </section>
+  {% endif %}
 
   <!-- Baby Care -->
+  {% assign babies = collections.baby-care.products %}
+  {% if babies.size > 0 %}
   <section class="qb-section">
     <h2>👶 Baby Care</h2>
     <div class="qb-product-grid">
-      {% assign babies = collections.baby-care.products %}
-      {% if babies.size > 0 %}
         {% for product in babies limit: 4 %}
           <div class="qb-product-card">
             <div class="qb-product-image-wrap" style="cursor: pointer;" data-product-url="{{ product.url }}">
@@ -1243,18 +1220,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
             </form>
           </div>
         {% endfor %}
-      {% else %}
-        <div class="qb-empty">No products available</div>
-      {% endif %}
     </div>
   </section>
+  {% endif %}
 
   <!-- Bubble Tea -->
+  {% assign bubble_tea = collections.bubble-tea.products %}
+  {% if bubble_tea.size > 0 %}
   <section class="qb-section">
     <h2>🧋 Bubble Tea</h2>
     <div class="qb-product-grid">
-      {% assign bubble_tea = collections.bubble-tea.products %}
-      {% if bubble_tea.size > 0 %}
         {% for product in bubble_tea limit: 4 %}
           <div class="qb-product-card">
             <div class="qb-product-image-wrap" style="cursor: pointer;" data-product-url="{{ product.url }}">
@@ -1278,11 +1253,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
             </form>
           </div>
         {% endfor %}
-      {% else %}
-        <div class="qb-empty">No bubble tea products available</div>
-      {% endif %}
     </div>
   </section>
+  {% endif %}
 </div>
 
 <script>
