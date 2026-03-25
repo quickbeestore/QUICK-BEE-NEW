@@ -313,8 +313,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   background: white;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: none;
+  border: none;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   scroll-snap-align: start;
@@ -334,8 +335,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 }
 
 .qb-carousel-card:hover {
-  box-shadow: 0 12px 32px rgba(244, 180, 0, 0.25);
-  transform: translateY(-8px);
+  transform: translateY(-4px);
 }
 
 /* CAROUSEL IMAGE */
@@ -353,8 +353,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .qb-carousel-image-wrap img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  padding: 12px;
+  object-fit: cover;
+  padding: 0;
+  display: block;
   transition: transform 0.3s ease;
 }
 
@@ -474,26 +475,25 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   background: #fff;
   border-radius: 12px;
   overflow: hidden;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease;
   cursor: pointer;
   height: 100%;
   position: relative;
+  border: none;
+  box-shadow: none;
 }
 
 .qb-product-card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   transform: translateY(-2px);
 }
 
 .qb-product-image-wrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 1;
+  aspect-ratio: 1 / 1;
   background: #f5f5f5;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
 }
 
 .qb-product-image-wrap img {
@@ -502,6 +502,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   object-fit: cover;
   object-position: center;
   transition: transform 0.3s ease;
+  display: block;
+  padding: 0;
 }
 
 .qb-product-card:hover .qb-product-image-wrap img {
@@ -950,7 +952,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     padding: 16px;
     max-width: 1000px;
     margin: 0 auto;
-    auto-rows: auto;
+    align-items: start;
   }
 
   .qb-banners-perfect > .qb-banner-large1,
@@ -1048,9 +1050,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
   .qb-banner-item img {
     width: 100%;
-    height: auto;
+    height: 100%;
     display: block;
-    object-fit: contain;
+    object-fit: cover;
   }
 </style>
 
@@ -1085,24 +1087,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   </div>
 
   <!-- Yeti Kafe - Modern Horizontal Carousel -->
+  {% assign yeti_products = collections.yeti-kafe.products %}
+  {% if yeti_products.size > 0 %}
   <section class="qb-section">
     <h2>☕ Yeti Kafe</h2>
     <div class="qb-carousel-container">
       <div class="qb-carousel-scroll">
-        {% assign products = collections.yeti-kafe.products %}
-        {% if products.size > 0 %}
-          {% for product in products %}
+          {% for product in yeti_products %}
             <div class="qb-carousel-card">
               <div class="qb-carousel-image-wrap" data-product-url="{{ product.url }}" style="cursor: pointer;">
                 {% if product.featured_image %}
-                  <img src="{{ product.featured_image | img_url: '400x400' }}" alt="{{ product.title }}" loading="lazy">
+                  <img src="{{ product.featured_image | img_url: '1080x1080', crop: 'center' }}" alt="{{ product.title }}" loading="lazy">
                 {% else %}
-                  <div class="qb-no-image">📷</div>
+                  <div class="qb-no-image" style="background:linear-gradient(135deg,#fff9e6,#fef3c7);width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:40px;">🐝</div>
                 {% endif %}
                 <div class="qb-carousel-badge">⚡ 18-22 mins</div>
-                {% if product.compare_at_price and product.compare_at_price > product.price %}
-                  <div class="qb-discount-badge">{{ product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price | round }}% OFF</div>
-                {% endif %}
               </div>
               <div class="qb-carousel-content">
                 <h3 class="qb-carousel-title">{{ product.title }}</h3>
@@ -1120,26 +1119,24 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
               </div>
             </div>
           {% endfor %}
-        {% else %}
-          <div class="qb-empty">No products available</div>
-        {% endif %}
       </div>
     </div>
   </section>
+  {% endif %}
 
   <!-- Farm Fresh -->
+  {% assign new_arrivals = collections.farm-fresh.products %}
+  {% if new_arrivals.size > 0 %}
   <section class="qb-section">
     <h2>🥕 Farm Fresh</h2>
     <div class="qb-product-grid">
-      {% assign new_arrivals = collections.farm-fresh.products %}
-      {% if new_arrivals.size > 0 %}
         {% for product in new_arrivals limit: 4 %}
           <div class="qb-product-card">
             <div class="qb-product-image-wrap" style="cursor: pointer;" data-product-url="{{ product.url }}">
               {% if product.featured_image %}
-                <img src="{{ product.featured_image | img_url: '300x300' }}" alt="{{ product.title }}" class="qb-product-image" style="cursor: pointer;">
+                <img src="{{ product.featured_image | img_url: '1080x1080', crop: 'center' }}" alt="{{ product.title }}" class="qb-product-image" style="cursor: pointer;">
               {% else %}
-                <div style="width:100%; height:100%; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">No Image</div>
+                <div style="width:100%;height:100%;background:linear-gradient(135deg,#fff9e6,#fef3c7);display:flex;align-items:center;justify-content:center;font-size:36px;">🐝</div>
               {% endif %}
               <div class="qb-delivery-badge">⚡ 18-22 mins</div>
             </div>
@@ -1156,25 +1153,23 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
             </form>
           </div>
         {% endfor %}
-      {% else %}
-        <div class="qb-empty">No products available</div>
-      {% endif %}
     </div>
   </section>
+  {% endif %}
 
   <!-- Pet Care -->
+  {% assign featured = collections.pet-care.products %}
+  {% if featured.size > 0 %}
   <section class="qb-section">
     <h2>🐕 Pet Care</h2>
     <div class="qb-product-grid">
-      {% assign featured = collections.pet-care.products %}
-      {% if featured.size > 0 %}
         {% for product in featured limit: 4 %}
           <div class="qb-product-card">
             <div class="qb-product-image-wrap" style="cursor: pointer;" data-product-url="{{ product.url }}">
               {% if product.featured_image %}
-                <img src="{{ product.featured_image | img_url: '300x300' }}" alt="{{ product.title }}" class="qb-product-image" style="cursor: pointer;">
+                <img src="{{ product.featured_image | img_url: '1080x1080', crop: 'center' }}" alt="{{ product.title }}" class="qb-product-image" style="cursor: pointer;">
               {% else %}
-                <div style="width:100%; height:100%; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">No Image</div>
+                <div style="width:100%;height:100%;background:linear-gradient(135deg,#fff9e6,#fef3c7);display:flex;align-items:center;justify-content:center;font-size:36px;">🐝</div>
               {% endif %}
               <div class="qb-delivery-badge">⚡ 18-22 mins</div>
             </div>
@@ -1191,25 +1186,23 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
             </form>
           </div>
         {% endfor %}
-      {% else %}
-        <div class="qb-empty">No products available</div>
-      {% endif %}
     </div>
   </section>
+  {% endif %}
 
   <!-- Baby Care -->
+  {% assign babies = collections.baby-care.products %}
+  {% if babies.size > 0 %}
   <section class="qb-section">
     <h2>👶 Baby Care</h2>
     <div class="qb-product-grid">
-      {% assign babies = collections.baby-care.products %}
-      {% if babies.size > 0 %}
         {% for product in babies limit: 4 %}
           <div class="qb-product-card">
             <div class="qb-product-image-wrap" style="cursor: pointer;" data-product-url="{{ product.url }}">
               {% if product.featured_image %}
-                <img src="{{ product.featured_image | img_url: '300x300' }}" alt="{{ product.title }}" class="qb-product-image" style="cursor: pointer;">
+                <img src="{{ product.featured_image | img_url: '1080x1080', crop: 'center' }}" alt="{{ product.title }}" class="qb-product-image" style="cursor: pointer;">
               {% else %}
-                <div style="width:100%; height:100%; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">No Image</div>
+                <div style="width:100%;height:100%;background:linear-gradient(135deg,#fff9e6,#fef3c7);display:flex;align-items:center;justify-content:center;font-size:36px;">🐝</div>
               {% endif %}
               <div class="qb-delivery-badge">⚡ 18-22 mins</div>
             </div>
@@ -1226,25 +1219,23 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
             </form>
           </div>
         {% endfor %}
-      {% else %}
-        <div class="qb-empty">No products available</div>
-      {% endif %}
     </div>
   </section>
+  {% endif %}
 
   <!-- Bubble Tea -->
+  {% assign bubble_tea = collections.bubble-tea.products %}
+  {% if bubble_tea.size > 0 %}
   <section class="qb-section">
     <h2>🧋 Bubble Tea</h2>
     <div class="qb-product-grid">
-      {% assign bubble_tea = collections.bubble-tea.products %}
-      {% if bubble_tea.size > 0 %}
         {% for product in bubble_tea limit: 4 %}
           <div class="qb-product-card">
             <div class="qb-product-image-wrap" style="cursor: pointer;" data-product-url="{{ product.url }}">
               {% if product.featured_image %}
-                <img src="{{ product.featured_image | img_url: '300x300' }}" alt="{{ product.title }}" class="qb-product-image" style="cursor: pointer;">
+                <img src="{{ product.featured_image | img_url: '1080x1080', crop: 'center' }}" alt="{{ product.title }}" class="qb-product-image" style="cursor: pointer;">
               {% else %}
-                <div style="width:100%; height:100%; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">No Image</div>
+                <div style="width:100%;height:100%;background:linear-gradient(135deg,#fff9e6,#fef3c7);display:flex;align-items:center;justify-content:center;font-size:36px;">🐝</div>
               {% endif %}
               <div class="qb-delivery-badge">⚡ 18-22 mins</div>
             </div>
@@ -1261,51 +1252,57 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
             </form>
           </div>
         {% endfor %}
-      {% else %}
-        <div class="qb-empty">No bubble tea products available</div>
-      {% endif %}
     </div>
   </section>
+  {% endif %}
 </div>
 
 <script>
   // Initialize delivery time system
   function initDeliveryTimeSystem() {
-    // Set default delivery time if not set
+    // Always load from localStorage first — this is the source of truth
+    try {
+      const stored = localStorage.getItem('qb_delivery_time');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.range) window.QB_DELIVERY_TIME = parsed;
+      }
+    } catch(e) {}
+
+    // Fallback default only if nothing in localStorage
     if (!window.QB_DELIVERY_TIME) {
-      window.QB_DELIVERY_TIME = {
-        minTime: 18,
-        maxTime: 22,
-        range: '18-22 mins',
-        updatedAt: new Date().toISOString()
-      };
+      window.QB_DELIVERY_TIME = { minTime: 18, maxTime: 22, range: '18-22 mins' };
     }
 
-    // Update all product badges with current delivery time
     function updateAllDeliveryBadges() {
       const range = window.QB_DELIVERY_TIME?.range || '18-22 mins';
-
-      // Update regular delivery badges
-      const regularBadges = document.querySelectorAll('.qb-delivery-badge');
-      regularBadges.forEach(badge => {
-        badge.textContent = `⚡ ${range}`;
-      });
-
-      // Update carousel delivery badges
-      const carouselBadges = document.querySelectorAll('.qb-carousel-badge');
-      carouselBadges.forEach(badge => {
-        badge.textContent = `⚡ ${range}`;
+      const text = '⚡ ' + range.replace(' mins', ' MINS');
+      document.querySelectorAll('.qb-delivery-badge, .qb-carousel-badge, .qb-delivery-time-text').forEach(el => {
+        if (el.classList.contains('qb-delivery-time-text')) {
+          el.textContent = range;
+        } else {
+          el.textContent = text;
+        }
       });
     }
 
-    // Listen for location changes
-    window.addEventListener('locationSelected', (event) => {
-      // Delivery time will be updated by the location modal
-      // Just refresh the badges here
+    // Listen for location changes from header
+    window.addEventListener('locationSelected', () => {
+      try {
+        const stored = localStorage.getItem('qb_delivery_time');
+        if (stored) window.QB_DELIVERY_TIME = JSON.parse(stored);
+      } catch(e) {}
       setTimeout(updateAllDeliveryBadges, 100);
     });
 
-    // Initial update
+    window.addEventListener('qb_location_changed', () => {
+      try {
+        const stored = localStorage.getItem('qb_delivery_time');
+        if (stored) window.QB_DELIVERY_TIME = JSON.parse(stored);
+      } catch(e) {}
+      setTimeout(updateAllDeliveryBadges, 100);
+    });
+
     updateAllDeliveryBadges();
   }
 

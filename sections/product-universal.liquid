@@ -1,0 +1,952 @@
+<!-- Universal Product Page - Clean Minimal Design -->
+{% assign current_product_id = product.id %}
+<style>
+  .univ-product-wrapper {
+    background: #ffffff;
+    padding: 0;
+    margin: 0;
+  }
+
+  .univ-product-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  /* Main Product Section */
+  .univ-product-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 0;
+  }
+
+  /* Product Image - Square 1:1 */
+  .univ-product-image-section {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #f8f8f8;
+    border-radius: 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .univ-product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .univ-product-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 72px;
+    background: linear-gradient(135deg, #f8f8f8 0%, #efefef 100%);
+    color: #ccc;
+  }
+
+  /* Product Details - Sticky Bottom */
+  .univ-product-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: #ffffff;
+    border-top: 1px solid #e8e8e8;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  .univ-product-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #1a1a1a;
+    line-height: 1.3;
+    margin: 0;
+  }
+
+  /* Price */
+  .univ-price-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  .univ-price-current {
+    font-size: 28px;
+    font-weight: 900;
+    color: #F4B400;
+    line-height: 1;
+  }
+
+  .univ-price-original {
+    font-size: 14px;
+    color: #999;
+    text-decoration: line-through;
+    margin-left: auto;
+  }
+
+  /* Delivery Badge */
+  .univ-delivery-info {
+    background: linear-gradient(135deg, #FFFBF0 0%, #FFF9E6 100%);
+    border-left: 3px solid #F4B400;
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .univ-delivery-time {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 0;
+  }
+
+  .univ-delivery-subtext {
+    font-size: 11px;
+    color: #666;
+  }
+
+  /* Variants */
+  .univ-variants-section {
+    background: transparent;
+    padding: 0;
+    border: none;
+  }
+
+  .univ-section-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .univ-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    background: white;
+    color: #1a1a1a;
+    margin-bottom: 10px;
+    appearance: auto;
+  }
+
+  .univ-select:last-child {
+    margin-bottom: 0;
+  }
+
+  .univ-select:focus {
+    outline: none;
+    border-color: #F4B400;
+    box-shadow: 0 0 0 2px rgba(244, 180, 0, 0.15);
+  }
+
+  /* Qty + ATC Row */
+  .univ-qty-atc-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 4px;
+  }
+
+  .univ-qty-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    padding: 4px;
+  }
+
+  .univ-qty-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 18px;
+    color: #1a1a1a;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .univ-qty-btn:hover {
+    background: #F4B400;
+    color: #1a1a1a;
+  }
+
+  .univ-qty-btn:active {
+    transform: scale(0.9);
+  }
+
+  .univ-qty-input {
+    width: 36px;
+    text-align: center;
+    border: none;
+    background: transparent;
+    font-weight: 700;
+    color: #1a1a1a;
+    font-size: 14px;
+  }
+
+  .univ-add-btn {
+    flex: 1;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #F4B400 0%, #E8A500 100%);
+    color: #1a1a1a;
+    border: none;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-height: 44px;
+    box-shadow: 0 4px 12px rgba(244, 180, 0, 0.3);
+  }
+
+  .univ-add-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #E8A500 0%, #D99600 100%);
+    transform: scale(1.02);
+    box-shadow: 0 6px 16px rgba(244, 180, 0, 0.4);
+  }
+
+  .univ-add-btn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .univ-add-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Product Description - Collapsible */
+  .univ-description-section {
+    margin-top: 28px;
+    border: 1px solid #e8e8e8;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .univ-description-toggle {
+    width: 100%;
+    padding: 14px 16px;
+    background: white;
+    border: none;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.2s;
+  }
+
+  .univ-description-toggle:hover {
+    background: #fafafa;
+  }
+
+  .univ-description-toggle .univ-toggle-arrow {
+    font-size: 18px;
+    transition: transform 0.3s ease;
+    color: #F4B400;
+    font-weight: 900;
+  }
+
+  .univ-description-toggle.open .univ-toggle-arrow {
+    transform: rotate(180deg);
+  }
+
+  .univ-description-body {
+    display: none;
+    padding: 16px;
+    border-top: 1px solid #e8e8e8;
+    font-size: 13px;
+    color: #555;
+    line-height: 1.6;
+    background: #fafafa;
+  }
+
+  .univ-description-body.open {
+    display: block;
+  }
+
+  /* Trust Bar */
+  .univ-trust-bar {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .univ-trust-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 8px;
+    background: #fafafa;
+    border-radius: 10px;
+    border: 1px solid #efefef;
+    text-align: center;
+  }
+
+  .univ-trust-icon {
+    font-size: 26px;
+  }
+
+  .univ-trust-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1.3;
+  }
+
+  /* You Might Also Like */
+  .univ-also-like-section {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #e8e8e8;
+  }
+
+  .univ-section-title {
+    font-size: 20px;
+    font-weight: 900;
+    color: #1a1a1a;
+    margin-bottom: 16px;
+  }
+
+  .univ-carousel-container {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+
+  .univ-carousel-scroll {
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    padding-bottom: 8px;
+    scroll-snap-type: x mandatory;
+  }
+
+  .univ-carousel-scroll::-webkit-scrollbar {
+    height: 5px;
+  }
+
+  .univ-carousel-scroll::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 10px;
+  }
+
+  .univ-carousel-scroll::-webkit-scrollbar-thumb {
+    background: #F4B400;
+    border-radius: 10px;
+  }
+
+  .univ-carousel-card {
+    flex: 0 0 calc(50% - 7px);
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    scroll-snap-align: start;
+    cursor: pointer;
+  }
+
+  .univ-carousel-card:hover {
+    box-shadow: 0 10px 28px rgba(244, 180, 0, 0.2);
+    transform: translateY(-6px);
+  }
+
+  .univ-carousel-image-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    background: #f8f8f8;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .univ-carousel-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .univ-carousel-card:hover .univ-carousel-image-wrap img {
+    transform: scale(1.07);
+  }
+
+  .univ-carousel-delivery-badge {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: linear-gradient(135deg, #F4B400 0%, #FFB300 100%);
+    color: #1a1a1a;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    box-shadow: 0 3px 8px rgba(244, 180, 0, 0.3);
+  }
+
+  .univ-carousel-content {
+    padding: 13px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .univ-carousel-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 7px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .univ-carousel-price-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .univ-carousel-price-current {
+    font-size: 16px;
+    font-weight: 900;
+    color: #F4B400;
+  }
+
+  .univ-carousel-price-original {
+    font-size: 12px;
+    color: #999;
+    text-decoration: line-through;
+  }
+
+  .univ-carousel-add-btn {
+    width: 100%;
+    padding: 9px 12px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-top: auto;
+  }
+
+  .univ-carousel-add-btn:hover {
+    background: linear-gradient(135deg, #F4B400 0%, #E8A500 100%);
+    color: #1a1a1a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(244, 180, 0, 0.25);
+  }
+
+  /* Why QuickBee Features Section */
+  .univ-features-section {
+    margin-top: 32px;
+    padding: 28px 16px;
+    background: linear-gradient(135deg, #FFFBF0 0%, #FFF9E6 100%);
+    border-radius: 14px;
+  }
+
+  .univ-features-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin: 0 0 20px 0;
+    text-align: center;
+  }
+
+  .univ-features-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .univ-feature-card {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .univ-feature-icon {
+    width: 58px;
+    height: 58px;
+    flex-shrink: 0;
+    background: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    box-shadow: 0 3px 10px rgba(244, 180, 0, 0.12);
+  }
+
+  .univ-feature-content h3 {
+    font-size: 14px;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin: 0 0 4px 0;
+  }
+
+  .univ-feature-content p {
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  /* Responsive */
+  @media (min-width: 768px) {
+    .univ-product-container {
+      padding: 32px 24px;
+    }
+
+    .univ-product-main {
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    .univ-product-image-section {
+      aspect-ratio: 1 / 1;
+      max-height: 520px;
+    }
+
+    .univ-product-details {
+      position: relative;
+      bottom: auto;
+      box-shadow: none;
+      border-top: none;
+    }
+
+    .univ-product-title {
+      font-size: 26px;
+    }
+
+    .univ-trust-bar {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .univ-carousel-container {
+      margin: 0 -24px;
+      padding: 0 24px;
+    }
+
+    .univ-carousel-card {
+      flex: 0 0 calc(25% - 10.5px);
+    }
+
+    .univ-features-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .univ-feature-card {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .univ-feature-icon {
+      width: 68px;
+      height: 68px;
+      font-size: 38px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .univ-product-container {
+      padding: 40px 48px;
+    }
+
+    .univ-carousel-container {
+      margin: 0 -48px;
+      padding: 0 48px;
+    }
+
+    .univ-carousel-card {
+      flex: 0 0 240px;
+    }
+  }
+</style>
+
+<div class="univ-product-wrapper">
+  <div class="univ-product-container">
+    <div class="univ-product-main">
+      <!-- Product Image -->
+      <div class="univ-product-image-section">
+        {% if product.featured_image %}
+          <img src="{{ product.featured_image | image_url: width: 1080, height: 1080, crop: 'center' }}" alt="{{ product.title }}" class="univ-product-image">
+        {% else %}
+          <div class="univ-product-image-placeholder">🛍️</div>
+        {% endif %}
+      </div>
+
+      <!-- Product Details - Sticky Bottom -->
+      <div class="univ-product-details">
+        <h1 class="univ-product-title">{{ product.title }}</h1>
+
+        <!-- Price -->
+        <div class="univ-price-section">
+          <span class="univ-price-current">Rs {{ product.price | divided_by: 100 }}</span>
+          {% if product.compare_at_price and product.compare_at_price > product.price %}
+            <span class="univ-price-original">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
+          {% endif %}
+        </div>
+
+        <!-- Delivery Info -->
+        <div class="univ-delivery-info">
+          <div>
+            <p class="univ-delivery-time">⚡ <span class="univ-delivery-sync">18-22 mins</span></p>
+            <p class="univ-delivery-subtext">Free delivery • Order tracking</p>
+          </div>
+        </div>
+
+        <!-- Variants -->
+        {% if product.available and product.variants.size > 1 %}
+          <div class="univ-variants-section">
+            <label class="univ-section-label">Choose Options</label>
+            {% for option in product.options_with_values %}
+              <select class="univ-select" id="univ-select-{{ option.name | slugify }}" name="options[{{ option.name }}]">
+                <option disabled selected>{{ option.name }}</option>
+                {% for value in option.values %}
+                  <option value="{{ value }}">{{ value }}</option>
+                {% endfor %}
+              </select>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <!-- Qty + ATC -->
+        <div class="univ-qty-atc-row">
+          <div class="univ-qty-controls">
+            <button type="button" class="univ-qty-btn" id="univ-qty-minus">−</button>
+            <input type="number" id="univ-product-qty" class="univ-qty-input" value="1" min="1">
+            <button type="button" class="univ-qty-btn" id="univ-qty-plus">+</button>
+          </div>
+          <form action="/cart/add" method="post" style="flex: 1;">
+            <input type="hidden" id="univ-variant-id" name="id" value="{{ product.variants.first.id }}">
+            <input type="hidden" id="univ-final-qty" name="quantity" value="1">
+            <button type="submit" class="univ-add-btn" {% unless product.available %}disabled{% endunless %}>
+              {% if product.available %}Add to Cart{% else %}Out of Stock{% endif %}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Description Collapsible -->
+    {% if product.description != blank %}
+      <div class="univ-description-section">
+        <button class="univ-description-toggle" id="univ-desc-toggle">
+          <span>Product Details</span>
+          <span class="univ-toggle-arrow">▼</span>
+        </button>
+        <div class="univ-description-body" id="univ-desc-body">
+          {{ product.description }}
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Trust Bar -->
+    <div class="univ-trust-bar">
+      <div class="univ-trust-item">
+        <span class="univ-trust-icon">🚚</span>
+        <span class="univ-trust-label">Fast Delivery</span>
+      </div>
+      <div class="univ-trust-item">
+        <span class="univ-trust-icon">🔒</span>
+        <span class="univ-trust-label">Secure Payment</span>
+      </div>
+      <div class="univ-trust-item">
+        <span class="univ-trust-icon">↩️</span>
+        <span class="univ-trust-label">Easy Returns</span>
+      </div>
+      <div class="univ-trust-item">
+        <span class="univ-trust-icon">⭐</span>
+        <span class="univ-trust-label">Quality Products</span>
+      </div>
+    </div>
+
+    <!-- You Might Also Like Carousel -->
+    <div class="univ-also-like-section">
+      <h2 class="univ-section-title">You might also like</h2>
+      <div class="univ-carousel-container">
+        <div class="univ-carousel-scroll">
+          {% assign same_collection = product.collections.first %}
+          {% if same_collection %}
+            {% assign related_products = same_collection.products %}
+            {% assign shown_count = 0 %}
+            {% for p in related_products %}
+              {% unless p.id == current_product_id %}
+                {% if shown_count < 8 %}
+                  <div class="univ-carousel-card">
+                    <div class="univ-carousel-image-wrap" data-product-url="{{ p.url }}" style="cursor: pointer;">
+                      {% if p.featured_image %}
+                        <img src="{{ p.featured_image | image_url: width: 400 }}" alt="{{ p.title }}" loading="lazy">
+                      {% else %}
+                        <div style="font-size: 40px;">🛍️</div>
+                      {% endif %}
+                      <div class="univ-carousel-delivery-badge univ-carousel-delivery-badge-item">⚡ 18-22 mins</div>
+                    </div>
+                    <div class="univ-carousel-content">
+                      <h3 class="univ-carousel-title">{{ p.title }}</h3>
+                      <div class="univ-carousel-price-row">
+                        <span class="univ-carousel-price-current">Rs {{ p.price | divided_by: 100 }}</span>
+                        {% if p.compare_at_price and p.compare_at_price > p.price %}
+                          <span class="univ-carousel-price-original">Rs {{ p.compare_at_price | divided_by: 100 }}</span>
+                        {% endif %}
+                      </div>
+                      <form action="/cart/add" method="post">
+                        <input type="hidden" name="id" value="{{ p.variants.first.id }}">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="univ-carousel-add-btn">Add to Cart</button>
+                      </form>
+                    </div>
+                  </div>
+                  {% assign shown_count = shown_count | plus: 1 %}
+                {% endif %}
+              {% endunless %}
+            {% endfor %}
+          {% endif %}
+          {% if shown_count == 0 %}
+            <div style="padding: 24px; text-align: center; color: #999; font-size: 14px; width: 100%;">No related products found.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Why QuickBee? -->
+    <div class="univ-features-section">
+      <h2 class="univ-features-title">Why QuickBee? 🐝</h2>
+      <div class="univ-features-grid">
+        <div class="univ-feature-card">
+          <div class="univ-feature-icon">⚡</div>
+          <div class="univ-feature-content">
+            <h3>Fast Delivery</h3>
+            <p>Get your orders delivered in minutes, available across multiple locations 24/7.</p>
+          </div>
+        </div>
+        <div class="univ-feature-card">
+          <div class="univ-feature-icon">💰</div>
+          <div class="univ-feature-content">
+            <h3>Best Prices</h3>
+            <p>Exclusive offers and unbeatable pricing on thousands of products every day.</p>
+          </div>
+        </div>
+        <div class="univ-feature-card">
+          <div class="univ-feature-icon">🏪</div>
+          <div class="univ-feature-content">
+            <h3>Wide Selection</h3>
+            <p>From groceries to electronics, we have everything you need in one place.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // Delivery badge sync
+    function updateDeliveryBadge() {
+      var range = '18-22 mins';
+
+      try {
+        var stored = localStorage.getItem('qb_delivery_time');
+        if (stored) {
+          var data = JSON.parse(stored);
+          if (data.range) range = data.range;
+        }
+      } catch (e) {}
+
+      if (range === '18-22 mins' && window.QB_DELIVERY_TIME && window.QB_DELIVERY_TIME.range) {
+        range = window.QB_DELIVERY_TIME.range;
+      }
+
+      var match = range.match(/(\d+)-(\d+)\s*(mins?)/);
+      var displayTime = range;
+      if (match) {
+        var min = parseInt(match[1]);
+        var max = parseInt(match[2]);
+        var avg = Math.round((min + max) / 2);
+        displayTime = avg + ' ' + match[3];
+      }
+
+      var mainBadge = document.querySelector('.univ-delivery-sync');
+      if (mainBadge) mainBadge.textContent = displayTime;
+
+      document.querySelectorAll('.univ-carousel-delivery-badge-item').forEach(function(badge) {
+        badge.textContent = '⚡ ' + displayTime;
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', updateDeliveryBadge);
+    } else {
+      updateDeliveryBadge();
+    }
+
+    window.addEventListener('locationSelected', function() {
+      setTimeout(updateDeliveryBadge, 50);
+    });
+
+    // Description toggle
+    var descToggle = document.getElementById('univ-desc-toggle');
+    var descBody = document.getElementById('univ-desc-body');
+    if (descToggle && descBody) {
+      descToggle.addEventListener('click', function() {
+        var isOpen = descBody.classList.contains('open');
+        if (isOpen) {
+          descBody.classList.remove('open');
+          descToggle.classList.remove('open');
+        } else {
+          descBody.classList.add('open');
+          descToggle.classList.add('open');
+        }
+      });
+    }
+
+    // Quantity controls
+    var qtyMinus = document.getElementById('univ-qty-minus');
+    var qtyPlus = document.getElementById('univ-qty-plus');
+    var qtyInput = document.getElementById('univ-product-qty');
+    var finalQty = document.getElementById('univ-final-qty');
+
+    if (qtyMinus) {
+      qtyMinus.addEventListener('click', function(e) {
+        e.preventDefault();
+        var val = parseInt(qtyInput.value) || 1;
+        if (val > 1) {
+          qtyInput.value = val - 1;
+          finalQty.value = qtyInput.value;
+        }
+      });
+    }
+
+    if (qtyPlus) {
+      qtyPlus.addEventListener('click', function(e) {
+        e.preventDefault();
+        var val = parseInt(qtyInput.value) || 1;
+        qtyInput.value = val + 1;
+        finalQty.value = qtyInput.value;
+      });
+    }
+
+    if (qtyInput) {
+      qtyInput.addEventListener('change', function() {
+        finalQty.value = Math.max(1, parseInt(this.value) || 1);
+      });
+    }
+
+    // Carousel click navigation
+    document.querySelectorAll('.univ-carousel-image-wrap').forEach(function(wrap) {
+      wrap.addEventListener('click', function() {
+        var url = this.getAttribute('data-product-url');
+        if (url) window.location.href = url;
+      });
+    });
+
+    // Variant selection
+    var variantIdInput = document.getElementById('univ-variant-id');
+    var variantSelects = document.querySelectorAll('[id^="univ-select-"]');
+    var allVariants = {{ product.variants | json }};
+
+    variantSelects.forEach(function(select) {
+      select.addEventListener('change', function() {
+        var selectedValues = [];
+        variantSelects.forEach(function(s) {
+          selectedValues.push(s.value);
+        });
+
+        var variant = allVariants.find(function(v) {
+          return selectedValues.every(function(val, index) {
+            return v.options[index] === val;
+          });
+        });
+
+        if (variant) {
+          variantIdInput.value = variant.id;
+
+          var priceEl = document.querySelector('.univ-price-current');
+          if (priceEl && variant.price) {
+            priceEl.textContent = 'Rs ' + Math.round(variant.price / 100);
+          }
+
+          var origPriceEl = document.querySelector('.univ-price-original');
+          if (origPriceEl) {
+            if (variant.compare_at_price && variant.compare_at_price > variant.price) {
+              origPriceEl.textContent = 'Rs ' + Math.round(variant.compare_at_price / 100);
+              origPriceEl.style.display = '';
+            } else {
+              origPriceEl.style.display = 'none';
+            }
+          }
+
+          var addBtn = document.querySelector('.univ-add-btn');
+          if (addBtn) {
+            addBtn.disabled = !variant.available;
+            addBtn.textContent = variant.available ? 'Add to Cart' : 'Out of Stock';
+          }
+        }
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Universal Product Page",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Universal Product Page"
+    }
+  ]
+}
+{% endschema %}
