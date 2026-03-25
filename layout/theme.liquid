@@ -438,6 +438,133 @@
     {% endif %}
 
     {{ content_for_header }}
+
+    <!-- JSON-LD: LocalBusiness Schema for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "@id": "https://quickbee.store/#business",
+      "name": "QuickBee",
+      "alternateName": "QuickBee Nepal",
+      "description": "QuickBee is Kathmandu Valley's fastest delivery service — groceries, food, baby care, pet care, and household essentials delivered in 20 minutes.",
+      "url": "https://quickbee.store",
+      "logo": "https://quickbee.store/cdn/shop/files/quickbee-logo.png",
+      "image": "https://quickbee.store/cdn/shop/files/quickbee-hero.jpg",
+      "telephone": "+977-XXXXXXXXXX",
+      "email": "hello@quickbee.store",
+      "priceRange": "Rs 100 – Rs 5000",
+      "currenciesAccepted": "NPR",
+      "paymentAccepted": "Cash, Online Payment",
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+        "opens": "07:00",
+        "closes": "23:00"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Kathmandu Valley",
+        "addressLocality": "Kathmandu",
+        "addressRegion": "Bagmati Province",
+        "postalCode": "44600",
+        "addressCountry": "NP"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "27.7172",
+        "longitude": "85.3240"
+      },
+      "areaServed": [
+        { "@type": "City", "name": "Kathmandu" },
+        { "@type": "City", "name": "Lalitpur" },
+        { "@type": "City", "name": "Bhaktapur" }
+      ],
+      "serviceType": [
+        "Grocery Delivery",
+        "Food Delivery",
+        "Baby Care Products",
+        "Pet Care Products",
+        "Laundry Service",
+        "Electrician Service"
+      ],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "QuickBee Product & Service Catalog",
+        "itemListElement": [
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "20-Minute Grocery Delivery" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Laundry Pickup & Delivery" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Certified Electrician Service" } }
+        ]
+      },
+      "sameAs": [
+        "https://www.facebook.com/quickbeenepal",
+        "https://www.instagram.com/quickbeenepal"
+      ]
+    }
+    </script>
+
+    <!-- JSON-LD: WebSite Schema with SearchAction -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "QuickBee",
+      "url": "https://quickbee.store",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://quickbee.store/search?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    {% if template.name == 'product' %}
+    <!-- JSON-LD: Product Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "{{ product.title | escape }}",
+      "description": "{{ product.description | strip_html | truncate: 200 | escape }}",
+      "image": "{{ product.featured_image | img_url: '1080x1080', crop: 'center' }}",
+      "brand": { "@type": "Brand", "name": "{{ product.vendor | escape }}" },
+      "offers": {
+        "@type": "Offer",
+        "url": "https://quickbee.store{{ product.url }}",
+        "priceCurrency": "NPR",
+        "price": "{{ product.price | divided_by: 100.0 }}",
+        "availability": "{% if product.available %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+        "seller": { "@type": "Organization", "name": "QuickBee" }
+      }
+    }
+    </script>
+    {% endif %}
+
+    {% if template.name == 'article' %}
+    <!-- JSON-LD: BlogPosting Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": "{{ article.title | escape }}",
+      "description": "{{ article.excerpt | strip_html | truncate: 200 | escape }}",
+      "image": "{% if article.image %}{{ article.image | img_url: '1200x630', crop: 'center' }}{% endif %}",
+      "datePublished": "{{ article.published_at | date: '%Y-%m-%dT%H:%M:%S' }}",
+      "dateModified": "{{ article.updated_at | date: '%Y-%m-%dT%H:%M:%S' }}",
+      "author": { "@type": "Person", "name": "{{ article.author }}" },
+      "publisher": {
+        "@type": "Organization",
+        "name": "QuickBee",
+        "logo": { "@type": "ImageObject", "url": "https://quickbee.store/cdn/shop/files/quickbee-logo.png" }
+      },
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://quickbee.store{{ article.url }}" }
+    }
+    </script>
+    {% endif %}
   </head>
 
   <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">

@@ -42,7 +42,7 @@
     /* SIDEBAR - Fixed on left */
     .qb-sidebar {
       position: fixed;
-      top: 140px;
+      top: calc(var(--qb-header-height, 100px));
       bottom: 65px;
       left: 0;
       width: var(--qb-sidebar-w);
@@ -258,8 +258,8 @@
     .qb-product-grid {
       padding: 16px;
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
       width: 100%;
     }
 
@@ -375,29 +375,79 @@
       padding: 0 10px;
     }
 
+    .qb-quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      width: 100%;
+      margin-top: 8px;
+      padding: 0 10px;
+    }
+
+    .qb-qty-btn {
+      flex: 0 0 32px;
+      height: 36px;
+      border: 1px solid #ddd;
+      background: #fff;
+      color: #1a1a1a;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      border-radius: 6px;
+    }
+
+    .qb-qty-btn:hover {
+      background: #f5f5f5;
+      border-color: #bbb;
+    }
+
+    .qb-qty-input {
+      flex: 1;
+      height: 36px;
+      border: 1px solid #ddd;
+      border-left: none;
+      border-right: none;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      background: #fff;
+    }
+
+    .qb-qty-input:focus {
+      outline: none;
+    }
+
     .product-form {
       display: flex;
+      flex-direction: column;
       width: 100%;
+      gap: 8px;
       margin-top: auto;
+      padding: 0 10px 10px;
     }
 
     .qb-add-btn {
       width: 100%;
-      background: #1a1a1a !important;
+      background: #C41E3A !important;
       color: white !important;
       border: none !important;
-      border-radius: 0 0 12px 12px;
-      padding: 9px 10px;
-      font-size: 11px;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.3s ease;
-      min-height: 36px;
+      min-height: 38px;
       color-scheme: light !important;
-      margin-top: auto;
       box-shadow: none;
       text-transform: uppercase;
       letter-spacing: 0.6px;
+    }
+
+    .qb-add-btn:hover {
+      background: #A01830 !important;
     }
 
     .qb-add-btn:hover:not(:disabled) {
@@ -642,6 +692,11 @@
             <div class="qb-product-price">Rs {{ product.price | divided_by: 100 }}</div>
             <form action="/cart/add" method="post" class="product-form">
               <input type="hidden" name="id" value="{{ product.variants.first.id }}">
+              <div class="qb-quantity-control">
+                <button type="button" class="qb-qty-btn qb-qty-minus">−</button>
+                <input type="number" name="quantity" class="qb-qty-input" value="1" min="1" max="999">
+                <button type="button" class="qb-qty-btn qb-qty-plus">+</button>
+              </div>
               <button type="submit" class="qb-add-btn">ADD TO CART</button>
             </form>
           </div>
@@ -827,6 +882,11 @@
         <div class="qb-product-price">Rs ${price}</div>
         <form action="/cart/add" method="post" class="product-form">
           <input type="hidden" name="id" value="${variantId}">
+          <div class="qb-quantity-control">
+            <button type="button" class="qb-qty-btn qb-qty-minus">−</button>
+            <input type="number" name="quantity" class="qb-qty-input" value="1" min="1" max="999">
+            <button type="button" class="qb-qty-btn qb-qty-plus">+</button>
+          </div>
           <button type="submit" class="qb-add-btn">ADD TO CART</button>
         </form>
       `;
@@ -841,11 +901,57 @@
         imageWrap.addEventListener('click', productImageClickHandler);
       });
 
+      // Quantity controls
+      document.querySelectorAll('.qb-qty-minus').forEach(btn => {
+        btn.removeEventListener('click', decreaseQty);
+        btn.addEventListener('click', decreaseQty);
+      });
+
+      document.querySelectorAll('.qb-qty-plus').forEach(btn => {
+        btn.removeEventListener('click', increaseQty);
+        btn.addEventListener('click', increaseQty);
+      });
+
+      document.querySelectorAll('.qb-qty-input').forEach(input => {
+        input.removeEventListener('change', validateQtyInput);
+        input.addEventListener('change', validateQtyInput);
+      });
+
       // Add to cart logic
       document.querySelectorAll('.product-form').forEach(form => {
         form.removeEventListener('submit', addToCartHandler);
         form.addEventListener('submit', addToCartHandler);
       });
+    }
+
+    function decreaseQty(e) {
+      e.preventDefault();
+      const input = this.parentElement.querySelector('.qb-qty-input');
+      const currentValue = parseInt(input.value) || 1;
+      if (currentValue > 1) {
+        input.value = currentValue - 1;
+      }
+    }
+
+    function increaseQty(e) {
+      e.preventDefault();
+      const input = this.parentElement.querySelector('.qb-qty-input');
+      const currentValue = parseInt(input.value) || 1;
+      const maxValue = parseInt(input.max) || 999;
+      if (currentValue < maxValue) {
+        input.value = currentValue + 1;
+      }
+    }
+
+    function validateQtyInput(e) {
+      let value = parseInt(this.value) || 1;
+      const min = parseInt(this.min) || 1;
+      const max = parseInt(this.max) || 999;
+
+      if (value < min) value = min;
+      if (value > max) value = max;
+
+      this.value = value;
     }
 
     function productImageClickHandler(e) {

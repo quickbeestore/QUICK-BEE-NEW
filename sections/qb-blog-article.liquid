@@ -1,0 +1,462 @@
+<!-- QuickBee Blog Article Section — SEO Optimized -->
+
+{%- assign current_article = article -%}
+
+<article class="qb-article-page" itemscope itemtype="https://schema.org/BlogPosting">
+
+  <!-- Hero Banner -->
+  <div class="qb-article-hero">
+    {% if article.image %}
+      <div class="qb-article-hero-img">
+        <img
+          src="{{ article.image | img_url: '1200x630', crop: 'center' }}"
+          alt="{{ article.title | escape }}"
+          loading="eager"
+          itemprop="image"
+          style="width:100%; height:100%; object-fit:cover; display:block;"
+        >
+        <div class="qb-article-hero-overlay"></div>
+      </div>
+    {% else %}
+      <div class="qb-article-hero-img qb-article-hero-no-img">
+        <div class="qb-article-hero-emoji">🐝</div>
+      </div>
+    {% endif %}
+    <div class="qb-article-hero-content">
+      <div class="qb-article-breadcrumb">
+        <a href="/blogs/{{ blog.handle }}">{{ blog.title }}</a>
+        <span>›</span>
+        <span>{{ article.title | truncate: 40 }}</span>
+      </div>
+      <h1 class="qb-article-title" itemprop="headline">{{ article.title }}</h1>
+      <div class="qb-article-meta">
+        <span class="qb-article-date" itemprop="datePublished" content="{{ article.published_at | date: '%Y-%m-%d' }}">
+          📅 {{ article.published_at | date: '%B %d, %Y' }}
+        </span>
+        <span class="qb-article-divider">·</span>
+        <span class="qb-article-author" itemprop="author">✍️ {{ article.author }}</span>
+        <span class="qb-article-divider">·</span>
+        <span class="qb-article-read">⏱️ {{ article.content | strip_html | split: ' ' | size | divided_by: 200 | plus: 1 }} min read</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="qb-article-body">
+
+    <!-- Article Content -->
+    <div class="qb-article-content" itemprop="articleBody">
+      {{ article.content }}
+    </div>
+
+    <!-- Tags -->
+    {% if article.tags.size > 0 %}
+      <div class="qb-article-tags">
+        {% for tag in article.tags %}
+          <a href="/blogs/{{ blog.handle }}/tagged/{{ tag | handle }}" class="qb-article-tag">{{ tag }}</a>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Share Bar -->
+    <div class="qb-article-share">
+      <span class="qb-share-label">Share:</span>
+      <a href="https://wa.me/?text={{ article.title | url_encode }}%20{{ shop.url }}{{ article.url | url_encode }}" target="_blank" class="qb-share-btn whatsapp">📱 WhatsApp</a>
+      <a href="https://www.facebook.com/sharer/sharer.php?u={{ shop.url }}{{ article.url | url_encode }}" target="_blank" class="qb-share-btn facebook">📘 Facebook</a>
+    </div>
+
+    <!-- QuickBee CTA -->
+    <div class="qb-article-cta">
+      <div class="qb-article-cta-bee">🐝</div>
+      <div class="qb-article-cta-text">
+        <h3>Get it delivered in 20 minutes</h3>
+        <p>Shop from 20,000+ products — delivered fresh to your doorstep.</p>
+      </div>
+      <a href="/collections/all" class="qb-article-cta-btn">Shop Now →</a>
+    </div>
+
+    <!-- Related Articles -->
+    {% assign related_articles = blog.articles | where: 'id', '!= article.id' %}
+    {% if blog.articles_count > 1 %}
+      <div class="qb-article-related">
+        <h2 class="qb-article-related-title">More from QuickBee Blog</h2>
+        <div class="qb-article-related-grid">
+          {% assign shown = 0 %}
+          {% for a in blog.articles %}
+            {% unless a.id == article.id %}
+              {% if shown < 3 %}
+                <a href="{{ a.url }}" class="qb-related-card">
+                  {% if a.image %}
+                    <div class="qb-related-img">
+                      <img src="{{ a.image | img_url: '400x250', crop: 'center' }}" alt="{{ a.title }}" loading="lazy">
+                    </div>
+                  {% else %}
+                    <div class="qb-related-img qb-related-no-img">🐝</div>
+                  {% endif %}
+                  <div class="qb-related-info">
+                    <h3 class="qb-related-title">{{ a.title | truncate: 60 }}</h3>
+                    <span class="qb-related-date">{{ a.published_at | date: '%b %d, %Y' }}</span>
+                  </div>
+                </a>
+                {% assign shown = shown | plus: 1 %}
+              {% endif %}
+            {% endunless %}
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+  </div>
+
+</article>
+
+<style>
+  /* ── Article Page ── */
+  .qb-article-page {
+    background: #fff;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Georgia, serif;
+  }
+
+  /* ── Hero ── */
+  .qb-article-hero {
+    position: relative;
+    min-height: 240px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+  }
+
+  .qb-article-hero-img {
+    position: absolute;
+    inset: 0;
+  }
+
+  .qb-article-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%, transparent 100%);
+  }
+
+  .qb-article-hero-no-img {
+    background: linear-gradient(135deg, #F4B400 0%, #E09500 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .qb-article-hero-emoji {
+    font-size: 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .qb-article-hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 20px 20px 28px;
+  }
+
+  .qb-article-breadcrumb {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 10px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .qb-article-breadcrumb a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+  }
+
+  .qb-article-breadcrumb a:hover {
+    color: #F4B400;
+  }
+
+  .qb-article-title {
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.3;
+    margin: 0 0 12px;
+    letter-spacing: -0.3px;
+  }
+
+  .qb-article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+  }
+
+  .qb-article-divider { color: rgba(255,255,255,0.3); }
+
+  /* ── Body ── */
+  .qb-article-body {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 20px 48px;
+  }
+
+  /* ── Content Typography ── */
+  .qb-article-content {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #2d2d2d;
+  }
+
+  .qb-article-content h2 {
+    font-size: 20px;
+    font-weight: 900;
+    color: #1a1a1a;
+    margin: 28px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #F4B400;
+  }
+
+  .qb-article-content h3 {
+    font-size: 17px;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin: 20px 0 8px;
+  }
+
+  .qb-article-content p {
+    margin: 0 0 16px;
+  }
+
+  .qb-article-content ul,
+  .qb-article-content ol {
+    margin: 0 0 16px;
+    padding-left: 20px;
+  }
+
+  .qb-article-content li {
+    margin-bottom: 6px;
+  }
+
+  .qb-article-content strong {
+    color: #1a1a1a;
+    font-weight: 700;
+  }
+
+  .qb-article-content a {
+    color: #F4B400;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .qb-article-content blockquote {
+    border-left: 4px solid #F4B400;
+    margin: 20px 0;
+    padding: 12px 16px;
+    background: #FFFBF0;
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    color: #555;
+  }
+
+  /* ── Tags ── */
+  .qb-article-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 24px 0;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+
+  .qb-article-tag {
+    display: inline-block;
+    background: #F5F5F5;
+    color: #444;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .qb-article-tag:hover {
+    background: #F4B400;
+    color: #1a1a1a;
+  }
+
+  /* ── Share ── */
+  .qb-article-share {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 20px 0 28px;
+  }
+
+  .qb-share-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .qb-share-btn {
+    display: inline-block;
+    padding: 7px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  .qb-share-btn:active { opacity: 0.8; }
+
+  .qb-share-btn.whatsapp {
+    background: #25D366;
+    color: #fff;
+  }
+
+  .qb-share-btn.facebook {
+    background: #1877F2;
+    color: #fff;
+  }
+
+  /* ── CTA ── */
+  .qb-article-cta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(135deg, #FFFBF0 0%, #FFF9E6 100%);
+    border: 1px solid #F0E8C8;
+    border-left: 4px solid #F4B400;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 28px 0;
+    flex-wrap: wrap;
+  }
+
+  .qb-article-cta-bee { font-size: 36px; flex-shrink: 0; }
+
+  .qb-article-cta-text { flex: 1; min-width: 150px; }
+
+  .qb-article-cta-text h3 {
+    font-size: 15px;
+    font-weight: 900;
+    color: #1a1a1a;
+    margin: 0 0 4px;
+  }
+
+  .qb-article-cta-text p {
+    font-size: 12px;
+    color: #777;
+    margin: 0;
+  }
+
+  .qb-article-cta-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #F4B400, #E09500);
+    color: #1a1a1a;
+    font-weight: 800;
+    font-size: 13px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  /* ── Related Articles ── */
+  .qb-article-related {
+    margin-top: 36px;
+    padding-top: 28px;
+    border-top: 1px solid #eee;
+  }
+
+  .qb-article-related-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: #1a1a1a;
+    margin: 0 0 16px;
+  }
+
+  .qb-article-related-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .qb-related-card {
+    display: flex;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+    padding: 12px;
+    background: #FAFAFA;
+    border-radius: 12px;
+    transition: background 0.2s;
+  }
+
+  .qb-related-card:active { background: #F0F0F0; }
+
+  .qb-related-img {
+    width: 80px;
+    height: 70px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #F4B400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .qb-related-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .qb-related-no-img { font-size: 28px; }
+
+  .qb-related-info { flex: 1; }
+
+  .qb-related-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1.4;
+    margin: 0 0 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .qb-related-date {
+    font-size: 11px;
+    color: #999;
+  }
+
+  @media (min-width: 480px) {
+    .qb-article-title { font-size: 28px; }
+    .qb-article-related-grid { grid-template-columns: repeat(3, 1fr); }
+    .qb-related-card { flex-direction: column; }
+    .qb-related-img { width: 100%; height: 140px; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "QuickBee Blog Article",
+  "settings": [],
+  "presets": [{ "name": "QuickBee Blog Article" }]
+}
+{% endschema %}

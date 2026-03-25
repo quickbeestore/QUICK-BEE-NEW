@@ -1,0 +1,818 @@
+{% assign pet_care_found = false %}
+{% for collection in product.collections %}
+  {% if collection.title == "Pet Care" %}
+    {% assign pet_care_found = true %}
+  {% endif %}
+{% endfor %}
+
+{% if pet_care_found or product.vendor == "PET CARE" or product.type == "Pet Care" %}
+  <!-- Pet Care Product - Nature/Outdoors Design -->
+  {% assign current_product_id = product.id %}
+  <style>
+    .pet-product-wrapper {
+      background: #ffffff;
+      padding: 0;
+      margin: 0;
+    }
+
+    .pet-product-container {
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    /* Main Product Section */
+    .pet-product-main {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 0;
+    }
+
+    /* Product Image - Square 1080x1080 */
+    .pet-product-image-section {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: #f0f8f0;
+      border-radius: 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .pet-product-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Product Info Section - Sticky Bottom */
+    .pet-product-details {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      background: #ffffff;
+      border-top: 1px solid #d5ead5;
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
+      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .pet-product-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1a1a1a;
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    /* Price */
+    .pet-price-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .pet-price-current {
+      font-size: 28px;
+      font-weight: 900;
+      color: #27AE60;
+      line-height: 1;
+    }
+
+    .pet-price-original {
+      font-size: 14px;
+      color: #999;
+      text-decoration: line-through;
+      margin-left: auto;
+    }
+
+    /* Delivery Box */
+    .pet-delivery-info {
+      background: linear-gradient(135deg, #F0FFF4 0%, #E8F8E8 100%);
+      border-left: 3px solid #2ECC71;
+      padding: 8px 12px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pet-delivery-time {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 0;
+    }
+
+    .pet-delivery-subtext {
+      font-size: 11px;
+      color: #666;
+    }
+
+    /* Variants Section */
+    .pet-variants-section {
+      background: transparent;
+      padding: 0;
+      border-radius: 0;
+      border: none;
+    }
+
+    .pet-section-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1a1a1a;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .pet-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cce8cc;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      background: white;
+      margin-bottom: 10px;
+      color: #1a1a1a;
+    }
+
+    .pet-select:last-child {
+      margin-bottom: 0;
+    }
+
+    .pet-select:focus {
+      outline: none;
+      border-color: #2ECC71;
+      box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.15);
+    }
+
+    /* Quantity & Add to Cart */
+    .pet-qty-section {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .pet-qty-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 4px;
+    }
+
+    .pet-qty-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 18px;
+      color: #27AE60;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pet-qty-btn:hover {
+      background: #2ECC71;
+      color: white;
+    }
+
+    .pet-qty-btn:active {
+      transform: scale(0.9);
+    }
+
+    .pet-qty-input {
+      width: 36px;
+      text-align: center;
+      border: none;
+      background: transparent;
+      font-weight: 700;
+      color: #1a1a1a;
+      font-size: 14px;
+    }
+
+    .pet-add-btn {
+      flex: 1;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #F4B400 0%, #E8A500 100%);
+      color: #1a1a1a;
+      border: none;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      min-height: 44px;
+      box-shadow: 0 4px 12px rgba(244, 180, 0, 0.3);
+    }
+
+    .pet-add-btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, #E8A500 0%, #D99600 100%);
+      transform: scale(1.02);
+      box-shadow: 0 6px 16px rgba(244, 180, 0, 0.4);
+    }
+
+    .pet-add-btn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .pet-add-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* More from Pet Care Section */
+    .pet-more-section {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid #e8f5e8;
+    }
+
+    .pet-section-title {
+      font-size: 20px;
+      font-weight: 900;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+    }
+
+    /* Carousel Styles */
+    .pet-carousel-container {
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+      margin: 0 -16px;
+      padding: 0 16px;
+    }
+
+    .pet-carousel-scroll {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-behavior: smooth;
+      padding-bottom: 8px;
+      scroll-snap-type: x mandatory;
+    }
+
+    .pet-carousel-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .pet-carousel-scroll::-webkit-scrollbar-track {
+      background: #f0f8f0;
+      border-radius: 10px;
+    }
+
+    .pet-carousel-scroll::-webkit-scrollbar-thumb {
+      background: #2ECC71;
+      border-radius: 10px;
+    }
+
+    .pet-carousel-scroll::-webkit-scrollbar-thumb:hover {
+      background: #27AE60;
+    }
+
+    .pet-carousel-card {
+      flex: 0 0 calc(50% - 8px);
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      scroll-snap-align: start;
+      cursor: pointer;
+    }
+
+    .pet-carousel-card:hover {
+      box-shadow: 0 12px 32px rgba(46, 204, 113, 0.25);
+      transform: translateY(-6px);
+    }
+
+    .pet-carousel-image-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, #f0fff4 0%, #e8f5e8 100%);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pet-carousel-image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .pet-carousel-card:hover .pet-carousel-image-wrap img {
+      transform: scale(1.08);
+    }
+
+    .pet-carousel-badge {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
+    }
+
+    .pet-carousel-content {
+      padding: 14px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pet-carousel-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .pet-carousel-price {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .pet-carousel-price-current {
+      font-size: 16px;
+      font-weight: 900;
+      color: #27AE60;
+    }
+
+    .pet-carousel-price-original {
+      font-size: 12px;
+      color: #999;
+      text-decoration: line-through;
+    }
+
+    .pet-carousel-add-btn {
+      width: 100%;
+      padding: 10px 14px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-top: auto;
+    }
+
+    .pet-carousel-add-btn:hover {
+      background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(46, 204, 113, 0.3);
+    }
+
+    /* Why QuickBee Features Section */
+    .pet-features-section {
+      margin-top: 32px;
+      padding: 32px 16px;
+      background: linear-gradient(135deg, #F0FFF4 0%, #E8F8E8 100%);
+      border-radius: 16px;
+    }
+
+    .pet-features-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin: 0 0 24px 0;
+      text-align: center;
+    }
+
+    .pet-features-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .pet-feature-card {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .pet-feature-icon {
+      width: 64px;
+      height: 64px;
+      flex-shrink: 0;
+      background: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      box-shadow: 0 4px 12px rgba(46, 204, 113, 0.15);
+    }
+
+    .pet-feature-content h3 {
+      font-size: 15px;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin: 0 0 4px 0;
+    }
+
+    .pet-feature-content p {
+      font-size: 13px;
+      color: #666;
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    /* Responsive */
+    @media (min-width: 768px) {
+      .pet-product-container {
+        padding: 32px 24px;
+      }
+
+      .pet-product-main {
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+      }
+
+      .pet-product-image-section {
+        aspect-ratio: 1 / 1;
+        max-height: 500px;
+      }
+
+      .pet-product-details {
+        position: relative;
+        bottom: auto;
+        box-shadow: none;
+        border-top: none;
+      }
+
+      .pet-product-title {
+        font-size: 26px;
+      }
+
+      .pet-carousel-container {
+        margin: 0 -24px;
+        padding: 0 24px;
+      }
+
+      .pet-carousel-card {
+        flex: 0 0 calc(33.333% - 11px);
+      }
+
+      .pet-features-section {
+        padding: 40px 24px;
+      }
+
+      .pet-features-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+      }
+
+      .pet-feature-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .pet-feature-icon {
+        width: 72px;
+        height: 72px;
+        font-size: 42px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .pet-product-container {
+        padding: 40px 48px;
+      }
+
+      .pet-carousel-container {
+        margin: 0 -48px;
+        padding: 0 48px;
+      }
+
+      .pet-carousel-card {
+        flex: 0 0 260px;
+      }
+    }
+  </style>
+
+  <div class="pet-product-wrapper">
+    <div class="pet-product-container">
+      <div class="pet-product-main">
+        <!-- Product Image -->
+        <div class="pet-product-image-section">
+          {% if product.featured_image %}
+            <img src="{{ product.featured_image | image_url: width: 1080, height: 1080, crop: 'center' }}" alt="{{ product.title }}" class="pet-product-image">
+          {% else %}
+            <div style="font-size: 72px; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">🐾</div>
+          {% endif %}
+        </div>
+
+        <!-- Product Details - Sticky Bottom -->
+        <div class="pet-product-details">
+          <h1 class="pet-product-title">{{ product.title }}</h1>
+
+          <!-- Price -->
+          <div class="pet-price-section">
+            <span class="pet-price-current">Rs {{ product.price | divided_by: 100 }}</span>
+            {% if product.compare_at_price and product.compare_at_price > product.price %}
+              <span class="pet-price-original">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
+            {% endif %}
+          </div>
+
+          <!-- Delivery Info -->
+          <div class="pet-delivery-info">
+            <div>
+              <p class="pet-delivery-time">⚡ <span class="pet-delivery-sync">18-22 mins</span></p>
+              <p class="pet-delivery-subtext">Free delivery • Order tracking</p>
+            </div>
+          </div>
+
+          <!-- Variants -->
+          {% if product.available and product.variants.size > 1 %}
+            <div class="pet-variants-section">
+              <label class="pet-section-label">Choose Options</label>
+              {% for option in product.options_with_values %}
+                <select class="pet-select" id="pet-select-{{ option.name | slugify }}" name="options[{{ option.name }}]">
+                  <option disabled selected>{{ option.name }}</option>
+                  {% for value in option.values %}
+                    <option value="{{ value }}">{{ value }}</option>
+                  {% endfor %}
+                </select>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <!-- Quantity & Add to Cart -->
+          <div class="pet-qty-section">
+            <div class="pet-qty-controls">
+              <button type="button" class="pet-qty-btn" id="pet-qty-minus">−</button>
+              <input type="number" id="pet-product-qty" class="pet-qty-input" value="1" min="1">
+              <button type="button" class="pet-qty-btn" id="pet-qty-plus">+</button>
+            </div>
+            <form action="/cart/add" method="post" style="flex: 1;">
+              <input type="hidden" id="pet-variant-id" name="id" value="{{ product.variants.first.id }}">
+              <input type="hidden" id="pet-final-qty" name="quantity" value="1">
+              <button type="submit" class="pet-add-btn" {% unless product.available %}disabled{% endunless %}>
+                {% if product.available %}🛒 Add to Cart{% else %}Out of Stock{% endif %}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- More from Pet Care Carousel -->
+      <div class="pet-more-section">
+        <h2 class="pet-section-title">🐾 More from Pet Care</h2>
+        <div class="pet-carousel-container">
+          <div class="pet-carousel-scroll">
+            {% assign pet_products = collections['pet-care'].products %}
+            {% if pet_products.size > 0 %}
+              {% for p in pet_products %}
+                {% unless p.id == current_product_id %}
+                  <div class="pet-carousel-card">
+                    <div class="pet-carousel-image-wrap" data-product-url="{{ p.url }}" style="cursor: pointer;">
+                      {% if p.featured_image %}
+                        <img src="{{ p.featured_image | image_url: width: 400 }}" alt="{{ p.title }}" loading="lazy">
+                      {% else %}
+                        <div style="font-size: 48px;">🐾</div>
+                      {% endif %}
+                      <div class="pet-carousel-badge pet-carousel-delivery-badge">⚡ 18-22 mins</div>
+                    </div>
+                    <div class="pet-carousel-content">
+                      <h3 class="pet-carousel-title">{{ p.title }}</h3>
+                      <div class="pet-carousel-price">
+                        <span class="pet-carousel-price-current">Rs {{ p.price | divided_by: 100 }}</span>
+                        {% if p.compare_at_price and p.compare_at_price > p.price %}
+                          <span class="pet-carousel-price-original">Rs {{ p.compare_at_price | divided_by: 100 }}</span>
+                        {% endif %}
+                      </div>
+                      <form action="/cart/add" method="post">
+                        <input type="hidden" name="id" value="{{ p.variants.first.id }}">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="pet-carousel-add-btn">Add to Cart</button>
+                      </form>
+                    </div>
+                  </div>
+                {% endunless %}
+              {% endfor %}
+            {% else %}
+              <div style="padding: 24px; text-align: center; color: #666; font-size: 14px;">No more products available</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Why shop from QuickBee? -->
+      <div class="pet-features-section">
+        <h2 class="pet-features-title">Why shop from QuickBee? 🐝</h2>
+        <div class="pet-features-grid">
+          <div class="pet-feature-card">
+            <div class="pet-feature-icon">⚡</div>
+            <div class="pet-feature-content">
+              <h3>Fast Delivery</h3>
+              <p>Get pet essentials delivered in minutes. Your furry friends won't have to wait.</p>
+            </div>
+          </div>
+          <div class="pet-feature-card">
+            <div class="pet-feature-icon">💰</div>
+            <div class="pet-feature-content">
+              <h3>Best Prices</h3>
+              <p>Unbeatable deals on food, toys, grooming, and all pet care essentials.</p>
+            </div>
+          </div>
+          <div class="pet-feature-card">
+            <div class="pet-feature-icon">🏪</div>
+            <div class="pet-feature-content">
+              <h3>Wide Selection</h3>
+              <p>Curated range of premium products for dogs, cats, birds, and more.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // Delivery badge sync
+      function updateDeliveryBadge() {
+        var range = '18-22 mins';
+
+        try {
+          var stored = localStorage.getItem('qb_delivery_time');
+          if (stored) {
+            var data = JSON.parse(stored);
+            if (data.range) range = data.range;
+          }
+        } catch (e) {}
+
+        if (range === '18-22 mins' && window.QB_DELIVERY_TIME && window.QB_DELIVERY_TIME.range) {
+          range = window.QB_DELIVERY_TIME.range;
+        }
+
+        var match = range.match(/(\d+)-(\d+)\s*(mins?)/);
+        var displayTime = range;
+        if (match) {
+          var min = parseInt(match[1]);
+          var max = parseInt(match[2]);
+          var avg = Math.round((min + max) / 2);
+          displayTime = avg + ' ' + match[3];
+        }
+
+        var mainBadge = document.querySelector('.pet-delivery-sync');
+        if (mainBadge) mainBadge.textContent = displayTime;
+
+        document.querySelectorAll('.pet-carousel-delivery-badge').forEach(function(badge) {
+          badge.textContent = '⚡ ' + displayTime;
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateDeliveryBadge);
+      } else {
+        updateDeliveryBadge();
+      }
+
+      window.addEventListener('locationSelected', function() {
+        setTimeout(updateDeliveryBadge, 50);
+      });
+
+      // Quantity controls
+      var qtyMinus = document.getElementById('pet-qty-minus');
+      var qtyPlus = document.getElementById('pet-qty-plus');
+      var qtyInput = document.getElementById('pet-product-qty');
+      var finalQty = document.getElementById('pet-final-qty');
+
+      if (qtyMinus) {
+        qtyMinus.addEventListener('click', function(e) {
+          e.preventDefault();
+          var val = parseInt(qtyInput.value) || 1;
+          if (val > 1) {
+            qtyInput.value = val - 1;
+            finalQty.value = qtyInput.value;
+          }
+        });
+      }
+
+      if (qtyPlus) {
+        qtyPlus.addEventListener('click', function(e) {
+          e.preventDefault();
+          var val = parseInt(qtyInput.value) || 1;
+          qtyInput.value = val + 1;
+          finalQty.value = qtyInput.value;
+        });
+      }
+
+      if (qtyInput) {
+        qtyInput.addEventListener('change', function() {
+          finalQty.value = Math.max(1, parseInt(this.value) || 1);
+        });
+      }
+
+      // Carousel click navigation
+      document.querySelectorAll('.pet-carousel-image-wrap').forEach(function(wrap) {
+        wrap.addEventListener('click', function() {
+          var url = this.getAttribute('data-product-url');
+          if (url) window.location.href = url;
+        });
+      });
+
+      // Variant selection
+      var variantId = document.getElementById('pet-variant-id');
+      var variantSelects = document.querySelectorAll('[id^="pet-select-"]');
+      var allVariants = {{ product.variants | json }};
+      var productOptions = {{ product.options | json }};
+
+      variantSelects.forEach(function(select) {
+        select.addEventListener('change', function() {
+          var selectedValues = [];
+          variantSelects.forEach(function(s) {
+            selectedValues.push(s.value);
+          });
+
+          var variant = allVariants.find(function(v) {
+            return selectedValues.every(function(val, index) {
+              return v.options[index] === val;
+            });
+          });
+
+          if (variant) {
+            variantId.value = variant.id;
+
+            var priceEl = document.querySelector('.pet-price-current');
+            if (priceEl && variant.price) {
+              priceEl.textContent = 'Rs ' + Math.round(variant.price / 100);
+            }
+
+            var origPriceEl = document.querySelector('.pet-price-original');
+            if (origPriceEl) {
+              if (variant.compare_at_price && variant.compare_at_price > variant.price) {
+                origPriceEl.textContent = 'Rs ' + Math.round(variant.compare_at_price / 100);
+                origPriceEl.style.display = '';
+              } else {
+                origPriceEl.style.display = 'none';
+              }
+            }
+
+            var addBtn = document.querySelector('.pet-add-btn');
+            if (addBtn) {
+              addBtn.disabled = !variant.available;
+              addBtn.textContent = variant.available ? '🛒 Add to Cart' : 'Out of Stock';
+            }
+          }
+        });
+      });
+    })();
+  </script>
+
+{% endif %}
+
+{% schema %}
+{
+  "name": "Pet Care Product Page",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Pet Care Product Page"
+    }
+  ]
+}
+{% endschema %}

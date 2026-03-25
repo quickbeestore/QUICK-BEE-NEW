@@ -4427,6 +4427,24 @@ function setActiveMobileFooterItem() {
 
 setActiveMobileFooterItem();
 
+// ── Dynamic header height CSS variable ──
+// Measures actual rendered header height so sidebar/fixed elements align perfectly
+(function updateHeaderHeightVar() {
+  function setVar() {
+    const header = document.querySelector('.qb-header') || document.querySelector('header');
+    if (header) {
+      const h = header.getBoundingClientRect().bottom;
+      document.documentElement.style.setProperty('--qb-header-height', h + 'px');
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setVar);
+  } else {
+    setVar();
+  }
+  window.addEventListener('resize', setVar);
+})();
+
 console.log('🐝 QuickBee Splash Screen Ready');
 </script>
 
