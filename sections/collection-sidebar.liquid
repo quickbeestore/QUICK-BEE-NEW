@@ -2,10 +2,12 @@
 <section id="qb-collection-sidebar" class="qb-collection-container">
   <style>
     :root {
-      --qb-red: #8B0000;
-      --qb-gold: #DAA520;
-      --qb-cream: #fff8e1;
+      --qb-gold: #F4B400;
+      --qb-gold-light: #fff8e1;
+      --qb-gold-dim: rgba(244,180,0,0.12);
       --qb-dark: #111111;
+      --qb-text-muted: #888;
+      --qb-sidebar-w: 84px;
     }
 
     * {
@@ -40,86 +42,141 @@
     /* SIDEBAR - Fixed on left */
     .qb-sidebar {
       position: fixed;
-      top: 140px;
+      top: calc(var(--qb-header-height, 100px));
       bottom: 65px;
       left: 0;
-      width: 80px;
-      background: #f9f9f9;
-      border-right: 1px solid #eee;
-      padding: 8px 0;
+      width: var(--qb-sidebar-w);
+      background: #fafafa;
+      border-right: 1px solid #efefef;
+      padding: 8px 0 32px;
       overflow-x: hidden;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 0;
       z-index: 100;
       flex-shrink: 0;
       -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .qb-sidebar::-webkit-scrollbar { display: none; }
+
+    /* Scroll fade hint at bottom */
+    .qb-sidebar::after {
+      content: '';
+      position: sticky;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 48px;
+      background: linear-gradient(to top, #fafafa 30%, transparent 100%);
+      display: block;
+      flex-shrink: 0;
+      pointer-events: none;
     }
 
     .qb-main-content {
-      margin-left: 80px;
+      margin-left: var(--qb-sidebar-w);
     }
 
+    /* ── Sidebar Item ── */
     .qb-sidebar-category {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: 4px;
-      padding: 8px 6px;
-      border-radius: 8px;
+      justify-content: flex-start;
+      gap: 6px;
+      padding: 12px 4px 10px;
       cursor: pointer;
       text-decoration: none;
-      color: #666;
-      font-size: 9px;
+      color: #888;
+      font-size: 9.5px;
       font-weight: 500;
       text-align: center;
-      transition: all 0.2s ease;
-      border: 2px solid transparent;
+      transition: background 0.15s ease, color 0.15s ease;
+      border-left: 3px solid transparent;
+      border-right: 3px solid transparent;
       flex-shrink: 0;
       width: 100%;
       min-height: 80px;
+      position: relative;
+      line-height: 1;
     }
 
     .qb-sidebar-category:hover {
       background: #f0f0f0;
-      color: var(--qb-red);
+      color: #444;
     }
 
+    .qb-sidebar-category:hover .qb-sidebar-img-wrap {
+      border-color: rgba(244,180,0,0.5);
+    }
+
+    /* ── Active state ── */
     .qb-sidebar-category.active {
-      background: var(--qb-cream);
-      color: var(--qb-red);
-      border-color: var(--qb-red);
+      background: #fff;
+      color: #111;
+      border-left-color: var(--qb-gold);
+      font-weight: 700;
+      font-size: 9.5px;
+    }
+
+    .qb-sidebar-category.active .qb-sidebar-img-wrap {
+      border-color: var(--qb-gold);
+      box-shadow: 0 0 0 2px rgba(244,180,0,0.18);
+    }
+
+    /* ── Image circle ── */
+    .qb-sidebar-img-wrap {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid #e0e0e0;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .qb-sidebar-img-wrap img,
+    .qb-sidebar-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     .qb-sidebar-icon {
       font-size: 24px;
       line-height: 1;
-      width: 48px;
-      height: 48px;
+      width: 52px;
+      height: 52px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .qb-sidebar-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 6px;
-    }
-
     .qb-sidebar-label {
       width: 100%;
       word-break: break-word;
-      line-height: 1.2;
+      line-height: 1.3;
       overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: normal;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
+      letter-spacing: 0;
+      padding: 0 3px;
+      font-size: 9.5px;
+    }
+
+    /* Active label gets bold gold color */
+    .qb-sidebar-category.active .qb-sidebar-label {
+      color: #1a1a1a;
+      font-weight: 700;
     }
 
     /* MAIN CONTENT AREA */
@@ -156,11 +213,13 @@
     }
 
     .qb-collection-title {
-      font-size: 18px;
-      font-weight: 700;
+      font-size: 17px;
+      font-weight: 800;
       color: var(--qb-dark);
       margin: 0;
       width: 100%;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
     }
 
     .qb-header-controls {
@@ -171,29 +230,36 @@
     }
 
     .qb-sort-select {
-      padding: 6px 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      background: #fff;
+      padding: 8px 12px;
+      border: 1.5px solid #e8e8e8;
+      border-radius: 8px;
+      background: #fafafa;
       cursor: pointer;
       font-size: 12px;
+      font-weight: 500;
       color: #333;
-      transition: all 0.2s;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
       width: 100%;
-      min-height: 36px;
+      min-height: 38px;
+      appearance: auto;
+    }
+
+    .qb-sort-select:focus {
+      outline: none;
+      border-color: var(--qb-gold);
+      box-shadow: 0 0 0 3px rgba(244,180,0,0.12);
     }
 
     .qb-sort-select:hover {
-      border-color: var(--qb-red);
-      color: var(--qb-red);
+      border-color: #ccc;
     }
 
     /* PRODUCT GRID - Mobile: 3 columns */
     .qb-product-grid {
       padding: 16px;
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
       width: 100%;
     }
 
@@ -201,40 +267,38 @@
       background: #ffffff;
       border-radius: 12px;
       padding: 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: none;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       flex-direction: column;
       gap: 0;
-      border: 1px solid #f0f0f0;
+      border: none;
       overflow: hidden;
     }
 
     .qb-product-card:hover {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
       transform: translateY(-4px);
     }
 
     .qb-product-image-wrap {
       position: relative;
       width: 100%;
-      aspect-ratio: 1;
+      aspect-ratio: 1 / 1;
       background: #f8f8f8;
       border-radius: 12px 12px 0 0;
       overflow: hidden;
       margin: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: block;
     }
 
     .qb-product-image {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
       object-position: center;
       transition: transform 0.3s ease;
-      padding: 8px;
+      padding: 0;
+      display: block;
     }
 
     .qb-product-card:hover .qb-product-image {
@@ -311,29 +375,79 @@
       padding: 0 10px;
     }
 
+    .qb-quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      width: 100%;
+      margin-top: 8px;
+      padding: 0 10px;
+    }
+
+    .qb-qty-btn {
+      flex: 0 0 32px;
+      height: 36px;
+      border: 1px solid #ddd;
+      background: #fff;
+      color: #1a1a1a;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      border-radius: 6px;
+    }
+
+    .qb-qty-btn:hover {
+      background: #f5f5f5;
+      border-color: #bbb;
+    }
+
+    .qb-qty-input {
+      flex: 1;
+      height: 36px;
+      border: 1px solid #ddd;
+      border-left: none;
+      border-right: none;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      background: #fff;
+    }
+
+    .qb-qty-input:focus {
+      outline: none;
+    }
+
     .product-form {
       display: flex;
+      flex-direction: column;
       width: 100%;
+      gap: 8px;
       margin-top: auto;
+      padding: 0 10px 10px;
     }
 
     .qb-add-btn {
       width: 100%;
-      background: #1a1a1a !important;
+      background: #C41E3A !important;
       color: white !important;
       border: none !important;
-      border-radius: 0 0 12px 12px;
-      padding: 9px 10px;
-      font-size: 11px;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.3s ease;
-      min-height: 36px;
+      min-height: 38px;
       color-scheme: light !important;
-      margin-top: auto;
       box-shadow: none;
       text-transform: uppercase;
       letter-spacing: 0.6px;
+    }
+
+    .qb-add-btn:hover {
+      background: #A01830 !important;
     }
 
     .qb-add-btn:hover:not(:disabled) {
@@ -378,19 +492,17 @@
       }
 
       .qb-sidebar-category {
-        width: 75px;
-        padding: 10px 12px;
+        min-height: 80px;
+      }
+
+      .qb-sidebar-img-wrap {
+        width: 48px;
+        height: 48px;
       }
 
       .qb-sidebar-icon {
-        font-size: 26px;
-        width: 50px;
-        height: 50px;
-      }
-
-      .qb-product-card {
-        padding: 11px;
-        gap: 8px;
+        width: 48px;
+        height: 48px;
       }
 
       .qb-product-name {
@@ -401,17 +513,6 @@
       .qb-product-price {
         font-size: 15px;
         margin: 3px 0 5px 0;
-      }
-
-      .qb-qty-btn {
-        width: 32px;
-        height: 32px;
-        font-size: 15px;
-      }
-
-      .qb-qty-input {
-        min-height: 32px;
-        font-size: 13px;
       }
 
       .qb-delivery-badge {
@@ -427,6 +528,10 @@
 
     /* DESKTOP: 1024px and up - vertical sidebar, 4 column grid */
     @media (min-width: 1024px) {
+      :root {
+        --qb-sidebar-w: 100px;
+      }
+
       .qb-collection-container {
         flex-direction: row;
       }
@@ -435,28 +540,31 @@
         position: fixed;
         top: 140px;
         bottom: 65px;
-        width: 100px;
+        width: var(--qb-sidebar-w);
         flex-direction: column;
         overflow-y: auto;
         overflow-x: hidden;
-        border-right: 1px solid #eee;
-        border-bottom: none;
-        padding: 16px 8px;
-        gap: 8px;
+        padding: 8px 0 32px;
+        gap: 2px;
       }
 
       .qb-sidebar-category {
         width: 100%;
         flex-shrink: 0;
-        padding: 12px 8px;
-        font-size: 11px;
+        padding: 12px 8px 12px 12px;
+        font-size: 10px;
         gap: 6px;
+        min-height: 84px;
+      }
+
+      .qb-sidebar-img-wrap {
+        width: 52px;
+        height: 52px;
       }
 
       .qb-sidebar-icon {
-        font-size: 28px;
-        width: 60px;
-        height: 60px;
+        width: 52px;
+        height: 52px;
       }
 
       .qb-collection-header {
@@ -534,15 +642,15 @@
     {% paginate collections by 100 %}
       {% for col in collections %}
         {% unless col.handle == 'all' %}
-          <a href="/collections/{{ col.handle }}" class="qb-sidebar-category" data-collection-handle="{{ col.handle }}" data-collection-title="{{ col.title }}" data-collection-url="{{ col.url }}" title="{{ col.title }}">
-            <div class="qb-sidebar-icon">
+          <a href="/collections/{{ col.handle }}" class="qb-sidebar-category{% if collection.handle == col.handle %} active{% endif %}" data-collection-handle="{{ col.handle }}" data-collection-title="{{ col.title }}" data-collection-url="{{ col.url }}" title="{{ col.title }}">
+            <div class="qb-sidebar-img-wrap">
               {% if col.featured_image %}
-                <img src="{{ col.featured_image | img_url: '80x80' }}" alt="{{ col.title }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">
+                <img src="{{ col.featured_image | img_url: '80x80' }}" alt="{{ col.title }}" style="width: 100%; height: 100%; object-fit: cover;">
               {% else %}
-                <div style="width: 100%; height: 100%; background: #f5f5f5; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 24px;">📦</div>
+                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 22px; background: #f5f5f5;">📦</div>
               {% endif %}
             </div>
-            <div class="qb-sidebar-label">{{ col.title | split: ' ' | first }}</div>
+            <div class="qb-sidebar-label">{{ col.title | truncate: 16, '' }}</div>
           </a>
         {% endunless %}
       {% endfor %}
@@ -574,7 +682,7 @@
           <div class="qb-product-card">
             <div class="qb-product-image-wrap" style="cursor: pointer;" data-product-url="{{ product.url }}">
               {% if product.featured_image %}
-                <img src="{{ product.featured_image | img_url: '300x300' }}" alt="{{ product.title }}" class="qb-product-image" style="cursor: pointer;">
+                <img src="{{ product.featured_image | img_url: '1080x1080', crop: 'center' }}" alt="{{ product.title }}" class="qb-product-image" style="cursor: pointer;">
               {% else %}
                 <div style="width:100%; height:100%; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">No Image</div>
               {% endif %}
@@ -584,6 +692,11 @@
             <div class="qb-product-price">Rs {{ product.price | divided_by: 100 }}</div>
             <form action="/cart/add" method="post" class="product-form">
               <input type="hidden" name="id" value="{{ product.variants.first.id }}">
+              <div class="qb-quantity-control">
+                <button type="button" class="qb-qty-btn qb-qty-minus">−</button>
+                <input type="number" name="quantity" class="qb-qty-input" value="1" min="1" max="999">
+                <button type="button" class="qb-qty-btn qb-qty-plus">+</button>
+              </div>
               <button type="submit" class="qb-add-btn">ADD TO CART</button>
             </form>
           </div>
@@ -747,7 +860,7 @@
       // Get featured image
       const featuredImage = product.featured_image ? product.featured_image.src : null;
       const productImage = featuredImage
-        ? `<img src="${featuredImage}?width=600&height=600" alt="${product.title}" class="qb-product-image">`
+        ? `<img src="${featuredImage}?width=1080&height=1080&crop=center" alt="${product.title}" class="qb-product-image">`
         : '<div style="width:100%; height:100%; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">No Image</div>';
 
       // Get first variant ID for add to cart
@@ -769,6 +882,11 @@
         <div class="qb-product-price">Rs ${price}</div>
         <form action="/cart/add" method="post" class="product-form">
           <input type="hidden" name="id" value="${variantId}">
+          <div class="qb-quantity-control">
+            <button type="button" class="qb-qty-btn qb-qty-minus">−</button>
+            <input type="number" name="quantity" class="qb-qty-input" value="1" min="1" max="999">
+            <button type="button" class="qb-qty-btn qb-qty-plus">+</button>
+          </div>
           <button type="submit" class="qb-add-btn">ADD TO CART</button>
         </form>
       `;
@@ -783,11 +901,57 @@
         imageWrap.addEventListener('click', productImageClickHandler);
       });
 
+      // Quantity controls
+      document.querySelectorAll('.qb-qty-minus').forEach(btn => {
+        btn.removeEventListener('click', decreaseQty);
+        btn.addEventListener('click', decreaseQty);
+      });
+
+      document.querySelectorAll('.qb-qty-plus').forEach(btn => {
+        btn.removeEventListener('click', increaseQty);
+        btn.addEventListener('click', increaseQty);
+      });
+
+      document.querySelectorAll('.qb-qty-input').forEach(input => {
+        input.removeEventListener('change', validateQtyInput);
+        input.addEventListener('change', validateQtyInput);
+      });
+
       // Add to cart logic
       document.querySelectorAll('.product-form').forEach(form => {
         form.removeEventListener('submit', addToCartHandler);
         form.addEventListener('submit', addToCartHandler);
       });
+    }
+
+    function decreaseQty(e) {
+      e.preventDefault();
+      const input = this.parentElement.querySelector('.qb-qty-input');
+      const currentValue = parseInt(input.value) || 1;
+      if (currentValue > 1) {
+        input.value = currentValue - 1;
+      }
+    }
+
+    function increaseQty(e) {
+      e.preventDefault();
+      const input = this.parentElement.querySelector('.qb-qty-input');
+      const currentValue = parseInt(input.value) || 1;
+      const maxValue = parseInt(input.max) || 999;
+      if (currentValue < maxValue) {
+        input.value = currentValue + 1;
+      }
+    }
+
+    function validateQtyInput(e) {
+      let value = parseInt(this.value) || 1;
+      const min = parseInt(this.min) || 1;
+      const max = parseInt(this.max) || 999;
+
+      if (value < min) value = min;
+      if (value > max) value = max;
+
+      this.value = value;
     }
 
     function productImageClickHandler(e) {
