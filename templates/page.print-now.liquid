@@ -1,0 +1,568 @@
+{% layout none %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Print Now — QuickBee</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#07030a;--deep:#0f0514;--wine:#280818;
+  --rose:#c4897a;--gold:#c9a84c;--gold-lt:#e8c97a;
+  --cream:#f5edd6;--white:#ffffff;
+  --gray:rgba(255,255,255,0.55);--border:rgba(196,137,122,0.22);
+  --r:14px;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Montserrat','Helvetica Neue',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--black)}::-webkit-scrollbar-thumb{background:var(--rose);border-radius:2px}
+
+/* HERO */
+#hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;
+  background:radial-gradient(ellipse 120% 80% at 50% 110%,#3d0c1f 0%,var(--black) 65%)}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none}
+.o1{width:600px;height:600px;background:rgba(61,12,31,.65);top:-10%;left:-15%}
+.o2{width:500px;height:500px;background:rgba(201,168,76,.12);top:20%;right:-10%}
+.o3{width:400px;height:400px;background:rgba(196,137,122,.18);bottom:-5%;left:30%}
+.hero-in{position:relative;z-index:2;text-align:center;padding:120px 24px 100px;max-width:800px;
+  animation:hIn 1.2s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes hIn{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:10px;font-weight:600;
+  letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:28px}
+.eyebrow::before,.eyebrow::after{content:'';flex:1;min-width:28px;height:1px;background:var(--gold);opacity:.5}
+h1.ht{font-family:var(--serif);font-size:clamp(64px,12vw,128px);font-weight:300;
+  line-height:.92;letter-spacing:-2px;margin-bottom:14px}
+h1.ht em{display:block;font-style:italic;
+  background:linear-gradient(135deg,var(--rose),var(--gold-lt));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hr{display:flex;align-items:center;justify-content:center;gap:12px;margin:28px 0}
+.hr span{width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
+.hr span:last-child{transform:scaleX(-1)}
+.hr i{width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.hsub{font-size:15px;font-weight:300;line-height:1.8;color:rgba(255,255,255,.6);
+  max-width:440px;margin:0 auto 44px}
+.hbtn{display:inline-flex;align-items:center;gap:10px;
+  background:linear-gradient(135deg,var(--wine),#5a1535);
+  border:1px solid var(--border);color:var(--white);
+  padding:16px 40px;border-radius:60px;
+  font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  cursor:pointer;transition:all .3s;
+  box-shadow:0 0 40px rgba(196,137,122,.15),inset 0 1px 0 rgba(255,255,255,.06)}
+.hbtn:hover{transform:translateY(-2px);
+  box-shadow:0 8px 48px rgba(196,137,122,.28),inset 0 1px 0 rgba(255,255,255,.1);
+  border-color:rgba(196,137,122,.5)}
+.scroll-h{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  font-size:9px;letter-spacing:3px;color:rgba(255,255,255,.2);
+  animation:bob 2.4s ease-in-out infinite}
+.scroll-h::after{content:'';width:1px;height:40px;
+  background:linear-gradient(to bottom,rgba(201,168,76,.5),transparent)}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+
+/* SECTION COMMON */
+.sec-label{text-align:center;margin-bottom:64px}
+.sec-label small{display:block;font-size:10px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:12px}
+.sec-label h2{font-family:var(--serif);font-size:clamp(32px,5vw,52px);font-weight:300;line-height:1.1}
+.sec-label h2 em{font-style:italic;color:var(--rose)}
+
+/* PRODUCTS */
+#products{position:relative;z-index:1;padding:100px 24px;
+  background:linear-gradient(to bottom,var(--black),var(--deep))}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:20px;max-width:980px;margin:0 auto}
+.card{position:relative;overflow:hidden;
+  background:linear-gradient(145deg,rgba(40,8,24,.9) 0%,rgba(15,5,20,.95) 100%);
+  border:1px solid var(--border);border-radius:var(--r);padding:40px 32px 36px;
+  transition:transform .4s cubic-bezier(.16,1,.3,1),border-color .3s,box-shadow .4s;cursor:pointer}
+.card::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(196,137,122,.1) 0%,transparent 70%);
+  opacity:0;transition:opacity .4s}
+.card:hover{transform:translateY(-8px);border-color:rgba(196,137,122,.5);
+  box-shadow:0 24px 64px rgba(0,0,0,.5),0 0 0 1px rgba(196,137,122,.12)}
+.card:hover::before{opacity:1}
+.card.ft{border-color:rgba(201,168,76,.45);
+  background:linear-gradient(145deg,rgba(61,12,31,.9) 0%,rgba(20,6,28,.95) 100%)}
+.card.ft::before{background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(201,168,76,.12) 0%,transparent 70%);opacity:1}
+.ribbon{position:absolute;top:20px;right:-1px;
+  background:linear-gradient(135deg,var(--gold),#a07820);
+  color:#000;font-size:8px;font-weight:800;letter-spacing:2px;
+  padding:5px 18px 5px 14px;border-radius:4px 0 0 4px}
+.cicon{width:56px;height:56px;border-radius:12px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:24px}
+.card h3{font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;
+  color:var(--white);margin-bottom:10px}
+.card p{font-size:13px;font-weight:300;color:var(--gray);line-height:1.7;margin-bottom:28px}
+.card-price{margin-bottom:28px}
+.card-price strong{font-family:var(--serif);font-size:42px;font-weight:400;
+  color:var(--white);letter-spacing:-1px;display:block;line-height:1}
+.card-price span{font-size:11px;color:var(--gray);letter-spacing:1px;margin-top:4px;display:block}
+.feats{list-style:none;margin-bottom:32px}
+.feats li{font-size:12px;color:rgba(255,255,255,.5);
+  padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);
+  display:flex;align-items:center;gap:8px}
+.feats li::before{content:'✦';font-size:8px;color:var(--gold);flex-shrink:0}
+.btn{display:block;width:100%;padding:14px 24px;border-radius:8px;
+  font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+  border:none;cursor:pointer;transition:all .3s;font-family:var(--sans)}
+.btn-g{background:linear-gradient(135deg,#a07820,var(--gold-lt));color:#1a0a00;
+  box-shadow:0 4px 20px rgba(201,168,76,.25)}
+.btn-g:hover{box-shadow:0 8px 32px rgba(201,168,76,.4);transform:translateY(-1px)}
+.btn-o{background:transparent;color:var(--white);border:1px solid rgba(255,255,255,.2)}
+.btn-o:hover{border-color:var(--rose);color:var(--rose)}
+
+/* PROCESS */
+#process{padding:100px 24px;
+  background:linear-gradient(to bottom,var(--deep),var(--wine));
+  position:relative;overflow:hidden}
+#process::before{content:'PROCESS';position:absolute;
+  font-family:var(--serif);font-size:220px;font-weight:600;
+  color:rgba(255,255,255,.02);letter-spacing:-8px;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  white-space:nowrap;pointer-events:none}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:2px;max-width:900px;margin:0 auto;
+  background:rgba(255,255,255,.05);border-radius:var(--r);
+  overflow:hidden;border:1px solid var(--border)}
+.step{padding:40px 28px;background:rgba(10,2,8,.8);
+  position:relative;text-align:center;transition:background .3s}
+.step:hover{background:rgba(40,8,24,.9)}
+.snum{font-family:var(--serif);font-size:56px;font-weight:300;
+  color:rgba(201,168,76,.25);line-height:1;margin-bottom:16px;display:block}
+.step h4{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--white);margin-bottom:10px}
+.step p{font-size:12px;font-weight:300;color:var(--gray);line-height:1.7}
+.sarrow{position:absolute;right:-10px;top:50%;transform:translateY(-50%);
+  color:var(--gold);font-size:16px;z-index:2}
+
+/* PREVIEW MARQUEE */
+#marquee-sec{padding:100px 0;background:var(--black);text-align:center;overflow:hidden}
+#marquee-sec .sec-label{margin-bottom:56px;padding:0 24px}
+.mq{display:flex;gap:16px;animation:mq 28s linear infinite;width:max-content}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.mpg{width:160px;height:213px;border-radius:8px;
+  background:linear-gradient(135deg,#280818,#1a1a1a);
+  border:1px solid var(--border);flex-shrink:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.2);gap:8px}
+.mpg .bar{width:24px;height:1px;background:var(--gold);opacity:.4}
+
+/* PROMISE */
+#promise{padding:100px 24px;
+  background:linear-gradient(to bottom,var(--black),var(--deep));text-align:center}
+.pg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:40px;max-width:800px;margin:60px auto 0}
+.pi small{display:block;font-size:9px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:10px}
+.pi strong{font-family:var(--serif);font-size:28px;font-weight:300;color:var(--white);
+  display:block;margin-bottom:8px}
+.pi p{font-size:12px;color:var(--gray);line-height:1.7}
+
+/* FOOTER */
+footer{padding:48px 24px;border-top:1px solid rgba(255,255,255,.06);
+  text-align:center;background:var(--black)}
+footer p{font-size:11px;color:rgba(255,255,255,.2);letter-spacing:2px;text-transform:uppercase;line-height:2}
+footer a{color:var(--rose);text-decoration:none}
+
+/* MODAL */
+#overlay{display:none;position:fixed;inset:0;z-index:9999;
+  background:rgba(0,0,0,.85);backdrop-filter:blur(8px);
+  align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto}
+#overlay.open{display:flex}
+#modal{position:relative;width:100%;max-width:620px;margin:auto;
+  background:linear-gradient(160deg,#1a0510 0%,#0a0208 100%);
+  border:1px solid rgba(196,137,122,.3);border-radius:20px;padding:48px 40px;
+  box-shadow:0 40px 120px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.04);
+  animation:mIn .4s cubic-bezier(.16,1,.3,1)}
+@keyframes mIn{from{opacity:0;transform:scale(.95) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.mclose{position:absolute;top:20px;right:20px;width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.5);font-size:18px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
+.mclose:hover{background:rgba(255,255,255,.12);color:var(--white)}
+.mey{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.mt{font-family:var(--serif);font-size:32px;font-weight:300;color:var(--white);margin-bottom:6px}
+.ms{font-size:13px;color:var(--gray);margin-bottom:36px}
+.fdiv{display:flex;align-items:center;gap:12px;margin:28px 0}
+.fdiv span{font-size:9px;letter-spacing:3px;color:rgba(255,255,255,.25);text-transform:uppercase;white-space:nowrap}
+.fdiv::before,.fdiv::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08)}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.field input,.field select,.field textarea{
+  width:100%;padding:13px 16px;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--white);
+  font-size:14px;font-family:var(--sans);font-weight:300;outline:none;
+  transition:border-color .2s,background .2s;-webkit-appearance:none}
+.field input::placeholder,.field textarea::placeholder{color:rgba(255,255,255,.2)}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:rgba(196,137,122,.6);background:rgba(255,255,255,.07)}
+.field select option{background:#1a0510}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.to{display:none}
+.tl{display:block;padding:12px 8px;border-radius:8px;
+  border:1px solid rgba(255,255,255,.1);cursor:pointer;text-align:center;
+  font-size:11px;font-weight:600;letter-spacing:1px;color:var(--gray);
+  transition:all .2s;text-transform:uppercase}
+.to:checked+.tl{border-color:var(--rose);color:var(--white);background:rgba(196,137,122,.12)}
+.uz{position:relative;border:2px dashed rgba(196,137,122,.3);border-radius:12px;
+  padding:36px 24px;text-align:center;cursor:pointer;transition:all .3s;
+  margin-bottom:18px;background:rgba(196,137,122,.03)}
+.uz:hover,.uz.drag{border-color:rgba(196,137,122,.7);background:rgba(196,137,122,.07)}
+.uz input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.ui{font-size:36px;margin-bottom:12px;display:block}
+.uz h4{font-size:14px;font-weight:500;color:var(--white);margin-bottom:6px}
+.uz p{font-size:12px;color:var(--gray)}
+.uz strong{color:var(--rose)}
+.thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.thumb{width:68px;height:68px;object-fit:cover;border-radius:8px;
+  border:2px solid rgba(196,137,122,.4)}
+.tcnt{width:68px;height:68px;border-radius:8px;border:2px solid var(--rose);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:var(--rose);background:rgba(196,137,122,.05)}
+.subm{width:100%;padding:18px;
+  background:linear-gradient(135deg,#8a6012,var(--gold));color:#1a0800;
+  font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;
+  border:none;border-radius:10px;cursor:pointer;font-family:var(--sans);
+  margin-top:8px;transition:all .3s;box-shadow:0 4px 24px rgba(201,168,76,.3)}
+.subm:hover{box-shadow:0 8px 40px rgba(201,168,76,.45);transform:translateY(-1px)}
+.subm:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.st{display:none}
+.st.on{display:block}
+#ld{text-align:center;padding:40px 0}
+.spin{width:52px;height:52px;margin:0 auto 24px;
+  border:2px solid rgba(196,137,122,.15);border-top-color:var(--rose);
+  border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#ld h3{font-family:var(--serif);font-size:24px;font-weight:300;margin-bottom:8px}
+#ld p{font-size:13px;color:var(--gray)}
+#sc{text-align:center;padding:40px 0}
+.ck{width:72px;height:72px;border-radius:50%;
+  border:1px solid rgba(196,137,122,.4);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 24px;font-size:32px}
+#sc h3{font-family:var(--serif);font-size:28px;font-weight:300;margin-bottom:10px}
+#sc p{font-size:13px;color:var(--gray);margin-bottom:28px}
+.dlb{display:inline-flex;align-items:center;gap:10px;
+  padding:14px 36px;border-radius:60px;
+  background:linear-gradient(135deg,var(--wine),#5a1535);
+  border:1px solid var(--border);color:var(--white);text-decoration:none;
+  font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:all .3s}
+.dlb:hover{box-shadow:0 8px 32px rgba(196,137,122,.25);transform:translateY(-2px)}
+#emsg{display:none;background:rgba(200,40,40,.1);
+  border:1px solid rgba(255,80,80,.2);border-radius:8px;
+  padding:14px 18px;margin-bottom:20px;font-size:13px;color:#ff8888}
+
+@media(max-width:600px){
+  #modal{padding:36px 24px}
+  .row,.tg{grid-template-columns:1fr}
+  .sarrow{display:none}
+  .cards{grid-template-columns:1fr}
+}
+.rv{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s cubic-bezier(.16,1,.3,1)}
+.rv.vis{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="orb o3"></div>
+  <div class="hero-in">
+    <p class="eyebrow">QuickBee &middot; Premium Printing &middot; Kathmandu</p>
+    <h1 class="ht">PRINT<em>Now.</em></h1>
+    <div class="hr"><span></span><i></i><span></span></div>
+    <p class="hsub">Upload your photos. Tell us your story.<br>We design a 24-page premium magazine and deliver it to your door.</p>
+    <button class="hbtn" onclick="openModal('magazine')">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+      Create My Magazine
+    </button>
+  </div>
+  <div class="scroll-h">SCROLL</div>
+</section>
+
+<!-- PRODUCTS -->
+<section id="products">
+  <div class="sec-label rv">
+    <small>What We Create</small>
+    <h2>Choose Your <em>Print</em></h2>
+  </div>
+  <div class="cards">
+    <div class="card ft rv" onclick="openModal('magazine')">
+      <div class="ribbon">MOST POPULAR</div>
+      <div class="cicon">📖</div>
+      <h3>Love Magazine</h3>
+      <p>A 24-page premium editorial magazine crafted around your relationship. Upload 10 photos and your story &mdash; we do the rest.</p>
+      <div class="card-price"><strong>Rs 1,999</strong><span>Per printed copy &middot; Same-day delivery</span></div>
+      <ul class="feats">
+        <li>24-page premium editorial layout</li>
+        <li>10 professionally designed spreads</li>
+        <li>Cover, chapters, love letter &amp; more</li>
+        <li>Print-ready PDF + physical copy</li>
+      </ul>
+      <button class="btn btn-g">Order Magazine &rarr;</button>
+    </div>
+    <div class="card rv" onclick="openModal('prints')">
+      <div class="cicon">🖼️</div>
+      <h3>Photo Prints</h3>
+      <p>High-quality prints in your choice of size. Perfect for framing, gifting, or decorating your space with memories.</p>
+      <div class="card-price"><strong>Rs 499</strong><span>Per set &middot; Custom sizes available</span></div>
+      <ul class="feats">
+        <li>Premium glossy or matte finish</li>
+        <li>Multiple sizes (4&times;6, 5&times;7, 8&times;10)</li>
+        <li>Colour-accurate professional printing</li>
+        <li>Same-day delivery in Kathmandu</li>
+      </ul>
+      <button class="btn btn-o">Order Prints &rarr;</button>
+    </div>
+    <div class="card rv" onclick="openModal('card')">
+      <div class="cicon">💌</div>
+      <h3>Custom Card</h3>
+      <p>A beautifully designed printed greeting card with your photo, message, and a layout crafted just for you.</p>
+      <div class="card-price"><strong>Rs 299</strong><span>Per piece &middot; Envelope included</span></div>
+      <ul class="feats">
+        <li>Premium card stock (350 gsm)</li>
+        <li>Full custom design &amp; layout</li>
+        <li>Personal message printed inside</li>
+        <li>Gift-ready with envelope</li>
+      </ul>
+      <button class="btn btn-o">Order Card &rarr;</button>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="sec-label rv">
+    <small>How It Works</small>
+    <h2>From photos to print<br><em>in under 60 seconds.</em></h2>
+  </div>
+  <div class="steps rv">
+    <div class="step"><span class="snum">01</span><h4>Upload Photos</h4><p>Choose up to 10 of your favourite photos directly from your device.</p><div class="sarrow">&rsaquo;</div></div>
+    <div class="step"><span class="snum">02</span><h4>Tell Your Story</h4><p>Add names, dates, and a few details. Takes under 2 minutes.</p><div class="sarrow">&rsaquo;</div></div>
+    <div class="step"><span class="snum">03</span><h4>AI Designs It</h4><p>Our engine instantly builds a 24-page professional magazine layout.</p><div class="sarrow">&rsaquo;</div></div>
+    <div class="step"><span class="snum">04</span><h4>We Deliver</h4><p>Printed on premium paper and delivered to your door, same day.</p></div>
+  </div>
+</section>
+
+<!-- PAGE PREVIEW MARQUEE -->
+<section id="marquee-sec">
+  <div class="sec-label rv">
+    <small>Inside Your Magazine</small>
+    <h2>24 pages of <em>your story</em></h2>
+  </div>
+  <div style="overflow:hidden;user-select:none">
+    <div class="mq">
+      <div class="mpg"><div class="bar"></div>COVER<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>DEDICATION<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>CONTENTS<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>CHAPTER I<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>CHAPTER II<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>GALLERY<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>LOVE LETTER<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>TIMELINE<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>CHAPTER III<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>PORTRAITS<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>CHAPTER IV<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>BACK COVER<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>COVER<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>DEDICATION<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>CONTENTS<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>CHAPTER I<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>CHAPTER II<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>GALLERY<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>LOVE LETTER<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>TIMELINE<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>CHAPTER III<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>PORTRAITS<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>CHAPTER IV<div class="bar"></div></div>
+      <div class="mpg"><div class="bar"></div>BACK COVER<div class="bar"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROMISE -->
+<section id="promise">
+  <div class="sec-label rv">
+    <small>The QuickBee Promise</small>
+    <h2>Premium quality,<br><em>every time.</em></h2>
+  </div>
+  <div class="pg">
+    <div class="pi rv"><small>Same Day</small><strong>Delivery</strong><p>Order before 2 PM and receive your printed magazine by 6 PM in Kathmandu.</p></div>
+    <div class="pi rv"><small>Premium</small><strong>Paper &amp; Print</strong><p>We use 170 gsm gloss art paper and professional-grade digital printing.</p></div>
+    <div class="pi rv"><small>100%</small><strong>Custom</strong><p>Your photos, your names, your story. Nothing generic, ever.</p></div>
+    <div class="pi rv"><small>Instant</small><strong>PDF Preview</strong><p>Download your PDF the moment it&rsquo;s generated. Preview before we print.</p></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>Print Now &middot; Powered by <a href="/">QuickBee</a></p>
+  <p style="margin-top:8px">ankit@quickbee.store &middot; Kathmandu, Nepal</p>
+</footer>
+
+<!-- MODAL -->
+<div id="overlay" onclick="if(event.target===this)closeModal()">
+  <div id="modal">
+    <button class="mclose" onclick="closeModal()">&#10005;</button>
+
+    <div id="sf" class="st on">
+      <p class="mey">Print Now &middot; QuickBee</p>
+      <h2 id="mt" class="mt">Create Your Magazine</h2>
+      <p class="ms" id="ms">Fill in the details below and upload your photos.</p>
+      <div id="emsg"></div>
+      <form id="of" novalidate>
+        <input type="hidden" id="pt" name="product" value="magazine">
+        <div class="fdiv"><span>About You</span></div>
+        <div class="row">
+          <div class="field"><label>Person 1 Name *</label><input name="name1" type="text" placeholder="e.g. Salina" required></div>
+          <div class="field"><label>Person 2 Name *</label><input name="name2" type="text" placeholder="e.g. Arjun" required></div>
+        </div>
+        <div class="field"><label>Magazine Title <span style="opacity:.4">(optional)</span></label><input name="title" type="text" placeholder="e.g. Forever Ours, Our Story, Always Us&hellip;"></div>
+        <div class="row">
+          <div class="field"><label>Special Date <span style="opacity:.4">(optional)</span></label><input name="dates" type="text" placeholder="e.g. 14 Feb 2022"></div>
+          <div class="field"><label>Special Places <span style="opacity:.4">(optional)</span></label><input name="places" type="text" placeholder="e.g. Pokhara, Thamel"></div>
+        </div>
+        <div class="field"><label>A Quote You Love <span style="opacity:.4">(optional)</span></label><input name="quote" type="text" placeholder="A lyric, poem line, or phrase&hellip;"></div>
+        <div class="fdiv"><span>Your Style</span></div>
+        <div class="field">
+          <label>Tone &amp; Mood</label>
+          <div class="tg">
+            <div><input type="radio" class="to" name="tone" id="t1" value="romantic" checked><label class="tl" for="t1">Romantic</label></div>
+            <div><input type="radio" class="to" name="tone" id="t2" value="warm"><label class="tl" for="t2">Warm</label></div>
+            <div><input type="radio" class="to" name="tone" id="t3" value="elegant"><label class="tl" for="t3">Elegant</label></div>
+          </div>
+        </div>
+        <div class="fdiv"><span>Your Photos</span></div>
+        <div class="uz" id="uz">
+          <input type="file" id="pi" accept="image/jpeg,image/png,image/webp" multiple>
+          <span class="ui">📷</span>
+          <h4>Tap to upload your photos</h4>
+          <p>JPEG or PNG &middot; <strong>Up to 10 photos</strong> &middot; Higher quality = better magazine</p>
+          <div class="thumbs" id="th"></div>
+        </div>
+        <div class="fdiv"><span>Delivery</span></div>
+        <div class="row">
+          <div class="field"><label>Phone / WhatsApp *</label><input name="phone" type="tel" placeholder="98XXXXXXXX" required></div>
+          <div class="field"><label>Delivery Address *</label><input name="address" type="text" placeholder="Your address in Kathmandu" required></div>
+        </div>
+        <button type="submit" class="subm">&#10022; &nbsp; Generate My Magazine</button>
+      </form>
+    </div>
+
+    <div id="ld" class="st">
+      <div class="spin"></div>
+      <h3>Designing your magazine&hellip;</h3>
+      <p id="lm">Placing your photos on the canvas. Please wait.</p>
+    </div>
+
+    <div id="sc" class="st">
+      <div class="ck">&#10024;</div>
+      <h3>Your Magazine is Ready</h3>
+      <p>Your PDF is downloading automatically.<br>Check your Downloads folder.</p>
+      <a class="dlb" id="dl" href="#">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        Download Again
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  /* ── REPLACE THIS after deploying to Render.com ── */
+  var API='https://quickbee-print-api.onrender.com/generate';
+  /* ────────────────────────────────────────────── */
+  var files=[];
+
+  /* scroll reveal */
+  var ob=new IntersectionObserver(function(e){
+    e.forEach(function(x){if(x.isIntersecting){x.target.classList.add('vis');ob.unobserve(x.target);}});
+  },{threshold:.12});
+  document.querySelectorAll('.rv').forEach(function(el){ob.observe(el);});
+
+  window.openModal=function(t){
+    var titles={magazine:'Create Your Love Magazine',prints:'Order Photo Prints',card:'Design a Custom Card'};
+    document.getElementById('pt').value=t;
+    document.getElementById('mt').textContent=titles[t]||'Place Your Order';
+    show('sf');
+    document.getElementById('emsg').style.display='none';
+    document.getElementById('overlay').classList.add('open');
+    document.body.style.overflow='hidden';
+  };
+  window.closeModal=function(){
+    document.getElementById('overlay').classList.remove('open');
+    document.body.style.overflow='';
+  };
+
+  function show(id){
+    ['sf','ld','sc'].forEach(function(s){
+      var s_el=document.getElementById(s);
+      if(s_el)s_el.className='st'+(s===id?' on':'');
+    });
+  }
+
+  document.getElementById('pi').addEventListener('change',function(e){
+    files=Array.from(e.target.files).slice(0,10);render();
+  });
+  var uz=document.getElementById('uz');
+  uz.addEventListener('dragover',function(e){e.preventDefault();uz.classList.add('drag');});
+  uz.addEventListener('dragleave',function(){uz.classList.remove('drag');});
+  uz.addEventListener('drop',function(e){
+    e.preventDefault();uz.classList.remove('drag');
+    files=Array.from(e.dataTransfer.files).filter(function(f){return f.type.startsWith('image/');}).slice(0,10);
+    render();
+  });
+  function render(){
+    var c=document.getElementById('th');c.innerHTML='';
+    files.forEach(function(f,i){
+      var img=document.createElement('img');
+      img.src=URL.createObjectURL(f);img.className='thumb';img.alt='Photo '+(i+1);c.appendChild(img);
+    });
+    if(files.length){var d=document.createElement('div');d.className='tcnt';d.textContent=files.length+'/10';c.appendChild(d);}
+  }
+
+  var msgs=['Placing your photos on the canvas\u2026','Crafting chapter layouts\u2026','Writing your love story\u2026','Adding finishing touches\u2026','Almost there \u2014 polishing every page\u2026'];
+
+  document.getElementById('of').addEventListener('submit',function(e){
+    e.preventDefault();
+    var er=document.getElementById('emsg');er.style.display='none';
+    if(files.length<2){er.textContent='Please upload at least 2 photos to create your magazine.';er.style.display='block';return;}
+    var fd=new FormData(this);
+    files.forEach(function(f){fd.append('images',f);});
+    show('ld');
+    var mi=0,t=setInterval(function(){
+      mi=(mi+1)%msgs.length;
+      var el=document.getElementById('lm');if(el)el.textContent=msgs[mi];
+    },5000);
+    fetch(API,{method:'POST',body:fd})
+      .then(function(r){
+        clearInterval(t);
+        if(!r.ok)return r.json().then(function(j){throw new Error(j.error||'Generation failed. Please try again.');});
+        return r.blob();
+      })
+      .then(function(blob){
+        var url=URL.createObjectURL(blob);
+        var a=document.createElement('a');
+        a.href=url;
+        a.download=((fd.get('name1')||'Our')+'_'+(fd.get('name2')||'Story')+'_Magazine.pdf').replace(/\s+/g,'_');
+        document.body.appendChild(a);a.click();document.body.removeChild(a);
+        document.getElementById('dl').href=url;
+        show('sc');
+      })
+      .catch(function(ex){
+        clearInterval(t);show('sf');
+        var e2=document.getElementById('emsg');e2.textContent=ex.message;e2.style.display='block';
+      });
+  });
+})();
+</script>
+</body>
+</html>
