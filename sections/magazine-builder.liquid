@@ -1,0 +1,423 @@
+<!-- MAGAZINE BUILDER SECTION FOR SHOPIFY -->
+<!-- Include this in your theme and load the supporting JS files -->
+
+{{ 'magazine-builder.css' | asset_url | stylesheet_tag }}
+
+<div
+  class="mag-wizard"
+  x-data="magazineBuilder()"
+  @magazine:changed="onStateChange($event)"
+  @upload:progress="onUploadProgress($event)">
+
+  <!-- PROGRESS BAR -->
+  <div class="mag-progress">
+    <div class="mag-progress-bar" :style="`width: ${progress}%`"></div>
+  </div>
+
+  <!-- STEP 0: CONFIGURATION -->
+  <div class="mag-step" :class="{ active: step === 0 }">
+    <div class="step-content">
+      <div class="step-header">
+        <h1>Create Your Magazine</h1>
+        <p>Start by choosing how many pages and telling us about you</p>
+      </div>
+
+      <div class="form-group">
+        <label>How many pages?</label>
+        <div class="page-options">
+          <button
+            type="button"
+            class="page-option"
+            :class="{ selected: config.page_count === 16 }"
+            @click="selectPages(16)">
+            <strong>16</strong>
+            <small>Pages</small>
+          </button>
+          <button
+            type="button"
+            class="page-option"
+            :class="{ selected: config.page_count === 20 }"
+            @click="selectPages(20)">
+            <strong>20</strong>
+            <small>Pages</small>
+          </button>
+          <button
+            type="button"
+            class="page-option"
+            :class="{ selected: config.page_count === 24 }"
+            @click="selectPages(24)">
+            <strong>24</strong>
+            <small>Pages</small>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Names of the couple</label>
+        <div class="form-row">
+          <input
+            type="text"
+            placeholder="First person's name"
+            @input="updateMetadata('person1', $el.value)">
+          <input
+            type="text"
+            placeholder="Second person's name"
+            @input="updateMetadata('person2', $el.value)">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Magazine title (optional)</label>
+        <input
+          type="text"
+          placeholder="e.g. Forever Ours, Our Story..."
+          @input="updateMetadata('title', $el.value)">
+      </div>
+
+      <div class="form-group">
+        <label>Special details (optional)</label>
+        <div class="form-row">
+          <input
+            type="text"
+            placeholder="Important date"
+            @input="updateMetadata('date', $el.value)">
+          <input
+            type="text"
+            placeholder="Special places"
+            @input="updateMetadata('location', $el.value)">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Your favourite quote (optional)</label>
+        <textarea
+          placeholder="A lyric, poem, or phrase..."
+          @input="updateMetadata('quote', $el.value)"
+          rows="3"></textarea>
+      </div>
+
+      <div class="btn-nav">
+        <div></div>
+        <button class="btn btn-primary" @click="nextStep()">Continue to Themes →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1: THEME SELECTION -->
+  <div class="mag-step" :class="{ active: step === 1 }">
+    <div class="step-content">
+      <div class="step-header">
+        <h1>Choose Your Theme</h1>
+        <p>Select a design aesthetic for your magazine</p>
+      </div>
+
+      <div class="theme-cards">
+        <template x-for="theme in themes" :key="theme.id">
+          <button
+            type="button"
+            class="theme-card"
+            :class="{ selected: global.theme_id === theme.id }"
+            @click="selectTheme(theme.id)">
+            <div class="theme-swatch">
+              <div class="color-box" :style="`background: ${theme.palette.primary}`"></div>
+              <div class="color-box" :style="`background: ${theme.palette.accent}`"></div>
+              <div class="color-box" :style="`background: ${theme.palette.text}`"></div>
+              <div class="color-box" :style="`background: ${theme.palette.bg}`"></div>
+            </div>
+            <h3 x-text="theme.name"></h3>
+            <p x-text="theme.description"></p>
+          </button>
+        </template>
+      </div>
+
+      <div class="btn-nav">
+        <button class="btn btn-secondary" @click="prevStep()">← Back</button>
+        <button class="btn btn-primary" @click="nextStep()">Upload Photos →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: PHOTO UPLOAD -->
+  <div class="mag-step" :class="{ active: step === 2 }">
+    <div class="step-content">
+      <div class="step-header">
+        <h1>Upload Your Photos</h1>
+        <p x-text="`${Object.keys(assets).length} / 10 photos uploaded`"></p>
+      </div>
+
+      <div class="upload-zone"
+        @click="document.getElementById('file-input').click()"
+        @dragover.prevent="$el.classList.add('drag')"
+        @dragleave="$el.classList.remove('drag')"
+        @drop.prevent="handleDrop($event)">
+        <span class="upload-icon">📷</span>
+        <h3>Click to upload or drag photos here</h3>
+        <p>JPEG or PNG · <strong>Up to 10 photos</strong> · Higher quality = better magazine</p>
+      </div>
+
+      <input
+        id="file-input"
+        type="file"
+        multiple
+        accept="image/jpeg,image/png,image/webp"
+        @change="handleFileSelect($event)">
+
+      <div class="asset-grid">
+        <template x-for="asset in Object.values(assets)" :key="asset.id">
+          <div class="asset-thumb">
+            <img :src="asset.thumbnail_url" :alt="asset.original_name">
+            <div class="asset-status" x-text="asset.status"></div>
+          </div>
+        </template>
+      </div>
+
+      <div class="btn-nav">
+        <button class="btn btn-secondary" @click="prevStep()">← Back</button>
+        <button
+          class="btn btn-primary"
+          :disabled="Object.keys(assets).length < 2"
+          @click="nextStep()">
+          Edit Pages →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: PAGE EDITOR -->
+  <div class="mag-step" :class="{ active: step === 3 }">
+    <div class="editor-layout">
+      <!-- Page sidebar -->
+      <div class="page-sidebar">
+        <h3 style="margin-bottom: 16px; font-size: 11px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase;">Pages</h3>
+        <template x-for="(page, idx) in pages" :key="idx">
+          <canvas
+            class="page-thumb"
+            :class="{ active: active_page === idx }"
+            @click="editPage(idx)"></canvas>
+        </template>
+      </div>
+
+      <!-- Main canvas -->
+      <div class="page-canvas-wrapper">
+        <canvas id="page-canvas"></canvas>
+      </div>
+
+      <!-- Editor panel -->
+      <div class="editor-panel">
+        <div class="panel-section">
+          <h3>Image</h3>
+          <div class="slot-selector">
+            <button type="button" @click="assignAsset('primary_image')">
+              Primary Image
+            </button>
+            <small style="color: rgba(255,255,255,0.5);" x-text="`Current: ${pages[active_page].slots.primary_image ? 'Assigned' : 'None'}`"></small>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h3>Text</h3>
+          <div class="form-group">
+            <label>Headline</label>
+            <input
+              type="text"
+              placeholder="Main headline"
+              @input="updatePageText('headline', $el.value)">
+          </div>
+          <div class="form-group">
+            <label>Subheadline</label>
+            <input
+              type="text"
+              placeholder="Secondary text"
+              @input="updatePageText('subheadline', $el.value)">
+          </div>
+          <div class="form-group">
+            <label>Body text</label>
+            <textarea
+              placeholder="Main paragraph..."
+              @input="updatePageText('body', $el.value)"
+              rows="4"></textarea>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" @click="nextStep()">Review →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: REVIEW -->
+  <div class="mag-step" :class="{ active: step === 4 }">
+    <div class="step-content">
+      <div class="step-header">
+        <h1>Review Your Magazine</h1>
+        <p>Everything looks good? Let's add it to your cart</p>
+      </div>
+
+      <div style="margin-bottom: 40px;">
+        <p style="margin-bottom: 16px; font-size: 14px;">
+          <strong x-text="`${metadata.person1} & ${metadata.person2}`"></strong>
+        </p>
+        <p style="color: rgba(255,255,255,0.6); font-size: 13px; line-height: 1.8;">
+          <span x-show="metadata.date" x-text="`📅 ${metadata.date}`" style="display: block;"></span>
+          <span x-show="metadata.location" x-text="`📍 ${metadata.location}`" style="display: block;"></span>
+          <span x-show="config.page_count" x-text="`📖 ${config.page_count} pages`" style="display: block;"></span>
+        </p>
+      </div>
+
+      <div style="background: rgba(201,168,76,0.08); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 32px;">
+        <h4 style="font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px;">Order Summary</h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 13px;">
+          <div>
+            <span style="color: rgba(255,255,255,0.6);">Photos</span>
+            <div style="font-size: 16px; margin-top: 4px;" x-text="`${Object.keys(assets).length}`"></div>
+          </div>
+          <div>
+            <span style="color: rgba(255,255,255,0.6);">Pages</span>
+            <div style="font-size: 16px; margin-top: 4px;" x-text="`${config.page_count}`"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-nav">
+        <button class="btn btn-secondary" @click="prevStep()">← Edit</button>
+        <button class="btn btn-primary" @click="submit()">Add to Cart →</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="{{ 'magazine-store.js' | asset_url }}" defer></script>
+<script src="{{ 'magazine-uploader.js' | asset_url }}" defer></script>
+<script src="{{ 'magazine-renderer.js' | asset_url }}" defer></script>
+<script src="{{ 'magazine-cart.js' | asset_url }}" defer></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<script>
+function magazineBuilder() {
+  return {
+    step: 0,
+    progress: 0,
+    store: window.MagazineStore,
+
+    // Local refs for Alpine reactivity
+    get config() { return this.store.getState().config; },
+    get global() { return this.store.getState().global; },
+    get metadata() { return this.store.getState().metadata; },
+    get assets() { return this.store.getState().assets; },
+    get pages() { return this.store.getState().pages; },
+    get active_page() { return this.store.getState().ui.active_page; },
+
+    // Theme definitions
+    themes: [
+      {
+        id: 'romance-dark',
+        name: 'Romance Dark',
+        description: 'Deep, luxurious aesthetic',
+        palette: { primary: '#280818', accent: '#c9a84c', text: '#ffffff', bg: '#07030a' }
+      },
+      {
+        id: 'minimalist-light',
+        name: 'Minimalist Light',
+        description: 'Clean and modern',
+        palette: { primary: '#ffffff', accent: '#000000', text: '#000000', bg: '#f5f5f5' }
+      },
+      {
+        id: 'bohemian',
+        name: 'Bohemian',
+        description: 'Warm and artistic',
+        palette: { primary: '#d4a574', accent: '#8b6f47', text: '#3d2817', bg: '#f9f5ef' }
+      }
+    ],
+
+    init() {
+      // Listen for state changes
+      this.store.subscribe((eventType, detail) => {
+        this.$nextTick(() => this.updateProgress());
+      });
+
+      // Render first page
+      this.$nextTick(() => {
+        const canvas = document.getElementById('page-canvas');
+        if (canvas) window.MagazineRenderer.renderPage(0, canvas);
+      });
+    },
+
+    selectPages(count) {
+      this.store.update('config.page_count', count);
+      // Regenerate pages
+      const newPages = this.store._generatePages(count);
+      this.store.update('pages', newPages);
+    },
+
+    selectTheme(themeId) {
+      this.store.update('global.theme_id', themeId);
+      const theme = this.themes.find(t => t.id === themeId);
+      if (theme) this.store.update('global.palette', theme.palette);
+    },
+
+    updateMetadata(key, value) {
+      this.store.update(`metadata.${key}`, value);
+    },
+
+    editPage(idx) {
+      this.store.update('ui.active_page', idx);
+      this.$nextTick(() => {
+        const canvas = document.getElementById('page-canvas');
+        if (canvas) window.MagazineRenderer.renderPage(idx, canvas);
+      });
+    },
+
+    updatePageText(field, value) {
+      const idx = this.active_page;
+      this.store.update(`pages.${idx}.text.${field}`, value);
+      // Re-render
+      this.$nextTick(() => {
+        const canvas = document.getElementById('page-canvas');
+        if (canvas) window.MagazineRenderer.renderPage(idx, canvas);
+      });
+    },
+
+    assignAsset(slot) {
+      alert('Click an asset to assign');
+      // In full implementation, show modal with asset picker
+    },
+
+    handleFileSelect(e) {
+      const files = Array.from(e.target.files || []);
+      files.forEach(f => window.MagazineUploader.enqueue(f));
+    },
+
+    handleDrop(e) {
+      const files = Array.from(e.dataTransfer.files || []).filter(f => f.type.startsWith('image/'));
+      files.forEach(f => window.MagazineUploader.enqueue(f));
+    },
+
+    async submit() {
+      try {
+        const variantId = new URLSearchParams(window.location.search).get('variant_id') || this.config.variant_id;
+        await window.MagazineCart.submitOrder(variantId);
+      } catch (err) {
+        alert(`Error: ${err.message}`);
+      }
+    },
+
+    nextStep() { if (this.step < 4) this.step++; },
+    prevStep() { if (this.step > 0) this.step--; },
+
+    onStateChange(e) {
+      this.$nextTick(() => this.updateProgress());
+    },
+
+    onUploadProgress(e) {
+      // Update thumbnail
+      const { assetId, progress } = e.detail;
+    },
+
+    updateProgress() {
+      const filled = this.pages.filter(p => p.slots.primary_image).length;
+      const total = this.pages.length;
+      this.progress = Math.round((this.step / 4) * 50) + Math.round((filled / total) * 50);
+    }
+  };
+}
+</script>
