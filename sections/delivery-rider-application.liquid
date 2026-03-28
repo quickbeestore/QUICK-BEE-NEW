@@ -6,166 +6,81 @@
       <p>Earn with flexible hours. Apply now.</p>
     </div>
 
-    {%- if section.settings.google_form_url != blank -%}
-      <div class="qb-google-form-wrapper animate-fade-in">
-        <div class="qb-iframe-container">
-          <iframe src="{{ section.settings.google_form_url }}" width="100%" height="1200" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
-        </div>
-      </div>
-    {%- else -%}
-      {%- form 'contact', id: 'RiderApplicationForm', class: 'qb-apply-form animate-fade-in' -%}
+    {%- form 'contact', id: 'RiderApplicationForm', class: 'qb-apply-form animate-fade-in' -%}
       {%- if form.posted_successfully? -%}
         <div class="qb-apply-success">
           <div class="success-icon">✅</div>
-          <h2>Application Sent!</h2>
-          <p>Thank you for applying. Our team will contact you shortly via WhatsApp or Phone.</p>
+          <h2>Application sent successfully</h2>
+          <p>Thank you for your interest. We will review your details and get back to you.</p>
           <button type="button" onclick="window.location.href='/'" class="qb-btn-secondary">Back to Home</button>
         </div>
       {%- else -%}
         
-        {%- if form.errors -%}
-          <div class="qb-apply-error">
-            {{ form.errors | default_errors }}
-          </div>
-        {%- endif -%}
+        <!-- Hidden email field required by Shopify to send the form -->
+        <input type="hidden" name="contact[email]" value="rider-apply@quickbee.store">
 
-        <!-- SECTION: Personal Info -->
-        <div class="qb-form-section">
-          <h3>Personal Info</h3>
-          <div class="qb-grid-2">
-            <div class="qb-field">
-              <label for="ApplyName">Full Name *</label>
-              <input type="text" id="ApplyName" name="contact[name]" placeholder="Enter your full name" required>
-            </div>
-            <div class="qb-field">
-              <label for="ApplyPhone">Phone Number *</label>
-              <input type="tel" id="ApplyPhone" name="contact[phone]" placeholder="e.g. 98XXXXXXXX" required>
-            </div>
-          </div>
-          <div class="qb-grid-2">
-            <div class="qb-field">
-              <label for="ApplyWhatsApp">WhatsApp Number *</label>
-              <input type="tel" id="ApplyWhatsApp" name="contact[WhatsApp]" placeholder="WhatsApp number" required>
-            </div>
-            <div class="qb-field">
-              <label for="ApplyAge">Age *</label>
-              <input type="number" id="ApplyAge" name="contact[Age]" placeholder="Your age" min="18" required>
-            </div>
-          </div>
+        <div class="qb-form-body">
+          <!-- Personal Info -->
           <div class="qb-field">
-            <label for="ApplyLocation">Current Location *</label>
-            <input type="text" id="ApplyLocation" name="contact[Location]" placeholder="City / Area" required>
+            <label for="ApplyName">Full Name</label>
+            <input type="text" id="ApplyName" name="contact[Full_Name]" placeholder="Your name">
           </div>
-        </div>
 
-        <!-- SECTION: Vehicle Info -->
-        <div class="qb-form-section">
-          <h3>Vehicle Info</h3>
-          <div class="qb-grid-2">
-            <div class="qb-field">
-              <label for="ApplyVehicle">Own Vehicle? *</label>
-              <select id="ApplyVehicle" name="contact[Vehicle_Type]" required>
-                <option value="" disabled selected>Select Vehicle</option>
-                <option value="Bike">Bike</option>
-                <option value="Scooter">Scooter</option>
-                <option value="No">No (I need a vehicle)</option>
-              </select>
-            </div>
-            <div class="qb-field">
-              <label for="ApplyLicense">Driving License? *</label>
-              <select id="ApplyLicense" name="contact[Has_License]" required>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </select>
-            </div>
-          </div>
           <div class="qb-field">
-            <label for="ApplyVehicleNum">Vehicle Number (if applicable)</label>
-            <input type="text" id="ApplyVehicleNum" name="contact[Vehicle_Number]" placeholder="e.g. BA 1 PA 1234">
+            <label for="ApplyPhone">Phone Number *</label>
+            <input type="tel" id="ApplyPhone" name="contact[phone]" placeholder="e.g. 98XXXXXXXX" required>
           </div>
-        </div>
 
-        <!-- SECTION: Experience -->
-        <div class="qb-form-section">
-          <h3>Experience</h3>
           <div class="qb-field">
-            <label>Delivery Experience? *</label>
-            <div class="qb-radio-group">
-              <label><input type="radio" name="contact[Experience_Status]" value="Yes" required> Yes</label>
-              <label><input type="radio" name="contact[Experience_Status]" value="No"> No</label>
-            </div>
+            <label for="ApplyLocation">Current Location</label>
+            <input type="text" id="ApplyLocation" name="contact[Location]" placeholder="City / Area">
           </div>
-          <div class="qb-grid-2">
-            <div class="qb-field">
-              <label for="ApplyPrevCo">Previous Company</label>
-              <input type="text" id="ApplyPrevCo" name="contact[Previous_Company]" placeholder="e.g. Foodmandu, Pathao">
-            </div>
-            <div class="qb-field">
-              <label for="ApplyDuration">Duration</label>
-              <input type="text" id="ApplyDuration" name="contact[Experience_Duration]" placeholder="e.g. 1 year">
-            </div>
-          </div>
-        </div>
 
-        <!-- SECTION: Availability -->
-        <div class="qb-form-section">
-          <h3>Availability</h3>
           <div class="qb-field">
-            <label>Shift Preference *</label>
-            <div class="qb-checkbox-grid">
-              <label><input type="checkbox" name="contact[Shift][]" value="Morning"> Morning</label>
-              <label><input type="checkbox" name="contact[Shift][]" value="Afternoon"> Afternoon</label>
-              <label><input type="checkbox" name="contact[Shift][]" value="Night"> Night</label>
-              <label><input type="checkbox" name="contact[Shift][]" value="Full Time"> Full Time</label>
-            </div>
+            <label for="ApplyAge">Age</label>
+            <input type="text" id="ApplyAge" name="contact[Age]" placeholder="Your age">
           </div>
-          <div class="qb-field">
-            <label>Available Days *</label>
-            <div class="qb-checkbox-grid">
-              <label><input type="checkbox" name="contact[Days][]" value="Weekdays"> Weekdays</label>
-              <label><input type="checkbox" name="contact[Days][]" value="Weekends"> Weekends</label>
-              <label><input type="checkbox" name="contact[Days][]" value="All Days"> All Days</label>
-            </div>
-          </div>
-        </div>
 
-        <!-- SECTION: Work Details -->
-        <div class="qb-form-section">
-          <h3>Work Details</h3>
+          <!-- Vehicle & Experience -->
           <div class="qb-field">
-            <label for="ApplyAreas">Areas you can cover *</label>
-            <input type="text" id="ApplyAreas" name="contact[Target_Areas]" placeholder="e.g. Kathmandu, Lalitpur" required>
+            <label for="ApplyVehicle">Vehicle Type</label>
+            <input type="text" id="ApplyVehicle" name="contact[Vehicle_Type]" placeholder="e.g. Bike, Scooter, or None">
           </div>
-          <div class="qb-field">
-            <label>Late Night Availability? *</label>
-            <div class="qb-radio-group">
-              <label><input type="radio" name="contact[Late_Night]" value="Yes" required> Yes</label>
-              <label><input type="radio" name="contact[Late_Night]" value="No"> No</label>
-            </div>
-          </div>
-        </div>
 
-        <!-- SECTION: Extra -->
-        <div class="qb-form-section">
-          <h3>Extra</h3>
-          <div class="qb-grid-2">
-            <div class="qb-field">
-              <label for="ApplySalary">Expected Monthly Salary</label>
-              <input type="text" id="ApplySalary" name="contact[Expected_Salary]" placeholder="e.g. 25,000 + Fuel">
-            </div>
-            <div class="qb-field">
-              <label for="ApplyDate">Joining Date</label>
-              <input type="date" id="ApplyDate" name="contact[Joining_Date]">
-            </div>
-          </div>
           <div class="qb-field">
-            <label for="ApplyWhy">Why should we hire you? *</label>
-            <textarea id="ApplyWhy" name="contact[Motivation]" rows="4" placeholder="Tell us about your skills..." required></textarea>
+            <label for="ApplyVehicleNum">Vehicle Number</label>
+            <input type="text" id="ApplyVehicleNum" name="contact[Vehicle_Number]" placeholder="Vehicle plate number">
+          </div>
+
+          <div class="qb-field">
+            <label for="ApplyLicense">License Status</label>
+            <input type="text" id="ApplyLicense" name="contact[License_Status]" placeholder="Do you have a license?">
+          </div>
+
+          <div class="qb-field">
+            <label for="ApplyExperience">Experience</label>
+            <input type="text" id="ApplyExperience" name="contact[Experience]" placeholder="Any previous delivery work?">
+          </div>
+
+          <!-- Work Preferences -->
+          <div class="qb-field">
+            <label for="ApplyAreas">Areas Covered</label>
+            <input type="text" id="ApplyAreas" name="contact[Areas_Covered]" placeholder="Areas you can work in">
+          </div>
+
+          <div class="qb-field">
+            <label for="ApplyTime">Available Time</label>
+            <input type="text" id="ApplyTime" name="contact[Available_Time]" placeholder="e.g. 9am to 6pm, or Any time">
+          </div>
+
+          <div class="qb-field">
+            <label for="ApplyNote">Notes / Message</label>
+            <textarea id="ApplyNote" name="contact[body]" rows="4" placeholder="Anything else you want to tell us?"></textarea>
           </div>
         </div>
 
         <div class="qb-apply-footer">
-          <button type="submit" class="qb-submit-btn">Apply Now</button>
+          <button type="submit" class="qb-submit-btn">Send Application</button>
         </div>
       {%- endif -%}
     {%- endform -%}
@@ -176,157 +91,95 @@
 :root {
   --qb-purple: #7a14ac;
   --qb-black: #111111;
-  --qb-light: #f8f8f8;
+  --qb-light: #f4f4f4;
   --qb-border: #e0e0e0;
-  --qb-success: #16a34a;
 }
 
 .qb-apply-section {
-  padding: 40px 16px 100px;
+  padding: 40px 16px 120px;
   background: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .qb-apply-container {
-  max-width: 600px;
+  max-width: 500px;
   margin: 0 auto;
 }
 
 .qb-apply-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 32px;
 }
 
 .qb-apply-header h1 {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 800;
   color: var(--qb-black);
   margin-bottom: 8px;
-  letter-spacing: -0.5px;
 }
 
 .qb-apply-header p {
-  font-size: 16px;
+  font-size: 15px;
   color: #666;
 }
 
-.qb-form-section {
-  background: var(--qb-light);
-  padding: 24px;
-  border-radius: 20px;
-  margin-bottom: 24px;
-}
-
-.qb-form-section h3 {
-  font-size: 18px;
-  font-weight: 800;
-  margin-bottom: 20px;
-  color: var(--qb-purple);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.qb-grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.qb-form-body {
+  display: flex;
+  flex-direction: column;
   gap: 16px;
 }
-
-@media (max-width: 480px) {
-  .qb-grid-2 { grid-template-columns: 1fr; }
-}
-
-.qb-field {
-  margin-bottom: 20px;
-}
-
-.qb-field:last-child { margin-bottom: 0; }
 
 .qb-field label {
   display: block;
   font-size: 13px;
   font-weight: 700;
   color: var(--qb-black);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .qb-field input, 
-.qb-field select, 
 .qb-field textarea {
   width: 100%;
-  padding: 14px 16px;
-  border: 1.5px solid var(--qb-border);
-  border-radius: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--qb-border);
+  border-radius: 10px;
   font-size: 15px;
-  background: #fff;
+  background: var(--qb-light);
   transition: all 0.2s ease;
   color: var(--qb-black);
+  -webkit-appearance: none;
 }
 
 .qb-field input:focus, 
-.qb-field select:focus, 
 .qb-field textarea:focus {
   outline: none;
   border-color: var(--qb-purple);
-  box-shadow: 0 0 0 4px rgba(122, 20, 172, 0.1);
+  background: #fff;
 }
 
-.qb-radio-group, 
-.qb-checkbox-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  padding-top: 4px;
-}
-
-.qb-radio-group label, 
-.qb-checkbox-grid label {
-  font-weight: 500;
-  font-size: 15px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  margin-bottom: 0;
-}
-
-.qb-radio-group input, 
-.qb-checkbox-grid input {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-}
-
-/* Success Message */
 .qb-apply-success {
   text-align: center;
-  padding: 60px 20px;
-  background: var(--qb-light);
-  border-radius: 30px;
+  padding: 40px 20px;
+  background: #f9f9f9;
+  border-radius: 20px;
 }
 
 .success-icon {
-  font-size: 60px;
-  margin-bottom: 20px;
-}
-
-.qb-apply-success h2 {
-  font-weight: 800;
-  margin-bottom: 12px;
+  font-size: 48px;
+  margin-bottom: 16px;
 }
 
 .qb-btn-secondary {
-  margin-top: 24px;
-  padding: 12px 24px;
+  margin-top: 20px;
+  padding: 10px 20px;
   background: var(--qb-black);
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   font-weight: 700;
   cursor: pointer;
 }
 
-/* Sticky Footer CTA on Mobile */
 .qb-apply-footer {
   margin-top: 32px;
 }
@@ -338,60 +191,30 @@
     left: 0;
     right: 0;
     padding: 16px;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(10px);
+    background: white;
     border-top: 1px solid var(--qb-border);
     z-index: 1000;
-    box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
   }
 }
 
 .qb-submit-btn {
   width: 100%;
-  padding: 18px;
+  padding: 16px;
   background: var(--qb-purple);
   color: white;
   border: none;
-  border-radius: 16px;
-  font-size: 18px;
+  border-radius: 12px;
+  font-size: 16px;
   font-weight: 800;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 8px 24px rgba(122, 20, 172, 0.25);
 }
 
-.qb-submit-btn:hover {
-  background: #5a0d8c;
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(122, 20, 172, 0.35);
-}
-
-.qb-google-form-wrapper {
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.qb-iframe-container {
-  width: 100%;
-  min-height: 800px;
-}
-
-.qb-iframe-container iframe {
-  width: 100%;
-  height: 1200px;
-  border: none;
-  background: white;
-  border-radius: 20px;
-}
-
-/* Animations */
 .animate-fade-in {
-  animation: fadeIn 0.8s ease-out forwards;
+  animation: fadeIn 0.5s ease-out forwards;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 </style>
@@ -399,14 +222,7 @@
 {% schema %}
 {
   "name": "Rider Application Form",
-  "settings": [
-    {
-      "type": "text",
-      "id": "google_form_url",
-      "label": "Google Form URL",
-      "info": "Paste your Google Form 'Share' or 'Send' URL here (usually ends in /viewform). Leave blank to use the default Shopify form."
-    }
-  ],
+  "settings": [],
   "presets": [
     {
       "name": "Rider Application Form"
