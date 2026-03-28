@@ -1,0 +1,294 @@
+{% layout none %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Print Now — QuickBee Premium Collections</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── PRESETS & VARIABLES ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#080808; --deep:#111111; --wine:#2D0C1F;
+  --rose:#B76E79; --gold:#C9A84C; --gold-lt:#E8D5A0;
+  --cream:#F5EDD6; --white:#FFFFFF;
+  --gray:rgba(255,255,255,0.6); --border:rgba(201,168,76,0.15);
+  --r:20px;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Montserrat','Helvetica Neue',sans-serif;
+  --glass:rgba(255,255,255,0.02);
+}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--black)}::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+
+/* ── LAYOUT ── */
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+section{padding:100px 0}
+
+/* ── HERO ── */
+#hero{position:relative;min-height:70vh;display:flex;align-items:center;justify-content:center;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 100%, #1A0A10 0%, var(--black) 80%)}
+.orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;opacity:0.3}
+.o1{width:600px;height:600px;background:var(--wine);top:-10%;left:-10%}
+.o2{width:500px;height:500px;background:var(--gold);bottom:0;right:-5%}
+.hero-in{position:relative;z-index:2;text-align:center;max-width:850px;animation:fIn 1.4s ease-out}
+@keyframes fIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.eyebrow{font-size:10px;font-weight:700;letter-spacing:6px;text-transform:uppercase;color:var(--gold);margin-bottom:24px;display:block}
+h1.ht{font-family:var(--serif);font-size:clamp(48px,10vw,88px);font-weight:300;line-height:0.95;margin-bottom:24px}
+h1.ht em{font-style:italic;background:linear-gradient(135deg, var(--gold-lt), var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;gap:12px;justify-content:center;margin-bottom:60px;flex-wrap:wrap}
+.filter-btn{background:var(--glass);border:1px solid var(--border);padding:10px 24px;border-radius:40px;color:var(--gray);font-size:11px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:0.3s}
+.filter-btn.active, .filter-btn:hover{background:var(--gold);color:var(--black);border-color:var(--gold)}
+
+/* ── PRODUCTS GRID ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+.card{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:40px 32px;position:relative;overflow:hidden;transition:0.4s;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between}
+.card:hover{border-color:var(--gold);background:rgba(201,168,76,0.04);transform:translateY(-8px)}
+.card i{font-size:32px;margin-bottom:24px;display:block;opacity:0.8}
+.card h3{font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.card p{font-size:13px;color:var(--gray);line-height:1.6;margin-bottom:24px}
+.badge{position:absolute;top:20px;right:20px;font-size:8px;font-weight:900;letter-spacing:1px;text-transform:uppercase;background:var(--gold);color:var(--black);padding:4px 10px;border-radius:4px}
+.price-tag{font-family:var(--serif);font-size:24px;color:var(--white);margin-top:auto}
+
+/* ── MODAL ── */
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);backdrop-filter:blur(15px);z-index:2000;padding:20px;overflow-y:auto}
+#overlay.active{display:flex;justify-content:center}
+.modal{background:var(--deep);width:100%;max-width:700px;border-radius:24px;border:1px solid var(--border);position:relative;padding:50px;margin:auto}
+.m-close{position:absolute;top:25px;right:25px;background:none;border:none;color:var(--white);font-size:24px;cursor:pointer}
+
+/* ── FORM ── */
+.m-head{margin-bottom:40px}
+.m-head h2{font-family:var(--serif);font-size:40px;font-weight:300;margin-bottom:6px}
+.m-head p{color:var(--gold);font-size:10px;letter-spacing:2px;text-transform:uppercase}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.field{margin-bottom:20px}
+.field.full{grid-column:span 2}
+label{display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-bottom:8px;font-weight:700}
+input,select,textarea{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:14px;border-radius:8px;color:white;font-family:inherit;font-size:14px;outline:none}
+input:focus{border-color:var(--gold)}
+
+/* ── DYNAMIC FIELDS ── */
+.dyn-field{display:none; animation:fadeIn 0.3s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── UPLOAD ── */
+.upload-zone{background:rgba(255,255,255,0.02);border:1px dashed var(--border);border-radius:12px;padding:30px;text-align:center;cursor:pointer;margin-top:20px}
+.thumbs-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:16px}
+.thumb-slot{aspect-ratio:1;background:rgba(255,255,255,0.03);border-radius:6px;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;font-size:9px;color:rgba(255,255,255,0.1)}
+.thumb-slot img{width:100%;height:100%;object-fit:cover}
+
+.submit-btn{width:100%;padding:18px;background:var(--gold);border:none;border-radius:10px;color:var(--black);font-size:11px;font-weight:900;letter-spacing:3px;text-transform:uppercase;cursor:pointer;margin-top:24px}
+.submit-btn:disabled{opacity:0.2}
+
+#loader{display:none;text-align:center;padding:40px 0}
+.spinner{width:40px;height:40px;border:2px solid rgba(201,168,76,0.1);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:768px){
+  .form-grid{grid-template-columns:1fr}
+  .field.full{grid-column:span 1}
+  .modal{padding:40px 24px}
+  .thumbs-grid{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head>
+<body>
+
+<section id="hero">
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="container">
+    <div class="hero-in">
+      <span class="eyebrow">Print Now Collection</span>
+      <h1 class="ht">Moments <em>Made Immortal.</em></h1>
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterGrid('all', this)">All Prints</button>
+        <button class="filter-btn" onclick="filterGrid('milestone', this)">Milestones</button>
+        <button class="filter-btn" onclick="filterGrid('gift', this)">Gift Ideas</button>
+        <button class="filter-btn" onclick="filterGrid('sports', this)">Sports</button>
+        <button class="filter-btn" onclick="filterGrid('home', this)">Home Decor</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="products">
+  <div class="container">
+    <div class="grid" id="product-grid">
+      <!-- Items will be injected by JS for better management -->
+    </div>
+  </div>
+</section>
+
+<div id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="m-close" onclick="closeModal()">✕</button>
+    
+    <div id="form-container">
+      <div class="m-head">
+        <h2 id="modal-title">Customize Order</h2>
+        <p id="modal-subtitle">Premium Editorial Printing</p>
+      </div>
+
+      <form id="print-form">
+        <input type="hidden" name="product" id="prod-id">
+        <input type="hidden" name="category" id="prod-cat">
+        
+        <div class="form-grid">
+          <div class="field"><label>Your Name</label><input type="text" name="name1" placeholder="e.g. Salina" required></div>
+          <div class="field"><label>Recipient / Partner</label><input type="text" name="name2" placeholder="e.g. Arjun" required></div>
+          
+          <!-- Dynamic Fields -->
+          <div class="field dyn-field milestone anniversary full"><label>Anniversary Year</label><input type="text" name="anniv_year" placeholder="e.g. 5th Anniversary"></div>
+          <div class="field dyn-field milestone baby full"><label>Baby's Birth Date / Due Date</label><input type="text" name="dates" placeholder="e.g. 12th March 2026"></div>
+          <div class="field dyn-field sports football cricket full"><label>Favorite Team / Jersey No.</label><input type="text" name="sports_meta" placeholder="e.g. Real Madrid #7"></div>
+          
+          <div class="field full"><label>Main Heading</label><input type="text" name="title" placeholder="e.g. Our Greatest Adventure"></div>
+          <div class="field"><label>WhatsApp Number</label><input type="tel" name="phone" placeholder="98XXXXXXXX" required></div>
+          <div class="field"><label>Delivery Address</label><input type="text" name="address" placeholder="Kathmandu Address" required></div>
+        </div>
+
+        <div class="upload-zone" id="drop-zone">
+          <input type="file" id="file-input" multiple accept="image/*" style="display:none">
+          <i>📸</i>
+          <p style="font-size:11px; margin-top:8px"><strong>Tap to upload 10 photos</strong></p>
+        </div>
+
+        <div class="thumbs-grid" id="thumbs">
+          <div class="thumb-slot">1</div><div class="thumb-slot">2</div><div class="thumb-slot">3</div><div class="thumb-slot">4</div><div class="thumb-slot">5</div>
+          <div class="thumb-slot">6</div><div class="thumb-slot">7</div><div class="thumb-slot">8</div><div class="thumb-slot">9</div><div class="thumb-slot">10</div>
+        </div>
+
+        <button type="submit" id="submit-btn" class="submit-btn" disabled>Generate My Print</button>
+      </form>
+    </div>
+
+    <div id="loader">
+      <div class="spinner"></div>
+      <h3 style="font-family:var(--serif); font-size:24px">Designing...</h3>
+      <p style="font-size:12px; color:var(--gray); margin-top:10px">Applying premium layout and editorial flow.</p>
+    </div>
+
+    <div id="success" style="display:none; text-align:center">
+      <i style="font-size:48px">✨</i>
+      <h2 style="font-family:var(--serif); margin:20px 0">Ready for Printing</h2>
+      <p style="color:var(--gray); font-size:13px">Your PDF has been generated. We'll contact you shortly for confirmation.</p>
+      <button class="submit-btn" onclick="location.reload()">Back to Gallery</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const products = [
+  { id: 'anniversary', cat: 'milestone', icon: '💍', title: 'Anniversary Magazine', desc: 'A 24-page romantic editorial of your years together.', price: '1,999' },
+  { id: 'birthday', cat: 'milestone', icon: '🎂', title: 'Birthday Edition', desc: 'Celebrate their big day with a personalized magazine.', price: '1,999' },
+  { id: 'baby', cat: 'milestone', icon: '👶', title: 'Baby Shower / New Born', desc: 'Soft layouts for those first precious memories.', price: '1,999' },
+  { id: 'besties', cat: 'gift', icon: '👯‍♀️', title: 'Besties Scrapbook', desc: 'Fun, collage-heavy layouts for you and your best friend.', price: '1,999' },
+  { id: 'for-her', cat: 'gift', icon: '💐', title: 'For Her (Premium)', desc: 'Elegant, floral-inspired design for the special woman.', price: '1,999' },
+  { id: 'for-him', cat: 'gift', icon: '⌚', title: 'For Him (Sleek)', desc: 'Minimalist, bold, and sophisticated layouts.', price: '1,999' },
+  { id: 'football', cat: 'sports', icon: '⚽', title: 'Football Legends', desc: 'Showcase match-day photos with sports stats.', price: '1,999', badge: 'New' },
+  { id: 'cricket', cat: 'sports', icon: '🏏', title: 'Cricket Fever', desc: 'The ultimate print for every cricket lover.', price: '1,999', badge: 'Hot' },
+  { id: 'canvas', cat: 'home', icon: '🖼️', title: 'Premium Canvas', desc: 'Single high-impact print on museum-grade canvas.', price: '2,499' },
+  { id: 'polaroid', cat: 'home', icon: '📷', title: 'Polaroid Set (12)', desc: 'Retro-style prints with custom captions.', price: '599' }
+];
+
+function renderGrid(filter = 'all') {
+  const grid = document.getElementById('product-grid');
+  grid.innerHTML = '';
+  products.forEach(p => {
+    if (filter !== 'all' && p.cat !== filter) return;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.onclick = () => openModal(p.id, p.cat, p.title);
+    card.innerHTML = `
+      ${p.badge ? `<span class="badge">${p.badge}</span>` : ''}
+      <i>${p.icon}</i>
+      <h3>${p.title}</h3>
+      <p>${p.desc}</p>
+      <span class="price-tag">Rs ${p.price}</span>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function filterGrid(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGrid(cat);
+}
+
+function openModal(id, cat, title) {
+  document.getElementById('prod-id').value = id;
+  document.getElementById('prod-cat').value = cat;
+  document.getElementById('modal-title').innerText = title;
+  
+  // Reset fields
+  document.querySelectorAll('.dyn-field').forEach(f => f.style.display = 'none');
+  document.querySelectorAll(`.dyn-field.${cat}`).forEach(f => f.style.display = 'block');
+  document.querySelectorAll(`.dyn-field.${id}`).forEach(f => f.style.display = 'block');
+  
+  document.getElementById('overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+let files = [];
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+
+dropZone.onclick = () => fileInput.click();
+fileInput.onchange = e => {
+  files = [...files, ...Array.from(e.target.files)].slice(0, 10);
+  renderThumbs();
+  document.getElementById('submit-btn').disabled = files.length < 2;
+};
+
+function renderThumbs() {
+  const slots = document.querySelectorAll('.thumb-slot');
+  slots.forEach((slot, i) => {
+    slot.innerHTML = (i + 1);
+    if (files[i]) {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(files[i]);
+      slot.innerHTML = '';
+      slot.appendChild(img);
+    }
+  });
+}
+
+document.getElementById('print-form').onsubmit = async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  files.forEach(f => fd.append('images', f));
+
+  document.getElementById('form-container').style.display = 'none';
+  document.getElementById('loader').style.display = 'block';
+
+  try {
+    const res = await fetch('https://quickbee-print-api.onrender.com/generate', { method: 'POST', body: fd });
+    if (!res.ok) throw new Error('Generation failed');
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'PrintNow_Ready.pdf'; a.click();
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('success').style.display = 'block';
+  } catch (err) {
+    alert("Error: " + err.message);
+    document.getElementById('form-container').style.display = 'block';
+    document.getElementById('loader').style.display = 'none';
+  }
+};
+
+renderGrid(); // Initial load
+</script>
+
+</body>
+</html>
