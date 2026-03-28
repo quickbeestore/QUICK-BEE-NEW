@@ -16,7 +16,8 @@
         </div>
       {%- else -%}
         
-        <input type="hidden" name="contact[email]" value="rider-apply@quickbee.store">
+        <!-- Hidden email with timestamp to avoid duplicate submission blocks -->
+        <input type="hidden" name="contact[email]" id="HiddenEmail" value="rider-{{ "now" | date: "%H%M%S" }}@quickbee.store">
 
         <div class="qb-form-body">
           <div class="qb-field">
@@ -103,12 +104,28 @@
         </div>
 
         <div class="qb-apply-footer">
-          <button type="submit" class="qb-submit-btn">Send Application</button>
+          <button type="submit" class="qb-submit-btn" id="SubmitBtn">Send Application</button>
         </div>
       {%- endif -%}
     {%- endform -%}
   </div>
 </section>
+
+<script>
+  // Simple script to show loading state and prevent double submission
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('RiderApplicationForm');
+    const btn = document.getElementById('SubmitBtn');
+    
+    if (form && btn) {
+      form.addEventListener('submit', function() {
+        btn.innerHTML = 'Sending...';
+        btn.style.opacity = '0.7';
+        btn.style.pointerEvents = 'none';
+      });
+    }
+  });
+</script>
 
 <style>
 :root {
@@ -257,19 +274,29 @@
   font-weight: 800;
   cursor: pointer;
   box-shadow: 0 8px 20px rgba(122, 20, 172, 0.2);
+  transition: all 0.2s ease;
+  display: block;
+  -webkit-appearance: none;
+}
+
+.qb-submit-btn:active {
+  transform: scale(0.98);
 }
 
 @media (max-width: 767px) {
   .qb-apply-footer {
-    position: fixed;
-    bottom: 0;
+    position: sticky;
+    bottom: 16px;
     left: 0;
     right: 0;
     padding: 16px;
-    background: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.95);
     backdrop-filter: blur(10px);
     border-top: 1px solid #eee;
-    z-index: 1000;
+    z-index: 9999;
+    margin-top: 20px;
+    border-radius: 16px;
+    box-shadow: 0 -10px 20px rgba(0,0,0,0.05);
   }
 }
 
