@@ -6,7 +6,14 @@
       <p>Earn with flexible hours. Apply now.</p>
     </div>
 
-    {%- form 'contact', id: 'RiderApplicationForm', class: 'qb-apply-form animate-fade-in' -%}
+    {%- if section.settings.google_form_url != blank -%}
+      <div class="qb-google-form-wrapper animate-fade-in">
+        <div class="qb-iframe-container">
+          <iframe src="{{ section.settings.google_form_url }}" width="100%" height="1200" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+        </div>
+      </div>
+    {%- else -%}
+      {%- form 'contact', id: 'RiderApplicationForm', class: 'qb-apply-form animate-fade-in' -%}
       {%- if form.posted_successfully? -%}
         <div class="qb-apply-success">
           <div class="success-icon">✅</div>
@@ -359,6 +366,25 @@
   box-shadow: 0 12px 32px rgba(122, 20, 172, 0.35);
 }
 
+.qb-google-form-wrapper {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.qb-iframe-container {
+  width: 100%;
+  min-height: 800px;
+}
+
+.qb-iframe-container iframe {
+  width: 100%;
+  height: 1200px;
+  border: none;
+  background: white;
+  border-radius: 20px;
+}
+
 /* Animations */
 .animate-fade-in {
   animation: fadeIn 0.8s ease-out forwards;
@@ -373,7 +399,14 @@
 {% schema %}
 {
   "name": "Rider Application Form",
-  "settings": [],
+  "settings": [
+    {
+      "type": "text",
+      "id": "google_form_url",
+      "label": "Google Form URL",
+      "info": "Paste your Google Form 'Share' or 'Send' URL here (usually ends in /viewform). Leave blank to use the default Shopify form."
+    }
+  ],
   "presets": [
     {
       "name": "Rider Application Form"
