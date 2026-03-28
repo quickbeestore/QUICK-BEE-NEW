@@ -1,107 +1,145 @@
-<cart-items-component class="cart-items-component" data-section-id="{{ section.id }}">
-  <div class="quick-cart-wrapper">
+<cart-items-component class="qb-cart-component" data-section-id="{{ section.id }}">
+  <div class="qb-cart-wrapper">
     {%- if cart.empty? -%}
 
     <!-- EMPTY CART STATE -->
-    <div class="empty-cart-state">
-      <div class="empty-cart-content">
-        <div class="empty-icon">🐝</div>
-        <h1 class="empty-title">Your Hive is Empty</h1>
-        <p class="empty-text">No sweet treats here yet. Let's go shopping!</p>
-        <a href="{{ routes.all_products_collection_url }}" class="empty-cta">Start Shopping</a>
+    <div class="qb-empty-cart">
+      <div class="qb-empty-content animate-fade-in">
+        <div class="qb-empty-icon">🛒</div>
+        <h1 class="qb-empty-title">Your Cart is Empty</h1>
+        <p class="qb-empty-text">Looks like you haven't added any items yet.</p>
+        <a href="{{ routes.all_products_collection_url }}" class="qb-btn-primary">Start Shopping</a>
       </div>
     </div>
 
     {%- else -%}
 
     <!-- HEADER -->
-    <div class="cart-header">
-      <h1>🐝 Your Hive</h1>
-      <p>{{ cart.item_count }} item{% if cart.item_count != 1 %}s{% endif %}</p>
+    <div class="qb-cart-header">
+      <div class="qb-cart-header-inner">
+        <h1>Your Cart</h1>
+        <span class="qb-cart-count">{{ cart.item_count }} item{% if cart.item_count != 1 %}s{% endif %}</span>
+      </div>
     </div>
 
-    <!-- CART ITEMS -->
-    <div class="cart-items-section">
-      {%- for item in cart.items -%}
-        <div class="cart-item-card">
-          <!-- Product Image -->
-          <div class="item-image">
-            <img src="{{ item.image | image_url: width: 100 }}" alt="{{ item.title }}">
-          </div>
+    <!-- CART BODY -->
+    <div class="qb-cart-body">
+      <!-- ITEMS LIST -->
+      <div class="qb-cart-items">
+        {%- for item in cart.items -%}
+          <div class="qb-cart-item">
+            <!-- Product Image -->
+            <a href="{{ item.url }}" class="qb-item-image">
+              {% if item.image %}
+                <img src="{{ item.image | image_url: width: 200 }}" alt="{{ item.title | escape }}" loading="lazy">
+              {% else %}
+                <div class="qb-item-no-image">🐝</div>
+              {% endif %}
+            </a>
 
-          <!-- Product Info + Actions (right column) -->
-          <div class="item-right">
-            <!-- Top row: name + remove -->
-            <div class="item-top-row">
-              <h3 class="item-name">{{ item.title }}</h3>
-              <form action="{{ routes.cart_change_url }}" method="post" class="remove-form">
-                <input type="hidden" name="id" value="{{ item.key }}">
-                <input type="hidden" name="quantity" value="0">
-                <button type="submit" class="remove-btn" title="Remove">✕</button>
-              </form>
-            </div>
+            <!-- Product Details -->
+            <div class="qb-item-details">
+              <div class="qb-item-top">
+                <a href="{{ item.url }}" class="qb-item-title">{{ item.product.title }}</a>
+                <form action="{{ routes.cart_change_url }}" method="post" class="qb-remove-form">
+                  <input type="hidden" name="id" value="{{ item.key }}">
+                  <input type="hidden" name="quantity" value="0">
+                  <button type="submit" class="qb-remove-btn" aria-label="Remove item">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  </button>
+                </form>
+              </div>
 
-            {%- if item.variant.title != 'Default Title' -%}
-              <p class="item-variant">{{ item.variant.title }}</p>
-            {%- endif -%}
+              {%- if item.variant.title != 'Default Title' -%}
+                <p class="qb-item-variant">{{ item.variant.title }}</p>
+              {%- endif -%}
 
-            <!-- Bottom row: qty stepper + total price -->
-            <div class="item-bottom-row">
-              <form action="{{ routes.cart_change_url }}" method="post" class="qty-form">
-                <input type="hidden" name="id" value="{{ item.key }}">
-                <div class="qty-controls">
-                  <button type="button" class="qty-btn qty-decrease" data-item-key="{{ item.key }}">−</button>
-                  <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="qty-input" data-item-key="{{ item.key }}">
-                  <button type="button" class="qty-btn qty-increase" data-item-key="{{ item.key }}">+</button>
+              <!-- Price & Quantity -->
+              <div class="qb-item-bottom">
+                <div class="qb-item-price">
+                  <span class="qb-current-price">Rs {{ item.final_line_price | divided_by: 100 }}</span>
+                  {% if item.original_line_price > item.final_line_price %}
+                    <span class="qb-original-price">Rs {{ item.original_line_price | divided_by: 100 }}</span>
+                  {% endif %}
                 </div>
-              </form>
-              <p class="item-total">Rs {{ item.final_line_price | money_without_currency }}</p>
+                
+                <form action="{{ routes.cart_change_url }}" method="post" class="qb-qty-form">
+                  <input type="hidden" name="id" value="{{ item.key }}">
+                  <div class="qb-qty-wrapper">
+                    <button type="button" class="qb-qty-btn qb-qty-minus" aria-label="Decrease quantity">−</button>
+                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="qb-qty-input" aria-label="Quantity">
+                    <button type="button" class="qb-qty-btn qb-qty-plus" aria-label="Increase quantity">+</button>
+                  </div>
+                </form>
+              </div>
             </div>
+          </div>
+        {%- endfor -%}
+
+        <!-- ADD MORE ITEMS -->
+        <a href="{{ routes.all_products_collection_url }}" class="qb-add-more-link">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Add more items
+        </a>
+      </div>
+
+      <!-- CART SUMMARY & CHECKOUT -->
+      <div class="qb-cart-sidebar">
+        <!-- Trust Badges -->
+        <div class="qb-trust-badges">
+          <div class="qb-trust-badge">
+            <span class="qb-trust-icon">⚡</span>
+            <span>Fast Delivery</span>
+          </div>
+          <div class="qb-trust-badge">
+            <span class="qb-trust-icon">🔒</span>
+            <span>Secure Checkout</span>
+          </div>
+          <div class="qb-trust-badge">
+            <span class="qb-trust-icon">💯</span>
+            <span>Quality Guarantee</span>
           </div>
         </div>
-      {%- endfor -%}
-    </div>
 
-    <!-- ADD MORE LINK -->
-    <div class="add-more-section">
-      <a href="{{ routes.all_products_collection_url }}" class="add-more-btn">+ Add More Items</a>
-    </div>
+        <div class="qb-summary-card">
+          <h3 class="qb-summary-title">Bill Details</h3>
+          
+          {%- assign subtotal_calc = 0 -%}
+          {%- for item in cart.items -%}
+            {%- assign subtotal_calc = subtotal_calc | plus: item.final_line_price -%}
+          {%- endfor -%}
 
-    <!-- ORDER SUMMARY -->
-    {%- assign subtotal_calc = 0 -%}
-    {%- for item in cart.items -%}
-      {%- assign subtotal_calc = subtotal_calc | plus: item.final_line_price -%}
-    {%- endfor -%}
+          <div class="qb-summary-row">
+            <span>Item Total</span>
+            <span class="qb-summary-value">Rs {{ subtotal_calc | divided_by: 100 }}</span>
+          </div>
+          
+          <div class="qb-summary-row">
+            <span>Delivery Fee</span>
+            <span class="qb-summary-value qb-text-green">Calculated at next step</span>
+          </div>
 
-    <div class="order-summary">
-      <h3 class="summary-title">Order Summary</h3>
+          <div class="qb-summary-divider"></div>
 
-      <div class="summary-row">
-        <span>Subtotal</span>
-        <span class="summary-value">Rs {{ subtotal_calc | divided_by: 100 }}</span>
-      </div>
-
-      <div class="summary-row">
-        <span>Delivery</span>
-        <span class="summary-value">At checkout</span>
-      </div>
-
-      <div class="summary-row">
-        <span>Taxes</span>
-        <span class="summary-value">At checkout</span>
-      </div>
-
-      <div class="summary-divider"></div>
-
-      <div class="summary-total">
-        <span class="total-label">Total</span>
-        <span class="total-amount">Rs {{ subtotal_calc | divided_by: 100 }}</span>
+          <div class="qb-summary-row qb-summary-total">
+            <span>To Pay</span>
+            <span>Rs {{ subtotal_calc | divided_by: 100 }}</span>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- CHECKOUT BUTTON (Sticky) -->
-    <div class="checkout-section">
-      <button type="button" class="checkout-btn" id="qb-checkout-btn">🐝 Checkout Now</button>
+    <!-- STICKY CHECKOUT FOOTER (MOBILE & DESKTOP) -->
+    <div class="qb-checkout-footer">
+      <div class="qb-checkout-footer-inner">
+        <div class="qb-checkout-total-info">
+          <span class="qb-footer-total-label">Total to pay</span>
+          <span class="qb-footer-total-amount">Rs {{ subtotal_calc | divided_by: 100 }}</span>
+        </div>
+        <button type="button" class="qb-checkout-btn" id="qb-checkout-btn">
+          Checkout <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+      </div>
     </div>
 
     {%- endif -%}
@@ -110,466 +148,567 @@
 
 <style>
   :root {
-    --bee-gold: #F4B400;
-    --bee-light: #FFF9E6;
-    --bee-dark: #1a1a1a;
-    --bee-gray: #666666;
-    --bee-light-gray: #f5f5f5;
+    --qb-purple: #7a14ac;
+    --qb-purple-hover: #5a0d8c;
+    --qb-gold: #F4B400;
+    --qb-black: #111111;
+    --qb-text: #333333;
+    --qb-light: #f8f9fa;
+    --qb-border: #eeeeee;
+    --qb-green: #16a34a;
+    --qb-red: #ef4444;
   }
 
-  * {
-    box-sizing: border-box;
+  body {
+    background-color: var(--qb-light);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
 
-  .quick-cart-wrapper {
-    background: #f7f7f7;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+  .qb-cart-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-bottom: 100px; /* Space for sticky footer */
+    min-height: 80vh;
   }
 
-  /* EMPTY CART */
-  .empty-cart-state {
-    flex: 1;
+  /* Empty Cart */
+  .qb-empty-cart {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px 20px;
+    min-height: 60vh;
+    padding: 20px;
   }
 
-  .empty-cart-content {
+  .qb-empty-content {
     text-align: center;
+    background: white;
+    padding: 40px;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    max-width: 400px;
+    width: 100%;
   }
 
-  .empty-icon {
-    font-size: 80px;
-    margin-bottom: 16px;
-    animation: bounce 2s infinite;
+  .qb-empty-icon {
+    font-size: 72px;
+    margin-bottom: 20px;
   }
 
-  .empty-title {
+  .qb-empty-title {
     font-size: 24px;
-    font-weight: 900;
-    color: var(--bee-dark);
-    margin: 0 0 8px 0;
+    font-weight: 800;
+    color: var(--qb-black);
+    margin-bottom: 10px;
   }
 
-  .empty-text {
-    font-size: 14px;
-    color: var(--bee-gray);
-    margin: 0 0 24px 0;
+  .qb-empty-text {
+    font-size: 15px;
+    color: var(--qb-text);
+    margin-bottom: 30px;
   }
 
-  .empty-cta {
+  .qb-btn-primary {
     display: inline-block;
-    background: var(--bee-gold);
-    color: var(--bee-dark);
-    padding: 12px 32px;
-    border-radius: 8px;
+    width: 100%;
+    background: var(--qb-purple);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
     text-decoration: none;
     font-weight: 700;
-    font-size: 14px;
-    transition: all 0.2s;
+    font-size: 16px;
+    transition: all 0.2s ease;
   }
 
-  .empty-cta:active {
-    transform: scale(0.95);
+  .qb-btn-primary:hover {
+    background: var(--qb-purple-hover);
+    transform: translateY(-2px);
   }
 
-  /* HEADER */
-  .cart-header {
-    padding: 16px 16px 12px 16px;
-    background: linear-gradient(135deg, #FFF9E6 0%, #FFFBF0 100%);
-    border-bottom: 1px solid #e8e8e8;
+  /* Header */
+  .qb-cart-header {
+    background: white;
+    padding: 20px;
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 100;
+    border-bottom: 1px solid var(--qb-border);
   }
 
-  .cart-header h1 {
-    font-size: 24px;
-    font-weight: 900;
-    color: var(--bee-dark);
+  .qb-cart-header-inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .qb-cart-header h1 {
+    font-size: 22px;
+    font-weight: 800;
     margin: 0;
+    color: var(--qb-black);
   }
 
-  .cart-header p {
-    font-size: 12px;
-    color: var(--bee-gray);
-    margin: 4px 0 0 0;
+  .qb-cart-count {
+    background: var(--qb-light);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--qb-text);
   }
 
-  /* CART ITEMS */
-  .cart-items-section {
-    padding: 12px;
+  /* Body Layout */
+  .qb-cart-body {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  @media (min-width: 768px) {
+    .qb-cart-body {
+      grid-template-columns: 1fr 350px;
+      align-items: start;
+    }
+  }
+
+  /* Cart Items */
+  .qb-cart-items {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 16px;
   }
 
-  .cart-item-card {
-    display: grid;
-    grid-template-columns: 90px 1fr;
-    gap: 12px;
-    padding: 12px;
-    background: #fff;
+  .qb-cart-item {
+    background: white;
     border-radius: 16px;
-    align-items: center;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    padding: 16px;
+    display: flex;
+    gap: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    border: 1px solid var(--qb-border);
   }
 
-  .item-image {
-    width: 90px;
-    height: 90px;
+  .qb-item-image {
+    width: 80px;
+    height: 80px;
     border-radius: 12px;
+    background: var(--qb-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
-    border: 2px solid var(--bee-gold);
     flex-shrink: 0;
   }
 
-  .item-image img {
+  .qb-item-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
   }
 
-  /* RIGHT COLUMN */
-  .item-right {
+  .qb-item-no-image {
+    font-size: 32px;
+  }
+
+  .qb-item-details {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    min-width: 0;
+    justify-content: space-between;
   }
 
-  .item-top-row {
+  .qb-item-top {
     display: flex;
+    justify-content: space-between;
     align-items: flex-start;
-    justify-content: space-between;
-    gap: 8px;
+    gap: 12px;
   }
 
-  .item-name {
-    font-size: 14px;
+  .qb-item-title {
+    font-size: 15px;
     font-weight: 700;
-    color: var(--bee-dark);
-    margin: 0;
+    color: var(--qb-black);
+    text-decoration: none;
     line-height: 1.3;
-    flex: 1;
-    min-width: 0;
-    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
-  .item-variant {
-    font-size: 11px;
-    color: var(--bee-gray);
-    margin: 0;
+  .qb-remove-btn {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 4px;
+    transition: color 0.2s;
   }
 
-  .item-bottom-row {
+  .qb-remove-btn:hover {
+    color: var(--qb-red);
+  }
+
+  .qb-item-variant {
+    font-size: 12px;
+    color: #666;
+    margin: 4px 0 0 0;
+  }
+
+  .qb-item-bottom {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    align-items: flex-end;
+    margin-top: 12px;
   }
 
-  .item-total {
+  .qb-item-price {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .qb-current-price {
     font-size: 16px;
     font-weight: 800;
-    color: var(--bee-gold);
-    margin: 0;
-    white-space: nowrap;
+    color: var(--qb-purple);
   }
 
-  .qty-form { flex: 0 0 auto; }
+  .qb-original-price {
+    font-size: 12px;
+    color: #999;
+    text-decoration: line-through;
+  }
 
-  .qty-controls {
+  /* Quantity Selector */
+  .qb-qty-wrapper {
     display: flex;
     align-items: center;
-    background: #f5f5f5;
+    background: white;
+    border: 1px solid var(--qb-border);
     border-radius: 8px;
-    border: 1px solid #e0e0e0;
     overflow: hidden;
-    width: fit-content;
+    height: 36px;
   }
 
-  .qty-btn {
-    width: 32px;
-    height: 32px;
+  .qb-qty-btn {
+    width: 36px;
+    height: 100%;
+    background: var(--qb-light);
     border: none;
-    background: transparent;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--qb-black);
     cursor: pointer;
-    font-weight: 700;
-    font-size: 16px;
-    color: var(--bee-dark);
-    transition: background 0.15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    transition: background 0.2s;
   }
 
-  .qty-btn:active { background: #e0e0e0; }
+  .qb-qty-btn:active {
+    background: #e0e0e0;
+  }
 
-  .qty-input {
-    width: 32px;
-    height: 32px;
+  .qb-qty-input {
+    width: 40px;
+    height: 100%;
     border: none;
-    border-left: 1px solid #e0e0e0;
-    border-right: 1px solid #e0e0e0;
+    border-left: 1px solid var(--qb-border);
+    border-right: 1px solid var(--qb-border);
     text-align: center;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
-    background: #fff;
-    color: var(--bee-dark);
+    color: var(--qb-black);
+    -webkit-appearance: none;
+    margin: 0;
     padding: 0;
   }
 
-  .qty-input::-webkit-outer-spin-button,
-  .qty-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  .remove-btn {
-    width: 30px;
-    height: 30px;
-    border: none;
-    background: #FFF0F0;
-    color: #FF4444;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 700;
-    transition: background 0.15s;
+  /* Add More Link */
+  .qb-add-more-link {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .remove-btn:active {
-    background: #FF4444;
-    color: white;
-  }
-
-  /* ADD MORE */
-  .add-more-section {
-    padding: 4px 12px 12px;
-    text-align: center;
-  }
-
-  .add-more-btn {
-    display: inline-block;
-    color: var(--bee-gold);
-    text-decoration: none;
+    gap: 8px;
+    padding: 16px;
+    background: white;
+    border: 1px dashed #ccc;
+    border-radius: 16px;
+    color: var(--qb-purple);
     font-weight: 700;
-    font-size: 13px;
-    padding: 10px 24px;
-    border: 1.5px solid var(--bee-gold);
-    border-radius: 8px;
+    text-decoration: none;
     transition: all 0.2s;
-    background: #fff;
   }
 
-  .add-more-btn:active {
-    background: var(--bee-gold);
-    color: var(--bee-dark);
+  .qb-add-more-link:hover {
+    background: #fdf7ff;
+    border-color: var(--qb-purple);
   }
 
-  /* ORDER SUMMARY */
-  .order-summary {
-    padding: 16px 16px 0 16px;
-    background: var(--bee-light);
-    border-top: 1px solid #e8e8e8;
+  /* Sidebar */
+  .qb-cart-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
 
-  .summary-title {
-    font-size: 13px;
+  /* Trust Badges */
+  .qb-trust-badges {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    background: white;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid var(--qb-border);
+  }
+
+  .qb-trust-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #555;
+  }
+
+  .qb-trust-icon {
+    font-size: 20px;
+  }
+
+  /* Summary Card */
+  .qb-summary-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid var(--qb-border);
+  }
+
+  .qb-summary-title {
+    font-size: 16px;
     font-weight: 800;
-    color: var(--bee-dark);
+    color: var(--qb-black);
+    margin-bottom: 16px;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
-    margin: 0 0 12px 0;
+    letter-spacing: 0.5px;
   }
 
-  .summary-row {
+  .qb-summary-row {
     display: flex;
     justify-content: space-between;
-    font-size: 13px;
-    color: var(--bee-gray);
-    margin-bottom: 10px;
-    font-weight: 500;
+    font-size: 14px;
+    color: var(--qb-text);
+    margin-bottom: 12px;
   }
 
-  .summary-value {
-    color: var(--bee-dark);
+  .qb-summary-value {
+    font-weight: 600;
+    color: var(--qb-black);
+  }
+
+  .qb-text-green {
+    color: var(--qb-green);
+  }
+
+  .qb-summary-divider {
+    height: 1px;
+    background: var(--qb-border);
+    margin: 16px 0;
+  }
+
+  .qb-summary-total {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--qb-black);
+    margin-bottom: 0;
+  }
+
+  /* Sticky Footer */
+  .qb-checkout-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--qb-border);
+    padding: 16px 20px;
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+  }
+
+  .qb-checkout-footer-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .qb-checkout-total-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .qb-footer-total-label {
+    font-size: 12px;
+    color: #666;
     font-weight: 600;
   }
 
-  .summary-divider {
-    height: 1px;
-    background: var(--bee-gold);
-    margin: 12px 0;
-  }
-
-  .summary-total {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-
-  .total-label {
-    font-size: 15px;
-    font-weight: 800;
-    color: var(--bee-dark);
-  }
-
-  .total-amount {
+  .qb-footer-total-amount {
     font-size: 20px;
     font-weight: 900;
-    color: var(--bee-gold);
+    color: var(--qb-black);
   }
 
-  /* CHECKOUT SECTION (Sticky) */
-  .checkout-section {
-    padding: 12px 16px 16px 16px;
-    background: white;
-    border-top: 1px solid #e8e8e8;
-    position: sticky;
-    bottom: 0;
-    z-index: 20;
-  }
-
-  .checkout-btn {
-    display: block;
-    width: 100%;
-    padding: 14px 16px;
-    background: linear-gradient(135deg, var(--bee-gold) 0%, #E8A500 100%);
-    color: var(--bee-dark);
+  .qb-checkout-btn {
+    flex: 1;
+    max-width: 300px;
+    background: var(--qb-purple);
+    color: white;
     border: none;
-    border-radius: 8px;
-    font-size: 15px;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-size: 16px;
     font-weight: 800;
-    text-decoration: none;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 0 4px 12px rgba(244, 180, 0, 0.3);
+    box-shadow: 0 8px 20px rgba(122, 20, 172, 0.25);
   }
 
-  .checkout-btn:active {
-    transform: scale(0.98);
-    box-shadow: 0 2px 8px rgba(244, 180, 0, 0.2);
+  .qb-checkout-btn:hover {
+    background: var(--qb-purple-hover);
+    transform: translateY(-2px);
   }
 
-  /* ANIMATIONS */
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+  .qb-checkout-btn:active {
+    transform: translateY(0);
   }
 
-  /* RESPONSIVE */
-  @media (min-width: 768px) {
-    .cart-item-card {
-      grid-template-columns: 100px 1fr;
-      align-items: start;
-    }
+  .qb-checkout-btn.loading {
+    opacity: 0.7;
+    pointer-events: none;
+  }
 
-    .item-image {
-      width: 100px;
-      height: 100px;
-    }
+  /* Animations */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
 
-    .checkout-btn {
-      padding: 16px 20px;
-      font-size: 16px;
-    }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 </style>
 
 <script>
-  // Quantity controls
-  document.addEventListener('click', function(e) {
-    const decreaseBtn = e.target.closest('.qty-decrease');
-    const increaseBtn = e.target.closest('.qty-increase');
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Quality Assurance: Handle Quantity Changes Safely
+    const cartWrapper = document.querySelector('.qb-cart-wrapper');
+    if (!cartWrapper) return;
 
-    if (decreaseBtn) {
-      e.preventDefault();
-      const input = decreaseBtn.closest('.qty-controls').querySelector('.qty-input');
-      if (parseInt(input.value) > 1) {
-        input.value = parseInt(input.value) - 1;
-        input.closest('.qty-form').submit();
-      }
-    }
+    cartWrapper.addEventListener('click', function(e) {
+      const decreaseBtn = e.target.closest('.qb-qty-minus');
+      const increaseBtn = e.target.closest('.qb-qty-plus');
 
-    if (increaseBtn) {
-      e.preventDefault();
-      const input = increaseBtn.closest('.qty-controls').querySelector('.qty-input');
-      input.value = parseInt(input.value) + 1;
-      input.closest('.qty-form').submit();
-    }
-  });
-
-  // Quantity input change
-  document.querySelectorAll('.qty-input').forEach(input => {
-    input.addEventListener('change', function() {
-      if (this.value < 1) this.value = 1;
-      this.closest('.qty-form').submit();
-    });
-  });
-
-  // ── Checkout with location + delivery time as order note ──
-  document.getElementById('qb-checkout-btn').addEventListener('click', function() {
-    const btn = this;
-    btn.textContent = 'Processing...';
-    btn.disabled = true;
-
-    // Read location & delivery time from localStorage
-    const location = localStorage.getItem('qb_location') || '';
-    let deliveryRange = '';
-    try {
-      const dt = JSON.parse(localStorage.getItem('qb_delivery_time') || '{}');
-      deliveryRange = dt.range || '';
-    } catch(e) {}
-
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-
-    const note = [
-      location ? 'Delivery Location: ' + location : '',
-      deliveryRange ? 'Estimated Delivery: ' + deliveryRange : '',
-      'Order Time: ' + dateStr + ' ' + timeStr
-    ].filter(Boolean).join(' | ');
-
-    // POST note to cart, then redirect to checkout
-    fetch('/cart/update.js', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        note: note,
-        attributes: {
-          'Delivery Location': location,
-          'Estimated Delivery': deliveryRange,
-          'Order Time': dateStr + ' ' + timeStr
+      if (decreaseBtn) {
+        e.preventDefault();
+        const input = decreaseBtn.nextElementSibling;
+        if (parseInt(input.value) > 1) {
+          input.value = parseInt(input.value) - 1;
+          submitFormSafe(decreaseBtn.closest('form'));
         }
-      })
-    })
-    .then(() => { window.location.href = '/checkout'; })
-    .catch(() => { window.location.href = '/checkout'; });
+      }
+
+      if (increaseBtn) {
+        e.preventDefault();
+        const input = increaseBtn.previousElementSibling;
+        input.value = parseInt(input.value) + 1;
+        submitFormSafe(increaseBtn.closest('form'));
+      }
+    });
+
+    // Handle manual input changes
+    const qtyInputs = document.querySelectorAll('.qb-qty-input');
+    qtyInputs.forEach(input => {
+      input.addEventListener('change', function() {
+        if (this.value < 1) this.value = 1;
+        submitFormSafe(this.closest('form'));
+      });
+    });
+
+    function submitFormSafe(form) {
+      // Basic visual feedback
+      form.style.opacity = '0.5';
+      form.submit();
+    }
+
+    // 2. Checkout Logic with Note Integration
+    const checkoutBtn = document.getElementById('qb-checkout-btn');
+    if (checkoutBtn) {
+      checkoutBtn.addEventListener('click', function() {
+        const btn = this;
+        
+        // Prevent double clicks
+        if (btn.classList.contains('loading')) return;
+        
+        btn.classList.add('loading');
+        btn.innerHTML = 'Processing...';
+
+        // Gather local data for delivery context
+        const location = localStorage.getItem('qb_location') || '';
+        let deliveryRange = '';
+        try {
+          const dt = JSON.parse(localStorage.getItem('qb_delivery_time') || '{}');
+          deliveryRange = dt.range || '';
+        } catch(e) {}
+
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+        const note = [
+          location ? 'Delivery Location: ' + location : '',
+          deliveryRange ? 'Estimated Delivery: ' + deliveryRange : '',
+          'Order Time: ' + dateStr + ' ' + timeStr
+        ].filter(Boolean).join(' | ');
+
+        // Update cart with note, then redirect
+        fetch('/cart/update.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            note: note,
+            attributes: {
+              'Delivery Location': location,
+              'Estimated Delivery': deliveryRange,
+              'Order Time': dateStr + ' ' + timeStr
+            }
+          })
+        })
+        .then(() => { window.location.href = '/checkout'; })
+        .catch(() => { window.location.href = '/checkout'; }); // Fallback navigation
+      });
+    }
   });
 </script>
 
 {% schema %}
 {
-  "name": "Cart",
+  "name": "Cart Page",
   "settings": [],
   "presets": [
     {
-      "name": "Cart"
+      "name": "Cart Page"
     }
   ]
 }
