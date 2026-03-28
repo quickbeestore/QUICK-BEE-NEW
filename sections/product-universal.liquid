@@ -1,6 +1,40 @@
 <!-- Universal Product Page - Clean Minimal Design -->
-{% assign current_product_id = product.id %}
-<style>
+{% liquid
+  assign yeti_found = false
+  assign baby_care_found = false
+  assign pet_care_found = false
+  
+  for collection in product.collections
+    if collection.title == "Yeti Kafe"
+      assign yeti_found = true
+    endif
+    if collection.title == "Baby Care"
+      assign baby_care_found = true
+    endif
+    if collection.title == "Pet Care"
+      assign pet_care_found = true
+    endif
+  endfor
+
+  if product.vendor == "YETI KAFE"
+    assign yeti_found = true
+  endif
+  if product.vendor == "BABY CARE" or product.type == "Baby Care"
+    assign baby_care_found = true
+  endif
+  if product.vendor == "PET CARE" or product.type == "Pet Care"
+    assign pet_care_found = true
+  endif
+
+  assign show_universal = true
+  if yeti_found or baby_care_found or pet_care_found
+    assign show_universal = false
+  endif
+%}
+
+{% if show_universal %}
+  {% assign current_product_id = product.id %}
+  <style>
   .univ-product-wrapper {
     background: #ffffff;
     padding: 0;
@@ -938,6 +972,7 @@
     });
   })();
 </script>
+{% endif %}
 
 {% schema %}
 {
