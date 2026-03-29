@@ -1,5 +1,5 @@
 <cart-items-component class="qb-cart-component" data-section-id="{{ section.id }}">
-  <!-- HELP MODAL (Top of section for highest reliability) -->
+  <!-- HELP MODAL (Top Level) -->
   <div id="qb-landmark-modal" class="qb-modal-overlay" style="display: none; z-index: 999999999;" onclick="if(event.target === this) this.style.display='none'">
     <div class="qb-modal-container animate-slide-up">
       <div class="qb-modal-handle"></div>
@@ -32,7 +32,7 @@
       <div class="qb-cart-header">
         <div class="qb-header-content">
           <h1>Review Order</h1>
-          <span class="qb-header-count">{{ cart.item_count }} item{% if cart.item_count > 1 %}s{% endif %}</span>
+          <span class="qb-header-count">{{ cart.item_count }} items</span>
         </div>
       </div>
 
@@ -72,6 +72,7 @@
           <a href="{{ routes.all_products_collection_url }}" class="qb-add-more">+ Add more items</a>
         </div>
 
+        <!-- LANDMARK SLOT -->
         <div class="qb-cart-section">
           <div class="qb-section-label">
             <span>DELIVERY LANDMARK</span>
@@ -184,28 +185,37 @@
   function initCart() {
     const input = document.getElementById('LandmarkLink');
     if (!input) return;
+
+    // LOAD INITIAL STATE
     const activeNick = localStorage.getItem('qb_active_nickname') || 'Home';
     document.querySelectorAll('.qb-nick-btn').forEach(btn => {
+      const savedLink = localStorage.getItem('qb_landmark_' + btn.dataset.nickname);
       if (btn.dataset.nickname === activeNick) {
         btn.classList.add('active');
-        const saved = localStorage.getItem('qb_landmark_' + activeNick);
-        if (saved) input.value = saved;
+        if (savedLink) input.value = savedLink;
       }
     });
+
+    // GLOBAL CLICK HANDLER
     document.addEventListener('click', (e) => {
+      // 1. NICKNAMES
       const nickBtn = e.target.closest('.qb-nick-btn');
       if (nickBtn) {
         const inp = document.getElementById('LandmarkLink');
         const oldNick = localStorage.getItem('qb_active_nickname') || 'Home';
         if (inp) localStorage.setItem('qb_landmark_' + oldNick, inp.value);
+
         document.querySelectorAll('.qb-nick-btn').forEach(b => b.classList.remove('active'));
         nickBtn.classList.add('active');
+        
         const newNick = nickBtn.dataset.nickname;
         localStorage.setItem('qb_active_nickname', newNick);
         const newSaved = localStorage.getItem('qb_landmark_' + newNick);
         if (inp) inp.value = newSaved || '';
         return;
       }
+
+      // 2. QUANTITIES
       const act = e.target.closest('.qb-qty-act');
       if (act) {
         const form = act.closest('form');
@@ -220,6 +230,8 @@
         form.submit();
         return;
       }
+
+      // 3. CHECKOUT
       const checkout = e.target.closest('#qb-checkout-btn');
       if (checkout) {
         if (checkout.disabled) return;
@@ -232,11 +244,14 @@
         .finally(() => { window.location.href = '/checkout'; });
       }
     });
+
+    // AUTO SAVE
     input.addEventListener('input', () => {
       const nick = localStorage.getItem('qb_active_nickname') || 'Home';
       localStorage.setItem('qb_landmark_' + nick, input.value);
     });
   }
+
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initCart);
   else initCart();
 })();
