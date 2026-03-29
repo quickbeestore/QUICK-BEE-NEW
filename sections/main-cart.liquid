@@ -75,11 +75,11 @@
           <a href="{{ routes.all_products_collection_url }}" class="qb-add-more">+ Add more items</a>
         </div>
 
-        <!-- REWRITTEN LANDMARK SECTION -->
+        <!-- LANDMARK SECTION -->
         <div class="qb-cart-section qb-landmark-section">
           <div class="qb-landmark-header">
             <h2 class="qb-landmark-title">DELIVERY LANDMARK</h2>
-            <button type="button" class="qb-landmark-help-btn" onclick="document.getElementById('qb-landmark-modal').style.display='flex'">
+            <button type="button" class="qb-landmark-help-btn" data-modal-trigger="landmark-help">
               HELP <span class="qb-help-icon">?</span>
             </button>
           </div>
@@ -123,7 +123,7 @@
 <style>
   :root { --qb-purple: #7a14ac; --qb-red: #C41E3A; --qb-black: #111111; --qb-bg: #f7f8fa; --qb-border: #edf0f2; --qb-ease: cubic-bezier(0.4, 0, 0.2, 1); }
   .qb-cart-component { display: block; width: 100%; min-height: 100vh; background: var(--qb-bg); overflow-x: hidden; }
-  .qb-cart-wrapper { display: flex; flex-direction: column; height: 100vh; max-width: 600px; margin: 0 auto; background: #fff; position: relative; }
+  .qb-cart-wrapper { display: flex; flex-direction: column; min-height: 100vh; max-width: 600px; margin: 0 auto; background: #fff; position: relative; }
   .qb-empty-cart { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--qb-bg); }
   .qb-empty-card { text-align: center; background: #fff; padding: 48px 32px; border-radius: 32px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); width: 100%; }
   .qb-empty-icon-wrap { position: relative; width: 100px; height: 100px; margin: 0 auto 24px; display: flex; align-items: center; justify-content: center; }
@@ -142,11 +142,12 @@
   /* Landmark Styles */
   .qb-landmark-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
   .qb-landmark-title { font-size: 12px; font-weight: 900; color: #888; margin: 0; letter-spacing: 0.5px; }
-  .qb-landmark-help-btn { background: #fff; border: 1.5px solid var(--qb-purple); padding: 4px 8px; border-radius: 20px; color: var(--qb-purple); font-size: 10px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 4px; z-index: 10; position: relative; }
+  .qb-landmark-help-btn { background: #fff; border: 1.5px solid var(--qb-purple); padding: 4px 8px; border-radius: 20px; color: var(--qb-purple); font-size: 10px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 4px; }
   .qb-help-icon { background: var(--qb-purple); color: #fff; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; }
   .qb-landmark-input-box { position: relative; display: flex; align-items: center; margin-bottom: 14px; }
   .qb-map-pin { position: absolute; left: 12px; font-size: 16px; }
-  .qb-landmark-input { width: 100%; padding: 12px 12px 12px 38px; background: #f8f9fa; border: 1.5px solid var(--qb-border); border-radius: 12px; font-size: 14px; outline: none; }
+  .qb-landmark-input { width: 100%; padding: 12px 12px 12px 38px; background: #f8f9fa; border: 1.5px solid var(--qb-border); border-radius: 12px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+  .qb-landmark-input:focus { border-color: var(--qb-purple); background: #fff; }
   .qb-nickname-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .qb-nick-btn { padding: 10px; background: #fff; border: 1.5px solid var(--qb-border); border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; text-align: center; }
   .qb-nick-btn.active { border-color: var(--qb-purple); background: #fdf7ff; color: var(--qb-purple); }
@@ -201,7 +202,17 @@
 
     // Global listener for re-renders
     document.addEventListener('click', (e) => {
-      // 1. Nicknames
+      // 1. MODAL TRIGGER
+      const modalBtn = e.target.closest('[data-modal-trigger]');
+      if (modalBtn) {
+        e.preventDefault();
+        const modalId = 'qb-landmark-modal';
+        const modal = document.getElementById(modalId);
+        if (modal) modal.style.display = 'flex';
+        return;
+      }
+
+      // 2. Nicknames
       const nickBtn = e.target.closest('.qb-nick-btn');
       if (nickBtn) {
         const inp = document.getElementById('LandmarkLink');
