@@ -65,9 +65,7 @@
         <div class="qb-cart-card">
           <div class="qb-landmark-header">
             <h2 class="qb-card-title">DELIVERY LANDMARK</h2>
-            <button type="button" class="qb-help-pill" onclick="window.qbHelpOpen()">
-              HELP <span>?</span>
-            </button>
+            <button type="button" class="qb-help-circle" onclick="window.qbHelpOpen()">?</button>
           </div>
           <div class="qb-input-wrap">
             <span class="qb-input-icon">📍</span>
@@ -129,12 +127,26 @@
   .qb-cart-component { display: block; background: var(--qb-bg); min-height: 100vh; padding-bottom: 120px; }
   .qb-cart-wrapper { max-width: 500px; margin: 0 auto; background: #fff; box-shadow: 0 0 20px rgba(0,0,0,0.05); min-height: 100vh; position: relative; }
 
-  /* Help Trigger Redesign */
-  .qb-help-pill {
-    background: #fff; border: 1.5px solid var(--qb-purple); border-radius: 20px; padding: 4px 10px; color: var(--qb-purple); font-size: 11px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 6px;
-    box-shadow: 0 2px 8px rgba(122, 20, 172, 0.1);
+  /* Help Circle Button Design */
+  .qb-help-circle {
+    width: 24px;
+    height: 24px;
+    background: var(--qb-purple);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(122, 20, 172, 0.2);
+    transition: all 0.2s;
+    position: relative;
+    z-index: 10;
   }
-  .qb-help-pill span { background: var(--qb-purple); color: #fff; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+  .qb-help-circle:active { transform: scale(0.9); opacity: 0.8; }
 
   /* HEADER */
   .qb-cart-header { padding: 20px; border-bottom: 1px solid var(--qb-border); display: flex; align-items: center; justify-content: space-between; background: #fff; position: sticky; top: 0; z-index: 100; }
@@ -164,6 +176,7 @@
   .qb-add-more { display: block; text-align: center; padding: 12px; border: 1px dashed #ccc; border-radius: 12px; text-decoration: none; color: var(--qb-purple); font-weight: 700; font-size: 14px; margin-top: 16px; }
 
   /* LANDMARK */
+  .qb-landmark-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .qb-input-wrap { position: relative; display: flex; align-items: center; margin-bottom: 16px; }
   .qb-input-icon { position: absolute; left: 12px; font-size: 16px; }
   .qb-landmark-input { width: 100%; padding: 12px 12px 12px 38px; background: #f8f9fa; border: 1.5px solid var(--qb-border); border-radius: 12px; font-size: 14px; outline: none; }
@@ -178,7 +191,7 @@
   .qb-total-row { border-top: 1px dashed #ddd; padding-top: 12px; font-size: 17px; font-weight: 900; color: #111; }
   .qb-trust-row { display: flex; justify-content: center; gap: 20px; font-size: 11px; font-weight: 700; color: #bbb; margin-top: 8px; }
 
-  /* STICKY FOOTER - Above Mobile Nav */
+  /* STICKY FOOTER */
   .qb-sticky-footer { position: fixed; bottom: 65px; left: 0; right: 0; background: #fff; padding: 16px 20px calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid var(--qb-border); display: flex !important; align-items: center; justify-content: space-between; gap: 16px; z-index: 9997; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); width: 100%; max-width: 500px; margin: 0 auto; }
   .qb-footer-info { display: flex; flex-direction: column; }
   .qb-footer-label { font-size: 10px; font-weight: 800; color: #999; }
@@ -194,13 +207,6 @@
   .qb-modal-img { width: 100%; border-radius: 20px; margin-bottom: 20px; border: 1px solid #eee; display: block; }
   .qb-maps-link { display: flex; align-items: center; justify-content: center; background: #4285F4; color: #fff; text-decoration: none; padding: 16px; border-radius: 16px; font-weight: 800; margin-bottom: 12px; }
   .qb-modal-done { width: 100%; padding: 16px; background: #f0f0f0; border: none; border-radius: 16px; font-weight: 700; color: #333; cursor: pointer; }
-
-  .qb-empty-cart { padding: 60px 20px; background: var(--qb-bg); text-align: center; }
-  .qb-empty-card { background: #fff; padding: 40px 24px; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-  .qb-empty-emoji { font-size: 64px; }
-  .qb-empty-title { font-size: 22px; font-weight: 900; margin: 0 0 8px; }
-  .qb-empty-subtitle { font-size: 15px; color: #666; margin: 0 0 32px; }
-  .qb-empty-btn { display: block; background: var(--qb-red); color: #fff; padding: 16px; border-radius: 16px; text-decoration: none; font-weight: 800; }
 
   .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -224,7 +230,7 @@ window.qbHelpClose = function() {
     const input = document.getElementById('LandmarkLink');
     if (!input) return;
 
-    // Load initial data
+    // INITIAL NICKNAME LOAD
     const active = localStorage.getItem('qb_active_nickname') || 'Home';
     document.querySelectorAll('.qb-nick-btn').forEach(btn => {
       const saved = localStorage.getItem('qb_landmark_' + btn.dataset.nickname);
@@ -234,7 +240,7 @@ window.qbHelpClose = function() {
       }
     });
 
-    // Clicks
+    // CLICKS
     document.addEventListener('click', (e) => {
       // 1. Nicknames
       const nick = e.target.closest('.qb-nick-btn');
