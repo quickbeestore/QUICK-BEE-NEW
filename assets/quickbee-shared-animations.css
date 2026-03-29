@@ -1,3 +1,10 @@
+/* QuickBee Premium Shared Animations */
+
+:root {
+  --qb-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --qb-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -20,43 +27,53 @@
   }
 }
 
+@keyframes qbFadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.02); }
 }
 
-@keyframes countdownPulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
-}
-
-@keyframes smoothScroll {
-  to { scroll-behavior: smooth; }
-}
-
+/* Premium Animations with Hardware Acceleration */
 .animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
+  animation: fadeInUp 0.6s var(--qb-ease) forwards;
+  will-change: transform, opacity;
 }
 
 .animate-slide-in-right {
-  animation: slideInRight 0.4s ease-out;
+  animation: slideInRight 0.4s var(--qb-ease);
+  will-change: transform, opacity;
+}
+
+.animate-fade-in {
+  animation: qbFadeIn 0.5s var(--qb-ease) forwards;
+  will-change: transform, opacity;
 }
 
 .animate-pulse {
   animation: pulse 2s ease-in-out infinite;
 }
 
-.animate-countdown {
-  animation: countdownPulse 1s ease-in-out;
-}
-
 .animate-stagger > * {
-  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+  animation: fadeInUp 0.6s var(--qb-ease) forwards;
 }
 
-.animate-stagger > *:nth-child(1) { animation-delay: 0.1s; }
-.animate-stagger > *:nth-child(2) { animation-delay: 0.2s; }
-.animate-stagger > *:nth-child(3) { animation-delay: 0.3s; }
-.animate-stagger > *:nth-child(4) { animation-delay: 0.4s; }
-.animate-stagger > *:nth-child(5) { animation-delay: 0.5s; }
+.animate-stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.animate-stagger > *:nth-child(2) { animation-delay: 0.1s; }
+.animate-stagger > *:nth-child(3) { animation-delay: 0.15s; }
+.animate-stagger > *:nth-child(4) { animation-delay: 0.2s; }
+.animate-stagger > *:nth-child(5) { animation-delay: 0.25s; }
+
+/* Handle user preference for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
