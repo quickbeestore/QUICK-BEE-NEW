@@ -17,8 +17,10 @@
 
       <!-- CART HEADER -->
       <div class="qb-cart-header">
-        <h1>Review Order</h1>
-        <span class="qb-header-count">{{ cart.item_count }} item{% if cart.item_count > 1 %}s{% endif %}</span>
+        <div class="qb-header-content">
+          <h1>Review Order</h1>
+          <span class="qb-header-count">{{ cart.item_count }} item{% if cart.item_count > 1 %}s{% endif %}</span>
+        </div>
       </div>
 
       <!-- MAIN CONTENT -->
@@ -63,7 +65,7 @@
         <div class="qb-cart-card">
           <div class="qb-landmark-header">
             <h2 class="qb-card-title">DELIVERY LANDMARK</h2>
-            <button type="button" class="qb-help-pill" onclick="window.qbOpenHelp()">
+            <button type="button" class="qb-help-pill" onclick="window.qbHelpOpen()">
               HELP <span>?</span>
             </button>
           </div>
@@ -107,16 +109,16 @@
   </div>
 </cart-items-component>
 
-<!-- HELP MODAL -->
-<div id="qb-help-modal" class="qb-modal-overlay" style="display: none;" onclick="if(event.target === this) window.qbCloseHelp()">
+<!-- HELP MODAL (FAIL-SAFE GLOBAL LEVEL) -->
+<div id="qb-help-modal-overlay" class="qb-modal-overlay" style="display: none;" onclick="if(event.target === this) window.qbHelpClose()">
   <div class="qb-modal-container animate-slide-up">
     <div class="qb-modal-handle"></div>
-    <button class="qb-modal-close" type="button" onclick="window.qbCloseHelp()">✕</button>
+    <button class="qb-modal-close" type="button" onclick="window.qbHelpClose()">✕</button>
     <div class="qb-modal-body">
       <h3 class="qb-modal-title">How to share location?</h3>
       <img src="{{ 'popupgoogle.png' | asset_url }}" alt="Instructions" class="qb-modal-img">
       <a href="https://www.google.com/maps" target="_blank" class="qb-maps-link">Open Google Maps App</a>
-      <button type="button" class="qb-modal-done" onclick="window.qbCloseHelp()">Got it!</button>
+      <button type="button" class="qb-modal-done" onclick="window.qbHelpClose()">Got it!</button>
     </div>
   </div>
 </div>
@@ -126,6 +128,13 @@
   
   .qb-cart-component { display: block; background: var(--qb-bg); min-height: 100vh; padding-bottom: 120px; }
   .qb-cart-wrapper { max-width: 500px; margin: 0 auto; background: #fff; box-shadow: 0 0 20px rgba(0,0,0,0.05); min-height: 100vh; position: relative; }
+
+  /* Help Trigger Redesign */
+  .qb-help-pill {
+    background: #fff; border: 1.5px solid var(--qb-purple); border-radius: 20px; padding: 4px 10px; color: var(--qb-purple); font-size: 11px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    box-shadow: 0 2px 8px rgba(122, 20, 172, 0.1);
+  }
+  .qb-help-pill span { background: var(--qb-purple); color: #fff; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
 
   /* HEADER */
   .qb-cart-header { padding: 20px; border-bottom: 1px solid var(--qb-border); display: flex; align-items: center; justify-content: space-between; background: #fff; position: sticky; top: 0; z-index: 100; }
@@ -155,9 +164,6 @@
   .qb-add-more { display: block; text-align: center; padding: 12px; border: 1px dashed #ccc; border-radius: 12px; text-decoration: none; color: var(--qb-purple); font-weight: 700; font-size: 14px; margin-top: 16px; }
 
   /* LANDMARK */
-  .qb-landmark-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-  .qb-help-pill { background: #fff; border: 1.5px solid var(--qb-purple); border-radius: 20px; padding: 4px 10px; color: var(--qb-purple); font-size: 11px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-  .qb-help-pill span { background: var(--qb-purple); color: #fff; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
   .qb-input-wrap { position: relative; display: flex; align-items: center; margin-bottom: 16px; }
   .qb-input-icon { position: absolute; left: 12px; font-size: 16px; }
   .qb-landmark-input { width: 100%; padding: 12px 12px 12px 38px; background: #f8f9fa; border: 1.5px solid var(--qb-border); border-radius: 12px; font-size: 14px; outline: none; }
@@ -172,7 +178,7 @@
   .qb-total-row { border-top: 1px dashed #ddd; padding-top: 12px; font-size: 17px; font-weight: 900; color: #111; }
   .qb-trust-row { display: flex; justify-content: center; gap: 20px; font-size: 11px; font-weight: 700; color: #bbb; margin-top: 8px; }
 
-  /* STICKY FOOTER - Bulletproof Fixed Positioning (Above Mobile Nav) */
+  /* STICKY FOOTER - Above Mobile Nav */
   .qb-sticky-footer { position: fixed; bottom: 65px; left: 0; right: 0; background: #fff; padding: 16px 20px calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid var(--qb-border); display: flex !important; align-items: center; justify-content: space-between; gap: 16px; z-index: 9997; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); width: 100%; max-width: 500px; margin: 0 auto; }
   .qb-footer-info { display: flex; flex-direction: column; }
   .qb-footer-label { font-size: 10px; font-weight: 800; color: #999; }
@@ -180,7 +186,7 @@
   .qb-checkout-btn { flex: 1; background: var(--qb-red) !important; color: #fff !important; border: none !important; height: 50px !important; border-radius: 16px !important; font-size: 17px !important; font-weight: 900 !important; cursor: pointer !important; display: flex !important; align-items: center !important; justify-content: center !important; }
 
   /* MODAL */
-  .qb-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 999999999999 !important; display: flex; align-items: flex-end; justify-content: center; }
+  .qb-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(6px); z-index: 999999999999 !important; display: flex; align-items: flex-end; justify-content: center; }
   .qb-modal-container { background: #fff; width: 100%; max-width: 500px; border-radius: 32px 32px 0 0; padding: 24px; position: relative; }
   .qb-modal-handle { width: 40px; height: 4px; background: #eee; border-radius: 2px; margin: 0 auto 20px; }
   .qb-modal-close { position: absolute; top: 20px; right: 20px; background: #f5f5f5; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; }
@@ -189,18 +195,27 @@
   .qb-maps-link { display: flex; align-items: center; justify-content: center; background: #4285F4; color: #fff; text-decoration: none; padding: 16px; border-radius: 16px; font-weight: 800; margin-bottom: 12px; }
   .qb-modal-done { width: 100%; padding: 16px; background: #f0f0f0; border: none; border-radius: 16px; font-weight: 700; color: #333; cursor: pointer; }
 
+  .qb-empty-cart { padding: 60px 20px; background: var(--qb-bg); text-align: center; }
+  .qb-empty-card { background: #fff; padding: 40px 24px; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+  .qb-empty-emoji { font-size: 64px; }
+  .qb-empty-title { font-size: 22px; font-weight: 900; margin: 0 0 8px; }
+  .qb-empty-subtitle { font-size: 15px; color: #666; margin: 0 0 32px; }
+  .qb-empty-btn { display: block; background: var(--qb-red); color: #fff; padding: 16px; border-radius: 16px; text-decoration: none; font-weight: 800; }
+
   .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 </style>
 
 <script>
-// FAIL-SAFE GLOBAL MODAL TRIGGER
-window.qbOpenHelp = function() {
-  const modal = document.getElementById('qb-help-modal');
+// FAIL-SAFE GLOBAL MODAL FUNCTIONS
+window.qbHelpOpen = function() {
+  const modal = document.getElementById('qb-help-modal-overlay');
   if (modal) modal.style.display = 'flex';
 };
-window.qbCloseHelp = function() {
-  const modal = document.getElementById('qb-help-modal');
+window.qbHelpClose = function() {
+  const modal = document.getElementById('qb-help-modal-overlay');
   if (modal) modal.style.display = 'none';
 };
 
@@ -209,7 +224,7 @@ window.qbCloseHelp = function() {
     const input = document.getElementById('LandmarkLink');
     if (!input) return;
 
-    // INITIAL NICKNAME LOAD
+    // Load initial data
     const active = localStorage.getItem('qb_active_nickname') || 'Home';
     document.querySelectorAll('.qb-nick-btn').forEach(btn => {
       const saved = localStorage.getItem('qb_landmark_' + btn.dataset.nickname);
@@ -219,7 +234,7 @@ window.qbCloseHelp = function() {
       }
     });
 
-    // CLICKS
+    // Clicks
     document.addEventListener('click', (e) => {
       // 1. Nicknames
       const nick = e.target.closest('.qb-nick-btn');
@@ -227,10 +242,8 @@ window.qbCloseHelp = function() {
         const inp = document.getElementById('LandmarkLink');
         const oldNick = localStorage.getItem('qb_active_nickname') || 'Home';
         if (inp) localStorage.setItem('qb_landmark_' + oldNick, inp.value);
-
         document.querySelectorAll('.qb-nick-btn').forEach(b => b.classList.remove('active'));
         nick.classList.add('active');
-        
         const newNick = nick.dataset.nickname;
         localStorage.setItem('qb_active_nickname', newNick);
         const newSaved = localStorage.getItem('qb_landmark_' + newNick);
@@ -258,7 +271,7 @@ window.qbCloseHelp = function() {
       const checkout = e.target.closest('#qb-checkout-btn');
       if (checkout) {
         if (checkout.disabled) return;
-        checkout.innerHTML = 'Wait...';
+        checkout.innerHTML = 'Processing...';
         checkout.disabled = true;
         const landmark = document.getElementById('LandmarkLink')?.value || '';
         fetch('/cart/update.js', { 
@@ -269,7 +282,7 @@ window.qbCloseHelp = function() {
       }
     });
 
-    // TYPING
+    // Save typing
     input.addEventListener('input', () => {
       const current = localStorage.getItem('qb_active_nickname') || 'Home';
       localStorage.setItem('qb_landmark_' + current, input.value);
