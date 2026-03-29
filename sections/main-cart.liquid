@@ -1,4 +1,4 @@
-<!-- sections/main-cart.liquid -->
+<!-- sections/main-cart.liquid - FINAL STABLE VERSION WITH CUTE HELP CIRCLE -->
 <cart-items-component class="qb-cart-component" data-section-id="{{ section.id }}">
   <div class="qb-cart-wrapper">
     {%- if cart.empty? -%}
@@ -19,7 +19,7 @@
       <div class="qb-cart-header">
         <div class="qb-header-content">
           <h1>Review Order</h1>
-          <span class="qb-header-count">{{ cart.item_count }} item{% if cart.item_count > 1 %}s{% endif %}</span>
+          <span class="qb-header-count">{{ cart.item_count }} items</span>
         </div>
       </div>
 
@@ -65,7 +65,7 @@
         <div class="qb-cart-card">
           <div class="qb-landmark-header">
             <h2 class="qb-card-title">DELIVERY LANDMARK</h2>
-            <button type="button" class="qb-help-circle" onclick="window.qbHelpOpen()">?</button>
+            <button type="button" class="qb-help-circle" onclick="window.qbHelpOpen()" aria-label="Help">?</button>
           </div>
           <div class="qb-input-wrap">
             <span class="qb-input-icon">📍</span>
@@ -127,7 +127,7 @@
   .qb-cart-component { display: block; background: var(--qb-bg); min-height: 100vh; padding-bottom: 120px; }
   .qb-cart-wrapper { max-width: 500px; margin: 0 auto; background: #fff; box-shadow: 0 0 20px rgba(0,0,0,0.05); min-height: 100vh; position: relative; }
 
-  /* Help Circle Button Design */
+  /* CUTE CIRCLE HELP BUTTON */
   .qb-help-circle {
     width: 24px;
     height: 24px;
@@ -144,7 +144,7 @@
     box-shadow: 0 2px 8px rgba(122, 20, 172, 0.2);
     transition: all 0.2s;
     position: relative;
-    z-index: 10;
+    z-index: 999999; /* Ensure it is clickable */
   }
   .qb-help-circle:active { transform: scale(0.9); opacity: 0.8; }
 
@@ -160,7 +160,6 @@
 
   /* ITEMS */
   .qb-cart-item { display: flex; gap: 12px; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #f8f9fa; margin-bottom: 16px; }
-  .qb-cart-item:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
   .qb-item-img { width: 70px; height: 70px; border-radius: 12px; overflow: hidden; background: #f8f9fa; flex-shrink: 0; }
   .qb-item-img img { width: 100%; height: 100%; object-fit: cover; }
   .qb-item-details { flex: 1; min-width: 0; }
@@ -230,7 +229,6 @@ window.qbHelpClose = function() {
     const input = document.getElementById('LandmarkLink');
     if (!input) return;
 
-    // INITIAL NICKNAME LOAD
     const active = localStorage.getItem('qb_active_nickname') || 'Home';
     document.querySelectorAll('.qb-nick-btn').forEach(btn => {
       const saved = localStorage.getItem('qb_landmark_' + btn.dataset.nickname);
@@ -240,9 +238,7 @@ window.qbHelpClose = function() {
       }
     });
 
-    // CLICKS
     document.addEventListener('click', (e) => {
-      // 1. Nicknames
       const nick = e.target.closest('.qb-nick-btn');
       if (nick) {
         const inp = document.getElementById('LandmarkLink');
@@ -256,8 +252,6 @@ window.qbHelpClose = function() {
         if (inp) inp.value = newSaved || '';
         return;
       }
-
-      // 2. Qty
       const act = e.target.closest('.qb-qty-act');
       if (act) {
         const form = act.closest('form');
@@ -272,8 +266,6 @@ window.qbHelpClose = function() {
         form.submit();
         return;
       }
-
-      // 3. Checkout
       const checkout = e.target.closest('#qb-checkout-btn');
       if (checkout) {
         if (checkout.disabled) return;
@@ -288,7 +280,6 @@ window.qbHelpClose = function() {
       }
     });
 
-    // Save typing
     input.addEventListener('input', () => {
       const current = localStorage.getItem('qb_active_nickname') || 'Home';
       localStorage.setItem('qb_landmark_' + current, input.value);
