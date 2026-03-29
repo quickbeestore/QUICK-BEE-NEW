@@ -2,7 +2,7 @@
 <cart-items-component class="qb-cart-page-component" data-section-id="{{ section.id }}">
   <div class="qb-cart-main-container">
     {%- if cart.empty? -%}
-      <!-- Empty Cart: Professional Beehive Design -->
+      <!-- Empty Hive State -->
       <div class="qb-empty-hive-state animate-fade-in">
         <div class="qb-empty-art">🐝</div>
         <h1 class="qb-empty-title">Your Hive is Empty</h1>
@@ -11,7 +11,7 @@
       </div>
     {%- else -%}
       
-      <!-- CART HEADER (Non-fixed to respect theme header) -->
+      <!-- CART HEADER (Non-fixed to show Theme Header) -->
       <div class="qb-cart-header-pro">
         <h1 class="qb-cart-title-pro">Review Order</h1>
         <span class="qb-badge-pro" ref="cartItemCount">{{ cart.item_count }} Items</span>
@@ -73,10 +73,8 @@
         <div class="qb-card-pro">
           <div class="qb-card-label-row qb-flex-between">
             <span class="qb-card-tag-pro">DELIVERY DESTINATION</span>
-            <!-- PROFESSIONAL ? BUTTON DESIGN -->
-            <button type="button" class="qb-help-pro-btn" id="openHelpBtn" aria-label="Location Guide">
-              <span class="qb-help-icon-inner">?</span>
-            </button>
+            <!-- PROFESSIONAL ? BUTTON -->
+            <button type="button" class="qb-help-pro-trigger" id="openHelpBtn" aria-label="Show Guide">?</button>
           </div>
           
           <div class="qb-input-wrap-pro">
@@ -94,7 +92,7 @@
 
         <!-- SECTION: BILLING -->
         <div class="qb-card-pro">
-          <!-- VALIDATION ERROR BANNER -->
+          <!-- DYNAMIC VALIDATION ERROR BANNER -->
           <div id="qbCheckoutError" class="qb-error-banner animate-fade-in active">
             <span class="qb-error-icon">⚠️</span>
             <p class="qb-error-msg">enter the google maps location link TO PROCEED CHECKOUT</p>
@@ -121,13 +119,13 @@
         </div>
       </div>
 
-      <!-- STICKY CHECKOUT BAR -->
+      <!-- STICKY CHECKOUT FOOTER -->
       <div class="qb-checkout-sticky-bar">
         <div class="qb-checkout-price-info">
           <span class="qb-checkout-label-pro">TOTAL PAYABLE</span>
           <span class="qb-checkout-val-pro">Rs {{ cart.total_price | divided_by: 100 }}</span>
         </div>
-        <button type="button" class="qb-main-checkout-pro-btn qb-button-locked" id="qbMainCheckoutBtn" disabled title="Please enter location link">
+        <button type="button" class="qb-main-checkout-pro-btn qb-button-locked" id="qbMainCheckoutBtn" disabled>
           Checkout ➔
         </button>
       </div>
@@ -135,19 +133,20 @@
   </div>
 </cart-items-component>
 
-<!-- HELP MODAL: TELEPORTED TO BODY ROOT -->
-<div id="landmarkModalOverlay" class="qb-modal-fixed-overlay">
-  <div class="qb-modal-container-pro animate-slide-up">
-    <div class="qb-modal-drag-notch"></div>
-    <button class="qb-modal-close-btn" id="closeHelpBtn">✕</button>
-    <div class="qb-modal-inner-pro">
-      <h3 class="qb-modal-title-pro">How to share location?</h3>
-      <div class="qb-modal-media-wrap">
-        <img src="{{ 'popupgoogle.png' | asset_url }}" alt="Tutorial">
+<!-- TRUE POP-OUT MODAL SYSTEM (Teleported to Body) -->
+<div id="landmarkModalOverlay" class="qb-modal-root-layer">
+  <div class="qb-modal-card animate-slide-up">
+    <div class="qb-modal-notch"></div>
+    <button class="qb-modal-close-x" id="closeHelpBtn">✕</button>
+    <div class="qb-modal-content">
+      <h3 class="qb-modal-heading">How to share location?</h3>
+      <p class="qb-modal-subtitle">Share your precise location via Google Maps to help us find you faster!</p>
+      <div class="qb-modal-image-container">
+        <img src="{{ 'popupgoogle.png' | asset_url }}" alt="Tutorial Image" id="tutorialImg">
       </div>
-      <div class="qb-modal-actions-pro">
-        <a href="https://www.google.com/maps" target="_blank" class="qb-modal-maps-btn">📍 Open Google Maps App</a>
-        <button type="button" class="qb-modal-done-btn" id="doneHelpBtn">Got it!</button>
+      <div class="qb-modal-actions-list">
+        <a href="https://www.google.com/maps" target="_blank" class="qb-btn-maps-app">📍 Open Google Maps App</a>
+        <button type="button" class="qb-btn-modal-close" id="doneHelpBtn">Got it, thanks!</button>
       </div>
     </div>
   </div>
@@ -167,22 +166,43 @@
     --qb-shadow: 0 4px 20px rgba(0,0,0,0.06);
   }
 
-  /* Aggressive Scroll Lock */
-  body.qb-modal-open { overflow: hidden !important; height: 100% !important; width: 100% !important; position: fixed !important; padding-right: var(--qb-sw, 0px) !important; }
+  /* Body Lock */
+  body.qb-modal-active { overflow: hidden !important; height: 100% !important; width: 100% !important; position: fixed !important; padding-right: var(--qb-sw, 0px) !important; }
 
-  /* Base Structure */
+  /* Structural Base */
   .qb-cart-page-component { 
     display: block; 
     background: var(--qb-bg); 
     min-height: 100vh; 
-    padding-top: var(--header-group-height, 80px); /* Flow below Header */
+    padding-top: 20px; /* Adjust if needed, otherwise flowing layout respects header */
     padding-bottom: 160px;
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   }
   .qb-cart-main-container { max-width: 500px; margin: 0 auto; background: #fff; min-height: 100vh; position: relative; }
 
+  /* Error Banner */
+  .qb-error-banner { display: none; background: #FFF1F2; border: 1px solid #FDA4AF; padding: 12px 16px; border-radius: 12px; margin-bottom: 20px; align-items: center; gap: 10px; }
+  .qb-error-banner.active { display: flex; animation: qbShake 0.4s ease-in-out; }
+  .qb-error-icon { font-size: 18px; }
+  .qb-error-msg { font-size: 13px; font-weight: 700; color: #9F1239; margin: 0; line-height: 1.4; text-transform: uppercase; }
+
+  @keyframes qbShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+  /* Checkout Button Locked */
+  .qb-main-checkout-pro-btn.qb-button-locked { opacity: 0.6; filter: blur(0.5px); background: #999 !important; cursor: not-allowed; transform: scale(0.98); box-shadow: none !important; }
+
+  /* Header Pro */
+  .qb-cart-header-pro { padding: 30px 20px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .qb-cart-title-pro { font-size: 24px; font-weight: 900; color: var(--qb-black); margin: 0; }
+  .qb-badge-pro { background: var(--qb-gold-soft); color: var(--qb-gold); font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px; }
+
+  /* Body Stack */
+  .qb-cart-body-stack { padding: 0 16px; display: flex; flex-direction: column; gap: 16px; }
+  .qb-card-pro { background: #fff; border: 1px solid var(--qb-border); border-radius: var(--qb-radius-lg); padding: 20px; box-shadow: var(--qb-shadow); position: relative; }
+  .qb-card-tag-pro { font-size: 10px; font-weight: 900; color: #BBB; letter-spacing: 1.5px; text-transform: uppercase; }
+
   /* Professional Help Button Design */
-  .qb-help-pro-btn {
+  .qb-help-pro-trigger {
     width: 32px; height: 32px; border-radius: 50%; background: #fff;
     border: 1.5px solid var(--qb-gold); color: var(--qb-gold);
     display: flex; align-items: center; justify-content: center;
@@ -190,28 +210,7 @@
     box-shadow: 0 4px 12px rgba(244, 180, 0, 0.12);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .qb-help-pro-btn:active { transform: scale(0.9); background: var(--qb-gold-soft); }
-
-  /* Error Banner */
-  .qb-error-banner { display: none; background: #FFF1F2; border: 1px solid #FDA4AF; padding: 12px 16px; border-radius: 12px; margin-bottom: 20px; align-items: center; gap: 10px; }
-  .qb-error-banner.active { display: flex; animation: qbShake 0.4s ease-in-out; }
-  .qb-error-icon { font-size: 18px; }
-  .qb-error-msg { font-size: 13px; font-weight: 700; color: #9F1239; margin: 0; line-height: 1.4; }
-
-  @keyframes qbShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-
-  /* Checkout Locked */
-  .qb-main-checkout-pro-btn.qb-button-locked { opacity: 0.6; filter: blur(0.4px); background: #999 !important; cursor: not-allowed; transform: scale(0.98); box-shadow: none !important; }
-
-  /* Header Pro */
-  .qb-cart-header-pro { padding: 30px 20px 20px; display: flex; justify-content: space-between; align-items: center; }
-  .qb-cart-title-pro { font-size: 24px; font-weight: 900; color: var(--qb-black); margin: 0; }
-  .qb-badge-pro { background: var(--qb-gold-soft); color: var(--qb-gold); font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px; }
-
-  /* Cards */
-  .qb-cart-body-stack { padding: 0 16px; display: flex; flex-direction: column; gap: 16px; }
-  .qb-card-pro { background: #fff; border: 1px solid var(--qb-border); border-radius: var(--qb-radius-lg); padding: 20px; box-shadow: var(--qb-shadow); position: relative; }
-  .qb-card-tag-pro { font-size: 10px; font-weight: 900; color: #BBB; letter-spacing: 1.5px; text-transform: uppercase; }
+  .qb-help-pro-trigger:active { transform: scale(0.9); background: var(--qb-gold-soft); }
 
   /* Items */
   .qb-item-row-pro { display: flex; gap: 16px; padding-bottom: 20px; border-bottom: 1.5px solid #F9F9F9; margin-bottom: 20px; }
@@ -228,10 +227,10 @@
   .qb-qty-act-pro { width: 34px; height: 34px; border: none; background: none; font-size: 20px; font-weight: 800; color: var(--qb-black); cursor: pointer; }
   .qb-qty-val-pro { width: 32px; border: none; background: transparent; text-align: center; font-size: 15px; font-weight: 900; pointer-events: none; }
 
-  /* Input */
+  /* Input & Chips */
   .qb-input-wrap-pro { position: relative; display: flex; align-items: center; margin-bottom: 16px; margin-top: 16px; }
   .qb-input-icon-pro { position: absolute; left: 16px; font-size: 22px; }
-  .qb-field-pro { width: 100%; padding: 18px 18px 18px 52px; background: #F9F9F9; border: 1.5px solid var(--qb-border); border-radius: var(--qb-radius-md); font-size: 15px; font-weight: 700; outline: none; transition: 0.2s; }
+  .qb-field-pro { width: 100%; padding: 18px 18px 18px 52px; background: #F9F9F9; border: 1.5px solid var(--qb-border); border-radius: var(--qb-radius-md); font-size: 15px; font-weight: 700; outline: none; }
   .qb-field-pro:focus { border-color: var(--qb-gold); background: #fff; }
   .qb-chips-grid-pro { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .qb-nick-btn-pro { padding: 14px; background: #fff; border: 1.5px solid var(--qb-border); border-radius: var(--qb-radius-md); font-size: 14px; font-weight: 800; color: var(--qb-gray); cursor: pointer; }
@@ -243,21 +242,23 @@
   .qb-bill-total-pro { display: flex; justify-content: space-between; align-items: baseline; padding-top: 16px; border-top: 1.5px dashed var(--qb-border); }
   .qb-total-val-pro { font-size: 24px; font-weight: 900; color: var(--qb-black); }
 
-  /* Sticky Bar */
+  /* Sticky Footer */
   .qb-checkout-sticky-bar { position: fixed; bottom: 65px; left: 0; right: 0; max-width: 500px; margin: 0 auto; background: #fff; padding: 16px 20px; border-top: 1px solid var(--qb-border); display: flex; align-items: center; gap: 16px; z-index: 1000; box-shadow: 0 -10px 40px rgba(0,0,0,0.05); }
   .qb-main-checkout-pro-btn { flex: 1; height: 58px; background: var(--qb-red); color: white; border: none; border-radius: 18px; font-size: 18px; font-weight: 900; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 25px rgba(196,30,58,0.25); }
 
-  /* MODAL OVERLAY (Portal logic handled in JS) */
-  .qb-modal-fixed-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.7) !important; backdrop-filter: blur(8px) !important; z-index: 2147483647 !important; display: none; align-items: flex-end; justify-content: center; overflow: hidden !important; }
-  .qb-modal-fixed-overlay.active { display: flex; }
-  .qb-modal-container-pro { background: #fff; width: 100%; max-width: 500px; border-radius: 32px 32px 0 0; padding: 24px 24px calc(24px + env(safe-area-inset-bottom)); position: relative; box-shadow: 0 -10px 40px rgba(0,0,0,0.4); }
-  .qb-modal-drag-notch { width: 40px; height: 4px; background: #eee; border-radius: 2px; margin: 0 auto 20px; }
-  .qb-modal-close-btn { position: absolute; top: 20px; right: 20px; background: #f5f5f5; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-  .qb-modal-title-pro { font-size: 18px; font-weight: 900; text-align: center; margin-bottom: 16px; }
-  .qb-modal-media-wrap { width: 100%; border-radius: 20px; overflow: hidden; border: 1px solid #eee; margin-bottom: 20px; }
-  .qb-modal-media-wrap img { width: 100%; display: block; }
-  .qb-modal-maps-btn { display: flex; align-items: center; justify-content: center; background: #4285F4; color: #fff; text-decoration: none; padding: 16px; border-radius: 16px; font-weight: 800; margin-bottom: 12px; font-size: 15px; }
-  .qb-modal-done-btn { width: 100%; padding: 16px; background: #f0f0f0; border: none; border-radius: 16px; font-weight: 700; color: #333; cursor: pointer; }
+  /* MODAL LAYER (Pop-out Fix) */
+  .qb-modal-root-layer { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.7) !important; backdrop-filter: blur(8px) !important; z-index: 2147483647 !important; display: none; align-items: flex-end; justify-content: center; }
+  .qb-modal-root-layer.active { display: flex; }
+  .qb-modal-card { background: #fff; width: 100%; max-width: 500px; border-radius: 32px 32px 0 0; padding: 24px 24px calc(24px + env(safe-area-inset-bottom)); position: relative; box-shadow: 0 -10px 40px rgba(0,0,0,0.4); max-height: 90vh; overflow-y: auto; }
+  .qb-modal-notch { width: 40px; height: 4px; background: #eee; border-radius: 2px; margin: 0 auto 20px; }
+  .qb-modal-close-x { position: absolute; top: 20px; right: 20px; background: #f5f5f5; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #333; }
+  .qb-modal-heading { font-size: 20px; font-weight: 900; text-align: center; margin-bottom: 8px; color: #111; }
+  .qb-modal-subtitle { font-size: 14px; color: #666; text-align: center; margin-bottom: 24px; line-height: 1.5; }
+  .qb-modal-image-container { width: 100%; border-radius: 20px; overflow: hidden; border: 1.5px solid #eee; margin-bottom: 24px; background: #f9f9f9; }
+  .qb-modal-image-container img { width: 100%; display: block; max-height: 50vh; object-fit: contain; }
+  .qb-modal-actions-list { display: flex; flex-direction: column; gap: 12px; }
+  .qb-btn-maps-app { display: flex; align-items: center; justify-content: center; background: #4285F4; color: #fff; text-decoration: none; padding: 16px; border-radius: 16px; font-weight: 800; font-size: 15px; }
+  .qb-btn-modal-close { width: 100%; padding: 16px; background: #f5f5f5; border: none; border-radius: 16px; font-weight: 700; color: #333; cursor: pointer; font-size: 15px; }
 
   .qb-flex-between { display: flex; justify-content: space-between; align-items: center; }
   .animate-fade-in { animation: qbFadeIn 0.6s ease-out; }
@@ -273,14 +274,14 @@
 
 <script>
 (function() {
-  function initFinalProCart() {
+  function initValidatedCart() {
     const input = document.getElementById('LandmarkLink');
     const checkoutBtn = document.getElementById('qbMainCheckoutBtn');
     const errorBox = document.getElementById('qbCheckoutError');
     const modal = document.getElementById('landmarkModalOverlay');
     const body = document.body;
 
-    // PORTAL: Move modal to body root
+    // PORTAL: Move modal to Body Root
     if (modal && modal.parentNode !== body) body.appendChild(modal);
 
     const validate = () => {
@@ -297,23 +298,21 @@
 
     if (input) { input.addEventListener('input', validate); validate(); }
 
-    // GLOBAL DELEGATION: Fixes ? button not clicking
     document.addEventListener('click', (e) => {
       // ? Button Trigger
-      const openBtn = e.target.closest('#openHelpBtn');
-      if (openBtn) {
+      if (e.target.closest('#openHelpBtn')) {
         e.preventDefault(); e.stopPropagation();
         modal.classList.add('active');
         const sw = window.innerWidth - document.documentElement.clientWidth;
         document.body.style.setProperty('--qb-sw', `${sw}px`);
-        body.classList.add('qb-modal-open');
+        body.classList.add('qb-modal-active');
         return;
       }
 
       // Modal Close
       if (e.target.closest('#closeHelpBtn') || e.target.closest('#doneHelpBtn') || e.target === modal) {
         modal.classList.remove('active');
-        body.classList.remove('qb-modal-open');
+        body.classList.remove('qb-modal-active');
         return;
       }
 
@@ -343,13 +342,13 @@
         return;
       }
 
-      // Checkout Processing
+      // Checkout
       if (e.target.closest('#qbMainCheckoutBtn')) {
         const btn = e.target.closest('#qbMainCheckoutBtn');
         if (btn.disabled) return;
         btn.disabled = true; btn.innerHTML = 'Wait...';
         const nick = localStorage.getItem('qb_active_nickname') || 'Home';
-        const fullNote = `Address Type: ${nick}\nGoogle Maps: ${input.value}\nLocation Data: ${localStorage.getItem('qb_selected_location') || 'N/A'}`;
+        const fullNote = `Address Type: ${nick}\nGoogle Maps: ${input.value}\nLocation Picker: ${localStorage.getItem('qb_selected_location') || 'N/A'}`;
         fetch('/cart/update.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ note: fullNote }) })
         .finally(() => { window.location.href = '/checkout'; });
       }
@@ -357,16 +356,14 @@
 
     const activeNick = localStorage.getItem('qb_active_nickname') || 'Home';
     document.querySelectorAll('.qb-nick-btn-pro').forEach(chip => {
-      if (chip.dataset.nickname === activeNick) {
-        chip.classList.add('active');
-        const saved = localStorage.getItem('qb_landmark_' + activeNick);
-        if (saved) { input.value = saved; validate(); }
-      }
+      if (chip.dataset.nickname === activeNick) chip.classList.add('active');
+      const saved = localStorage.getItem('qb_landmark_' + activeNick);
+      if (chip.dataset.nickname === activeNick && saved) { input.value = saved; validate(); }
     });
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initFinalProCart);
-  else initFinalProCart();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initValidatedCart);
+  else initValidatedCart();
 })();
 </script>
 
