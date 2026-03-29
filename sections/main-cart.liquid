@@ -1,63 +1,57 @@
 <!-- sections/main-cart.liquid -->
-<cart-items-component class="qb-cart-component-final" data-section-id="{{ section.id }}">
-  <div class="qb-cart-page-inner">
+<cart-items-component class="qb-cart-root" data-section-id="{{ section.id }}">
+  <div class="qb-cart-container">
     {%- if cart.empty? -%}
-      <div class="qb-empty-cart-pro animate-fade-in">
-        <div class="qb-empty-cart-icon">🐝</div>
-        <h1 class="qb-empty-cart-h1">Your Hive is Empty</h1>
-        <p class="qb-empty-cart-p">Time to fill your basket! Browse our collections to get started.</p>
-        <a href="{{ routes.all_products_collection_url }}" class="qb-empty-cart-btn">Explore Shop</a>
+      <div class="qb-empty-hive animate-fade-in">
+        <div class="qb-empty-icon">🐝</div>
+        <h1>Your Hive is Empty</h1>
+        <p>Your basket is waiting for some sweet treats!</p>
+        <a href="{{ routes.all_products_collection_url }}" class="qb-btn-explore">Start Shopping</a>
       </div>
     {%- else -%}
       
       <!-- HEADER -->
-      <div class="qb-cart-header-main">
-        <h1 class="qb-cart-header-title">Review Order</h1>
-        <span class="qb-cart-header-badge" ref="cartItemCount">{{ cart.item_count }} Items</span>
+      <div class="qb-header-row">
+        <h1 class="qb-page-title">Review Order</h1>
+        <span class="qb-badge-count" ref="cartItemCount">{{ cart.item_count }} Items</span>
       </div>
 
-      <div class="qb-cart-content-stack">
+      <div class="qb-cart-body">
         
-        <!-- SELECTED PRODUCTS -->
-        <div class="qb-cart-card">
-          <div class="qb-cart-card-label">SELECTED PRODUCTS</div>
-          
-          <div class="qb-cart-items-list">
+        <!-- SECTION: SELECTED PRODUCTS -->
+        <div class="qb-cart-section">
+          <div class="qb-sec-tag">SELECTED PRODUCTS</div>
+          <div class="qb-items-list">
             {%- for item in cart.items -%}
-              <div class="qb-cart-item-row" ref="cartItemRows" data-key="{{ item.key }}">
-                <div class="qb-cart-item-img">
-                  {% if item.image %}
-                    <img src="{{ item.image | image_url: width: 240 }}" alt="{{ item.title | escape }}" loading="lazy">
-                  {% else %}
-                    <div class="qb-cart-item-img-fallback">🐝</div>
-                  {% endif %}
+              <div class="qb-item-card" ref="cartItemRows" data-key="{{ item.key }}">
+                <div class="qb-item-thumb">
+                  {% if item.image %}<img src="{{ item.image | image_url: width: 240 }}" alt="{{ item.title }}">{% else %}<div class="qb-thumb-fall">🐝</div>{% endif %}
                 </div>
                 
-                <div class="qb-cart-item-info">
-                  <div class="qb-cart-item-header">
-                    <a href="{{ item.url }}" class="qb-cart-item-name">{{ item.product.title | truncate: 50 }}</a>
+                <div class="qb-item-main">
+                  <div class="qb-item-top">
+                    <a href="{{ item.url }}" class="qb-item-name">{{ item.product.title | truncate: 50 }}</a>
+                    <!-- TOP RIGHT X -->
                     <form action="{{ routes.cart_change_url }}" method="post">
-                      <input type="hidden" name="id" value="{{ item.key }}">
-                      <input type="hidden" name="quantity" value="0">
-                      <button type="submit" class="qb-cart-item-remove" aria-label="Remove">
-                        <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M13 1L1 13M1 1L13 13"/></svg>
+                      <input type="hidden" name="id" value="{{ item.key }}"><input type="hidden" name="quantity" value="0">
+                      <button type="submit" class="qb-item-remove">
+                        <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 1L1 13M1 1L13 13"/></svg>
                       </button>
                     </form>
                   </div>
                   
-                  {%- unless item.product.has_only_default_variant -%}
-                    <div class="qb-cart-item-variant">{{ item.variant.title }}</div>
-                  {%- endunless -%}
+                  {%- unless item.product.has_only_default_variant -%}<div class="qb-item-v">{{ item.variant.title }}</div>{%- endunless -%}
 
-                  <div class="qb-cart-item-footer">
-                    <span class="qb-cart-item-price">Rs {{ item.final_line_price | divided_by: 100 }}</span>
+                  <div class="qb-item-bottom">
+                    <span class="qb-item-price">Rs {{ item.final_line_price | divided_by: 100 }}</span>
                     
-                    <div class="qb-cart-qty-pill" ref="quantitySelectors">
-                      <form action="{{ routes.cart_change_url }}" method="post">
+                    <!-- CENTERED QUANTITY PILL -->
+                    <div class="qb-qty-pill" ref="quantitySelectors">
+                      <form action="{{ routes.cart_change_url }}" method="post" class="qb-qty-form">
                         <input type="hidden" name="id" value="{{ item.key }}">
-                        <button type="button" class="qb-cart-qty-btn" data-action="minus" data-qty-btn>−</button>
-                        <input type="number" name="quantity" value="{{ item.quantity }}" readonly class="qb-qty-val">
-                        <button type="button" class="qb-cart-qty-btn" data-action="plus" data-qty-btn>+</button>
+                        <button type="button" class="qb-qty-act" data-action="minus" data-qbtn>−</button>
+                        <div class="qb-qty-box"><input type="number" name="quantity" value="{{ item.quantity }}" readonly class="qb-qty-num"></div>
+                        <button type="button" class="qb-qty-act" data-action="plus" data-qbtn>+</button>
                       </form>
                     </div>
                   </div>
@@ -65,54 +59,44 @@
               </div>
             {%- endfor -%}
           </div>
-          
-          <a href="{{ routes.all_products_collection_url }}" class="qb-cart-add-more">+ Add more items</a>
+          <a href="{{ routes.all_products_collection_url }}" class="qb-add-more-items">+ Add more items</a>
         </div>
 
-        <!-- DELIVERY -->
-        <div class="qb-cart-card">
-          <div class="qb-cart-card-header-flex">
-            <span class="qb-cart-card-label">DELIVERY DESTINATION</span>
-            <button type="button" class="qb-help-info-btn" id="openHelpBtn">?</button>
+        <!-- SECTION: DELIVERY -->
+        <div class="qb-cart-section">
+          <div class="qb-sec-header-flex">
+            <span class="qb-sec-tag">DELIVERY DESTINATION</span>
+            <!-- PROPER CIRCLE ? BUTTON -->
+            <button type="button" class="qb-help-pro-circle" id="triggerHelp">?</button>
           </div>
           
-          <div class="qb-landmark-input-frame">
-            <div class="qb-landmark-icon-box">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-              </svg>
+          <div class="qb-input-pro-box">
+            <div class="qb-input-pro-pin">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
             </div>
-            <input type="text" id="LandmarkLink" placeholder="Paste Google Maps location link..." class="qb-landmark-field" required>
+            <input type="text" id="LandmarkLink" placeholder="Paste Google Maps location link..." class="qb-input-pro-field" required>
           </div>
           
-          <div class="qb-landmark-nicknames">
-            <button type="button" class="qb-nickname-chip" data-nickname="Home">🏠 Home</button>
-            <button type="button" class="qb-nickname-chip" data-nickname="Office">🏢 Office</button>
-            <button type="button" class="qb-nickname-chip" data-nickname="Other">✨ Other</button>
-            <button type="button" class="qb-nickname-chip" data-nickname="Current">📦 Current</button>
+          <div class="qb-chips-grid">
+            <button type="button" class="qb-chip-pro" data-nickname="Home">🏠 Home</button>
+            <button type="button" class="qb-chip-pro" data-nickname="Office">🏢 Office</button>
+            <button type="button" class="qb-chip-pro" data-nickname="Other">✨ Other</button>
+            <button type="button" class="qb-chip-pro" data-nickname="Current">📦 Current</button>
           </div>
         </div>
 
-        <!-- BILLING -->
-        <div class="qb-cart-card">
-          <div id="qbCheckoutError" class="qb-cart-error-banner animate-fade-in active">
-            <span class="qb-cart-error-icon">⚠️</span>
-            <p>enter the google maps location link TO PROCEED CHECKOUT</p>
+        <!-- SECTION: BILLING -->
+        <div class="qb-cart-section">
+          <div id="qbErrBanner" class="qb-error-pro animate-fade-in active">
+            <span>⚠️ enter the google maps location link TO PROCEED CHECKOUT</span>
           </div>
 
-          <div class="qb-cart-card-label">BILLING SUMMARY</div>
-          <div class="qb-cart-bill-stack">
-            <div class="qb-cart-bill-row">
-              <span>Item Total</span>
-              <span>Rs {{ cart.total_price | divided_by: 100 }}</span>
-            </div>
-            <div class="qb-cart-bill-row">
-              <span>Delivery Fee</span>
-              <span class="qb-cart-bill-muted">Calculated at checkout</span>
-            </div>
-            <div class="qb-cart-bill-divider"></div>
-            <div class="qb-cart-bill-total">
+          <div class="qb-sec-tag">BILLING SUMMARY</div>
+          <div class="qb-bill-stack">
+            <div class="qb-bill-row"><span>Item Total</span><span>Rs {{ cart.total_price | divided_by: 100 }}</span></div>
+            <div class="qb-bill-row"><span>Delivery Fee</span><span class="qb-muted-txt">Calculated at checkout</span></div>
+            <div class="qb-bill-dash"></div>
+            <div class="qb-bill-total">
               <span class="qb-total-lbl">Grand Total</span>
               <span class="qb-total-val" ref="cartTotal">Rs {{ cart.total_price | divided_by: 100 }}</span>
             </div>
@@ -121,12 +105,12 @@
       </div>
 
       <!-- STICKY FOOTER -->
-      <div class="qb-cart-sticky-footer">
+      <div class="qb-sticky-checkout">
         <div class="qb-sticky-info">
-          <span class="qb-sticky-lbl">PAYABLE AMOUNT</span>
+          <span class="qb-sticky-tag">PAYABLE AMOUNT</span>
           <span class="qb-sticky-price">Rs {{ cart.total_price | divided_by: 100 }}</span>
         </div>
-        <button type="button" class="qb-checkout-submit-pro qb-is-locked" id="qbMainCheckoutBtn" disabled>
+        <button type="button" class="qb-btn-checkout-main qb-is-locked" id="qbMainCheckoutBtn" disabled>
           Checkout ➔
         </button>
       </div>
@@ -134,150 +118,138 @@
   </div>
 </cart-items-component>
 
-<!-- PROFESSIONAL GLOBAL MODAL -->
-<div id="landmarkModalOverlay" class="qb-global-modal-layer">
-  <div class="qb-global-modal-card animate-slide-up">
-    <button class="qb-global-modal-close" id="closeHelpBtn" type="button">✕</button>
-    <div class="qb-global-modal-header">
-      <h3 class="qb-global-modal-title">How to share location?</h3>
-      <p class="qb-global-modal-p">Follow these simple steps to share your precise location via Google Maps.</p>
-    </div>
-    <div class="qb-global-modal-media">
-      <img src="{{ 'popupgoogle.png' | asset_url }}" alt="Tutorial">
-    </div>
-    <div class="qb-global-modal-footer">
-      <a href="https://www.google.com/maps" target="_blank" class="qb-btn-maps-large">📍 Open Google Maps App</a>
-      <button type="button" class="qb-btn-modal-got-it" id="doneHelpBtn">Got it!</button>
+<!-- GLOBAL MODAL (Pop-out Fix) -->
+<div id="landmarkModalOverlay" class="qb-modal-fixed-overlay">
+  <div class="qb-modal-container animate-slide-up">
+    <div class="qb-modal-notch"></div>
+    <button class="qb-modal-close-x" id="closeHelpBtn" type="button">✕</button>
+    <div class="qb-modal-body">
+      <h3>How to share location?</h3>
+      <p>Follow these simple steps to share your location via Google Maps.</p>
+      <div class="qb-modal-img-frame">
+        <img src="{{ 'popupgoogle.png' | asset_url }}" alt="Tutorial">
+      </div>
+      <div class="qb-modal-actions">
+        <a href="https://www.google.com/maps" target="_blank" class="qb-btn-maps-app">📍 Open Google Maps App</a>
+        <button type="button" class="qb-btn-dismiss" id="doneHelpBtn">Got it!</button>
+      </div>
     </div>
   </div>
 </div>
 
 <style>
-  :root {
-    --qb-gold: #F4B400;
-    --qb-gold-soft: #FFF9E6;
-    --qb-black: #111111;
-    --qb-gray: #757575;
-    --qb-red: #C41E3A;
-    --qb-bg: #F8F9FA;
-    --qb-border: #EEEEEE;
-    --qb-radius: 20px;
-  }
+  :root { --qb-gold: #F4B400; --qb-gold-soft: #FFF9E6; --qb-black: #111111; --qb-gray: #757575; --qb-red: #C41E3A; --qb-bg: #F8F9FA; --qb-border: #EEEEEE; }
+  
+  /* Robust Scroll Lock */
+  html.modal-active { overflow: hidden !important; }
+  body.modal-active { overflow: hidden !important; height: 100% !important; width: 100% !important; position: fixed !important; }
 
-  body.qb-modal-active { overflow: hidden !important; height: 100vh !important; }
-
-  .qb-cart-final-component { display: block; background: var(--qb-bg); min-height: 100vh; padding-bottom: 160px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-  .qb-cart-page-inner { max-width: 500px; margin: 0 auto; background: #fff; min-height: 100vh; position: relative; }
+  .qb-cart-root { display: block; background: var(--qb-bg); min-height: 100vh; padding-bottom: 160px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+  .qb-cart-container { max-width: 500px; margin: 0 auto; background: #fff; min-height: 100vh; position: relative; }
 
   /* Header */
-  .qb-cart-header-main { padding: 30px 20px 20px; display: flex; justify-content: space-between; align-items: center; }
-  .qb-cart-header-title { font-size: 24px; font-weight: 900; color: var(--qb-black); margin: 0; }
-  .qb-cart-header-badge { background: var(--qb-gold-soft); color: var(--qb-gold); font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px; }
+  .qb-header-row { padding: 30px 20px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .qb-page-title { font-size: 24px; font-weight: 900; color: #111; margin: 0; }
+  .qb-badge-count { background: var(--qb-gold-soft); color: var(--qb-gold); font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px; }
 
-  /* Cards */
-  .qb-cart-content-stack { padding: 0 16px; display: flex; flex-direction: column; gap: 16px; }
-  .qb-cart-card { background: #fff; border: 1px solid var(--qb-border); border-radius: var(--qb-radius); padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); position: relative; }
-  .qb-cart-card-label { font-size: 10px; font-weight: 900; color: #BBB; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 18px; }
-  .qb-cart-card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .qb-cart-body { padding: 0 16px; display: flex; flex-direction: column; gap: 16px; }
+  .qb-cart-section { background: #fff; border: 1px solid var(--qb-border); border-radius: 20px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); position: relative; }
+  .qb-sec-tag { font-size: 10px; font-weight: 900; color: #BBB; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 18px; }
+  .qb-sec-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
 
-  /* Item Row */
-  .qb-cart-items-list { display: flex; flex-direction: column; gap: 20px; }
-  .qb-cart-item-row { display: flex; gap: 16px; padding-bottom: 20px; border-bottom: 1.5px solid #F9F9F9; }
-  .qb-cart-item-row:last-child { border-bottom: none; padding-bottom: 0; }
-  .qb-cart-item-img { width: 90px; height: 90px; border-radius: 14px; overflow: hidden; border: 1px solid #F0F0F0; flex-shrink: 0; background: #F9F9F9; }
-  .qb-cart-item-img img { width: 100%; height: 100%; object-fit: cover; }
-  .qb-cart-item-img-fallback { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 32px; }
-  .qb-cart-item-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; }
-  .qb-cart-item-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-  .qb-cart-item-name { font-size: 15px; font-weight: 800; color: var(--qb-black); text-decoration: none; line-height: 1.4; }
-  .qb-cart-item-remove { background: #F5F5F5; border: none; color: #BBB; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; }
-  .qb-cart-item-variant { font-size: 12px; color: var(--qb-gray); margin-top: 4px; font-weight: 600; }
-  .qb-cart-item-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 12px; }
-  .qb-cart-item-price { font-size: 17px; font-weight: 900; color: var(--qb-black); }
-  .qb-cart-qty-pill { background: #F5F5F5; border-radius: 14px; padding: 2px; display: flex; }
-  .qb-cart-qty-btn { width: 34px; height: 34px; border: none; background: none; font-size: 20px; font-weight: 800; color: var(--qb-black); cursor: pointer; }
-  .qb-qty-val { width: 32px; border: none; background: transparent; text-align: center !important; font-size: 15px; font-weight: 900; color: var(--qb-black); pointer-events: none; }
-  .qb-cart-add-more { display: block; text-align: center; margin-top: 20px; font-size: 14px; font-weight: 800; color: var(--qb-gold); text-decoration: none; padding: 14px; border: 2px dashed var(--qb-gold); border-radius: 16px; }
+  /* Help Circle Design */
+  .qb-help-pro-circle {
+    width: 32px; height: 32px; border-radius: 50%; background: #fff;
+    border: 1.5px solid var(--qb-gold); color: var(--qb-gold);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 16px; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(244, 180, 0, 0.12); transition: 0.2s;
+  }
+  .qb-help-pro-circle:active { transform: scale(0.9); background: var(--qb-gold-soft); }
 
-  /* Info Btn */
-  .qb-help-info-btn { width: 28px; height: 28px; border-radius: 50%; background: var(--qb-gold); color: white; border: 2px solid white; font-weight: 900; font-size: 15px; cursor: pointer; box-shadow: 0 4px 10px rgba(244,180,0,0.3); }
+  /* Item Card */
+  .qb-items-list { display: flex; flex-direction: column; gap: 20px; }
+  .qb-item-card { display: flex; gap: 16px; padding-bottom: 20px; border-bottom: 1.5px solid #F9F9F9; }
+  .qb-item-card:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .qb-item-thumb { width: 90px; height: 90px; border-radius: 14px; overflow: hidden; border: 1px solid #F0F0F0; flex-shrink: 0; background: #F9F9F9; }
+  .qb-item-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .qb-thumb-fall { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+  
+  .qb-item-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .qb-item-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .qb-item-name { font-size: 15px; font-weight: 800; color: #111; text-decoration: none; line-height: 1.4; flex: 1; }
+  .qb-item-remove { background: #F5F5F5; border: none; color: #BBB; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+  .qb-item-remove:active { background: var(--qb-red); color: white; }
+  .qb-item-v { font-size: 12px; color: var(--qb-gray); margin-top: 4px; font-weight: 600; }
+  .qb-item-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 12px; }
+  .qb-item-price { font-size: 17px; font-weight: 900; color: #111; }
 
-  /* Input Frame */
-  .qb-landmark-input-frame { display: flex; align-items: center; background: #F9F9F9; border: 1.5px solid var(--qb-border); border-radius: 16px; margin: 16px 0; transition: 0.3s; }
-  .qb-landmark-input-frame:focus-within { border-color: var(--qb-gold); background: #fff; box-shadow: 0 0 0 4px var(--qb-gold-soft); }
-  .qb-landmark-icon-box { padding-left: 16px; color: var(--qb-gold); display: flex; align-items: center; }
-  .qb-landmark-field { flex: 1; padding: 18px 18px 18px 12px; background: transparent; border: none; font-size: 15px; font-weight: 700; color: var(--qb-black); outline: none; }
-  .qb-landmark-nicknames { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  .qb-nickname-chip { padding: 14px; background: #fff; border: 1.5px solid var(--qb-border); border-radius: 16px; font-size: 14px; font-weight: 800; color: var(--qb-gray); cursor: pointer; }
-  .qb-nickname-chip.active { border-color: var(--qb-gold); background: var(--qb-gold-soft); color: var(--qb-gold); }
+  /* Qty Pill CENTERED */
+  .qb-qty-pill { background: #F5F5F5; border-radius: 12px; padding: 2px; display: flex; width: 110px; }
+  .qb-qty-form { display: flex; align-items: center; width: 100%; }
+  .qb-qty-act { width: 34px; height: 34px; border: none; background: none; font-size: 18px; font-weight: 800; color: #111; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .qb-qty-box { flex: 1; display: flex; align-items: center; justify-content: center; }
+  .qb-qty-num { width: 100%; border: none; background: transparent; text-align: center !important; font-size: 15px; font-weight: 900; color: #111; pointer-events: none; padding: 0; margin: 0; }
+
+  .qb-add-more-items { display: block; text-align: center; margin-top: 20px; font-size: 14px; font-weight: 800; color: var(--qb-gold); text-decoration: none; padding: 14px; border: 2px dashed var(--qb-gold); border-radius: 16px; }
+
+  /* Delivery Box */
+  .qb-input-pro-box { display: flex; align-items: center; background: #F9F9F9; border: 1.5px solid var(--qb-border); border-radius: 16px; margin: 16px 0; transition: 0.3s; }
+  .qb-input-pro-box:focus-within { border-color: var(--qb-gold); background: #fff; box-shadow: 0 0 0 4px var(--qb-gold-soft); }
+  .qb-input-pro-pin { padding-left: 16px; color: var(--qb-gold); display: flex; align-items: center; }
+  .qb-input-pro-field { flex: 1; padding: 16px 12px; background: transparent; border: none; font-size: 15px; font-weight: 700; outline: none; color: #111; }
+  
+  .qb-chips-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .qb-chip-pro { padding: 14px; background: #fff; border: 1.5px solid var(--qb-border); border-radius: 14px; font-size: 13px; font-weight: 800; color: #757575; cursor: pointer; transition: 0.2s; }
+  .qb-chip-pro.active { border-color: var(--qb-gold); background: var(--qb-gold-soft); color: var(--qb-gold); }
 
   /* Error Banner */
-  .qb-cart-error-banner { display: none; background: #FFF1F2; border: 1px solid #FDA4AF; padding: 12px 16px; border-radius: 12px; margin-bottom: 20px; align-items: center; gap: 10px; }
-  .qb-cart-error-banner.active { display: flex; animation: qbShake 0.4s; }
-  .qb-cart-error-icon { font-size: 18px; }
-  .qb-cart-error-banner p { font-size: 13px; font-weight: 700; color: #9F1239; margin: 0; text-transform: uppercase; line-height: 1.4; }
-  @keyframes qbShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+  .qb-error-pro { display: none; background: #FFF1F2; border: 1px solid #FDA4AF; padding: 12px; border-radius: 12px; margin-bottom: 16px; font-size: 12px; font-weight: 700; color: #9F1239; line-height: 1.4; text-transform: uppercase; }
+  .qb-error-pro.active { display: block; }
+
+  /* Billing */
+  .qb-bill-stack { display: flex; flex-direction: column; gap: 12px; }
+  .qb-bill-row { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; color: #757575; }
+  .qb-muted-txt { font-size: 12px; color: #AAA; }
+  .qb-bill-dash { height: 1px; border-top: 1.5px dashed #eee; margin: 4px 0; }
+  .qb-bill-total { display: flex; justify-content: space-between; align-items: baseline; padding-top: 4px; }
+  .qb-total-lbl { font-size: 18px; font-weight: 900; }
+  .qb-total-val { font-size: 24px; font-weight: 900; }
 
   /* Sticky Footer */
-  .qb-checkout-submit-pro.qb-is-locked { opacity: 0.6; filter: blur(0.4px); background: #999 !important; cursor: not-allowed; }
-  .qb-cart-sticky-footer { position: fixed; bottom: 65px; left: 0; right: 0; max-width: 500px; margin: 0 auto; background: #fff; padding: 16px 20px; border-top: 1px solid var(--qb-border); display: flex; align-items: center; gap: 16px; z-index: 900; box-shadow: 0 -10px 40px rgba(0,0,0,0.05); }
-  .qb-sticky-lbl { font-size: 10px; font-weight: 900; color: var(--qb-gray); letter-spacing: 1px; }
-  .qb-sticky-price { font-size: 22px; font-weight: 900; color: var(--qb-black); }
-  .qb-checkout-submit-pro { flex: 1; height: 58px; background: var(--qb-red); color: white; border: none; border-radius: 18px; font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 10px 25px rgba(196,30,58,0.25); }
+  .qb-sticky-checkout { position: fixed; bottom: 65px; left: 0; right: 0; max-width: 500px; margin: 0 auto; background: #fff; padding: 16px 20px; border-top: 1px solid var(--qb-border); display: flex; align-items: center; gap: 16px; z-index: 900; box-shadow: 0 -10px 40px rgba(0,0,0,0.05); }
+  .qb-sticky-tag { font-size: 10px; font-weight: 900; color: #757575; letter-spacing: 1px; }
+  .qb-sticky-price { font-size: 22px; font-weight: 900; color: #111; }
+  .qb-btn-checkout-main { flex: 1; height: 58px; background: var(--qb-red); color: white; border: none; border-radius: 18px; font-size: 18px; font-weight: 900; cursor: pointer; transition: 0.2s; }
+  .qb-btn-checkout-main.qb-is-locked { opacity: 0.5; background: #999 !important; cursor: not-allowed; filter: blur(0.5px); }
 
-  /* GLOBAL MODAL LAYER - FIXES WHITE SCREEN */
-  .qb-global-modal-layer {
-    position: fixed !important;
-    inset: 0 !important;
-    background: rgba(0,0,0,0.85) !important;
-    z-index: 2147483647 !important;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    touch-action: none;
-  }
-  .qb-global-modal-layer.is-active { display: flex; }
-  .qb-global-modal-content { background: #fff !important; width: 100% !important; max-width: 400px !important; border-radius: 28px !important; padding: 32px 24px 24px !important; position: relative !important; box-shadow: 0 20px 60px rgba(0,0,0,0.5) !important; text-align: center !important; overflow: hidden !important; }
-  .qb-global-modal-x { position: absolute; top: 16px; right: 16px; background: #f5f5f5; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold; color: #333; display: flex; align-items: center; justify-content: center; z-index: 10; }
-  .qb-global-modal-title { font-size: 20px; font-weight: 900; color: #111; margin-bottom: 8px; }
-  .qb-global-modal-p { font-size: 14px; color: #666; margin-bottom: 24px; line-height: 1.5; }
-  .qb-global-modal-media { width: 100%; border-radius: 18px; overflow: hidden; border: 1px solid #eee; margin-bottom: 24px; background: #f9f9f9; padding: 10px; }
-  .qb-global-modal-media img { width: 100%; display: block; border-radius: 8px; max-height: 40vh; object-fit: contain; }
-  .qb-btn-maps-large-pro { display: flex; align-items: center; justify-content: center; background: #4285F4; color: #fff; text-decoration: none; padding: 16px; border-radius: 16px; font-weight: 800; font-size: 15px; margin-bottom: 12px; }
-  .qb-btn-dismiss-pro { width: 100%; padding: 16px; background: #f5f5f5; border: none; border-radius: 16px; font-weight: 700; color: #333; cursor: pointer; font-size: 15px; }
+  /* TRUE GLOBAL MODAL */
+  .qb-modal-fixed-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85) !important; z-index: 2147483647 !important; display: none; align-items: flex-end; justify-content: center; padding: 20px; touch-action: none; }
+  .qb-modal-fixed-overlay.is-active { display: flex; }
+  .qb-modal-container { background: #fff !important; width: 100% !important; max-width: 400px !important; border-radius: 28px 28px 0 0 !important; padding: 32px 24px 24px !important; position: relative !important; box-shadow: 0 20px 60px rgba(0,0,0,0.5) !important; text-align: center !important; }
+  .qb-modal-notch { width: 40px; height: 4px; background: #eee; border-radius: 2px; margin: -10px auto 20px; }
+  .qb-modal-close-x { position: absolute; top: 16px; right: 16px; background: #f5f5f5; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold; color: #333; display: flex; align-items: center; justify-content: center; }
+  .qb-modal-img-frame { width: 100%; border-radius: 18px; overflow: hidden; border: 1px solid #eee; margin: 20px 0; background: #f9f9f9; padding: 10px; }
+  .qb-modal-img-frame img { width: 100%; display: block; max-height: 40vh; object-fit: contain; }
+  .qb-btn-maps-app { display: flex; align-items: center; justify-content: center; background: #4285F4; color: #fff; text-decoration: none; padding: 16px; border-radius: 14px; font-weight: 800; margin-bottom: 10px; font-size: 15px; }
+  .qb-btn-dismiss { width: 100%; padding: 16px; background: #f5f5f5; border: none; border-radius: 14px; font-weight: 700; color: #333; cursor: pointer; font-size: 15px; }
 
-  /* Billing stack */
-  .qb-cart-bill-stack { display: flex; flex-direction: column; gap: 12px; }
-  .qb-cart-bill-row { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; color: var(--qb-gray); }
-  .qb-cart-bill-muted { font-size: 12px; color: #AAA; font-weight: 600; }
-  .qb-cart-bill-divider { height: 1px; border-top: 1.5px dashed var(--qb-border); margin: 4px 0; }
-  .qb-cart-bill-total { display: flex; justify-content: space-between; align-items: baseline; }
-  .qb-total-lbl { font-size: 18px; font-weight: 900; color: var(--qb-black); }
-  .qb-total-val { font-size: 24px; font-weight: 900; color: var(--qb-black); }
-
-  .animate-fade-in { animation: qbFadeIn 0.6s ease-out; }
-  @keyframes qbFadeIn { from { opacity: 0; } to { opacity: 1; } }
-  .animate-slide-up { animation: qbSlideUp 0.4s ease-out forwards; }
-  @keyframes qbSlideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-  .qb-empty-cart-pro { padding: 80px 20px; text-align: center; }
-  .qb-empty-cart-icon { font-size: 90px; margin-bottom: 24px; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1)); }
-  .qb-empty-cart-btn { background: var(--qb-gold); color: white; padding: 18px 45px; border-radius: 16px; text-decoration: none; font-weight: 900; display: inline-block; margin-top: 30px; box-shadow: 0 10px 30px rgba(244,180,0,0.3); }
+  .animate-fade-in { animation: qbIn 0.6s ease; }
+  @keyframes qbIn { from { opacity: 0; } to { opacity: 1; } }
+  .animate-slide-up { animation: qbUp 0.4s ease-out forwards; }
+  @keyframes qbUp { from { transform: translateY(30px); } to { transform: translateY(0); } }
   .qb-flex-between { display: flex; justify-content: space-between; align-items: center; }
 </style>
 
 <script>
 (function() {
-  function initFinalProCart() {
+  function init() {
     const input = document.getElementById('LandmarkLink');
     const checkoutBtn = document.getElementById('qbMainCheckoutBtn');
-    const errorBox = document.getElementById('qbCheckoutError');
+    const errorBox = document.getElementById('qbErrBanner');
     const modal = document.getElementById('landmarkModalOverlay');
-    const body = document.body;
-
-    // PORTAL: Move modal to Body Root
-    if (modal && modal.parentNode !== body) body.appendChild(modal);
+    
+    if (modal && modal.parentNode !== document.body) document.body.appendChild(modal);
 
     const validate = () => {
       const val = (input?.value || '').trim();
@@ -292,24 +264,24 @@
     if (input) { input.addEventListener('input', validate); validate(); }
 
     document.addEventListener('click', (e) => {
-      // ? Trigger
-      if (e.target.closest('#openHelpBtn')) {
+      // ? Button
+      if (e.target.closest('#triggerHelp')) {
         e.preventDefault(); e.stopPropagation();
         if(modal) modal.classList.add('is-active');
-        body.classList.add('qb-modal-active');
+        document.documentElement.classList.add('modal-active');
         return;
       }
-      // Modal Close
+      // Close
       if (e.target.closest('#closeHelpBtn') || e.target.closest('#doneHelpBtn') || e.target === modal) {
         if(modal) modal.classList.remove('is-active');
-        body.classList.remove('qb-modal-active');
+        document.documentElement.classList.remove('modal-active');
         return;
       }
-      // Quantity Action
-      const qtyBtn = e.target.closest('[data-qty-btn]');
+      // Quantity
+      const qtyBtn = e.target.closest('[data-qbtn]');
       if (qtyBtn) {
         const form = qtyBtn.closest('form');
-        const inp = form.querySelector('.qb-qty-val');
+        const inp = form.querySelector('.qb-qty-num');
         let val = parseInt(inp.value);
         if (qtyBtn.dataset.action === 'minus') {
           if (val > 1) val--; else if (confirm('Remove item?')) val = 0; else return;
@@ -317,11 +289,11 @@
         inp.value = val; form.submit();
         return;
       }
-      // Nickname Interaction
-      const chip = e.target.closest('.qb-nickname-chip');
+      // Chips
+      const chip = e.target.closest('.qb-chip-pro');
       if (chip) {
         localStorage.setItem('qb_landmark_' + (localStorage.getItem('qb_active_nickname') || 'Home'), input.value);
-        document.querySelectorAll('.qb-nickname-chip').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.qb-chip-pro').forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
         const next = chip.dataset.nickname;
         localStorage.setItem('qb_active_nickname', next);
@@ -329,28 +301,28 @@
         validate();
         return;
       }
-      // Checkout Processing
+      // Checkout
       if (e.target.closest('#qbMainCheckoutBtn')) {
         const btn = e.target.closest('#qbMainCheckoutBtn');
         if (btn.disabled) return;
         btn.disabled = true; btn.innerHTML = 'Wait...';
         const nick = localStorage.getItem('qb_active_nickname') || 'Home';
-        const fullNote = `Address Type: ${nick}\nGoogle Maps: ${input.value}\nLocation Data: ${localStorage.getItem('qb_selected_location') || 'N/A'}`;
-        fetch('/cart/update.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ note: fullNote }) })
+        const note = `Type: ${nick} | Map: ${input.value} | Loc: ${localStorage.getItem('qb_selected_location') || 'N/A'}`;
+        fetch('/cart/update.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ note: note }) })
         .finally(() => { window.location.href = '/checkout'; });
       }
     });
 
     const activeNick = localStorage.getItem('qb_active_nickname') || 'Home';
-    document.querySelectorAll('.qb-nickname-chip').forEach(chip => {
+    document.querySelectorAll('.qb-chip-pro').forEach(chip => {
       if (chip.dataset.nickname === activeNick) chip.classList.add('active');
       const saved = localStorage.getItem('qb_landmark_' + activeNick);
       if (chip.dataset.nickname === activeNick && saved) { input.value = saved; validate(); }
     });
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initFinalProCart);
-  else initFinalProCart();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
 </script>
 
