@@ -1,6 +1,6 @@
 <!-- sections/main-cart.liquid -->
 <cart-items-component class="qb-cart-component" data-section-id="{{ section.id }}">
-  <div class="qb-cart-wrapper">
+  <div class="qb-cart-wrapper cart-wrapper">
     {%- if cart.empty? -%}
       <div class="qb-empty-cart animate-fade-in">
         <div class="qb-empty-card">
@@ -14,38 +14,52 @@
       </div>
     {%- else -%}
 
+      <!-- HEADER -->
       <div class="qb-cart-header">
-        <div class="qb-header-content">
-          <h1>Review Order</h1>
-          <span class="qb-header-count">{{ cart.item_count }} items</span>
+        <div class="qb-header-top">
+          <h1 class="qb-page-title">Review Order</h1>
+          <span class="qb-item-count-badge" ref="cartItemCount">{{ cart.item_count }} items</span>
         </div>
       </div>
 
-      <div class="qb-cart-main-scroll">
-        <div class="qb-cart-section">
-          <div class="qb-cart-items">
+      <div class="qb-cart-scroll-area">
+        <!-- ITEMS SECTION -->
+        <div class="qb-section qb-items-section">
+          <div class="qb-section-header">
+            <h2 class="qb-section-title">ITEMS IN CART</h2>
+          </div>
+          <div class="qb-cart-items-list">
             {%- for item in cart.items -%}
-              <div class="qb-cart-item">
-                <div class="qb-item-img">
-                  {% if item.image %}<img src="{{ item.image | image_url: width: 180 }}" alt="{{ item.title | escape }}">{% else %}<div class="qb-no-img">🐝</div>{% endif %}
+              <div class="qb-cart-item" ref="cartItemRows" data-key="{{ item.key }}">
+                <div class="qb-item-image">
+                  {% if item.image %}
+                    <img src="{{ item.image | image_url: width: 200 }}" alt="{{ item.title | escape }}" loading="lazy">
+                  {% else %}
+                    <div class="qb-item-no-image">🐝</div>
+                  {% endif %}
                 </div>
-                <div class="qb-item-details">
-                  <div class="qb-item-row">
-                    <a href="{{ item.url }}" class="qb-item-name">{{ item.product.title | truncate: 45 }}</a>
-                    <form action="{{ routes.cart_change_url }}" method="post" class="qb-item-remove">
+                
+                <div class="qb-item-info">
+                  <div class="qb-item-header">
+                    <a href="{{ item.url }}" class="qb-item-title">{{ item.product.title | truncate: 50 }}</a>
+                    <form action="{{ routes.cart_change_url }}" method="post" class="qb-remove-form">
                       <input type="hidden" name="id" value="{{ item.key }}">
                       <input type="hidden" name="quantity" value="0">
-                      <button type="submit">✕</button>
+                      <button type="submit" class="qb-remove-btn" aria-label="Remove item">✕</button>
                     </form>
                   </div>
-                  <div class="qb-item-bottom">
-                    <span class="qb-price-curr">Rs {{ item.final_line_price | divided_by: 100 }}</span>
-                    <div class="qb-qty-box">
-                      <form action="{{ routes.cart_change_url }}" method="post">
+                  
+                  <div class="qb-item-controls">
+                    <div class="qb-item-price-wrap">
+                      <span class="qb-item-price">Rs {{ item.final_line_price | divided_by: 100 }}</span>
+                    </div>
+                    
+                    <div class="qb-quantity-selector" ref="quantitySelectors">
+                      <form action="{{ routes.cart_change_url }}" method="post" class="qb-qty-form">
                         <input type="hidden" name="id" value="{{ item.key }}">
-                        <button type="button" class="qb-qty-act qb-qty-minus">−</button>
-                        <input type="number" name="quantity" value="{{ item.quantity }}" readonly class="qb-qty-val">
-                        <button type="button" class="qb-qty-act qb-qty-plus">+</button>
+                        <button type="button" class="qb-qty-btn qb-minus" data-action="minus">−</button>
+                        <input type="number" name="quantity" value="{{ item.quantity }}" readonly class="qb-qty-input">
+                        <button type="button" class="qb-qty-btn qb-plus" data-action="plus">+</button>
                       </form>
                     </div>
                   </div>
@@ -53,216 +67,687 @@
               </div>
             {%- endfor -%}
           </div>
-          <a href="{{ routes.all_products_collection_url }}" class="qb-add-more">+ Add more items</a>
+          <a href="{{ routes.all_products_collection_url }}" class="qb-add-more-link">+ Add more items</a>
         </div>
 
-        <div class="qb-cart-section">
-          <div class="qb-landmark-header">
-            <h2 class="qb-landmark-title">DELIVERY LANDMARK</h2>
-            <div class="qb-help-dropdown-wrapper">
-              <button type="button" class="qb-help-cute-circle" id="toggleHelpBtn">?</button>
-              <div id="landmarkHelpDropdown" class="qb-help-dropdown">
-                <div class="qb-dropdown-inner">
-                  <h3 class="qb-dropdown-title">How to share location?</h3>
-                  <img src="{{ 'popupgoogle.png' | asset_url }}" alt="Tutorial" class="qb-dropdown-image">
-                  <a href="https://www.google.com/maps" target="_blank" class="qb-dropdown-maps-btn">📍 Open Google Maps</a>
+        <!-- DELIVERY LANDMARK SECTION -->
+        <div class="qb-section qb-landmark-section">
+          <div class="qb-section-header qb-flex-between">
+            <h2 class="qb-section-title">DELIVERY LANDMARK</h2>
+            <div class="qb-help-dropdown-container">
+              <button type="button" class="qb-help-trigger" id="helpTrigger">?</button>
+              <div class="qb-help-dropdown-box" id="helpDropdown">
+                <div class="qb-help-content">
+                  <h3 class="qb-help-title">How to share location?</h3>
+                  <div class="qb-help-image-wrap">
+                    <img src="{{ 'popupgoogle.png' | asset_url }}" alt="Google Maps Tutorial">
+                  </div>
+                  <a href="https://www.google.com/maps" target="_blank" class="qb-google-maps-btn">
+                    <span>📍</span> Open Google Maps
+                  </a>
                 </div>
               </div>
             </div>
           </div>
-          <div class="qb-landmark-input-wrapper">
-            <span class="qb-input-icon">📍</span>
-            <input type="text" id="LandmarkLink" placeholder="Paste Google Maps link here..." class="qb-landmark-input">
+          
+          <div class="qb-landmark-field">
+            <div class="qb-input-with-icon">
+              <span class="qb-field-icon">📍</span>
+              <input type="text" id="LandmarkLink" placeholder="Paste Google Maps link here..." class="qb-main-input">
+            </div>
           </div>
-          <div class="qb-nickname-grid">
-            <button type="button" class="qb-nick-btn" data-nickname="Home">🏠 Home</button>
-            <button type="button" class="qb-nick-btn" data-nickname="Office">🏢 Office</button>
-            <button type="button" class="qb-nick-btn" data-nickname="Other">✨ Other</button>
-            <button type="button" class="qb-nick-btn" data-nickname="Current">📦 Current</button>
+          
+          <div class="qb-nicknames-grid">
+            <button type="button" class="qb-nickname-chip" data-nickname="Home">🏠 Home</button>
+            <button type="button" class="qb-nickname-chip" data-nickname="Office">🏢 Office</button>
+            <button type="button" class="qb-nickname-chip" data-nickname="Other">✨ Other</button>
+            <button type="button" class="qb-nickname-chip" data-nickname="Current">📦 Current</button>
           </div>
         </div>
 
-        <div class="qb-cart-section qb-bill-card">
-          <h2 class="qb-bill-title">Bill Details</h2>
-          <div class="qb-bill-row"><span>Item Total</span><span>Rs {{ cart.total_price | divided_by: 100 }}</span></div>
-          <div class="qb-bill-row"><span>Delivery Fee</span><span class="qb-text-green">FREE</span></div>
-          <div class="qb-total-row"><span>Grand Total</span><span>Rs {{ cart.total_price | divided_by: 100 }}</span></div>
+        <!-- BILLING SECTION -->
+        <div class="qb-section qb-bill-section">
+          <h2 class="qb-section-title">BILL DETAILS</h2>
+          <div class="qb-bill-details">
+            <div class="qb-bill-row">
+              <span class="qb-bill-label">Item Total</span>
+              <span class="qb-bill-value">Rs {{ cart.total_price | divided_by: 100 }}</span>
+            </div>
+            <div class="qb-bill-row">
+              <span class="qb-bill-label">Delivery Fee</span>
+              <span class="qb-bill-value qb-free">FREE</span>
+            </div>
+            <div class="qb-bill-total">
+              <span class="qb-total-label">Grand Total</span>
+              <span class="qb-total-value" ref="cartTotal">Rs {{ cart.total_price | divided_by: 100 }}</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="qb-sticky-footer">
-        <div class="qb-footer-info">
-          <span class="qb-footer-label">TOTAL</span>
-          <span class="qb-footer-price">Rs {{ cart.total_price | divided_by: 100 }}</span>
+      <!-- STICKY FOOTER -->
+      <div class="qb-cart-footer">
+        <div class="qb-footer-price-info">
+          <span class="qb-footer-label">PAYABLE AMOUNT</span>
+          <span class="qb-footer-total">Rs {{ cart.total_price | divided_by: 100 }}</span>
         </div>
-        <button type="button" class="qb-checkout-submit" id="qb-checkout-btn">Checkout ➔</button>
+        <button type="button" class="qb-main-checkout-btn" id="mainCheckoutBtn">
+          Checkout <span>➔</span>
+        </button>
       </div>
     {%- endif -%}
   </div>
 </cart-items-component>
 
 <style>
-  :root { --qb-purple: #7a14ac; --qb-red: #C41E3A; --qb-black: #111111; --qb-bg: #f8f9fa; --qb-border: #eaecf0; --qb-ease: cubic-bezier(0.4, 0, 0.2, 1); }
-  
-  .qb-cart-component { display: block; background: var(--qb-bg); min-height: 100vh; }
-  .qb-cart-wrapper { max-width: 500px; margin: 0 auto; background: #fff; box-shadow: 0 0 20px rgba(0,0,0,0.05); min-height: 100vh; position: relative; }
+  :root {
+    --qb-primary: #7a14ac;
+    --qb-secondary: #C41E3A;
+    --qb-dark: #1a1a1a;
+    --qb-gray: #666666;
+    --qb-light-gray: #f2f4f7;
+    --qb-border-color: #eaecf0;
+    --qb-white: #ffffff;
+    --qb-success: #10b981;
+    --qb-radius-lg: 16px;
+    --qb-radius-md: 12px;
+    --qb-radius-sm: 8px;
+    --qb-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
 
-  /* Help Circle Button Design */
-  .qb-help-cute-circle {
-    width: 30px;
-    height: 30px;
-    background: var(--qb-purple);
-    color: #fff;
-    border: 3px solid #fff;
-    border-radius: 50%;
+  /* Core Layout */
+  .qb-cart-component {
+    background: #f8f9fa;
+    min-height: 100vh;
+    display: block;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  .qb-cart-wrapper {
+    max-width: 500px;
+    margin: 0 auto;
+    background: var(--qb-white);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 0 30px rgba(0,0,0,0.03);
+  }
+
+  /* Header */
+  .qb-cart-header {
+    padding: 20px;
+    background: var(--qb-white);
+    border-bottom: 1px solid var(--qb-border-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .qb-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .qb-page-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--qb-dark);
+    margin: 0;
+  }
+
+  .qb-item-count-badge {
+    background: var(--qb-light-gray);
+    color: var(--qb-gray);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* Scroll Area */
+  .qb-cart-scroll-area {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+    padding-bottom: 120px; /* Space for sticky footer */
+  }
+
+  .qb-section {
+    background: var(--qb-white);
+    border-radius: var(--qb-radius-lg);
+    border: 1px solid var(--qb-border-color);
+    padding: 16px;
+    box-shadow: var(--qb-shadow);
+  }
+
+  .qb-section-header {
+    margin-bottom: 16px;
+  }
+
+  .qb-section-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #98a2b3;
+    letter-spacing: 1px;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  /* Cart Items */
+  .qb-cart-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .qb-cart-item {
+    display: flex;
+    gap: 14px;
+    position: relative;
+  }
+
+  .qb-item-image {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--qb-radius-md);
+    background: #f9fafb;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid #f2f4f7;
+  }
+
+  .qb-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .qb-item-no-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+  }
+
+  .qb-item-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+  }
+
+  .qb-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .qb-item-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--qb-dark);
+    text-decoration: none;
+    line-height: 1.4;
+  }
+
+  .qb-remove-btn {
+    background: none;
+    border: none;
+    color: #d0d5dd;
     font-size: 16px;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s;
+  }
+
+  .qb-remove-btn:hover { color: var(--qb-secondary); }
+
+  .qb-item-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  .qb-item-price {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--qb-primary);
+  }
+
+  /* Quantity Selector */
+  .qb-qty-form {
+    display: flex;
+    align-items: center;
+    background: #f9fafb;
+    border: 1px solid var(--qb-border-color);
+    border-radius: var(--qb-radius-sm);
+    overflow: hidden;
+  }
+
+  .qb-qty-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    color: var(--qb-dark);
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .qb-qty-input {
+    width: 32px;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--qb-dark);
+    pointer-events: none;
+    padding: 0;
+  }
+
+  .qb-add-more-link {
+    display: block;
+    text-align: center;
+    padding: 12px;
+    margin-top: 16px;
+    border: 1.5px dashed var(--qb-border-color);
+    border-radius: var(--qb-radius-md);
+    color: var(--qb-primary);
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .qb-add-more-link:hover {
+    background: #fdf7ff;
+    border-color: var(--qb-primary);
+  }
+
+  /* Help Dropdown */
+  .qb-help-dropdown-container {
+    position: relative;
+  }
+
+  .qb-help-trigger {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--qb-primary);
+    color: var(--qb-white);
+    border: 2px solid var(--qb-white);
     font-weight: 900;
+    font-size: 14px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 10px rgba(122, 20, 172, 0.2);
-    transition: all 0.2s;
-    z-index: 101;
+    z-index: 10;
   }
-  .qb-help-cute-circle:active { transform: scale(0.9); }
 
-  /* Help Dropdown */
-  .qb-help-dropdown-wrapper { position: relative; }
-  .qb-help-dropdown {
+  .qb-help-dropdown-box {
     position: absolute;
-    top: calc(100% + 10px);
+    top: calc(100% + 12px);
     right: 0;
-    width: 260px;
-    background: #fff;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    border: 1px solid var(--qb-border);
-    z-index: 1000;
+    width: 280px;
+    background: var(--qb-white);
+    border-radius: var(--qb-radius-lg);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    border: 1px solid var(--qb-border-color);
     display: none;
+    z-index: 1000;
     overflow: hidden;
-    animation: qbFadeInDown 0.3s var(--qb-ease);
+    animation: qbFadeInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .qb-help-dropdown.active { display: block; }
-  .qb-dropdown-inner { padding: 16px; }
-  .qb-dropdown-title { font-size: 14px; font-weight: 800; color: var(--qb-black); margin: 0 0 12px; text-align: center; }
-  .qb-dropdown-image { width: 100%; border-radius: 12px; margin-bottom: 12px; border: 1px solid #eee; display: block; }
-  .qb-dropdown-maps-btn { display: flex; align-items: center; justify-content: center; background: #4285F4; color: #fff; text-decoration: none; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 800; transition: background 0.2s; }
-  .qb-dropdown-maps-btn:hover { background: #3367d6; }
 
-  @keyframes qbFadeInDown {
-    from { opacity: 0; transform: translateY(-10px); }
+  .qb-help-dropdown-box.active { display: block; }
+
+  .qb-help-content { padding: 20px; text-align: center; }
+
+  .qb-help-title { font-size: 16px; font-weight: 800; color: var(--qb-dark); margin: 0 0 15px; }
+
+  .qb-help-image-wrap {
+    width: 100%;
+    border-radius: var(--qb-radius-md);
+    overflow: hidden;
+    margin-bottom: 20px;
+    border: 1px solid #f2f4f7;
+  }
+
+  .qb-help-image-wrap img { width: 100%; display: block; }
+
+  .qb-google-maps-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #4285F4;
+    color: var(--qb-white);
+    text-decoration: none;
+    padding: 14px;
+    border-radius: var(--qb-radius-md);
+    font-weight: 800;
+    font-size: 14px;
+    transition: background 0.2s;
+  }
+
+  .qb-google-maps-btn:hover { background: #3367d6; }
+
+  /* Landmark Field */
+  .qb-input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .qb-field-icon {
+    position: absolute;
+    left: 14px;
+    font-size: 18px;
+  }
+
+  .qb-main-input {
+    width: 100%;
+    padding: 14px 14px 14px 44px;
+    background: #f9fafb;
+    border: 1.5px solid var(--qb-border-color);
+    border-radius: var(--qb-radius-md);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--qb-dark);
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .qb-main-input:focus {
+    border-color: var(--qb-primary);
+    background: var(--qb-white);
+    box-shadow: 0 0 0 4px rgba(122, 20, 172, 0.05);
+  }
+
+  .qb-nicknames-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .qb-nickname-chip {
+    padding: 12px;
+    background: var(--qb-white);
+    border: 1.5px solid var(--qb-border-color);
+    border-radius: var(--qb-radius-md);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--qb-gray);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .qb-nickname-chip.active {
+    border-color: var(--qb-primary);
+    background: #fdf7ff;
+    color: var(--qb-primary);
+    box-shadow: 0 4px 12px rgba(122, 20, 172, 0.08);
+  }
+
+  /* Bill Section */
+  .qb-bill-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .qb-bill-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--qb-gray);
+  }
+
+  .qb-bill-total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding-top: 16px;
+    border-top: 1px solid var(--qb-border-color);
+  }
+
+  .qb-total-label { font-size: 16px; font-weight: 800; color: var(--qb-dark); }
+  .qb-total-value { font-size: 18px; font-weight: 900; color: var(--qb-dark); }
+
+  .qb-free { color: var(--qb-success); font-weight: 800; }
+
+  /* Footer */
+  .qb-cart-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: 500px;
+    margin: 0 auto;
+    background: var(--qb-white);
+    padding: 16px 20px calc(16px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--qb-border-color);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 1000;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.05);
+  }
+
+  .qb-footer-price-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .qb-footer-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: #98a2b3;
+    letter-spacing: 0.5px;
+  }
+
+  .qb-footer-total {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--qb-dark);
+  }
+
+  .qb-main-checkout-btn {
+    flex: 1;
+    background: var(--qb-secondary);
+    color: var(--qb-white);
+    border: none;
+    height: 56px;
+    border-radius: var(--qb-radius-lg);
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 8px 20px rgba(196, 30, 58, 0.25);
+    transition: all 0.2s;
+  }
+
+  .qb-main-checkout-btn:active { transform: scale(0.97); }
+
+  /* Empty State */
+  .qb-empty-cart {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+  }
+
+  .qb-empty-icon-wrap { font-size: 80px; margin-bottom: 24px; }
+  .qb-empty-title { font-size: 26px; font-weight: 900; margin: 0 0 12px; }
+  .qb-empty-subtitle { font-size: 16px; color: var(--qb-gray); margin: 0 0 32px; }
+  .qb-empty-btn {
+    display: inline-block;
+    background: var(--qb-primary);
+    color: var(--qb-white);
+    padding: 18px 40px;
+    border-radius: var(--qb-radius-lg);
+    font-weight: 800;
+    font-size: 16px;
+    text-decoration: none;
+    box-shadow: 0 8px 20px rgba(122, 20, 172, 0.2);
+  }
+
+  @keyframes qbFadeInUp {
+    from { opacity: 0; transform: translateY(15px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* Scroller */
-  .qb-cart-main-scroll { padding: 16px 16px 140px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-  .qb-cart-section { background: #fff; border-radius: 20px; border: 1px solid var(--qb-border); padding: 16px; position: relative; }
-  
-  /* Landmark */
-  .qb-landmark-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-  .qb-landmark-title { font-size: 12px; font-weight: 900; color: #888; margin: 0; letter-spacing: 0.5px; }
-  .qb-landmark-input-wrapper { position: relative; display: flex; align-items: center; margin-bottom: 16px; }
-  .qb-input-icon { position: absolute; left: 12px; font-size: 16px; }
-  .qb-landmark-input { width: 100%; padding: 12px 12px 12px 38px; background: #f8f9fa; border: 1.5px solid var(--qb-border); border-radius: 12px; font-size: 14px; outline: none; }
-  .qb-nickname-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .qb-nick-btn { padding: 10px; background: #fff; border: 1.5px solid var(--qb-border); border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; }
-  .qb-nick-btn.active { border-color: var(--qb-purple); background: #fdf7ff; color: var(--qb-purple); }
-
-  /* Sticky Footer */
-  .qb-sticky-footer { position: fixed; bottom: 65px; left: 0; right: 0; background: #fff; padding: 16px 20px calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid var(--qb-border); display: flex; align-items: center; justify-content: space-between; gap: 16px; z-index: 1000; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); width: 100%; max-width: 500px; margin: 0 auto; }
-  .qb-checkout-submit { flex: 1; background: var(--qb-red); color: #fff; border: none; height: 50px; border-radius: 16px; font-size: 17px; font-weight: 900; cursor: pointer; }
-
-  .animate-slide-up { animation: qbSlideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-  @keyframes qbSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  /* Utils */
+  .qb-flex-between { display: flex; justify-content: space-between; align-items: center; }
 </style>
 
 <script>
 (function() {
-  function init() {
+  function initCartPage() {
     const input = document.getElementById('LandmarkLink');
-    const toggleBtn = document.getElementById('toggleHelpBtn');
-    const dropdown = document.getElementById('landmarkHelpDropdown');
+    const helpTrigger = document.getElementById('helpTrigger');
+    const helpDropdown = document.getElementById('helpDropdown');
+    const checkoutBtn = document.getElementById('mainCheckoutBtn');
 
-    if (toggleBtn && dropdown) {
-      toggleBtn.addEventListener('click', (e) => {
+    // 1. Help Dropdown Logic
+    if (helpTrigger && helpDropdown) {
+      helpTrigger.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        dropdown.classList.toggle('active');
+        helpDropdown.classList.toggle('active');
       });
-      // Close dropdown when clicking outside
       document.addEventListener('click', (e) => {
-        if (!toggleBtn.contains(e.target) && !dropdown.contains(e.target)) {
-          dropdown.classList.remove('active');
+        if (!helpTrigger.contains(e.target) && !helpDropdown.contains(e.target)) {
+          helpDropdown.classList.remove('active');
         }
       });
     }
 
     if (!input) return;
 
-    // Load initial storage data
+    // 2. Nickname Chips Logic
     const activeNick = localStorage.getItem('qb_active_nickname') || 'Home';
-    document.querySelectorAll('.qb-nick-btn').forEach(btn => {
-      const savedLink = localStorage.getItem('qb_landmark_' + btn.dataset.nickname);
-      if (btn.dataset.nickname === activeNick) {
-        btn.classList.add('active');
+    document.querySelectorAll('.qb-nickname-chip').forEach(chip => {
+      const savedLink = localStorage.getItem('qb_landmark_' + chip.dataset.nickname);
+      if (chip.dataset.nickname === activeNick) {
+        chip.classList.add('active');
         if (savedLink) input.value = savedLink;
       }
     });
 
-    // Global listener
     document.addEventListener('click', (e) => {
-      const nickBtn = e.target.closest('.qb-nick-btn');
-      if (nickBtn) {
-        const inp = document.getElementById('LandmarkLink');
-        const oldNick = localStorage.getItem('qb_active_nickname') || 'Home';
-        if (inp) localStorage.setItem('qb_landmark_' + oldNick, inp.value);
-        document.querySelectorAll('.qb-nick-btn').forEach(b => b.classList.remove('active'));
-        nickBtn.classList.add('active');
-        const newNick = nickBtn.dataset.nickname;
-        localStorage.setItem('qb_active_nickname', newNick);
-        const newSaved = localStorage.getItem('qb_landmark_' + newNick);
-        if (inp) inp.value = newSaved || '';
+      // Nickname click
+      const chip = e.target.closest('.qb-nickname-chip');
+      if (chip) {
+        const currentNick = localStorage.getItem('qb_active_nickname') || 'Home';
+        localStorage.setItem('qb_landmark_' + currentNick, input.value);
+        
+        document.querySelectorAll('.qb-nickname-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        
+        const nextNick = chip.dataset.nickname;
+        localStorage.setItem('qb_active_nickname', nextNick);
+        input.value = localStorage.getItem('qb_landmark_' + nextNick) || '';
         return;
       }
-      
-      const act = e.target.closest('.qb-qty-act');
-      if (act) {
-        const form = act.closest('form');
-        const valInp = form.querySelector('.qb-qty-val');
-        let val = parseInt(valInp.value);
-        if (act.classList.contains('qb-qty-minus')) {
-          if (val > 1) val--;
-          else if (confirm('Remove item?')) val = 0;
-          else return;
-        } else { val++; }
-        valInp.value = val;
+
+      // Quantity change
+      const qtyBtn = e.target.closest('.qb-qty-btn');
+      if (qtyBtn) {
+        const form = qtyBtn.closest('form');
+        const inputField = form.querySelector('.qb-qty-input');
+        let currentQty = parseInt(inputField.value);
+        const action = qtyBtn.dataset.action;
+
+        if (action === 'minus') {
+          if (currentQty > 1) {
+            currentQty--;
+          } else {
+            if (confirm('Remove this item from cart?')) {
+              currentQty = 0;
+            } else {
+              return;
+            }
+          }
+        } else {
+          currentQty++;
+        }
+
+        inputField.value = currentQty;
         form.submit();
         return;
       }
 
-      const checkout = e.target.closest('#qb-checkout-btn');
-      if (checkout) {
-        if (checkout.disabled) return;
-        checkout.innerHTML = 'Wait...';
-        checkout.disabled = true;
-        const note = 'Map: ' + (document.getElementById('LandmarkLink')?.value || '');
-        fetch('/cart/update.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ note: note }) })
-        .finally(() => { window.location.href = '/checkout'; });
+      // Checkout click
+      if (e.target.closest('#mainCheckoutBtn')) {
+        const btn = e.target.closest('#mainCheckoutBtn');
+        if (btn.disabled) return;
+        
+        btn.disabled = true;
+        btn.innerHTML = 'Processing...';
+        
+        const landmarkValue = document.getElementById('LandmarkLink')?.value || '';
+        const activeNickname = localStorage.getItem('qb_active_nickname') || 'Home';
+        const cartNote = `Nickname: ${activeNickname} | Map: ${landmarkValue}`;
+
+        fetch('/cart/update.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ note: cartNote })
+        }).finally(() => {
+          window.location.href = '/checkout';
+        });
       }
     });
 
+    // Save input on change
     input.addEventListener('input', () => {
       const nick = localStorage.getItem('qb_active_nickname') || 'Home';
       localStorage.setItem('qb_landmark_' + nick, input.value);
     });
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCartPage);
+  } else {
+    initCartPage();
+  }
 })();
 </script>
 
 {% schema %}
-{ "name": "Cart Page", "settings": [], "presets": [{ "name": "Cart Page" }] }
+{
+  "name": "Cart Page",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Cart Page"
+    }
+  ]
+}
 {% endschema %}
