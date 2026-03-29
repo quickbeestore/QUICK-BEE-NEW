@@ -1221,7 +1221,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <div class="qb-popup-content animate-fade-in">
     <button id="qb-close-popup" class="qb-popup-close" type="button">×</button>
     <a href="/pages/rider-application" class="qb-popup-link">
-      <img src="{{ 'POPUP.png' | asset_url }}" alt="Join Our Team" loading="lazy">
+      <img src="{{ 'POPUP.png' | asset_url }}" alt="Join Our Team" loading="eager" fetchpriority="high" id="qb-popup-img">
     </a>
   </div>
 </div>
@@ -1302,15 +1302,30 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     function initRecruitmentPopup() {
       const popup = document.getElementById('qb-homepage-popup');
       const closeBtn = document.getElementById('qb-close-popup');
+      const popupImg = document.getElementById('qb-popup-img');
       
       if (!popup) return;
 
       // Check if popup was already shown in this session
       if (sessionStorage.getItem('qb_recruitment_popup_shown')) return;
 
-      // Show after 2 seconds
-      setTimeout(() => {
+      const showPopup = () => {
+        // Double check session storage just before showing (in case multiple tabs)
+        if (sessionStorage.getItem('qb_recruitment_popup_shown')) return;
         popup.style.display = 'flex';
+      };
+
+      // Show after 2 seconds, but ensure image is ready
+      setTimeout(() => {
+        if (popupImg && popupImg.complete) {
+          showPopup();
+        } else if (popupImg) {
+          popupImg.addEventListener('load', showPopup);
+          // Fallback if image fails to load or takes too long
+          setTimeout(showPopup, 3000);
+        } else {
+          showPopup();
+        }
       }, 2000);
 
       const closePopup = () => {
