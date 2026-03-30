@@ -39,16 +39,26 @@
     <link rel="preload" as="image" href="{{ 'POPUP.png' | asset_url }}" fetchpriority="high">
 
     <script>
-      /* QuickBEE Theme Initialization (Immediate) */
+      /* QuickBEE Theme Management */
       (function() {
+        // 1. Immediate Theme Application (Prevent Flash)
         const savedTheme = localStorage.getItem('quickbee-theme');
         const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
-        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-          document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-          document.documentElement.setAttribute('data-theme', 'light');
-        }
+        const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', initialTheme);
+
+        // 2. Event Listener (on DOMContentLoaded)
+        document.addEventListener('DOMContentLoaded', () => {
+          const toggleBtn = document.getElementById('theme-toggle');
+          if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+              const currentTheme = document.documentElement.getAttribute('data-theme');
+              const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+              document.documentElement.setAttribute('data-theme', newTheme);
+              localStorage.setItem('quickbee-theme', newTheme);
+            });
+          }
+        });
       })();
     </script>
 
@@ -532,20 +542,5 @@
       })();
     </script>
 
-    <script>
-      /* QuickBEE Theme Toggle Logic */
-      (function() {
-        const toggleBtn = document.getElementById('theme-toggle');
-        if (!toggleBtn) return;
-
-        toggleBtn.addEventListener('click', () => {
-          const currentTheme = document.documentElement.getAttribute('data-theme');
-          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-          
-          document.documentElement.setAttribute('data-theme', newTheme);
-          localStorage.setItem('quickbee-theme', newTheme);
-        });
-      })();
-    </script>
   </body>
 </html>
