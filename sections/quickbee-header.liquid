@@ -2563,6 +2563,55 @@
             hideDropdown();
           }
         });
+
+        // --- TYPING EFFECT FOR PLACEHOLDER ---
+        (function() {
+          const phrases = [
+            "Search products...",
+            "Find your favorite beer...",
+            "Craving snacks?",
+            "Delivery in ~20 mins...",
+            "Fresh groceries delivered.",
+            "QuickBEE: Fast & Reliable."
+          ];
+          
+          let phraseIndex = 0;
+          let charIndex = 0;
+          let isDeleting = false;
+          let typingSpeed = 100;
+
+          function type() {
+            const currentPhrase = phrases[phraseIndex];
+            
+            if (isDeleting) {
+              // Deleting
+              searchInput.placeholder = currentPhrase.substring(0, charIndex - 1);
+              charIndex--;
+              typingSpeed = 50; // Faster deletion
+            } else {
+              // Typing
+              searchInput.placeholder = currentPhrase.substring(0, charIndex + 1);
+              charIndex++;
+              typingSpeed = 100; // Normal typing
+            }
+
+            if (!isDeleting && charIndex === currentPhrase.length) {
+              // Finished typing phrase
+              isDeleting = true;
+              typingSpeed = 2000; // Pause at the end
+            } else if (isDeleting && charIndex === 0) {
+              // Finished deleting phrase
+              isDeleting = false;
+              phraseIndex = (phraseIndex + 1) % phrases.length;
+              typingSpeed = 500; // Pause before starting next
+            }
+
+            setTimeout(type, typingSpeed);
+          }
+
+          // Start effect
+          type();
+        })();
       })();
     </script>
 
