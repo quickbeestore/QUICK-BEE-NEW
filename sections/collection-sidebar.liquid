@@ -333,74 +333,41 @@
       text-decoration: line-through;
     }
 
-    .qb-quantity-control {
-      display: flex !important;
-      align-items: center !important;
-      background: #1A1A1A !important;
-      border: 1px solid #333 !important;
-      border-radius: 8px !important;
-      overflow: hidden !important;
+    .qb-add-btn {
       width: calc(100% - 16px) !important;
-      height: 32px !important;
-      margin: 8px 8px 0 !important;
-    }
-
-    .qb-qty-btn {
-      flex: 0 0 32px !important;
-      height: 100% !important;
+      background: #C2185B !important;
+      color: white !important;
       border: none !important;
-      background: #2A2A2A !important;
-      color: #fff !important;
-      cursor: pointer !important;
-      font-size: 16px !important;
+      border-radius: 10px !important;
+      padding: 12px 16px !important;
+      font-size: 13px !important;
       font-weight: 700 !important;
+      cursor: pointer !important;
+      min-height: 44px !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.5px !important;
+      margin: 12px 8px 12px !important;
+      box-shadow: 0 4px 12px rgba(194, 24, 91, 0.25) !important;
+      transition: all 0.3s ease !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
     }
 
-    .qb-qty-input {
-      flex: 1 !important;
-      height: 100% !important;
-      border: none !important;
-      border-left: 1px solid #333 !important;
-      border-right: 1px solid #333 !important;
-      text-align: center !important;
-      font-size: 13px !important;
-      font-weight: 700 !important;
-      color: #fff !important;
-      background: #1A1A1A !important;
-      padding: 0 !important;
-      margin: 0 !important;
-    }
-
-    .qb-add-btn {
-      width: calc(100% - 16px);
-      background: #C2185B !important;
-      color: white !important;
-      border: none !important;
-      border-radius: 8px;
-      padding: 8px 10px;
-      font-size: 12px;
-      font-weight: 800;
-      cursor: pointer;
-      min-height: 36px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin: 6px 8px 10px;
-      box-shadow: 0 2px 8px rgba(194, 24, 91, 0.3);
-      transition: all 0.2s ease;
-    }
-
     .qb-add-btn:hover {
       background: #D81B60 !important;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(194, 24, 91, 0.4);
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 15px rgba(194, 24, 91, 0.4) !important;
     }
 
     .qb-add-btn:active {
-      transform: translateY(0);
-      opacity: 0.9;
+      transform: scale(0.98) !important;
+      opacity: 0.9 !important;
+    }
+
+    /* Hide Quantity Selector */
+    .qb-quantity-control {
+      display: none !important;
     }
 
     /* TABLET: 768px and up - 3 column grid */
@@ -625,11 +592,7 @@
             </div>
             <form action="/cart/add" method="post" class="product-form">
               <input type="hidden" name="id" value="{{ product.variants.first.id }}">
-              <div class="qb-quantity-control">
-                <button type="button" class="qb-qty-btn qb-qty-minus">−</button>
-                <input type="number" name="quantity" class="qb-qty-input" value="1" min="1" max="999">
-                <button type="button" class="qb-qty-btn qb-qty-plus">+</button>
-              </div>
+              <input type="hidden" name="quantity" value="1">
               <button type="submit" class="qb-add-btn">ADD TO CART</button>
             </form>
           </div>
@@ -822,11 +785,7 @@
         </div>
         <form action="/cart/add" method="post" class="product-form">
           <input type="hidden" name="id" value="${variantId}">
-          <div class="qb-quantity-control">
-            <button type="button" class="qb-qty-btn qb-qty-minus">−</button>
-            <input type="number" name="quantity" class="qb-qty-input" value="1" min="1" max="999">
-            <button type="button" class="qb-qty-btn qb-qty-plus">+</button>
-          </div>
+          <input type="hidden" name="quantity" value="1">
           <button type="submit" class="qb-add-btn">ADD TO CART</button>
         </form>
       `;
@@ -841,57 +800,11 @@
         imageWrap.addEventListener('click', productImageClickHandler);
       });
 
-      // Quantity controls
-      document.querySelectorAll('.qb-qty-minus').forEach(btn => {
-        btn.removeEventListener('click', decreaseQty);
-        btn.addEventListener('click', decreaseQty);
-      });
-
-      document.querySelectorAll('.qb-qty-plus').forEach(btn => {
-        btn.removeEventListener('click', increaseQty);
-        btn.addEventListener('click', increaseQty);
-      });
-
-      document.querySelectorAll('.qb-qty-input').forEach(input => {
-        input.removeEventListener('change', validateQtyInput);
-        input.addEventListener('change', validateQtyInput);
-      });
-
       // Add to cart logic
       document.querySelectorAll('.product-form').forEach(form => {
         form.removeEventListener('submit', addToCartHandler);
         form.addEventListener('submit', addToCartHandler);
       });
-    }
-
-    function decreaseQty(e) {
-      e.preventDefault();
-      const input = this.parentElement.querySelector('.qb-qty-input');
-      const currentValue = parseInt(input.value) || 1;
-      if (currentValue > 1) {
-        input.value = currentValue - 1;
-      }
-    }
-
-    function increaseQty(e) {
-      e.preventDefault();
-      const input = this.parentElement.querySelector('.qb-qty-input');
-      const currentValue = parseInt(input.value) || 1;
-      const maxValue = parseInt(input.max) || 999;
-      if (currentValue < maxValue) {
-        input.value = currentValue + 1;
-      }
-    }
-
-    function validateQtyInput(e) {
-      let value = parseInt(this.value) || 1;
-      const min = parseInt(this.min) || 1;
-      const max = parseInt(this.max) || 999;
-
-      if (value < min) value = min;
-      if (value > max) value = max;
-
-      this.value = value;
     }
 
     function productImageClickHandler(e) {
@@ -902,13 +815,8 @@
     }
 
     function addToCartHandler(e) {
-      // Allow normal form submission to /cart/add with default quantity of 1
-      // The form will handle the POST request naturally
-      const qtyInput = document.createElement('input');
-      qtyInput.type = 'hidden';
-      qtyInput.name = 'quantity';
-      qtyInput.value = '1';
-      this.appendChild(qtyInput);
+      // Form already contains hidden quantity=1, so we just let it submit naturally.
+      // Any additional client-side logic (like toast messages) can go here.
     }
 
     // Auto-load collection from URL or default to first
