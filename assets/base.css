@@ -2,20 +2,129 @@
   box-sizing: border-box;
 }
 
+/* ── THEME TOGGLE ── */
+.theme-toggle-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  color: var(--color-foreground);
+  padding: 0;
+  margin-right: 8px;
+}
+
+.theme-toggle-btn:hover {
+  background-color: rgba(244, 180, 0, 0.15); /* QuickBEE Yellow Glow */
+}
+
+[data-theme="dark"] .theme-toggle-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Dark Gray/White Glow */
+}
+
+.theme-toggle-btn .icon-sun,
+.theme-toggle-btn .icon-moon {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+/* Default state (Light Mode) */
+html:not([data-theme="dark"]) .theme-toggle-btn .icon-sun {
+  opacity: 0;
+  transform: rotate(360deg) scale(0);
+}
+
+html:not([data-theme="dark"]) .theme-toggle-btn .icon-moon {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+/* Dark Mode state */
+[data-theme="dark"] .theme-toggle-btn .icon-sun {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+[data-theme="dark"] .theme-toggle-btn .icon-moon {
+  opacity: 0;
+  transform: rotate(-360deg) scale(0);
+}
+
+/* Global Theme Variables */
+:root {
+  --qb-gold: #F4B400;
+  --qb-gold-glow: rgba(244, 180, 0, 0.15);
+  --qb-ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Global Dark Mode Variables Override */
+[data-theme="dark"] {
+  --color-background: #0A0A0A;
+  --color-foreground: #F0F0F0;
+  --color-background-rgb: 10, 10, 10;
+  --color-foreground-rgb: 240, 240, 240;
+  --color-foreground-heading: #FFFFFF;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-rgb: 255, 255, 255;
+  --color-shadow: rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] body,
+[data-theme="dark"] #shopify-section-quickbee-header,
+[data-theme="dark"] .shopify-section,
+[data-theme="dark"] main,
+[data-theme="dark"] #MainContent {
+  background-color: #0A0A0A !important;
+  color: #F0F0F0 !important;
+}
+
+/* Custom Premium Scrollbar (Dark Mode) */
+[data-theme="dark"] ::-webkit-scrollbar-track { background: #050505 !important; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { 
+  background: rgba(244, 180, 0, 0.3) !important; 
+  border: 2px solid #050505 !important; 
+}
+
+/* Global Focus & Form States */
+input:focus, textarea:focus, select:focus {
+  border-color: var(--qb-gold) !important;
+  box-shadow: 0 0 0 3px var(--qb-gold-glow) !important;
+  outline: none !important;
+}
+
 body {
   color: var(--color-foreground);
   background: var(--color-background);
   display: flex;
   flex-direction: column;
   margin: 0;
-  margin-bottom: 65px;
-  min-height: 100svh;
-  font-variation-settings: 'slnt' 0;
+  padding: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: hidden;
 }
 
 /* Push first content section down below fixed header */
 body > .shopify-section:first-of-type {
   margin-top: 95px !important;
+}
+
+@media (min-width: 600px) {
+  body { font-size: 15px; }
+}
+
+@media (min-width: 768px) {
+  body { font-size: 16px; }
 }
 
 :root {

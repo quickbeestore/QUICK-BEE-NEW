@@ -38,72 +38,21 @@
     {%- render 'color-schemes' -%}
     <link rel="preload" as="image" href="{{ 'POPUP.png' | asset_url }}" fetchpriority="high">
 
+    <script>
+      /* QuickBEE Theme Initialization (Immediate) */
+      (function() {
+        const savedTheme = localStorage.getItem('quickbee-theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
+
     <style>
-      /* ============================================
-         QUICKBEE PREMIUM DARK THEME FOUNDATION
-         ============================================ */
-      :root,
-      html,
-      .color-scheme-1,
-      [class*="color-scheme"] {
-        --color-background: 10, 10, 10 !important;
-        --color-foreground: 240, 240, 240 !important;
-        --color-background-rgb: 10, 10, 10 !important;
-        --color-foreground-rgb: 240, 240, 240 !important;
-        --color-foreground-heading: 255, 255, 255 !important;
-        --color-border: 255, 255, 255 !important;
-        --qb-gold: #F4B400;
-        --qb-gold-glow: rgba(244, 180, 0, 0.15);
-        --qb-ease: cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      html, body {
-        background: #0A0A0A !important;
-        background-color: #0A0A0A !important;
-        color: #F0F0F0 !important;
-        -webkit-font-smoothing: antialiased;
-        width: 100%;
-        height: 100vh;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        font-size: 14px;
-        line-height: 1.6;
-      }
-
-      /* Custom Premium Scrollbar */
-      ::-webkit-scrollbar { width: 8px; height: 8px; }
-      ::-webkit-scrollbar-track { background: #050505 !important; }
-      ::-webkit-scrollbar-thumb { 
-        background: rgba(244,180,0,0.3) !important; 
-        border-radius: 10px !important; 
-        border: 2px solid #050505 !important; 
-      }
-      ::-webkit-scrollbar-thumb:hover { background: #F4B400 !important; }
-
-      /* Global Layout Blocks */
-      #shopify-section-quickbee-header, .shopify-section, main, #MainContent {
-        background: #0A0A0A !important;
-      }
-
-      main { width: 100%; max-width: 100%; margin: 0; padding: 0; overflow-x: hidden; flex: 1; }
-
-      /* Responsive Touch Feedback */
-      .qb-btn-primary:active, .qb-checkout-submit:active, .qb-add-btn:active,
-      .qb-main-checkout-btn:active, .qb-product-btn:active {
-        transform: scale(0.96) !important;
-        transition: transform 0.1s var(--qb-ease);
-      }
-
-      /* Global Focus & Form States */
-      input:focus, textarea:focus, select:focus {
-        border-color: var(--qb-gold) !important;
-        box-shadow: 0 0 0 3px var(--qb-gold-glow) !important;
-        outline: none !important;
-      }
-
       /* Base Mobile-First Grid System */
       * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
       
@@ -126,7 +75,6 @@
         flex-wrap: nowrap !important; display: flex !important; overflow: hidden !important;
       }
 
-      /* Optimize animations */
       /* Optimize animations */
       .animate-fade-in, .animate-slide-up, .qb-modal-container, .qb-popup-content {
         will-change: transform, opacity;
@@ -183,7 +131,9 @@
         backdrop-filter: blur(8px) !important;
       }
 
-      dialog[open], [role="dialog"].active, [class*="modal-container"].active {
+      [data-theme="dark"] dialog[open], 
+      [data-theme="dark"] [role="dialog"].active, 
+      [data-theme="dark"] [class*="modal-container"].active {
         background-color: #111 !important;
         color: #F0F0F0 !important;
         border: 1px solid rgba(255,255,255,0.1) !important;
@@ -579,6 +529,22 @@
         // Expose functions globally
         window.updateDeliveryBadges = updateAllDeliveryBadges;
         window.saveDeliveryTime = saveDeliveryTimeToStorage;
+      })();
+    </script>
+
+    <script>
+      /* QuickBEE Theme Toggle Logic */
+      (function() {
+        const toggleBtn = document.getElementById('theme-toggle');
+        if (!toggleBtn) return;
+
+        toggleBtn.addEventListener('click', () => {
+          const currentTheme = document.documentElement.getAttribute('data-theme');
+          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+          
+          document.documentElement.setAttribute('data-theme', newTheme);
+          localStorage.setItem('quickbee-theme', newTheme);
+        });
       })();
     </script>
   </body>
