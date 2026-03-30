@@ -166,7 +166,6 @@
       color: #FFFFFF !important; 
     }
     :root:not([data-theme="light"]) .qb-search-input::placeholder { color: #aaaaaa !important; }
-    :root:not([data-theme="light"]) .qb-search-placeholder-text { color: #aaaaaa !important; }
 
     /* Cart Button Dark Mode */
     :root:not([data-theme="light"]) .qb-cart-btn-large {
@@ -483,7 +482,7 @@
     color: var(--qb-yellow);
   }
 
-  /* Google-Style Search Bar */
+  /* Sleek Modern Search Bar */
   .qb-search-bar-wrap {
     display: flex;
     align-items: center;
@@ -491,47 +490,42 @@
     flex: 1;
     max-width: 900px;
     height: 48px;
-    background: #ffffff;
-    border-radius: 50px;
-    padding: 0 16px;
-    border: 1px solid #e8e8e8;
-    transition: all 0.2s ease;
+    background: #F3F4F6;
+    border-radius: 999px;
+    padding: 0 20px;
+    border: 1px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     margin: 0 auto;
-    box-shadow: none;
     position: relative;
   }
 
-  .qb-search-bar-wrap:hover {
-    border-color: #d3d3d3;
-    box-shadow: none;
-  }
-
   .qb-search-bar-wrap:focus-within {
-    border-color: #dadce0;
-    box-shadow: none;
+    background: #ffffff;
+    border-color: #FBBF24;
+    box-shadow: 0 0 0 2px #FBBF24;
     outline: none;
   }
 
   .qb-search-bar-wrap svg {
     width: 20px;
     height: 20px;
-    color: #9aa0a6;
+    color: #4B5563;
     flex-shrink: 0;
     transition: color 0.2s;
-    margin-right: 8px;
+    margin-right: 12px;
   }
 
   .qb-search-bar-wrap:focus-within svg {
-    color: #5f6368;
+    color: #111827;
   }
 
   .qb-search-input {
     flex: 1;
     border: none;
-    background: transparent;
+    background: transparent !important;
     font-size: 16px;
     font-weight: 400;
-    color: #202124;
+    color: #111827;
     outline: none;
     padding: 0;
     font-family: inherit;
@@ -539,21 +533,35 @@
   }
 
   .qb-search-input::placeholder {
-    color: transparent;
+    color: #6B7280;
+    opacity: 1;
   }
 
-  .qb-search-placeholder-text {
-    position: absolute;
-    left: 48px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #9aa0a6;
-    font-size: 16px;
-    font-weight: 400;
-    pointer-events: none;
-    white-space: nowrap;
-    opacity: 1;
-    transition: opacity 0.2s ease;
+  /* Dark Mode Overrides */
+  [data-theme="dark"] .qb-search-bar-wrap {
+    background: #1A1A1A;
+    border-color: #333333;
+  }
+
+  [data-theme="dark"] .qb-search-bar-wrap:focus-within {
+    background: #121212;
+    border-color: #FBBF24;
+  }
+
+  [data-theme="dark"] .qb-search-input {
+    color: #FFFFFF;
+  }
+
+  [data-theme="dark"] .qb-search-input::placeholder {
+    color: #A0A0A0;
+  }
+
+  [data-theme="dark"] .qb-search-bar-wrap svg {
+    color: #A0A0A0;
+  }
+
+  [data-theme="dark"] .qb-search-bar-wrap:focus-within svg {
+    color: #FFFFFF;
   }
 
   /* Search Container */
@@ -2362,18 +2370,22 @@
 
     <!-- Search Bar Container (Centered & Wide) -->
     <div class="qb-search-container" id="qbSearchContainer">
-      <div class="qb-search-bar-wrap" id="qbSearchWrap">
+      <form action="{{ routes.search_url }}" method="get" role="search" class="qb-search-bar-wrap" id="qbSearchWrap">
+        <input type="hidden" name="type" value="product">
+        <input type="hidden" name="options[prefix]" value="last">
+        
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input
-          type="text"
+          type="search"
+          name="q"
           class="qb-search-input"
           id="qbSearchInput"
+          value="{{ search.terms | escape }}"
           placeholder="Search products…"
           aria-label="Search products"
           autocomplete="off"
         >
-        <span class="qb-search-placeholder-text"></span>
-      </div>
+      </form>
     </div>
 
     <!-- Search Dropdown - Unified -->
@@ -2564,52 +2576,81 @@
           }
         });
 
-        // --- TYPING EFFECT FOR PLACEHOLDER ---
+        // --- PREMIUM TYPING ANIMATION FOR SEARCH ---
         (function() {
           const phrases = [
-            "Search products...",
-            "Find your favorite beer...",
+            "Search for cold beer...",
             "Craving snacks?",
             "Delivery in ~20 mins...",
-            "Fresh groceries delivered.",
-            "QuickBEE: Fast & Reliable."
+            "Search products..."
           ];
           
           let phraseIndex = 0;
           let charIndex = 0;
           let isDeleting = false;
           let typingSpeed = 100;
+          let isPaused = false;
+          let timeoutId = null;
 
           function type() {
+            if (isPaused) return;
+
             const currentPhrase = phrases[phraseIndex];
             
             if (isDeleting) {
-              // Deleting
+              // Deleting character-by-character
               searchInput.placeholder = currentPhrase.substring(0, charIndex - 1);
               charIndex--;
-              typingSpeed = 50; // Faster deletion
+              typingSpeed = 50; // Faster backspace
             } else {
-              // Typing
+              // Typing character-by-character
               searchInput.placeholder = currentPhrase.substring(0, charIndex + 1);
               charIndex++;
-              typingSpeed = 100; // Normal typing
+              typingSpeed = 100; // Normal typing speed
             }
 
             if (!isDeleting && charIndex === currentPhrase.length) {
-              // Finished typing phrase
+              // Pause at the end of the phrase
               isDeleting = true;
-              typingSpeed = 2000; // Pause at the end
+              typingSpeed = 2000;
             } else if (isDeleting && charIndex === 0) {
-              // Finished deleting phrase
+              // Switch to next phrase after deletion
               isDeleting = false;
               phraseIndex = (phraseIndex + 1) % phrases.length;
-              typingSpeed = 500; // Pause before starting next
+              typingSpeed = 500;
             }
 
-            setTimeout(type, typingSpeed);
+            timeoutId = setTimeout(type, typingSpeed);
           }
 
-          // Start effect
+          function stopAnimation() {
+            isPaused = true;
+            if (timeoutId) clearTimeout(timeoutId);
+            searchInput.placeholder = "Search products...";
+          }
+
+          function startAnimation() {
+            if (searchInput.value.length === 0) {
+              isPaused = false;
+              type();
+            }
+          }
+
+          // Stop animation when user interacts
+          searchInput.addEventListener('focus', stopAnimation);
+          searchInput.addEventListener('input', () => {
+            if (searchInput.value.length > 0) stopAnimation();
+            else if (document.activeElement !== searchInput) startAnimation();
+          });
+          
+          // Restart animation on blur only if empty
+          searchInput.addEventListener('blur', () => {
+            if (searchInput.value.length === 0) {
+              startAnimation();
+            }
+          });
+
+          // Start effect on load
           type();
         })();
       })();
