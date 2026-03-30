@@ -1,4 +1,350 @@
-<!-- sections/main-cart.liquid -->
+<!-- sections/main-cart.liquid — Dark Theme + Fixed Qty Selector -->
+<style>
+/* ── ROOT ── */
+:root {
+  --c-bg: #090909;
+  --c-card: #111111;
+  --c-card2: #181818;
+  --c-card3: #202020;
+  --c-border: rgba(255,255,255,0.07);
+  --c-border2: rgba(255,255,255,0.12);
+  --c-gold: #F4B400;
+  --c-gold2: #FFD700;
+  --c-gold-dim: rgba(244,180,0,0.10);
+  --c-gold-border: rgba(244,180,0,0.25);
+  --c-gold-glow: 0 0 28px rgba(244,180,0,0.18);
+  --c-text: #F0F0F0;
+  --c-text2: #999999;
+  --c-text3: #555555;
+  --c-red: #FF4444;
+  --c-red-dim: rgba(255,68,68,0.12);
+  --c-ease: cubic-bezier(0.4,0,0.2,1);
+}
+
+html.qb-no-scroll { overflow: hidden !important; }
+body { background: var(--c-bg) !important; color: var(--c-text) !important; }
+
+/* ── ROOT CONTAINER ── */
+.qb-cart-root {
+  display: block;
+  background: var(--c-bg);
+  min-height: 100vh;
+  padding-bottom: 160px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+.qb-cart-container {
+  max-width: 500px;
+  margin: 0 auto;
+  background: var(--c-bg);
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ── EMPTY ── */
+.qb-empty-hive {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 60vh; text-align: center;
+  padding: 40px 24px; gap: 16px;
+}
+.qb-empty-icon { font-size: 64px; }
+.qb-empty-hive h1 { font-size: 24px; font-weight: 900; color: var(--c-text); }
+.qb-empty-hive p { font-size: 15px; color: var(--c-text2); }
+.qb-btn-explore {
+  display: inline-block; background: var(--c-gold); color: #000;
+  font-weight: 900; font-size: 15px; padding: 14px 32px;
+  border-radius: 14px; text-decoration: none; transition: all 0.22s;
+}
+.qb-btn-explore:hover {
+  background: var(--c-gold2); box-shadow: 0 6px 20px rgba(244,180,0,0.4);
+  transform: translateY(-2px);
+}
+
+/* ── HEADER ── */
+.qb-header-row {
+  padding: 28px 20px 18px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid var(--c-border);
+}
+.qb-page-title { font-size: 22px; font-weight: 900; color: var(--c-text); margin: 0; }
+.qb-badge-count {
+  background: var(--c-gold-dim); color: var(--c-gold); font-size: 11px;
+  font-weight: 800; padding: 5px 12px; border-radius: 20px;
+  border: 1px solid var(--c-gold-border);
+}
+
+/* ── BODY ── */
+.qb-cart-body { padding: 14px 14px 0; display: flex; flex-direction: column; gap: 12px; }
+
+/* ── SECTION CARD ── */
+.qb-cart-section {
+  background: var(--c-card);
+  border: 1px solid var(--c-border);
+  border-radius: 18px;
+  padding: 18px;
+  position: relative;
+}
+.qb-sec-tag {
+  font-size: 10px; font-weight: 900; color: var(--c-text3);
+  letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px;
+}
+
+/* ── ITEMS ── */
+.qb-items-list { display: flex; flex-direction: column; gap: 16px; }
+.qb-item-card {
+  display: flex; gap: 14px; padding-bottom: 16px;
+  border-bottom: 1px solid var(--c-border);
+}
+.qb-item-card:last-child { border-bottom: none; padding-bottom: 0; }
+.qb-item-thumb {
+  width: 80px; height: 80px; border-radius: 12px; overflow: hidden;
+  border: 1px solid var(--c-border); flex-shrink: 0; background: var(--c-card2);
+}
+.qb-item-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.qb-thumb-fall { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+.qb-item-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.qb-item-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.qb-item-name {
+  font-size: 14px; font-weight: 700; color: var(--c-text); text-decoration: none;
+  line-height: 1.4; flex: 1; display: -webkit-box;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+/* REMOVE BUTTON — override global button:100% */
+.qb-item-remove {
+  background: var(--c-card2) !important; border: 1px solid var(--c-border) !important;
+  color: var(--c-text3) !important; width: 26px !important; min-width: 26px !important;
+  max-width: 26px !important; height: 26px !important; border-radius: 50% !important;
+  cursor: pointer !important; display: flex !important; align-items: center !important;
+  justify-content: center !important; flex-shrink: 0 !important; transition: all 0.18s !important;
+  padding: 0 !important; min-height: unset !important;
+}
+.qb-item-remove:hover {
+  background: var(--c-red-dim) !important; border-color: rgba(255,68,68,0.3) !important;
+  color: var(--c-red) !important;
+}
+.qb-item-v { font-size: 11px; color: var(--c-text3); font-weight: 500; }
+.qb-item-bottom {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: auto; padding-top: 8px;
+}
+.qb-item-price { font-size: 16px; font-weight: 900; color: var(--c-gold); letter-spacing: -0.3px; }
+
+/* ── QUANTITY PILL — override theme's global button:100% & flex-wrap:wrap ── */
+.qb-qty-pill {
+  background: var(--c-card2) !important;
+  border: 1px solid var(--c-border2) !important;
+  border-radius: 12px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  overflow: hidden !important;
+  width: 106px !important;
+  max-width: 106px !important;
+  height: 36px !important;
+  flex-shrink: 0 !important;
+}
+.qb-qty-form {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.qb-qty-act {
+  width: 34px !important; min-width: 34px !important; max-width: 34px !important;
+  height: 34px !important; border: none !important; background: transparent !important;
+  font-size: 18px !important; font-weight: 800 !important; color: var(--c-text) !important;
+  cursor: pointer !important; display: flex !important; align-items: center !important;
+  justify-content: center !important; flex-shrink: 0 !important; transition: background 0.15s !important;
+  padding: 0 !important; margin: 0 !important; border-radius: 0 !important;
+  min-height: unset !important; line-height: 1 !important;
+}
+.qb-qty-act:active { background: var(--c-card3) !important; }
+.qb-qty-box {
+  flex: 1 !important; display: flex !important; align-items: center !important;
+  justify-content: center !important; border-left: 1px solid var(--c-border) !important;
+  border-right: 1px solid var(--c-border) !important; height: 100% !important; min-width: 0 !important;
+}
+.qb-qty-num {
+  width: 36px !important; max-width: 36px !important; border: none !important;
+  background: transparent !important; text-align: center !important; font-size: 14px !important;
+  font-weight: 900 !important; color: var(--c-text) !important; pointer-events: none !important;
+  padding: 0 !important; margin: 0 !important; min-height: unset !important;
+}
+.qb-qty-num::-webkit-inner-spin-button,
+.qb-qty-num::-webkit-outer-spin-button { -webkit-appearance: none !important; }
+
+/* ADD MORE */
+.qb-add-more-items {
+  display: block; text-align: center; margin-top: 14px; padding: 12px;
+  background: var(--c-card2); border: 1px dashed var(--c-border2);
+  border-radius: 12px; color: var(--c-gold); font-size: 13px;
+  font-weight: 700; text-decoration: none; transition: all 0.2s;
+}
+.qb-add-more-items:hover { background: var(--c-gold-dim); border-color: var(--c-gold-border); }
+
+/* ── DELIVERY ── */
+.qb-delivery-header-row {
+  display: flex; justify-content: space-between; align-items: center;
+  flex-direction: row-reverse; margin-bottom: 14px;
+}
+.qb-mini-guide-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--c-gold-dim); color: var(--c-gold);
+  border: 1px solid var(--c-gold-border); padding: 7px 14px;
+  border-radius: 20px; font-size: 12px; font-weight: 800;
+  cursor: pointer; transition: all 0.2s; letter-spacing: 0.3px;
+  width: auto !important; min-height: unset !important;
+}
+.qb-mini-guide-btn:hover { background: rgba(244,180,0,0.18); box-shadow: var(--c-gold-glow); }
+.qb-mini-guide-btn:active { transform: scale(0.95); }
+
+/* INPUT */
+.qb-input-pro-box {
+  display: flex; align-items: center; background: var(--c-card2);
+  border: 1.5px solid var(--c-border); border-radius: 14px;
+  margin: 0 0 12px; transition: all 0.25s;
+}
+.qb-input-pro-box:focus-within {
+  border-color: var(--c-gold); background: var(--c-card3);
+  box-shadow: 0 0 0 3px var(--c-gold-dim);
+}
+.qb-input-pro-pin { padding-left: 14px; color: var(--c-gold); display: flex; align-items: center; }
+.qb-input-pro-field {
+  flex: 1; padding: 14px 12px; background: transparent; border: none;
+  font-size: 14px; font-weight: 600; outline: none; color: var(--c-text);
+  width: auto !important; min-height: unset !important;
+}
+.qb-input-pro-field::placeholder { color: var(--c-text3); }
+
+/* CHIPS — override global button:100% */
+.qb-chips-grid {
+  display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 8px;
+}
+.qb-chip-pro {
+  width: 100% !important; padding: 12px 10px !important;
+  background: var(--c-card2) !important; border: 1.5px solid var(--c-border) !important;
+  border-radius: 12px !important; font-size: 13px !important; font-weight: 700 !important;
+  color: var(--c-text2) !important; cursor: pointer !important; transition: all 0.2s !important;
+  text-align: center !important; min-height: unset !important; box-sizing: border-box !important;
+}
+.qb-chip-pro:hover { border-color: var(--c-border2) !important; color: var(--c-text) !important; }
+.qb-chip-pro.active {
+  border-color: var(--c-gold) !important; background: var(--c-gold-dim) !important;
+  color: var(--c-gold) !important;
+}
+
+/* ── BILLING ── */
+.qb-error-pro {
+  display: none; background: rgba(255,68,68,0.08); border: 1px solid rgba(255,68,68,0.2);
+  padding: 11px 14px; border-radius: 12px; margin-bottom: 14px;
+  font-size: 11px; font-weight: 700; color: var(--c-red); line-height: 1.5;
+  text-transform: uppercase; letter-spacing: 0.3px;
+}
+.qb-error-pro.active { display: block; }
+.qb-bill-stack { display: flex; flex-direction: column; gap: 10px; }
+.qb-bill-row { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; color: var(--c-text2); }
+.qb-muted-txt { color: var(--c-text3); font-style: italic; }
+.qb-bill-dash { height: 1px; border-top: 1px dashed var(--c-border2); margin: 2px 0; }
+.qb-bill-total { display: flex; justify-content: space-between; align-items: baseline; }
+.qb-total-lbl { font-size: 14px; font-weight: 800; color: var(--c-text); }
+.qb-total-val { font-size: 20px; font-weight: 900; color: var(--c-gold); letter-spacing: -0.5px; }
+
+/* ── STICKY CHECKOUT — CENTERED FULL WIDTH ── */
+.qb-sticky-checkout {
+  position: fixed; bottom: 65px; left: 0; right: 0; max-width: 500px;
+  margin: 0 auto; background: rgba(9,9,9,0.97); padding: 12px 16px 14px;
+  border-top: 1px solid var(--c-border2); z-index: 900;
+  box-shadow: 0 -20px 40px rgba(0,0,0,0.6); backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px); display: flex; flex-direction: column; gap: 10px;
+}
+.qb-sticky-amount-row {
+  display: flex; justify-content: space-between; align-items: center; padding: 0 2px;
+}
+.qb-sticky-tag { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; color: var(--c-text3); text-transform: uppercase; }
+.qb-sticky-price { font-size: 20px; font-weight: 900; color: var(--c-gold); letter-spacing: -0.5px; }
+.qb-btn-checkout-main {
+  width: 100% !important; height: 54px !important;
+  background: linear-gradient(135deg, var(--c-gold), var(--c-gold2)) !important;
+  color: #000 !important; border: none !important; border-radius: 16px !important;
+  font-size: 17px !important; font-weight: 900 !important; cursor: pointer !important;
+  transition: all 0.22s !important; letter-spacing: 0.3px !important; min-height: unset !important;
+}
+.qb-btn-checkout-main:not(.qb-is-locked):hover {
+  box-shadow: 0 8px 24px rgba(244,180,0,0.45) !important; transform: translateY(-1px) !important;
+}
+.qb-btn-checkout-main.qb-is-locked {
+  opacity: 0.35 !important; background: var(--c-card3) !important;
+  color: var(--c-text3) !important; cursor: not-allowed !important;
+  box-shadow: none !important; transform: none !important;
+}
+
+.animate-fade-in { animation: qbFadeIn 0.3s ease-out; }
+@keyframes qbFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── GUIDE MODAL — Dark & Amazing ── */
+.qb-mini-modal-overlay {
+  position: fixed !important; inset: 0 !important;
+  background: rgba(0,0,0,0.88) !important; backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important; z-index: 999999 !important;
+  display: none; align-items: center; justify-content: center; padding: 20px; touch-action: none;
+}
+.qb-mini-modal-overlay.is-active { display: flex !important; }
+.qb-mini-modal-card {
+  background: #0F0F0F !important; border: 1px solid rgba(244,180,0,0.2) !important;
+  width: 100% !important; max-width: 360px !important; border-radius: 26px !important;
+  padding: 24px !important; position: relative !important;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.9), 0 0 60px rgba(244,180,0,0.08) !important;
+}
+.qb-mini-modal-close {
+  position: absolute; top: 14px; right: 14px;
+  background: rgba(255,255,255,0.06) !important; border: 1px solid rgba(255,255,255,0.1) !important;
+  width: 32px !important; height: 32px !important; border-radius: 50% !important;
+  cursor: pointer !important; font-size: 16px !important; color: rgba(255,255,255,0.5) !important;
+  display: flex !important; align-items: center !important; justify-content: center !important;
+  transition: all 0.2s; padding: 0 !important; min-height: unset !important;
+}
+.qb-mini-modal-close:hover { background: rgba(255,255,255,0.12) !important; color: white !important; }
+.qb-mini-modal-title { font-size: 18px; font-weight: 900; color: #F0F0F0; text-align: center; margin-bottom: 4px; }
+.qb-mini-modal-desc { font-size: 13px; color: #777; text-align: center; margin-bottom: 18px; }
+.qb-mini-modal-image-wrap {
+  width: 100%; border-radius: 16px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.07) !important; background: #181818 !important;
+  margin-bottom: 18px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.qb-mini-modal-image-wrap img { width: 100%; display: block; max-height: 260px; object-fit: contain; }
+.qb-mini-modal-actions { display: flex; flex-direction: column; gap: 10px; }
+.qb-btn-open-maps {
+  display: flex !important; align-items: center !important; justify-content: center !important;
+  gap: 8px !important; background: #4285F4 !important; color: #fff !important;
+  text-decoration: none; padding: 15px !important; border-radius: 14px !important;
+  font-weight: 800 !important; font-size: 15px !important; transition: all 0.22s;
+  box-shadow: 0 4px 16px rgba(66,133,244,0.3); width: auto !important; min-height: unset !important;
+}
+.qb-btn-open-maps:hover {
+  background: #3367D6 !important; box-shadow: 0 6px 20px rgba(66,133,244,0.45); transform: translateY(-1px);
+}
+.qb-btn-got-it {
+  background: rgba(255,255,255,0.05) !important; color: #888 !important;
+  border: 1px solid rgba(255,255,255,0.08) !important; padding: 13px !important;
+  border-radius: 14px !important; font-weight: 700 !important; cursor: pointer !important;
+  font-size: 14px !important; transition: all 0.2s; width: 100% !important; min-height: unset !important;
+}
+.qb-btn-got-it:hover { background: rgba(255,255,255,0.09) !important; color: #bbb !important; }
+.animate-pop-in { animation: qbPopIn 0.38s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes qbPopIn {
+  from { transform: scale(0.88) translateY(16px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+</style>
+
 <cart-items-component class="qb-cart-root" data-section-id="{{ section.id }}">
   <div class="qb-cart-container">
     {%- if cart.empty? -%}
@@ -9,7 +355,7 @@
         <a href="{{ routes.all_products_collection_url }}" class="qb-btn-explore">Start Shopping</a>
       </div>
     {%- else -%}
-      
+
       <!-- HEADER -->
       <div class="qb-header-row">
         <h1 class="qb-page-title">Review Order</h1>
@@ -17,8 +363,8 @@
       </div>
 
       <div class="qb-cart-body">
-        
-        <!-- SECTION: SELECTED PRODUCTS -->
+
+        <!-- SELECTED PRODUCTS -->
         <div class="qb-cart-section">
           <div class="qb-sec-tag">SELECTED PRODUCTS</div>
           <div class="qb-items-list">
@@ -27,23 +373,22 @@
                 <div class="qb-item-thumb">
                   {% if item.image %}<img src="{{ item.image | image_url: width: 240 }}" alt="{{ item.title }}">{% else %}<div class="qb-thumb-fall">🐝</div>{% endif %}
                 </div>
-                
                 <div class="qb-item-main">
                   <div class="qb-item-top">
                     <a href="{{ item.url }}" class="qb-item-name">{{ item.product.title | truncate: 50 }}</a>
                     <form action="{{ routes.cart_change_url }}" method="post">
-                      <input type="hidden" name="id" value="{{ item.key }}"><input type="hidden" name="quantity" value="0">
+                      <input type="hidden" name="id" value="{{ item.key }}">
+                      <input type="hidden" name="quantity" value="0">
                       <button type="submit" class="qb-item-remove">
-                        <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 1L1 13M1 1L13 13"/></svg>
+                        <svg width="10" height="10" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 1L1 13M1 1L13 13"/></svg>
                       </button>
                     </form>
                   </div>
-                  
-                  {%- unless item.product.has_only_default_variant -%}<div class="qb-item-v">{{ item.variant.title }}</div>{%- endunless -%}
-
+                  {%- unless item.product.has_only_default_variant -%}
+                    <div class="qb-item-v">{{ item.variant.title }}</div>
+                  {%- endunless -%}
                   <div class="qb-item-bottom">
                     <span class="qb-item-price">Rs {{ item.final_line_price | divided_by: 100 }}</span>
-                    
                     <div class="qb-qty-pill" ref="quantitySelectors">
                       <form action="{{ routes.cart_change_url }}" method="post" class="qb-qty-form">
                         <input type="hidden" name="id" value="{{ item.key }}">
@@ -60,24 +405,21 @@
           <a href="{{ routes.all_products_collection_url }}" class="qb-add-more-items">+ Add more items</a>
         </div>
 
-        <!-- SECTION: DELIVERY DESTINATION -->
+        <!-- DELIVERY DESTINATION -->
         <div class="qb-cart-section">
           <div class="qb-delivery-header-row">
-            <!-- NEW SLEEK GUIDE BUTTON (TOP LEFT) -->
             <button type="button" class="qb-mini-guide-btn" id="openLocationGuide">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
               <span>Guide</span>
             </button>
-            <span class="qb-sec-tag">DELIVERY DESTINATION</span>
+            <span class="qb-sec-tag" style="margin-bottom:0;">DELIVERY DESTINATION</span>
           </div>
-          
           <div class="qb-input-pro-box">
             <div class="qb-input-pro-pin">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
             </div>
             <input type="text" id="LandmarkLink" placeholder="Paste Google Maps link here..." class="qb-input-pro-field" required>
           </div>
-          
           <div class="qb-chips-grid">
             <button type="button" class="qb-chip-pro" data-nickname="Home">🏠 Home</button>
             <button type="button" class="qb-chip-pro" data-nickname="Office">🏢 Office</button>
@@ -86,16 +428,15 @@
           </div>
         </div>
 
-        <!-- SECTION: BILLING -->
+        <!-- BILLING -->
         <div class="qb-cart-section">
-          <div id="qbErrBanner" class="qb-error-pro animate-fade-in active">
-            <span>⚠️ enter the google maps location link TO PROCEED CHECKOUT</span>
+          <div id="qbErrBanner" class="qb-error-pro active">
+            <span>⚠️ Paste your Google Maps link above to unlock checkout</span>
           </div>
-
           <div class="qb-sec-tag">BILLING SUMMARY</div>
           <div class="qb-bill-stack">
             <div class="qb-bill-row"><span>Item Total</span><span>Rs {{ cart.total_price | divided_by: 100 }}</span></div>
-            <div class="qb-bill-row"><span>Delivery Fee</span><span class="qb-muted-txt">Calculated at checkout</span></div>
+            <div class="qb-bill-row"><span>Delivery Fee</span><span class="qb-muted-txt">At checkout</span></div>
             <div class="qb-bill-dash"></div>
             <div class="qb-bill-total">
               <span class="qb-total-lbl">Grand Total</span>
@@ -103,195 +444,115 @@
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- STICKY FOOTER -->
+      </div><!-- end .qb-cart-body -->
+
+      <!-- STICKY CHECKOUT FOOTER — full-width centered gold button -->
       <div class="qb-sticky-checkout">
-        <div class="qb-sticky-info">
-          <span class="qb-sticky-tag">PAYABLE AMOUNT</span>
+        <div class="qb-sticky-amount-row">
+          <span class="qb-sticky-tag">TOTAL PAYABLE</span>
           <span class="qb-sticky-price">Rs {{ cart.total_price | divided_by: 100 }}</span>
         </div>
         <button type="button" class="qb-btn-checkout-main qb-is-locked" id="qbMainCheckoutBtn" disabled>
-          Checkout ➔
+          Proceed to Checkout ➔
         </button>
       </div>
+
     {%- endif -%}
   </div>
 </cart-items-component>
 
-<!-- NEW MINI GUIDE POPUP (Small & Perfect UI) -->
+<!-- GUIDE MODAL — Dark & Amazing -->
 <div id="locationGuideModal" class="qb-mini-modal-overlay">
   <div class="qb-mini-modal-card animate-pop-in">
     <button class="qb-mini-modal-close" id="closeGuideBtn">✕</button>
     <div class="qb-mini-modal-content">
-      <h3 class="qb-mini-modal-title">Share Location</h3>
-      <p class="qb-mini-modal-desc">Paste your exact Google Maps link below.</p>
-      
+      <h3 class="qb-mini-modal-title">📍 Share Your Location</h3>
+      <p class="qb-mini-modal-desc">Copy your exact link from Google Maps and paste it above</p>
       <div class="qb-mini-modal-image-wrap">
-        <img src="{{ 'popupgoogle.png' | asset_url }}" alt="Google Maps Tutorial">
+        <img src="{{ 'popupgoogle.png' | asset_url }}" alt="How to copy Google Maps link">
       </div>
-      
       <div class="qb-mini-modal-actions">
-        <a href="https://www.google.com/maps" target="_blank" class="qb-btn-open-maps">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:8px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        <a href="https://www.google.com/maps" target="_blank" rel="noopener" class="qb-btn-open-maps">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
           Open Google Maps
         </a>
-        <button type="button" class="qb-btn-got-it" id="dismissGuideBtn">Got it!</button>
+        <button type="button" class="qb-btn-got-it" id="dismissGuideBtn">Got it, close</button>
       </div>
     </div>
   </div>
 </div>
 
-<style>
-  :root { --qb-gold: #F4B400; --qb-gold-soft: #FFF9E6; --qb-black: #111111; --qb-gray: #757575; --qb-red: #C41E3A; --qb-bg: #F8F9FA; --qb-border: #EEEEEE; }
-  
-  html.qb-no-scroll { overflow: hidden !important; }
-
-  .qb-cart-root { display: block; background: var(--qb-bg); min-height: 100vh; padding-bottom: 160px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-  .qb-cart-container { max-width: 500px; margin: 0 auto; background: #fff; min-height: 100vh; position: relative; }
-
-  .qb-header-row { padding: 30px 20px 20px; display: flex; justify-content: space-between; align-items: center; }
-  .qb-page-title { font-size: 24px; font-weight: 900; color: #111; margin: 0; }
-  .qb-badge-count { background: var(--qb-gold-soft); color: var(--qb-gold); font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px; }
-
-  .qb-cart-body { padding: 0 16px; display: flex; flex-direction: column; gap: 16px; }
-  .qb-cart-section { background: #fff; border: 1px solid var(--qb-border); border-radius: 20px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); position: relative; }
-  .qb-sec-tag { font-size: 10px; font-weight: 900; color: #BBB; letter-spacing: 1.5px; text-transform: uppercase; }
-
-  /* New Mini Guide Button */
-  .qb-delivery-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-direction: row-reverse; }
-  .qb-mini-guide-btn { display: flex; align-items: center; gap: 6px; background: var(--qb-gold-soft); color: var(--qb-gold); border: none; padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; transition: 0.2s; }
-  .qb-mini-guide-btn:active { transform: scale(0.95); background: #fde68a; }
-
-  /* Item Card Styling */
-  .qb-items-list { display: flex; flex-direction: column; gap: 20px; }
-  .qb-item-card { display: flex; gap: 16px; padding-bottom: 20px; border-bottom: 1.5px solid #F9F9F9; }
-  .qb-item-card:last-child { border-bottom: none; padding-bottom: 0; }
-  .qb-item-thumb { width: 90px; height: 90px; border-radius: 14px; overflow: hidden; border: 1px solid #F0F0F0; flex-shrink: 0; background: #F9F9F9; }
-  .qb-item-thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .qb-item-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  .qb-item-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-  .qb-item-name { font-size: 15px; font-weight: 800; color: #111; text-decoration: none; line-height: 1.4; flex: 1; }
-  .qb-item-remove { background: #F5F5F5; border: none; color: #BBB; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  .qb-item-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 12px; }
-  .qb-item-price { font-size: 17px; font-weight: 900; color: #111; }
-  .qb-qty-pill { background: #F5F5F5; border-radius: 12px; padding: 2px; display: flex; width: 110px; }
-  .qb-qty-act { width: 34px; height: 34px; border: none; background: none; font-size: 18px; font-weight: 800; color: #111; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  .qb-qty-num { width: 100%; border: none; background: transparent; text-align: center !important; font-size: 15px; font-weight: 900; color: #111; pointer-events: none; padding: 0; margin: 0; }
-
-  /* Input & Chips */
-  .qb-input-pro-box { display: flex; align-items: center; background: #F9F9F9; border: 1.5px solid var(--qb-border); border-radius: 16px; margin: 16px 0; transition: 0.3s; }
-  .qb-input-pro-box:focus-within { border-color: var(--qb-gold); background: #fff; box-shadow: 0 0 0 4px var(--qb-gold-soft); }
-  .qb-input-pro-pin { padding-left: 16px; color: var(--qb-gold); }
-  .qb-input-pro-field { flex: 1; padding: 16px 12px; background: transparent; border: none; font-size: 15px; font-weight: 700; outline: none; color: #111; }
-  .qb-chips-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .qb-chip-pro { padding: 14px; background: #fff; border: 1.5px solid var(--qb-border); border-radius: 14px; font-size: 13px; font-weight: 800; color: #757575; cursor: pointer; }
-  .qb-chip-pro.active { border-color: var(--qb-gold); background: var(--qb-gold-soft); color: var(--qb-gold); }
-
-  /* Billing & Footer */
-  .qb-error-pro { display: none; background: #FFF1F2; border: 1px solid #FDA4AF; padding: 12px; border-radius: 12px; margin-bottom: 16px; font-size: 12px; font-weight: 700; color: #9F1239; line-height: 1.4; text-transform: uppercase; }
-  .qb-error-pro.active { display: block; }
-  .qb-bill-stack { display: flex; flex-direction: column; gap: 12px; }
-  .qb-bill-row { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; color: #757575; }
-  .qb-bill-dash { height: 1px; border-top: 1.5px dashed #eee; margin: 4px 0; }
-  .qb-bill-total { display: flex; justify-content: space-between; align-items: baseline; }
-  .qb-sticky-checkout { position: fixed; bottom: 65px; left: 0; right: 0; max-width: 500px; margin: 0 auto; background: #fff; padding: 16px 20px; border-top: 1px solid var(--qb-border); display: flex; align-items: center; gap: 16px; z-index: 900; box-shadow: 0 -10px 40px rgba(0,0,0,0.05); }
-  .qb-btn-checkout-main { flex: 1; height: 58px; background: var(--qb-red); color: white; border: none; border-radius: 18px; font-size: 18px; font-weight: 900; cursor: pointer; transition: 0.2s; }
-  .qb-btn-checkout-main.qb-is-locked { opacity: 0.5; background: #999 !important; cursor: not-allowed; filter: blur(0.5px); }
-
-  /* MINI MODAL - PERFECT UI */
-  .qb-mini-modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.7) !important; backdrop-filter: blur(4px) !important; z-index: 999999 !important; display: none; align-items: center; justify-content: center; padding: 24px; touch-action: none; }
-  .qb-mini-modal-overlay.is-active { display: flex !important; }
-  .qb-mini-modal-card { background: #fff !important; width: 100% !important; max-width: 360px !important; border-radius: 24px !important; padding: 24px !important; position: relative !important; box-shadow: 0 20px 50px rgba(0,0,0,0.3) !important; }
-  .qb-mini-modal-close { position: absolute; top: 16px; right: 16px; background: #f5f5f5; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-weight: bold; }
-  .qb-mini-modal-title { font-size: 18px; font-weight: 900; margin-bottom: 4px; text-align: center; }
-  .qb-mini-modal-desc { font-size: 13px; color: #666; text-align: center; margin-bottom: 20px; }
-  .qb-mini-modal-image-wrap { width: 100%; border-radius: 16px; overflow: hidden; border: 1px solid #eee; background: #f9f9f9; margin-bottom: 20px; }
-  .qb-mini-modal-image-wrap img { width: 100%; display: block; max-height: 250px; object-fit: contain; }
-  .qb-mini-modal-actions { display: flex; flex-direction: column; gap: 10px; }
-  .qb-btn-open-maps { display: flex; align-items: center; justify-content: center; background: #4285F4; color: #fff; text-decoration: none; padding: 14px; border-radius: 14px; font-weight: 800; font-size: 14px; }
-  .qb-btn-got-it { background: #f5f5f5; color: #333; border: none; padding: 14px; border-radius: 14px; font-weight: 700; cursor: pointer; font-size: 14px; }
-
-  .animate-pop-in { animation: qbPopIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-  @keyframes qbPopIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-</style>
-
 <script>
 (function() {
   function init() {
-    const input = document.getElementById('LandmarkLink');
+    const input       = document.getElementById('LandmarkLink');
     const checkoutBtn = document.getElementById('qbMainCheckoutBtn');
-    const errorBox = document.getElementById('qbErrBanner');
-    const modal = document.getElementById('locationGuideModal');
-    
+    const errorBox    = document.getElementById('qbErrBanner');
+    const modal       = document.getElementById('locationGuideModal');
+
     if (modal && modal.parentNode !== document.body) document.body.appendChild(modal);
 
     const validate = () => {
       const val = (input?.value || '').trim();
-      const isValid = val.length > 8 && (val.includes('google.com') || val.includes('maps.app') || val.includes('http'));
-      if (checkoutBtn) {
-        checkoutBtn.disabled = !isValid;
-        checkoutBtn.classList.toggle('qb-is-locked', !isValid);
-      }
-      if (errorBox) errorBox.classList.toggle('active', !isValid);
+      const ok = val.length > 8 && (val.includes('google.com') || val.includes('maps.app') || val.includes('http'));
+      if (checkoutBtn) { checkoutBtn.disabled = !ok; checkoutBtn.classList.toggle('qb-is-locked', !ok); }
+      if (errorBox) errorBox.classList.toggle('active', !ok);
     };
 
     if (input) { input.addEventListener('input', validate); validate(); }
 
     document.addEventListener('click', (e) => {
-      // Guide Button
       if (e.target.closest('#openLocationGuide')) {
-        e.preventDefault(); if(modal) modal.classList.add('is-active');
+        e.preventDefault();
+        if (modal) modal.classList.add('is-active');
         document.documentElement.classList.add('qb-no-scroll');
         return;
       }
-      // Close Modal
       if (e.target.closest('#closeGuideBtn') || e.target.closest('#dismissGuideBtn') || e.target === modal) {
-        if(modal) modal.classList.remove('is-active');
+        if (modal) modal.classList.remove('is-active');
         document.documentElement.classList.remove('qb-no-scroll');
         return;
       }
-      // Quantity
       const qtyBtn = e.target.closest('[data-qbtn]');
       if (qtyBtn) {
         const form = qtyBtn.closest('form');
-        const inp = form.querySelector('.qb-qty-num');
+        const inp  = form.querySelector('.qb-qty-num');
         let val = parseInt(inp.value);
         if (qtyBtn.dataset.action === 'minus') {
-          if (val > 1) val--; else if (confirm('Remove item?')) val = 0; else return;
+          if (val > 1) val--; else if (confirm('Remove this item?')) val = 0; else return;
         } else val++;
-        inp.value = val; form.submit();
-        return;
+        inp.value = val; form.submit(); return;
       }
-      // Chips
       const chip = e.target.closest('.qb-chip-pro');
       if (chip) {
-        localStorage.setItem('qb_landmark_' + (localStorage.getItem('qb_active_nickname') || 'Home'), input.value);
+        const nick = localStorage.getItem('qb_active_nickname') || 'Home';
+        localStorage.setItem('qb_landmark_' + nick, input.value);
         document.querySelectorAll('.qb-chip-pro').forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
         const next = chip.dataset.nickname;
         localStorage.setItem('qb_active_nickname', next);
         input.value = localStorage.getItem('qb_landmark_' + next) || '';
-        validate();
-        return;
+        validate(); return;
       }
-      // Checkout
       if (e.target.closest('#qbMainCheckoutBtn')) {
         const btn = e.target.closest('#qbMainCheckoutBtn');
         if (btn.disabled) return;
-        btn.disabled = true; btn.innerHTML = 'Wait...';
+        btn.disabled = true; btn.textContent = 'Redirecting...';
         const nick = localStorage.getItem('qb_active_nickname') || 'Home';
         const note = `Type: ${nick} | Map: ${input.value} | Loc: ${localStorage.getItem('qb_selected_location') || 'N/A'}`;
-        fetch('/cart/update.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ note: note }) })
+        fetch('/cart/update.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ note }) })
         .finally(() => { window.location.href = '/checkout'; });
       }
     });
 
     const activeNick = localStorage.getItem('qb_active_nickname') || 'Home';
     document.querySelectorAll('.qb-chip-pro').forEach(chip => {
-      if (chip.dataset.nickname === activeNick) chip.classList.add('active');
-      const saved = localStorage.getItem('qb_landmark_' + activeNick);
-      if (chip.dataset.nickname === activeNick && saved) { input.value = saved; validate(); }
+      if (chip.dataset.nickname === activeNick) {
+        chip.classList.add('active');
+        const saved = localStorage.getItem('qb_landmark_' + activeNick);
+        if (saved && input) { input.value = saved; validate(); }
+      }
     });
   }
 
