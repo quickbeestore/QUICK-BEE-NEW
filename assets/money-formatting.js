@@ -144,6 +144,21 @@ function formatCents(moneyValue, thousandsSeparator, decimalSeparator, precision
 }
 
 /**
+ * Configuration for different Shopify money formats
+ * @type {Record<string, {thousandsSeparator: string, decimalSeparator: string, precision?: number}>}
+ */
+const MONEY_FORMAT_CONFIGS = {
+  amount: { thousandsSeparator: ',', decimalSeparator: '.' },
+  amount_no_decimals: { thousandsSeparator: ',', decimalSeparator: '.', precision: 0 },
+  amount_with_comma_separator: { thousandsSeparator: '.', decimalSeparator: ',' },
+  amount_no_decimals_with_comma_separator: { thousandsSeparator: '.', decimalSeparator: ',', precision: 0 },
+  amount_no_decimals_with_space_separator: { thousandsSeparator: ' ', decimalSeparator: ',', precision: 0 },
+  amount_with_space_separator: { thousandsSeparator: ' ', decimalSeparator: ',' },
+  amount_with_period_and_space_separator: { thousandsSeparator: ' ', decimalSeparator: '.' },
+  amount_with_apostrophe_separator: { thousandsSeparator: "'", decimalSeparator: '.' },
+};
+
+/**
  * Formats money, replicating the implementation of the `money` liquid filters
  * @param {number} moneyValue - The money value in minor units
  * @param {string} format - The Shopify's money format template (e.g., '{{amount}}', '${{amount}}')
@@ -151,55 +166,16 @@ function formatCents(moneyValue, thousandsSeparator, decimalSeparator, precision
  * @returns {string} The formatted money value
  */
 export function formatMoney(moneyValue, format, currency) {
-  // Calculate divisor based on currency's native precision
+  if (moneyValue === null || moneyValue === undefined) return '';
+
   const currencyPrecision = CURRENCY_DECIMALS[currency.toUpperCase()] ?? DEFAULT_CURRENCY_DECIMALS;
   const divisor = Math.pow(10, currencyPrecision);
 
   return format.replace(/{{\s*(\w+)\s*}}/g, (_, placeholder) => {
-    if (typeof placeholder !== 'string') return '';
     if (placeholder === 'currency') return currency;
 
-    let thousandsSeparator = ',';
-    let decimalSeparator = '.';
-    let precision = currencyPrecision;
-
-    switch (placeholder) {
-      case 'amount':
-      // Check first since it's the most common, use defaults.
-        break;
-      case 'amount_no_decimals':
-        precision = 0;
-        break;
-      case 'amount_with_comma_separator':
-      thousandsSeparator = '.';
-      decimalSeparator = ',';
-      break;
-      case 'amount_no_decimals_with_comma_separator':
-      // Weirdly, this is correct. It uses amount_with_comma_separator's
-      // behaviour but removes decimals, resulting in an unintuitive
-      // output that can't possibly include commas, despite the name.
-      thousandsSeparator = '.';
-      precision = 0;
-      break;
-    case 'amount_no_decimals_with_space_separator':
-      thousandsSeparator = ' ';
-      precision = 0;
-      break;
-    case 'amount_with_space_separator':
-      thousandsSeparator = ' ';
-      decimalSeparator = ',';
-      break;
-    case 'amount_with_period_and_space_separator':
-      thousandsSeparator = ' ';
-      decimalSeparator = '.';
-      break;
-    case 'amount_with_apostrophe_separator':
-      thousandsSeparator = "'";
-      decimalSeparator = '.';
-      break;
-    default:
-      break;
-    }
+    const config = MONEY_FORMAT_CONFIGS[placeholder] || MONEY_FORMAT_CONFIGS.amount;
+    const { thousandsSeparator, decimalSeparator, precision = currencyPrecision } = config;
 
     return formatCents(moneyValue, thousandsSeparator, decimalSeparator, precision, divisor);
   });

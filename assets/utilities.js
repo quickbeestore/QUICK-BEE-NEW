@@ -443,39 +443,33 @@ export function getVisibleElements(root, elements, ratio = 1, axis) {
   return elements.filter((element) => {
     const { width, height, top, right, left, bottom } = element.getBoundingClientRect();
 
+    if (width === 0 || height === 0) return false;
+
+    const isXOnly = axis === 'x';
+    const isYOnly = axis === 'y';
+
+    const intersectionLeft = Math.max(rootRect.left, left);
+    const intersectionRight = Math.min(rootRect.right, right);
+    const intersectionWidth = Math.max(0, intersectionRight - intersectionLeft);
+
+    const intersectionTop = Math.max(rootRect.top, top);
+    const intersectionBottom = Math.min(rootRect.bottom, bottom);
+    const intersectionHeight = Math.max(0, intersectionBottom - intersectionTop);
+
     if (ratio < 1) {
-      const intersectionLeft = Math.max(rootRect.left, left);
-      const intersectionRight = Math.min(rootRect.right, right);
-      const intersectionWidth = Math.max(0, intersectionRight - intersectionLeft);
-
-      if (axis === 'x') {
-        return width > 0 && intersectionWidth / width >= ratio;
-      }
-
-      const intersectionTop = Math.max(rootRect.top, top);
-      const intersectionBottom = Math.min(rootRect.bottom, bottom);
-      const intersectionHeight = Math.max(0, intersectionBottom - intersectionTop);
-
-      if (axis === 'y') {
-        return height > 0 && intersectionHeight / height >= ratio;
-      }
+      if (isXOnly) return intersectionWidth / width >= ratio;
+      if (isYOnly) return intersectionHeight / height >= ratio;
 
       const intersectionArea = intersectionWidth * intersectionHeight;
       const elementArea = width * height;
-
-      // Check that at least the specified ratio of the element is visible
-      return elementArea > 0 && intersectionArea / elementArea >= ratio;
+      return intersectionArea / elementArea >= ratio;
     }
 
     const isWithinX = left >= rootRect.left && right <= rootRect.right;
-    if (axis === 'x') {
-      return isWithinX;
-    }
-
     const isWithinY = top >= rootRect.top && bottom <= rootRect.bottom;
-    if (axis === 'y') {
-      return isWithinY;
-    }
+
+    if (isXOnly) return isWithinX;
+    if (isYOnly) return isWithinY;
 
     return isWithinX && isWithinY;
   });
