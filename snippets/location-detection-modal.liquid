@@ -4,59 +4,59 @@ Provides GPS auto-detection with delivery time estimation based on location
 {% endcomment %}
 
 <style>
-  /* Modal Backdrop */
+  /* Modal Backdrop — acts as the centering flex container */
   .qb-location-backdrop {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    animation: fadeIn 0.2s ease-in-out;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
   }
 
   .qb-location-backdrop.active {
-    display: block;
+    display: flex;
+    animation: qbBackdropIn 0.22s ease forwards;
   }
 
-  @keyframes fadeIn {
+  @keyframes qbBackdropIn {
     from { opacity: 0; }
-    to { opacity: 1; }
+    to   { opacity: 1; }
   }
 
   /* Modal Container */
   .qb-location-modal {
     display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.95);
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
     background: white;
-    border-radius: 12px;
-    width: 90%;
+    border-radius: 16px;
+    width: 100%;
     max-width: 420px;
-    max-height: 90vh;
+    max-height: calc(100dvh - 32px);
     overflow-y: auto;
-    z-index: 1001;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    z-index: 1;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
   }
 
   .qb-location-modal.active {
     display: flex;
     flex-direction: column;
+    animation: qbModalIn 0.32s cubic-bezier(0.34, 1.3, 0.64, 1) forwards;
   }
 
-  @keyframes slideUp {
+  @keyframes qbModalIn {
     from {
-      transform: translate(-50%, -50%) scale(0.95);
       opacity: 0;
+      transform: translateY(28px) scale(0.95);
     }
     to {
-      transform: translate(-50%, -50%) scale(1);
       opacity: 1;
+      transform: translateY(0) scale(1);
     }
   }
 
@@ -674,17 +674,22 @@ Provides GPS auto-detection with delivery time estimation based on location
 
   /* Responsive */
   @media (max-width: 480px) {
+    .qb-location-backdrop {
+      align-items: center;
+      padding: 12px;
+    }
     .qb-location-modal {
-      width: 95%;
-      border-radius: 12px 12px 0 0;
-      max-height: 80vh;
-      bottom: 0;
+      width: 100%;
+      border-radius: 16px;
+      max-height: calc(100dvh - 24px);
       top: auto;
-      transform: translate(-50%, 100%);
+      bottom: auto;
+      transform: none;
     }
 
     .qb-location-modal.active {
-      transform: translate(-50%, 0);
+      transform: none;
+      animation: qbModalIn 0.32s cubic-bezier(0.34, 1.3, 0.64, 1) forwards;
     }
 
     .qb-location-form-row {
