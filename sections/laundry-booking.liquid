@@ -1,0 +1,712 @@
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .laundry-booking-container {
+    background: var(--qb-header-bg, #0F172A);
+    color: var(--qb-text-main, #1A202C);
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  [data-theme="dark"] .laundry-booking-container {
+    background: #121212;
+    color: #FFF8EB;
+  }
+
+  .booking-header {
+    max-width: 1200px;
+    margin: 0 auto 40px;
+    text-align: center;
+  }
+
+  .booking-header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: #F4B400;
+  }
+
+  .booking-header p {
+    font-size: 1.1rem;
+    opacity: 0.8;
+  }
+
+  .booking-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+  }
+
+  @media (max-width: 968px) {
+    .booking-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Service Selection */
+  .services-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(244, 180, 0, 0.2);
+    border-radius: 20px;
+    padding: 30px;
+  }
+
+  [data-theme="dark"] .services-section {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(244, 180, 0, 0.15);
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #F4B400;
+  }
+
+  .service-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+
+  .service-card {
+    background: rgba(244, 180, 0, 0.08);
+    border: 2px solid rgba(244, 180, 0, 0.3);
+    border-radius: 16px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+  }
+
+  [data-theme="dark"] .service-card {
+    background: rgba(244, 180, 0, 0.06);
+    border: 2px solid rgba(244, 180, 0, 0.2);
+  }
+
+  .service-card:hover {
+    border-color: #F4B400;
+    background: rgba(244, 180, 0, 0.15);
+    transform: translateY(-2px);
+  }
+
+  .service-card.active {
+    background: #F4B400;
+    border-color: #F4B400;
+    color: #000;
+  }
+
+  .service-card.active .service-price {
+    color: #000;
+  }
+
+  .service-name {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+
+  .service-price {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #F4B400;
+  }
+
+  .service-card.active .service-price {
+    color: #000;
+  }
+
+  /* Quantity Selector */
+  .quantity-section {
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 1px solid rgba(244, 180, 0, 0.2);
+  }
+
+  .quantity-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+  }
+
+  .quantity-input {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .qty-btn {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #F4B400;
+    background: transparent;
+    color: #F4B400;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .qty-btn:hover {
+    background: #F4B400;
+    color: #000;
+  }
+
+  .qty-value {
+    flex: 1;
+    padding: 10px 15px;
+    border: 2px solid rgba(244, 180, 0, 0.3);
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  /* Right Column */
+  .booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+
+  .form-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(244, 180, 0, 0.2);
+    border-radius: 20px;
+    padding: 25px;
+  }
+
+  [data-theme="dark"] .form-section {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(244, 180, 0, 0.15);
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .form-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+  }
+
+  .form-input,
+  .form-select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid rgba(244, 180, 0, 0.2);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    color: inherit;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+  }
+
+  [data-theme="dark"] .form-input,
+  [data-theme="dark"] .form-select {
+    background: rgba(255, 255, 255, 0.05);
+    color: #FFF8EB;
+  }
+
+  .form-input:focus,
+  .form-select:focus {
+    outline: none;
+    border-color: #F4B400;
+    background: rgba(244, 180, 0, 0.1);
+  }
+
+  .delivery-options {
+    display: flex;
+    gap: 15px;
+  }
+
+  .delivery-option {
+    flex: 1;
+    padding: 15px;
+    border: 2px solid rgba(244, 180, 0, 0.2);
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  .delivery-option:hover {
+    border-color: #F4B400;
+  }
+
+  .delivery-option.active {
+    background: #F4B400;
+    border-color: #F4B400;
+    color: #000;
+  }
+
+  .delivery-option-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .delivery-option-desc {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-top: 5px;
+  }
+
+  .delivery-option.active .delivery-option-desc {
+    opacity: 0.9;
+    color: #000;
+  }
+
+  /* Order Summary */
+  .order-summary {
+    background: linear-gradient(135deg, rgba(244, 180, 0, 0.15), rgba(244, 180, 0, 0.05));
+    border: 2px solid #F4B400;
+    border-radius: 16px;
+    padding: 25px;
+    position: sticky;
+    top: 20px;
+  }
+
+  [data-theme="dark"] .order-summary {
+    background: linear-gradient(135deg, rgba(244, 180, 0, 0.1), rgba(244, 180, 0, 0.02));
+  }
+
+  .summary-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: #F4B400;
+  }
+
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(244, 180, 0, 0.2);
+  }
+
+  .summary-item:last-of-type {
+    border-bottom: none;
+    padding-bottom: 12px;
+  }
+
+  .summary-item-label {
+    opacity: 0.8;
+    font-size: 0.95rem;
+  }
+
+  .summary-item-value {
+    font-weight: 600;
+    color: #F4B400;
+  }
+
+  .summary-divider {
+    height: 1px;
+    background: rgba(244, 180, 0, 0.3);
+    margin: 15px 0;
+  }
+
+  .summary-total {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 0;
+    font-size: 1.3rem;
+    font-weight: 800;
+  }
+
+  .summary-total .summary-item-value {
+    color: #F4B400;
+    font-size: 1.5rem;
+  }
+
+  .booking-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #F4B400, #F9C74F);
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+  }
+
+  .booking-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(244, 180, 0, 0.3);
+  }
+
+  .booking-btn:active {
+    transform: translateY(0);
+  }
+
+  /* Pricing Info Box */
+  .pricing-info {
+    background: rgba(244, 180, 0, 0.08);
+    border-left: 4px solid #F4B400;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-size: 0.9rem;
+  }
+
+  [data-theme="dark"] .pricing-info {
+    background: rgba(244, 180, 0, 0.06);
+  }
+
+  .pricing-info strong {
+    color: #F4B400;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .booking-header h1 {
+      font-size: 1.8rem;
+    }
+
+    .service-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .delivery-options {
+      flex-direction: column;
+    }
+
+    .order-summary {
+      position: relative;
+      top: auto;
+      margin-top: 20px;
+    }
+  }
+</style>
+
+<div class="laundry-booking-container">
+  <div class="booking-header">
+    <h1>🧺 KAPADA WASH</h1>
+    <p>The Laundry Expert In Your Town</p>
+  </div>
+
+  <div class="booking-grid">
+    <!-- Left: Service Selection & Booking -->
+    <div>
+      <div class="services-section">
+        <h2 class="section-title">Choose Your Service</h2>
+
+        <div class="service-grid">
+          <div class="service-card active" data-service="wash-fold" data-price="100">
+            <div class="service-name">Wash & Fold</div>
+            <div class="service-price">Rs. 100/kg</div>
+          </div>
+          <div class="service-card" data-service="wash-iron" data-price="140">
+            <div class="service-name">Wash & Iron</div>
+            <div class="service-price">Rs. 140/kg</div>
+          </div>
+          <div class="service-card" data-service="iron-only" data-price="40">
+            <div class="service-name">Iron Only</div>
+            <div class="service-price">Rs. 40/pc</div>
+          </div>
+          <div class="service-card" data-service="express" data-price="180">
+            <div class="service-name">Express (24hrs)</div>
+            <div class="service-price">Rs. 180/kg</div>
+          </div>
+        </div>
+
+        <div class="quantity-section">
+          <label class="quantity-label">Weight/Items (kg)</label>
+          <div class="quantity-input">
+            <button class="qty-btn" id="qty-minus">−</button>
+            <input type="number" class="qty-value" id="quantity" value="1" min="1" max="100">
+            <button class="qty-btn" id="qty-plus">+</button>
+          </div>
+        </div>
+
+        <div class="pricing-info">
+          <strong>💡 First Order Special:</strong> Free Pickup OR Free Ironing<br>
+          <strong>📅 Monthly Subscription:</strong> Save More on Regular Laundry
+        </div>
+      </div>
+
+      <!-- Delivery & Details -->
+      <div class="form-section" style="margin-top: 25px;">
+        <h2 class="section-title">Delivery Details</h2>
+
+        <div class="form-group">
+          <label class="form-label">Pickup Type</label>
+          <div class="delivery-options">
+            <div class="delivery-option active" data-pickup="free">
+              <div class="delivery-option-label">Free Pickup</div>
+              <div class="delivery-option-desc">Min order applies</div>
+            </div>
+            <div class="delivery-option" data-pickup="paid">
+              <div class="delivery-option-label">Paid Pickup</div>
+              <div class="delivery-option-desc">Rs. 50 fee</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Preferred Pickup Date</label>
+          <input type="date" class="form-input" id="pickup-date">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Preferred Pickup Time</label>
+          <select class="form-select" id="pickup-time">
+            <option value="">Select Time</option>
+            <option value="morning">Morning (6 AM - 12 PM)</option>
+            <option value="afternoon">Afternoon (12 PM - 6 PM)</option>
+            <option value="evening">Evening (6 PM - 10 PM)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Delivery Type</label>
+          <div class="delivery-options">
+            <div class="delivery-option active" data-delivery="free">
+              <div class="delivery-option-label">Free Delivery</div>
+              <div class="delivery-option-desc">In 3-5 days</div>
+            </div>
+            <div class="delivery-option" data-delivery="express">
+              <div class="delivery-option-label">Express Delivery</div>
+              <div class="delivery-option-desc">Next day</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Contact & Summary -->
+    <div class="booking-form">
+      <div class="form-section">
+        <h2 class="section-title">Your Details</h2>
+
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-input" id="fullname" placeholder="Enter your name">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="tel" class="form-input" id="phone" placeholder="+977 98XXX XXXXX">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Address</label>
+          <textarea class="form-input" id="address" rows="3" placeholder="Enter your delivery address" style="resize: none; font-family: inherit;"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Special Instructions (Optional)</label>
+          <textarea class="form-input" id="instructions" rows="2" placeholder="Any special care instructions?" style="resize: none; font-family: inherit;"></textarea>
+        </div>
+      </div>
+
+      <!-- Order Summary Card -->
+      <div class="order-summary">
+        <div class="summary-title">Order Summary</div>
+
+        <div class="summary-item">
+          <span class="summary-item-label">Service</span>
+          <span class="summary-item-value" id="summary-service">Wash & Fold</span>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-item-label">Quantity</span>
+          <span class="summary-item-value" id="summary-qty">1 kg</span>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-item-label">Service Cost</span>
+          <span class="summary-item-value" id="summary-service-cost">Rs. 100</span>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-item-label">Pickup</span>
+          <span class="summary-item-value" id="summary-pickup">Free</span>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-item-label">Delivery</span>
+          <span class="summary-item-value" id="summary-delivery">Free (3-5 days)</span>
+        </div>
+
+        <div class="summary-divider"></div>
+
+        <div class="summary-total">
+          <span>Total</span>
+          <span class="summary-item-value" id="summary-total">Rs. 100</span>
+        </div>
+
+        <button class="booking-btn" id="book-btn">Book Now</button>
+
+        <div style="margin-top: 15px; font-size: 0.85rem; opacity: 0.7;">
+          <strong>📞 Need help?</strong><br>
+          +977 9868732693<br>
+          www.kapadawash.com
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let selectedService = 'wash-fold';
+  let selectedServicePrice = 100;
+  let selectedPickup = 'free';
+  let selectedDelivery = 'free';
+  let quantity = 1;
+
+  // Set minimum date to today
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('pickup-date').min = today;
+  document.getElementById('pickup-date').value = today;
+
+  // Service Selection
+  document.querySelectorAll('.service-card').forEach(card => {
+    card.addEventListener('click', function() {
+      document.querySelectorAll('.service-card').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+      selectedService = this.dataset.service;
+      selectedServicePrice = parseInt(this.dataset.price);
+      updateSummary();
+    });
+  });
+
+  // Quantity Buttons
+  document.getElementById('qty-plus').addEventListener('click', () => {
+    let qty = parseInt(document.getElementById('quantity').value);
+    if (qty < 100) {
+      document.getElementById('quantity').value = qty + 1;
+      quantity = qty + 1;
+      updateSummary();
+    }
+  });
+
+  document.getElementById('qty-minus').addEventListener('click', () => {
+    let qty = parseInt(document.getElementById('quantity').value);
+    if (qty > 1) {
+      document.getElementById('quantity').value = qty - 1;
+      quantity = qty - 1;
+      updateSummary();
+    }
+  });
+
+  document.getElementById('quantity').addEventListener('change', function() {
+    let qty = parseInt(this.value) || 1;
+    if (qty < 1) qty = 1;
+    if (qty > 100) qty = 100;
+    this.value = qty;
+    quantity = qty;
+    updateSummary();
+  });
+
+  // Pickup Type
+  document.querySelectorAll('[data-pickup]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('[data-pickup]').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      selectedPickup = this.dataset.pickup;
+      updateSummary();
+    });
+  });
+
+  // Delivery Type
+  document.querySelectorAll('[data-delivery]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('[data-delivery]').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      selectedDelivery = this.dataset.delivery;
+      updateSummary();
+    });
+  });
+
+  // Update Summary
+  function updateSummary() {
+    const serviceNames = {
+      'wash-fold': 'Wash & Fold',
+      'wash-iron': 'Wash & Iron',
+      'iron-only': 'Iron Only',
+      'express': 'Express (24hrs)'
+    };
+
+    let serviceCost = selectedServicePrice * quantity;
+    let pickupCost = selectedPickup === 'paid' ? 50 : 0;
+    let deliveryCost = selectedDelivery === 'express' ? 100 : 0;
+    let total = serviceCost + pickupCost + deliveryCost;
+
+    document.getElementById('summary-service').textContent = serviceNames[selectedService];
+    document.getElementById('summary-qty').textContent = quantity + (selectedService === 'iron-only' ? ' pc' : ' kg');
+    document.getElementById('summary-service-cost').textContent = 'Rs. ' + serviceCost;
+    document.getElementById('summary-pickup').textContent = selectedPickup === 'free' ? 'Free' : 'Rs. 50';
+    document.getElementById('summary-delivery').textContent = selectedDelivery === 'free' ? 'Free (3-5 days)' : 'Express (Rs. 100)';
+    document.getElementById('summary-total').textContent = 'Rs. ' + total;
+  }
+
+  // Book Now Button
+  document.getElementById('book-btn').addEventListener('click', function() {
+    const fullname = document.getElementById('fullname').value;
+    const phone = document.getElementById('phone').value;
+    const address = document.getElementById('address').value;
+    const pickupDate = document.getElementById('pickup-date').value;
+    const pickupTime = document.getElementById('pickup-time').value;
+
+    if (!fullname || !phone || !address || !pickupDate || !pickupTime) {
+      alert('Please fill in all required fields!');
+      return;
+    }
+
+    if (!/^\+?977\d{9,10}/.test(phone.replace(/\s/g, ''))) {
+      alert('Please enter a valid phone number!');
+      return;
+    }
+
+    const orderData = {
+      service: selectedService,
+      quantity: quantity,
+      pickup: selectedPickup,
+      delivery: selectedDelivery,
+      fullname: fullname,
+      phone: phone,
+      address: address,
+      pickupDate: pickupDate,
+      pickupTime: pickupTime,
+      instructions: document.getElementById('instructions').value,
+      timestamp: new Date().toISOString()
+    };
+
+    console.log('Booking Order:', orderData);
+
+    // Show success message
+    alert('✅ Booking Confirmed!\n\nOrder Details:\n' +
+      'Service: ' + selectedService + '\n' +
+      'Quantity: ' + quantity + '\n' +
+      'Pickup Date: ' + pickupDate + '\n\n' +
+      'We will contact you shortly at ' + phone);
+
+    // Reset form
+    document.querySelectorAll('.service-card')[0].click();
+    document.getElementById('quantity').value = 1;
+    document.getElementById('fullname').value = '';
+    document.getElementById('phone').value = '';
+    document.getElementById('address').value = '';
+    document.getElementById('instructions').value = '';
+    updateSummary();
+  });
+
+  // Initialize
+  updateSummary();
+</script>
