@@ -57,58 +57,110 @@
   /* ── Search Bar UI Overhaul ── */
   .qb-search-container {
     flex: 1;
-    max-width: 600px;
+    max-width: 560px;
     position: relative;
   }
 
   .qb-search-bar-wrap {
     display: flex;
     align-items: center;
+    position: relative;
+    overflow: hidden;
     background: var(--qb-header-surface);
+    border: 1px solid rgba(17, 24, 39, 0.08);
     border-radius: 999px;
-    height: 48px;
-    padding: 0 20px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    height: 44px;
+    padding: 0 16px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, background-color 0.3s ease;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    animation: qb-search-float 4.8s ease-in-out infinite;
   }
 
   [data-theme="dark"] .qb-search-bar-wrap {
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    background: rgba(24, 24, 27, 0.96);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.28);
   }
 
   .qb-search-bar-wrap:focus-within {
+    transform: translateY(0);
+    animation-play-state: paused;
     background: var(--qb-header-bg);
-    box-shadow: 0 0 0 3px rgba(244, 180, 0, 0.4);
+    border-color: rgba(244, 180, 0, 0.55);
+    box-shadow: 0 0 0 3px rgba(244, 180, 0, 0.16), 0 14px 28px rgba(15, 23, 42, 0.12);
   }
 
   [data-theme="dark"] .qb-search-bar-wrap:focus-within {
-    box-shadow: 0 0 0 3px rgba(244, 180, 0, 0.3);
+    box-shadow: 0 0 0 3px rgba(244, 180, 0, 0.2), 0 16px 30px rgba(0,0,0,0.34);
+  }
+
+  .qb-search-bar-wrap:hover {
+    animation-play-state: paused;
+    transform: translateY(-1px);
   }
 
   .qb-search-bar-wrap svg {
     color: #6B7280;
-    margin-right: 12px;
+    margin-right: 10px;
     flex-shrink: 0;
+    transition: color 0.3s ease, transform 0.3s ease;
+  }
+
+  .qb-search-bar-wrap:hover svg,
+  .qb-search-bar-wrap:focus-within svg {
+    color: var(--qb-text-main);
+    transform: scale(1.03);
   }
 
   .qb-search-input {
     flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
     background: transparent;
     border: none;
     outline: none;
-    font-size: 15px;
+    box-shadow: none;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1;
     color: var(--qb-text-main);
     width: 100%;
     padding: 0;
+    min-width: 0;
   }
 
   .qb-search-input::placeholder {
-    color: #9CA3AF;
-    transition: opacity 0.2s;
+    color: #94A3B8;
+    opacity: 1;
+    transition: color 0.25s ease;
+  }
+
+  [data-theme="dark"] .qb-search-input::placeholder {
+    color: rgba(226, 232, 240, 0.62);
   }
 
   .qb-search-input:focus::placeholder {
-    opacity: 0;
+    color: rgba(148, 163, 184, 0.72);
+  }
+
+  .qb-search-input::-webkit-search-decoration,
+  .qb-search-input::-webkit-search-cancel-button,
+  .qb-search-input::-webkit-search-results-button,
+  .qb-search-input::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+  }
+
+  @keyframes qb-search-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .qb-search-bar-wrap {
+      animation: none;
+    }
   }
 
   /* ── Floating Predictive Dropdown ── */
@@ -348,6 +400,7 @@
     }
     .qb-search-bar-wrap {
       height: 40px;
+      padding: 0 14px;
     }
     .qb-search-input {
       font-size: 13px;
@@ -472,30 +525,6 @@
 </div>
 
 <script>
-  // Simple Typing Animation
-  (function() {
-    const input = document.getElementById('qbSearchInput');
-    const phrases = ["Search for cold beer...", "Craving spicy noodles?", "Party snacks in 20 mins...", "Fresh groceries fast...", "Late night munchies?"];
-    let pIdx = 0, cIdx = 0, isDel = false, isPaused = false;
-
-    function type() {
-      if (isPaused) return;
-      const current = phrases[pIdx];
-      input.placeholder = isDel ? current.substring(0, cIdx--) : current.substring(0, cIdx++);
-      
-      let speed = isDel ? 20 : 45;
-      if (!isDel && cIdx > current.length) { isDel = true; speed = 1500; }
-      else if (isDel && cIdx < 0) { isDel = false; pIdx = (pIdx + 1) % phrases.length; speed = 300; }
-      
-      setTimeout(type, speed);
-    }
-
-    input.addEventListener('focus', () => { isPaused = true; input.placeholder = ''; });
-    input.addEventListener('blur', () => { if(!input.value) { isPaused = false; type(); } });
-    
-    type();
-  })();
-
   // Dropdown Logic
   (function() {
     const input = document.getElementById('qbSearchInput');
