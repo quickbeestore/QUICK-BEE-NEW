@@ -299,99 +299,91 @@
     <p>Give your clothes a second life. We’ll wash, iron, and distribute them to those in need.</p>
   </header>
 
-  <div class="donation-form-wrapper" id="donationFormContainer">
+<div class="donation-form-wrapper" id="donationFormContainer">
     {%- form 'contact', id: 'donationForm', class: 'donation-form' -%}
-      
+
       {% if form.posted_successfully? %}
-        <div class="form-success-message" style="padding: 16px; background: #D1FAE5; color: #065F46; border-radius: 8px; margin-bottom: 16px; font-weight: 600; border: 1px solid #10B981;">
-          Thank you! Your donation pickup has been scheduled successfully.
+        <div class="success-message" id="successMessage">
+          <div style="font-size: 4rem; margin-bottom: 20px;">🐝</div>
+          <h2 style="color: var(--theme-text-main); font-size: 2rem; margin-bottom: 12px;">Pickup Scheduled Successfully!</h2>
+          <p style="color: var(--theme-text-muted); font-size: 1.1rem; max-width: 450px; margin: 0 auto 24px;">Thank you for giving your clothes a second life. Please share this initiative with your friends!</p>
+          <div class="success-actions" style="display: flex; flex-direction: column; gap: 12px; max-width: 300px; margin: 0 auto;">
+            <button type="button" class="submit-btn" id="copyLinkBtn" style="background-color: var(--brand-accent);">
+              <span>Copy Form Link to Clipboard</span>
+            </button>
+            <a href="/" class="submit-btn" style="background-color: var(--brand-primary); text-decoration: none;">Visit Home</a>
+          </div>
         </div>
-      {% endif %}
+      {% else %}
+        {{ form.errors | default_errors }}
 
-      {{ form.errors | default_errors }}
+        <input type="hidden" name="contact[subject]" value="New Clothes Donation Request">
 
-      <input type="hidden" name="contact[subject]" value="New Clothes Donation Request">
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="FullName">Full Name</label>
+            <input type="text" id="FullName" name="contact[Full Name]" placeholder="Enter your full name" required>
+          </div>
 
-      <div class="form-grid-2">
-        <div class="form-group">
-          <label for="FullName">Full Name</label>
-          <input type="text" id="FullName" name="contact[Full Name]" placeholder="Enter your full name" required>
-        </div>
-
-        <div class="form-group">
-          <label for="PhoneNumber">Phone Number</label>
-          <input type="tel" id="PhoneNumber" name="contact[Phone Number]" placeholder="e.g. 98XXXXXXXX" required pattern="[0-9]{10}">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="Location">Location Area</label>
-        <select id="Location" name="contact[Location Area]" required>
-          <option value="" disabled selected>Select your area</option>
-          <option value="Kathmandu">Kathmandu</option>
-          <option value="Lalitpur">Lalitpur</option>
-          <option value="Bhaktapur">Bhaktapur</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="Address">Pickup Address</label>
-        <textarea id="Address" name="contact[Pickup Address]" placeholder="Street name, house number, landmarks..." required></textarea>
-      </div>
-
-      <div class="form-grid-2">
-        <div class="form-group">
-          <label for="PickupDate">Preferred Pickup Date</label>
-          <input type="date" id="PickupDate" name="contact[Preferred Date]" required>
+          <div class="form-group">
+            <label for="PhoneNumber">Phone Number</label>
+            <input type="tel" id="PhoneNumber" name="contact[Phone Number]" placeholder="e.g. 98XXXXXXXX" required pattern="[0-9]{10}">
+          </div>
         </div>
 
         <div class="form-group">
-          <label for="TimeSlot">Preferred Time Slot</label>
-          <select id="TimeSlot" name="contact[Time Slot]" required>
-            <option value="Morning">Morning (8 AM - 12 PM)</option>
-            <option value="Afternoon">Afternoon (12 PM - 4 PM)</option>
-            <option value="Evening">Evening (4 PM - 8 PM)</option>
+          <label for="Location">Location Area</label>
+          <select id="Location" name="contact[Location Area]" required>
+            <option value="" disabled selected>Select your area</option>
+            <option value="Kathmandu">Kathmandu</option>
+            <option value="Lalitpur">Lalitpur</option>
+            <option value="Bhaktapur">Bhaktapur</option>
           </select>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="ClothesCount">Approx. Number of Clothes</label>
-        <select id="ClothesCount" name="contact[Clothes Count]" required>
-          <option value="5-10">5 – 10 clothes</option>
-          <option value="10-20">10 – 20 clothes</option>
-          <option value="20-50">20 – 50 clothes</option>
-          <option value="50+">50+ clothes</option>
-        </select>
-      </div>
+        <div class="form-group">
+          <label for="Address">Pickup Address</label>
+          <textarea id="Address" name="contact[Pickup Address]" placeholder="Street name, house number, landmarks..." required></textarea>
+        </div>
 
-      <div class="form-group">
-        <label for="Notes">Special Notes (Optional)</label>
-        <textarea id="Notes" name="contact[Special Notes]" placeholder="Gate code, specific instructions, etc."></textarea>
-      </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="PickupDate">Preferred Pickup Date</label>
+            <input type="date" id="PickupDate" name="contact[Preferred Date]" required>
+          </div>
 
-      <button type="submit" class="submit-btn" id="submitBtn">
-        <span>Schedule Pickup</span>
-        <div class="loader" id="btnLoader"></div>
-      </button>
+          <div class="form-group">
+            <label for="TimeSlot">Preferred Time Slot</label>
+            <select id="TimeSlot" name="contact[Time Slot]" required>
+              <option value="Morning">Morning (8 AM - 12 PM)</option>
+              <option value="Afternoon">Afternoon (12 PM - 4 PM)</option>
+              <option value="Evening">Evening (4 PM - 8 PM)</option>
+            </select>
+          </div>
+        </div>
 
-      {%- if form.posted_successfully? -%}
-        <script>
-          window.location.hash = '#success';
-        </script>
-      {%- endif -%}
+        <div class="form-group">
+          <label for="ClothesCount">Approx. Number of Clothes</label>
+          <select id="ClothesCount" name="contact[Clothes Count]" required>
+            <option value="5-10">5 – 10 clothes</option>
+            <option value="10-20">10 – 20 clothes</option>
+            <option value="20-50">20 – 50 clothes</option>
+            <option value="50+">50+ clothes</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="Notes">Special Notes (Optional)</label>
+          <textarea id="Notes" name="contact[Special Notes]" placeholder="Gate code, specific instructions, etc."></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <span>Schedule Pickup</span>
+          <div class="loader" id="btnLoader"></div>
+        </button>
+      {% endif %}
     {%- endform -%}
   </div>
-
-  <div class="success-message" id="successMessage">
-    <div style="font-size: 4rem; margin-bottom: 20px;">🎉</div>
-    <h2 style="color: var(--theme-text-main); font-size: 2rem; margin-bottom: 12px;">Request Submitted!</h2>
-    <p style="color: var(--theme-text-muted); font-size: 1.1rem;">Thank you for your generosity. Our team will contact you shortly to confirm the pickup.</p>
-    <a href="https://wa.me/9779800000000?text=Hello%21%20I%20just%20submitted%20a%20donation%20request%20on%20KapadaWash" class="whatsapp-btn" target="_blank">
-      <span>Chat on WhatsApp</span>
-    </a>
-  </div>
-
   <footer class="info-section">
     <p>Your clothes will be professionally cleaned by <strong>KapadaWash</strong> and distributed by <strong>Nepal Youth Club</strong> to people in need.</p>
     <p style="margin-top: 12px; font-weight: 600; color: var(--brand-primary);">“Make a difference today”</p>
@@ -400,21 +392,28 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('donationForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const loader = document.getElementById('btnLoader');
-    const formContainer = document.getElementById('donationFormContainer');
-    const successMessage = document.getElementById('successMessage');
+    const copyLinkBtn = document.getElementById('copyLinkBtn');
 
-    if (window.location.hash === '#success') {
-      if (formContainer) formContainer.style.display = 'none';
-      if (successMessage) successMessage.style.display = 'block';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (copyLinkBtn) {
+      copyLinkBtn.addEventListener('click', function() {
+        const pageUrl = window.location.origin + window.location.pathname;
+        navigator.clipboard.writeText(pageUrl).then(function() {
+          const btnSpan = copyLinkBtn.querySelector('span');
+          btnSpan.textContent = 'Copied!';
+          setTimeout(() => {
+            btnSpan.textContent = 'Copy Form Link to Clipboard';
+          }, 2000);
+        });
+      });
     }
 
-    if (form) {
+    const form = document.getElementById('donationForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    if (form && submitBtn) {
       form.addEventListener('submit', function() {
         const btnText = submitBtn.querySelector('span');
+        const loader = document.getElementById('btnLoader');
         if (btnText) btnText.textContent = 'Scheduling...';
         if (loader) loader.style.display = 'block';
         submitBtn.disabled = true;
@@ -429,7 +428,6 @@
     }
   });
 </script>
-
 {% schema %}
 {
   "name": "Donation Page",
