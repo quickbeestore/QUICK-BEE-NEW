@@ -112,10 +112,11 @@
   }
 
   .qb-search-input {
-    flex: 1;
     -webkit-appearance: none;
     appearance: none;
+    display: block;
     background: transparent !important;
+    background-image: none !important;
     border: none !important;
     outline: none !important;
     box-shadow: none !important;
@@ -127,6 +128,17 @@
     width: 100%;
     padding: 0;
     min-width: 0;
+  }
+
+  [data-theme="dark"] .qb-search-bar-wrap .qb-search-input {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    -webkit-text-fill-color: #F8FAFC;
   }
 
   .qb-search-input::placeholder {
@@ -586,7 +598,7 @@
         <div class="qb-search-icon" aria-hidden="true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><path d="m20 20-3.8-3.8"/></svg>
         </div>
-        <input type="search" name="q" class="qb-search-input" id="qbSearchInput" placeholder="Search groceries, drinks, snacks" autocomplete="off" aria-label="Search products">
+        <input type="text" inputmode="search" name="q" class="qb-search-input" id="qbSearchInput" placeholder="Search groceries, drinks, snacks" autocomplete="off" aria-label="Search products">
         <button type="submit" class="qb-search-submit" aria-label="Search">
           <span>Search</span>
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -703,7 +715,27 @@
       );
     }
 
-    function pickAddress(location) {
+    function readDeliveryTime() {
+      const raw = localStorage.getItem('qb_delivery_time');
+      if (!raw) {
+        return '';
+      }
+
+      try {
+        const parsed = JSON.parse(raw);
+        return parsed?.range || '';
+      } catch (error) {
+        console.warn('Unable to parse qb_delivery_time', error);
+        return '';
+      }
+    }
+
+    function pickSubtitle(location) {
+      const deliveryRange = readDeliveryTime();
+      if (deliveryRange) {
+        return `⚡ ${deliveryRange}`;
+      }
+
       const parts = [
         location?.address,
         location?.formatted_address,
@@ -719,7 +751,7 @@
     function updateLocationButton(detail) {
       const location = detail || readSavedLocation();
       const nextTitle = pickTitle(location);
-      const nextAddress = location ? pickAddress(location) : '';
+      const nextAddress = location ? pickSubtitle(location) : readDeliveryTime();
 
       title.textContent = nextTitle;
       address.textContent = nextAddress;
