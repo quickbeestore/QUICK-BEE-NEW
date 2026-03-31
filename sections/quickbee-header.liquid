@@ -27,18 +27,12 @@
 <style>
   /* ── Header Base ── */
   :root {
-    --qb-header-bg: #FFFFFF;
-    --qb-header-border: #E5E7EB;
-    --qb-text-main: #111827;
-    --qb-text-muted: #6B7280;
+    --qb-header-bg: var(--theme-bg-primary);
+    --qb-header-border: var(--theme-border);
+    --qb-text-main: var(--theme-text-main);
+    --qb-text-muted: var(--theme-text-muted);
+    --qb-header-surface: var(--theme-bg-secondary);
     --qb-yellow: #F4B400;
-  }
-
-  [data-theme="dark"] :root {
-    --qb-header-bg: #121212;
-    --qb-header-border: #333333;
-    --qb-text-main: #F9FAFB;
-    --qb-text-muted: #9CA3AF;
   }
 
   .qb-header {
@@ -70,7 +64,7 @@
   .qb-search-bar-wrap {
     display: flex;
     align-items: center;
-    background: #F3F4F6;
+    background: var(--qb-header-surface);
     border-radius: 999px;
     height: 48px;
     padding: 0 20px;
@@ -79,17 +73,15 @@
   }
 
   [data-theme="dark"] .qb-search-bar-wrap {
-    background: #1A1A1A;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   }
 
   .qb-search-bar-wrap:focus-within {
-    background: #FFFFFF;
+    background: var(--qb-header-bg);
     box-shadow: 0 0 0 3px rgba(244, 180, 0, 0.4);
   }
 
   [data-theme="dark"] .qb-search-bar-wrap:focus-within {
-    background: #121212;
     box-shadow: 0 0 0 3px rgba(244, 180, 0, 0.3);
   }
 
@@ -123,7 +115,7 @@
   .qb-search-dropdown {
     position: fixed;
     z-index: 999999;
-    background: #FFFFFF;
+    background: var(--qb-header-bg);
     border-radius: 16px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.15);
     margin-top: 12px;
@@ -133,7 +125,6 @@
   }
 
   [data-theme="dark"] .qb-search-dropdown {
-    background: #1E1E1E;
     box-shadow: 0 10px 50px rgba(0,0,0,0.5);
   }
 
@@ -172,7 +163,7 @@
   }
 
   .qb-dropdown-item:hover {
-    background-color: #F3F4F6;
+    background-color: var(--qb-header-surface);
     padding-left: 26px;
   }
 
@@ -248,13 +239,49 @@
     to { transform: translateX(-50%); }
   }
 
+  .qb-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .qb-action-btn,
+  .qb-theme-toggle {
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--qb-text-main);
+    background: transparent;
+    border: 1px solid var(--qb-header-border);
+    border-radius: 999px;
+    text-decoration: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    cursor: pointer;
+  }
+
+  .qb-action-btn:hover,
+  .qb-theme-toggle:hover {
+    background: color-mix(in srgb, var(--qb-yellow) 10%, transparent);
+    border-color: var(--qb-yellow);
+    transform: translateY(-1px);
+  }
+
+  .qb-action-btn svg,
+  .qb-theme-toggle svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+  }
+
   /* ── Mobile Footer ── */
   .qb-mobile-footer {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    background: #FFF;
+    background: var(--qb-header-bg);
     height: 65px;
     display: flex;
     align-items: center;
@@ -302,7 +329,7 @@
     color: #000;
     margin-top: -30px;
     box-shadow: 0 4px 15px rgba(244, 180, 0, 0.4);
-    border: 4px solid #FFF;
+    border: 4px solid var(--qb-header-bg);
   }
 
   [data-theme="dark"] .qb-mobile-wallet-btn {
@@ -369,13 +396,57 @@
       </div>
     </div>
 
-    <!-- Cart -->
-    <a href="/cart" class="qb-action-btn">
-      <div style="position: relative; padding: 8px;">
+    <div class="qb-header-actions">
+      <button
+        id="theme-toggle"
+        class="theme-toggle-btn qb-theme-toggle"
+        type="button"
+        aria-label="Toggle dark mode"
+      >
+        <svg
+          class="icon-sun"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2"></path>
+          <path d="M12 20v2"></path>
+          <path d="m4.93 4.93 1.41 1.41"></path>
+          <path d="m17.66 17.66 1.41 1.41"></path>
+          <path d="M2 12h2"></path>
+          <path d="M20 12h2"></path>
+          <path d="m6.34 17.66-1.41 1.41"></path>
+          <path d="m19.07 4.93-1.41 1.41"></path>
+        </svg>
+        <svg
+          class="icon-moon"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M12 3a6 6 0 0 0 9 9A9 9 0 1 1 12 3z"></path>
+        </svg>
+      </button>
+
+      <!-- Cart -->
+      <a href="/cart" class="qb-action-btn" aria-label="Cart">
+        <div style="position: relative; padding: 8px;">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-        <span id="cart-count" style="position: absolute; top: 0; right: 0; background: var(--qb-yellow); color: #000; font-size: 10px; font-weight: 800; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border: 2px solid #FFF;">{{ cart.item_count }}</span>
-      </div>
-    </a>
+        <span id="cart-count" style="position: absolute; top: 0; right: 0; background: var(--qb-yellow); color: #000; font-size: 10px; font-weight: 800; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--qb-header-bg);">{{ cart.item_count }}</span>
+        </div>
+      </a>
+    </div>
   </div>
 </header>
 
