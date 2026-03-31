@@ -542,5 +542,71 @@
       })();
     </script>
 
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const checkoutButtons = document.querySelectorAll('button[name="checkout"], input[name="checkout"], a[href="/checkout"]');
+        
+        checkoutButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Only intercept if we are on the cart page or a cart drawer/popup
+                e.preventDefault();
+                const checkoutTarget = this;
+                
+                try {
+                    // 1. Grab the raw data from local storage using QuickBee keys
+                    const rawLocation = localStorage.getItem('qb_selected_location');
+                    const nickname = localStorage.getItem('qb_active_nickname') || 'Unspecified';
+                    const mapsLink = localStorage.getItem('qb_landmark_' + nickname) || localStorage.getItem('qb_landmark_Current') || '';
+                    
+                    if (rawLocation) {
+                        // 2. Parse the JSON string safely
+                        const locData = JSON.parse(rawLocation);
+                        const streetName = locData.street || rawLocation; // Fallback to raw string if 'street' key is missing
+                        
+                        // 3. Format a beautiful, readable note for the delivery rider
+                        let formattedNote = `📍 Delivery Address: ${streetName}\n`;
+                        formattedNote += `🏠 Type: ${nickname}\n`;
+                        
+                        if (mapsLink) {
+                            formattedNote += `🗺️ Maps Link: ${mapsLink}\n`;
+                        }
+                        
+                        // 4. Send the formatted note to Shopify's Cart API
+                        fetch(window.Shopify.routes.root + 'cart/update.js', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ note: formattedNote })
+                        })
+                        .then(() => {
+                            goToCheckout(checkoutTarget);
+                        })
+                        .catch((error) => {
+                            console.error('QuickBee: Error saving location note:', error);
+                            goToCheckout(checkoutTarget); // Don't block checkout on failure
+                        });
+                    } else {
+                        // No location data found, proceed normally
+                        goToCheckout(checkoutTarget);
+                    }
+                } catch (err) {
+                    console.error('QuickBee: Error processing local storage data:', err);
+                    goToCheckout(checkoutTarget); // Proceed to checkout even if JSON parsing fails
+                }
+            });
+        });
+
+        function goToCheckout(button) {
+            const form = button.closest('form[action="/cart"]');
+            if (form) {
+                form.submit();
+            } else {
+                window.location.href = '/checkout';
+            }
+        }
+      });
+    </script>
   </body>
 </html>
