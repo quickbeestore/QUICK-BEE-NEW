@@ -43,17 +43,7 @@
     assign image_sizes = sizes_attribute | strip
   endif
 
-  assign ratio = '1'
-  case block_settings.image_ratio
-    when 'landscape'
-      assign ratio = '16 / 9'
-    when 'portrait'
-      assign ratio = '4 / 5'
-    when 'square'
-      assign ratio = '1'
-    when 'adapt'
-      assign ratio = product.featured_media.preview_image.aspect_ratio | default: '1'
-  endcase
+  assign ratio = '1 / 1'
 
   if block_settings.image_ratio == 'adapt' and block_settings.constrain_to_viewport
     if block_settings.constrain_to_viewport != ''
@@ -65,12 +55,8 @@
 
 <div
   ref="cardGallery"
-  class="card-gallery card-gallery-{{ block.id }} spacing-style border-style{% if has_badges %} card-gallery--badge-{{ badge_position }}{% endif %}"
-  style="
-    {% render 'border-override', settings: block_settings %}
-    {% render 'spacing-style', settings: block_settings %}
-    --gallery-aspect-ratio: {{ ratio }};
-  "
+  class="card-gallery card-gallery-{{ block.id }}{% if has_badges %} card-gallery--badge-{{ badge_position }}{% endif %}"
+  style="--gallery-aspect-ratio: {{ ratio }};"
   data-product-id="{{ product.id }}"
   {% if settings.show_second_image_on_hover %}
     on:pointerenter="/previewImage"
