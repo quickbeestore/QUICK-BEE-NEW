@@ -42,6 +42,7 @@
     top: 0;
     z-index: 1000;
     width: 100%;
+    overflow: visible;
   }
 
   .qb-header-top {
@@ -52,6 +53,7 @@
     gap: 16px;
     max-width: 1400px;
     margin: 0 auto;
+    overflow: visible;
   }
 
   /* ── Search Bar UI Overhaul ── */
@@ -59,6 +61,7 @@
     flex: 1;
     max-width: 680px;
     position: relative;
+    overflow: visible;
   }
 
   .qb-search-bar-wrap {
@@ -193,6 +196,7 @@
     display: none;
     padding: 10px;
     animation: qb-dropdown-slide 0.18s ease;
+    max-height: none;
   }
 
   [data-theme="dark"] .qb-search-dropdown {
@@ -287,31 +291,49 @@
 
   /* ── Location Button ── */
   .qb-loc-btn {
-    display: flex;
+    display: inline-grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    gap: 10px;
-    background: transparent;
-    border: 1px solid var(--qb-header-border);
+    column-gap: 12px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(15, 23, 42, 0.12);
     border-radius: 999px;
-    padding: 8px 16px;
+    padding: 10px 18px;
     cursor: pointer;
-    max-width: 240px;
-    transition: all 0.2s;
+    max-width: 280px;
+    min-height: 54px;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+    backdrop-filter: blur(12px);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
   }
 
   .qb-loc-btn:hover {
-    background: rgba(244, 180, 0, 0.05);
-    border-color: var(--qb-yellow);
+    background: rgba(255, 255, 255, 0.94);
+    border-color: rgba(244, 180, 0, 0.7);
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .qb-loc-btn:focus-visible {
+    outline: none;
+    border-color: rgba(244, 180, 0, 0.88);
+    box-shadow: 0 0 0 4px rgba(244, 180, 0, 0.18), 0 12px 24px rgba(15, 23, 42, 0.1);
   }
 
   .qb-loc-content {
+    min-width: 0;
     text-align: left;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 
   .qb-loc-title {
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
     color: var(--qb-text-main);
     white-space: nowrap;
     overflow: hidden;
@@ -319,11 +341,38 @@
   }
 
   .qb-loc-address {
-    font-size: 11px;
+    font-size: 12px;
+    line-height: 1.2;
     color: var(--qb-text-muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .qb-loc-address:empty {
+    display: none;
+  }
+
+  .qb-loc-btn[data-has-address="false"] {
+    padding-block: 13px;
+  }
+
+  .qb-loc-btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: var(--qb-text-main);
+    opacity: 0.82;
+  }
+
+  [data-theme="dark"] .qb-loc-btn {
+    background: rgba(17, 24, 39, 0.86);
+    border-color: rgba(148, 163, 184, 0.24);
+    box-shadow: 0 14px 26px rgba(0, 0, 0, 0.26);
+  }
+
+  [data-theme="dark"] .qb-loc-btn:hover {
+    background: rgba(17, 24, 39, 0.94);
   }
 
   /* ── Announcement Bar ── */
@@ -457,8 +506,10 @@
       gap: 10px;
     }
     .qb-loc-btn {
-      padding: 6px 12px;
-      max-width: 140px;
+      padding: 8px 14px;
+      max-width: 180px;
+      min-height: 50px;
+      column-gap: 10px;
     }
     .qb-search-bar-wrap {
       min-height: 46px;
@@ -504,7 +555,7 @@
   <div class="qb-header-top">
     <!-- Location -->
     <div class="qb-location-wrap">
-      <button class="qb-loc-btn" onclick="qbOpenLocationModal()">
+      <button class="qb-loc-btn" type="button" data-has-address="false" aria-label="Set delivery location">
         <div class="qb-loc-content">
           <div class="qb-loc-title" id="qbLocTitle">Set location</div>
           <div class="qb-loc-address" id="qbLocAddress"></div>
@@ -591,6 +642,96 @@
     </div>
   </div>
 </header>
+
+<script>
+  (function() {
+    const button = document.querySelector('.qb-loc-btn');
+    const title = document.getElementById('qbLocTitle');
+    const address = document.getElementById('qbLocAddress');
+
+    if (!button || !title || !address) {
+      return;
+    }
+
+    function readSavedLocation() {
+      const keys = ['qb_location_detail', 'qb_selected_location'];
+      for (const key of keys) {
+        const raw = localStorage.getItem(key);
+        if (!raw) {
+          continue;
+        }
+
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') {
+            return parsed;
+          }
+        } catch (error) {
+          console.warn(`Unable to parse ${key}`, error);
+        }
+      }
+
+      return null;
+    }
+
+    function pickTitle(location) {
+      return (
+        location?.label ||
+        location?.name ||
+        location?.city ||
+        location?.area ||
+        location?.district ||
+        'Set location'
+      );
+    }
+
+    function pickAddress(location) {
+      const parts = [
+        location?.address,
+        location?.formatted_address,
+        location?.street,
+        location?.ward,
+        location?.locality,
+        location?.city,
+      ].filter(Boolean);
+
+      return [...new Set(parts)].join(', ');
+    }
+
+    function updateLocationButton(detail) {
+      const location = detail || readSavedLocation();
+      const nextTitle = pickTitle(location);
+      const nextAddress = location ? pickAddress(location) : '';
+
+      title.textContent = nextTitle;
+      address.textContent = nextAddress;
+      button.dataset.hasAddress = nextAddress ? 'true' : 'false';
+      button.setAttribute('aria-label', nextAddress ? `${nextTitle}, ${nextAddress}` : nextTitle);
+    }
+
+    button.addEventListener('click', () => {
+      if (typeof window.showLocationModal === 'function') {
+        window.showLocationModal();
+      }
+    });
+
+    window.addEventListener('locationSelected', (event) => {
+      updateLocationButton(event.detail);
+    });
+
+    window.addEventListener('qb_location_changed', () => {
+      updateLocationButton();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateLocationButton();
+    });
+
+    updateLocationButton();
+  })();
+</script>
+
+{% render 'location-detection-modal' %}
 
 <!-- Mobile Nav -->
 <div class="qb-mobile-footer">
