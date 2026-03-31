@@ -1,376 +1,569 @@
 {%- comment -%}
-  QuickBEE Modern Search Results
-  Modern product grid for search results with improved UX
+  QuickBEE mobile-first search results
 {%- endcomment -%}
 
-<script src="{{ 'results-list.js' | asset_url }}" type="module" fetchpriority="low"></script>
-
 <style>
-  .qb-search-results {
-    width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 20px 16px;
+  .search-page__header {
+    display: none;
   }
 
-  .qb-search-header {
-    margin-bottom: 32px;
-    display: flex;
-    justify-content: space-between;
+  .qb-search-page {
+    --qb-search-shell: #ffffff;
+    --qb-search-shell-border: rgba(15, 23, 42, 0.08);
+    --qb-search-surface: #f8fafc;
+    --qb-search-surface-strong: #eef2f7;
+    --qb-search-text: #111827;
+    --qb-search-muted: #64748b;
+    --qb-search-muted-soft: #94a3b8;
+    --qb-search-accent: #f4b400;
+    --qb-search-accent-strong: #d97706;
+    --qb-search-danger: #c41e3a;
+    --qb-search-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    background: var(--qb-search-shell);
+    color: var(--qb-search-text);
+    min-height: 100vh;
+    padding: 12px 12px 110px;
+  }
+
+  [data-theme="dark"] .qb-search-page {
+    --qb-search-shell: #0b0f17;
+    --qb-search-shell-border: rgba(148, 163, 184, 0.12);
+    --qb-search-surface: #111827;
+    --qb-search-surface-strong: #172132;
+    --qb-search-text: #f8fafc;
+    --qb-search-muted: #94a3b8;
+    --qb-search-muted-soft: #64748b;
+    --qb-search-shadow: 0 18px 38px rgba(0, 0, 0, 0.35);
+  }
+
+  .qb-search-shell {
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  .qb-search-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    padding: 8px 0 14px;
+    background: linear-gradient(180deg, var(--qb-search-shell) 78%, rgba(255, 255, 255, 0));
+  }
+
+  [data-theme="dark"] .qb-search-topbar {
+    background: linear-gradient(180deg, var(--qb-search-shell) 78%, rgba(11, 15, 23, 0));
+  }
+
+  .qb-search-form {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: 16px;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 20px;
+    background: var(--qb-search-surface);
+    border: 1px solid var(--qb-search-shell-border);
+    box-shadow: var(--qb-search-shadow);
+  }
+
+  .qb-search-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--qb-search-accent) 15%, var(--qb-search-surface));
+    color: var(--qb-search-accent-strong);
+    flex-shrink: 0;
+  }
+
+  .qb-search-icon svg,
+  .qb-search-reset svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+  }
+
+  .qb-search-field {
+    all: unset;
+    display: block;
+    width: 100%;
+    min-width: 0;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--qb-search-text);
+    caret-color: currentColor;
+  }
+
+  .qb-search-field::placeholder {
+    color: var(--qb-search-muted-soft);
+    opacity: 1;
+  }
+
+  .qb-search-submit,
+  .qb-search-reset {
+    border: none;
+    cursor: pointer;
+    transition: transform 0.18s ease, opacity 0.18s ease, background-color 0.18s ease;
+  }
+
+  .qb-search-submit {
+    min-width: 84px;
+    height: 42px;
+    padding: 0 16px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--qb-search-accent);
+    color: #111827;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+    box-shadow: 0 10px 22px rgba(244, 180, 0, 0.22);
+  }
+
+  .qb-search-reset {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--qb-search-surface-strong);
+    color: var(--qb-search-muted);
+    text-decoration: none;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .qb-search-form:focus-within {
+    border-color: rgba(244, 180, 0, 0.55);
+    box-shadow: 0 0 0 4px rgba(244, 180, 0, 0.14), var(--qb-search-shadow);
+  }
+
+  .qb-search-form:has(.qb-search-field:not(:placeholder-shown)) .qb-search-reset {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .qb-search-submit:hover,
+  .qb-search-reset:hover {
+    transform: translateY(-1px);
+  }
+
+  .qb-search-meta {
+    display: grid;
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .qb-search-summary {
+    background: var(--qb-search-surface);
+    border: 1px solid var(--qb-search-shell-border);
+    border-radius: 20px;
+    padding: 16px;
+  }
+
+  .qb-search-kicker {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--qb-search-muted);
+    margin: 0 0 8px;
   }
 
   .qb-search-title {
-    font-size: 24px;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin: 0;
-  }
-
-  .qb-search-count {
-    font-size: 14px;
-    color: #666;
-    font-weight: 500;
-  }
-
-  .qb-product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 12px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .qb-product-card {
-    display: flex;
-    flex-direction: column;
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    height: 100%;
-    position: relative;
-  }
-
-  .qb-product-card:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
-  }
-
-  .qb-product-image-wrap {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1;
-    background: #f5f5f5;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .qb-product-image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: center;
-    transition: transform 0.3s ease;
-    padding: 8px;
-    background: white;
-  }
-
-  .qb-product-card:hover .qb-product-image {
-    transform: scale(1.05);
-  }
-
-  .qb-product-badge {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    background: #c41e3a;
-    color: white;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 28px;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    font-weight: 900;
+    margin: 0 0 10px;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
-    z-index: 10;
   }
 
-  .qb-delivery-badge {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    background: #c41e3a;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 600;
-    z-index: 11;
+  .qb-search-description {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--qb-search-muted);
+    margin: 0;
   }
 
-  .qb-search-badge {
-    background: #1a1a1a;
-  }
-
-  .qb-product-info {
-    flex: 1;
-    padding: 12px;
+  .qb-search-chip-row {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 8px;
   }
 
-  .qb-product-title {
+  .qb-search-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: var(--qb-search-surface);
+    border: 1px solid var(--qb-search-shell-border);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--qb-search-muted);
+  }
+
+  .qb-search-chip strong {
+    color: var(--qb-search-text);
+    font-weight: 800;
+  }
+
+  .qb-search-grid {
+    list-style: none;
+    margin: 18px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .qb-search-card {
+    min-width: 0;
+  }
+
+  .qb-search-card-link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+    background: var(--qb-search-surface);
+    border: 1px solid var(--qb-search-shell-border);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .qb-search-card-link:hover {
+    transform: translateY(-2px);
+    border-color: rgba(244, 180, 0, 0.38);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.10);
+  }
+
+  .qb-search-image-wrap {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background: var(--qb-search-shell);
+    overflow: hidden;
+  }
+
+  .qb-search-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    padding: 12px;
+    background: #ffffff;
+  }
+
+  [data-theme="dark"] .qb-search-image {
+    background: #ffffff;
+  }
+
+  .qb-search-no-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    color: var(--qb-search-muted-soft);
+    background: var(--qb-search-surface-strong);
+  }
+
+  .qb-search-badge,
+  .qb-search-sale {
+    position: absolute;
+    top: 10px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .qb-search-sale {
+    left: 10px;
+    padding: 6px 10px;
+    background: var(--qb-search-danger);
+    color: #fff;
+  }
+
+  .qb-search-badge {
+    right: 10px;
+    padding: 6px 10px;
+    background: #111827;
+    color: #fff;
+  }
+
+  .qb-search-card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .qb-search-card-title {
     font-size: 13px;
-    font-weight: 600;
-    color: #1a1a1a;
-    line-height: 1.3;
+    line-height: 1.35;
+    font-weight: 800;
+    margin: 0;
+    color: var(--qb-search-text);
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    margin: 0;
+    min-height: 2.7em;
   }
 
-  .qb-product-price-wrap {
+  .qb-search-price-row {
     display: flex;
-    gap: 6px;
-    align-items: center;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
   }
 
-  .qb-product-price {
-    font-size: 14px;
-    font-weight: 700;
-    color: #c41e3a;
+  .qb-search-price {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--qb-search-text);
+    letter-spacing: -0.03em;
   }
 
-  .qb-product-price-original {
+  .qb-search-price-compare {
     font-size: 12px;
-    color: #999;
+    color: var(--qb-search-muted);
     text-decoration: line-through;
   }
 
-  .qb-product-button {
-    width: 100%;
-    padding: 8px 12px;
-    background: #C2185B;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  .qb-search-cta {
     margin-top: auto;
+    width: 100%;
+    min-height: 42px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #b80d22, #d61c4e);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 6px rgba(194, 24, 91, 0.2);
+    cursor: pointer;
   }
 
-  .qb-product-button:hover {
-    background: #D81B60;
-    transform: scale(1.02);
-    box-shadow: 0 4px 10px rgba(194, 24, 91, 0.3);
-  }
-
-  .qb-product-button:active {
-    transform: scale(0.98);
-  }
-
-  .qb-empty-state {
+  .qb-search-empty {
     text-align: center;
-    padding: 60px 20px;
+    padding: 64px 20px 24px;
   }
 
-  .qb-empty-icon {
-    font-size: 48px;
+  .qb-search-empty-icon {
+    font-size: 52px;
     margin-bottom: 16px;
   }
 
-  .qb-empty-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin: 0 0 8px;
+  .qb-search-empty-title {
+    font-size: 24px;
+    line-height: 1;
+    margin: 0 0 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
   }
 
-  .qb-empty-text {
-    font-size: 14px;
-    color: #666;
-    margin: 0;
-  }
-
-  /* Responsive */
-  @media (max-width: 640px) {
-    .qb-search-results {
-      padding: 16px 12px;
-    }
-
-    .qb-search-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-
-    .qb-search-title {
-      font-size: 20px;
-    }
-
-    .qb-product-grid {
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 10px;
-    }
-
-    .qb-product-info {
-      padding: 10px;
-      gap: 6px;
-    }
-
-    .qb-product-title {
-      font-size: 12px;
-    }
-
-    .qb-product-button {
-      padding: 6px 10px;
-      font-size: 11px;
-    }
+  .qb-search-empty-text {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--qb-search-muted);
+    margin: 0 auto;
+    max-width: 32ch;
   }
 
   @media (min-width: 768px) {
-    .qb-search-results {
-      padding: 32px 24px;
+    .qb-search-page {
+      padding: 18px 20px 120px;
     }
 
-    .qb-product-grid {
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 16px;
+    .qb-search-topbar {
+      padding-bottom: 18px;
     }
 
-    .qb-product-info {
-      padding: 14px;
-      gap: 10px;
+    .qb-search-meta {
+      grid-template-columns: minmax(0, 1.5fr) auto;
+      align-items: end;
     }
 
-    .qb-product-title {
-      font-size: 14px;
+    .qb-search-summary {
+      padding: 18px 20px;
     }
 
     .qb-search-title {
-      font-size: 28px;
+      font-size: 48px;
+    }
+
+    .qb-search-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .qb-search-card-body {
+      padding: 14px;
     }
   }
 
-  @media (min-width: 1024px) {
-    .qb-product-grid {
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 20px;
-    }
-
-    .qb-product-info {
-      padding: 16px;
+  @media (min-width: 1100px) {
+    .qb-search-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
     }
   }
 </style>
 
-<div class="qb-search-results" section-id="{{ section.id }}">
-  {% if search.results_count > 0 %}
-    <div class="qb-search-header">
-      <div>
-        <h1 class="qb-search-title">Search Results</h1>
-        <p class="qb-search-count">{{ search.results_count }} items found</p>
+<div class="qb-search-page" section-id="{{ section.id }}">
+  <div class="qb-search-shell">
+    <div class="qb-search-topbar">
+      <form action="{{ routes.search_url }}" method="get" role="search" class="qb-search-form">
+        <span class="qb-search-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7.5"></circle>
+            <path d="m20 20-3.8-3.8"></path>
+          </svg>
+        </span>
+        <input type="hidden" name="type" value="product">
+        <input
+          class="qb-search-field"
+          type="search"
+          name="q"
+          value="{{ search.terms | escape }}"
+          placeholder="Search groceries, drinks, snacks"
+          aria-label="Search products"
+        >
+        <button type="submit" class="qb-search-submit">
+          <span>Search</span>
+        </button>
+        <a href="{{ routes.search_url }}?type=product&q=" class="qb-search-reset" aria-label="Clear search">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18"></path>
+            <path d="m6 6 12 12"></path>
+          </svg>
+        </a>
+      </form>
+
+      <div class="qb-search-meta">
+        <div class="qb-search-summary">
+          <p class="qb-search-kicker">Mobile Search</p>
+          <h1 class="qb-search-title">
+            {% if search.results_count > 0 %}
+              {{ search.results_count }} Results
+            {% else %}
+              Search
+            {% endif %}
+          </h1>
+          <p class="qb-search-description">
+            {% if search.terms != blank %}
+              Showing product matches for <strong>{{ search.terms | escape }}</strong>.
+            {% else %}
+              Find snacks, groceries, drinks, and essentials in one quick flow.
+            {% endif %}
+          </p>
+        </div>
+
+        {% if search.terms != blank %}
+          <div class="qb-search-chip-row">
+            <span class="qb-search-chip">Query <strong>{{ search.terms | escape }}</strong></span>
+            <span class="qb-search-chip">Products <strong>{{ search.results_count }}</strong></span>
+          </div>
+        {% endif %}
       </div>
     </div>
 
-    <ul class="qb-product-grid">
-      {% for result in search.results %}
-        {% if result.object_type == 'product' %}
-          {% assign product = result %}
-          <li class="qb-product-card">
-            <a href="{{ product.url }}" class="qb-product-link" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%;">
-              <div class="qb-product-image-wrap">
+    {% assign product_results = search.results | where: 'object_type', 'product' %}
+
+    {% if product_results.size > 0 %}
+      <ul class="qb-search-grid">
+        {% for product in product_results %}
+          <li class="qb-search-card">
+            <a href="{{ product.url }}" class="qb-search-card-link">
+              <div class="qb-search-image-wrap">
                 {% if product.featured_image %}
                   <img
-                    src="{{ product.featured_image | image_url: width: 600 }}"
+                    src="{{ product.featured_image | image_url: width: 720 }}"
                     alt="{{ product.featured_image.alt | default: product.title }}"
-                    class="qb-product-image"
+                    class="qb-search-image"
                     loading="lazy"
                   >
                 {% else %}
-                  <div style="width: 100%; height: 100%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #ccc;">
-                    No image
-                  </div>
+                  <div class="qb-search-no-image">🐝</div>
                 {% endif %}
 
-                <div class="qb-delivery-badge qb-search-badge">⚡ 18-22 mins</div>
+                <div class="qb-search-badge qb-search-badge-sync">⚡ 18-22 mins</div>
 
                 {% if product.compare_at_price > product.price %}
-                  <span class="qb-product-badge">Sale</span>
+                  <span class="qb-search-sale">Sale</span>
                 {% endif %}
               </div>
 
-              <div class="qb-product-info">
-                <h3 class="qb-product-title">{{ product.title }}</h3>
+              <div class="qb-search-card-body">
+                <h3 class="qb-search-card-title">{{ product.title }}</h3>
 
-                <div class="qb-product-price-wrap">
-                  <span class="qb-product-price">Rs {{ product.price | money_without_currency }}</span>
+                <div class="qb-search-price-row">
+                  <span class="qb-search-price">Rs {{ product.price | money_without_currency }}</span>
                   {% if product.compare_at_price > product.price %}
-                    <span class="qb-product-price-original">Rs {{ product.compare_at_price | money_without_currency }}</span>
+                    <span class="qb-search-price-compare">Rs {{ product.compare_at_price | money_without_currency }}</span>
                   {% endif %}
                 </div>
 
-                <button class="qb-product-button" onclick="event.preventDefault(); event.stopPropagation(); alert('Add to cart: {{ product.title }}');">
+                <button class="qb-search-cta" onclick="event.preventDefault(); event.stopPropagation(); alert('Add to cart: {{ product.title | escape }}');">
                   Add to Cart
                 </button>
               </div>
             </a>
           </li>
-        {% endif %}
-      {% endfor %}
-    </ul>
-  {% else %}
-    <div class="qb-empty-state">
-      <div class="qb-empty-icon">🔍</div>
-      <h2 class="qb-empty-title">No products found</h2>
-      <p class="qb-empty-text">Try different keywords or browse our categories</p>
-    </div>
-  {% endif %}
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="qb-search-empty">
+        <div class="qb-search-empty-icon">🔎</div>
+        <h2 class="qb-search-empty-title">No Products Found</h2>
+        <p class="qb-search-empty-text">
+          Try a shorter keyword, check spelling, or search by category like drinks, snacks, or baby care.
+        </p>
+      </div>
+    {% endif %}
+  </div>
 </div>
 
 <script>
-  // Initialize delivery badges from global state
   (function() {
-    function initializeSearchBadges() {
+    function syncSearchBadges() {
       const range = window.QB_DELIVERY_TIME?.range || '18-22 mins';
-      const badges = document.querySelectorAll('.qb-search-badge');
-      badges.forEach(badge => {
-        badge.innerHTML = '⚡ ' + range;
+      document.querySelectorAll('.qb-search-badge-sync').forEach((badge) => {
+        badge.textContent = `⚡ ${range}`;
       });
-      console.log('Search results: Initialized ' + badges.length + ' badges to: ⚡ ' + range);
     }
 
-    // Initialize on page load or when script runs
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initializeSearchBadges);
+      document.addEventListener('DOMContentLoaded', syncSearchBadges);
     } else {
-      initializeSearchBadges();
+      syncSearchBadges();
     }
 
-    // Sync badges when location changes
-    window.addEventListener('locationSelected', function() {
-      setTimeout(function() {
-        const range = window.QB_DELIVERY_TIME?.range || '18-22 mins';
-        const badges = document.querySelectorAll('.qb-search-badge');
-        badges.forEach(function(badge) {
-          badge.innerHTML = '⚡ ' + range;
-        });
-        console.log('Search results: Updated ' + badges.length + ' badges to: ⚡ ' + range);
-      }, 50);
+    window.addEventListener('locationSelected', () => {
+      setTimeout(syncSearchBadges, 50);
     });
   })();
 </script>
@@ -381,7 +574,7 @@
   "settings": [
     {
       "type": "paragraph",
-      "content": "Modern search results layout with improved product cards"
+      "content": "Mobile-first QuickBEE search results"
     }
   ],
   "presets": []
