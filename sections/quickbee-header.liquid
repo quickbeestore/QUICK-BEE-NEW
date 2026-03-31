@@ -414,12 +414,17 @@
   }
 
   .qb-announcement-track {
-    display: flex;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    min-width: max-content;
     white-space: nowrap;
-    animation: qb-ann-scroll 30s linear infinite;
+    will-change: transform;
+    animation: qb-ann-scroll 24s linear infinite;
   }
 
   .qb-announcement-track span {
+    flex: 0 0 auto;
     padding: 0 40px;
     color: #FFF;
     font-size: 12px;
@@ -427,8 +432,8 @@
   }
 
   @keyframes qb-ann-scroll {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
   }
 
   .qb-header-actions {
@@ -673,6 +678,81 @@
 </header>
 
 <script>
+  (function() {
+    const input = document.getElementById('qbSearchInput');
+    if (!input) return;
+
+    const phrases = [
+      'Search groceries in 20 mins',
+      'Search cold drinks near you',
+      'Search snacks for tonight',
+      'Search fruits, noodles, beer'
+    ];
+
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let typingTimer = null;
+    let paused = false;
+
+    function queueNext(delay) {
+      window.clearTimeout(typingTimer);
+      typingTimer = window.setTimeout(typeNextChar, delay);
+    }
+
+    function typeNextChar() {
+      if (paused || document.activeElement === input || input.value) {
+        queueNext(500);
+        return;
+      }
+
+      const phrase = phrases[phraseIndex];
+      charIndex += 1;
+      input.placeholder = phrase.slice(0, charIndex);
+
+      if (charIndex < phrase.length) {
+        queueNext(42);
+        return;
+      }
+
+      window.setTimeout(() => {
+        if (paused || document.activeElement === input || input.value) {
+          return;
+        }
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        charIndex = 0;
+        input.placeholder = '';
+        queueNext(220);
+      }, 1100);
+    }
+
+    input.addEventListener('focus', () => {
+      paused = true;
+      input.placeholder = '';
+    });
+
+    input.addEventListener('blur', () => {
+      paused = false;
+      if (!input.value) {
+        charIndex = 0;
+        input.placeholder = '';
+        queueNext(120);
+      }
+    });
+
+    input.addEventListener('input', () => {
+      if (input.value) {
+        window.clearTimeout(typingTimer);
+        input.placeholder = '';
+      } else if (document.activeElement !== input) {
+        paused = false;
+        charIndex = 0;
+        queueNext(120);
+      }
+    });
+
+    queueNext(180);
+  })();
+
   (function() {
     const button = document.querySelector('.qb-loc-btn');
     const title = document.getElementById('qbLocTitle');
