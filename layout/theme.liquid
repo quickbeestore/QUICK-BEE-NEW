@@ -63,26 +63,54 @@
     </script>
 
     <style>
-      /* Base Mobile-First Grid System */
+      /* ═══════════════════════════════════════════════════════════
+         APP-LIKE SCROLL ARCHITECTURE
+         - html + body = fixed viewport (NO body scroll)
+         - #header-group = fixed top (no scroll)
+         - #MainContent = the ONLY scroll container
+         - Scrollbar appears BELOW header, not over it
+         ═══════════════════════════════════════════════════════════ */
+
       * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-      /* Ensure main content starts below header */
-      main, #MainContent {
-        position: relative !important;
-        z-index: 1;
-        margin-top: 0 !important;
+      html {
+        height: 100%;
+        overflow: hidden;
       }
 
-      /* Push content above fixed mobile footer */
-      @media (max-width: 768px) {
-        #MainContent, main {
-          padding-bottom: calc(65px + env(safe-area-inset-bottom) + 16px) !important;
-        }
+      body {
+        height: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        padding: 0 !important;
+      }
 
-        /* Prevent overflow that could hide content */
-        body, html {
-          overflow-y: auto !important;
-          height: auto !important;
+      /* Header stays at top, never scrolls */
+      #header-group {
+        flex-shrink: 0;
+        width: 100%;
+        position: relative;
+        z-index: 1000;
+      }
+
+      /* Main content is the ONLY scroll container */
+      #MainContent {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        min-height: 0;
+        position: relative;
+        /* Space above fixed mobile footer on mobile */
+        padding-bottom: calc(65px + env(safe-area-inset-bottom) + 16px);
+      }
+
+      @media (min-width: 769px) {
+        #MainContent {
+          /* No footer on desktop */
+          padding-bottom: 32px;
         }
       }
       

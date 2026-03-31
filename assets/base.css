@@ -26,29 +26,19 @@ body.dark-theme {
     --color-foreground: var(--theme-text-main);
 }
 
-/* ── LAYOUT STRUCTURE FIX ── */
-/* Ensure header stays on top and main starts below */
-#header-group,
-[id="header-group"] {
-    position: relative !important;
-    z-index: 100 !important;
-    width: 100% !important;
+/* ── LAYOUT ARCHITECTURE — do not override these ── */
+/* html + body height/overflow are controlled in theme.liquid */
+/* Only supplement here, never override */
+#header-group {
+    flex-shrink: 0;
+    width: 100%;
 }
 
-/* Ensure main content starts after header, not behind it */
 main,
-#MainContent,
-[role="main"] {
-    position: relative !important;
-    z-index: 1 !important;
-    width: 100% !important;
-    margin-top: 0 !important;
-    display: block !important;
-}
-
-/* Ensure scrollbar doesn't appear behind header */
-body, html {
-    position: relative !important;
+#MainContent {
+    position: relative;
+    width: 100%;
+    min-height: 0;
 }
 
 /* Aggressive Global Overrides for Dark Theme */
@@ -1141,24 +1131,12 @@ html:not([data-theme="dark"]) .header .header-logo img {
 body {
   color: var(--color-foreground);
   background: var(--color-background);
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-  min-height: auto;
   -webkit-font-smoothing: antialiased;
   font-size: 14px;
   line-height: 1.6;
-  overflow-x: hidden;
 }
 
-@media (max-width: 768px) {
-  body {
-    padding-bottom: calc(65px + env(safe-area-inset-bottom)) !important;
-  }
-}
-
-/* No extra padding on first section - header is now relative, not sticky */
+/* First section — no extra top spacing needed */
 body > .shopify-section:first-of-type {
   padding-top: 0 !important;
 }
@@ -1185,10 +1163,36 @@ body > .shopify-section:first-of-type {
 }
 
 html {
+  scroll-behavior: smooth;
+}
+
+/* Scrollbar targets MainContent — the actual scroll container */
+#MainContent {
   /* Firefox */
   scrollbar-width: thin;
-  scrollbar-color: rgb(var(--color-foreground-rgb) / var(--opacity-40)) var(--color-background);
+  scrollbar-color: rgba(128, 128, 128, 0.3) transparent;
   scroll-behavior: smooth;
+}
+
+#MainContent::-webkit-scrollbar {
+  width: 4px;
+}
+
+#MainContent::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#MainContent::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.25);
+  border-radius: 4px;
+}
+
+[data-theme="dark"] #MainContent {
+  scrollbar-color: rgba(244, 180, 0, 0.25) transparent;
+}
+
+[data-theme="dark"] #MainContent::-webkit-scrollbar-thumb {
+  background: rgba(244, 180, 0, 0.2);
 }
 
 html[scroll-lock] {
@@ -2268,15 +2272,5 @@ main,
         margin-bottom: 0 !important;
     }
 
-    /* Ensure body scrolls properly */
-    body {
-        overflow-y: auto !important;
-    }
-
-    /* Remove any height constraints that might cut off content */
-    main,
-    [role="main"] {
-        height: auto !important;
-        min-height: auto !important;
-    }
+    /* MainContent handles its own scroll — no changes needed here */
 }
