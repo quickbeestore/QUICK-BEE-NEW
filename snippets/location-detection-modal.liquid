@@ -561,7 +561,14 @@ Provides GPS auto-detection with delivery time estimation based on location
           <div class="qb-location-method-icon">📡</div>
           <div class="qb-location-method-text">
             <h3 class="qb-location-method-title">Detect Automatically</h3>
-            <p class="qb-location-method-desc">Use GPS to find your location</p>
+            <p class="qb-location-method-desc">Ordering for myself</p>
+          </div>
+        </button>
+        <button type="button" class="qb-location-method-btn" id="qbSomeoneElseBtn">
+          <div class="qb-location-method-icon">🎁</div>
+          <div class="qb-location-method-text">
+            <h3 class="qb-location-method-title">Order for Someone Else</h3>
+            <p class="qb-location-method-desc">Receiver name, phone, and Google Maps landmark</p>
           </div>
         </button>
       </div>
@@ -578,7 +585,7 @@ Provides GPS auto-detection with delivery time estimation based on location
     <!-- Step 3: Address Form -->
     <div class="qb-location-step" id="qbLocationStep3">
       <form class="qb-location-form" id="qbLocationForm">
-        <div class="qb-location-form-group">
+        <div class="qb-location-form-group" id="qbStreetGroup">
           <label class="qb-location-form-label">Street Address *</label>
           <input
             type="text"
@@ -589,7 +596,38 @@ Provides GPS auto-detection with delivery time estimation based on location
           >
         </div>
 
-        <div class="qb-location-form-group">
+        <div class="qb-location-form-group" id="qbReceiverNameGroup" style="display: none;">
+          <label class="qb-location-form-label">Receiver's Name *</label>
+          <input
+            type="text"
+            class="qb-location-form-input"
+            id="qbReceiverName"
+            placeholder="Enter receiver name"
+          >
+        </div>
+
+        <div class="qb-location-form-group" id="qbReceiverPhoneGroup" style="display: none;">
+          <label class="qb-location-form-label">Contact Number *</label>
+          <input
+            type="tel"
+            class="qb-location-form-input"
+            id="qbReceiverPhone"
+            placeholder="98XXXXXXXX"
+            inputmode="tel"
+          >
+        </div>
+
+        <div class="qb-location-form-group" id="qbLandmarkGroup" style="display: none;">
+          <label class="qb-location-form-label">Google Maps Landmark Link *</label>
+          <input
+            type="url"
+            class="qb-location-form-input"
+            id="qbLandmarkLink"
+            placeholder="Paste Google Maps link"
+          >
+        </div>
+
+        <div class="qb-location-form-group" id="qbLatGroup">
           <label class="qb-location-form-label">Latitude</label>
           <input
             type="number"
@@ -601,7 +639,7 @@ Provides GPS auto-detection with delivery time estimation based on location
           >
         </div>
 
-        <div class="qb-location-form-group">
+        <div class="qb-location-form-group" id="qbLngGroup">
           <label class="qb-location-form-label">Longitude</label>
           <input
             type="number"
@@ -651,6 +689,7 @@ function initLocationModal() {
   const selectBtn = document.getElementById('qbLocationSelect');
 
   const detectAutoBtn = document.getElementById('qbDetectAutoBtn');
+  const someoneElseBtn = document.getElementById('qbSomeoneElseBtn');
 
   const steps = {
     method: document.getElementById('qbLocationStep1'),
@@ -661,8 +700,20 @@ function initLocationModal() {
 
   const formInputs = {
     street: document.getElementById('qbLocationStreet'),
+    receiverName: document.getElementById('qbReceiverName'),
+    receiverPhone: document.getElementById('qbReceiverPhone'),
+    landmarkLink: document.getElementById('qbLandmarkLink'),
     lat: document.getElementById('qbLocationLat'),
     lng: document.getElementById('qbLocationLng')
+  };
+
+  const formGroups = {
+    street: document.getElementById('qbStreetGroup'),
+    receiverName: document.getElementById('qbReceiverNameGroup'),
+    receiverPhone: document.getElementById('qbReceiverPhoneGroup'),
+    landmarkLink: document.getElementById('qbLandmarkGroup'),
+    lat: document.getElementById('qbLatGroup'),
+    lng: document.getElementById('qbLngGroup')
   };
 
   const errorMsg = document.getElementById('qbLocationError');
@@ -671,8 +722,39 @@ function initLocationModal() {
   const successAddress = document.getElementById('qbSuccessAddress');
 
   let currentStep = 'method';
-  let detectionMode = null; // 'auto'
+  let detectionMode = null; // 'auto' | 'someone_else'
   let selectedCoords = null;
+
+  function isGoogleMapsLink(value) {
+    const normalized = String(value || '').trim().toLowerCase();
+    return /(^https?:\/\/)?(www\.)?(google\.[^\/]+\/maps|maps\.app\.goo\.gl|goo\.gl\/maps)/.test(normalized);
+  }
+
+  function showGroup(group, visible) {
+    if (group) {
+      group.style.display = visible ? 'flex' : 'none';
+    }
+  }
+
+  function syncFormForMode() {
+    const isSomeoneElse = detectionMode === 'someone_else';
+
+    showGroup(formGroups.street, !isSomeoneElse);
+    showGroup(formGroups.lat, !isSomeoneElse);
+    showGroup(formGroups.lng, !isSomeoneElse);
+    showGroup(formGroups.receiverName, isSomeoneElse);
+    showGroup(formGroups.receiverPhone, isSomeoneElse);
+    showGroup(formGroups.landmarkLink, isSomeoneElse);
+
+    if (isSomeoneElse) {
+      deliveryInfo.style.display = 'none';
+    }
+
+    formInputs.street.required = !isSomeoneElse;
+    formInputs.receiverName.required = isSomeoneElse;
+    formInputs.receiverPhone.required = isSomeoneElse;
+    formInputs.landmarkLink.required = isSomeoneElse;
+  }
 
   // Show/Hide Modal
   function showModal() {
@@ -703,7 +785,15 @@ function initLocationModal() {
   }
 
   function updateButtonState() {
-    const isFormValid = formInputs.street.value;
+    const isSomeoneElse = detectionMode === 'someone_else';
+    const isFormValid = isSomeoneElse
+      ? Boolean(
+          formInputs.receiverName.value.trim() &&
+          formInputs.receiverPhone.value.trim() &&
+          isGoogleMapsLink(formInputs.landmarkLink.value)
+        )
+      : Boolean(formInputs.street.value.trim());
+
     selectBtn.disabled = currentStep === 'form' && !isFormValid;
 
     if (currentStep === 'method' || currentStep === 'detecting') {
@@ -722,6 +812,7 @@ function initLocationModal() {
   function detectLocation() {
     goToStep('detecting');
     detectionMode = 'auto';
+    syncFormForMode();
 
     if (!navigator.geolocation) {
       showError('Geolocation not supported by your browser');
@@ -751,6 +842,16 @@ function initLocationModal() {
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
+  }
+
+  function orderForSomeoneElse() {
+    detectionMode = 'someone_else';
+    selectedCoords = null;
+    formInputs.street.value = '';
+    formInputs.lat.value = '';
+    formInputs.lng.value = '';
+    syncFormForMode();
+    goToStep('form');
   }
 
   function fallbackStreetLabel(lat, lng) {
@@ -802,6 +903,7 @@ function initLocationModal() {
       .then(place => {
         const streetAddress = buildStreetAddress(place) || fallbackStreet;
         formInputs.street.value = streetAddress;
+        syncFormForMode();
         updateButtonState();
         // Calculate delivery time FIRST
         estimateDeliveryTime();
@@ -817,6 +919,7 @@ function initLocationModal() {
       .catch(err => {
         console.log('Geocoding failed, showing form anyway');
         formInputs.street.value = fallbackStreet;
+        syncFormForMode();
         updateButtonState();
         estimateDeliveryTime();
         goToStep('form');
@@ -910,15 +1013,34 @@ function initLocationModal() {
   function handleSelectLocation() {
     if (currentStep !== 'form') return;
 
-    const address = {
-      street: formInputs.street.value,
-      latitude: formInputs.lat.value,
-      longitude: formInputs.lng.value,
-      mode: detectionMode,
-      timestamp: new Date().toISOString()
-    };
+    const isSomeoneElse = detectionMode === 'someone_else';
+    const address = isSomeoneElse
+      ? {
+          mode: detectionMode,
+          recipient_name: formInputs.receiverName.value.trim(),
+          recipient_phone: formInputs.receiverPhone.value.trim(),
+          landmark_link: formInputs.landmarkLink.value.trim(),
+          timestamp: new Date().toISOString()
+        }
+      : {
+          street: formInputs.street.value.trim(),
+          latitude: formInputs.lat.value,
+          longitude: formInputs.lng.value,
+          mode: detectionMode,
+          timestamp: new Date().toISOString()
+        };
 
-    if (!address.street) {
+    if (isSomeoneElse) {
+      if (!address.recipient_name || !address.recipient_phone) {
+        showError("Please fill in receiver's name and contact number");
+        return;
+      }
+
+      if (!isGoogleMapsLink(address.landmark_link)) {
+        showError('Only Google Maps links are supported for landmark');
+        return;
+      }
+    } else if (!address.street) {
       showError('Please fill in street address');
       return;
     }
@@ -932,7 +1054,9 @@ function initLocationModal() {
     }
 
     // Show success
-    successAddress.textContent = address.street;
+    successAddress.textContent = isSomeoneElse
+      ? `${address.recipient_name} • ${address.recipient_phone}`
+      : address.street;
     goToStep('success');
 
     // Auto-close and trigger event
@@ -941,33 +1065,35 @@ function initLocationModal() {
 
       // Get the currently calculated delivery time from global state
       // This was set by estimateDeliveryTime() during form interaction
-      const deliveryTimeData = window.QB_DELIVERY_TIME || {};
-      const deliveryTimeText = deliveryTimeData.range || deliveryTime.textContent || '18-22 mins';
+      if (!isSomeoneElse) {
+        const deliveryTimeData = window.QB_DELIVERY_TIME || {};
+        const deliveryTimeText = deliveryTimeData.range || deliveryTime.textContent || '18-22 mins';
 
-      console.log('Saving delivery time:', deliveryTimeText);
+        console.log('Saving delivery time:', deliveryTimeText);
 
-      // Save delivery time to global state and localStorage
-      window.QB_DELIVERY_TIME = {
-        range: deliveryTimeText,
-        minTime: deliveryTimeData.minTime,
-        maxTime: deliveryTimeData.maxTime,
-        updatedAt: new Date().toISOString()
-      };
+        // Save delivery time to global state and localStorage
+        window.QB_DELIVERY_TIME = {
+          range: deliveryTimeText,
+          minTime: deliveryTimeData.minTime,
+          maxTime: deliveryTimeData.maxTime,
+          updatedAt: new Date().toISOString()
+        };
 
-      try {
-        localStorage.setItem('qb_delivery_time', JSON.stringify(window.QB_DELIVERY_TIME));
-        console.log('Saved to localStorage:', window.QB_DELIVERY_TIME);
-      } catch (e) {
-        console.warn('Failed to save delivery time:', e);
+        try {
+          localStorage.setItem('qb_delivery_time', JSON.stringify(window.QB_DELIVERY_TIME));
+          console.log('Saved to localStorage:', window.QB_DELIVERY_TIME);
+        } catch (e) {
+          console.warn('Failed to save delivery time:', e);
+        }
+
+        // Update all product badges immediately with full selector list
+        const badges = document.querySelectorAll('.qb-delivery-badge, .qb-product-delivery, .qb-sync-badge');
+        console.log('Found', badges.length, 'badges to update');
+        badges.forEach(badge => {
+          badge.textContent = `⚡ ${deliveryTimeText}`;
+          badge.setAttribute('data-delivery-time', deliveryTimeText);
+        });
       }
-
-      // Update all product badges immediately with full selector list
-      const badges = document.querySelectorAll('.qb-delivery-badge, .qb-product-delivery, .qb-sync-badge');
-      console.log('Found', badges.length, 'badges to update');
-      badges.forEach(badge => {
-        badge.textContent = `⚡ ${deliveryTimeText}`;
-        badge.setAttribute('data-delivery-time', deliveryTimeText);
-      });
 
       // Also dispatch event for any listeners
       window.dispatchEvent(new CustomEvent('locationSelected', { detail: address }));
@@ -978,7 +1104,7 @@ function initLocationModal() {
   }
 
   // Form input validation & delivery time update
-  [formInputs.street].forEach(input => {
+  [formInputs.street, formInputs.receiverName, formInputs.receiverPhone, formInputs.landmarkLink].forEach(input => {
     input.addEventListener('input', updateButtonState);
   });
 
@@ -992,6 +1118,7 @@ function initLocationModal() {
   cancelBtn.addEventListener('click', hideModal);
 
   detectAutoBtn.addEventListener('click', detectLocation);
+  someoneElseBtn.addEventListener('click', orderForSomeoneElse);
 
   selectBtn.addEventListener('click', handleSelectLocation);
 
@@ -1010,6 +1137,7 @@ function initLocationModal() {
     currentStep = null;
     detectionMode = null;
     selectedCoords = null;
+    syncFormForMode();
     goToStep('method');
   }
 
