@@ -753,16 +753,56 @@ function initLocationModal() {
     );
   }
 
+  function fallbackStreetLabel(lat, lng) {
+    return `Detected near ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+  }
+
+  function buildStreetAddress(place) {
+    const address = place?.address || {};
+    const streetParts = [
+      address.house_number,
+      address.road || address.pedestrian || address.footway || address.cycleway,
+    ].filter(Boolean);
+
+    if (streetParts.length > 0) {
+      return streetParts.join(' ');
+    }
+
+    const localityParts = [
+      address.neighbourhood,
+      address.suburb,
+      address.residential,
+      address.hamlet,
+      address.quarter,
+      address.city_district,
+      address.village,
+      address.town,
+      address.city,
+    ].filter(Boolean);
+
+    if (localityParts.length > 0) {
+      return localityParts.slice(0, 2).join(', ');
+    }
+
+    if (place?.display_name) {
+      return place.display_name.split(',').slice(0, 2).join(', ').trim();
+    }
+
+    return '';
+  }
+
   // Reverse Geocode (convert coords to address)
   function reverseGeocode(lat, lng) {
-    // Using Open-Meteo Geocoding API (free, no API key required)
-    fetch(`https://geocoding-api.open-meteo.com/v1/search?latitude=${lat}&longitude=${lng}&language=en`)
+    const fallbackStreet = fallbackStreetLabel(lat, lng);
+    formInputs.street.value = fallbackStreet;
+    updateButtonState();
+
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&addressdetails=1`)
       .then(res => res.json())
-      .then(data => {
-        if (data.results && data.results.length > 0) {
-          const place = data.results[0];
-          formInputs.street.value = `${place.address || 'Location'}`;
-        }
+      .then(place => {
+        const streetAddress = buildStreetAddress(place) || fallbackStreet;
+        formInputs.street.value = streetAddress;
+        updateButtonState();
         // Calculate delivery time FIRST
         estimateDeliveryTime();
         // Show form
@@ -776,6 +816,8 @@ function initLocationModal() {
       })
       .catch(err => {
         console.log('Geocoding failed, showing form anyway');
+        formInputs.street.value = fallbackStreet;
+        updateButtonState();
         estimateDeliveryTime();
         goToStep('form');
       });
