@@ -73,6 +73,40 @@
 
       * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
+      /* ═══════════════════════════════════════════════════════════
+         GLOBAL ANIMATION SYSTEM
+         ═══════════════════════════════════════════════════════════ */
+      :root {
+        --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-modal: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes slideInUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes slideInDown {
+        from { opacity: 0; transform: translateY(-12px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes modalBackdropFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes modalSlideUp {
+        from { opacity: 0; transform: translateY(20px) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
       html {
         height: 100%;
         /* do NOT set overflow:hidden on html — breaks iOS touch scroll */
@@ -126,6 +160,61 @@
 
       .container, [class*="container"] {
         width: 100%; max-width: 100%; margin: 0 auto; padding: 0 12px; overflow-x: hidden;
+      }
+
+      /* ═══════════════════════════════════════════════════════════
+         INTERACTIVE ELEMENT ANIMATIONS
+         ═══════════════════════════════════════════════════════════ */
+
+      /* All buttons get smooth transition */
+      button, [role="button"], .button, a.btn, input[type="button"],
+      input[type="submit"], input[type="reset"] {
+        transition: all var(--transition-fast);
+      }
+
+      /* Button click feedback — subtle scale down */
+      button:active, [role="button"]:active, .button:active,
+      a.btn:active, input[type="button"]:active,
+      input[type="submit"]:active, input[type="reset"]:active {
+        transform: scale(0.96);
+      }
+
+      /* Modal & overlay animations */
+      dialog, [role="dialog"], .modal, .modal-backdrop,
+      .qb-location-backdrop, .qb-location-modal,
+      .kw-maps-guide {
+        animation: fadeIn var(--transition-modal);
+      }
+
+      /* Modal dialog slide up animation */
+      dialog, [role="dialog"], .modal,
+      .qb-location-modal, .kw-maps-guide-inner {
+        animation: modalSlideUp var(--transition-modal);
+      }
+
+      /* Modal backdrop fade in */
+      .modal-backdrop, .qb-location-backdrop, .kw-maps-guide {
+        animation: modalBackdropFadeIn var(--transition-modal);
+      }
+
+      /* Generic card/element hover smoothness */
+      .card, [class*="card"], .item, [class*="tile"] {
+        transition: all var(--transition-smooth);
+      }
+
+      /* Price & quantity transitions */
+      .price, [class*="price"], .qty, [class*="quantity"] {
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* Link smoothness */
+      a, [role="link"] {
+        transition: color var(--transition-fast), opacity var(--transition-fast);
+      }
+
+      /* Form input focus transitions */
+      input, textarea, select, [class*="input"], [class*="form"] {
+        transition: border-color var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast);
       }
 
       /* ── QuickBee Overrides for Global Broad Rules ── */
