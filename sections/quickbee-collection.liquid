@@ -252,48 +252,34 @@ html:not([data-theme="dark"]) .qb-product {
   box-shadow: 0 8px 28px rgba(244,180,0,0.18);
 }
 
-/* ── Image wrapper ── */
+/* ── Image section (Full Bleed) ── */
 .qb-product-img {
   width: 100%;
   aspect-ratio: 1;
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
-  background: #e8e0d0;
+  background: #f8f8f8;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
 }
 .qb-product-img img {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center top;
+  object-fit: contain;
+  padding: 4px;
   transition: transform 0.3s ease;
 }
 .qb-product:hover .qb-product-img img {
   transform: scale(1.04);
 }
 
-/* Discount badge */
-.qb-off-badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  background: #E53935;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 800;
-  padding: 3px 7px;
-  border-radius: 6px;
-  z-index: 10;
-  letter-spacing: 0.3px;
-}
-
 /* ── Info section ── */
-.qb-product-info {
-  padding: 10px 12px 14px;
+.product-info-wrapper {
+  padding: 8px 10px 12px 10px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
   flex: 1;
   background: inherit;
 }
@@ -301,41 +287,57 @@ html:not([data-theme="dark"]) .qb-product {
 /* Delivery badge */
 .qb-product-delivery {
   font-size: 11px;
-  font-weight: 700;
-  color: #22c55e;
+  font-weight: 600;
+  color: #999;
   display: flex;
   align-items: center;
   gap: 3px;
+  margin-bottom: 4px;
 }
 html:not([data-theme="dark"]) .qb-product-delivery {
-  color: #16a34a;
+  color: #666;
 }
 
 /* Title */
 .qb-product-title {
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   color: #f0f0f0;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  min-height: 36px;
+  margin-bottom: 8px;
 }
 html:not([data-theme="dark"]) .qb-product-title {
   color: #111111 !important;
+}
+
+/* Price & Action Row */
+.price-action-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  gap: 4px;
+}
+
+.qb-price-column {
+  display: flex;
+  flex-direction: column;
 }
 
 /* Price */
 .qb-product-pricing {
   display: flex;
   align-items: baseline;
-  gap: 6px;
-  margin-top: 2px;
+  gap: 4px;
 }
 .qb-product-price {
-  font-size: 18px;
-  font-weight: 900;
+  font-size: 15px;
+  font-weight: 800;
   color: #F4B400;
   letter-spacing: -0.3px;
   line-height: 1;
@@ -344,7 +346,7 @@ html:not([data-theme="dark"]) .qb-product-price {
   color: #1a1a1a !important;
 }
 .qb-product-original-price {
-  font-size: 12px;
+  font-size: 11px;
   color: #555;
   text-decoration: line-through;
 }
@@ -354,36 +356,32 @@ html:not([data-theme="dark"]) .qb-product-original-price {
 
 /* ── Add to Cart button ── */
 .qb-product-btn {
-  margin-top: auto;
-  width: 100%;
-  padding: 10px;
-  background: transparent;
-  border: 1.5px solid #F4B400;
-  border-radius: 10px;
-  font-weight: 800;
-  font-size: 13px;
-  color: #F4B400;
-  cursor: pointer;
-  transition: all 0.18s ease;
-  -webkit-appearance: none;
-  appearance: none;
-  letter-spacing: 0.3px;
+  background: transparent !important;
+  border: 1.5px solid #FF0055 !important;
+  border-radius: 20px !important;
+  padding: 6px 16px !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  color: #FF0055 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  letter-spacing: 0.3px !important;
+  width: auto !important;
+  height: auto !important;
+  line-height: 1 !important;
+  margin: 0 !important;
 }
 .qb-product-btn:hover {
-  background: #F4B400;
-  color: #000;
+  background: rgba(255, 0, 85, 0.1) !important;
 }
 .qb-product-btn:active {
-  transform: scale(0.97);
-}
-html:not([data-theme="dark"]) .qb-product-btn {
-  border-color: #1a1a1a !important;
-  color: #1a1a1a !important;
-}
-html:not([data-theme="dark"]) .qb-product-btn:hover {
-  background: #1a1a1a !important;
+  transform: scale(0.95) !important;
+  background: #FF0055 !important;
   color: #fff !important;
 }
+
 
 .qb-load-more {
   background: #F4B400;
@@ -458,16 +456,21 @@ html:not([data-theme="dark"]) .qb-product-btn:hover {
                 📦
               {% endif %}
             </div>
-            <div class="qb-product-info">
-              <div class="qb-product-title">{{ product.title }}</div>
+            <div class="product-info-wrapper">
               <div class="qb-product-delivery">⚡ 18-25 mins</div>
-              <div class="qb-product-pricing">
-                <span class="qb-product-price">Rs {{ product.price | divided_by: 100 }}</span>
-                {%- if has_discount -%}
-                  <span class="qb-product-original-price">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
-                {%- endif -%}
+              <div class="qb-product-title">{{ product.title }}</div>
+
+              <div class="price-action-row">
+                <div class="qb-price-column">
+                  <div class="qb-product-pricing">
+                    <span class="qb-product-price">Rs {{ product.price | divided_by: 100 }}</span>
+                    {%- if has_discount -%}
+                      <span class="qb-product-original-price">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
+                    {%- endif -%}
+                  </div>
+                </div>
+                <button class="qb-product-btn" onclick="event.preventDefault(); fetch('/cart/add.js',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:[{id:{{ product.variants.first.id }},quantity:1}]})}).then(()=>{this.textContent='✓';this.style.background='#22c55e';this.style.borderColor='#22c55e';this.style.color='#fff';setTimeout(()=>{this.textContent='+ Add';this.style.background='';this.style.borderColor='';this.style.color='';},1500)})">+ Add</button>
               </div>
-              <button class="qb-product-btn" onclick="event.preventDefault(); fetch('/cart/add.js',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:[{id:{{ product.variants.first.id }},quantity:1}]})}).then(()=>{this.textContent='✓ Added';this.style.background='linear-gradient(135deg,#22c55e,#16a34a)';setTimeout(()=>{this.textContent='Add to Cart';this.style.background='';},1500)})">Add to Cart</button>
             </div>
           </a>
         {% endfor %}
