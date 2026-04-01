@@ -35,7 +35,15 @@
       width: 100%;
       background: #0A0A0A;
       overflow: hidden;
-      /* JS sets position:fixed + top so iOS rubber-band scroll cannot move it */
+    }
+
+    /* Applied by JS - env() must be in stylesheet to work on iOS Safari */
+    .qb-layout-locked {
+      position: fixed !important;
+      top: var(--qb-section-top, 0px);
+      left: 0;
+      right: 0;
+      bottom: calc(65px + env(safe-area-inset-bottom)) !important;
     }
 
     /* SIDEBAR - independent scroll, override theme's sticky with !important */
@@ -479,11 +487,15 @@
         --qb-sidebar-w: 100px;
       }
 
-      .qb-collection-container {
+      .qb-collection-container,
+      .qb-collection-container.qb-layout-locked {
+        position: static !important;
         display: flex;
         flex-direction: row;
         overflow: hidden;
-        /* height set by JS same as mobile */
+        top: auto !important;
+        bottom: auto !important;
+        height: auto;
       }
 
       .qb-main-content {
@@ -1417,24 +1429,16 @@
       var container = document.getElementById('qb-collection-sidebar');
       if (!container) return;
 
-      // Reset to static briefly to get the real top from viewport
-      container.style.position = 'static';
-      container.style.top = '';
-      container.style.left = '';
-      container.style.right = '';
-      container.style.bottom = '';
-      container.style.height = '';
+      // Remove class first so position becomes static, allowing getBoundingClientRect
+      container.classList.remove('qb-layout-locked');
+      container.style.removeProperty('--qb-section-top');
 
       var top = Math.round(container.getBoundingClientRect().top);
       if (top < 0) top = 0;
 
-      // Now fix it - this CANNOT be moved by iOS rubber-band scroll
-      // bottom = 65px nav bar + env(safe-area-inset-bottom) for iPhone home indicator
-      container.style.position = 'fixed';
-      container.style.top    = top + 'px';
-      container.style.left   = '0';
-      container.style.right  = '0';
-      container.style.bottom = 'calc(65px + env(safe-area-inset-bottom))';
+      // Set top via CSS custom property (env() in the class handles bottom correctly on iOS)
+      container.style.setProperty('--qb-section-top', top + 'px');
+      container.classList.add('qb-layout-locked');
 
       // Also lock body so the header doesn't scroll away
       document.body.style.overflow = 'hidden';
