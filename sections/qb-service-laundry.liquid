@@ -995,8 +995,8 @@
         <div id="kw-saved-loc-card" class="kw-saved-loc-card" style="display:none;">
           <div class="kw-saved-loc-pin">📍</div>
           <div class="kw-saved-loc-info">
-            <div class="kw-saved-loc-label" id="kw-saved-loc-label">—</div>
-            <div class="kw-saved-loc-sub">✓ Saved delivery location</div>
+            <div class="kw-saved-loc-label" id="kw-saved-loc-label">Detecting location...</div> <!-- Initial loading state -->
+            <div class="kw-saved-loc-sub">✓ Auto-detected location</div>
             <a id="kw-saved-maps-link" class="kw-saved-maps-link" href="#" target="_blank" style="display:none;">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
               View on Maps
@@ -1008,7 +1008,7 @@
         <!-- No location saved notice -->
         <div id="kw-no-loc-banner" class="kw-no-loc-banner" style="display:none;">
           <span>⚠️</span>
-          <span>No location saved — please enter your address below.</span>
+          <span>Location detection failed or denied. Please enter manually.</span>
         </div>
 
         <!-- Manual address form (shown when no location OR user clicks Change) -->
@@ -1080,6 +1080,7 @@
 
   let selectedServices = {};
   let pickupType = 'free';
+  let userLocation = null; // New global variable for auto-detected/saved location
 
   function renderQuantitySelectors() {
     const container = document.getElementById('kw-quantity-section');
@@ -1128,6 +1129,106 @@
       element.textContent = newValue;
       element.classList.remove('kw-price-animate');
     }, 250); // Match CSS transition duration
+  }
+
+  function showToast(message) {
+    const toast = document.getElementById('kw-toast');
+    if (toast) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => { toast.classList.remove('show'); }, 3500);
+    }
+  }
+
+  function updateLocationDisplay(locationName) {
+    const labelEl = document.getElementById('kw-saved-loc-label');
+    const manualAddressForm = document.getElementById('kw-change-form');
+    const noLocBanner = document.getElementById('kw-no-loc-banner');
+    const savedLocCard = document.getElementById('kw-saved-loc-card');
+
+    if (locationName) {
+      if (labelEl) labelEl.textContent = locationName;
+      if (savedLocCard) savedLocCard.style.display = 'flex';
+      if (noLocBanner) noLocBanner.style.display = 'none';
+      if (manualAddressForm) manualAddressForm.style.display = 'none';
+      usingManualAddress = false; // Indicate we are using auto-detected
+      showToast(`Location set to: ${locationName}`);
+    } else {
+      if (labelEl) labelEl.textContent = 'Enter Address'; // Fallback text
+      if (savedLocCard) savedLocCard.style.display = 'none';
+      if (noLocBanner) noLocBanner.style.display = 'flex';
+      if (manualAddressForm) manualAddressForm.style.display = 'block';
+      usingManualAddress = true;
+      showToast('Location detection failed. Please enter manually.');
+    }
+  }
+
+  function reverseGeocode(latitude, longitude, callback) {
+    // Placeholder for reverse geocoding. In a real app, this would call a backend API.
+    // For now, we'll just return a formatted string.
+    // Example: "Nagarjun-06, Nagarjun"
+    // For demonstration, we'll use a hardcoded value or a simple approximation.
+    const mockAddress = `Approx. Location (Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)})`;
+    // In a real scenario, you'd fetch:
+    // fetch(`https://api.example.com/reverse-geocode?lat=${latitude}&lng=${longitude}`)
+    //   .then(response => response.json())
+    //   .then(data => callback(data.formattedAddress))
+    //   .catch(error => {
+    //     console.error('Reverse geocoding failed:', error);
+    //     callback(mockAddress); // Fallback
+    //   });
+    callback(mockAddress);
+  }
+
+
+  function detectAndSetLocation() {
+    const labelEl = document.getElementById('kw-saved-loc-label');
+    const savedLocCard = document.getElementById('kw-saved-loc-card');
+    const noLocBanner = document.getElementById('kw-no-loc-banner');
+    const manualAddressForm = document.getElementById('kw-change-form');
+
+    if (savedLocCard) savedLocCard.style.display = 'flex';
+    if (noLocBanner) noLocBanner.style.display = 'none';
+    if (manualAddressForm) manualAddressForm.style.display = 'none';
+    if (labelEl) labelEl.textContent = 'Detecting location...';
+    userLocation = null;
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+          reverseGeocode(latitude, longitude, (address) => {
+            userLocation = address;
+            localStorage.setItem("user_location", userLocation);
+            updateLocationDisplay(userLocation);
+          });
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+          userLocation = null;
+          showToast('Location detection denied or failed. Please enter manually.');
+          updateLocationDisplay(null); // Trigger manual entry
+        },
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 0 } // Low accuracy for faster results
+      );
+    } else {
+      showToast('Geolocation not supported by your browser. Please enter manually.');
+      updateLocationDisplay(null); // Trigger manual entry
+    }
+  }
+
+  let usingManualAddress = false; // Keep this variable as it's used elsewhere for form logic
+
+  // Modified initAddressSection to load from localStorage or trigger detection
+  function initAddressSection() {
+    let storedLocation = localStorage.getItem("user_location");
+    if (storedLocation) {
+      userLocation = storedLocation;
+      updateLocationDisplay(userLocation);
+    } else {
+      detectAndSetLocation();
+    }
   }
 
   function updateSummary() {
@@ -1212,7 +1313,10 @@
     });
   });
 
-  // Initial call
+  // Init address section (new call)
+  document.addEventListener('DOMContentLoaded', initAddressSection);
+
+  // Initial call to update summary (after everything else is set up)
   updateSummary();
 
 })();
