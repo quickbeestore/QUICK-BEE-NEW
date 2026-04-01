@@ -75,16 +75,21 @@
 
       html {
         height: 100%;
-        overflow: hidden;
+        /* do NOT set overflow:hidden on html — breaks iOS touch scroll */
       }
 
       body {
-        height: 100%;
-        overflow: hidden;
+        height: 100dvh; /* dynamic viewport height — handles mobile browser chrome */
+        overflow: hidden; /* body itself doesn't scroll */
         display: flex;
         flex-direction: column;
         margin: 0;
         padding: 0 !important;
+      }
+
+      /* Fallback for browsers without dvh support */
+      @supports not (height: 100dvh) {
+        body { height: 100vh; }
       }
 
       /* Header stays at top, never scrolls */
@@ -97,19 +102,20 @@
 
       /* Main content is the ONLY scroll container */
       #MainContent {
-        flex: 1;
-        overflow-y: auto;
+        flex: 1 1 auto;
+        overflow-y: scroll;            /* scroll (not auto) — required for iOS Safari */
         overflow-x: hidden;
-        -webkit-overflow-scrolling: touch;
-        min-height: 0;
+        -webkit-overflow-scrolling: touch; /* momentum scrolling on iOS */
+        overscroll-behavior-y: contain;   /* prevent body scroll bleed-through */
+        min-height: 0;                 /* critical for flexbox scroll to work */
         position: relative;
-        /* Space above fixed mobile footer on mobile */
+        touch-action: pan-y;           /* allow vertical touch scrolling */
+        /* Space above fixed mobile footer */
         padding-bottom: calc(65px + env(safe-area-inset-bottom) + 16px);
       }
 
       @media (min-width: 769px) {
         #MainContent {
-          /* No footer on desktop */
           padding-bottom: 32px;
         }
       }
