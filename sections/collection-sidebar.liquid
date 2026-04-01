@@ -263,14 +263,14 @@
     .qb-product-card {
       background: #ffffff;
       border-radius: 16px;
-      padding: 10px 10px 10px;
+      padding: 0;
       display: flex;
       flex-direction: column;
       box-shadow: 0 2px 12px rgba(0,0,0,0.07);
       border: 1px solid #efefef;
       position: relative;
       transition: transform 0.12s ease, box-shadow 0.12s ease;
-      overflow: visible;
+      overflow: hidden;
       gap: 0;
     }
 
@@ -287,12 +287,12 @@
       margin-bottom: 8px;
     }
 
-    /* Soft warm background — Blinkit signature */
+    /* Full-bleed image container */
     .qb-card-img-circle {
       width: 100%;
       aspect-ratio: 1 / 1;
-      background: #FFF8E6;
-      border-radius: 12px;
+      background: #e8e0d0;
+      border-radius: 0;
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -301,15 +301,12 @@
     }
 
     .qb-product-image {
-      width: 85%;
-      height: 85%;
-      object-fit: contain;
-      object-position: center;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
       display: block;
       transition: transform 0.2s ease;
-      /* Blend white image background into the yellow circle — no visible edges */
-      mix-blend-mode: multiply;
-      isolation: auto;
     }
 
     .qb-card-img-section:active .qb-product-image {
@@ -333,6 +330,14 @@
       -webkit-backdrop-filter: blur(4px);
       line-height: 1.5;
       z-index: 2;
+    }
+
+    /* ── Card info (text section below image) ── */
+    .qb-card-info {
+      padding: 10px 10px 12px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
     }
 
     /* ── Delivery time ── */
@@ -705,28 +710,30 @@
               {% if size_tag != '' %}<span class="qb-vol-badge">{{ size_tag }}</span>{% endif %}
             </div>
 
-            <!-- DELIVERY -->
-            <div class="qb-card-delivery qb-collection-delivery-badge">⚡ <span class="qb-delivery-time-text">18-22 mins</span></div>
+            <div class="qb-card-info">
+              <!-- DELIVERY -->
+              <div class="qb-card-delivery qb-collection-delivery-badge">⚡ <span class="qb-delivery-time-text">18-22 mins</span></div>
 
-            <!-- NAME -->
-            <h3 class="qb-product-name">{{ product.title }}</h3>
+              <!-- NAME -->
+              <h3 class="qb-product-name">{{ product.title }}</h3>
 
-            <!-- PRICE -->
-            <div class="qb-price-row">
-              <span class="qb-price">Rs {{ product.price | divided_by: 100 }}</span>
-              {% if product.compare_at_price > product.price %}
-                <span class="qb-compare-price">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
-              {% endif %}
-            </div>
-            {% if disc_pct > 0 %}<span class="qb-discount-badge">{{ disc_pct }}% OFF</span>{% endif %}
+              <!-- PRICE -->
+              <div class="qb-price-row">
+                <span class="qb-price">Rs {{ product.price | divided_by: 100 }}</span>
+                {% if product.compare_at_price > product.price %}
+                  <span class="qb-compare-price">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
+                {% endif %}
+              </div>
+              {% if disc_pct > 0 %}<span class="qb-discount-badge">{{ disc_pct }}% OFF</span>{% endif %}
 
-            <!-- CTA -->
-            <div class="qb-card-footer">
-              <form action="/cart/add" method="post" class="product-form">
-                <input type="hidden" name="id" value="{{ product.variants.first.id }}">
-                <input type="hidden" name="quantity" value="1">
-                <button type="button" class="qb-add-btn">+ Add</button>
-              </form>
+              <!-- CTA -->
+              <div class="qb-card-footer">
+                <form action="/cart/add" method="post" class="product-form">
+                  <input type="hidden" name="id" value="{{ product.variants.first.id }}">
+                  <input type="hidden" name="quantity" value="1">
+                  <button type="button" class="qb-add-btn">+ Add</button>
+                </form>
+              </div>
             </div>
 
           </div>
@@ -928,19 +935,21 @@
           <div class="qb-card-img-circle">${productImage}</div>
           ${volBadge}
         </div>
-        <div class="qb-card-delivery qb-sync-badge">⚡ <span class="qb-delivery-time-text">${deliveryRange}</span></div>
-        <h3 class="qb-product-name">${product.title}</h3>
-        <div class="qb-price-row">
-          <span class="qb-price">Rs ${price}</span>
-          ${comparePriceHTML}
-        </div>
-        ${discountHTML}
-        <div class="qb-card-footer">
-          <form action="/cart/add" method="post" class="product-form">
-            <input type="hidden" name="id" value="${variantId}">
-            <input type="hidden" name="quantity" value="1">
-            <button type="button" class="qb-add-btn">+ Add</button>
-          </form>
+        <div class="qb-card-info">
+          <div class="qb-card-delivery qb-sync-badge">⚡ <span class="qb-delivery-time-text">${deliveryRange}</span></div>
+          <h3 class="qb-product-name">${product.title}</h3>
+          <div class="qb-price-row">
+            <span class="qb-price">Rs ${price}</span>
+            ${comparePriceHTML}
+          </div>
+          ${discountHTML}
+          <div class="qb-card-footer">
+            <form action="/cart/add" method="post" class="product-form">
+              <input type="hidden" name="id" value="${variantId}">
+              <input type="hidden" name="quantity" value="1">
+              <button type="button" class="qb-add-btn">+ Add</button>
+            </form>
+          </div>
         </div>
       `;
 
