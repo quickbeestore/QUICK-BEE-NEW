@@ -396,7 +396,7 @@ body { background: var(--c-bg) !important; color: var(--c-text) !important; }
     /* STEP 1: Extract location data from localStorage */
     let locationData = null;
     try {
-      const stored = localStorage.getItem('user_location');
+      const stored = localStorage.getItem('qb_selected_location');
       locationData = stored ? JSON.parse(stored) : null;
     } catch (e) {
       console.warn('Error parsing location:', e);
@@ -411,23 +411,17 @@ body { background: var(--c-bg) !important; color: var(--c-text) !important; }
     }
 
     /* STEP 3: Format order note with location + user details */
-    const orderType = localStorage.getItem('order_type') || 'self';
-    const receiverName = localStorage.getItem('receiver_name') || 'N/A';
-    const receiverPhone = localStorage.getItem('receiver_phone') || 'N/A';
-
     const orderNote = `📍 DELIVERY LOCATION:
 ${locationData.address}
 
-📊 ORDER DETAILS:
-Type: ${orderType === 'someone_else' ? 'For Someone Else' : 'For Myself'}
-${orderType === 'someone_else' ? `Receiver: ${receiverName}` : ''}
-${orderType === 'someone_else' ? `Phone: ${receiverPhone}` : ''}
+📊 LOCATION DETAILS:
+Latitude: ${locationData.latitude || 'N/A'}
+Longitude: ${locationData.longitude || 'N/A'}
+Mode: ${locationData.mode || 'N/A'}
+Timestamp: ${locationData.timestamp || 'N/A'}
 
-🗺 MAPS:
-${locationData.map_link || 'No maps link available'}
-
-📍 COORDINATES:
-Lat: ${locationData.lat || 'N/A'} | Lng: ${locationData.lng || 'N/A'}`;
+📍 MAP LINK:
+https://maps.google.com/?q=${encodeURIComponent(locationData.address)}`;
 
     /* STEP 4: Update cart with the order note */
     fetch('/cart/update.js', {
