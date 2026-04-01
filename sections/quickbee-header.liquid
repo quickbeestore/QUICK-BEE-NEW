@@ -969,7 +969,16 @@
     });
 
     window.addEventListener('locationSelected', (event) => {
-      updateLocationButton(event.detail);
+      const location = event.detail;
+      if (location) {
+        try {
+          // This is the fix: ensure the selection is saved to the key the cart page expects.
+          localStorage.setItem('qb_selected_location', JSON.stringify(location));
+        } catch (e) {
+          console.error('Failed to save selected location to localStorage:', e);
+        }
+      }
+      updateLocationButton(location);
     });
 
     window.addEventListener('qb_location_changed', () => {
