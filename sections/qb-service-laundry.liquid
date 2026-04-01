@@ -1502,10 +1502,113 @@
     });
   });
 
+  function handleConfirmBooking() {
+    const confirmBtn = document.getElementById('confirm-btn');
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Processing...';
+
+    const locationDataString = localStorage.getItem("user_location");
+    
+    // EDGE CASE: No location data
+    if (!locationDataString) {
+      showToast("Please select location first");
+      confirmBtn.disabled = false;
+      updateSummary(); // Reset button text
+      return;
+    }
+
+    try {
+      // STEP 1 — FETCH DATA
+      const locationData = JSON.parse(locationDataString);
+      const orderType = localStorage.getItem("order_type") || 'self';
+      const receiverName = localStorage.getItem("receiver_name");
+      const receiverPhone = localStorage.getItem("receiver_phone");
+
+      const pickupDate = document.getElementById('kw-date').value;
+      const pickupTime = document.getElementById('kw-time').value;
+      const customerName = document.getElementById('kw-name').value;
+      const customerPhone = document.getElementById('kw-phone').value;
+      const specialInstructions = document.getElementById('kw-notes').value;
+
+      if (!customerName || !customerPhone || !pickupDate || !pickupTime) {
+          showToast("Please fill in your details, pickup date, and time.");
+          confirmBtn.disabled = false;
+          updateSummary();
+          return;
+      }
+      
+      let serviceSummary = "--- SERVICES ---\n";
+      Object.keys(selectedServices).forEach(key => {
+        const service = serviceData[key];
+        const qty = selectedServices[key];
+        serviceSummary += `${service.name}: ${qty}${service.unit}\n`;
+      });
+
+      // STEP 2 — FORMAT ORDER NOTE
+      const orderNote = `
+--- LAUNDRY BOOKING DETAILS ---
+${serviceSummary}
+--------------------------------
+📍 DELIVERY LOCATION
+Address: ${locationData.address || 'N/A'}
+Google Maps: ${locationData.map_link || 'N/A'}
+
+👤 ORDER FOR
+Type: ${orderType === "someone_else" ? "Someone Else" : "For Myself"}
+Receiver Name: ${receiverName || "N/A"}
+Receiver Phone: ${receiverPhone || "N/A"}
+
+📅 PICKUP DETAILS
+Date: ${pickupDate}
+Time: ${pickupTime}
+
+🗣️ CUSTOMER INFO
+Name: ${customerName}
+Phone: ${customerPhone}
+
+📝 INSTRUCTIONS
+${specialInstructions || 'None'}
+--------------------------------
+`;
+
+      // STEP 3 — ATTACH TO CART
+      fetch('/cart/update.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note: orderNote.trim() })
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('Failed to update cart note.');
+        return response.json();
+      })
+      // STEP 4 — REDIRECT TO CHECKOUT
+      .then(() => {
+        window.location.href = '/checkout';
+      })
+      .catch(error => {
+        console.error('Checkout Error:', error);
+        showToast("Error: Could not proceed to checkout.");
+        confirmBtn.disabled = false;
+        updateSummary();
+      });
+
+    } catch (e) {
+      console.error("Error parsing location data:", e);
+      showToast("Location data is invalid. Please re-select your location.");
+      confirmBtn.disabled = false;
+      updateSummary();
+    }
+  }
+
   // Init address section and Initial call to update summary (after everything else is set up)
   document.addEventListener('DOMContentLoaded', () => {
     initAddressSection();
     renderQuantitySelectors(); // Initial render of quantity selectors
+    
+    const confirmBtn = document.getElementById('confirm-btn');
+    if (confirmBtn) {
+      confirmBtn.addEventListener('click', handleConfirmBooking);
+    }
   });
 
 })();

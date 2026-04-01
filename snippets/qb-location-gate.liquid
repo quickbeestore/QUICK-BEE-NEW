@@ -1,0 +1,990 @@
+{% comment %}
+  QB Location Gate — Mandatory full-screen location capture
+  Blocks website access until user sets delivery location.
+  Uses qb_selected_location (localStorage) — same key as existing system.
+{% endcomment %}
+
+<div id="qbGate" class="qbg-root" role="dialog" aria-modal="true" aria-label="Set your delivery location">
+
+  <!-- Animated background -->
+  <div class="qbg-bg">
+    <div class="qbg-grid"></div>
+    <div class="qbg-glow"></div>
+    <span class="qbg-particle qbg-p1"></span>
+    <span class="qbg-particle qbg-p2"></span>
+    <span class="qbg-particle qbg-p3"></span>
+    <span class="qbg-particle qbg-p4"></span>
+    <span class="qbg-particle qbg-p5"></span>
+    <span class="qbg-particle qbg-p6"></span>
+  </div>
+
+  <!-- Card -->
+  <div class="qbg-card" id="qbGateCard">
+
+    <!-- Brand -->
+    <div class="qbg-brand">
+      <span class="qbg-brand-icon">🐝</span>
+      <span class="qbg-brand-name">QuickBee</span>
+    </div>
+
+    <!-- ─── STATE 1: WELCOME ─── -->
+    <div class="qbg-state" id="qbgs-welcome">
+      <div class="qbg-pin-wrap">
+        <span class="qbg-pulse qbg-pulse1"></span>
+        <span class="qbg-pulse qbg-pulse2"></span>
+        <span class="qbg-pulse qbg-pulse3"></span>
+        <span class="qbg-pin-icon">📍</span>
+      </div>
+      <h1 class="qbg-title">Where should we deliver?</h1>
+      <p class="qbg-sub">Get groceries in 20 minutes — tell us your location first</p>
+      <ul class="qbg-perks">
+        <li><span class="qbg-perk-tick">✓</span> Accurate delivery time</li>
+        <li><span class="qbg-perk-tick">✓</span> Real-time availability</li>
+        <li><span class="qbg-perk-tick">✓</span> Faster checkout</li>
+      </ul>
+      <button class="qbg-btn-primary" id="qbGateDetectBtn" type="button">
+        <span class="qbg-btn-shimmer"></span>
+        <span class="qbg-btn-icon">⚡</span>
+        <span class="qbg-btn-text">Detect My Location</span>
+      </button>
+      <button class="qbg-btn-ghost" id="qbGateManualBtn" type="button">
+        ✍️ Enter address manually
+      </button>
+      <p class="qbg-privacy">🔒 Location used only for delivery — never shared</p>
+    </div>
+
+    <!-- ─── STATE 2: DETECTING ─── -->
+    <div class="qbg-state qbg-hidden" id="qbgs-detecting">
+      <div class="qbg-orbit-wrap">
+        <div class="qbg-orbit-ring"></div>
+        <div class="qbg-orbit-dot"></div>
+        <span class="qbg-orbit-center">📡</span>
+      </div>
+      <h2 class="qbg-title">Pinpointing your location…</h2>
+      <p class="qbg-sub" id="qbGateDetectMsg">Requesting GPS access — please allow when prompted</p>
+      <div class="qbg-dots">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+
+    <!-- ─── STATE 3: CONFIRM ─── -->
+    <div class="qbg-state qbg-hidden" id="qbgs-confirm">
+      <div class="qbg-confirm-icon">✓</div>
+      <h2 class="qbg-title">Location Detected!</h2>
+      <div class="qbg-address-card">
+        <span class="qbg-address-pin">📍</span>
+        <span class="qbg-address-text" id="qbGateAddress">Detecting…</span>
+      </div>
+      <div class="qbg-delivery-badge" id="qbGateDeliveryBadge">
+        ⚡ Calculating delivery time…
+      </div>
+      <button class="qbg-btn-primary qbg-btn-green" id="qbGateConfirmBtn" type="button">
+        <span class="qbg-btn-icon">🚀</span>
+        <span class="qbg-btn-text">Start Shopping</span>
+      </button>
+      <button class="qbg-btn-ghost" id="qbGateChangeBtn" type="button">
+        📝 Not right? Change address
+      </button>
+    </div>
+
+    <!-- ─── STATE 4: MANUAL ─── -->
+    <div class="qbg-state qbg-hidden" id="qbgs-manual">
+      <div class="qbg-manual-icon">🗺️</div>
+      <h2 class="qbg-title">Enter your address</h2>
+      <p class="qbg-sub">Type your street, area, or landmark in Kathmandu Valley</p>
+      <div class="qbg-input-wrap">
+        <span class="qbg-input-icon">📍</span>
+        <input
+          type="text"
+          class="qbg-input"
+          id="qbGateManualInput"
+          placeholder="e.g. Nagarjun-06, Banasthali..."
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+        >
+      </div>
+      <div class="qbg-error" id="qbGateManualError"></div>
+      <button class="qbg-btn-primary" id="qbGateManualConfirmBtn" type="button">
+        <span class="qbg-btn-icon">✓</span>
+        <span class="qbg-btn-text">Use This Address</span>
+      </button>
+      <button class="qbg-btn-ghost" id="qbGateRetryGpsBtn" type="button">
+        📡 Try auto-detect again
+      </button>
+    </div>
+
+    <!-- ─── STATE 5: DENIED ─── -->
+    <div class="qbg-state qbg-hidden" id="qbgs-denied">
+      <div class="qbg-denied-icon">🔒</div>
+      <h2 class="qbg-title">Location access denied</h2>
+      <p class="qbg-sub">No worries — just type your address below to continue</p>
+      <div class="qbg-input-wrap">
+        <span class="qbg-input-icon">📍</span>
+        <input
+          type="text"
+          class="qbg-input"
+          id="qbGateDeniedInput"
+          placeholder="e.g. Nagarjun-06, Banasthali..."
+          autocomplete="off"
+        >
+      </div>
+      <div class="qbg-error" id="qbGateDeniedError"></div>
+      <button class="qbg-btn-primary" id="qbGateDeniedConfirmBtn" type="button">
+        <span class="qbg-btn-icon">✓</span>
+        <span class="qbg-btn-text">Confirm Address</span>
+      </button>
+      <div class="qbg-help-box">
+        <strong>How to enable location:</strong>
+        <p>Tap the 🔒 icon in your browser address bar → Site settings → Allow Location</p>
+      </div>
+    </div>
+
+  </div><!-- /card -->
+</div><!-- /gate -->
+
+<!-- Toast notification -->
+<div class="qbg-toast" id="qbGateToast" role="alert" aria-live="assertive"></div>
+
+<style>
+/* ═══════════════════════════════════════════════
+   QB LOCATION GATE — ROOT & LAYOUT
+═══════════════════════════════════════════════ */
+#qbGate {
+  position: fixed;
+  inset: 0;
+  z-index: 2000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* starts hidden — JS shows it if location missing */
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+#qbGate.qbg-visible {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: all;
+}
+#qbGate.qbg-hiding {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+/* ─── BACKGROUND ─── */
+.qbg-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 40%, #1a1100 0%, #080808 60%, #000 100%);
+  overflow: hidden;
+}
+.qbg-grid {
+  position: absolute;
+  inset: -100px;
+  background-image:
+    linear-gradient(rgba(244,180,0,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(244,180,0,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  animation: qbgGridMove 20s linear infinite;
+}
+@keyframes qbgGridMove {
+  from { transform: translateY(0); }
+  to   { transform: translateY(48px); }
+}
+.qbg-glow {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(244,180,0,0.07) 0%, transparent 70%);
+  animation: qbgGlowPulse 4s ease-in-out infinite;
+}
+@keyframes qbgGlowPulse {
+  0%, 100% { opacity: 0.6; transform: translate(-50%,-50%) scale(1); }
+  50%       { opacity: 1;   transform: translate(-50%,-50%) scale(1.12); }
+}
+
+/* ─── PARTICLES ─── */
+.qbg-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: #F4B400;
+  opacity: 0;
+  animation: qbgFloat linear infinite;
+}
+.qbg-p1 { width:4px;  height:4px;  left:12%; top:80%; animation-duration:8s;  animation-delay:0s;   opacity:.35; }
+.qbg-p2 { width:6px;  height:6px;  left:25%; top:70%; animation-duration:11s; animation-delay:1.5s; opacity:.25; }
+.qbg-p3 { width:3px;  height:3px;  left:70%; top:85%; animation-duration:9s;  animation-delay:3s;   opacity:.4;  }
+.qbg-p4 { width:5px;  height:5px;  left:80%; top:60%; animation-duration:13s; animation-delay:0.8s; opacity:.2;  }
+.qbg-p5 { width:4px;  height:4px;  left:88%; top:40%; animation-duration:10s; animation-delay:2.2s; opacity:.3;  }
+.qbg-p6 { width:3px;  height:3px;  left:45%; top:90%; animation-duration:7s;  animation-delay:4s;   opacity:.35; }
+@keyframes qbgFloat {
+  0%   { transform: translateY(0)    scale(1);   opacity: 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { transform: translateY(-80vh) scale(0.5); opacity: 0; }
+}
+
+/* ─── CARD ─── */
+.qbg-card {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(145deg, #141414 0%, #0f0f0f 100%);
+  border: 1px solid rgba(244,180,0,0.18);
+  border-radius: 24px;
+  padding: 36px 28px 28px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow:
+    0 0 0 1px rgba(244,180,0,0.05),
+    0 24px 64px rgba(0,0,0,0.7),
+    0 0 80px rgba(244,180,0,0.05);
+  animation: qbgCardIn 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@keyframes qbgCardIn {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0); }
+}
+@media (max-width: 480px) {
+  .qbg-card { padding: 28px 20px 24px; border-radius: 20px; }
+}
+
+/* ─── BRAND ─── */
+.qbg-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.qbg-brand-icon { font-size: 24px; }
+.qbg-brand-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: #F4B400;
+  letter-spacing: -0.3px;
+}
+
+/* ─── SHARED STATE STYLES ─── */
+.qbg-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+}
+.qbg-hidden { display: none !important; }
+.qbg-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #f0f0f0;
+  margin: 16px 0 8px;
+  line-height: 1.2;
+  letter-spacing: -0.4px;
+}
+.qbg-sub {
+  font-size: 13px;
+  color: #777;
+  margin: 0 0 20px;
+  line-height: 1.5;
+  max-width: 300px;
+}
+@media (max-width: 360px) {
+  .qbg-title  { font-size: 19px; }
+}
+
+/* ─── PERK LIST ─── */
+.qbg-perks {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.qbg-perks li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #aaa;
+  background: rgba(244,180,0,0.07);
+  border: 1px solid rgba(244,180,0,0.12);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+.qbg-perk-tick { color: #F4B400; font-weight: 700; }
+
+/* ─── BUTTONS ─── */
+.qbg-btn-primary {
+  position: relative;
+  width: 100%;
+  padding: 15px 20px;
+  background: #F4B400;
+  color: #000;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s;
+  box-shadow: 0 4px 20px rgba(244,180,0,0.3);
+  margin-top: 4px;
+}
+.qbg-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(244,180,0,0.45);
+  background: #ffc400;
+}
+.qbg-btn-primary:active { transform: scale(0.97); }
+.qbg-btn-primary.qbg-loading {
+  pointer-events: none;
+  background: #c89600;
+}
+.qbg-btn-primary.qbg-btn-green {
+  background: #22c55e;
+  box-shadow: 0 4px 20px rgba(34,197,94,0.3);
+}
+.qbg-btn-primary.qbg-btn-green:hover {
+  background: #16a34a;
+  box-shadow: 0 8px 32px rgba(34,197,94,0.4);
+  transform: translateY(-2px);
+}
+.qbg-btn-ghost {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 10px;
+  margin-top: 4px;
+  border-radius: 8px;
+  transition: color 0.2s;
+  width: 100%;
+  text-align: center;
+}
+.qbg-btn-ghost:hover { color: #F4B400; }
+
+/* Button shimmer effect */
+.qbg-btn-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: qbgShimmer 2.4s linear infinite;
+}
+@keyframes qbgShimmer {
+  from { background-position: 200% center; }
+  to   { background-position: -200% center; }
+}
+.qbg-btn-icon { font-size: 16px; }
+.qbg-btn-text { position: relative; z-index: 1; }
+
+/* ─── PRIVACY NOTE ─── */
+.qbg-privacy {
+  font-size: 11px;
+  color: #444;
+  margin: 12px 0 0;
+}
+
+/* ─── PIN PULSE (Welcome) ─── */
+.qbg-pin-wrap {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.qbg-pulse {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(244,180,0,0.15);
+  border: 1.5px solid rgba(244,180,0,0.3);
+  animation: qbgPinPulse 2.4s ease-out infinite;
+}
+.qbg-pulse1 { width: 80px; height: 80px; animation-delay: 0s; }
+.qbg-pulse2 { width: 56px; height: 56px; animation-delay: 0.6s; }
+.qbg-pulse3 { width: 36px; height: 36px; animation-delay: 1.2s; }
+@keyframes qbgPinPulse {
+  0%   { transform: scale(0.8); opacity: 0.8; }
+  70%  { transform: scale(1.3); opacity: 0; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+.qbg-pin-icon {
+  font-size: 36px;
+  position: relative;
+  z-index: 2;
+  animation: qbgPinBob 2s ease-in-out infinite;
+  filter: drop-shadow(0 4px 12px rgba(244,180,0,0.4));
+}
+@keyframes qbgPinBob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
+}
+
+/* ─── ORBIT (Detecting) ─── */
+.qbg-orbit-wrap {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+.qbg-orbit-ring {
+  position: absolute;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px solid rgba(244,180,0,0.15);
+  border-top-color: #F4B400;
+  animation: qbgOrbit 1.2s linear infinite;
+}
+@keyframes qbgOrbit {
+  to { transform: rotate(360deg); }
+}
+.qbg-orbit-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #F4B400;
+  border-radius: 50%;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: qbgOrbit 1.2s linear infinite;
+  box-shadow: 0 0 8px rgba(244,180,0,0.6);
+}
+.qbg-orbit-center { font-size: 28px; position: relative; z-index: 1; }
+
+/* ─── DOTS (Detecting) ─── */
+.qbg-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.qbg-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #F4B400;
+  animation: qbgDotBlink 1.4s ease-in-out infinite;
+}
+.qbg-dots span:nth-child(2) { animation-delay: 0.2s; }
+.qbg-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes qbgDotBlink {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+  40%           { opacity: 1;   transform: scale(1.1); }
+}
+
+/* ─── CONFIRM state ─── */
+.qbg-confirm-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(34,197,94,0.15);
+  border: 2px solid rgba(34,197,94,0.4);
+  color: #22c55e;
+  font-size: 28px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: qbgCheckIn 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
+  margin-bottom: 4px;
+}
+@keyframes qbgCheckIn {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.qbg-address-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(244,180,0,0.06);
+  border: 1px solid rgba(244,180,0,0.15);
+  border-radius: 12px;
+  padding: 12px 14px;
+  width: 100%;
+  margin: 12px 0 10px;
+  text-align: left;
+}
+.qbg-address-pin { font-size: 18px; flex-shrink: 0; }
+.qbg-address-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ddd;
+  word-break: break-word;
+  line-height: 1.4;
+}
+.qbg-delivery-badge {
+  background: rgba(244,180,0,0.1);
+  border: 1px solid rgba(244,180,0,0.25);
+  color: #F4B400;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+
+/* ─── MANUAL / DENIED ─── */
+.qbg-manual-icon,
+.qbg-denied-icon {
+  font-size: 44px;
+  margin-bottom: 4px;
+  animation: qbgBounceIn 0.4s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@keyframes qbgBounceIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+.qbg-input-wrap {
+  position: relative;
+  width: 100%;
+  margin-bottom: 4px;
+}
+.qbg-input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  pointer-events: none;
+}
+.qbg-input {
+  width: 100%;
+  padding: 13px 14px 13px 40px;
+  background: #1a1a1a;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  font-size: 14px;
+  color: #f0f0f0;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+}
+.qbg-input::placeholder { color: #555; }
+.qbg-input:focus {
+  border-color: #F4B400;
+  box-shadow: 0 0 0 3px rgba(244,180,0,0.12);
+}
+.qbg-error {
+  font-size: 12px;
+  color: #f87171;
+  min-height: 18px;
+  text-align: center;
+  margin: 4px 0 8px;
+}
+.qbg-help-box {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 12px;
+  color: #777;
+  text-align: left;
+  margin-top: 12px;
+  line-height: 1.5;
+  width: 100%;
+}
+.qbg-help-box strong { color: #aaa; display: block; margin-bottom: 4px; }
+
+/* ─── TOAST ─── */
+.qbg-toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #1a1a1a;
+  border: 1px solid rgba(244,180,0,0.3);
+  color: #f0f0f0;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 999px;
+  z-index: 3000000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  white-space: nowrap;
+  max-width: 90vw;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.qbg-toast.qbg-toast-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ─── CHECKOUT BLOCKED BANNER ─── */
+.qbg-checkout-banner {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #fca5a5;
+  text-align: center;
+  margin-bottom: 12px;
+  width: 100%;
+  display: none;
+}
+.qbg-checkout-banner.qbg-visible { display: block; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 360px) {
+  .qbg-card { padding: 24px 16px 20px; }
+  .qbg-btn-primary { font-size: 14px; padding: 14px; }
+  .qbg-perks { gap: 4px; }
+  .qbg-perks li { font-size: 11px; padding: 3px 8px; }
+}
+@media (min-height: 700px) {
+  .qbg-card { margin: auto; }
+}
+</style>
+
+<script>
+(function() {
+  'use strict';
+
+  /* ═══════════════════════════════════════════
+     CONFIG
+  ═══════════════════════════════════════════ */
+  var STORAGE_KEY = 'qb_selected_location';
+  var DELIVERY_KEY = 'qb_delivery_time';
+  var WAREHOUSE_LAT = 27.7172;
+  var WAREHOUSE_LNG = 85.3240;
+
+  /* ═══════════════════════════════════════════
+     ELEMENTS
+  ═══════════════════════════════════════════ */
+  var gate       = document.getElementById('qbGate');
+  var toast      = document.getElementById('qbGateToast');
+
+  var states = {
+    welcome:   document.getElementById('qbgs-welcome'),
+    detecting: document.getElementById('qbgs-detecting'),
+    confirm:   document.getElementById('qbgs-confirm'),
+    manual:    document.getElementById('qbgs-manual'),
+    denied:    document.getElementById('qbgs-denied')
+  };
+
+  var detectMsg        = document.getElementById('qbGateDetectMsg');
+  var addressText      = document.getElementById('qbGateAddress');
+  var deliveryBadge    = document.getElementById('qbGateDeliveryBadge');
+  var manualInput      = document.getElementById('qbGateManualInput');
+  var manualError      = document.getElementById('qbGateManualError');
+  var deniedInput      = document.getElementById('qbGateDeniedInput');
+  var deniedError      = document.getElementById('qbGateDeniedError');
+
+  /* ═══════════════════════════════════════════
+     STATE MACHINE
+  ═══════════════════════════════════════════ */
+  var _detected = {};          // temp storage during detect flow
+  var _fromCheckout = false;   // was gate opened due to checkout block?
+
+  function showState(name) {
+    Object.keys(states).forEach(function(k) {
+      if (k === name) {
+        states[k].classList.remove('qbg-hidden');
+      } else {
+        states[k].classList.add('qbg-hidden');
+      }
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     GATE SHOW / HIDE
+  ═══════════════════════════════════════════ */
+  function showGate(fromCheckout) {
+    _fromCheckout = !!fromCheckout;
+    gate.classList.add('qbg-visible');
+    gate.classList.remove('qbg-hiding');
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+
+    // Show checkout banner if triggered from checkout
+    var banner = document.getElementById('qbg-checkout-banner-el');
+    if (banner) banner.classList.toggle('qbg-visible', _fromCheckout);
+
+    showState('welcome');
+  }
+
+  function hideGate() {
+    gate.classList.add('qbg-hiding');
+    gate.classList.remove('qbg-visible');
+    document.body.style.overflow = '';
+    document.body.style.touchAction = '';
+    setTimeout(function() {
+      gate.classList.remove('qbg-hiding');
+    }, 500);
+  }
+
+  /* ═══════════════════════════════════════════
+     HAVERSINE DISTANCE
+  ═══════════════════════════════════════════ */
+  function calcDistance(lat1, lng1, lat2, lng2) {
+    var R = 6371;
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLng = (lng2 - lng1) * Math.PI / 180;
+    var a = Math.sin(dLat/2)*Math.sin(dLat/2) +
+            Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+            Math.sin(dLng/2)*Math.sin(dLng/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  function calcDeliveryTime(lat, lng) {
+    var km = calcDistance(WAREHOUSE_LAT, WAREHOUSE_LNG, lat, lng);
+    var mid = Math.min(Math.round(10 + km * 1.5), 60);
+    var lo = Math.max(mid - 4, 5);
+    var hi = Math.min(mid + 4, 60);
+    return { minTime: lo, maxTime: hi, range: lo + '-' + hi + ' mins', km: km };
+  }
+
+  /* ═══════════════════════════════════════════
+     SAVE LOCATION
+  ═══════════════════════════════════════════ */
+  function saveLocation(locationObj, deliveryData) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(locationObj));
+      window.QB_SELECTED_LOCATION = locationObj;
+    } catch(e) {}
+
+    if (deliveryData) {
+      var dt = {
+        range: deliveryData.range,
+        minTime: deliveryData.minTime,
+        maxTime: deliveryData.maxTime,
+        updatedAt: new Date().toISOString()
+      };
+      try {
+        localStorage.setItem(DELIVERY_KEY, JSON.stringify(dt));
+        window.QB_DELIVERY_TIME = dt;
+      } catch(e) {}
+      // Update all delivery badges on page
+      document.querySelectorAll(
+        '.qb-delivery-badge, .qb-product-delivery, .qb-sync-badge, .qb-delivery-time-text, .qb-collection-delivery-badge'
+      ).forEach(function(el) {
+        el.textContent = '⚡ ' + deliveryData.range;
+      });
+    }
+
+    // Fire event so header location button updates
+    window.dispatchEvent(new CustomEvent('locationSelected', { detail: locationObj }));
+    if (window.QB_LOCATION_CALLBACK) window.QB_LOCATION_CALLBACK(locationObj);
+  }
+
+  /* ═══════════════════════════════════════════
+     REVERSE GEOCODE
+  ═══════════════════════════════════════════ */
+  function reverseGeocode(lat, lng, cb) {
+    var fallback = 'Detected near ' + lat.toFixed(4) + ', ' + lng.toFixed(4);
+    var url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat='
+              + encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lng) + '&addressdetails=1';
+
+    fetch(url, { headers: { 'Accept': 'application/json' } })
+      .then(function(r) { return r.json(); })
+      .then(function(place) {
+        var a = (place && place.address) || {};
+        var parts = [
+          a.house_number,
+          a.road || a.pedestrian || a.footway,
+          a.neighbourhood || a.suburb,
+          a.city_district || a.village || a.town || a.city
+        ].filter(Boolean).slice(0, 3);
+        var addr = parts.length ? parts.join(', ') : (place.display_name || '').split(',').slice(0,2).join(', ');
+        cb(addr || fallback);
+      })
+      .catch(function() { cb(fallback); });
+  }
+
+  /* ═══════════════════════════════════════════
+     AUTO DETECT FLOW
+  ═══════════════════════════════════════════ */
+  function startDetect() {
+    showState('detecting');
+    if (detectMsg) detectMsg.textContent = 'Requesting GPS access — please allow when prompted';
+
+    if (!navigator.geolocation) {
+      showState('manual');
+      return;
+    }
+
+    var timeout = setTimeout(function() {
+      if (detectMsg) detectMsg.textContent = 'Still working, please wait…';
+    }, 4000);
+
+    navigator.geolocation.getCurrentPosition(
+      function(pos) {
+        clearTimeout(timeout);
+        var lat = pos.coords.latitude;
+        var lng = pos.coords.longitude;
+        var del = calcDeliveryTime(lat, lng);
+
+        if (detectMsg) detectMsg.textContent = 'Got your coordinates — looking up address…';
+
+        reverseGeocode(lat, lng, function(address) {
+          _detected = { lat: lat, lng: lng, address: address, delivery: del };
+
+          if (addressText) addressText.textContent = address;
+          if (deliveryBadge) deliveryBadge.textContent = '⚡ ' + del.range;
+          showState('confirm');
+        });
+      },
+      function(err) {
+        clearTimeout(timeout);
+        if (err.code === 1) {          // PERMISSION_DENIED
+          showState('denied');
+        } else if (err.code === 3) {   // TIMEOUT
+          if (detectMsg) detectMsg.textContent = 'GPS timed out — please enter address manually';
+          setTimeout(function() { showState('manual'); }, 1500);
+        } else {
+          showState('manual');
+        }
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+    );
+  }
+
+  /* ═══════════════════════════════════════════
+     CONFIRM DETECTED LOCATION
+  ═══════════════════════════════════════════ */
+  function confirmDetected() {
+    var locationObj = {
+      street: _detected.address,
+      address: _detected.address,
+      latitude: _detected.lat,
+      longitude: _detected.lng,
+      mode: 'auto',
+      timestamp: new Date().toISOString()
+    };
+    saveLocation(locationObj, _detected.delivery);
+    hideGate();
+  }
+
+  /* ═══════════════════════════════════════════
+     CONFIRM MANUAL INPUT
+  ═══════════════════════════════════════════ */
+  function confirmManual(inputEl, errorEl) {
+    var val = inputEl ? inputEl.value.trim() : '';
+    if (!val) {
+      if (errorEl) errorEl.textContent = 'Please enter your address to continue';
+      if (inputEl) inputEl.focus();
+      return;
+    }
+    if (val.length < 5) {
+      if (errorEl) errorEl.textContent = 'Address too short — please be more specific';
+      if (inputEl) inputEl.focus();
+      return;
+    }
+    if (errorEl) errorEl.textContent = '';
+
+    var locationObj = {
+      street: val,
+      address: val,
+      mode: 'manual',
+      timestamp: new Date().toISOString()
+    };
+    var del = { minTime: 18, maxTime: 22, range: '18-22 mins' };
+    saveLocation(locationObj, del);
+    hideGate();
+  }
+
+  /* ═══════════════════════════════════════════
+     TOAST
+  ═══════════════════════════════════════════ */
+  function showToast(msg) {
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.classList.add('qbg-toast-visible');
+    setTimeout(function() {
+      toast.classList.remove('qbg-toast-visible');
+    }, 3000);
+  }
+
+  /* ═══════════════════════════════════════════
+     BUTTON WIRING
+  ═══════════════════════════════════════════ */
+  function wire(id, fn) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('click', fn);
+  }
+
+  wire('qbGateDetectBtn',        function() { startDetect(); });
+  wire('qbGateManualBtn',        function() { showState('manual'); });
+  wire('qbGateConfirmBtn',       function() { confirmDetected(); });
+  wire('qbGateChangeBtn',        function() { showState('manual'); });
+  wire('qbGateManualConfirmBtn', function() { confirmManual(manualInput, manualError); });
+  wire('qbGateRetryGpsBtn',      function() { startDetect(); });
+  wire('qbGateDeniedConfirmBtn', function() { confirmManual(deniedInput, deniedError); });
+
+  // Enter key on manual inputs
+  [manualInput, deniedInput].forEach(function(inp) {
+    if (inp) inp.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        var errId = inp.id === 'qbGateManualInput' ? 'qbGateManualError' : 'qbGateDeniedError';
+        var errEl = document.getElementById(errId);
+        confirmManual(inp, errEl);
+      }
+    });
+  });
+
+  /* ═══════════════════════════════════════════
+     PUBLIC API
+  ═══════════════════════════════════════════ */
+  window.showLocationGate = function(fromCheckout) { showGate(fromCheckout); };
+  window.hideLocationGate = function() { hideGate(); };
+  window.showLocationGateToast = showToast;
+
+  /* ═══════════════════════════════════════════
+     INIT — check if location is missing
+  ═══════════════════════════════════════════ */
+  function init() {
+    var existing = null;
+    try { existing = localStorage.getItem(STORAGE_KEY); } catch(e) {}
+
+    if (!existing) {
+      // Small delay so page renders first (avoids blank-flash)
+      setTimeout(function() { showGate(false); }, 150);
+    }
+    // Sync existing delivery time badges on page load
+    try {
+      var dt = JSON.parse(localStorage.getItem(DELIVERY_KEY) || 'null');
+      if (dt && dt.range) {
+        document.querySelectorAll(
+          '.qb-delivery-time-text, .qb-collection-delivery-badge'
+        ).forEach(function(el) {
+          el.textContent = '⚡ ' + dt.range;
+        });
+      }
+    } catch(e) {}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();
+</script>
