@@ -804,6 +804,15 @@ Provides GPS auto-detection with delivery time estimation based on location
           >
         </div>
 
+        <!-- View on Maps link -->
+        <div id="qbViewOnMapsRow" style="display:none; margin-bottom:4px;">
+          <a id="qbViewOnMapsLink" href="#" target="_blank" rel="noopener"
+            style="display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:#1a73e8;text-decoration:none;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            View on Maps
+          </a>
+        </div>
+
         <!-- Delivery Info -->
         <div class="qb-location-delivery-info" id="qbDeliveryInfo" style="display: none;">
           <div class="qb-location-delivery-title">Estimated Delivery</div>
@@ -968,6 +977,15 @@ function initLocationModal() {
     setTimeout(() => errorMsg.classList.remove('show'), 5000);
   }
 
+  function updateViewOnMapsLink(lat, lng) {
+    const row = document.getElementById('qbViewOnMapsRow');
+    const link = document.getElementById('qbViewOnMapsLink');
+    if (row && link && lat && lng) {
+      link.href = 'https://www.google.com/maps?q=' + lat + ',' + lng;
+      row.style.display = 'block';
+    }
+  }
+
   function updateButtonState() {
     const isSomeoneElse = detectionMode === 'someone_else';
     const isFormValid = isSomeoneElse
@@ -1011,6 +1029,9 @@ function initLocationModal() {
 
         formInputs.lat.value = latitude.toFixed(6);
         formInputs.lng.value = longitude.toFixed(6);
+
+        // Show View on Maps link
+        updateViewOnMapsLink(latitude, longitude);
 
         // Reverse geocode to get address
         reverseGeocode(latitude, longitude);
