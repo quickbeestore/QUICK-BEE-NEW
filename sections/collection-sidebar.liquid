@@ -30,17 +30,18 @@
 
     /* MOBILE FIRST - Base styles for mobile screens */
     .qb-collection-container {
-      display: flex;
-      flex-direction: row;
-      gap: 0;
+      display: block;
       width: 100%;
-      height: calc(100vh - 65px); /* JS will override this with exact value */
       background: #0A0A0A;
-      overflow: hidden;
+      padding-left: var(--qb-sidebar-w);
     }
 
-    /* SIDEBAR - Independent scroll */
+    /* SIDEBAR - Truly fixed, never moves with page scroll */
     .qb-sidebar {
+      position: fixed;
+      top: 0; /* JS sets this to actual offset */
+      left: 0;
+      bottom: 65px; /* above footer */
       width: var(--qb-sidebar-w);
       background: #121212;
       border-right: 1px solid #333;
@@ -50,11 +51,9 @@
       display: flex;
       flex-direction: column;
       gap: 0;
-      z-index: 100;
-      flex-shrink: 0;
+      z-index: 500;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
-      height: 100%;
     }
 
     .qb-sidebar::-webkit-scrollbar { display: none; }
@@ -162,13 +161,11 @@
 
     /* MAIN CONTENT AREA */
     .qb-main-content {
-      flex: 1;
       display: flex;
       flex-direction: column;
-      min-width: 0;
-      min-height: 0;
       background: #0A0A0A;
-      overflow: hidden;
+      /* height filled by JS to exactly match sidebar */
+      height: calc(100vh - 65px);
     }
 
     /* HEADER WITH FILTERS & SORT - Fixed at top */
@@ -476,7 +473,15 @@
       }
 
       .qb-collection-container {
+        display: flex;
         flex-direction: row;
+        padding-left: 0;
+        height: auto;
+      }
+
+      .qb-main-content {
+        flex: 1;
+        height: auto;
       }
 
       .qb-sidebar {
@@ -1397,27 +1402,51 @@
       setTimeout(initializeDeliveryBadges, 50);
     });
 
-    // FIX: Set exact container height based on actual position in the page
-    // This accounts for announcement bars, headers, etc. above the section
-    function fixContainerHeight() {
-      var container = document.getElementById('qb-collection-sidebar');
-      if (!container) return;
-      var rect = container.getBoundingClientRect();
-      var sectionTop = rect.top + window.scrollY;
-      var footerHeight = 65;
-      var height = window.innerHeight - sectionTop - footerHeight;
-      if (height > 200) {
-        container.style.height = height + 'px';
+    // FIX: Anchor the fixed sidebar to exactly where the section starts
+    // and make the main content the same height as the sidebar
+    function fixSidebarPosition() {
+      var sidebar = document.getElementById('category-sidebar');
+      var section = document.getElementById('qb-collection-sidebar');
+      var mainContent = section ? section.querySelector('.qb-main-content') : null;
+      if (!sidebar || !section) return;
+
+      // Get how far the section's top is from the viewport top (at current scroll)
+      // Add scrollY to get distance from document top
+      var rect = section.getBoundingClientRect();
+      var sectionAbsTop = rect.top + window.scrollY;
+      var footerH = 65;
+      var viewH = window.innerHeight;
+
+      // Sidebar top = distance from top of document (accounts for announcement bar + header)
+      sidebar.style.top = sectionAbsTop + 'px';
+
+      // Height of sidebar = viewport - section offset from doc top - footer
+      var availH = viewH - sectionAbsTop - footerH;
+      if (availH > 100) {
+        sidebar.style.bottom = 'auto';
+        sidebar.style.height = availH + 'px';
+      }
+
+      // Main content gets the same height so product grid scrolls within it
+      if (mainContent) {
+        mainContent.style.height = availH + 'px';
       }
     }
 
-    // Run after full page load (images, fonts etc. may shift layout)
-    window.addEventListener('load', fixContainerHeight);
-    window.addEventListener('resize', fixContainerHeight);
-    window.addEventListener('orientationchange', function() {
-      setTimeout(fixContainerHeight, 100);
+    window.addEventListener('load', function() {
+      setTimeout(fixSidebarPosition, 50);
     });
-    // Also run now in case DOM is already ready
-    fixContainerHeight();
+    window.addEventListener('resize', fixSidebarPosition);
+    window.addEventListener('orientationchange', function() {
+      setTimeout(fixSidebarPosition, 150);
+    });
+    // Run immediately too
+    if (document.readyState !== 'loading') {
+      setTimeout(fixSidebarPosition, 0);
+    } else {
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(fixSidebarPosition, 0);
+      });
+    }
   })();
 </script>
