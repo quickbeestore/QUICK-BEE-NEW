@@ -34,7 +34,7 @@
       flex-direction: row;
       gap: 0;
       width: 100%;
-      height: calc(100vh - 65px);
+      height: calc(100vh - 65px); /* JS will override this with exact value */
       background: #0A0A0A;
       overflow: hidden;
     }
@@ -1396,5 +1396,28 @@
       console.log('locationSelected event received in collection-sidebar');
       setTimeout(initializeDeliveryBadges, 50);
     });
+
+    // FIX: Set exact container height based on actual position in the page
+    // This accounts for announcement bars, headers, etc. above the section
+    function fixContainerHeight() {
+      var container = document.getElementById('qb-collection-sidebar');
+      if (!container) return;
+      var rect = container.getBoundingClientRect();
+      var sectionTop = rect.top + window.scrollY;
+      var footerHeight = 65;
+      var height = window.innerHeight - sectionTop - footerHeight;
+      if (height > 200) {
+        container.style.height = height + 'px';
+      }
+    }
+
+    // Run after full page load (images, fonts etc. may shift layout)
+    window.addEventListener('load', fixContainerHeight);
+    window.addEventListener('resize', fixContainerHeight);
+    window.addEventListener('orientationchange', function() {
+      setTimeout(fixContainerHeight, 100);
+    });
+    // Also run now in case DOM is already ready
+    fixContainerHeight();
   })();
 </script>
