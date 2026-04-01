@@ -1282,13 +1282,7 @@
     btn.classList.add('loading');
     btn.disabled = true;
 
-    /* ── Collect order payload ──
-       This is the complete data object.
-       HOOK YOUR BACKEND HERE:
-       - Send to a Shopify Draft Orders endpoint
-       - POST to your webhook (Zapier, Make, custom)
-       - Save to a Metaobject or Firebase
-    ─────────────────────────────────────── */
+    // Build order payload
     state.orderPayload = {
       timestamp:      new Date().toISOString(),
       order_id:       generateOrderId(),
@@ -1304,39 +1298,81 @@
         phone:   document.getElementById('qbcRecipientPhone').value.trim(),
         address: document.getElementById('qbcAddress').value.trim()
       } : null,
-      cart: state.cartData,   // full Shopify cart object (items, prices, etc.)
+      cart:        state.cartData,
       total_price: state.cartTotal
     };
 
-    console.log('[QB Checkout] Order Payload →', state.orderPayload);
+    // Send email via Shopify contact form, then clear cart
+    sendOrderEmail(state.orderPayload)
+      .then(() => clearCartAndConfirm())
+      .catch(() => {
+        // Email failed — still complete order, just warn
+        showToast('⚠️ Order placed but email notification failed.');
+        clearCartAndConfirm();
+      });
+  }
 
-    /* ── STEP 1: Snapshot cart (already in state.cartData from initial load) ──
-       If you need a fresh fetch right before clearing, uncomment:
-    ─────────────────────────────────────── */
-    // fetch('/cart.js').then(r => r.json()).then(freshCart => {
-    //   state.orderPayload.cart = freshCart;
-    //   clearCartAndConfirm();
-    // });
+  /* ─────────────────────────────────────
+     EMAIL VIA SHOPIFY CONTACT FORM
+     Posts to /contact which Shopify routes
+     to the store email: contact@quickbee.store
+  ───────────────────────────────────── */
+  function sendOrderEmail(payload) {
+    const o      = payload;
+    const c      = o.customer;
+    const r      = o.recipient;
+    const payMap = { cod: 'Cash on Delivery 💵', esewa: 'eSewa / Khalti 📱', bank: 'Bank Transfer 🏦' };
 
-    /* ── STEP 2: Send to your backend webhook ─────────────────────────────
-       UNCOMMENT & FILL IN YOUR WEBHOOK URL:
+    // Build item list
+    const itemLines = (o.cart?.items || []).map(item =>
+      `  • ${item.product_title} x${item.quantity} — Rs ${Math.floor(item.final_line_price / 100)}`
+    ).join('\n');
 
-    fetch('https://your-backend.com/api/orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(state.orderPayload)
-    }).then(r => r.json()).then(res => {
-      if (res.success) clearCartAndConfirm();
-      else throw new Error(res.message);
-    }).catch(err => {
-      showToast('Order failed: ' + err.message);
-      btn.classList.remove('loading');
-      btn.disabled = false;
+    // Compose email body
+    const body = [
+      '🐝 NEW ORDER — QuickBee',
+      '════════════════════════════',
+      '',
+      `Order ID    : ${o.order_id}`,
+      `Time        : ${new Date(o.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kathmandu' })}`,
+      `Flow        : ${o.flow === 'someone' ? 'Gift / Someone Else 🎁' : 'For Myself 🙋'}`,
+      `Payment     : ${payMap[o.payment_method] || o.payment_method}`,
+      '',
+      '── CUSTOMER ─────────────────',
+      `Phone       : ${c.phone}`,
+      `Address     : ${c.address}`,
+      c.note ? `Note        : ${c.note}` : null,
+      '',
+      r ? '── RECIPIENT ────────────────' : null,
+      r ? `Name        : ${r.name}`       : null,
+      r ? `Phone       : ${r.phone}`      : null,
+      '',
+      '── ITEMS ────────────────────',
+      itemLines || '  (no items)',
+      '',
+      '── TOTAL ────────────────────',
+      `Grand Total : Rs ${o.total_price.toLocaleString('en-IN')}`,
+      '',
+      '════════════════════════════',
+      'Sent automatically by QuickBee Checkout'
+    ].filter(line => line !== null).join('\n');
+
+    // Use URLSearchParams so Shopify reads it as a standard form POST
+    const params = new URLSearchParams();
+    params.append('form_type',       'contact');
+    params.append('utf8',            '✓');
+    params.append('contact[name]',   `QB Order ${o.order_id}`);
+    params.append('contact[email]',  'orders@quickbee.store'); // reply-to address
+    params.append('contact[phone]',  c.phone);
+    params.append('contact[body]',   body);
+
+    return fetch('/contact', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body:    params.toString()
+    }).then(res => {
+      if (!res.ok) throw new Error('Contact form returned ' + res.status);
     });
-    ─────────────────────────────────────── */
-
-    // Default: proceed directly to clear + success
-    clearCartAndConfirm();
   }
 
   function clearCartAndConfirm() {
