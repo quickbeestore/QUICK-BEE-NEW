@@ -1,0 +1,1180 @@
+{% comment %} sections/quickbee-track-order.liquid — QuickBee Premium Order Tracking {% endcomment %}
+
+<style>
+/* ═══════════════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════════════ */
+:root {
+  --qt-gold:        #F4B400;
+  --qt-gold2:       #FFD54F;
+  --qt-gold-dim:    rgba(244,180,0,0.12);
+  --qt-gold-glow:   rgba(244,180,0,0.22);
+  --qt-green:       #22c55e;
+  --qt-green-dim:   rgba(34,197,94,0.14);
+  --qt-red:         #ef4444;
+  --qt-bg:          #0a0a0a;
+  --qt-bg2:         #111111;
+  --qt-bg3:         #181818;
+  --qt-card:        #141414;
+  --qt-border:      rgba(255,255,255,0.07);
+  --qt-border2:     rgba(255,255,255,0.12);
+  --qt-text:        #f0f0f0;
+  --qt-muted:       #777;
+  --qt-muted2:      #444;
+  --qt-radius:      18px;
+  --qt-ease:        cubic-bezier(0.4,0,0.2,1);
+  --qt-shadow:      0 4px 32px rgba(0,0,0,0.5);
+  --qt-shadow-gold: 0 0 40px rgba(244,180,0,0.15);
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Page shell ── */
+.qt-page {
+  min-height: 100dvh;
+  background: var(--qt-bg);
+  color: var(--qt-text);
+  font-family: var(--font-body-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  padding-bottom: 160px;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ── Ambient background blobs ── */
+.qt-blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.06;
+}
+.qt-blob-1 {
+  width: 300px; height: 300px;
+  background: var(--qt-gold);
+  top: -60px; right: -60px;
+  animation: qtFloat 8s ease-in-out infinite alternate;
+}
+.qt-blob-2 {
+  width: 200px; height: 200px;
+  background: #C2185B;
+  bottom: 200px; left: -40px;
+  animation: qtFloat 11s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes qtFloat {
+  0%   { transform: translate(0,0) scale(1); }
+  100% { transform: translate(20px,30px) scale(1.1); }
+}
+
+/* All sections sit above blobs */
+.qt-page > *:not(.qt-blob) { position: relative; z-index: 1; }
+
+/* ── Header ── */
+.qt-header {
+  padding: 20px 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.qt-back {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--qt-card);
+  border: 1px solid var(--qt-border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--qt-text);
+  flex-shrink: 0;
+  transition: background 0.15s;
+  text-decoration: none;
+}
+.qt-back:active { background: var(--qt-bg3); }
+
+.qt-header-text { flex: 1; }
+.qt-header-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--qt-text);
+  line-height: 1.2;
+  letter-spacing: -0.3px;
+}
+.qt-header-sub {
+  font-size: 12px;
+  color: var(--qt-muted);
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.qt-order-badge {
+  background: var(--qt-gold-dim);
+  border: 1px solid var(--qt-gold-glow);
+  color: var(--qt-gold);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* ── Timer card ── */
+.qt-timer-card {
+  margin: 20px 16px 0;
+  background: var(--qt-card);
+  border-radius: var(--qt-radius);
+  border: 1px solid var(--qt-border);
+  padding: 28px 20px 24px;
+  text-align: center;
+  box-shadow: var(--qt-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.qt-timer-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(244,180,0,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.qt-timer-label-top {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--qt-muted);
+  margin-bottom: 12px;
+}
+
+/* Countdown digits */
+.qt-timer-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.qt-digit-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qt-digit {
+  background: var(--qt-bg3);
+  border: 1px solid var(--qt-border2);
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 42px;
+  font-weight: 900;
+  color: var(--qt-gold);
+  line-height: 1;
+  letter-spacing: -2px;
+  font-variant-numeric: tabular-nums;
+  min-width: 70px;
+  text-align: center;
+  transition: transform 0.08s ease;
+  text-shadow: 0 0 24px rgba(244,180,0,0.4);
+}
+
+.qt-digit.flip {
+  animation: qtFlip 0.18s ease;
+}
+
+@keyframes qtFlip {
+  0%   { transform: scaleY(0.7); opacity: 0.5; }
+  100% { transform: scaleY(1);   opacity: 1; }
+}
+
+.qt-digit-sep {
+  font-size: 42px;
+  font-weight: 900;
+  color: var(--qt-gold);
+  line-height: 1;
+  padding-bottom: 8px;
+  opacity: 0.6;
+  animation: qtBlink 1s step-end infinite;
+}
+
+@keyframes qtBlink {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 0.15; }
+}
+
+.qt-digit-lbl {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--qt-muted);
+  margin-top: 5px;
+}
+
+.qt-timer-label-bot {
+  font-size: 13px;
+  color: var(--qt-muted);
+  font-weight: 500;
+}
+
+/* Pulse ring around timer */
+.qt-timer-pulse {
+  position: absolute;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  border: 2px solid var(--qt-gold);
+  opacity: 0;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  animation: qtPulseRing 2.5s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes qtPulseRing {
+  0%   { transform: translate(-50%,-50%) scale(0.8); opacity: 0.4; }
+  100% { transform: translate(-50%,-50%) scale(1.8); opacity: 0; }
+}
+
+/* Live status pill */
+.qt-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--qt-green-dim);
+  border: 1px solid rgba(34,197,94,0.25);
+  color: var(--qt-green);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-top: 12px;
+  letter-spacing: 0.3px;
+}
+
+.qt-live-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--qt-green);
+  animation: qtLivePulse 1.2s ease-in-out infinite;
+}
+
+@keyframes qtLivePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.7); }
+}
+
+/* ── Progress steps ── */
+.qt-steps-card {
+  margin: 12px 16px 0;
+  background: var(--qt-card);
+  border-radius: var(--qt-radius);
+  border: 1px solid var(--qt-border);
+  padding: 20px 18px;
+  box-shadow: var(--qt-shadow);
+}
+
+.qt-steps-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--qt-muted);
+  margin-bottom: 18px;
+}
+
+.qt-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.qt-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding-bottom: 18px;
+  position: relative;
+}
+
+.qt-step:last-child { padding-bottom: 0; }
+
+/* Vertical connector line */
+.qt-step:not(:last-child) .qt-step-icon-wrap::after {
+  content: '';
+  position: absolute;
+  left: 17px;
+  top: 38px;
+  width: 2px;
+  height: calc(100% - 16px);
+  background: var(--qt-border2);
+  transition: background 0.4s ease;
+}
+
+.qt-step.done:not(:last-child) .qt-step-icon-wrap::after {
+  background: var(--qt-green);
+}
+
+.qt-step.active:not(:last-child) .qt-step-icon-wrap::after {
+  background: linear-gradient(to bottom, var(--qt-gold), var(--qt-border2));
+}
+
+.qt-step-icon-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.qt-step-icon {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  border: 2px solid var(--qt-border2);
+  background: var(--qt-bg3);
+  transition: all 0.3s var(--qt-ease);
+  z-index: 1;
+  position: relative;
+}
+
+.qt-step.done .qt-step-icon {
+  background: var(--qt-green-dim);
+  border-color: var(--qt-green);
+}
+
+.qt-step.active .qt-step-icon {
+  background: var(--qt-gold-dim);
+  border-color: var(--qt-gold);
+  box-shadow: 0 0 16px var(--qt-gold-glow);
+  animation: qtStepPulse 2s ease-in-out infinite;
+}
+
+@keyframes qtStepPulse {
+  0%, 100% { box-shadow: 0 0 16px var(--qt-gold-glow); }
+  50%       { box-shadow: 0 0 28px rgba(244,180,0,0.4); }
+}
+
+.qt-step.pending .qt-step-icon { opacity: 0.4; }
+
+.qt-step-body { flex: 1; padding-top: 4px; }
+
+.qt-step-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--qt-text);
+  line-height: 1.2;
+  transition: color 0.3s;
+}
+
+.qt-step.pending .qt-step-name { color: var(--qt-muted); }
+
+.qt-step.active .qt-step-name { color: var(--qt-gold); }
+
+.qt-step-time {
+  font-size: 11px;
+  color: var(--qt-muted);
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+.qt-step-active-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--qt-gold-dim);
+  border: 1px solid var(--qt-gold-glow);
+  color: var(--qt-gold);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-top: 4px;
+  letter-spacing: 0.3px;
+}
+
+/* ── Live feedback card ── */
+.qt-feed-card {
+  margin: 12px 16px 0;
+  background: var(--qt-card);
+  border-radius: var(--qt-radius);
+  border: 1px solid var(--qt-border);
+  padding: 16px 18px;
+  box-shadow: var(--qt-shadow);
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.qt-feed-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, var(--qt-gold), #C2185B);
+  border-radius: 0 3px 3px 0;
+}
+
+.qt-feed-icon { font-size: 22px; flex-shrink: 0; }
+
+.qt-feed-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--qt-text);
+  line-height: 1.4;
+  animation: qtFeedIn 0.4s var(--qt-ease) both;
+}
+
+@keyframes qtFeedIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Fun facts ── */
+.qt-facts-card {
+  margin: 12px 16px 0;
+  background: var(--qt-card);
+  border-radius: var(--qt-radius);
+  border: 1px solid var(--qt-border);
+  padding: 16px 18px;
+  box-shadow: var(--qt-shadow);
+  overflow: hidden;
+}
+
+.qt-facts-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--qt-muted);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qt-facts-text {
+  font-size: 13px;
+  color: var(--qt-muted);
+  line-height: 1.6;
+  font-style: italic;
+  transition: opacity 0.3s;
+}
+
+/* ── CTA buttons ── */
+.qt-cta-row {
+  margin: 12px 16px 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.qt-cta-btn {
+  background: var(--qt-card);
+  border: 1px solid var(--qt-border2);
+  border-radius: 14px;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.qt-cta-btn:active { transform: scale(0.96); }
+
+.qt-cta-btn.primary {
+  border-color: var(--qt-gold-glow);
+  background: var(--qt-gold-dim);
+}
+
+.qt-cta-btn.danger {
+  border-color: rgba(239,68,68,0.2);
+  background: rgba(239,68,68,0.06);
+  grid-column: 1 / -1;
+}
+
+.qt-cta-icon { font-size: 22px; }
+
+.qt-cta-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--qt-text);
+  letter-spacing: 0.1px;
+}
+
+.qt-cta-btn.primary .qt-cta-label { color: var(--qt-gold); }
+.qt-cta-btn.danger  .qt-cta-label { color: var(--qt-red); font-size: 13px; }
+
+/* ── MUSIC PLAYER ── */
+.qt-player {
+  position: fixed;
+  bottom: calc(65px + env(safe-area-inset-bottom));
+  left: 12px; right: 12px;
+  background: #1a1a1a;
+  border: 1px solid rgba(244,180,0,0.2);
+  border-radius: 18px;
+  padding: 12px 14px;
+  box-shadow: 0 -4px 40px rgba(0,0,0,0.6), 0 0 24px rgba(244,180,0,0.06);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: transform 0.3s var(--qt-ease), opacity 0.3s;
+}
+
+.qt-player.hidden {
+  transform: translateY(120%);
+  opacity: 0;
+}
+
+/* Album art */
+.qt-player-art {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  background: var(--qt-bg3);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid var(--qt-border2);
+}
+
+.qt-player-art.spinning::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(from 0deg, transparent 60%, rgba(244,180,0,0.3));
+  border-radius: 10px;
+  animation: qtSpin 2s linear infinite;
+}
+
+@keyframes qtSpin { to { transform: rotate(360deg); } }
+
+/* Track info */
+.qt-player-info { flex: 1; min-width: 0; }
+
+.qt-player-track {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--qt-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qt-player-artist {
+  font-size: 11px;
+  color: var(--qt-muted);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Progress bar */
+.qt-player-bar {
+  height: 2px;
+  background: var(--qt-border2);
+  border-radius: 2px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.qt-player-bar-fill {
+  height: 100%;
+  background: var(--qt-gold);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.5s linear;
+}
+
+/* Controls */
+.qt-player-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.qt-ctrl-btn {
+  background: none;
+  border: none;
+  color: var(--qt-text);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.15s, background 0.15s, transform 0.1s;
+  width: 32px; height: 32px;
+}
+
+.qt-ctrl-btn:active { transform: scale(0.85); }
+.qt-ctrl-btn.play-btn { color: var(--qt-gold); font-size: 22px; }
+
+/* Tap-to-play banner */
+.qt-tap-banner {
+  position: fixed;
+  bottom: calc(65px + env(safe-area-inset-bottom) + 80px);
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(244,180,0,0.15);
+  border: 1px solid rgba(244,180,0,0.35);
+  color: var(--qt-gold);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 30px;
+  white-space: nowrap;
+  cursor: pointer;
+  z-index: 501;
+  opacity: 0;
+  transition: opacity 0.4s, transform 0.4s;
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qt-tap-banner.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+</style>
+
+<!-- ══════════════════════════════════════════════════
+     MARKUP
+══════════════════════════════════════════════════ -->
+
+<!-- Ambient blobs -->
+<div class="qt-blob qt-blob-1"></div>
+<div class="qt-blob qt-blob-2"></div>
+
+<div class="qt-page">
+
+  <!-- HEADER -->
+  <div class="qt-header">
+    <a href="/" class="qt-back">‹</a>
+    <div class="qt-header-text">
+      <div class="qt-header-title">Your order is on the way 🚀</div>
+      <div class="qt-header-sub">Sit back, we'll handle the rest</div>
+    </div>
+    <div class="qt-order-badge" id="qtOrderId">QB–…</div>
+  </div>
+
+  <!-- TIMER CARD -->
+  <div class="qt-timer-card">
+    <div class="qt-timer-pulse"></div>
+    <div class="qt-timer-label-top">Delivering in</div>
+    <div class="qt-timer-display">
+      <div class="qt-digit-block">
+        <div class="qt-digit" id="qtMins">18</div>
+        <div class="qt-digit-lbl">min</div>
+      </div>
+      <div class="qt-digit-sep">:</div>
+      <div class="qt-digit-block">
+        <div class="qt-digit" id="qtSecs">00</div>
+        <div class="qt-digit-lbl">sec</div>
+      </div>
+    </div>
+    <div class="qt-timer-label-bot">Estimated delivery time</div>
+    <div>
+      <span class="qt-live-pill">
+        <span class="qt-live-dot"></span>
+        LIVE TRACKING
+      </span>
+    </div>
+  </div>
+
+  <!-- PROGRESS STEPS -->
+  <div class="qt-steps-card">
+    <div class="qt-steps-title">📦 Order Progress</div>
+    <div class="qt-steps-list" id="qtStepsList">
+      <!-- rendered by JS -->
+    </div>
+  </div>
+
+  <!-- LIVE FEEDBACK -->
+  <div class="qt-feed-card" id="qtFeedCard">
+    <div class="qt-feed-icon" id="qtFeedIcon">⚡</div>
+    <div class="qt-feed-text" id="qtFeedText">Rider is on the way to your location</div>
+  </div>
+
+  <!-- FUN FACTS -->
+  <div class="qt-facts-card">
+    <div class="qt-facts-label">💡 Did you know?</div>
+    <div class="qt-facts-text" id="qtFactText">Loading fun fact…</div>
+  </div>
+
+  <!-- CTA BUTTONS -->
+  <div class="qt-cta-row">
+    <button class="qt-cta-btn primary" onclick="callRider()">
+      <span class="qt-cta-icon">📞</span>
+      <span class="qt-cta-label">Call Rider</span>
+    </button>
+    <button class="qt-cta-btn" onclick="shareOrder()">
+      <span class="qt-cta-icon">🔗</span>
+      <span class="qt-cta-label">Share ETA</span>
+    </button>
+    <button class="qt-cta-btn danger" id="qtCancelBtn" onclick="confirmCancel()">
+      <span class="qt-cta-icon">✕</span>
+      <span class="qt-cta-label">Cancel Order</span>
+    </button>
+  </div>
+
+</div><!-- /qt-page -->
+
+<!-- TAP TO PLAY BANNER -->
+<div class="qt-tap-banner" id="qtTapBanner" onclick="userInitPlay()">
+  🎵 Tap to play music while you wait
+</div>
+
+<!-- MUSIC PLAYER -->
+<div class="qt-player" id="qtPlayer">
+  <div class="qt-player-art" id="qtArt">🎵</div>
+  <div class="qt-player-info">
+    <div class="qt-player-track" id="qtTrackName">Loading…</div>
+    <div class="qt-player-artist" id="qtArtistName">QuickBee Chill Vibes</div>
+    <div class="qt-player-bar">
+      <div class="qt-player-bar-fill" id="qtBarFill"></div>
+    </div>
+  </div>
+  <div class="qt-player-controls">
+    <button class="qt-ctrl-btn" id="qtPrevBtn" onclick="prevTrack()" title="Previous">⏮</button>
+    <button class="qt-ctrl-btn play-btn" id="qtPlayBtn" onclick="togglePlay()" title="Play/Pause">▶</button>
+    <button class="qt-ctrl-btn" id="qtNextBtn" onclick="nextTrack()" title="Next">⏭</button>
+  </div>
+</div>
+
+<!-- Hidden audio element -->
+<audio id="qtAudio" preload="none"></audio>
+
+
+<script>
+/* ═══════════════════════════════════════════════════
+   QB ORDER TRACKING — Main Controller
+═══════════════════════════════════════════════════ */
+(function() {
+  'use strict';
+
+  /* ─────────────────────────────────────────────
+     CONFIG — edit these values or pull from URL
+  ───────────────────────────────────────────── */
+  const CONFIG = {
+    etaMinutes: 20,          // default ETA; override via ?eta=18 in URL
+    riderPhone: '',          // set rider's phone: '98XXXXXXXX'
+    autoAdvanceSteps: true,  // demo: auto-advance steps over time
+  };
+
+  /* ─────────────────────────────────────────────
+     PLAYLIST — stream-safe / YouTube embed strategy
+     Each track has: title, artist, emoji, src
+     src = '' means YouTube embed (no direct audio file needed)
+     Replace with real audio URLs if you have them
+  ───────────────────────────────────────────── */
+  const PLAYLIST = [
+    {
+      title: 'Chill Lo-Fi Beats',
+      artist: 'QuickBee Radio',
+      emoji: '🎸',
+      // ── Option A: direct MP3 URL (royalty-free) ──
+      // src: 'https://your-cdn.com/lofi-1.mp3',
+      // ── Option B: Free stream from Pixabay / Chosic ──
+      src: 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3'
+    },
+    {
+      title: 'Peaceful Acoustic',
+      artist: 'Morning Vibes',
+      emoji: '🌿',
+      src: 'https://cdn.pixabay.com/audio/2022/03/15/audio_8cb749a714.mp3'
+    },
+    {
+      title: 'Happy Upbeat',
+      artist: 'Feel Good FM',
+      emoji: '🌞',
+      src: 'https://cdn.pixabay.com/audio/2021/11/25/audio_5fe84cd20c.mp3'
+    },
+    {
+      title: 'Soft Piano',
+      artist: 'Relax & Wait',
+      emoji: '🎹',
+      src: 'https://cdn.pixabay.com/audio/2022/01/18/audio_d1f5b82538.mp3'
+    }
+  ];
+
+  /* ─────────────────────────────────────────────
+     ORDER STEPS
+  ───────────────────────────────────────────── */
+  const STEPS = [
+    { icon: '✅', label: 'Order Confirmed',   sub: 'Just now',           state: 'done'    },
+    { icon: '🏪', label: 'Preparing Order',   sub: 'In progress',        state: 'done'    },
+    { icon: '🛵', label: 'Out for Delivery',  sub: 'Rider assigned',     state: 'active'  },
+    { icon: '🏠', label: 'Delivered',         sub: 'Arriving soon…',     state: 'pending' }
+  ];
+
+  /* ─────────────────────────────────────────────
+     LIVE FEED MESSAGES (rotate every ~8s)
+  ───────────────────────────────────────────── */
+  const FEED = [
+    { icon: '⚡', text: 'Rider is on the way to your location' },
+    { icon: '🛵', text: 'Your rider is 5 mins away from pickup' },
+    { icon: '📦', text: 'Your order has been picked up' },
+    { icon: '🗺️', text: 'Rider is navigating to your address' },
+    { icon: '🤙', text: 'Rider will call you before arriving' },
+    { icon: '⚡', text: 'Almost there — estimated 3 mins away' }
+  ];
+
+  /* ─────────────────────────────────────────────
+     FUN FACTS
+  ───────────────────────────────────────────── */
+  const FACTS = [
+    'QuickBee delivers to over 50 locations across Kathmandu Valley.',
+    'The fastest QuickBee delivery ever was completed in just 7 minutes! ⚡',
+    'Our riders cover an average of 80 km every single day.',
+    'QuickBee was started to make instant delivery accessible for everyone in Nepal.',
+    'Over 10,000 orders have been delivered by QuickBee riders so far! 🐝',
+    'Did you know? Our name QuickBee is inspired by how bees are always buzzing and busy.',
+    'QuickBee riders go through safety training before their first delivery.',
+    'The most ordered item on QuickBee? Cold drinks during summer! 🥤'
+  ];
+
+  /* ═══════════════════════════════════════════
+     1. INIT
+  ═══════════════════════════════════════════ */
+  function init() {
+    readURLParams();
+    renderOrderId();
+    renderSteps();
+    startTimer();
+    startFeedRotation();
+    startFactRotation();
+    initPlayer();
+  }
+
+  /* ─────────────────────────────────────────────
+     URL PARAMS — ?eta=18&order=QB-XXXXX&rider=98XXX
+  ───────────────────────────────────────────── */
+  function readURLParams() {
+    const p = new URLSearchParams(window.location.search);
+    if (p.get('eta'))    CONFIG.etaMinutes = parseInt(p.get('eta')) || CONFIG.etaMinutes;
+    if (p.get('order'))  CONFIG._orderId   = p.get('order');
+    if (p.get('rider'))  CONFIG.riderPhone = p.get('rider');
+  }
+
+  function renderOrderId() {
+    const el = document.getElementById('qtOrderId');
+    const id = CONFIG._orderId
+      || sessionStorage.getItem('qb_last_order_id')
+      || 'QB–ORDER';
+    el.textContent = id;
+  }
+
+  /* ═══════════════════════════════════════════
+     2. COUNTDOWN TIMER
+  ═══════════════════════════════════════════ */
+  let totalSeconds = CONFIG.etaMinutes * 60;
+  let timerInterval;
+  const minsEl  = document.getElementById('qtMins');
+  const secsEl  = document.getElementById('qtSecs');
+
+  // Also check sessionStorage for ETA set by checkout
+  const storedEta = sessionStorage.getItem('qb_eta_seconds');
+  if (storedEta) totalSeconds = parseInt(storedEta);
+
+  function startTimer() {
+    renderTimer();
+    timerInterval = setInterval(() => {
+      if (totalSeconds <= 0) {
+        clearInterval(timerInterval);
+        onDelivered();
+        return;
+      }
+      totalSeconds--;
+      renderTimer();
+    }, 1000);
+  }
+
+  let prevMins = -1, prevSecs = -1;
+
+  function renderTimer() {
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    const mStr = String(m).padStart(2, '0');
+    const sStr = String(s).padStart(2, '0');
+
+    if (m !== prevMins) {
+      minsEl.textContent = mStr;
+      minsEl.classList.remove('flip');
+      void minsEl.offsetWidth; // reflow
+      minsEl.classList.add('flip');
+      prevMins = m;
+    }
+    if (s !== prevSecs) {
+      secsEl.textContent = sStr;
+      secsEl.classList.remove('flip');
+      void secsEl.offsetWidth;
+      secsEl.classList.add('flip');
+      prevSecs = s;
+    }
+  }
+
+  function onDelivered() {
+    // Advance to delivered state
+    const stepEls = document.querySelectorAll('.qt-step');
+    stepEls.forEach(el => {
+      el.classList.remove('active', 'pending');
+      el.classList.add('done');
+    });
+    setFeed('🏠', 'Your order has been delivered! Enjoy 🎉');
+    document.getElementById('qtCancelBtn').style.display = 'none';
+    document.getElementById('qtMins').textContent = '00';
+    document.getElementById('qtSecs').textContent = '00';
+    stopMusic();
+  }
+
+  /* ═══════════════════════════════════════════
+     3. ORDER STEPS
+  ═══════════════════════════════════════════ */
+  function renderSteps() {
+    const list = document.getElementById('qtStepsList');
+    list.innerHTML = STEPS.map((step, i) => `
+      <div class="qt-step ${step.state}" id="qtStep${i}">
+        <div class="qt-step-icon-wrap">
+          <div class="qt-step-icon">${step.state === 'done' ? '✅' : step.icon}</div>
+        </div>
+        <div class="qt-step-body">
+          <div class="qt-step-name">${step.label}</div>
+          <div class="qt-step-time">${step.sub}</div>
+          ${step.state === 'active' ? '<span class="qt-step-active-tag">⚡ In Progress</span>' : ''}
+        </div>
+      </div>
+    `).join('');
+
+    // Auto-advance for demo (comment out in production)
+    if (CONFIG.autoAdvanceSteps) {
+      // Advance to "Delivered" when timer hits 0 — handled in onDelivered()
+      // You can hook real status updates via polling your backend here
+    }
+  }
+
+  /* ═══════════════════════════════════════════
+     4. LIVE FEED ROTATION
+  ═══════════════════════════════════════════ */
+  let feedIdx = 0;
+
+  function startFeedRotation() {
+    setFeed(FEED[0].icon, FEED[0].text);
+    setInterval(() => {
+      feedIdx = (feedIdx + 1) % FEED.length;
+      setFeed(FEED[feedIdx].icon, FEED[feedIdx].text);
+    }, 9000);
+  }
+
+  function setFeed(icon, text) {
+    const iconEl = document.getElementById('qtFeedIcon');
+    const textEl = document.getElementById('qtFeedText');
+    // Re-trigger animation
+    textEl.style.animation = 'none';
+    void textEl.offsetWidth;
+    textEl.style.animation = '';
+    iconEl.textContent = icon;
+    textEl.textContent = text;
+  }
+
+  /* ═══════════════════════════════════════════
+     5. FUN FACTS ROTATION
+  ═══════════════════════════════════════════ */
+  let factIdx = Math.floor(Math.random() * FACTS.length);
+
+  function startFactRotation() {
+    document.getElementById('qtFactText').textContent = FACTS[factIdx];
+    setInterval(() => {
+      const el = document.getElementById('qtFactText');
+      el.style.opacity = '0';
+      setTimeout(() => {
+        factIdx = (factIdx + 1) % FACTS.length;
+        el.textContent = FACTS[factIdx];
+        el.style.opacity = '1';
+      }, 300);
+    }, 12000);
+  }
+
+  /* ═══════════════════════════════════════════
+     6. MUSIC PLAYER
+  ═══════════════════════════════════════════ */
+  const audio    = document.getElementById('qtAudio');
+  const playBtn  = document.getElementById('qtPlayBtn');
+  const artEl    = document.getElementById('qtArt');
+  const barFill  = document.getElementById('qtBarFill');
+  let currentTrack = 0;
+  let isPlaying    = false;
+  let barInterval;
+
+  function initPlayer() {
+    loadTrack(currentTrack, false);
+
+    // Attempt autoplay
+    audio.play()
+      .then(() => {
+        isPlaying = true;
+        playBtn.textContent = '⏸';
+        artEl.classList.add('spinning');
+        startBarProgress();
+      })
+      .catch(() => {
+        // Autoplay blocked — show tap banner
+        showTapBanner();
+      });
+
+    // Audio events
+    audio.addEventListener('ended', nextTrack);
+    audio.addEventListener('timeupdate', updateBar);
+    audio.addEventListener('error', () => {
+      // If this track fails to load, skip to next
+      setTimeout(nextTrack, 1000);
+    });
+  }
+
+  function loadTrack(idx, autoplay = true) {
+    const t = PLAYLIST[idx];
+    document.getElementById('qtTrackName').textContent  = t.title;
+    document.getElementById('qtArtistName').textContent = t.artist;
+    artEl.textContent = t.emoji;
+
+    audio.src = t.src;
+    audio.load();
+    barFill.style.width = '0%';
+
+    if (autoplay) {
+      audio.play()
+        .then(() => {
+          isPlaying = true;
+          playBtn.textContent = '⏸';
+          artEl.classList.add('spinning');
+          startBarProgress();
+        })
+        .catch(() => showTapBanner());
+    }
+  }
+
+  window.togglePlay = function() {
+    if (isPlaying) {
+      audio.pause();
+      isPlaying = false;
+      playBtn.textContent = '▶';
+      artEl.classList.remove('spinning');
+      clearInterval(barInterval);
+    } else {
+      audio.play()
+        .then(() => {
+          isPlaying = true;
+          playBtn.textContent = '⏸';
+          artEl.classList.add('spinning');
+          startBarProgress();
+          hideTapBanner();
+        })
+        .catch(() => showTapBanner());
+    }
+  };
+
+  window.nextTrack = function() {
+    currentTrack = (currentTrack + 1) % PLAYLIST.length;
+    loadTrack(currentTrack, isPlaying);
+  };
+
+  window.prevTrack = function() {
+    currentTrack = (currentTrack - 1 + PLAYLIST.length) % PLAYLIST.length;
+    loadTrack(currentTrack, isPlaying);
+  };
+
+  window.userInitPlay = function() {
+    audio.play()
+      .then(() => {
+        isPlaying = true;
+        playBtn.textContent = '⏸';
+        artEl.classList.add('spinning');
+        startBarProgress();
+        hideTapBanner();
+      })
+      .catch(() => showTapBanner());
+  };
+
+  function updateBar() {
+    if (audio.duration && audio.duration > 0) {
+      barFill.style.width = ((audio.currentTime / audio.duration) * 100) + '%';
+    }
+  }
+
+  function startBarProgress() {
+    clearInterval(barInterval);
+    barInterval = setInterval(updateBar, 500);
+  }
+
+  function stopMusic() {
+    audio.pause();
+    isPlaying = false;
+    playBtn.textContent = '▶';
+    artEl.classList.remove('spinning');
+    clearInterval(barInterval);
+  }
+
+  function showTapBanner() {
+    document.getElementById('qtTapBanner').classList.add('show');
+  }
+
+  function hideTapBanner() {
+    document.getElementById('qtTapBanner').classList.remove('show');
+    // Also hide after 3s automatically
+    setTimeout(() => document.getElementById('qtTapBanner').classList.remove('show'), 3000);
+  }
+
+  /* ═══════════════════════════════════════════
+     7. CTA ACTIONS
+  ═══════════════════════════════════════════ */
+  window.callRider = function() {
+    if (CONFIG.riderPhone) {
+      window.location.href = 'tel:' + CONFIG.riderPhone;
+    } else {
+      alert('Rider contact will be available once your order is picked up.');
+    }
+  };
+
+  window.shareOrder = function() {
+    const m   = Math.floor(totalSeconds / 60);
+    const txt = `My QuickBee order arrives in ~${m} min! Track: ${window.location.href}`;
+    if (navigator.share) {
+      navigator.share({ title: 'QuickBee Order', text: txt, url: window.location.href })
+        .catch(() => {});
+    } else {
+      navigator.clipboard?.writeText(txt)
+        .then(() => alert('Link copied to clipboard!'))
+        .catch(() => alert('Share this link: ' + window.location.href));
+    }
+  };
+
+  window.confirmCancel = function() {
+    if (confirm('Are you sure you want to cancel this order? This cannot be undone.')) {
+      // Hook your cancel API here
+      alert('Cancellation request sent. Our team will contact you shortly.');
+      document.getElementById('qtCancelBtn').style.display = 'none';
+    }
+  };
+
+  /* ── BOOT ── */
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+
+})();
+</script>
