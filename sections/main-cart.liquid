@@ -378,14 +378,79 @@ body { background: var(--c-bg) !important; color: var(--c-text) !important; }
         inp.value = val; form.submit(); return;
       }
       if (e.target.closest('#qbMainCheckoutBtn')) {
-        const btn = e.target.closest('#qbMainCheckoutBtn');
-        if (btn.disabled) return;
-        btn.disabled = true; btn.textContent = 'Redirecting...';
-        /* ── Phase 1: Redirect to QuickBee custom checkout ── */
-        window.location.href = '/checkout';
+        proceedToCheckout();
       }
     });
   }
+
+  /* ═══════════════════════════════════════════════════════
+     CHECKOUT FLOW: Extract location → Update cart note → Redirect
+     ═══════════════════════════════════════════════════════ */
+  window.proceedToCheckout = function() {
+    const btn = document.getElementById('qbMainCheckoutBtn');
+    if (btn.disabled) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Processing...';
+
+    /* STEP 1: Extract location data from localStorage */
+    let locationData = null;
+    try {
+      const stored = localStorage.getItem('user_location');
+      locationData = stored ? JSON.parse(stored) : null;
+    } catch (e) {
+      console.warn('Error parsing location:', e);
+    }
+
+    /* STEP 2: If no location, block checkout */
+    if (!locationData || !locationData.address) {
+      btn.disabled = false;
+      btn.textContent = 'Proceed to Checkout ➔';
+      alert('📍 Please select your delivery location first');
+      return;
+    }
+
+    /* STEP 3: Format order note with location + user details */
+    const orderType = localStorage.getItem('order_type') || 'self';
+    const receiverName = localStorage.getItem('receiver_name') || 'N/A';
+    const receiverPhone = localStorage.getItem('receiver_phone') || 'N/A';
+
+    const orderNote = `📍 DELIVERY LOCATION:
+${locationData.address}
+
+📊 ORDER DETAILS:
+Type: ${orderType === 'someone_else' ? 'For Someone Else' : 'For Myself'}
+${orderType === 'someone_else' ? `Receiver: ${receiverName}` : ''}
+${orderType === 'someone_else' ? `Phone: ${receiverPhone}` : ''}
+
+🗺 MAPS:
+${locationData.map_link || 'No maps link available'}
+
+📍 COORDINATES:
+Lat: ${locationData.lat || 'N/A'} | Lng: ${locationData.lng || 'N/A'}`;
+
+    /* STEP 4: Update cart with the order note */
+    fetch('/cart/update.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ note: orderNote })
+    })
+    .then(res => {
+      if (!res.ok) throw new Error(`Cart update failed: ${res.status}`);
+      console.log('✓ Order note saved to cart');
+    })
+    .then(() => {
+      /* STEP 5: Redirect to checkout */
+      btn.textContent = 'Redirecting...';
+      window.location.href = '/checkout';
+    })
+    .catch(err => {
+      console.error('❌ Checkout error:', err);
+      btn.disabled = false;
+      btn.textContent = 'Proceed to Checkout ➔';
+      alert('Failed to process checkout. Please try again.');
+    });
+  };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
