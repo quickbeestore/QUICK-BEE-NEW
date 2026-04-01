@@ -180,9 +180,6 @@
   }
 
   .kw-services-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
     max-width: 480px;
     margin: 0 auto;
   }
@@ -190,8 +187,8 @@
   .kw-service-card {
     background: #fff;
     border: 1.5px solid rgba(244,180,0,0.2);
-    border-radius: 16px;
-    padding: 18px 14px;
+    border-radius: 12px; /* Updated */
+    padding: 16px; /* Updated */
     text-align: center;
     cursor: pointer;
     transition: all 0.22s ease;
@@ -541,38 +538,44 @@
     font-size: 22px;
   }
 
-  /* ── STICKY BOTTOM BAR ── */
-  .kw-sticky-footer {
-    position: sticky;
-    bottom: 0;
-    background: var(--theme-bg-primary);
-    padding: 12px 20px;
-    box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 1000;
-    border-top: 1px solid var(--theme-border);
-  }
-  [data-theme="dark"] .kw-sticky-footer {
-    box-shadow: 0 -4px 12px rgba(0,0,0,0.2);
-  }
-  .kw-footer-price {
-    font-size: 20px;
-    font-weight: 900;
-    color: var(--theme-text-main);
-  }
-  .kw-footer-btn {
-    background: #F4B400;
-    color: #000;
-    border: none;
-    padding: 14px 24px;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: 800;
-    cursor: pointer;
+  /* ── BOOKING BAR ── */
+  .booking-bar {
+    position: fixed;
+    bottom: 0; /* Changed from 70px to 0 for now, will adjust with bottom nav height */
+    left: 0;
+    width: 100%;
+    padding: 12px 20px; /* Added horizontal padding */
+    background: var(--theme-bg-primary); /* Use theme variable */
+    z-index: 999;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.08); /* Re-added shadow */
+    border-top: 1px solid var(--theme-border); /* Re-added border */
   }
 
+  [data-theme="dark"] .booking-bar {
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.2);
+  }
+
+  .confirm-btn {
+    width: 100%;
+    background: #f5b301;
+    color: black;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 600;
+    border: none; /* Ensure no default button border */
+    font-size: 16px; /* Match kw-book-btn */
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .confirm-btn:hover {
+    filter: brightness(1.05);
+  }
+
+  .confirm-btn:active {
+    transform: scale(0.98);
+  }
+  
   /* ── BUTTONS ── */
   .kw-book-btn {
     width: 100%;
@@ -598,6 +601,11 @@
     transition: opacity 0.25s ease, transform 0.25s ease;
     opacity: 0.5;
     transform: scale(0.95);
+  }
+  
+  /* Adjust page padding for sticky booking bar */
+  .kw-page {
+    padding-bottom: 140px; /* Height of booking bar + some buffer */
   }
 
   /* ── TOAST ── */
@@ -847,10 +855,10 @@
   }
 </style>
 
-<div class="kw-page">
+<div class="kw-page kw-container">
 
   <!-- ═══ HERO ═══ -->
-  <div class="kw-hero">
+  <div class="kw-hero kw-section">
     <span class="kw-hero-icon">🧺</span>
     <div class="kw-hero-brand">Powered by KapadaWash</div>
     <h1 class="kw-hero-title">Clean clothes,<br><span>zero effort.</span></h1>
@@ -863,7 +871,7 @@
   </div>
 
   <!-- ═══ HOW IT WORKS ═══ -->
-  <div class="kw-steps-section">
+  <div class="kw-steps-section kw-section">
     <div class="kw-section-label">Simple Process</div>
     <h2 class="kw-section-title">How It Works</h2>
     <div class="kw-steps">
@@ -887,7 +895,7 @@
   </div>
 
   <!-- ═══ CHOOSE SERVICE ═══ -->
-  <div class="kw-services-section">
+  <div class="kw-services-section kw-section">
     <div class="kw-section-label">Pricing</div>
     <h2 class="kw-section-title">Choose a Service</h2>
     <div class="kw-services-grid">
@@ -933,7 +941,7 @@
   </div>
 
   <!-- ═══ BOOKING FORM ═══ -->
-  <div class="kw-form-section">
+  <div class="kw-form-section kw-section">
 
     <!-- Step 1: Quantity -->
     <div class="kw-form-card">
@@ -1059,10 +1067,11 @@
 
 </div>
 
-<!-- Sticky Footer -->
-<div class="kw-sticky-footer" id="kw-sticky-footer" style="display:none;">
-  <div id="kw-footer-price" class="kw-footer-price"></div>
-  <button id="kw-footer-btn" class="kw-footer-btn">Confirm Booking →</button>
+<!-- Booking Bar -->
+<div class="booking-bar" id="booking-bar" style="display:none;">
+  <button id="confirm-btn" class="confirm-btn" type="button">
+    🐝 Confirm Booking • Rs 0
+  </button>
 </div>
 
 <div class="kw-toast" id="kw-toast"></div>
@@ -1079,15 +1088,53 @@
   };
 
   let selectedServices = {};
-  let pickupType = 'free';
-  let userLocation = null; // New global variable for auto-detected/saved location
+  let pickupType = 'paid'; // Default to paid for initial 1kg state
+  const freePickupPill = document.querySelector('[data-pickup="free"]');
+  const paidPickupPill = document.querySelector('[data-pickup="paid"]');
+  let pickupNote = document.getElementById('kw-pickup-note'); // This will be created dynamically if not present
+  let upsellNote; // Declaring upsellNote here
+
+  function selectFreePickup() {
+    pickupType = 'free';
+    freePickupPill.classList.add('active');
+    paidPickupPill.classList.remove('active');
+  }
+
+  function selectPaidPickup() {
+    pickupType = 'paid';
+    paidPickupPill.classList.add('active');
+    freePickupPill.classList.remove('active');
+  }
+
+  function disableFreePickup() {
+    freePickupPill.classList.add('disabled');
+  }
+
+  function enableFreePickup() {
+    freePickupPill.classList.remove('disabled');
+  }
+
+  function disablePaidPickup() {
+    paidPickupPill.classList.add('disabled');
+  }
+
+  function enablePaidPickup() {
+    paidPickupPill.classList.remove('disabled');
+  }
 
   function renderQuantitySelectors() {
     const container = document.getElementById('kw-quantity-section');
     container.innerHTML = '';
+    let currentTotalKg = 0;
+
     Object.keys(selectedServices).forEach(key => {
       const service = serviceData[key];
       const qty = selectedServices[key];
+      
+      if (service.unit === 'kg') {
+        currentTotalKg += qty;
+      }
+
       const el = document.createElement('div');
       el.className = 'kw-form-group';
       el.innerHTML = `
@@ -1101,6 +1148,20 @@
       container.appendChild(el);
     });
 
+    // Create and append upsell note if it doesn't exist
+    const quantityCard = document.querySelector('.kw-form-section .kw-form-card');
+    upsellNote = document.getElementById('kw-upsell-note');
+    if (!upsellNote) {
+      upsellNote = document.createElement('div');
+      upsellNote.id = 'kw-upsell-note';
+      upsellNote.className = 'kw-upsell-note';
+      if (quantityCard) {
+        quantityCard.appendChild(upsellNote);
+      }
+    }
+    upsellNote.style.display = 'none'; // Always hide initially, updateSummary will show if needed
+
+
     // Add event listeners to new buttons
     container.querySelectorAll('.kw-qty-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1110,17 +1171,18 @@
           selectedServices[service]++;
         } else {
           selectedServices[service]--;
-          if (selectedServices[service] === 0) {
+          if (selectedServices[service] <= 0) { // Changed to <= 0 to allow deletion
             delete selectedServices[service];
-            document.querySelector(`.kw-service-card[data-service="${service}"]`).classList.remove('selected');
+            const serviceCard = document.querySelector(`.kw-service-card[data-service="${service}"]`);
+            if (serviceCard) serviceCard.classList.remove('selected');
           }
         }
-        renderQuantitySelectors();
+        renderQuantitySelectors(); // Re-render to update quantities and potentially upsell note
         updateSummary();
       });
     });
+    updateSummary(); // Call updateSummary here to ensure upsell is calculated after re-render
   }
-
 
   function animatePriceUpdate(element, newValue) {
     if (!element) return;
@@ -1140,6 +1202,10 @@
     }
   }
 
+  // --- Location Logic ---
+  let userLocation = null;
+  let usingManualAddress = false;
+
   function updateLocationDisplay(locationName) {
     const labelEl = document.getElementById('kw-saved-loc-label');
     const manualAddressForm = document.getElementById('kw-change-form');
@@ -1151,10 +1217,10 @@
       if (savedLocCard) savedLocCard.style.display = 'flex';
       if (noLocBanner) noLocBanner.style.display = 'none';
       if (manualAddressForm) manualAddressForm.style.display = 'none';
-      usingManualAddress = false; // Indicate we are using auto-detected
+      usingManualAddress = false;
       showToast(`Location set to: ${locationName}`);
     } else {
-      if (labelEl) labelEl.textContent = 'Enter Address'; // Fallback text
+      if (labelEl) labelEl.textContent = 'Enter Address';
       if (savedLocCard) savedLocCard.style.display = 'none';
       if (noLocBanner) noLocBanner.style.display = 'flex';
       if (manualAddressForm) manualAddressForm.style.display = 'block';
@@ -1164,22 +1230,9 @@
   }
 
   function reverseGeocode(latitude, longitude, callback) {
-    // Placeholder for reverse geocoding. In a real app, this would call a backend API.
-    // For now, we'll just return a formatted string.
-    // Example: "Nagarjun-06, Nagarjun"
-    // For demonstration, we'll use a hardcoded value or a simple approximation.
     const mockAddress = `Approx. Location (Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)})`;
-    // In a real scenario, you'd fetch:
-    // fetch(`https://api.example.com/reverse-geocode?lat=${latitude}&lng=${longitude}`)
-    //   .then(response => response.json())
-    //   .then(data => callback(data.formattedAddress))
-    //   .catch(error => {
-    //     console.error('Reverse geocoding failed:', error);
-    //     callback(mockAddress); // Fallback
-    //   });
     callback(mockAddress);
   }
-
 
   function detectAndSetLocation() {
     const labelEl = document.getElementById('kw-saved-loc-label');
@@ -1208,19 +1261,16 @@
           console.error('Geolocation error:', error);
           userLocation = null;
           showToast('Location detection denied or failed. Please enter manually.');
-          updateLocationDisplay(null); // Trigger manual entry
+          updateLocationDisplay(null);
         },
-        { enableHighAccuracy: false, timeout: 5000, maximumAge: 0 } // Low accuracy for faster results
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 0 }
       );
     } else {
       showToast('Geolocation not supported by your browser. Please enter manually.');
-      updateLocationDisplay(null); // Trigger manual entry
+      updateLocationDisplay(null);
     }
   }
 
-  let usingManualAddress = false; // Keep this variable as it's used elsewhere for form logic
-
-  // Modified initAddressSection to load from localStorage or trigger detection
   function initAddressSection() {
     let storedLocation = localStorage.getItem("user_location");
     if (storedLocation) {
@@ -1230,6 +1280,8 @@
       detectAndSetLocation();
     }
   }
+  // --- End Location Logic ---
+
 
   function updateSummary() {
     const billItemsContainer = document.getElementById('kw-bill-items');
@@ -1240,42 +1292,53 @@
     const stickyFooter = document.getElementById('kw-sticky-footer');
 
     let subtotal = 0;
+    let totalKg = 0; // Track total kg for pickup logic
     billItemsContainer.innerHTML = '';
 
     Object.keys(selectedServices).forEach(key => {
-    const service = serviceData[key];
-    const qty = selectedServices[key];
-    const itemPrice = service.price * qty;
-    subtotal += itemPrice;
+      const service = serviceData[key];
+      const qty = selectedServices[key];
+      const itemPrice = service.price * qty;
+      subtotal += itemPrice;
 
-    const itemEl = document.createElement('div');
-    itemEl.className = 'kw-bill-item';
-    itemEl.innerHTML = `
-      <span class="kw-bill-item-name">${service.name} (${qty}${service.unit})</span>
-      <span class="kw-bill-item-price">Rs ${itemPrice}</span>
-    `;
-    itemEl.classList.add('kw-price-animate');
-    setTimeout(() => {
-      itemEl.classList.remove('kw-price-animate');
-    }, 250); // Match CSS transition duration
-    billItemsContainer.appendChild(itemEl);
+      if (service.unit === 'kg') {
+        totalKg += qty;
+      }
 
-    // Check for surcharge
-    if (qty < service.minQty) {
-      subtotal += service.surcharge;
-      const surchargeEl = document.createElement('div');
-      surchargeEl.className = 'kw-bill-surcharge';
-      surchargeEl.innerHTML = `
-        <span class="kw-bill-item-name">Small Order Fee</span>
-        <span class="kw-bill-item-price">Rs ${service.surcharge}</span>
+      const itemEl = document.createElement('div');
+      itemEl.className = 'kw-bill-item';
+      itemEl.innerHTML = `
+        <span class="kw-bill-item-name">${service.name} (${qty}${service.unit})</span>
+        <span class="kw-bill-item-price">Rs ${itemPrice}</span>
       `;
-      surchargeEl.classList.add('kw-price-animate');
-      setTimeout(() => {
-        surchargeEl.classList.remove('kw-price-animate');
-      }, 250); // Match CSS transition duration
-      billItemsContainer.appendChild(surchargeEl);
-    }
+      billItemsContainer.appendChild(itemEl);
     });
+
+    // --- Pickup Type & Upsell Logic ---
+    if (totalKg >= 3) {
+      selectFreePickup();
+      disablePaidPickup(); // Free pickup active, paid disabled
+      enableFreePickup(); // Ensure free pickup is clickable (if ever implemented)
+      if (pickupNote) pickupNote.style.display = 'none';
+      if (upsellNote) upsellNote.style.display = 'none'; // Hide upsell if free pickup is active
+    } else {
+      selectPaidPickup();
+      disableFreePickup(); // Paid pickup active, free disabled
+      enablePaidPickup(); // Ensure paid pickup is clickable (if ever implemented)
+      if (pickupNote) pickupNote.style.display = 'block'; // Show note if paid is forced
+
+      // Upsell message logic
+      if (upsellNote && totalKg < 3) {
+        const remainingKg = 3 - totalKg;
+        upsellNote.textContent = `Add ${remainingKg}kg more to avoid Rs 50 fee`;
+        upsellNote.style.display = 'block';
+      } else if (upsellNote) {
+        upsellNote.style.display = 'none';
+      }
+    }
+    // --- End Pickup Type & Upsell Logic ---
+
+
     const pickupFee = pickupType === 'paid' ? 50 : 0;
     const finalTotal = subtotal + pickupFee;
 
@@ -1298,26 +1361,31 @@
         selectedServices[service] = 1; // Default to 1
         this.classList.add('selected');
       }
-      renderQuantitySelectors();
-      updateSummary();
+      renderQuantitySelectors(); // This will call updateSummary
     });
   });
   
-  // Pickup type
+  // Remove manual click handlers for pickup pills by disabling pointer events
   document.querySelectorAll('[data-pickup]').forEach(function(pill) {
+    pill.style.pointerEvents = 'none'; // Disable manual clicks
+  });
+
+
+  // Delivery type
+  document.querySelectorAll('[data-delivery]').forEach(function(pill) {
     pill.addEventListener('click', function() {
-      document.querySelectorAll('[data-pickup]').forEach(function(p) { p.classList.remove('active'); });
+      document.querySelectorAll('[data-delivery]').forEach(function(p) { p.classList.remove('active'); });
       this.classList.add('active');
-      pickupType = this.dataset.pickup;
+      deliveryType = this.dataset.delivery;
       updateSummary();
     });
   });
 
-  // Init address section (new call)
-  document.addEventListener('DOMContentLoaded', initAddressSection);
-
-  // Initial call to update summary (after everything else is set up)
-  updateSummary();
+  // Init address section and Initial call to update summary (after everything else is set up)
+  document.addEventListener('DOMContentLoaded', () => {
+    initAddressSection();
+    renderQuantitySelectors(); // Initial render of quantity selectors
+  });
 
 })();
 </script>
