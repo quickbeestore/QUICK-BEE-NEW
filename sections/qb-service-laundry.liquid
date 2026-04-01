@@ -663,6 +663,19 @@
     margin-top: 2px;
   }
 
+  .kw-saved-maps-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #1a73e8;
+    text-decoration: none;
+    margin-top: 4px;
+  }
+  .kw-saved-maps-link:hover { text-decoration: underline; }
+  [data-theme="dark"] .kw-saved-maps-link { color: #4fa3ff; }
+
   .kw-change-btn {
     background: transparent;
     border: 1.5px solid var(--theme-border, #E5E7EB);
@@ -985,6 +998,10 @@
           <div class="kw-saved-loc-info">
             <div class="kw-saved-loc-label" id="kw-saved-loc-label">—</div>
             <div class="kw-saved-loc-sub">✓ Saved delivery location</div>
+            <a id="kw-saved-maps-link" class="kw-saved-maps-link" href="#" target="_blank" style="display:none;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              View on Maps
+            </a>
           </div>
           <button type="button" class="kw-change-btn" id="kw-change-btn">Change</button>
         </div>
@@ -1182,6 +1199,18 @@
       var display = getLocationDisplay(savedLocation);
       var labelEl = document.getElementById('kw-saved-loc-label');
       if (labelEl) labelEl.textContent = display;
+
+      // Auto-generate Google Maps link from lat/lng
+      var lat = savedLocation.latitude || savedLocation.lat;
+      var lng = savedLocation.longitude || savedLocation.lng || savedLocation.lon;
+      var mapsLinkEl = document.getElementById('kw-saved-maps-link');
+      if (mapsLinkEl && lat && lng) {
+        var autoMapsUrl = 'https://www.google.com/maps?q=' + lat + ',' + lng;
+        mapsLinkEl.href = autoMapsUrl;
+        mapsLinkEl.style.display = 'inline-flex';
+        savedLocation._autoMapsUrl = autoMapsUrl;
+      }
+
       if (savedCard) savedCard.style.display = 'flex';
       if (noLocBanner) noLocBanner.style.display = 'none';
       if (changeForm) changeForm.style.display = 'none';
@@ -1302,17 +1331,24 @@
   // Helper: get the resolved delivery address for the booking
   function getDeliveryAddress() {
     if (!usingManualAddress && savedLocation) {
-      // Use saved location
       var loc = savedLocation;
+      // Build auto maps URL from lat/lng
+      var autoLat = loc.latitude || loc.lat;
+      var autoLng = loc.longitude || loc.lng || loc.lon;
+      var autoMapsUrl = loc._autoMapsUrl ||
+        (autoLat && autoLng ? 'https://www.google.com/maps?q=' + autoLat + ',' + autoLng : null);
+
       if (loc.mode === 'someone_else') {
         var parts = [];
         if (loc.recipient_name) parts.push('For: ' + loc.recipient_name);
         if (loc.recipient_phone) parts.push('Ph: ' + loc.recipient_phone);
         if (loc.landmark) parts.push('Maps: ' + loc.landmark);
+        else if (autoMapsUrl) parts.push('Maps: ' + autoMapsUrl);
         return parts.join(' | ') || getLocationDisplay(loc);
       }
-      return loc.street || loc.address || loc.label || loc.name ||
-             loc.city || loc.area || getLocationDisplay(loc);
+      var addrStr = loc.street || loc.address || loc.label || loc.name ||
+                    loc.city || loc.area || getLocationDisplay(loc);
+      return addrStr + (autoMapsUrl ? '\nMaps: ' + autoMapsUrl : '');
     }
     // Manual form
     var addrEl = document.getElementById('kw-address');
