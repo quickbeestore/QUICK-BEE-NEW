@@ -196,6 +196,7 @@
     cursor: pointer;
     transition: all 0.22s ease;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    position: relative; /* For badge positioning */
   }
 
   [data-theme="dark"] .kw-service-card {
@@ -209,6 +210,25 @@
     background: #F4B400;
     border-color: #F4B400;
     box-shadow: 0 6px 20px rgba(244,180,0,0.4);
+  }
+
+  .kw-card-badge {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #C2185B; /* A premium accent color */
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  .kw-card-badge.fastest {
+    background: #00897B; /* A different color for "Fastest" */
   }
 
   .kw-service-icon {
@@ -376,6 +396,19 @@
     font-size: 16px;
   }
 
+  .kw-upsell-note {
+    font-size: 12px;
+    color: #b45309;
+    background-color: #fef3c7;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-align: center;
+    margin-top: 10px;
+    font-weight: 600;
+    transition: opacity 0.3s ease;
+  }
+
   .kw-toggle-group {
     display: flex;
     gap: 8px;
@@ -422,61 +455,122 @@
     color: #000;
   }
 
-  /* ── ORDER SUMMARY ── */
-  .kw-summary-card {
-    background: linear-gradient(135deg, rgba(244,180,0,0.1), rgba(244,180,0,0.04));
-    border: 1.5px solid #F4B400;
+  /* ── NEW ORDER SUMMARY ── */
+  .kw-bill-summary {
+    background-color: var(--theme-bg-secondary, #F3F4F6);
+    border: 1px solid var(--theme-border, #E5E7EB);
     border-radius: 20px;
     padding: 20px;
     margin-bottom: 16px;
   }
 
-  [data-theme="dark"] .kw-summary-card {
-    background: linear-gradient(135deg, rgba(244,180,0,0.08), rgba(244,180,0,0.02));
+  [data-theme="dark"] .kw-bill-summary {
+    background-color: #1a1a1a;
+    border-color: #2a2a2a;
   }
 
-  .kw-summary-title {
+  .kw-bill-title {
     font-size: 15px;
     font-weight: 900;
-    color: #F4B400;
+    color: var(--theme-text-main);
     margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--theme-border, #E5E7EB);
   }
 
-  .kw-summary-row {
+  .kw-bill-items {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--theme-border, #E5E7EB);
+  }
+
+  .kw-bill-item, .kw-bill-surcharge {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 9px 0;
-    border-bottom: 1px solid rgba(244,180,0,0.12);
-    font-size: 13px;
+    font-size: 14px;
+    margin-bottom: 8px;
   }
 
-  .kw-summary-row:last-of-type { border-bottom: none; }
+  .kw-bill-item-name {
+    color: var(--theme-text-main);
+    font-weight: 600;
+  }
 
-  .kw-summary-row-label { color: var(--theme-text-muted, #666); }
-
-  .kw-summary-row-val {
+  .kw-bill-item-price {
+    color: var(--theme-text-main);
     font-weight: 700;
-    color: var(--theme-text-main, #111);
   }
 
-  .kw-summary-divider {
-    height: 1px;
-    background: rgba(244,180,0,0.25);
-    margin: 12px 0;
+  .kw-bill-surcharge .kw-bill-item-name {
+    color: var(--theme-text-muted);
+    font-size: 12px;
+    padding-left: 16px;
   }
 
-  .kw-summary-total {
+  .kw-bill-surcharge .kw-bill-item-price {
+    color: var(--theme-text-muted);
+    font-size: 12px;
+  }
+
+  .kw-bill-subtotal, .kw-bill-pickup {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: var(--theme-text-muted);
+  }
+  .kw-bill-subtotal span:last-child, .kw-bill-pickup span:last-child {
+    font-weight: 700;
+    color: var(--theme-text-main);
+  }
+
+  .kw-bill-total {
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 18px;
     font-weight: 900;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--theme-border, #E5E7EB);
   }
 
-  .kw-summary-total-val {
+  .kw-bill-total-val {
     color: #F4B400;
     font-size: 22px;
+  }
+
+  /* ── STICKY BOTTOM BAR ── */
+  .kw-sticky-footer {
+    position: sticky;
+    bottom: 0;
+    background: var(--theme-bg-primary);
+    padding: 12px 20px;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+    border-top: 1px solid var(--theme-border);
+  }
+  [data-theme="dark"] .kw-sticky-footer {
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.2);
+  }
+  .kw-footer-price {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--theme-text-main);
+  }
+  .kw-footer-btn {
+    background: #F4B400;
+    color: #000;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
   }
 
   /* ── BUTTONS ── */
@@ -498,6 +592,12 @@
   .kw-book-btn:active {
     transform: scale(0.98);
     box-shadow: 0 4px 16px rgba(244,180,0,0.4);
+  }
+
+  .kw-price-animate {
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    opacity: 0.5;
+    transform: scale(0.95);
   }
 
   /* ── TOAST ── */
@@ -791,7 +891,8 @@
     <div class="kw-section-label">Pricing</div>
     <h2 class="kw-section-title">Choose a Service</h2>
     <div class="kw-services-grid">
-      <div class="kw-service-card selected" data-service="wash-fold" data-price="100" data-unit="kg">
+      <div class="kw-service-card" data-service="wash-fold" data-price="100" data-unit="kg">
+        <div class="kw-card-badge">Most Popular</div>
         <span class="kw-service-icon">👕</span>
         <div class="kw-service-name">Wash & Fold</div>
         <div class="kw-service-price">Rs 100/kg</div>
@@ -822,6 +923,7 @@
         <div class="kw-service-desc">Full bed linen refresh</div>
       </div>
       <div class="kw-service-card" data-service="express" data-price="180" data-unit="kg">
+        <div class="kw-card-badge fastest">Fastest ⚡</div>
         <span class="kw-service-icon">⚡</span>
         <div class="kw-service-name">Express (6h)</div>
         <div class="kw-service-price">Rs 180/kg</div>
@@ -835,14 +937,9 @@
 
     <!-- Step 1: Quantity -->
     <div class="kw-form-card">
-      <div class="kw-form-card-title"><span>1</span> Quantity</div>
-      <div class="kw-form-group">
-        <label class="kw-label" id="kw-qty-label">Weight in kg</label>
-        <div class="kw-qty-row">
-          <button class="kw-qty-btn" id="kw-minus" type="button">−</button>
-          <input class="kw-input kw-qty-input" type="number" id="kw-qty" value="1" min="1" max="100" readonly>
-          <button class="kw-qty-btn" id="kw-plus" type="button">+</button>
-        </div>
+      <div class="kw-form-card-title"><span>1</span> Select Quantities</div>
+      <div id="kw-quantity-section">
+        <!-- JS will render quantity selectors here -->
       </div>
     </div>
 
@@ -854,7 +951,7 @@
         <div class="kw-toggle-group">
           <div class="kw-toggle-pill active" data-pickup="free">
             <span class="kw-toggle-label">🆓 Free Pickup</span>
-            <span class="kw-toggle-sub">Min. 3kg order</span>
+            <span class="kw-toggle-sub">Min. 3kg total</span>
           </div>
           <div class="kw-toggle-pill" data-pickup="paid">
             <span class="kw-toggle-label">🏍️ Paid Pickup</span>
@@ -874,19 +971,6 @@
           <option value="afternoon">☀️ Afternoon (12 PM – 5 PM)</option>
           <option value="evening">🌆 Evening (5 PM – 9 PM)</option>
         </select>
-      </div>
-      <div class="kw-form-group">
-        <label class="kw-label">Delivery Speed</label>
-        <div class="kw-toggle-group">
-          <div class="kw-toggle-pill active" data-delivery="standard">
-            <span class="kw-toggle-label">📦 Standard</span>
-            <span class="kw-toggle-sub">Free · 3–5 days</span>
-          </div>
-          <div class="kw-toggle-pill" data-delivery="express">
-            <span class="kw-toggle-label">⚡ Express</span>
-            <span class="kw-toggle-sub">Rs 100 · Next day</span>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -973,211 +1057,151 @@
       </div>
     </div>
 
-    <!-- Order Summary -->
-    <div class="kw-summary-card">
-      <div class="kw-summary-title">🧾 Order Summary</div>
-      <div class="kw-summary-row">
-        <span class="kw-summary-row-label">Service</span>
-        <span class="kw-summary-row-val" id="kw-s-service">Wash & Fold</span>
-      </div>
-      <div class="kw-summary-row">
-        <span class="kw-summary-row-label">Quantity</span>
-        <span class="kw-summary-row-val" id="kw-s-qty">1 kg</span>
-      </div>
-      <div class="kw-summary-row">
-        <span class="kw-summary-row-label">Service Cost</span>
-        <span class="kw-summary-row-val" id="kw-s-cost">Rs 100</span>
-      </div>
-      <div class="kw-summary-row">
-        <span class="kw-summary-row-label">Pickup Fee</span>
-        <span class="kw-summary-row-val" id="kw-s-pickup">Free</span>
-      </div>
-      <div class="kw-summary-row">
-        <span class="kw-summary-row-label">Delivery Fee</span>
-        <span class="kw-summary-row-val" id="kw-s-delivery">Free</span>
-      </div>
-      <div class="kw-summary-divider"></div>
-      <div class="kw-summary-total">
-        <span>Total</span>
-        <span class="kw-summary-total-val" id="kw-s-total">Rs 100</span>
-      </div>
-    </div>
-
-
-    <!-- CTA Buttons -->
-    <button class="kw-book-btn" id="kw-book-btn" type="button">
-      🐝 Confirm Booking
-    </button>
-    <div class="trust-urgency-badge">
-      <div class="trust-urgency-line1">
-        ⚡ Express 6h Delivery Available
-      </div>
-      <div class="trust-urgency-line2">
-        <span>✔ Safe Handling</span>
-        <span>✔ On-Time Delivery</span>
-        <span>✔ Quality Assured</span>
-      </div>
-    </div>
-    <div class="kw-spacer"></div>
-  </div>
-
 </div>
+
+<!-- Sticky Footer -->
+<div class="kw-sticky-footer" id="kw-sticky-footer" style="display:none;">
+  <div id="kw-footer-price" class="kw-footer-price"></div>
+  <button id="kw-footer-btn" class="kw-footer-btn">Confirm Booking →</button>
+</div>
+
+<div class="kw-toast" id="kw-toast"></div>
 
 <script>
 (function() {
-  var selectedService = 'wash-fold';
-  var selectedPrice = 100;
-  var selectedUnit = 'kg';
-  var qty = 1;
-  var pickupType = 'free';
-  var deliveryType = 'standard';
-
-  var serviceNames = {
-    'wash-fold': 'Wash & Fold',
-    'wash-iron': 'Wash & Iron',
-    'dry-clean': 'Dry Cleaning',
-    'iron-only': 'Iron Only',
-    'bedsheets': 'Bedsheets & Linen',
-    'express': 'Express (6h)'
+  const serviceData = {
+    'wash-fold': { name: 'Wash & Fold', price: 100, unit: 'kg', minQty: 3, surcharge: 50 },
+    'wash-iron': { name: 'Wash & Iron', price: 140, unit: 'kg', minQty: 3, surcharge: 50 },
+    'dry-clean': { name: 'Dry Cleaning', price: 150, unit: 'piece', minQty: 1, surcharge: 0 },
+    'iron-only': { name: 'Iron Only', price: 40, unit: 'piece', minQty: 5, surcharge: 50 },
+    'bedsheets': { name: 'Bedsheets & Linen', price: 200, unit: 'set', minQty: 2, surcharge: 50 },
+    'express': { name: 'Express (6h)', price: 180, unit: 'kg', minQty: 3, surcharge: 50 }
   };
 
-  // ── Read saved location from localStorage ──
-  var savedLocation = null;
-  var usingManualAddress = false;
+  let selectedServices = {};
+  let pickupType = 'free';
 
-  function readSavedLocation() {
-    var keys = ['qb_location_detail', 'qb_selected_location'];
-    for (var i = 0; i < keys.length; i++) {
-      try {
-        var raw = localStorage.getItem(keys[i]);
-        if (raw) {
-          var parsed = JSON.parse(raw);
-          if (parsed && typeof parsed === 'object') return parsed;
+  function renderQuantitySelectors() {
+    const container = document.getElementById('kw-quantity-section');
+    container.innerHTML = '';
+    Object.keys(selectedServices).forEach(key => {
+      const service = serviceData[key];
+      const qty = selectedServices[key];
+      const el = document.createElement('div');
+      el.className = 'kw-form-group';
+      el.innerHTML = `
+        <label class="kw-label">${service.name}</label>
+        <div class="kw-qty-row">
+          <button class="kw-qty-btn" data-service="${key}" data-action="minus" type="button">−</button>
+          <input class="kw-input kw-qty-input" type="number" value="${qty}" readonly>
+          <button class="kw-qty-btn" data-service="${key}" data-action="plus" type="button">+</button>
+        </div>
+      `;
+      container.appendChild(el);
+    });
+
+    // Add event listeners to new buttons
+    container.querySelectorAll('.kw-qty-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const service = btn.dataset.service;
+        const action = btn.dataset.action;
+        if (action === 'plus') {
+          selectedServices[service]++;
+        } else {
+          selectedServices[service]--;
+          if (selectedServices[service] === 0) {
+            delete selectedServices[service];
+            document.querySelector(`.kw-service-card[data-service="${service}"]`).classList.remove('selected');
+          }
         }
-      } catch(e) {}
+        renderQuantitySelectors();
+        updateSummary();
+      });
+    });
+  }
+
+
+  function animatePriceUpdate(element, newValue) {
+    if (!element) return;
+    element.classList.add('kw-price-animate');
+    setTimeout(() => {
+      element.textContent = newValue;
+      element.classList.remove('kw-price-animate');
+    }, 250); // Match CSS transition duration
+  }
+
+  function updateSummary() {
+    const billItemsContainer = document.getElementById('kw-bill-items');
+    const subtotalEl = document.getElementById('kw-bill-subtotal-val');
+    const pickupEl = document.getElementById('kw-bill-pickup-val');
+    const totalEl = document.getElementById('kw-bill-total-val');
+    const footerPriceEl = document.getElementById('kw-footer-price');
+    const stickyFooter = document.getElementById('kw-sticky-footer');
+
+    let subtotal = 0;
+    billItemsContainer.innerHTML = '';
+
+    Object.keys(selectedServices).forEach(key => {
+    const service = serviceData[key];
+    const qty = selectedServices[key];
+    const itemPrice = service.price * qty;
+    subtotal += itemPrice;
+
+    const itemEl = document.createElement('div');
+    itemEl.className = 'kw-bill-item';
+    itemEl.innerHTML = `
+      <span class="kw-bill-item-name">${service.name} (${qty}${service.unit})</span>
+      <span class="kw-bill-item-price">Rs ${itemPrice}</span>
+    `;
+    itemEl.classList.add('kw-price-animate');
+    setTimeout(() => {
+      itemEl.classList.remove('kw-price-animate');
+    }, 250); // Match CSS transition duration
+    billItemsContainer.appendChild(itemEl);
+
+    // Check for surcharge
+    if (qty < service.minQty) {
+      subtotal += service.surcharge;
+      const surchargeEl = document.createElement('div');
+      surchargeEl.className = 'kw-bill-surcharge';
+      surchargeEl.innerHTML = `
+        <span class="kw-bill-item-name">Small Order Fee</span>
+        <span class="kw-bill-item-price">Rs ${service.surcharge}</span>
+      `;
+      surchargeEl.classList.add('kw-price-animate');
+      setTimeout(() => {
+        surchargeEl.classList.remove('kw-price-animate');
+      }, 250); // Match CSS transition duration
+      billItemsContainer.appendChild(surchargeEl);
     }
-    return null;
-  }
-
-  function getLocationDisplay(loc) {
-    if (!loc) return '';
-    if (loc.mode === 'someone_else') {
-      return loc.recipient_name || loc.label || 'Saved location';
-    }
-    return loc.label || loc.name || loc.street || loc.address ||
-           loc.city || loc.area || loc.district || 'Saved location';
-  }
-
-  function initAddressSection() {
-    savedLocation = readSavedLocation();
-    var savedCard = document.getElementById('kw-saved-loc-card');
-    var noLocBanner = document.getElementById('kw-no-loc-banner');
-    var changeForm = document.getElementById('kw-change-form');
-
-    if (savedLocation) {
-      // Has saved location — show card
-      var display = getLocationDisplay(savedLocation);
-      var labelEl = document.getElementById('kw-saved-loc-label');
-      if (labelEl) labelEl.textContent = display;
-
-      // Auto-generate Google Maps link from lat/lng
-      var lat = savedLocation.latitude || savedLocation.lat;
-      var lng = savedLocation.longitude || savedLocation.lng || savedLocation.lon;
-      var mapsLinkEl = document.getElementById('kw-saved-maps-link');
-      if (mapsLinkEl && lat && lng) {
-        var autoMapsUrl = 'https://www.google.com/maps?q=' + lat + ',' + lng;
-        mapsLinkEl.href = autoMapsUrl;
-        mapsLinkEl.style.display = 'inline-flex';
-        savedLocation._autoMapsUrl = autoMapsUrl;
-      }
-
-      if (savedCard) savedCard.style.display = 'flex';
-      if (noLocBanner) noLocBanner.style.display = 'none';
-      if (changeForm) changeForm.style.display = 'none';
-      usingManualAddress = false;
-    } else {
-      // No saved location — show manual form directly
-      if (savedCard) savedCard.style.display = 'none';
-      if (noLocBanner) noLocBanner.style.display = 'flex';
-      if (changeForm) changeForm.style.display = 'block';
-      usingManualAddress = true;
-    }
-  }
-
-  // Change button toggle
-  var changeBtn = document.getElementById('kw-change-btn');
-  if (changeBtn) {
-    changeBtn.addEventListener('click', function() {
-      var savedCard = document.getElementById('kw-saved-loc-card');
-      var changeForm = document.getElementById('kw-change-form');
-      var noLocBanner = document.getElementById('kw-no-loc-banner');
-
-      usingManualAddress = true;
-      if (savedCard) savedCard.style.display = 'none';
-      if (noLocBanner) noLocBanner.style.display = 'none';
-      if (changeForm) {
-        changeForm.style.display = 'block';
-        // Scroll into view smoothly
-        changeForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
     });
-  }
+    const pickupFee = pickupType === 'paid' ? 50 : 0;
+    const finalTotal = subtotal + pickupFee;
 
-  // Google Maps help overlay
-  var mapsHelpBtn = document.getElementById('kw-maps-help-btn');
-  var mapsGuide = document.getElementById('kw-maps-guide');
-  var mapsGuideClose = document.getElementById('kw-maps-guide-close');
+    animatePriceUpdate(subtotalEl, `Rs ${subtotal}`);
+    animatePriceUpdate(pickupEl, pickupFee === 0 ? 'Free' : `Rs ${pickupFee}`);
+    animatePriceUpdate(totalEl, `Rs ${finalTotal}`);
+    animatePriceUpdate(footerPriceEl, `Rs ${finalTotal}`);
 
-  if (mapsHelpBtn && mapsGuide) {
-    mapsHelpBtn.addEventListener('click', function() {
-      mapsGuide.classList.add('active');
-    });
+    stickyFooter.style.display = Object.keys(selectedServices).length > 0 ? 'flex' : 'none';
   }
-  if (mapsGuideClose && mapsGuide) {
-    mapsGuideClose.addEventListener('click', function() {
-      mapsGuide.classList.remove('active');
-    });
-  }
-  if (mapsGuide) {
-    mapsGuide.addEventListener('click', function(e) {
-      if (e.target === mapsGuide) mapsGuide.classList.remove('active');
-    });
-  }
-
-  // Init address section
-  initAddressSection();
-
-  // Set today as minimum date
-  var today = new Date();
-  var todayStr = today.getFullYear() + '-' +
-    String(today.getMonth() + 1).padStart(2, '0') + '-' +
-    String(today.getDate()).padStart(2, '0');
-  var dateEl = document.getElementById('kw-date');
-  if (dateEl) { dateEl.min = todayStr; dateEl.value = todayStr; }
 
   // Service Card selection
-  document.querySelectorAll('.kw-service-card').forEach(function(card) {
+  document.querySelectorAll('.kw-service-card').forEach(card => {
     card.addEventListener('click', function() {
-      document.querySelectorAll('.kw-service-card').forEach(function(c) { c.classList.remove('selected'); });
-      this.classList.add('selected');
-      selectedService = this.dataset.service;
-      selectedPrice = parseInt(this.dataset.price);
-      selectedUnit = this.dataset.unit;
-      var unitMap = { 'kg': 'Weight in kg', 'piece': 'Number of pieces', 'set': 'Number of sets' };
-      var label = document.getElementById('kw-qty-label');
-      if (label) label.textContent = unitMap[selectedUnit] || 'Quantity';
+      const service = this.dataset.service;
+      if (selectedServices[service]) {
+        delete selectedServices[service];
+        this.classList.remove('selected');
+      } else {
+        selectedServices[service] = 1; // Default to 1
+        this.classList.add('selected');
+      }
+      renderQuantitySelectors();
       updateSummary();
     });
   });
-
-  // Quantity
-  document.getElementById('kw-plus').addEventListener('click', function() {
-    if (qty < 50) { qty++; document.getElementById('kw-qty').value = qty; updateSummary(); }
-  });
-  document.getElementById('kw-minus').addEventListener('click', function() {
-    if (qty > 1) { qty--; document.getElementById('kw-qty').value = qty; updateSummary(); }
-  });
-
+  
   // Pickup type
   document.querySelectorAll('[data-pickup]').forEach(function(pill) {
     pill.addEventListener('click', function() {
@@ -1188,134 +1212,9 @@
     });
   });
 
-  // Delivery type
-  document.querySelectorAll('[data-delivery]').forEach(function(pill) {
-    pill.addEventListener('click', function() {
-      document.querySelectorAll('[data-delivery]').forEach(function(p) { p.classList.remove('active'); });
-      this.classList.add('active');
-      deliveryType = this.dataset.delivery;
-      updateSummary();
-    });
-  });
-
-  // Live update WhatsApp link on inputs
-  ['kw-name','kw-phone','kw-address','kw-maps-link','kw-date','kw-time','kw-notes'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.addEventListener('input', updateSummary);
-  });
-  var dateElWatch = document.getElementById('kw-date');
-  if (dateElWatch) dateElWatch.addEventListener('change', updateSummary);
-  var timeElWatch = document.getElementById('kw-time');
-  if (timeElWatch) timeElWatch.addEventListener('change', updateSummary);
-
-  // Helper: get the resolved delivery address for the booking
-  function getDeliveryAddress() {
-    if (!usingManualAddress && savedLocation) {
-      var loc = savedLocation;
-      // Build auto maps URL from lat/lng
-      var autoLat = loc.latitude || loc.lat;
-      var autoLng = loc.longitude || loc.lng || loc.lon;
-      var autoMapsUrl = loc._autoMapsUrl ||
-        (autoLat && autoLng ? 'https://www.google.com/maps?q=' + lat + ',' + autoLng : null);
-
-      if (loc.mode === 'someone_else') {
-        var parts = [];
-        if (loc.recipient_name) parts.push('For: ' + loc.recipient_name);
-        if (loc.recipient_phone) parts.push('Ph: ' + loc.recipient_phone);
-        if (loc.landmark) parts.push('Maps: ' + loc.landmark);
-        else if (autoMapsUrl) parts.push('Maps: ' + autoMapsUrl);
-        return parts.join(' | ') || getLocationDisplay(loc);
-      }
-      var addrStr = loc.street || loc.address || loc.label || loc.name ||
-                    loc.city || loc.area || loc.district || 'Saved location';
-      return addrStr + (autoMapsUrl ? '
-Maps: ' + autoMapsUrl : '');
-    }
-    // Manual form
-    var addrEl = document.getElementById('kw-address');
-    var mapsEl = document.getElementById('kw-maps-link');
-    var addr = (addrEl && addrEl.value.trim()) || '';
-    var maps = (mapsEl && mapsEl.value.trim()) || '';
-    return addr + (maps ? '
-Maps: ' + maps : '');
-  }
-
-  function updateSummary() {
-    var cost = selectedPrice * qty;
-    var pickupFee = pickupType === 'paid' ? 50 : 0;
-    var delivFee = deliveryType === 'express' ? 100 : 0;
-    var surcharge = 0;
-
-    // Surcharge logic
-    if ( (selectedService === 'wash-fold' || selectedService === 'wash-iron' || selectedService === 'express') && qty < 3) {
-      surcharge = 50;
-    }
-    if (selectedService === 'socks' && qty < 10) {
-      surcharge = 50;
-    }
-    if (selectedService === 'bedsheets' && qty < 2) {
-      surcharge = 50;
-    }
-
-    // Dry Cleaning special rules
-    if (selectedService === 'dry-clean') {
-      pickupFee = 0;
-      delivFee = 0;
-      document.querySelector('[data-pickup="free"]').classList.add('active');
-      document.querySelector('[data-pickup="paid"]').classList.remove('active');
-      document.querySelector('[data-delivery="standard"]').classList.add('active');
-      document.querySelector('[data-delivery="express"]').classList.remove('active');
-      document.querySelector('[data-pickup="paid"]').style.pointerEvents = 'none';
-      document.querySelector('[data-delivery="express"]').style.pointerEvents = 'none';
-      document.querySelector('[data-pickup="paid"]').style.opacity = '0.5';
-      document.querySelector('[data-delivery="express"]').style.opacity = '0.5';
-    } else {
-      document.querySelector('[data-pickup="paid"]').style.pointerEvents = 'auto';
-      document.querySelector('[data-delivery="express"]').style.pointerEvents = 'auto';
-      document.querySelector('[data-pickup="paid"]').style.opacity = '1';
-      document.querySelector('[data-delivery="express"]').style.opacity = '1';
-    }
-
-    var total = cost + pickupFee + delivFee + surcharge;
-
-    document.getElementById('kw-s-service').textContent = serviceNames[selectedService];
-    document.getElementById('kw-s-qty').textContent = qty + ' ' + selectedUnit;
-    document.getElementById('kw-s-cost').textContent = 'Rs ' + cost;
-    document.getElementById('kw-s-pickup').textContent = pickupFee === 0 ? 'Free' : 'Rs ' + pickupFee;
-    document.getElementById('kw-s-delivery').textContent = delivFee === 0 ? 'Free' : 'Rs ' + delivFee;
-
-    var surchargeRow = document.getElementById('kw-surcharge-row');
-    if (surcharge > 0) {
-      surchargeRow.style.display = 'flex';
-      document.getElementById('kw-s-surcharge').textContent = 'Rs ' + surcharge;
-    } else {
-      surchargeRow.style.display = 'none';
-    }
-
-    document.getElementById('kw-s-total').textContent = 'Rs ' + total;
-  }
-  // Book Button
-  document.getElementById('kw-book-btn').addEventListener('click', function() {
-    var name = document.getElementById('kw-name').value.trim();
-    var phone = document.getElementById('kw-phone').value.trim();
-    var date = document.getElementById('kw-date').value;
-    var time = document.getElementById('kw-time').value;
-
-    if (!name) { alert('Please enter your full name.'); return; }
-    if (!phone || phone.length < 10) { alert('Please enter a valid phone number (10 digits).'); return; }
-
-    // Validate address
-    if (usingManualAddress || !savedLocation) {
-      var addrVal = (document.getElementById('kw-address') || {}).value || '';
-      if (!addrVal.trim()) { alert('Please enter your delivery address.'); return; }
-    }
-
-    if (!date) { alert('Please select a pickup date.'); return; }
-    if (!time) { alert('Please choose a time slot.'); return; }
-
-  });
-
+  // Initial call
   updateSummary();
+
 })();
 </script>
 
