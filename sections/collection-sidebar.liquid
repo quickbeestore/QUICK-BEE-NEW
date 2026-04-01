@@ -30,19 +30,18 @@
 
     /* MOBILE FIRST - Base styles for mobile screens */
     .qb-collection-container {
-      display: block;
+      display: flex;
+      flex-direction: row;
       width: 100%;
       background: #0A0A0A;
-      padding-left: var(--qb-sidebar-w);
+      overflow: hidden;
+      /* JS will set exact height so page cannot scroll */
     }
 
-    /* SIDEBAR - Truly fixed, never moves with page scroll */
+    /* SIDEBAR - scrolls its own content independently */
     .qb-sidebar {
-      position: fixed;
-      top: 0; /* JS sets this to actual offset */
-      left: 0;
-      bottom: 65px; /* above footer */
       width: var(--qb-sidebar-w);
+      flex-shrink: 0;
       background: #121212;
       border-right: 1px solid #333;
       padding: 8px 0 0;
@@ -51,7 +50,6 @@
       display: flex;
       flex-direction: column;
       gap: 0;
-      z-index: 500;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
     }
@@ -161,11 +159,13 @@
 
     /* MAIN CONTENT AREA */
     .qb-main-content {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
       display: flex;
       flex-direction: column;
       background: #0A0A0A;
-      /* height filled by JS to exactly match sidebar */
-      height: calc(100vh - 65px);
+      overflow: hidden;
     }
 
     /* HEADER WITH FILTERS & SORT - Fixed at top */
@@ -475,12 +475,13 @@
       .qb-collection-container {
         display: flex;
         flex-direction: row;
-        padding-left: 0;
+        overflow: visible;
         height: auto;
       }
 
       .qb-main-content {
         flex: 1;
+        overflow: visible;
         height: auto;
       }
 
@@ -1402,51 +1403,40 @@
       setTimeout(initializeDeliveryBadges, 50);
     });
 
-    // FIX: Anchor the fixed sidebar to exactly where the section starts
-    // and make the main content the same height as the sidebar
-    function fixSidebarPosition() {
-      var sidebar = document.getElementById('category-sidebar');
-      var section = document.getElementById('qb-collection-sidebar');
-      var mainContent = section ? section.querySelector('.qb-main-content') : null;
-      if (!sidebar || !section) return;
+    // Lock collection layout: set container height to exactly fill
+    // the viewport between the header and the footer, then lock
+    // body scroll so only the inner product grid can scroll.
+    function lockCollectionLayout() {
+      var container = document.getElementById('qb-collection-sidebar');
+      if (!container) return;
 
-      // Get how far the section's top is from the viewport top (at current scroll)
-      // Add scrollY to get distance from document top
-      var rect = section.getBoundingClientRect();
-      var sectionAbsTop = rect.top + window.scrollY;
+      // Measure where the section starts on screen right now
+      var top = container.getBoundingClientRect().top;
       var footerH = 65;
-      var viewH = window.innerHeight;
+      var availH = window.innerHeight - top - footerH;
 
-      // Sidebar top = distance from top of document (accounts for announcement bar + header)
-      sidebar.style.top = sectionAbsTop + 'px';
+      if (availH < 100) return; // something went wrong, bail
 
-      // Height of sidebar = viewport - section offset from doc top - footer
-      var availH = viewH - sectionAbsTop - footerH;
-      if (availH > 100) {
-        sidebar.style.bottom = 'auto';
-        sidebar.style.height = availH + 'px';
-      }
+      container.style.height = availH + 'px';
 
-      // Main content gets the same height so product grid scrolls within it
-      if (mainContent) {
-        mainContent.style.height = availH + 'px';
-      }
+      // Lock the page from scrolling — all scrolling happens inside the section
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
     }
 
+    // Run once the full page has painted so header height is accurate
     window.addEventListener('load', function() {
-      setTimeout(fixSidebarPosition, 50);
+      setTimeout(lockCollectionLayout, 50);
     });
-    window.addEventListener('resize', fixSidebarPosition);
+    window.addEventListener('resize', lockCollectionLayout);
     window.addEventListener('orientationchange', function() {
-      setTimeout(fixSidebarPosition, 150);
+      setTimeout(lockCollectionLayout, 150);
     });
-    // Run immediately too
-    if (document.readyState !== 'loading') {
-      setTimeout(fixSidebarPosition, 0);
-    } else {
-      document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(fixSidebarPosition, 0);
-      });
-    }
+
+    // Restore scroll when leaving the page
+    window.addEventListener('beforeunload', function() {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    });
   })();
 </script>
