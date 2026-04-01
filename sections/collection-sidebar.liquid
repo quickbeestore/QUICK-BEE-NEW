@@ -724,15 +724,8 @@
             <div class="qb-card-footer">
               <form action="/cart/add" method="post" class="product-form">
                 <input type="hidden" name="id" value="{{ product.variants.first.id }}">
-                <input type="hidden" name="quantity" value="1" class="qb-qty-input">
-                <div class="qb-add-wrapper">
-                  <button type="button" class="qb-add-btn">+ Add</button>
-                  <div class="qb-qty-stepper" style="display:none;">
-                    <button type="button" class="qb-qty-btn qb-qty-minus">−</button>
-                    <span class="qb-qty-num">1</span>
-                    <button type="button" class="qb-qty-btn qb-qty-plus">+</button>
-                  </div>
-                </div>
+                <input type="hidden" name="quantity" value="1">
+                <button type="button" class="qb-add-btn">+ Add</button>
               </form>
             </div>
 
@@ -945,15 +938,8 @@
         <div class="qb-card-footer">
           <form action="/cart/add" method="post" class="product-form">
             <input type="hidden" name="id" value="${variantId}">
-            <input type="hidden" name="quantity" value="1" class="qb-qty-input">
-            <div class="qb-add-wrapper">
-              <button type="button" class="qb-add-btn">+ Add</button>
-              <div class="qb-qty-stepper" style="display:none;">
-                <button type="button" class="qb-qty-btn qb-qty-minus">−</button>
-                <span class="qb-qty-num">1</span>
-                <button type="button" class="qb-qty-btn qb-qty-plus">+</button>
-              </div>
-            </div>
+            <input type="hidden" name="quantity" value="1">
+            <button type="button" class="qb-add-btn">+ Add</button>
           </form>
         </div>
       `;
@@ -975,50 +961,42 @@
       document.querySelectorAll('.qb-add-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
           e.preventDefault();
-          const wrapper = this.closest('.qb-add-wrapper');
-          const stepper = wrapper.querySelector('.qb-qty-stepper');
+          if (this.dataset.adding) return; // prevent double tap
           const form = this.closest('.product-form');
-          const qtyInput = form.querySelector('.qb-qty-input');
+          const variantId = form?.querySelector('input[name="id"]')?.value;
+          if (!variantId) return;
 
-          // Show stepper, hide button
-          this.style.display = 'none';
-          stepper.style.display = 'flex';
-          stepper.querySelector('.qb-qty-num').textContent = '1';
-          if (qtyInput) qtyInput.value = '1';
+          // Visual feedback — briefly show ✓
+          this.dataset.adding = '1';
+          const original = this.textContent;
+          this.textContent = '✓ Added';
+          this.style.background = '#22c55e';
+          this.style.color = '#fff';
+          this.style.borderColor = '#22c55e';
 
-          // Submit cart add for qty 1
-          submitCartAdd(form, 1);
-        });
-      });
-
-      // Stepper minus/plus buttons
-      document.querySelectorAll('.qb-qty-stepper').forEach(stepper => {
-        const numEl = stepper.querySelector('.qb-qty-num');
-        const form = stepper.closest('.product-form');
-        const qtyInput = form ? form.querySelector('.qb-qty-input') : null;
-        const addBtn = stepper.closest('.qb-add-wrapper').querySelector('.qb-add-btn');
-
-        stepper.querySelector('.qb-qty-plus').addEventListener('click', function(e) {
-          e.preventDefault();
-          let qty = parseInt(numEl.textContent) + 1;
-          numEl.textContent = qty;
-          if (qtyInput) qtyInput.value = qty;
-          submitCartAdd(form, 1); // add 1 more each tap
-        });
-
-        stepper.querySelector('.qb-qty-minus').addEventListener('click', function(e) {
-          e.preventDefault();
-          let qty = parseInt(numEl.textContent) - 1;
-          if (qty <= 0) {
-            // Back to Add button
-            stepper.style.display = 'none';
-            addBtn.style.display = 'flex';
-            submitCartRemove(form);
-          } else {
-            numEl.textContent = qty;
-            if (qtyInput) qtyInput.value = qty;
-            submitCartAdd(form, -1); // effectively a remove of 1
-          }
+          fetch('/cart/add.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: variantId, quantity: 1 })
+          })
+          .then(r => r.json())
+          .then(() => {
+            updateCartCount();
+            setTimeout(() => {
+              this.textContent = original;
+              this.style.background = '';
+              this.style.color = '';
+              this.style.borderColor = '';
+              delete this.dataset.adding;
+            }, 1200);
+          })
+          .catch(() => {
+            this.textContent = original;
+            this.style.background = '';
+            this.style.color = '';
+            this.style.borderColor = '';
+            delete this.dataset.adding;
+          });
         });
       });
     }
@@ -1050,8 +1028,24 @@
       fetch('/cart.js')
         .then(r => r.json())
         .then(cart => {
-          const badge = document.querySelector('.cart-count-bubble span, [data-cart-count], .cart-count');
-          if (badge) badge.textContent = cart.item_count;
+          const count = cart.item_count;
+          // Hit every possible cart badge selector across the theme
+          const selectors = [
+            '#cart-count',
+            '.cart-count',
+            '[data-cart-count]',
+            '.cart-count-bubble span',
+            '.cart-icon-bubble span',
+            '[aria-label*="cart"] .badge',
+            '.header__cart-count'
+          ];
+          selectors.forEach(sel => {
+            document.querySelectorAll(sel).forEach(el => {
+              el.textContent = count;
+              // Show/hide if 0
+              el.style.display = count > 0 ? '' : 'none';
+            });
+          });
         }).catch(() => {});
     }
 
