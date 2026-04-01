@@ -35,11 +35,12 @@
       width: 100%;
       background: #0A0A0A;
       overflow: hidden;
-      /* JS will set exact height so page cannot scroll */
+      /* JS sets position:fixed + top so iOS rubber-band scroll cannot move it */
     }
 
-    /* SIDEBAR - independent scroll with visible thin scrollbar */
+    /* SIDEBAR - independent scroll, override theme's sticky with !important */
     .qb-sidebar {
+      position: static !important;
       width: var(--qb-sidebar-w);
       flex-shrink: 0;
       background: #121212;
@@ -1409,44 +1410,45 @@
       setTimeout(initializeDeliveryBadges, 50);
     });
 
-    // Lock collection layout: set container height to exactly fill
-    // the viewport between the header and the footer, then lock
-    // body scroll so only the inner product grid can scroll.
+    // Pin the collection container using position:fixed so iOS rubber-band
+    // scroll cannot move it. The top offset is measured from the natural
+    // document position of the section (= header height).
     function lockCollectionLayout() {
       var container = document.getElementById('qb-collection-sidebar');
       if (!container) return;
 
-      // Measure where the section starts on screen right now
-      var top = container.getBoundingClientRect().top;
-      var footerH = 65;
-      var availH = window.innerHeight - top - footerH;
+      // Reset to static briefly to get the real top from viewport
+      container.style.position = 'static';
+      container.style.top = '';
+      container.style.left = '';
+      container.style.right = '';
+      container.style.bottom = '';
+      container.style.height = '';
 
-      if (availH < 100) return; // something went wrong, bail
+      var top = Math.round(container.getBoundingClientRect().top);
+      if (top < 0) top = 0;
 
-      container.style.height = availH + 'px';
+      // Now fix it - this CANNOT be moved by iOS rubber-band scroll
+      container.style.position = 'fixed';
+      container.style.top    = top + 'px';
+      container.style.left   = '0';
+      container.style.right  = '0';
+      container.style.bottom = '65px';
 
-      // Lock the page from scrolling — all scrolling happens inside the section
+      // Also lock body so the header doesn't scroll away
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
     }
 
-    // Run on DOMContentLoaded and again after full load for accuracy
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(lockCollectionLayout, 0);
-      });
-    } else {
-      setTimeout(lockCollectionLayout, 0);
-    }
     window.addEventListener('load', function() {
       setTimeout(lockCollectionLayout, 50);
     });
     window.addEventListener('resize', lockCollectionLayout);
     window.addEventListener('orientationchange', function() {
-      setTimeout(lockCollectionLayout, 150);
+      setTimeout(lockCollectionLayout, 200);
     });
 
-    // Restore scroll when leaving the page
+    // Restore on page leave
     window.addEventListener('beforeunload', function() {
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
