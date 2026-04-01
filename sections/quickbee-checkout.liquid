@@ -1,0 +1,1508 @@
+{% comment %} sections/quickbee-checkout.liquid — QuickBee Custom Checkout {% endcomment %}
+
+<style>
+/* ═══════════════════════════════════════════════════
+   QB CHECKOUT — CSS VARIABLES (branding hub)
+   ═══════════════════════════════════════════════════ */
+:root {
+  --qbc-gold:        #F4B400;
+  --qbc-gold2:       #FFD700;
+  --qbc-gold-glow:   rgba(244,180,0,0.18);
+  --qbc-pink:        #C2185B;
+  --qbc-pink-glow:   rgba(194,24,91,0.20);
+  --qbc-green:       #22c55e;
+  --qbc-green-glow:  rgba(34,197,94,0.18);
+  --qbc-bg:          #f7f8fa;
+  --qbc-card:        #ffffff;
+  --qbc-border:      rgba(0,0,0,0.07);
+  --qbc-text:        #111827;
+  --qbc-muted:       #6b7280;
+  --qbc-input-bg:    #f9fafb;
+  --qbc-input-bdr:   #e5e7eb;
+  --qbc-radius:      20px;
+  --qbc-ease:        cubic-bezier(0.4,0,0.2,1);
+  --qbc-shadow:      0 4px 24px rgba(0,0,0,0.08);
+  --qbc-shadow-up:   0 -4px 24px rgba(0,0,0,0.08);
+}
+
+[data-theme="dark"] {
+  --qbc-bg:          #0a0a0a;
+  --qbc-card:        #141414;
+  --qbc-border:      rgba(255,255,255,0.08);
+  --qbc-text:        #f1f1f1;
+  --qbc-muted:       #888;
+  --qbc-input-bg:    #1c1c1c;
+  --qbc-input-bdr:   #333;
+  --qbc-shadow:      0 4px 32px rgba(0,0,0,0.6);
+  --qbc-shadow-up:   0 -4px 24px rgba(0,0,0,0.5);
+}
+
+/* ── Reset + wrapper ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.qbc-page {
+  min-height: 100dvh;
+  background: var(--qbc-bg);
+  color: var(--qbc-text);
+  font-family: var(--font-body-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  padding-bottom: 100px;
+}
+
+/* ── Top bar ── */
+.qbc-topbar {
+  background: var(--qbc-card);
+  border-bottom: 1px solid var(--qbc-border);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: var(--qbc-shadow);
+}
+
+.qbc-back-btn {
+  background: var(--qbc-input-bg);
+  border: 1px solid var(--qbc-border);
+  border-radius: 50%;
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+  color: var(--qbc-text);
+  font-size: 18px;
+}
+.qbc-back-btn:active { background: var(--qbc-input-bdr); }
+
+.qbc-topbar-title {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.1px;
+  flex: 1;
+}
+
+.qbc-topbar-lock {
+  font-size: 18px;
+  opacity: 0.5;
+}
+
+/* ── Progress dots ── */
+.qbc-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 0 4px;
+}
+
+.qbc-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--qbc-input-bdr);
+  transition: all 0.3s var(--qbc-ease);
+}
+
+.qbc-dot.active {
+  background: var(--qbc-gold);
+  width: 24px;
+  border-radius: 4px;
+}
+
+.qbc-dot.done {
+  background: var(--qbc-green);
+}
+
+/* ── Screen system ── */
+.qbc-screen {
+  display: none;
+  animation: qbcFadeUp 0.32s var(--qbc-ease) both;
+  padding: 0 16px;
+}
+
+.qbc-screen.active { display: block; }
+
+@keyframes qbcFadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes qbcFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Section heading ── */
+.qbc-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--qbc-muted);
+  margin: 24px 0 10px;
+}
+
+/* ── Order summary card ── */
+.qbc-summary-card {
+  background: var(--qbc-card);
+  border-radius: var(--qbc-radius);
+  border: 1px solid var(--qbc-border);
+  overflow: hidden;
+  box-shadow: var(--qbc-shadow);
+  margin-bottom: 8px;
+}
+
+.qbc-summary-header {
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--qbc-border);
+  cursor: pointer;
+  user-select: none;
+}
+
+.qbc-summary-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--qbc-text);
+}
+
+.qbc-summary-total {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--qbc-gold);
+}
+
+.qbc-summary-chevron {
+  font-size: 12px;
+  color: var(--qbc-muted);
+  transition: transform 0.25s;
+  margin-left: 8px;
+}
+
+.qbc-summary-card.expanded .qbc-summary-chevron {
+  transform: rotate(180deg);
+}
+
+.qbc-summary-items {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s var(--qbc-ease);
+}
+
+.qbc-summary-card.expanded .qbc-summary-items {
+  max-height: 400px;
+}
+
+.qbc-item-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--qbc-border);
+}
+.qbc-item-row:last-child { border-bottom: none; }
+
+.qbc-item-img {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--qbc-input-bg);
+  flex-shrink: 0;
+}
+
+.qbc-item-info { flex: 1; min-width: 0; }
+.qbc-item-name {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--qbc-text);
+}
+.qbc-item-qty {
+  font-size: 11px;
+  color: var(--qbc-muted);
+  margin-top: 2px;
+}
+
+.qbc-item-price {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--qbc-text);
+  white-space: nowrap;
+}
+
+/* ── Recipient choice buttons ── */
+.qbc-choice-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.qbc-choice-btn {
+  background: var(--qbc-card);
+  border: 1.5px solid var(--qbc-border);
+  border-radius: var(--qbc-radius);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: border-color 0.18s, box-shadow 0.18s, transform 0.12s;
+  text-align: left;
+  width: 100%;
+  box-shadow: var(--qbc-shadow);
+}
+
+.qbc-choice-btn:active { transform: scale(0.98); }
+
+.qbc-choice-btn.selected {
+  border-color: var(--qbc-gold);
+  box-shadow: 0 0 0 3px var(--qbc-gold-glow), var(--qbc-shadow);
+}
+
+.qbc-choice-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.qbc-choice-icon.self  { background: rgba(244,180,0,0.12); }
+.qbc-choice-icon.other { background: rgba(194,24,91,0.10); }
+
+.qbc-choice-text-wrap { flex: 1; }
+.qbc-choice-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--qbc-text);
+  line-height: 1.2;
+}
+.qbc-choice-sub {
+  font-size: 12px;
+  color: var(--qbc-muted);
+  margin-top: 3px;
+}
+
+.qbc-choice-arrow {
+  font-size: 18px;
+  color: var(--qbc-muted);
+}
+
+/* ── Form inputs ── */
+.qbc-field {
+  margin-bottom: 12px;
+}
+
+.qbc-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--qbc-muted);
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+}
+
+.qbc-input {
+  width: 100%;
+  background: var(--qbc-input-bg);
+  border: 1.5px solid var(--qbc-input-bdr);
+  border-radius: 14px;
+  padding: 13px 14px;
+  font-size: 15px;
+  color: var(--qbc-text);
+  outline: none;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  font-family: inherit;
+  resize: none;
+}
+
+.qbc-input:focus {
+  border-color: var(--qbc-gold);
+  box-shadow: 0 0 0 3px var(--qbc-gold-glow);
+}
+
+.qbc-input.error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.15);
+}
+
+.qbc-input-error {
+  font-size: 11px;
+  color: #ef4444;
+  margin-top: 4px;
+  display: none;
+}
+
+.qbc-input-error.visible { display: block; }
+
+/* ── Location detect button ── */
+.qbc-detect-btn {
+  width: 100%;
+  background: var(--qbc-card);
+  border: 1.5px dashed var(--qbc-gold);
+  border-radius: 14px;
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  color: var(--qbc-gold);
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.qbc-detect-btn:hover {
+  background: rgba(244,180,0,0.06);
+  box-shadow: 0 0 0 3px var(--qbc-gold-glow);
+}
+
+.qbc-detect-btn .qbc-detect-icon { font-size: 18px; }
+
+.qbc-detect-btn .qbc-detect-spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(244,180,0,0.3);
+  border-top-color: var(--qbc-gold);
+  border-radius: 50%;
+  animation: qbcSpin 0.7s linear infinite;
+  display: none;
+}
+
+.qbc-detect-btn.detecting .qbc-detect-icon { display: none; }
+.qbc-detect-btn.detecting .qbc-detect-spinner { display: block; }
+.qbc-detect-btn.detecting { pointer-events: none; opacity: 0.75; }
+
+@keyframes qbcSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Recipient tag (for someone else flow) ── */
+.qbc-recipient-tag {
+  background: rgba(194,24,91,0.08);
+  border: 1px solid rgba(194,24,91,0.2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--qbc-pink);
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Note field toggle ── */
+.qbc-note-toggle {
+  font-size: 12px;
+  color: var(--qbc-gold);
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.qbc-note-wrap {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s var(--qbc-ease);
+}
+.qbc-note-wrap.open { max-height: 120px; }
+
+/* ── Payment method radio ── */
+.qbc-payment-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qbc-payment-opt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--qbc-card);
+  border: 1.5px solid var(--qbc-border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  user-select: none;
+}
+
+.qbc-payment-opt.selected {
+  border-color: var(--qbc-gold);
+  box-shadow: 0 0 0 3px var(--qbc-gold-glow);
+}
+
+.qbc-payment-opt input[type="radio"] { display: none; }
+
+.qbc-pay-radio {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--qbc-input-bdr);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.15s;
+}
+
+.qbc-payment-opt.selected .qbc-pay-radio {
+  border-color: var(--qbc-gold);
+}
+
+.qbc-pay-radio::after {
+  content: '';
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--qbc-gold);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.qbc-payment-opt.selected .qbc-pay-radio::after { opacity: 1; }
+
+.qbc-pay-label {
+  flex: 1;
+}
+.qbc-pay-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--qbc-text);
+}
+.qbc-pay-desc {
+  font-size: 11px;
+  color: var(--qbc-muted);
+  margin-top: 2px;
+}
+
+.qbc-pay-emoji { font-size: 24px; }
+
+/* ── Place order sticky footer ── */
+.qbc-footer {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--qbc-card);
+  border-top: 1px solid var(--qbc-border);
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  z-index: 300;
+  box-shadow: var(--qbc-shadow-up);
+}
+
+.qbc-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.qbc-footer-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--qbc-muted);
+}
+
+.qbc-footer-total {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--qbc-gold);
+  letter-spacing: -0.5px;
+}
+
+.qbc-place-btn {
+  width: 100%;
+  height: 54px;
+  background: linear-gradient(135deg, var(--qbc-gold), var(--qbc-gold2));
+  color: #000;
+  border: none;
+  border-radius: 16px;
+  font-size: 17px;
+  font-weight: 900;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: all 0.2s var(--qbc-ease);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(244,180,0,0.3);
+}
+
+.qbc-place-btn:not(:disabled):hover {
+  box-shadow: 0 8px 28px rgba(244,180,0,0.45);
+  transform: translateY(-1px);
+}
+
+.qbc-place-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.qbc-place-btn .qbc-btn-spinner {
+  width: 20px; height: 20px;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: qbcSpin 0.7s linear infinite;
+  display: none;
+}
+
+.qbc-place-btn.loading .qbc-btn-spinner { display: block; }
+.qbc-place-btn.loading .qbc-btn-text { display: none; }
+
+/* ── Success screen ── */
+.qbc-success-screen {
+  min-height: 80dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.qbc-check-wrap {
+  position: relative;
+  width: 100px; height: 100px;
+  margin: 0 auto 24px;
+}
+
+.qbc-check-circle {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  display: flex; align-items: center; justify-content: center;
+  animation: qbcPop 0.5s 0.1s var(--qbc-ease) both;
+  box-shadow: 0 8px 32px rgba(34,197,94,0.4);
+}
+
+@keyframes qbcPop {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.qbc-check-svg {
+  width: 52px; height: 52px;
+  animation: qbcCheckDraw 0.4s 0.55s ease both;
+  opacity: 0;
+}
+
+@keyframes qbcCheckDraw {
+  from { opacity: 0; transform: scale(0.5) rotate(-20deg); }
+  to   { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+.qbc-check-ring {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 3px solid rgba(34,197,94,0.3);
+  animation: qbcRingPulse 1.2s 0.6s ease-out both;
+}
+
+@keyframes qbcRingPulse {
+  0%   { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+.qbc-success-title {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--qbc-text);
+  letter-spacing: -0.5px;
+  animation: qbcFadeUp 0.4s 0.7s var(--qbc-ease) both;
+  opacity: 0;
+}
+
+.qbc-success-sub {
+  font-size: 15px;
+  color: var(--qbc-muted);
+  margin-top: 8px;
+  line-height: 1.5;
+  animation: qbcFadeUp 0.4s 0.85s var(--qbc-ease) both;
+  opacity: 0;
+}
+
+.qbc-success-id {
+  background: var(--qbc-card);
+  border: 1px solid var(--qbc-border);
+  border-radius: 14px;
+  padding: 14px 20px;
+  margin-top: 24px;
+  animation: qbcFadeUp 0.4s 1s var(--qbc-ease) both;
+  opacity: 0;
+  width: 100%;
+  max-width: 320px;
+}
+
+.qbc-success-id-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--qbc-muted);
+  margin-bottom: 4px;
+}
+
+.qbc-success-id-val {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--qbc-gold);
+  letter-spacing: 2px;
+}
+
+.qbc-success-delivery-card {
+  background: linear-gradient(135deg, rgba(244,180,0,0.08), rgba(244,180,0,0.03));
+  border: 1px solid rgba(244,180,0,0.2);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-top: 16px;
+  width: 100%;
+  max-width: 320px;
+  animation: qbcFadeUp 0.4s 1.1s var(--qbc-ease) both;
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.qbc-delivery-icon { font-size: 28px; }
+
+.qbc-delivery-info { text-align: left; }
+.qbc-delivery-eta {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--qbc-gold);
+  line-height: 1;
+}
+.qbc-delivery-lbl {
+  font-size: 12px;
+  color: var(--qbc-muted);
+  margin-top: 2px;
+}
+
+.qbc-success-cta {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+  animation: qbcFadeUp 0.4s 1.2s var(--qbc-ease) both;
+  opacity: 0;
+}
+
+.qbc-cta-primary {
+  height: 52px;
+  background: linear-gradient(135deg, var(--qbc-gold), var(--qbc-gold2));
+  color: #000;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.qbc-cta-secondary {
+  height: 46px;
+  background: transparent;
+  color: var(--qbc-muted);
+  border: 1.5px solid var(--qbc-border);
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+
+/* ── Confetti canvas ── */
+#qbc-confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── Empty cart state ── */
+.qbc-empty {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--qbc-muted);
+}
+.qbc-empty-icon { font-size: 52px; margin-bottom: 16px; }
+.qbc-empty-title { font-size: 20px; font-weight: 700; color: var(--qbc-text); margin-bottom: 8px; }
+.qbc-empty-sub { font-size: 14px; line-height: 1.5; }
+.qbc-empty-shop {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 28px;
+  background: var(--qbc-gold);
+  color: #000;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+/* ── Loading skeleton ── */
+.qbc-skeleton {
+  background: linear-gradient(90deg, var(--qbc-input-bg) 25%, var(--qbc-border) 37%, var(--qbc-input-bg) 63%);
+  background-size: 400% 100%;
+  animation: qbcShimmer 1.4s ease infinite;
+  border-radius: 10px;
+}
+
+@keyframes qbcShimmer {
+  0%   { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Toast ── */
+.qbc-toast {
+  position: fixed;
+  top: 80px; left: 50%;
+  transform: translateX(-50%) translateY(-120%);
+  background: #1f2937;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 10000;
+  transition: transform 0.3s var(--qbc-ease);
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+
+.qbc-toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+
+<!-- ═══════════════════════════════════════════
+     MARKUP
+═══════════════════════════════════════════ -->
+<canvas id="qbc-confetti"></canvas>
+<div id="qbc-toast" class="qbc-toast"></div>
+
+<div class="qbc-page">
+
+  <!-- Top bar -->
+  <div class="qbc-topbar">
+    <button class="qbc-back-btn" id="qbcBackBtn" onclick="window.location.href='/cart'" aria-label="Back to cart">‹</button>
+    <div class="qbc-topbar-title">Checkout</div>
+    <span class="qbc-topbar-lock">🔒</span>
+  </div>
+
+  <!-- Progress -->
+  <div class="qbc-progress" id="qbcProgress">
+    <div class="qbc-dot active" id="qbcDot0"></div>
+    <div class="qbc-dot" id="qbcDot1"></div>
+    <div class="qbc-dot" id="qbcDot2"></div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SCREEN 0 — Cart summary + choice
+  ══════════════════════════════════ -->
+  <div class="qbc-screen active" id="qbcScreen0">
+
+    <p class="qbc-section-label">Your Order</p>
+
+    <!-- Order summary card -->
+    <div class="qbc-summary-card expanded" id="qbcSummaryCard">
+      <div class="qbc-summary-header" id="qbcSummaryToggle">
+        <span class="qbc-summary-title">🛒 Order Summary</span>
+        <span>
+          <span class="qbc-summary-total" id="qbcSummaryTotal">—</span>
+          <span class="qbc-summary-chevron">▼</span>
+        </span>
+      </div>
+      <div class="qbc-summary-items" id="qbcSummaryItems">
+        <!-- populated by JS -->
+        <div class="qbc-item-row">
+          <div class="qbc-skeleton qbc-item-img"></div>
+          <div class="qbc-item-info">
+            <div class="qbc-skeleton" style="height:12px;width:70%;margin-bottom:6px;"></div>
+            <div class="qbc-skeleton" style="height:10px;width:40%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="qbc-section-label">Who is this order for?</p>
+
+    <div class="qbc-choice-wrap">
+      <button class="qbc-choice-btn selected" id="qbcBtnMyself" data-flow="myself">
+        <div class="qbc-choice-icon self">🙋</div>
+        <div class="qbc-choice-text-wrap">
+          <div class="qbc-choice-title">Order for Myself</div>
+          <div class="qbc-choice-sub">Deliver to my location</div>
+        </div>
+        <span class="qbc-choice-arrow">›</span>
+      </button>
+
+      <button class="qbc-choice-btn" id="qbcBtnSomeone" data-flow="someone">
+        <div class="qbc-choice-icon other">🎁</div>
+        <div class="qbc-choice-text-wrap">
+          <div class="qbc-choice-title">Order for Someone Else</div>
+          <div class="qbc-choice-sub">Send as a gift or to another address</div>
+        </div>
+        <span class="qbc-choice-arrow">›</span>
+      </button>
+    </div>
+
+    <!-- spacer for footer -->
+    <div style="height: 120px;"></div>
+
+    <!-- Footer -->
+    <div class="qbc-footer" id="qbcFooter0">
+      <div class="qbc-footer-row">
+        <span class="qbc-footer-lbl">Total Payable</span>
+        <span class="qbc-footer-total" id="qbcFooterTotal0">—</span>
+      </div>
+      <button class="qbc-place-btn" id="qbcContinueBtn">
+        <span class="qbc-btn-text">Continue  ›</span>
+        <div class="qbc-btn-spinner"></div>
+      </button>
+    </div>
+
+  </div><!-- /screen0 -->
+
+
+  <!-- ══════════════════════════════════
+       SCREEN 1 — Delivery details
+  ══════════════════════════════════ -->
+  <div class="qbc-screen" id="qbcScreen1">
+
+    <!-- Someone else recipient tag (hidden by default) -->
+    <div class="qbc-recipient-tag" id="qbcRecipientTag" style="display:none; margin-top:20px;">
+      🎁 Delivering as a gift to someone else
+    </div>
+
+    <p class="qbc-section-label" style="margin-top: 16px;">Delivery Location</p>
+
+    <!-- Detect location button -->
+    <button class="qbc-detect-btn" id="qbcDetectBtn">
+      <div class="qbc-detect-icon">📍</div>
+      <div class="qbc-detect-spinner"></div>
+      <span>Detect my location automatically</span>
+    </button>
+
+    <!-- Address field -->
+    <div class="qbc-field">
+      <label for="qbcAddress">Delivery Address *</label>
+      <textarea id="qbcAddress" class="qbc-input" rows="3" placeholder="Tap the button above or type your full address…"></textarea>
+      <div class="qbc-input-error" id="qbcAddressErr">Please enter your delivery address</div>
+    </div>
+
+    <!-- Recipient name (shown for someone else flow) -->
+    <div class="qbc-field" id="qbcRecipientNameField" style="display:none;">
+      <label for="qbcRecipientName">Recipient's Name *</label>
+      <input type="text" id="qbcRecipientName" class="qbc-input" placeholder="Who should we ask for?">
+      <div class="qbc-input-error" id="qbcRecipientNameErr">Please enter the recipient's name</div>
+    </div>
+
+    <p class="qbc-section-label">Contact</p>
+
+    <!-- Contact number -->
+    <div class="qbc-field">
+      <label for="qbcPhone">Contact Number *</label>
+      <input type="tel" id="qbcPhone" class="qbc-input" placeholder="+977 98xxxxxxxx" maxlength="15">
+      <div class="qbc-input-error" id="qbcPhoneErr">Please enter a valid phone number</div>
+    </div>
+
+    <!-- Recipient phone (shown for someone else flow) -->
+    <div class="qbc-field" id="qbcRecipientPhoneField" style="display:none;">
+      <label for="qbcRecipientPhone">Recipient's Phone *</label>
+      <input type="tel" id="qbcRecipientPhone" class="qbc-input" placeholder="Recipient's contact number" maxlength="15">
+      <div class="qbc-input-error" id="qbcRecipientPhoneErr">Please enter the recipient's phone number</div>
+    </div>
+
+    <!-- Optional note -->
+    <div class="qbc-note-toggle" id="qbcNoteToggle">
+      <span>📝</span> Add delivery note (optional)
+    </div>
+    <div class="qbc-note-wrap" id="qbcNoteWrap">
+      <div class="qbc-field">
+        <textarea id="qbcNote" class="qbc-input" rows="2" placeholder="Gate code, landmark, special instructions…"></textarea>
+      </div>
+    </div>
+
+    <p class="qbc-section-label">Payment Method</p>
+
+    <div class="qbc-payment-opts">
+      <label class="qbc-payment-opt selected" data-pay="cod">
+        <input type="radio" name="qbc-pay" value="cod" checked>
+        <div class="qbc-pay-radio"></div>
+        <div class="qbc-pay-label">
+          <div class="qbc-pay-name">Cash on Delivery</div>
+          <div class="qbc-pay-desc">Pay when your order arrives</div>
+        </div>
+        <span class="qbc-pay-emoji">💵</span>
+      </label>
+
+      <label class="qbc-payment-opt" data-pay="esewa">
+        <input type="radio" name="qbc-pay" value="esewa">
+        <div class="qbc-pay-radio"></div>
+        <div class="qbc-pay-label">
+          <div class="qbc-pay-name">eSewa / Khalti</div>
+          <div class="qbc-pay-desc">Digital wallet payment</div>
+        </div>
+        <span class="qbc-pay-emoji">📱</span>
+      </label>
+
+      <label class="qbc-payment-opt" data-pay="bank">
+        <input type="radio" name="qbc-pay" value="bank">
+        <div class="qbc-pay-radio"></div>
+        <div class="qbc-pay-label">
+          <div class="qbc-pay-name">Bank Transfer</div>
+          <div class="qbc-pay-desc">Direct bank / mobile banking</div>
+        </div>
+        <span class="qbc-pay-emoji">🏦</span>
+      </label>
+    </div>
+
+    <div style="height: 140px;"></div>
+
+    <!-- Footer -->
+    <div class="qbc-footer" id="qbcFooter1">
+      <div class="qbc-footer-row">
+        <span class="qbc-footer-lbl">Total Payable</span>
+        <span class="qbc-footer-total" id="qbcFooterTotal1">—</span>
+      </div>
+      <button class="qbc-place-btn" id="qbcPlaceBtn">
+        <span class="qbc-btn-text">🚀 Place Order</span>
+        <div class="qbc-btn-spinner"></div>
+      </button>
+    </div>
+
+  </div><!-- /screen1 -->
+
+
+  <!-- ══════════════════════════════════
+       SCREEN 2 — Success
+  ══════════════════════════════════ -->
+  <div class="qbc-screen" id="qbcScreen2">
+    <div class="qbc-success-screen">
+
+      <!-- Animated checkmark -->
+      <div class="qbc-check-wrap">
+        <div class="qbc-check-circle">
+          <svg class="qbc-check-svg" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="14,27 22,35 38,17" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="qbc-check-ring"></div>
+      </div>
+
+      <div class="qbc-success-title">Order Placed! 🎉</div>
+      <p class="qbc-success-sub">We've received your order and<br>a rider is being assigned.</p>
+
+      <div class="qbc-success-id">
+        <div class="qbc-success-id-lbl">Order Reference</div>
+        <div class="qbc-success-id-val" id="qbcOrderId">QB–000000</div>
+      </div>
+
+      <div class="qbc-success-delivery-card">
+        <div class="qbc-delivery-icon">⚡</div>
+        <div class="qbc-delivery-info">
+          <div class="qbc-delivery-eta" id="qbcEta">18–22 mins</div>
+          <div class="qbc-delivery-lbl">Estimated delivery time</div>
+        </div>
+      </div>
+
+      <div class="qbc-success-cta">
+        <button class="qbc-cta-primary" onclick="window.location.href='/'">Continue Shopping</button>
+        <button class="qbc-cta-secondary" onclick="window.location.href='/pages/track-order'">Track My Order</button>
+      </div>
+
+    </div>
+  </div><!-- /screen2 -->
+
+</div><!-- /qbc-page -->
+
+
+<script>
+/* ═══════════════════════════════════════════════════
+   QB CHECKOUT — Vanilla JS Controller
+   ═══════════════════════════════════════════════════ */
+(function() {
+  'use strict';
+
+  /* ── State ── */
+  const state = {
+    screen: 0,
+    flow: 'myself',    // 'myself' | 'someone'
+    payment: 'cod',
+    cartData: null,    // full /cart.js payload saved before clearing
+    cartTotal: 0,
+    orderPayload: null // final order object — hook your backend here
+  };
+
+  /* ── DOM refs ── */
+  const screens    = [
+    document.getElementById('qbcScreen0'),
+    document.getElementById('qbcScreen1'),
+    document.getElementById('qbcScreen2')
+  ];
+  const footers    = [
+    document.getElementById('qbcFooter0'),
+    document.getElementById('qbcFooter1')
+  ];
+  const dots       = [0,1,2].map(i => document.getElementById('qbcDot' + i));
+  const totEls     = [
+    document.getElementById('qbcFooterTotal0'),
+    document.getElementById('qbcFooterTotal1')
+  ];
+  const summaryTot = document.getElementById('qbcSummaryTotal');
+  const summaryItems = document.getElementById('qbcSummaryItems');
+  const summaryCard  = document.getElementById('qbcSummaryCard');
+
+  /* ─────────────────────────────────────
+     1. LOAD CART
+  ───────────────────────────────────── */
+  fetch('/cart.js')
+    .then(r => r.json())
+    .then(cart => {
+      state.cartData = cart;
+      state.cartTotal = Math.floor(cart.total_price / 100);
+
+      if (cart.item_count === 0) {
+        showEmptyCart();
+        return;
+      }
+
+      const fmt = n => 'Rs ' + n.toLocaleString('en-IN');
+      const total = fmt(state.cartTotal);
+      totEls.forEach(el => el.textContent = total);
+      summaryTot.textContent = total;
+
+      // Read delivery ETA from localStorage (set by quickbee-header)
+      const storedDt = localStorage.getItem('qb_delivery_time');
+      if (storedDt) {
+        try {
+          const obj = JSON.parse(storedDt);
+          if (obj.range) document.getElementById('qbcEta').textContent = obj.range;
+        } catch(e) {}
+      }
+
+      // Render items
+      summaryItems.innerHTML = cart.items.map(item => `
+        <div class="qbc-item-row">
+          <img class="qbc-item-img"
+               src="${item.image ? item.image.replace(/(\.\w+)$/, '_80x80$1') : ''}"
+               alt="${item.product_title}"
+               onerror="this.style.background='var(--qbc-input-bg)';this.src=''">
+          <div class="qbc-item-info">
+            <div class="qbc-item-name">${item.product_title}</div>
+            <div class="qbc-item-qty">Qty: ${item.quantity}</div>
+          </div>
+          <div class="qbc-item-price">Rs ${Math.floor(item.final_line_price / 100)}</div>
+        </div>
+      `).join('');
+    })
+    .catch(() => showToast('Could not load cart. Please try again.'));
+
+  function showEmptyCart() {
+    document.querySelector('.qbc-page').innerHTML = `
+      <div class="qbc-empty">
+        <div class="qbc-empty-icon">🛒</div>
+        <div class="qbc-empty-title">Your cart is empty</div>
+        <div class="qbc-empty-sub">Add some items to your cart<br>before checking out.</div>
+        <a class="qbc-empty-shop" href="/collections/all">Shop Now</a>
+      </div>`;
+  }
+
+  /* ─────────────────────────────────────
+     2. SUMMARY TOGGLE
+  ───────────────────────────────────── */
+  document.getElementById('qbcSummaryToggle').addEventListener('click', () => {
+    summaryCard.classList.toggle('expanded');
+  });
+
+  /* ─────────────────────────────────────
+     3. CHOICE BUTTONS
+  ───────────────────────────────────── */
+  document.getElementById('qbcBtnMyself').addEventListener('click', () => {
+    setFlow('myself');
+  });
+  document.getElementById('qbcBtnSomeone').addEventListener('click', () => {
+    setFlow('someone');
+  });
+
+  function setFlow(flow) {
+    state.flow = flow;
+    document.getElementById('qbcBtnMyself').classList.toggle('selected', flow === 'myself');
+    document.getElementById('qbcBtnSomeone').classList.toggle('selected', flow === 'someone');
+  }
+
+  /* ─────────────────────────────────────
+     4. CONTINUE BUTTON (screen 0 → 1)
+  ───────────────────────────────────── */
+  document.getElementById('qbcContinueBtn').addEventListener('click', () => {
+    goToScreen(1);
+
+    // Show/hide recipient fields based on flow
+    const isGift = state.flow === 'someone';
+    document.getElementById('qbcRecipientTag').style.display      = isGift ? 'flex' : 'none';
+    document.getElementById('qbcRecipientNameField').style.display = isGift ? 'block' : 'none';
+    document.getElementById('qbcRecipientPhoneField').style.display = isGift ? 'block' : 'none';
+  });
+
+  /* ─────────────────────────────────────
+     5. DETECT LOCATION
+  ───────────────────────────────────── */
+  document.getElementById('qbcDetectBtn').addEventListener('click', detectLocation);
+
+  function detectLocation() {
+    const btn = document.getElementById('qbcDetectBtn');
+
+    if (!navigator.geolocation) {
+      showToast('Geolocation not supported by this browser.');
+      return;
+    }
+
+    btn.classList.add('detecting');
+    btn.querySelector('span').textContent = 'Detecting…';
+
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const { latitude, longitude } = pos.coords;
+        reverseGeocode(latitude, longitude);
+      },
+      err => {
+        btn.classList.remove('detecting');
+        btn.querySelector('span').textContent = 'Detect my location automatically';
+        const msgs = {
+          1: 'Location permission denied. Please enable it in your browser settings.',
+          2: 'Unable to detect location. Please enter your address manually.',
+          3: 'Location request timed out. Please try again.'
+        };
+        showToast(msgs[err.code] || 'Location error. Enter address manually.');
+      },
+      { timeout: 10000, maximumAge: 60000, enableHighAccuracy: true }
+    );
+  }
+
+  function reverseGeocode(lat, lng) {
+    const btn = document.getElementById('qbcDetectBtn');
+    const addressEl = document.getElementById('qbcAddress');
+
+    /* ──────────────────────────────────────────────────────────────────
+       OPTION A: Google Maps Geocoding API
+       → Replace YOUR_GOOGLE_MAPS_API_KEY with your actual key
+       → Enable "Geocoding API" in your Google Cloud Console
+       ─────────────────────────────────────────────────────────────── */
+    // const GOOGLE_KEY = 'YOUR_GOOGLE_MAPS_API_KEY'; // ← INSERT YOUR KEY HERE
+    // fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_KEY}`)
+    //   .then(r => r.json())
+    //   .then(data => {
+    //     const addr = data.results?.[0]?.formatted_address || '';
+    //     addressEl.value = addr;
+    //     btn.classList.remove('detecting');
+    //     btn.querySelector('span').textContent = '📍 Location detected';
+    //   })
+    //   .catch(() => fallbackAddress(lat, lng));
+
+    /* ──────────────────────────────────────────────────────────────────
+       OPTION B: Nominatim (OpenStreetMap) — FREE, no key needed
+       Fine for low volume. For production, consider Google Maps above.
+       ─────────────────────────────────────────────────────────────── */
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`, {
+      headers: { 'Accept-Language': 'en', 'User-Agent': 'QuickBeeStore/1.0' }
+    })
+      .then(r => r.json())
+      .then(data => {
+        const a = data.address || {};
+        const parts = [
+          a.house_number,
+          a.road || a.pedestrian || a.footway,
+          a.suburb || a.neighbourhood || a.quarter,
+          a.city || a.town || a.village || a.municipality,
+          a.state,
+          a.country
+        ].filter(Boolean);
+        const formatted = parts.join(', ') || data.display_name || `${lat}, ${lng}`;
+        addressEl.value = formatted;
+        addressEl.classList.remove('error');
+        document.getElementById('qbcAddressErr').classList.remove('visible');
+        btn.classList.remove('detecting');
+        btn.querySelector('span').textContent = '✅ Location detected — edit if needed';
+        showToast('📍 Location detected!');
+      })
+      .catch(() => {
+        addressEl.value = `${lat}, ${lng}`;
+        btn.classList.remove('detecting');
+        btn.querySelector('span').textContent = 'Detect my location automatically';
+        showToast('Couldn\'t resolve address. Coordinates saved.');
+      });
+  }
+
+  /* ─────────────────────────────────────
+     6. NOTE TOGGLE
+  ───────────────────────────────────── */
+  document.getElementById('qbcNoteToggle').addEventListener('click', () => {
+    document.getElementById('qbcNoteWrap').classList.toggle('open');
+  });
+
+  /* ─────────────────────────────────────
+     7. PAYMENT METHOD SELECTION
+  ───────────────────────────────────── */
+  document.querySelectorAll('.qbc-payment-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.qbc-payment-opt').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      state.payment = opt.dataset.pay;
+      opt.querySelector('input[type="radio"]').checked = true;
+    });
+  });
+
+  /* ─────────────────────────────────────
+     8. PLACE ORDER
+  ───────────────────────────────────── */
+  document.getElementById('qbcPlaceBtn').addEventListener('click', placeOrder);
+
+  function placeOrder() {
+    if (!validateForm()) return;
+
+    const btn = document.getElementById('qbcPlaceBtn');
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    /* ── Collect order payload ──
+       This is the complete data object.
+       HOOK YOUR BACKEND HERE:
+       - Send to a Shopify Draft Orders endpoint
+       - POST to your webhook (Zapier, Make, custom)
+       - Save to a Metaobject or Firebase
+    ─────────────────────────────────────── */
+    state.orderPayload = {
+      timestamp:      new Date().toISOString(),
+      order_id:       generateOrderId(),
+      flow:           state.flow,
+      payment_method: state.payment,
+      customer: {
+        phone:   document.getElementById('qbcPhone').value.trim(),
+        address: document.getElementById('qbcAddress').value.trim(),
+        note:    document.getElementById('qbcNote').value.trim() || null
+      },
+      recipient: state.flow === 'someone' ? {
+        name:    document.getElementById('qbcRecipientName').value.trim(),
+        phone:   document.getElementById('qbcRecipientPhone').value.trim(),
+        address: document.getElementById('qbcAddress').value.trim()
+      } : null,
+      cart: state.cartData,   // full Shopify cart object (items, prices, etc.)
+      total_price: state.cartTotal
+    };
+
+    console.log('[QB Checkout] Order Payload →', state.orderPayload);
+
+    /* ── STEP 1: Snapshot cart (already in state.cartData from initial load) ──
+       If you need a fresh fetch right before clearing, uncomment:
+    ─────────────────────────────────────── */
+    // fetch('/cart.js').then(r => r.json()).then(freshCart => {
+    //   state.orderPayload.cart = freshCart;
+    //   clearCartAndConfirm();
+    // });
+
+    /* ── STEP 2: Send to your backend webhook ─────────────────────────────
+       UNCOMMENT & FILL IN YOUR WEBHOOK URL:
+
+    fetch('https://your-backend.com/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(state.orderPayload)
+    }).then(r => r.json()).then(res => {
+      if (res.success) clearCartAndConfirm();
+      else throw new Error(res.message);
+    }).catch(err => {
+      showToast('Order failed: ' + err.message);
+      btn.classList.remove('loading');
+      btn.disabled = false;
+    });
+    ─────────────────────────────────────── */
+
+    // Default: proceed directly to clear + success
+    clearCartAndConfirm();
+  }
+
+  function clearCartAndConfirm() {
+    /* Clear Shopify cart via AJAX API */
+    fetch('/cart/clear.js', { method: 'POST' })
+      .then(() => {
+        document.getElementById('qbcOrderId').textContent = state.orderPayload.order_id;
+        goToScreen(2);
+
+        // Hide footer
+        footers.forEach(f => f.style.display = 'none');
+        document.querySelector('.qbc-progress').style.display = 'none';
+
+        // Update back button to go home
+        document.getElementById('qbcBackBtn').onclick = () => { window.location.href = '/'; };
+
+        // Fire confetti
+        launchConfetti();
+      })
+      .catch(() => {
+        showToast('Something went wrong. Please try again.');
+        const btn = document.getElementById('qbcPlaceBtn');
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      });
+  }
+
+  /* ─────────────────────────────────────
+     9. FORM VALIDATION
+  ───────────────────────────────────── */
+  function validateForm() {
+    let valid = true;
+
+    function check(id, errId, test) {
+      const el  = document.getElementById(id);
+      const err = document.getElementById(errId);
+      const ok  = test(el.value.trim());
+      el.classList.toggle('error', !ok);
+      err.classList.toggle('visible', !ok);
+      if (!ok) { valid = false; el.scrollIntoView({ behavior:'smooth', block:'center' }); }
+      return ok;
+    }
+
+    check('qbcAddress', 'qbcAddressErr', v => v.length > 8);
+    check('qbcPhone',   'qbcPhoneErr',   v => /^[\d\s\+\-\(\)]{7,15}$/.test(v));
+
+    if (state.flow === 'someone') {
+      check('qbcRecipientName',  'qbcRecipientNameErr',  v => v.length > 1);
+      check('qbcRecipientPhone', 'qbcRecipientPhoneErr', v => /^[\d\s\+\-\(\)]{7,15}$/.test(v));
+    }
+
+    return valid;
+  }
+
+  // Clear errors on input
+  ['qbcAddress','qbcPhone','qbcRecipientName','qbcRecipientPhone'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      el.classList.remove('error');
+      const errEl = document.getElementById(id + 'Err');
+      if (errEl) errEl.classList.remove('visible');
+    });
+  });
+
+  /* ─────────────────────────────────────
+     10. SCREEN NAVIGATION
+  ───────────────────────────────────── */
+  function goToScreen(n) {
+    screens.forEach((s, i) => s.classList.toggle('active', i === n));
+    footers.forEach((f, i) => f.style.display = i === n ? 'block' : 'none');
+    state.screen = n;
+    updateProgress(n);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateProgress(n) {
+    dots.forEach((d, i) => {
+      d.classList.remove('active', 'done');
+      if (i < n)  d.classList.add('done');
+      if (i === n) d.classList.add('active');
+    });
+  }
+
+  // Back button navigation
+  document.getElementById('qbcBackBtn').addEventListener('click', function() {
+    if (state.screen === 1) goToScreen(0);
+    else if (state.screen === 0) window.location.href = '/cart';
+  });
+
+  // Init footer visibility
+  footers[1].style.display = 'none';
+
+  /* ─────────────────────────────────────
+     11. CONFETTI
+  ───────────────────────────────────── */
+  function launchConfetti() {
+    const canvas = document.getElementById('qbc-confetti');
+    const ctx = canvas.getContext('2d');
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const colors = ['#F4B400','#FFD700','#C2185B','#22c55e','#3b82f6','#a855f7','#ffffff'];
+    const pieces = [];
+    const count  = 90;
+
+    for (let i = 0; i < count; i++) {
+      pieces.push({
+        x:      Math.random() * canvas.width,
+        y:      Math.random() * canvas.height - canvas.height,
+        w:      Math.random() * 10 + 5,
+        h:      Math.random() * 5  + 3,
+        color:  colors[Math.floor(Math.random() * colors.length)],
+        vx:     (Math.random() - 0.5) * 4,
+        vy:     Math.random() * 4 + 2,
+        rot:    Math.random() * 360,
+        rspeed: (Math.random() - 0.5) * 6,
+        alpha:  1
+      });
+    }
+
+    let frame;
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let alive = 0;
+      pieces.forEach(p => {
+        if (p.alpha <= 0) return;
+        p.y     += p.vy;
+        p.x     += p.vx;
+        p.rot   += p.rspeed;
+        if (p.y > canvas.height * 0.7) p.alpha -= 0.018;
+
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.translate(p.x + p.w/2, p.y + p.h/2);
+        ctx.rotate((p.rot * Math.PI) / 180);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+        ctx.restore();
+        if (p.alpha > 0) alive++;
+      });
+      if (alive > 0) frame = requestAnimationFrame(draw);
+      else ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    draw();
+    setTimeout(() => { cancelAnimationFrame(frame); ctx.clearRect(0, 0, canvas.width, canvas.height); }, 4500);
+  }
+
+  /* ─────────────────────────────────────
+     12. UTILITIES
+  ───────────────────────────────────── */
+  function generateOrderId() {
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    let id = 'QB–';
+    for (let i = 0; i < 6; i++) id += chars[Math.floor(Math.random() * chars.length)];
+    return id;
+  }
+
+  let toastTimer;
+  function showToast(msg) {
+    const el = document.getElementById('qbc-toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+  }
+
+})();
+</script>
