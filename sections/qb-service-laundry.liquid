@@ -538,17 +538,25 @@
     font-size: 22px;
   }
 
-  /* ── BOOKING BAR ── */
+  /* ── BOOKING BAR (Above Mobile Footer) ── */
   .booking-bar {
     position: fixed;
-    bottom: 0; /* Changed from 70px to 0 for now, will adjust with bottom nav height */
+    bottom: calc(65px + env(safe-area-inset-bottom));
     left: 0;
+    right: 0;
     width: 100%;
-    padding: 12px 20px; /* Added horizontal padding */
-    background: var(--theme-bg-primary); /* Use theme variable */
-    z-index: 999;
-    box-shadow: 0 -4px 12px rgba(0,0,0,0.08); /* Re-added shadow */
-    border-top: 1px solid var(--theme-border); /* Re-added border */
+    padding: 12px 20px;
+    background: var(--theme-bg-primary);
+    z-index: 10000;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+    border-top: 1px solid var(--theme-border);
+    animation: slideInUp var(--transition-smooth);
+  }
+
+  @media (min-width: 769px) {
+    .booking-bar {
+      bottom: 32px;
+    }
   }
 
   [data-theme="dark"] .booking-bar {
@@ -1367,7 +1375,19 @@
     animatePriceUpdate(totalEl, `Rs ${finalTotal}`);
     animatePriceUpdate(footerPriceEl, `Rs ${finalTotal}`);
 
-    stickyFooter.style.display = Object.keys(selectedServices).length > 0 ? 'flex' : 'none';
+    // Update booking bar
+    const bookingBar = document.getElementById('booking-bar');
+    const confirmBtn = document.getElementById('confirm-btn');
+    const hasServices = Object.keys(selectedServices).length > 0;
+
+    if (hasServices) {
+      bookingBar.style.display = 'block';
+      confirmBtn.textContent = `🐝 Confirm Booking • Rs ${finalTotal}`;
+    } else {
+      bookingBar.style.display = 'none';
+    }
+
+    stickyFooter.style.display = hasServices ? 'flex' : 'none';
   }
 
   // Service Card selection
