@@ -38,7 +38,7 @@
       /* JS will set exact height so page cannot scroll */
     }
 
-    /* SIDEBAR - scrolls its own content independently */
+    /* SIDEBAR - independent scroll with visible thin scrollbar */
     .qb-sidebar {
       width: var(--qb-sidebar-w);
       flex-shrink: 0;
@@ -51,10 +51,16 @@
       flex-direction: column;
       gap: 0;
       -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
+      scrollbar-width: thin;
+      scrollbar-color: #333 transparent;
     }
 
-    .qb-sidebar::-webkit-scrollbar { display: none; }
+    .qb-sidebar::-webkit-scrollbar { width: 3px; }
+    .qb-sidebar::-webkit-scrollbar-track { background: transparent; }
+    .qb-sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+    /* Hide size volume badges */
+    .qb-vol-badge { display: none !important; }
 
     /* ── Sidebar Item ── */
     .qb-sidebar-category {
@@ -475,21 +481,20 @@
       .qb-collection-container {
         display: flex;
         flex-direction: row;
-        overflow: visible;
-        height: auto;
+        overflow: hidden;
+        /* height set by JS same as mobile */
       }
 
       .qb-main-content {
         flex: 1;
-        overflow: visible;
-        height: auto;
+        min-width: 0;
+        overflow: hidden;
+        height: 100%;
       }
 
       .qb-sidebar {
-        position: sticky;
-        top: 0;
-        align-self: flex-start;
-        height: calc(100vh - 65px);
+        position: static;
+        height: 100%;
         width: var(--qb-sidebar-w);
         flex-direction: column;
         overflow-y: auto;
@@ -497,6 +502,7 @@
         padding: 8px 0 0;
         gap: 2px;
         flex-shrink: 0;
+        align-self: auto;
       }
 
       .qb-sidebar-category {
@@ -1087,7 +1093,7 @@
         const vt = product.variants[0].title;
         if (vt && vt.toLowerCase() !== 'default title') sizeTag = vt.toUpperCase();
       }
-      const volBadge = sizeTag ? `<span class="qb-vol-badge">${sizeTag}</span>` : '';
+      const volBadge = ''; // size badges hidden by design
 
       // Variant
       const variantId = product.variants && product.variants.length > 0 ? product.variants[0].id : '';
@@ -1424,7 +1430,14 @@
       document.documentElement.style.overflow = 'hidden';
     }
 
-    // Run once the full page has painted so header height is accurate
+    // Run on DOMContentLoaded and again after full load for accuracy
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(lockCollectionLayout, 0);
+      });
+    } else {
+      setTimeout(lockCollectionLayout, 0);
+    }
     window.addEventListener('load', function() {
       setTimeout(lockCollectionLayout, 50);
     });
