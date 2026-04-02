@@ -943,56 +943,58 @@ Provides GPS auto-detection with delivery time estimation based on location
      SHOPIFY INTEGRATION
   ═══════════════════════════════════════════ */
 
-  // Send delivery info to Shopify admin via contact form
-  // Shopify requires a live authenticity_token (CSRF) — we fetch it first
+  // Send delivery info to Shopify admin via contact form (with CSRF token)
   function sendToShopify(data, attempt) {
     attempt = attempt || 0;
 
-    const msgBody = [
+    // Build Google Maps link — use coordinates for self, landmark link for someone else
+    var lat      = data.latitude  || '';
+    var lng      = data.longitude || '';
+    var mapsLink = data.landmark_link
+      ? data.landmark_link
+      : (lat && lng ? 'https://www.google.com/maps?q=' + lat + ',' + lng : 'N/A');
+
+    var msgBody = [
       'New User Location:',
       'Type: '     + (data.type     || 'N/A'),
       'Location: ' + (data.location || 'N/A'),
+      'Maps: '     + mapsLink,
       'Name: '     + (data.name     || 'N/A'),
       'Phone: '    + (data.phone    || 'N/A')
     ].join('\n');
 
     function doPost(token) {
-      const payload = new URLSearchParams({
-        form_type:             'contact',
-        utf8:                  '\u2713',
-        authenticity_token:    token || '',
-        'contact[email]':      'delivery@quickbee.app',
-        'contact[name]':       'QuickBee Location Bot',
-        'contact[body]':       msgBody
+      var payload = new URLSearchParams({
+        form_type:           'contact',
+        utf8:                '\u2713',
+        authenticity_token:  token || '',
+        'contact[email]':    'delivery@quickbee.app',
+        'contact[name]':     'QuickBee Location Bot',
+        'contact[body]':     msgBody
       });
-
       return fetch('/contact', {
         method:  'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body:    payload.toString(),
         redirect:'follow'
       }).then(function (resp) {
-        console.log('[QB] Contact form response status:', resp.status);
         if (!resp.ok && attempt < 1) {
           return new Promise(function (r) { setTimeout(function () { r(sendToShopify(data, 1)); }, 900); });
         }
+        console.log('[QB] Location email sent ✅');
       });
     }
 
-    // Step 1 — GET /contact to extract a fresh CSRF token from the page HTML
+    // GET /contact first to grab a fresh CSRF token
     return fetch('/contact')
       .then(function (r) { return r.text(); })
       .then(function (html) {
-        // Shopify embeds the token in hidden inputs — match both attribute orders
-        const m = html.match(/name="authenticity_token"[^>]*value="([^"]+)"/)
-                || html.match(/value="([^"]+)"[^>]*name="authenticity_token"/);
-        const token = m ? m[1] : '';
-        console.log('[QB] CSRF token found:', !!token);
-        return doPost(token);
+        var m = html.match(/name="authenticity_token"[^>]*value="([^"]+)"/)
+             || html.match(/value="([^"]+)"[^>]*name="authenticity_token"/);
+        return doPost(m ? m[1] : '');
       })
       .catch(function (err) {
-        // If GET fails, attempt POST without token (still works on some stores)
-        console.warn('[QB] Failed to fetch CSRF token, trying without:', err);
+        console.warn('[QB] CSRF fetch failed, trying direct POST:', err);
         return doPost('').catch(function (e) {
           if (attempt < 1) {
             return new Promise(function (r) { setTimeout(function () { r(sendToShopify(data, 1)); }, 900); });
