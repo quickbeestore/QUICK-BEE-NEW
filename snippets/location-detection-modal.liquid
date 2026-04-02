@@ -876,516 +876,598 @@ Provides GPS auto-detection with delivery time estimation based on location
 </div>
 
 <script>
-function initLocationModal() {
-  // DOM Elements
-  const backdrop = document.getElementById('qbLocationBackdrop');
-  const modal = document.getElementById('qbLocationModal');
-  const closeBtn = document.getElementById('qbLocationClose');
-  const cancelBtn = document.getElementById('qbLocationCancel');
-  const selectBtn = document.getElementById('qbLocationSelect');
+(function () {
+  'use strict';
 
-  const detectAutoBtn = document.getElementById('qbDetectAutoBtn');
-  const someoneElseBtn = document.getElementById('qbSomeoneElseBtn');
-  const landmarkHelpBtn = document.getElementById('qbLandmarkHelpBtn');
-  const guideOverlay = document.getElementById('qbLocationGuideOverlay');
-  const guideCloseBtn = document.getElementById('qbLocationGuideClose');
-  const guideDismissBtn = document.getElementById('qbLocationGuideDismiss');
-
-  const steps = {
-    method: document.getElementById('qbLocationStep1'),
-    detecting: document.getElementById('qbLocationStep2'),
-    form: document.getElementById('qbLocationStep3'),
-    success: document.getElementById('qbLocationStep4')
-  };
-
-  const formInputs = {
-    street: document.getElementById('qbLocationStreet'),
-    receiverName: document.getElementById('qbReceiverName'),
-    receiverPhone: document.getElementById('qbReceiverPhone'),
-    landmarkLink: document.getElementById('qbLandmarkLink'),
-    lat: document.getElementById('qbLocationLat'),
-    lng: document.getElementById('qbLocationLng')
-  };
-
-  const formGroups = {
-    street: document.getElementById('qbStreetGroup'),
-    receiverName: document.getElementById('qbReceiverNameGroup'),
-    receiverPhone: document.getElementById('qbReceiverPhoneGroup'),
-    landmarkLink: document.getElementById('qbLandmarkGroup'),
-    lat: document.getElementById('qbLatGroup'),
-    lng: document.getElementById('qbLngGroup')
-  };
-
-  const errorMsg = document.getElementById('qbLocationError');
-  const deliveryInfo = document.getElementById('qbDeliveryInfo');
-  const deliveryTime = document.getElementById('qbDeliveryTime');
-  const successAddress = document.getElementById('qbSuccessAddress');
-
-  let currentStep = 'method';
-  let detectionMode = null; // 'auto' | 'someone_else'
-  let selectedCoords = null;
-
-  function isGoogleMapsLink(value) {
-    const normalized = String(value || '').trim().toLowerCase();
-    return /(^https?:\/\/)?(www\.)?(google\.[^\/]+\/maps|maps\.app\.goo\.gl|goo\.gl\/maps)/.test(normalized);
+  /* ═══════════════════════════════════════════
+     STORAGE HELPERS
+  ═══════════════════════════════════════════ */
+  function loadFromStorage() {
+    try {
+      const raw = localStorage.getItem('qb_selected_location');
+      if (!raw) return null;
+      const p = JSON.parse(raw);
+      if (!p || typeof p !== 'object') return null;
+      // Already new format
+      if (p.type) return p;
+      // Migrate old format → new format
+      if (p.mode) {
+        return {
+          type:     p.mode === 'someone_else' ? 'other' : 'self',
+          location: p.mode === 'someone_else'
+            ? (p.landmark_link || '')
+            : (p.street || p.address || ''),
+          name:  p.recipient_name  || '',
+          phone: p.recipient_phone || '',
+          // legacy fields kept for header widget
+          mode: p.mode, address: p.address || p.street || '',
+          street: p.street || '', recipient_name: p.recipient_name || '',
+          recipient_phone: p.recipient_phone || '',
+          landmark_link: p.landmark_link || '',
+          latitude: p.latitude || '', longitude: p.longitude || ''
+        };
+      }
+    } catch (_) {}
+    return null;
   }
 
-  function showGroup(group, visible) {
-    if (group) {
-      group.style.display = visible ? 'flex' : 'none';
-    }
-  }
-
-  function syncFormForMode() {
-    const isSomeoneElse = detectionMode === 'someone_else';
-
-    showGroup(formGroups.street, !isSomeoneElse);
-    showGroup(formGroups.lat, !isSomeoneElse);
-    showGroup(formGroups.lng, !isSomeoneElse);
-    showGroup(formGroups.receiverName, isSomeoneElse);
-    showGroup(formGroups.receiverPhone, isSomeoneElse);
-    showGroup(formGroups.landmarkLink, isSomeoneElse);
-
-    if (isSomeoneElse) {
-      deliveryInfo.style.display = 'none';
-    }
-
-    formInputs.street.required = !isSomeoneElse;
-    formInputs.receiverName.required = isSomeoneElse;
-    formInputs.receiverPhone.required = isSomeoneElse;
-    formInputs.landmarkLink.required = isSomeoneElse;
-  }
-
-  // Show/Hide Modal
-  function showModal() {
-    modal.classList.add('active');
-    backdrop.classList.add('active');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function hideModal() {
-    modal.classList.remove('active');
-    backdrop.classList.remove('active');
-    document.body.style.overflow = '';
-    resetForm();
-  }
-
-  function showGuide() {
-    if (guideOverlay) {
-      guideOverlay.classList.add('active');
-    }
-  }
-
-  function hideGuide() {
-    if (guideOverlay) {
-      guideOverlay.classList.remove('active');
-    }
-  }
-
-  // Navigate Steps
-  function goToStep(stepName) {
-    Object.values(steps).forEach(step => step.classList.remove('active'));
-    steps[stepName].classList.add('active');
-    currentStep = stepName;
-    updateButtonState();
-  }
-
-  function showError(message) {
-    errorMsg.textContent = message;
-    errorMsg.classList.add('show');
-    setTimeout(() => errorMsg.classList.remove('show'), 5000);
-  }
-
-  function updateViewOnMapsLink(lat, lng) {
-    const row = document.getElementById('qbViewOnMapsRow');
-    const link = document.getElementById('qbViewOnMapsLink');
-    if (row && link && lat && lng) {
-      link.href = 'https://www.google.com/maps?q=' + lat + ',' + lng;
-      row.style.display = 'block';
-    }
-  }
-
-  function updateButtonState() {
-    const isSomeoneElse = detectionMode === 'someone_else';
-    const isFormValid = isSomeoneElse
-      ? Boolean(
-          formInputs.receiverName.value.trim() &&
-          formInputs.receiverPhone.value.trim() &&
-          isGoogleMapsLink(formInputs.landmarkLink.value)
-        )
-      : Boolean(formInputs.street.value.trim());
-
-    selectBtn.disabled = currentStep === 'form' && !isFormValid;
-
-    if (currentStep === 'method' || currentStep === 'detecting') {
-      selectBtn.style.display = 'none';
-      cancelBtn.style.display = 'block';
-    } else if (currentStep === 'success') {
-      selectBtn.style.display = 'none';
-      cancelBtn.style.display = 'none';
-    } else {
-      selectBtn.style.display = 'block';
-      cancelBtn.style.display = 'block';
-    }
-  }
-
-  // Detect Location via GPS
-  function detectLocation() {
-    goToStep('detecting');
-    detectionMode = 'auto';
-    syncFormForMode();
-
-    if (!navigator.geolocation) {
-      showError('Geolocation not supported by your browser');
-      goToStep('method');
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      function(position) {
-        const { latitude, longitude } = position.coords;
-        selectedCoords = { latitude, longitude };
-
-        formInputs.lat.value = latitude.toFixed(6);
-        formInputs.lng.value = longitude.toFixed(6);
-
-        // Show View on Maps link
-        updateViewOnMapsLink(latitude, longitude);
-
-        // Reverse geocode to get address
-        reverseGeocode(latitude, longitude);
-      },
-      function(error) {
-        let errorMsg = 'Unable to detect location';
-        if (error.code === 1) errorMsg = 'Location access denied. Please enable it in settings.';
-        if (error.code === 2) errorMsg = 'Location service unavailable.';
-        if (error.code === 3) errorMsg = 'Location request timed out.';
-
-        showError(errorMsg);
-        goToStep('method');
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
-  }
-
-  function orderForSomeoneElse() {
-    detectionMode = 'someone_else';
-    selectedCoords = null;
-    formInputs.street.value = '';
-    formInputs.lat.value = '';
-    formInputs.lng.value = '';
-    syncFormForMode();
-    goToStep('form');
-  }
-
-  function fallbackStreetLabel(lat, lng) {
-    return `Detected near ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-  }
-
-  function buildStreetAddress(place) {
-    const address = place?.address || {};
-    const streetParts = [
-      address.house_number,
-      address.road || address.pedestrian || address.footway || address.cycleway,
-    ].filter(Boolean);
-
-    if (streetParts.length > 0) {
-      return streetParts.join(' ');
-    }
-
-    const localityParts = [
-      address.neighbourhood,
-      address.suburb,
-      address.residential,
-      address.hamlet,
-      address.quarter,
-      address.city_district,
-      address.village,
-      address.town,
-      address.city,
-    ].filter(Boolean);
-
-    if (localityParts.length > 0) {
-      return localityParts.slice(0, 2).join(', ');
-    }
-
-    if (place?.display_name) {
-      return place.display_name.split(',').slice(0, 2).join(', ').trim();
-    }
-
-    return '';
-  }
-
-  // Reverse Geocode (convert coords to address)
-  function reverseGeocode(lat, lng) {
-    const fallbackStreet = fallbackStreetLabel(lat, lng);
-    formInputs.street.value = fallbackStreet;
-    updateButtonState();
-
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&addressdetails=1`)
-      .then(res => res.json())
-      .then(place => {
-        const streetAddress = buildStreetAddress(place) || fallbackStreet;
-        formInputs.street.value = streetAddress;
-        syncFormForMode();
-        updateButtonState();
-        // Calculate delivery time FIRST
-        estimateDeliveryTime();
-        // Show form
-        goToStep('form');
-        // Ensure delivery time is visible
-        setTimeout(() => {
-          if (deliveryTime.textContent && deliveryTime.textContent !== '—') {
-            console.log('Delivery time calculated:', deliveryTime.textContent);
-          }
-        }, 50);
-      })
-      .catch(err => {
-        console.log('Geocoding failed, showing form anyway');
-        formInputs.street.value = fallbackStreet;
-        syncFormForMode();
-        updateButtonState();
-        estimateDeliveryTime();
-        goToStep('form');
-      });
-  }
-
-  // Calculate delivery time based on coordinates
-  function calculateDeliveryTime(lat, lng) {
-    // Central point (warehouse location) - Kathmandu center
-    const warehouseLat = 27.7172;
-    const warehouseLng = 85.3240;
-
-    // Calculate distance using Haversine formula
-    function getDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371; // Earth radius in km
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a =
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon/2) * Math.sin(dLon/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c;
-    }
-
-    const distanceKm = getDistance(warehouseLat, warehouseLng, lat, lng);
-
-    // Estimate delivery time: base 10 mins + 1 min per km
-    // Max out at 60 mins
-    const estimatedMins = Math.min(Math.round(10 + (distanceKm * 1.5)), 60);
-    const minTime = Math.max(estimatedMins - 4, 5); // -4 mins buffer, minimum 5
-    const maxTime = Math.min(estimatedMins + 4, 60); // +4 mins buffer, max 60
-
-    return {
-      minTime: minTime,
-      maxTime: maxTime,
-      range: `${minTime}-${maxTime} mins`,
-      distanceKm: distanceKm,
-      estimatedMins: estimatedMins,
-      updatedAt: new Date().toISOString()
+  function saveToLocalStorage(rawData) {
+    const normalized = {
+      type:     rawData.mode === 'someone_else' ? 'other' : 'self',
+      location: rawData.mode === 'someone_else'
+        ? (rawData.landmark_link || '')
+        : (rawData.street || rawData.address || ''),
+      name:  rawData.recipient_name  || '',
+      phone: rawData.recipient_phone || '',
+      // Legacy fields — keeps header & cart page working
+      mode:            rawData.mode,
+      address:         rawData.address || rawData.street || rawData.landmark_link || '',
+      street:          rawData.street || '',
+      recipient_name:  rawData.recipient_name  || '',
+      recipient_phone: rawData.recipient_phone || '',
+      landmark_link:   rawData.landmark_link   || '',
+      latitude:        rawData.latitude  || '',
+      longitude:       rawData.longitude || '',
+      timestamp: new Date().toISOString()
     };
+    try {
+      localStorage.setItem('qb_selected_location', JSON.stringify(normalized));
+      window.QB_SELECTED_LOCATION = normalized;
+    } catch (e) {
+      console.error('[QB] saveToLocalStorage failed:', e);
+    }
+    return normalized;
   }
 
-  // Estimate Delivery Time & Update Product Badges
-  function estimateDeliveryTime() {
-    let deliveryData;
+  /* ═══════════════════════════════════════════
+     SHOPIFY INTEGRATION
+  ═══════════════════════════════════════════ */
 
-    // If we have coordinates, calculate based on distance
-    if (formInputs.lat.value && formInputs.lng.value) {
-      const lat = parseFloat(formInputs.lat.value);
-      const lng = parseFloat(formInputs.lng.value);
-      deliveryData = calculateDeliveryTime(lat, lng);
-    } else {
-      // Fallback to default estimate
-      deliveryData = {
-        minTime: 18,
-        maxTime: 22,
-        range: '18-22 mins',
+  // Send delivery info to Shopify admin via contact form
+  function sendToShopify(data, attempt) {
+    attempt = attempt || 0;
+    const msgBody = [
+      'New User Location:',
+      'Type: '     + (data.type     || 'N/A'),
+      'Location: ' + (data.location || 'N/A'),
+      'Name: '     + (data.name     || 'N/A'),
+      'Phone: '    + (data.phone    || 'N/A')
+    ].join('\n');
+
+    const payload = new URLSearchParams({
+      form_type:        'contact',
+      utf8:             '\u2713',
+      'contact[email]': 'delivery@quickbee.app',
+      'contact[name]':  'QuickBee Delivery Bot',
+      'contact[body]':  msgBody
+    });
+
+    return fetch('/contact', {
+      method:   'POST',
+      headers:  { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body:     payload.toString(),
+      redirect: 'follow'
+    }).then(function (resp) {
+      if (!resp.ok && attempt < 1) {
+        return new Promise(function (resolve) {
+          setTimeout(function () { resolve(sendToShopify(data, 1)); }, 900);
+        });
+      }
+    }).catch(function (err) {
+      if (attempt < 1) {
+        return new Promise(function (resolve) {
+          setTimeout(function () { resolve(sendToShopify(data, 1)); }, 900);
+        });
+      }
+      console.warn('[QB] sendToShopify failed after retry:', err);
+    });
+  }
+
+  // Attach delivery details as Shopify cart order note
+  function updateCartNote(data) {
+    const note = [
+      'Delivery Details:',
+      'Type: '     + (data.type     || 'N/A'),
+      'Location: ' + (data.location || 'N/A'),
+      'Name: '     + (data.name     || 'N/A'),
+      'Phone: '    + (data.phone    || 'N/A')
+    ].join('\n');
+
+    return fetch('/cart/update.js', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ note: note })
+    }).catch(function (err) {
+      console.warn('[QB] updateCartNote failed:', err);
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     MODAL INIT
+  ═══════════════════════════════════════════ */
+  function initLocationModal() {
+
+    // ── DOM refs ──
+    const backdrop        = document.getElementById('qbLocationBackdrop');
+    const modal           = document.getElementById('qbLocationModal');
+    const closeBtn        = document.getElementById('qbLocationClose');
+    const cancelBtn       = document.getElementById('qbLocationCancel');
+    const selectBtn       = document.getElementById('qbLocationSelect');
+    const detectAutoBtn   = document.getElementById('qbDetectAutoBtn');
+    const someoneElseBtn  = document.getElementById('qbSomeoneElseBtn');
+    const landmarkHelpBtn = document.getElementById('qbLandmarkHelpBtn');
+    const guideOverlay    = document.getElementById('qbLocationGuideOverlay');
+    const guideCloseBtn   = document.getElementById('qbLocationGuideClose');
+
+    const steps = {
+      method:    document.getElementById('qbLocationStep1'),
+      detecting: document.getElementById('qbLocationStep2'),
+      form:      document.getElementById('qbLocationStep3'),
+      success:   document.getElementById('qbLocationStep4')
+    };
+
+    const formInputs = {
+      street:       document.getElementById('qbLocationStreet'),
+      receiverName: document.getElementById('qbReceiverName'),
+      receiverPhone:document.getElementById('qbReceiverPhone'),
+      landmarkLink: document.getElementById('qbLandmarkLink'),
+      lat:          document.getElementById('qbLocationLat'),
+      lng:          document.getElementById('qbLocationLng')
+    };
+
+    const formGroups = {
+      street:       document.getElementById('qbStreetGroup'),
+      receiverName: document.getElementById('qbReceiverNameGroup'),
+      receiverPhone:document.getElementById('qbReceiverPhoneGroup'),
+      landmarkLink: document.getElementById('qbLandmarkGroup'),
+      lat:          document.getElementById('qbLatGroup'),
+      lng:          document.getElementById('qbLngGroup')
+    };
+
+    const errorEl        = document.getElementById('qbLocationError');
+    const deliveryInfoEl = document.getElementById('qbDeliveryInfo');
+    const deliveryTimeEl = document.getElementById('qbDeliveryTime');
+    const successAddrEl  = document.getElementById('qbSuccessAddress');
+
+    let currentStep    = 'method';
+    let detectionMode  = null;   // 'auto' | 'someone_else'
+    let selectedCoords = null;
+    let isForcedOpen   = false;
+
+    /* ── Helpers ── */
+    function isGoogleMapsLink(v) {
+      const s = String(v || '').trim().toLowerCase();
+      return /(^https?:\/\/)?(www\.)?(google\.[^\/]+\/maps|maps\.app\.goo\.gl|goo\.gl\/maps)/.test(s);
+    }
+
+    function showGroup(group, visible) {
+      if (group) group.style.display = visible ? 'flex' : 'none';
+    }
+
+    function syncFormForMode() {
+      const isSE = detectionMode === 'someone_else';
+      showGroup(formGroups.street,        !isSE);
+      showGroup(formGroups.lat,           !isSE);
+      showGroup(formGroups.lng,           !isSE);
+      showGroup(formGroups.receiverName,   isSE);
+      showGroup(formGroups.receiverPhone,  isSE);
+      showGroup(formGroups.landmarkLink,   isSE);
+      if (isSE) deliveryInfoEl.style.display = 'none';
+      formInputs.street.required        = !isSE;
+      formInputs.receiverName.required  =  isSE;
+      formInputs.receiverPhone.required =  isSE;
+      formInputs.landmarkLink.required  =  isSE;
+    }
+
+    function showError(msg) {
+      errorEl.textContent = msg;
+      errorEl.classList.add('show');
+      setTimeout(function () { errorEl.classList.remove('show'); }, 5000);
+    }
+
+    function updateViewOnMapsLink(lat, lng) {
+      const row  = document.getElementById('qbViewOnMapsRow');
+      const link = document.getElementById('qbViewOnMapsLink');
+      if (row && link) {
+        link.href = 'https://www.google.com/maps?q=' + lat + ',' + lng;
+        row.style.display = 'block';
+      }
+    }
+
+    /* ── Button / footer state ── */
+    function updateButtonState() {
+      const isSE = detectionMode === 'someone_else';
+      const valid = isSE
+        ? !!(formInputs.receiverName.value.trim() &&
+             formInputs.receiverPhone.value.trim() &&
+             isGoogleMapsLink(formInputs.landmarkLink.value))
+        : !!formInputs.street.value.trim();
+
+      selectBtn.disabled = currentStep === 'form' && !valid;
+
+      const canCancel = !isForcedOpen;
+      if (currentStep === 'method' || currentStep === 'detecting') {
+        selectBtn.style.display = 'none';
+        cancelBtn.style.display = canCancel ? 'block' : 'none';
+      } else if (currentStep === 'success') {
+        selectBtn.style.display = 'none';
+        cancelBtn.style.display = 'none';
+      } else {
+        selectBtn.style.display = 'block';
+        cancelBtn.style.display = canCancel ? 'block' : 'none';
+      }
+    }
+
+    /* ── Step navigation ── */
+    function goToStep(stepName) {
+      Object.values(steps).forEach(function (s) { s.classList.remove('active'); });
+      steps[stepName].classList.add('active');
+      currentStep = stepName;
+      updateButtonState();
+    }
+
+    /* ── Modal open / close ── */
+    function showModal(forced) {
+      isForcedOpen = !!forced;
+      modal.classList.add('active');
+      backdrop.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      // In forced mode: hide X and Cancel so user must complete
+      closeBtn.style.display = isForcedOpen ? 'none' : '';
+      updateButtonState();
+    }
+
+    function _doClose() {
+      backdrop.classList.remove('active');
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      resetForm();
+    }
+
+    function hideModal() {
+      if (isForcedOpen) return; // block — must pick a location
+      _doClose();
+    }
+
+    function forceClose() {
+      isForcedOpen = false;
+      _doClose();
+    }
+
+    function showGuide() { if (guideOverlay) guideOverlay.classList.add('active'); }
+    function hideGuide() { if (guideOverlay) guideOverlay.classList.remove('active'); }
+
+    /* ── Delivery time estimation ── */
+    function calcDeliveryTime(lat, lng) {
+      const wLat = 27.7172, wLng = 85.3240;
+      const toRad = function (x) { return x * Math.PI / 180; };
+      const dLatR = toRad(lat - wLat);
+      const dLonR = toRad(lng - wLng);
+      const a = Math.sin(dLatR / 2) * Math.sin(dLatR / 2) +
+                Math.cos(toRad(wLat)) * Math.cos(toRad(lat)) *
+                Math.sin(dLonR / 2) * Math.sin(dLonR / 2);
+      const km  = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const est = Math.min(Math.round(10 + km * 1.5), 60);
+      const mn  = Math.max(est - 4, 5);
+      const mx  = Math.min(est + 4, 60);
+      return {
+        minTime: mn, maxTime: mx,
+        range: mn + '-' + mx + ' mins',
+        distanceKm: km, estimatedMins: est,
         updatedAt: new Date().toISOString()
       };
     }
 
-    // Save to global state for product cards to use
-    window.QB_DELIVERY_TIME = deliveryData;
-
-    // Save to localStorage for persistence across pages
-    try {
-      localStorage.setItem('qb_delivery_time', JSON.stringify(window.QB_DELIVERY_TIME));
-    } catch (e) {
-      console.warn('Failed to save delivery time to localStorage:', e);
-    }
-
-    // Update display in modal
-    deliveryTime.textContent = window.QB_DELIVERY_TIME.range;
-    deliveryInfo.style.display = 'block';
-
-    // Update all product delivery badges on page
-    updateProductDeliveryBadges();
-  }
-
-  // Update all product delivery badges
-  function updateProductDeliveryBadges() {
-    const badges = document.querySelectorAll('.qb-delivery-badge');
-    const range = window.QB_DELIVERY_TIME?.range || '18-22 mins';
-    badges.forEach(badge => {
-      badge.textContent = `⚡ ${range}`;
-    });
-  }
-
-  // Form Validation & Selection
-  function handleSelectLocation() {
-    if (currentStep !== 'form') return;
-
-    const isSomeoneElse = detectionMode === 'someone_else';
-    const address = isSomeoneElse
-      ? {
-          address: `Recipient: ${formInputs.receiverName.value.trim()}, Phone: ${formInputs.receiverPhone.value.trim()}`,
-          mode: detectionMode,
-          recipient_name: formInputs.receiverName.value.trim(),
-          recipient_phone: formInputs.receiverPhone.value.trim(),
-          landmark_link: formInputs.landmarkLink.value.trim(),
-          timestamp: new Date().toISOString()
-        }
-      : {
-          address: formInputs.street.value.trim(),
-          street: formInputs.street.value.trim(),
-          latitude: formInputs.lat.value,
-          longitude: formInputs.lng.value,
-          mode: detectionMode,
-          timestamp: new Date().toISOString()
-        };
-
-    if (isSomeoneElse) {
-      if (!address.recipient_name || !address.recipient_phone) {
-        showError("Please fill in receiver's name and contact number");
-        return;
+    function estimateDeliveryTime() {
+      let data;
+      if (formInputs.lat.value && formInputs.lng.value) {
+        data = calcDeliveryTime(
+          parseFloat(formInputs.lat.value),
+          parseFloat(formInputs.lng.value)
+        );
+      } else {
+        data = { minTime: 18, maxTime: 22, range: '18-22 mins', updatedAt: new Date().toISOString() };
       }
+      window.QB_DELIVERY_TIME = data;
+      try { localStorage.setItem('qb_delivery_time', JSON.stringify(data)); } catch (_) {}
+      deliveryTimeEl.textContent       = data.range;
+      deliveryInfoEl.style.display     = 'block';
+      updateProductDeliveryBadges();
+    }
 
-      if (!isGoogleMapsLink(address.landmark_link)) {
-        showError('Only Google Maps links are supported for landmark');
-        return;
+    function updateProductDeliveryBadges() {
+      const range = (window.QB_DELIVERY_TIME && window.QB_DELIVERY_TIME.range) || '18-22 mins';
+      document.querySelectorAll(
+        '.qb-delivery-badge, .qb-delivery-time-text, .qbp2-delivery-sync, .qb-delivery-sync'
+      ).forEach(function (el) { el.textContent = range; });
+    }
+
+    /* ── Reverse geocode ── */
+    function fallbackLabel(lat, lng) {
+      return 'Detected near ' + lat.toFixed(5) + ', ' + lng.toFixed(5);
+    }
+
+    function buildStreetAddress(place) {
+      const addr = (place && place.address) || {};
+      const streetParts = [
+        addr.house_number,
+        addr.road || addr.pedestrian || addr.footway || addr.cycleway
+      ].filter(Boolean);
+      if (streetParts.length) return streetParts.join(' ');
+      const localParts = [
+        addr.neighbourhood, addr.suburb, addr.residential, addr.hamlet,
+        addr.quarter, addr.city_district, addr.village, addr.town, addr.city
+      ].filter(Boolean);
+      if (localParts.length) return localParts.slice(0, 2).join(', ');
+      if (place && place.display_name) {
+        return place.display_name.split(',').slice(0, 2).join(', ').trim();
       }
-    } else if (!address.street) {
-      showError('Please fill in street address');
-      return;
+      return '';
     }
 
-    // Save to localStorage
-    try {
-      localStorage.setItem('qb_selected_location', JSON.stringify(address));
-      window.QB_SELECTED_LOCATION = address;
-    } catch (e) {
-      console.error('Failed to save location:', e);
-    }
+    function reverseGeocode(lat, lng) {
+      const fb = fallbackLabel(lat, lng);
+      formInputs.street.value = fb;
+      updateButtonState();
 
-    // Show success
-    successAddress.textContent = isSomeoneElse
-      ? `${address.recipient_name} • ${address.recipient_phone}`
-      : address.street;
-    goToStep('success');
-
-    // Auto-close and trigger event
-    setTimeout(() => {
-      hideModal();
-
-      // Get the currently calculated delivery time from global state
-      // This was set by estimateDeliveryTime() during form interaction
-      if (!isSomeoneElse) {
-        const deliveryTimeData = window.QB_DELIVERY_TIME || {};
-        const deliveryTimeText = deliveryTimeData.range || deliveryTime.textContent || '18-22 mins';
-
-        console.log('Saving delivery time:', deliveryTimeText);
-
-        // Save delivery time to global state and localStorage
-        window.QB_DELIVERY_TIME = {
-          range: deliveryTimeText,
-          minTime: deliveryTimeData.minTime,
-          maxTime: deliveryTimeData.maxTime,
-          updatedAt: new Date().toISOString()
-        };
-
-        try {
-          localStorage.setItem('qb_delivery_time', JSON.stringify(window.QB_DELIVERY_TIME));
-          console.log('Saved to localStorage:', window.QB_DELIVERY_TIME);
-        } catch (e) {
-          console.warn('Failed to save delivery time:', e);
-        }
-
-        // Update all product badges immediately with full selector list
-        const badges = document.querySelectorAll('.qb-delivery-badge, .qb-product-delivery, .qb-sync-badge');
-        console.log('Found', badges.length, 'badges to update');
-        badges.forEach(badge => {
-          badge.textContent = `⚡ ${deliveryTimeText}`;
-          badge.setAttribute('data-delivery-time', deliveryTimeText);
+      fetch(
+        'https://nominatim.openstreetmap.org/reverse?format=jsonv2' +
+        '&lat=' + encodeURIComponent(lat) +
+        '&lon=' + encodeURIComponent(lng) +
+        '&addressdetails=1'
+      )
+        .then(function (r) { return r.json(); })
+        .then(function (place) {
+          formInputs.street.value = buildStreetAddress(place) || fb;
+          syncFormForMode();
+          updateButtonState();
+          estimateDeliveryTime();
+          goToStep('form');
+        })
+        .catch(function () {
+          syncFormForMode();
+          updateButtonState();
+          estimateDeliveryTime();
+          goToStep('form');
         });
+    }
+
+    /* ── GPS detection ── */
+    function detectLocation() {
+      goToStep('detecting');
+      detectionMode = 'auto';
+      syncFormForMode();
+
+      if (!navigator.geolocation) {
+        showError('Geolocation not supported by your browser');
+        goToStep('method');
+        return;
       }
 
-      // Also dispatch event for any listeners
-      window.dispatchEvent(new CustomEvent('locationSelected', { detail: address }));
-      if (window.QB_LOCATION_CALLBACK) {
-        window.QB_LOCATION_CALLBACK(address);
+      navigator.geolocation.getCurrentPosition(
+        function (pos) {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          selectedCoords = { latitude: lat, longitude: lng };
+          formInputs.lat.value = lat.toFixed(6);
+          formInputs.lng.value = lng.toFixed(6);
+          updateViewOnMapsLink(lat, lng);
+          reverseGeocode(lat, lng);
+        },
+        function (err) {
+          const msgs = {
+            1: 'Location access denied. Please enable it in settings.',
+            2: 'Location service unavailable.',
+            3: 'Location request timed out.'
+          };
+          showError(msgs[err.code] || 'Unable to detect location');
+          goToStep('method');
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
+    function orderForSomeoneElse() {
+      detectionMode  = 'someone_else';
+      selectedCoords = null;
+      formInputs.street.value = '';
+      formInputs.lat.value    = '';
+      formInputs.lng.value    = '';
+      syncFormForMode();
+      goToStep('form');
+    }
+
+    /* ══════════════════════════════════════════
+       handleSubmit — main action on "Select Location"
+    ══════════════════════════════════════════ */
+    function handleSubmit() {
+      if (currentStep !== 'form') return;
+
+      const isSE = detectionMode === 'someone_else';
+
+      // ── Validation ──
+      if (isSE) {
+        if (!formInputs.receiverName.value.trim()) {
+          showError("Please enter receiver's name"); return;
+        }
+        if (!formInputs.receiverPhone.value.trim()) {
+          showError('Please enter contact number'); return;
+        }
+        if (!isGoogleMapsLink(formInputs.landmarkLink.value)) {
+          showError('Only Google Maps links are accepted for landmark'); return;
+        }
+      } else {
+        if (!formInputs.street.value.trim()) {
+          showError('Please enter your street address'); return;
+        }
       }
-    }, 1500);
+
+      // ── Loading state ──
+      const origText = selectBtn.textContent;
+      selectBtn.disabled    = true;
+      selectBtn.textContent = '\u23F3 Saving...';
+
+      // ── Build raw data object ──
+      const rawData = isSE
+        ? {
+            mode:            'someone_else',
+            recipient_name:  formInputs.receiverName.value.trim(),
+            recipient_phone: formInputs.receiverPhone.value.trim(),
+            landmark_link:   formInputs.landmarkLink.value.trim()
+          }
+        : {
+            mode:      'auto',
+            address:   formInputs.street.value.trim(),
+            street:    formInputs.street.value.trim(),
+            latitude:  formInputs.lat.value,
+            longitude: formInputs.lng.value
+          };
+
+      // ── saveToLocalStorage ──
+      const normalized = saveToLocalStorage(rawData);
+
+      // ── Persist delivery time for self-orders ──
+      if (!isSE && formInputs.lat.value && formInputs.lng.value) {
+        const dData = calcDeliveryTime(
+          parseFloat(formInputs.lat.value),
+          parseFloat(formInputs.lng.value)
+        );
+        window.QB_DELIVERY_TIME = dData;
+        try { localStorage.setItem('qb_delivery_time', JSON.stringify(dData)); } catch (_) {}
+      }
+
+      // ── sendToShopify + updateCartNote (fire-and-forget, parallel) ──
+      sendToShopify(normalized);
+      updateCartNote(normalized);
+
+      // ── Success UI ──
+      successAddrEl.textContent = isSE
+        ? (normalized.name + ' \u2022 ' + normalized.phone)
+        : normalized.location;
+      goToStep('success');
+
+      // Restore button
+      selectBtn.disabled    = false;
+      selectBtn.textContent = origText;
+
+      // Update delivery badges on page
+      updateProductDeliveryBadges();
+
+      // Dispatch event for header location widget
+      window.dispatchEvent(new CustomEvent('locationSelected', { detail: normalized }));
+      if (typeof window.QB_LOCATION_CALLBACK === 'function') {
+        window.QB_LOCATION_CALLBACK(normalized);
+      }
+
+      // Auto-close after success animation completes
+      setTimeout(forceClose, 1600);
+    }
+
+    /* ── Reset ── */
+    function resetForm() {
+      Object.values(formInputs).forEach(function (inp) { inp.value = ''; });
+      deliveryInfoEl.style.display = 'none';
+      errorEl.classList.remove('show');
+      currentStep   = null;
+      detectionMode = null;
+      selectedCoords= null;
+      syncFormForMode();
+      goToStep('method');
+    }
+
+    /* ── Event listeners ── */
+    closeBtn.addEventListener('click',   hideModal);
+    cancelBtn.addEventListener('click',  hideModal);
+    backdrop.addEventListener('click',   function (e) {
+      if (e.target === backdrop) hideModal();
+    });
+    modal.addEventListener('click', function (e) { e.stopPropagation(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.classList.contains('active')) hideModal();
+    });
+
+    if (landmarkHelpBtn) landmarkHelpBtn.addEventListener('click', showGuide);
+    if (guideCloseBtn)   guideCloseBtn.addEventListener('click',   hideGuide);
+    if (guideOverlay) {
+      guideOverlay.addEventListener('click', function (e) {
+        if (e.target === guideOverlay) hideGuide();
+      });
+    }
+
+    detectAutoBtn.addEventListener('click',  detectLocation);
+    someoneElseBtn.addEventListener('click', orderForSomeoneElse);
+    selectBtn.addEventListener('click',      handleSubmit);
+
+    [formInputs.street, formInputs.receiverName,
+     formInputs.receiverPhone, formInputs.landmarkLink].forEach(function (inp) {
+      inp.addEventListener('input', updateButtonState);
+    });
+    formInputs.lat.addEventListener('change', estimateDeliveryTime);
+    formInputs.lng.addEventListener('change', estimateDeliveryTime);
+
+    /* ══════════════════════════════════════════
+       PAGE-LOAD LOGIC
+       — Force modal if no location saved
+       — Sync cart note silently on every visit
+    ══════════════════════════════════════════ */
+    function onPageLoad() {
+      const saved = loadFromStorage();
+
+      if (!saved) {
+        // First-time visitor — force modal, block everything behind
+        setTimeout(function () { showModal(true); }, 150);
+      } else {
+        // Returning visitor — restore delivery time badges
+        try {
+          const dt = JSON.parse(localStorage.getItem('qb_delivery_time') || 'null');
+          if (dt) {
+            window.QB_DELIVERY_TIME = dt;
+            updateProductDeliveryBadges();
+          }
+        } catch (_) {}
+        // Always keep cart note in sync with latest delivery info
+        setTimeout(function () { updateCartNote(saved); }, 600);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', onPageLoad);
+    } else {
+      onPageLoad();
+    }
+
+    /* ── Public API ── */
+    window.showLocationModal   = function () { showModal(false); };
+    window.hideLocationModal   = hideModal;
+    window.getSelectedLocation = function () { return window.QB_SELECTED_LOCATION; };
   }
 
-  // Form input validation & delivery time update
-  [formInputs.street, formInputs.receiverName, formInputs.receiverPhone, formInputs.landmarkLink].forEach(input => {
-    input.addEventListener('input', updateButtonState);
-  });
-
-  // Recalculate delivery time when coordinates change
-  formInputs.lat.addEventListener('change', estimateDeliveryTime);
-  formInputs.lng.addEventListener('change', estimateDeliveryTime);
-
-  // Event Listeners
-  closeBtn.addEventListener('click', hideModal);
-  backdrop.addEventListener('click', hideModal);
-  modal.addEventListener('click', (e) => e.stopPropagation());
-  cancelBtn.addEventListener('click', hideModal);
-  landmarkHelpBtn?.addEventListener('click', showGuide);
-  guideCloseBtn?.addEventListener('click', hideGuide);
-  guideDismissBtn?.addEventListener('click', hideGuide);
-  guideOverlay?.addEventListener('click', (event) => {
-    if (event.target === guideOverlay) {
-      hideGuide();
-    }
-  });
-
-  detectAutoBtn.addEventListener('click', detectLocation);
-  someoneElseBtn.addEventListener('click', orderForSomeoneElse);
-
-  selectBtn.addEventListener('click', handleSelectLocation);
-
-  // Keyboard
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.classList.contains('active')) {
-      hideModal();
-    }
-  });
-
-  // Reset
-  function resetForm() {
-    Object.values(formInputs).forEach(input => input.value = '');
-    deliveryInfo.style.display = 'none';
-    errorMsg.classList.remove('show');
-    currentStep = null;
-    detectionMode = null;
-    selectedCoords = null;
-    syncFormForMode();
-    goToStep('method');
+  /* ── Boot ── */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLocationModal);
+  } else {
+    initLocationModal();
   }
 
-  // Public API
-  window.showLocationModal = showModal;
-  window.hideLocationModal = hideModal;
-  window.getSelectedLocation = () => window.QB_SELECTED_LOCATION;
-}
-
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initLocationModal);
-} else {
-  initLocationModal();
-}
+})();
 </script>
