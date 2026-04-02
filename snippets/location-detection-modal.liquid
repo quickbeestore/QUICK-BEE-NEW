@@ -329,21 +329,48 @@ Provides GPS auto-detection with delivery time estimation based on location
 
   /* Modal Footer */
   .qb-location-footer {
-    padding: 16px 24px;
+    padding: 12px 24px 16px;
     border-top: 1px solid #f0f0f0;
     display: flex;
-    gap: 12px;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .qb-location-btn {
-    flex: 1;
-    padding: 12px 16px;
+    width: 100%;
+    padding: 13px 16px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
+  }
+
+  /* Go Back button — subtle ghost style */
+  .qb-location-btn-back {
+    background: transparent;
+    color: #888;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 16px;
+  }
+
+  .qb-location-btn-back:hover {
+    color: #444;
+    background: #f5f5f5;
+    border-radius: 8px;
+  }
+
+  [data-theme="dark"] .qb-location-btn-back,
+  body.dark-theme .qb-location-btn-back {
+    color: #666;
+  }
+
+  [data-theme="dark"] .qb-location-btn-back:hover,
+  body.dark-theme .qb-location-btn-back:hover {
+    color: #aaa;
+    background: #2a2a2a;
   }
 
   .qb-location-btn-cancel {
@@ -582,11 +609,21 @@ Provides GPS auto-detection with delivery time estimation based on location
     box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.16) !important;
   }
 
+  .qb-location-form-input[readonly] {
+    background: #f0f0f0 !important;
+    color: #555 !important;
+    cursor: not-allowed !important;
+    user-select: none;
+    pointer-events: none;
+  }
+
   [data-theme="dark"] .qb-location-form-input[readonly],
   body.dark-theme .qb-location-form-input[readonly] {
     background: #1a1a1a !important;
     color: #94a3b8 !important;
-    cursor: not-allowed;
+    cursor: not-allowed !important;
+    user-select: none;
+    pointer-events: none;
   }
 
   [data-theme="dark"] .qb-location-help-btn,
@@ -755,13 +792,14 @@ Provides GPS auto-detection with delivery time estimation based on location
     <div class="qb-location-step" id="qbLocationStep3">
       <form class="qb-location-form" id="qbLocationForm">
         <div class="qb-location-form-group" id="qbStreetGroup">
-          <label class="qb-location-form-label">Street Address *</label>
+          <label class="qb-location-form-label">📍 Detected Address</label>
           <input
             type="text"
             class="qb-location-form-input"
             id="qbLocationStreet"
-            placeholder="Enter street address"
+            placeholder="Detecting your location…"
             required
+            readonly
           >
         </div>
 
@@ -868,8 +906,8 @@ Provides GPS auto-detection with delivery time estimation based on location
 
   <!-- Footer -->
   <div class="qb-location-footer">
-    <button type="button" class="qb-location-btn qb-location-btn-cancel" id="qbLocationCancel">Cancel</button>
     <button type="button" class="qb-location-btn qb-location-btn-primary" id="qbLocationSelect">Select Location</button>
+    <button type="button" class="qb-location-btn qb-location-btn-back" id="qbLocationCancel">← Go Back</button>
   </div>
 
 </div>
@@ -1144,16 +1182,17 @@ Provides GPS auto-detection with delivery time estimation based on location
 
       selectBtn.disabled = currentStep === 'form' && !valid;
 
-      const canCancel = !isForcedOpen;
+      // Go Back only shows on the form step — no "back" from method/detecting/success
       if (currentStep === 'method' || currentStep === 'detecting') {
         selectBtn.style.display = 'none';
-        cancelBtn.style.display = canCancel ? 'block' : 'none';
+        cancelBtn.style.display = 'none';
       } else if (currentStep === 'success') {
         selectBtn.style.display = 'none';
         cancelBtn.style.display = 'none';
       } else {
+        // form step
         selectBtn.style.display = 'block';
-        cancelBtn.style.display = canCancel ? 'block' : 'none';
+        cancelBtn.style.display = 'block';
       }
     }
 
@@ -1437,7 +1476,7 @@ Provides GPS auto-detection with delivery time estimation based on location
 
     /* ── Event listeners ── */
     closeBtn.addEventListener('click',   hideModal);
-    cancelBtn.addEventListener('click',  hideModal);
+    cancelBtn.addEventListener('click',  function () { goToStep('method'); });
     backdrop.addEventListener('click',   function (e) {
       if (e.target === backdrop) hideModal();
     });
