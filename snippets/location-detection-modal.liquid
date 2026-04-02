@@ -411,7 +411,7 @@ Provides GPS auto-detection with delivery time estimation based on location
     justify-content: center;
     background: rgba(15, 23, 42, 0.72);
     backdrop-filter: blur(8px);
-    z-index: 1002;
+    z-index: 9999999;
     padding: 20px;
   }
 
@@ -765,6 +765,20 @@ Provides GPS auto-detection with delivery time estimation based on location
           >
         </div>
 
+        <div class="qb-location-form-group" id="qbSelfPhoneGroup" style="display: none;">
+          <label class="qb-location-form-label">
+            Your Contact Number
+            <span style="font-weight:400; color:#999; font-size:11px;"> (optional)</span>
+          </label>
+          <input
+            type="tel"
+            class="qb-location-form-input"
+            id="qbSelfPhone"
+            placeholder="98XXXXXXXX"
+            inputmode="tel"
+          >
+        </div>
+
         <div class="qb-location-form-group" id="qbReceiverNameGroup" style="display: none;">
           <label class="qb-location-form-label">Receiver's Name *</label>
           <input
@@ -918,7 +932,7 @@ Provides GPS auto-detection with delivery time estimation based on location
         ? (rawData.landmark_link || '')
         : (rawData.street || rawData.address || ''),
       name:  rawData.recipient_name  || '',
-      phone: rawData.recipient_phone || '',
+      phone: rawData.recipient_phone || rawData.phone || '',
       // Legacy fields — keeps header & cart page working
       mode:            rawData.mode,
       address:         rawData.address || rawData.street || rawData.landmark_link || '',
@@ -1049,6 +1063,7 @@ Provides GPS auto-detection with delivery time estimation based on location
 
     const formInputs = {
       street:       document.getElementById('qbLocationStreet'),
+      selfPhone:    document.getElementById('qbSelfPhone'),
       receiverName: document.getElementById('qbReceiverName'),
       receiverPhone:document.getElementById('qbReceiverPhone'),
       landmarkLink: document.getElementById('qbLandmarkLink'),
@@ -1058,6 +1073,7 @@ Provides GPS auto-detection with delivery time estimation based on location
 
     const formGroups = {
       street:       document.getElementById('qbStreetGroup'),
+      selfPhone:    document.getElementById('qbSelfPhoneGroup'),
       receiverName: document.getElementById('qbReceiverNameGroup'),
       receiverPhone:document.getElementById('qbReceiverPhoneGroup'),
       landmarkLink: document.getElementById('qbLandmarkGroup'),
@@ -1088,6 +1104,7 @@ Provides GPS auto-detection with delivery time estimation based on location
     function syncFormForMode() {
       const isSE = detectionMode === 'someone_else';
       showGroup(formGroups.street,        !isSE);
+      showGroup(formGroups.selfPhone,     !isSE);  // optional — shown only in self mode
       showGroup(formGroups.lat,           !isSE);
       showGroup(formGroups.lng,           !isSE);
       showGroup(formGroups.receiverName,   isSE);
@@ -1095,6 +1112,7 @@ Provides GPS auto-detection with delivery time estimation based on location
       showGroup(formGroups.landmarkLink,   isSE);
       if (isSE) deliveryInfoEl.style.display = 'none';
       formInputs.street.required        = !isSE;
+      formInputs.selfPhone.required     = false;   // always optional
       formInputs.receiverName.required  =  isSE;
       formInputs.receiverPhone.required =  isSE;
       formInputs.landmarkLink.required  =  isSE;
@@ -1360,6 +1378,7 @@ Provides GPS auto-detection with delivery time estimation based on location
             mode:      'auto',
             address:   formInputs.street.value.trim(),
             street:    formInputs.street.value.trim(),
+            phone:     formInputs.selfPhone.value.trim(),
             latitude:  formInputs.lat.value,
             longitude: formInputs.lng.value
           };
@@ -1439,8 +1458,9 @@ Provides GPS auto-detection with delivery time estimation based on location
     someoneElseBtn.addEventListener('click', orderForSomeoneElse);
     selectBtn.addEventListener('click',      handleSubmit);
 
-    [formInputs.street, formInputs.receiverName,
-     formInputs.receiverPhone, formInputs.landmarkLink].forEach(function (inp) {
+    [formInputs.street, formInputs.selfPhone,
+     formInputs.receiverName, formInputs.receiverPhone,
+     formInputs.landmarkLink].forEach(function (inp) {
       inp.addEventListener('input', updateButtonState);
     });
     formInputs.lat.addEventListener('change', estimateDeliveryTime);
