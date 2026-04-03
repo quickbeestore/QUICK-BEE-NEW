@@ -206,16 +206,67 @@
 </div>
 
 <script>
+  // ── Web3Forms key (same key as location modal) ──
+  // Get yours free at https://web3forms.com
+  var RIDER_W3F_KEY = 'WEB3FORMS_KEY'; // ← paste your key here
+
   document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('RiderApplicationForm');
-    const btn = document.getElementById('SubmitBtn');
-    const btnText = document.getElementById('SubmitBtnText');
+    var form    = document.getElementById('RiderApplicationForm');
+    var btn     = document.getElementById('SubmitBtn');
+    var btnText = document.getElementById('SubmitBtnText');
 
     if (form && btn) {
-      form.addEventListener('submit', function () {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault(); // stop Shopify's throttled /contact submission
+
         if (btnText) btnText.innerHTML = 'Sending… ⏳';
+        btn.disabled = true;
         btn.style.opacity = '0.75';
-        btn.style.pointerEvents = 'none';
+
+        // Collect all form fields into an object
+        var fd = new FormData(form);
+        var payload = { access_key: RIDER_W3F_KEY, subject: 'New QuickBee Rider Application' };
+        fd.forEach(function (val, key) {
+          // Clean up Shopify's contact[field] naming → just field
+          var cleanKey = key.replace(/^contact\[/, '').replace(/\]$/, '');
+          if (cleanKey !== 'email') payload[cleanKey] = val; // skip the generated hidden email
+        });
+        payload['Timestamp'] = new Date().toLocaleString();
+
+        function trySubmit(attempt) {
+          fetch('https://api.web3forms.com/submit', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body:    JSON.stringify(payload)
+          })
+          .then(function (r) { return r.json(); })
+          .then(function (res) {
+            if (res.success) {
+              // Show the Liquid success block by replacing form HTML
+              form.innerHTML = '<div class="rider-success">' +
+                '<div class="rider-success-emoji">🎉</div>' +
+                '<h2>Application Received!</h2>' +
+                '<p>We\'ve got your details. Our team will reach out within <strong>24–48 hours</strong>. Get ready to ride!</p>' +
+                '<a href="/" class="rider-back-btn">Back to Home</a>' +
+                '</div>';
+            } else {
+              throw new Error(res.message || 'Submission failed');
+            }
+          })
+          .catch(function (err) {
+            if (attempt < 1) {
+              setTimeout(function () { trySubmit(1); }, 1200);
+            } else {
+              if (btnText) btnText.innerHTML = 'Submit Application 🚀';
+              btn.disabled = false;
+              btn.style.opacity = '1';
+              alert('Submission failed. Please check your connection and try again.');
+              console.warn('[QB Rider] Submit failed:', err);
+            }
+          });
+        }
+
+        trySubmit(0);
       });
     }
 
@@ -230,7 +281,7 @@
     // IQ option highlight
     document.querySelectorAll('.iq-option input').forEach(function(radio) {
       radio.addEventListener('change', function() {
-        const group = radio.closest('.iq-options');
+        var group = radio.closest('.iq-options');
         group.querySelectorAll('.iq-option').forEach(function(el) { el.classList.remove('selected'); });
         if (radio.checked) radio.closest('.iq-option').classList.add('selected');
       });

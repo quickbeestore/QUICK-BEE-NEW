@@ -669,47 +669,6 @@ Provides GPS auto-detection with delivery time estimation based on location
     box-shadow: 0 2px 8px rgba(34,197,94,0.4);
   }
 
-  /* ── Attention phone field ── */
-  .qb-phone-label {
-    display: flex !important;
-    align-items: center;
-    gap: 7px;
-    color: #b07800 !important;
-  }
-  [data-theme="dark"] .qb-phone-label,
-  body.dark-theme .qb-phone-label { color: #F4B400 !important; }
-  .qb-phone-badge {
-    font-size: 10px !important;
-    font-weight: 800 !important;
-    background: rgba(244,180,0,0.15);
-    color: #b07800;
-    padding: 2px 8px;
-    border-radius: 20px;
-    letter-spacing: 0.3px;
-    text-transform: uppercase;
-  }
-  [data-theme="dark"] .qb-phone-badge,
-  body.dark-theme .qb-phone-badge {
-    background: rgba(244,180,0,0.12);
-    color: #F4B400;
-  }
-  .qb-phone-input {
-    border-color: rgba(244,180,0,0.5) !important;
-    box-shadow: 0 0 0 3px rgba(244,180,0,0.08) !important;
-    font-size: 16px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.5px;
-  }
-  .qb-phone-input:focus {
-    border-color: #F4B400 !important;
-    box-shadow: 0 0 0 3px rgba(244,180,0,0.18) !important;
-  }
-  [data-theme="dark"] .qb-phone-input,
-  body.dark-theme .qb-phone-input {
-    border-color: rgba(244,180,0,0.35) !important;
-    box-shadow: 0 0 0 3px rgba(244,180,0,0.06) !important;
-  }
-
   .qb-location-form-input[readonly] {
     background: #f0f0f0 !important;
     color: #555 !important;
@@ -875,7 +834,7 @@ Provides GPS auto-detection with delivery time estimation based on location
           <div class="qb-location-method-icon">🎁</div>
           <div class="qb-location-method-text">
             <h3 class="qb-location-method-title">Order for Someone Else</h3>
-            <p class="qb-location-method-desc">Receiver name, phone, and Google Maps landmark</p>
+            <p class="qb-location-method-desc">Receiver name and Google Maps landmark</p>
           </div>
         </button>
       </div>
@@ -905,22 +864,6 @@ Provides GPS auto-detection with delivery time estimation based on location
           <div class="qb-detected-check">✓</div>
         </div>
 
-        <!-- Contact Number — required, attention-grabbing -->
-        <div class="qb-location-form-group" id="qbSelfPhoneGroup" style="display: none;">
-          <label class="qb-location-form-label qb-phone-label">
-            <span>📞 Contact Number</span>
-            <span class="qb-phone-badge">Required</span>
-          </label>
-          <input
-            type="tel"
-            class="qb-location-form-input qb-phone-input"
-            id="qbSelfPhone"
-            placeholder="98XXXXXXXX — for delivery confirmation"
-            inputmode="tel"
-            required
-          >
-        </div>
-
         <div class="qb-location-form-group" id="qbReceiverNameGroup" style="display: none;">
           <label class="qb-location-form-label">Receiver's Name *</label>
           <input
@@ -928,17 +871,6 @@ Provides GPS auto-detection with delivery time estimation based on location
             class="qb-location-form-input"
             id="qbReceiverName"
             placeholder="Enter receiver name"
-          >
-        </div>
-
-        <div class="qb-location-form-group" id="qbReceiverPhoneGroup" style="display: none;">
-          <label class="qb-location-form-label">Contact Number *</label>
-          <input
-            type="tel"
-            class="qb-location-form-input"
-            id="qbReceiverPhone"
-            placeholder="98XXXXXXXX"
-            inputmode="tel"
           >
         </div>
 
@@ -1054,11 +986,9 @@ Provides GPS auto-detection with delivery time estimation based on location
             ? (p.landmark_link || '')
             : (p.street || p.address || ''),
           name:  p.recipient_name  || '',
-          phone: p.recipient_phone || '',
           // legacy fields kept for header widget
           mode: p.mode, address: p.address || p.street || '',
           street: p.street || '', recipient_name: p.recipient_name || '',
-          recipient_phone: p.recipient_phone || '',
           landmark_link: p.landmark_link || '',
           latitude: p.latitude || '', longitude: p.longitude || ''
         };
@@ -1074,13 +1004,11 @@ Provides GPS auto-detection with delivery time estimation based on location
         ? (rawData.landmark_link || '')
         : (rawData.street || rawData.address || ''),
       name:  rawData.recipient_name  || '',
-      phone: rawData.recipient_phone || rawData.phone || '',
       // Legacy fields — keeps header & cart page working
       mode:            rawData.mode,
       address:         rawData.address || rawData.street || rawData.landmark_link || '',
       street:          rawData.street || '',
       recipient_name:  rawData.recipient_name  || '',
-      recipient_phone: rawData.recipient_phone || '',
       landmark_link:   rawData.landmark_link   || '',
       latitude:        rawData.latitude  || '',
       longitude:       rawData.longitude || '',
@@ -1099,65 +1027,61 @@ Provides GPS auto-detection with delivery time estimation based on location
      SHOPIFY INTEGRATION
   ═══════════════════════════════════════════ */
 
-  // Send delivery info to Shopify admin via contact form (with CSRF token)
+  // ─────────────────────────────────────────────────────────────────
+  // sendToShopify — uses Web3Forms (free, unlimited, no rate limits)
+  //
+  // WHY NOT Shopify /contact:
+  //   Shopify throttles contact form POSTs to ~2 per session to block
+  //   spam. There is no way to bypass this without a backend server.
+  //
+  // SETUP (one-time, 60 seconds):
+  //   1. Go to https://web3forms.com
+  //   2. Enter your admin email → click "Create Access Key"
+  //   3. Copy the key and paste it below replacing WEB3FORMS_KEY
+  // ─────────────────────────────────────────────────────────────────
+  var WEB3FORMS_KEY = 'WEB3FORMS_KEY'; // ← paste your key here
+
   function sendToShopify(data, attempt) {
     attempt = attempt || 0;
 
-    // Build Google Maps link — use coordinates for self, landmark link for someone else
     var lat      = data.latitude  || '';
     var lng      = data.longitude || '';
     var mapsLink = data.landmark_link
       ? data.landmark_link
       : (lat && lng ? 'https://www.google.com/maps?q=' + lat + ',' + lng : 'N/A');
 
-    var msgBody = [
-      'New User Location:',
-      'Type: '     + (data.type     || 'N/A'),
-      'Location: ' + (data.location || 'N/A'),
-      'Maps: '     + mapsLink,
-      'Name: '     + (data.name     || 'N/A'),
-      'Phone: '    + (data.phone    || 'N/A')
-    ].join('\n');
+    var payload = {
+      access_key:  WEB3FORMS_KEY,
+      subject:     'New QuickBee Delivery Location',
+      from_name:   'QuickBee Location Bot',
+      'Type':      data.type     || 'N/A',
+      'Location':  data.location || 'N/A',
+      'Maps Link': mapsLink,
+      'Name':      data.name     || 'N/A',
+      'Timestamp': new Date().toLocaleString()
+    };
 
-    function doPost(token) {
-      var payload = new URLSearchParams({
-        form_type:           'contact',
-        utf8:                '\u2713',
-        authenticity_token:  token || '',
-        'contact[email]':    'delivery@quickbee.app',
-        'contact[name]':     'QuickBee Location Bot',
-        'contact[body]':     msgBody
-      });
-      return fetch('/contact', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body:    payload.toString(),
-        redirect:'follow'
-      }).then(function (resp) {
-        if (!resp.ok && attempt < 1) {
-          return new Promise(function (r) { setTimeout(function () { r(sendToShopify(data, 1)); }, 900); });
-        }
-        console.log('[QB] Location email sent ✅');
-      });
-    }
-
-    // GET /contact first to grab a fresh CSRF token
-    return fetch('/contact')
-      .then(function (r) { return r.text(); })
-      .then(function (html) {
-        var m = html.match(/name="authenticity_token"[^>]*value="([^"]+)"/)
-             || html.match(/value="([^"]+)"[^>]*name="authenticity_token"/);
-        return doPost(m ? m[1] : '');
-      })
-      .catch(function (err) {
-        console.warn('[QB] CSRF fetch failed, trying direct POST:', err);
-        return doPost('').catch(function (e) {
-          if (attempt < 1) {
-            return new Promise(function (r) { setTimeout(function () { r(sendToShopify(data, 1)); }, 900); });
-          }
-          console.warn('[QB] sendToShopify failed after retry:', e);
+    return fetch('https://api.web3forms.com/submit', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body:    JSON.stringify(payload)
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (res) {
+      if (res.success) {
+        console.log('[QB] Email sent via Web3Forms ✅');
+      } else {
+        throw new Error(res.message || 'Web3Forms error');
+      }
+    })
+    .catch(function (err) {
+      if (attempt < 1) {
+        return new Promise(function (r) {
+          setTimeout(function () { r(sendToShopify(data, 1)); }, 1000);
         });
-      });
+      }
+      console.warn('[QB] sendToShopify failed after retry:', err);
+    });
   }
 
   // Attach delivery details as Shopify cart order note
@@ -1166,8 +1090,7 @@ Provides GPS auto-detection with delivery time estimation based on location
       'Delivery Details:',
       'Type: '     + (data.type     || 'N/A'),
       'Location: ' + (data.location || 'N/A'),
-      'Name: '     + (data.name     || 'N/A'),
-      'Phone: '    + (data.phone    || 'N/A')
+      'Name: '     + (data.name     || 'N/A')
     ].join('\n');
 
     return fetch('/cart/update.js', {
@@ -1205,9 +1128,7 @@ Provides GPS auto-detection with delivery time estimation based on location
 
     const formInputs = {
       street:       document.getElementById('qbLocationStreet'),
-      selfPhone:    document.getElementById('qbSelfPhone'),
       receiverName: document.getElementById('qbReceiverName'),
-      receiverPhone:document.getElementById('qbReceiverPhone'),
       landmarkLink: document.getElementById('qbLandmarkLink'),
       lat:          document.getElementById('qbLocationLat'),
       lng:          document.getElementById('qbLocationLng')
@@ -1215,9 +1136,7 @@ Provides GPS auto-detection with delivery time estimation based on location
 
     const formGroups = {
       street:       null,  // hidden input — no wrapper group
-      selfPhone:    document.getElementById('qbSelfPhoneGroup'),
       receiverName: document.getElementById('qbReceiverNameGroup'),
-      receiverPhone:document.getElementById('qbReceiverPhoneGroup'),
       landmarkLink: document.getElementById('qbLandmarkGroup'),
       lat:          document.getElementById('qbLatGroup'),
       lng:          document.getElementById('qbLngGroup')
@@ -1247,14 +1166,12 @@ Provides GPS auto-detection with delivery time estimation based on location
       const isSE = detectionMode === 'someone_else';
       const statusCard = document.getElementById('qbDetectedStatus');
 
-      // Self mode: show status card + phone; hide raw fields + lat/lng always
+      // Self mode: show status card; hide raw fields + lat/lng always
       if (statusCard) statusCard.style.display = isSE ? 'none' : 'flex';
       showGroup(formGroups.street,        false);  // always hidden — value kept in hidden input
-      showGroup(formGroups.selfPhone,     !isSE);
       showGroup(formGroups.lat,           false);  // never shown to user
       showGroup(formGroups.lng,           false);  // never shown to user
       showGroup(formGroups.receiverName,   isSE);
-      showGroup(formGroups.receiverPhone,  isSE);
       showGroup(formGroups.landmarkLink,   isSE);
 
       if (isSE) {
@@ -1264,9 +1181,7 @@ Provides GPS auto-detection with delivery time estimation based on location
       }
 
       formInputs.street.required        = false;  // hidden input — validated manually
-      formInputs.selfPhone.required     = !isSE;  // required in self mode
       formInputs.receiverName.required  =  isSE;
-      formInputs.receiverPhone.required =  isSE;
       formInputs.landmarkLink.required  =  isSE;
     }
 
@@ -1290,10 +1205,8 @@ Provides GPS auto-detection with delivery time estimation based on location
       const isSE = detectionMode === 'someone_else';
       const valid = isSE
         ? !!(formInputs.receiverName.value.trim() &&
-             formInputs.receiverPhone.value.trim() &&
              isGoogleMapsLink(formInputs.landmarkLink.value))
-        : !!(formInputs.street.value.trim() &&
-             formInputs.selfPhone.value.trim());
+        : !!(formInputs.street.value.trim());
 
       selectBtn.disabled = currentStep === 'form' && !valid;
 
@@ -1513,18 +1426,12 @@ Provides GPS auto-detection with delivery time estimation based on location
         if (!formInputs.receiverName.value.trim()) {
           showError("Please enter receiver's name"); return;
         }
-        if (!formInputs.receiverPhone.value.trim()) {
-          showError('Please enter contact number'); return;
-        }
         if (!isGoogleMapsLink(formInputs.landmarkLink.value)) {
           showError('Only Google Maps links are accepted for landmark'); return;
         }
       } else {
         if (!formInputs.street.value.trim()) {
           showError('Location not detected yet. Please try again.'); return;
-        }
-        if (!formInputs.selfPhone.value.trim()) {
-          showError('Please enter your contact number for delivery confirmation'); return;
         }
       }
 
@@ -1538,14 +1445,12 @@ Provides GPS auto-detection with delivery time estimation based on location
         ? {
             mode:            'someone_else',
             recipient_name:  formInputs.receiverName.value.trim(),
-            recipient_phone: formInputs.receiverPhone.value.trim(),
             landmark_link:   formInputs.landmarkLink.value.trim()
           }
         : {
             mode:      'auto',
             address:   formInputs.street.value.trim(),
             street:    formInputs.street.value.trim(),
-            phone:     formInputs.selfPhone.value.trim(),
             latitude:  formInputs.lat.value,
             longitude: formInputs.lng.value
           };
@@ -1569,7 +1474,7 @@ Provides GPS auto-detection with delivery time estimation based on location
 
       // ── Success UI ──
       successAddrEl.textContent = isSE
-        ? (normalized.name + ' \u2022 ' + normalized.phone)
+        ? (normalized.name)
         : normalized.location;
       goToStep('success');
 
@@ -1625,8 +1530,8 @@ Provides GPS auto-detection with delivery time estimation based on location
     someoneElseBtn.addEventListener('click', orderForSomeoneElse);
     selectBtn.addEventListener('click',      handleSubmit);
 
-    [formInputs.street, formInputs.selfPhone,
-     formInputs.receiverName, formInputs.receiverPhone,
+    [formInputs.street,
+     formInputs.receiverName,
      formInputs.landmarkLink].forEach(function (inp) {
       inp.addEventListener('input', updateButtonState);
     });
