@@ -1,985 +1,985 @@
 {%- doc -%}
-  QuickBee Services Hub — Professional home, tech & vehicle services.
-  Pure service bookings only (no products).
+  QuickBee Services Hub — Live: Laundry & Vendor Registration.
+  All other services show "Coming Soon" locked state.
 {%- enddoc -%}
 
 <style>
 /* ═══════════════════════════════════════
-   QSH — QuickBee Services Hub v3
+   QSH — QuickBee Services Hub v4
+   Live: Laundry | Vendor Registration
+   Locked: Everything else
 ═══════════════════════════════════════ */
 :root {
-  --qsh-gold: #F4B400;
+  --qsh-gold:   #F4B400;
   --qsh-spring: cubic-bezier(0.34,1.56,0.64,1);
   --qsh-smooth: cubic-bezier(0.4,0,0.2,1);
+  --qsh-blue:   #3B82F6;
+  --qsh-green:  #22c55e;
 }
 
+/* ── Wrap ── */
 .qsh-wrap {
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
-  padding-bottom: 100px;
+  padding-bottom: 120px;
 }
 [data-theme="dark"] .qsh-wrap { background: #0a0a0a; }
-html:not([data-theme="dark"]) .qsh-wrap { background: #f2f2f2; }
+html:not([data-theme="dark"]) .qsh-wrap { background: #f0f0f0; }
 
-/* ── Hero Banner ── */
+/* ══════════════════════════════════════
+   HERO — Full-width laundry identity
+══════════════════════════════════════ */
 .qsh-hero {
   position: relative;
-  padding: 40px 20px 36px;
+  padding: 44px 20px 40px;
   overflow: hidden;
+  text-align: center;
 }
 [data-theme="dark"] .qsh-hero {
-  background: linear-gradient(135deg, #0f0f0f 0%, #1a1200 50%, #0f0f0f 100%);
-  border-bottom: 1px solid rgba(244,180,0,0.12);
+  background: linear-gradient(160deg, #0a0a0a 0%, #0d1a2e 50%, #0a0a0a 100%);
+  border-bottom: 1px solid rgba(59,130,246,0.15);
 }
 html:not([data-theme="dark"]) .qsh-hero {
-  background: linear-gradient(135deg, #1a1200 0%, #2a1e00 50%, #1a1200 100%);
-  border-bottom: 1px solid rgba(244,180,0,0.2);
+  background: linear-gradient(160deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+  border-bottom: 1px solid rgba(59,130,246,0.2);
 }
+/* Radial glow */
 .qsh-hero::before {
   content: '';
   position: absolute;
-  top: -60px; left: 50%; transform: translateX(-50%);
-  width: 500px; height: 220px;
-  background: radial-gradient(ellipse, rgba(244,180,0,0.14) 0%, transparent 70%);
+  top: -40px; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 300px;
+  background: radial-gradient(ellipse, rgba(59,130,246,0.18) 0%, transparent 70%);
   pointer-events: none;
 }
-.qsh-hero-orb {
+/* Floating orbs */
+.qsh-orb {
   position: absolute;
   border-radius: 50%;
-  opacity: 0.07;
   pointer-events: none;
-  animation: qshFloat 7s ease-in-out infinite;
+  animation: qshOrbFloat 8s ease-in-out infinite;
 }
-.qsh-hero-orb:nth-child(1) { width: 200px; height: 200px; background: #F4B400; top: -60px; right: -40px; animation-delay: 0s; }
-.qsh-hero-orb:nth-child(2) { width: 120px; height: 120px; background: #FF6B35; bottom: -30px; left: 10%; animation-delay: 3s; }
-@keyframes qshFloat {
+.qsh-orb-1 { width: 220px; height: 220px; background: radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%); top: -60px; right: -40px; animation-delay: 0s; }
+.qsh-orb-2 { width: 140px; height: 140px; background: radial-gradient(circle, rgba(244,180,0,0.1) 0%, transparent 70%); bottom: -20px; left: 5%; animation-delay: 3.5s; }
+.qsh-orb-3 { width: 80px;  height: 80px;  background: radial-gradient(circle, rgba(34,197,94,0.1) 0%, transparent 70%);  top: 30%;  left: -20px; animation-delay: 2s; }
+@keyframes qshOrbFloat {
   0%,100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-14px) scale(1.05); }
+  50%      { transform: translateY(-18px) scale(1.06); }
 }
 
+/* Pill badge */
 .qsh-hero-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(244,180,0,0.12);
-  border: 1px solid rgba(244,180,0,0.3);
-  color: #F4B400;
-  font-size: 11px;
+  gap: 7px;
+  background: rgba(34,197,94,0.12);
+  border: 1px solid rgba(34,197,94,0.3);
+  color: #22c55e;
+  font-size: 10px;
   font-weight: 800;
-  padding: 5px 12px;
+  padding: 5px 14px;
   border-radius: 20px;
-  margin-bottom: 14px;
-  letter-spacing: 0.5px;
+  margin-bottom: 18px;
+  letter-spacing: 1px;
   text-transform: uppercase;
 }
-.qsh-hero-dot {
+.qsh-live-dot {
   width: 7px; height: 7px;
   border-radius: 50%;
-  background: #F4B400;
-  animation: qshDotPulse 1.5s ease-in-out infinite;
+  background: #22c55e;
+  animation: qshLivePulse 1.6s ease-in-out infinite;
 }
-@keyframes qshDotPulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(244,180,0,0.7); }
-  50% { box-shadow: 0 0 0 5px rgba(244,180,0,0); }
+@keyframes qshLivePulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.7); }
+  60%      { box-shadow: 0 0 0 6px rgba(34,197,94,0); }
+}
+
+.qsh-hero-icon {
+  font-size: 52px;
+  display: block;
+  margin: 0 auto 14px;
+  filter: drop-shadow(0 0 20px rgba(59,130,246,0.4));
+  animation: qshIconBob 3s ease-in-out infinite;
+}
+@keyframes qshIconBob {
+  0%,100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-6px) rotate(3deg); }
 }
 
 .qsh-hero-title {
-  font-size: clamp(26px, 7vw, 40px);
+  font-size: clamp(28px, 7vw, 44px);
   font-weight: 900;
   color: #fff;
   line-height: 1.1;
-  letter-spacing: -0.5px;
-  margin: 0 0 10px 0;
+  letter-spacing: -0.8px;
+  margin: 0 0 12px;
 }
-.qsh-hero-title span { color: #F4B400; }
+.qsh-hero-title .accent { color: #3B82F6; }
+.qsh-hero-title .gold   { color: #F4B400; }
 
 .qsh-hero-sub {
   font-size: 14px;
-  color: rgba(255,255,255,0.55);
-  line-height: 1.6;
-  max-width: 480px;
-  margin: 0 0 24px 0;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.65;
+  max-width: 380px;
+  margin: 0 auto 28px;
 }
 
-.qsh-hero-stats {
+/* Stats row */
+.qsh-stats {
   display: flex;
-  gap: 20px;
+  justify-content: center;
+  gap: 28px;
   flex-wrap: wrap;
+  margin-bottom: 28px;
 }
 .qsh-stat {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 2px;
 }
 .qsh-stat-num {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 900;
-  color: #F4B400;
-  line-height: 1;
+  color: #3B82F6;
 }
+.qsh-stat-num.gold { color: #F4B400; }
 .qsh-stat-label {
-  font-size: 10px;
-  color: rgba(255,255,255,0.4);
-  font-weight: 600;
+  font-size: 9px;
+  color: rgba(255,255,255,0.35);
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.8px;
 }
 
-/* ── Trending Strip ── */
-.qsh-trending {
-  padding: 0;
-  overflow: hidden;
+/* Book CTA */
+.qsh-hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #2563eb 0%, #3B82F6 100%);
+  color: #fff !important;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 14px 30px;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: transform 0.2s var(--qsh-spring), box-shadow 0.2s ease;
+  box-shadow: 0 8px 24px rgba(59,130,246,0.35);
+  letter-spacing: 0.2px;
 }
-[data-theme="dark"] .qsh-trending {
-  background: #111;
-  border-bottom: 1px solid #1e1e1e;
+.qsh-hero-cta:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 14px 32px rgba(59,130,246,0.45);
 }
-html:not([data-theme="dark"]) .qsh-trending {
-  background: #fff;
-  border-bottom: 1px solid #eeeeee;
-}
-.qsh-trending-inner {
+.qsh-hero-cta-arrow { transition: transform 0.2s ease; }
+.qsh-hero-cta:hover .qsh-hero-cta-arrow { transform: translateX(4px); }
+
+/* ══════════════════════════════════════
+   TRUST CHIPS
+══════════════════════════════════════ */
+.qsh-trust-row {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding: 10px 14px;
+  padding: 14px 16px;
   scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  white-space: nowrap;
 }
-.qsh-trending-inner::-webkit-scrollbar { display: none; }
-.qsh-trend-pill {
+.qsh-trust-row::-webkit-scrollbar { display: none; }
+[data-theme="dark"] .qsh-trust-row {
+  background: #111;
+  border-bottom: 1px solid #1c1c1c;
+}
+html:not([data-theme="dark"]) .qsh-trust-row {
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+}
+.qsh-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 7px 13px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.qsh-chip-blue {
+  background: rgba(59,130,246,0.1);
+  border: 1px solid rgba(59,130,246,0.25);
+  color: #3B82F6;
+}
+.qsh-chip-green {
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.25);
+  color: #22c55e;
+}
+.qsh-chip-gold {
+  background: rgba(244,180,0,0.1);
+  border: 1px solid rgba(244,180,0,0.25);
+  color: #F4B400;
+}
+html:not([data-theme="dark"]) .qsh-chip-blue { color: #2563eb; }
+html:not([data-theme="dark"]) .qsh-chip-gold { color: #c98b00; }
+
+/* ══════════════════════════════════════
+   LAUNDRY — BIG FLAGSHIP CARD
+══════════════════════════════════════ */
+.qsh-flagship-wrap {
+  padding: 20px 14px 6px;
+}
+.qsh-section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.qsh-section-label-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.2);
+  animation: qshLivePulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.qsh-section-label-text {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: #22c55e;
+}
+
+/* Big laundry card */
+.qsh-flagship {
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  text-decoration: none;
+  display: block;
+  transition: transform 0.25s var(--qsh-spring), box-shadow 0.25s ease;
+}
+[data-theme="dark"] .qsh-flagship {
+  background: linear-gradient(145deg, #0d1a2e 0%, #0a1525 100%);
+  border: 1px solid rgba(59,130,246,0.18);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+}
+html:not([data-theme="dark"]) .qsh-flagship {
+  background: linear-gradient(145deg, #1e3a5f 0%, #162d4a 100%);
+  border: 1px solid rgba(59,130,246,0.25);
+  box-shadow: 0 4px 24px rgba(30,58,95,0.3);
+}
+.qsh-flagship:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 16px 48px rgba(59,130,246,0.25);
+}
+.qsh-flagship::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.qsh-flagship-body {
+  padding: 24px 20px 22px;
+  position: relative;
+}
+.qsh-flagship-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.qsh-flagship-emoji {
+  font-size: 44px;
+  line-height: 1;
+  filter: drop-shadow(0 0 12px rgba(59,130,246,0.5));
+}
+.qsh-flagship-live-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(34,197,94,0.12);
+  border: 1px solid rgba(34,197,94,0.3);
+  color: #22c55e;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 5px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+.qsh-flagship-live-badge .dot {
+  width: 6px; height: 6px;
+  background: #22c55e;
+  border-radius: 50%;
+  animation: qshLivePulse 1.6s ease-in-out infinite;
+}
+
+.qsh-flagship-name {
+  font-size: 24px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.4px;
+  line-height: 1.15;
+  margin-bottom: 6px;
+}
+.qsh-flagship-desc {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+/* Feature pills */
+.qsh-flagship-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 20px;
+}
+.qsh-ff-pill {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   font-size: 11px;
-  font-weight: 600;
-  padding: 6px 12px;
+  font-weight: 700;
+  padding: 5px 11px;
   border-radius: 20px;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  flex-shrink: 0;
+  background: rgba(59,130,246,0.1);
+  border: 1px solid rgba(59,130,246,0.2);
+  color: rgba(255,255,255,0.75);
 }
-[data-theme="dark"] .qsh-trend-pill {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-  color: #bbb;
-}
-html:not([data-theme="dark"]) .qsh-trend-pill {
-  background: #f5f5f5;
-  border: 1px solid #e8e8e8;
-  color: #555;
-}
-.qsh-trend-pill:hover, .qsh-trend-pill.active {
-  background: rgba(244,180,0,0.12);
-  border-color: rgba(244,180,0,0.35);
-  color: #c98b00;
-}
-[data-theme="dark"] .qsh-trend-pill:hover,
-[data-theme="dark"] .qsh-trend-pill.active { color: #F4B400; }
 
-/* ── Section Title ── */
-.qsh-section-title {
+/* Price + CTA row */
+.qsh-flagship-bottom {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 28px 16px 14px;
+  justify-content: space-between;
+  gap: 12px;
 }
-.qsh-section-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.qsh-section-dot.live {
-  background: #22c55e;
-  box-shadow: 0 0 0 2px rgba(34,197,94,0.25);
-  animation: qshLivePulse 2s ease-in-out infinite;
-}
-.qsh-section-dot.soon { background: #888; }
-@keyframes qshLivePulse {
-  0%,100% { box-shadow: 0 0 0 2px rgba(34,197,94,0.25); }
-  50% { box-shadow: 0 0 0 6px rgba(34,197,94,0); }
-}
-.qsh-section-label {
-  font-size: 15px;
-  font-weight: 900;
-  letter-spacing: -0.2px;
-  text-transform: uppercase;
-}
-[data-theme="dark"] .qsh-section-label { color: #fff; }
-html:not([data-theme="dark"]) .qsh-section-label { color: #111; }
-.qsh-section-count {
-  margin-left: auto;
-  font-size: 11px;
-  font-weight: 700;
-  color: #888;
-}
-
-/* ── Service Grid ── */
-.qsh-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  padding: 0 12px 8px;
-}
-@media (min-width: 640px) { .qsh-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 900px) { .qsh-grid { grid-template-columns: repeat(4, 1fr); } }
-@media (min-width: 1200px) { .qsh-grid { grid-template-columns: repeat(5, 1fr); } }
-
-/* ── Service Card ── */
-.qsh-card {
-  border-radius: 16px;
-  padding: 16px 14px 14px;
+.qsh-flagship-price {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: transform 0.22s var(--qsh-spring), box-shadow 0.22s ease, border-color 0.22s ease;
-  position: relative;
-  overflow: hidden;
 }
-[data-theme="dark"] .qsh-card {
-  background: linear-gradient(155deg, #1c1c1c 0%, #141414 100%);
-  border: 1px solid rgba(255,255,255,0.06);
-  box-shadow: 0 4px 18px rgba(0,0,0,0.45);
-}
-html:not([data-theme="dark"]) .qsh-card {
-  background: #ffffff;
-  border: 1px solid rgba(0,0,0,0.07);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-}
-.qsh-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%;
-  width: 60%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
-  transition: left 0.5s ease;
-  pointer-events: none;
-}
-.qsh-card:hover::before { left: 150%; }
-.qsh-card:hover { transform: translateY(-5px) scale(1.02); }
-[data-theme="dark"] .qsh-card:hover {
-  border-color: rgba(244,180,0,0.3);
-  box-shadow: 0 14px 38px rgba(0,0,0,0.55), 0 0 0 1px rgba(244,180,0,0.12), 0 4px 14px rgba(244,180,0,0.06);
-}
-html:not([data-theme="dark"]) .qsh-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(244,180,0,0.4);
-  box-shadow: 0 10px 26px rgba(0,0,0,0.1), 0 0 0 1px rgba(244,180,0,0.2);
-}
-.qsh-card.soon {
-  opacity: 0.6;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-/* Card header row */
-.qsh-card-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-
-/* Icon */
-.qsh-icon {
-  width: 48px; height: 48px;
-  border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 26px;
-  background: rgba(244,180,0,0.08);
-  flex-shrink: 0;
-  transition: transform 0.2s var(--qsh-spring);
-}
-.qsh-card:hover .qsh-icon { transform: scale(1.1) rotate(-4deg); }
-
-/* Badges */
-.qsh-badge {
-  font-size: 9px;
-  font-weight: 900;
-  padding: 3px 8px;
-  border-radius: 20px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  flex-shrink: 0;
-}
-.qsh-badge.live-badge {
-  background: rgba(34,197,94,0.15);
-  color: #4ade80;
-  border: 1px solid rgba(34,197,94,0.3);
-}
-.qsh-badge.fast-badge {
-  background: rgba(244,180,0,0.15);
-  color: #F4B400;
-  border: 1px solid rgba(244,180,0,0.3);
-}
-.qsh-badge.soon-badge {
-  background: rgba(120,120,120,0.1);
-  color: #777;
-  border: 1px solid rgba(120,120,120,0.2);
-}
-.qsh-badge.new-badge {
-  background: rgba(139,92,246,0.15);
-  color: #a78bfa;
-  border: 1px solid rgba(139,92,246,0.3);
-}
-.qsh-badge.hot-badge {
-  background: rgba(239,68,68,0.15);
-  color: #f87171;
-  border: 1px solid rgba(239,68,68,0.3);
-}
-
-/* Service name */
-.qsh-name {
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1.3;
-  letter-spacing: -0.1px;
-}
-[data-theme="dark"] .qsh-name { color: #f0f0f0; }
-html:not([data-theme="dark"]) .qsh-name { color: #111111; }
-
-/* Description */
-.qsh-desc {
+.qsh-flagship-price-from {
   font-size: 10px;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  color: rgba(255,255,255,0.4);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
-[data-theme="dark"] .qsh-desc { color: #666; }
-html:not([data-theme="dark"]) .qsh-desc { color: #888; }
-
-/* Price */
-.qsh-price {
-  font-size: 13px;
+.qsh-flagship-price-val {
+  font-size: 26px;
   font-weight: 900;
   color: #F4B400;
-  letter-spacing: -0.2px;
+  line-height: 1.1;
 }
-html:not([data-theme="dark"]) .qsh-price { color: #c98b00; }
-.qsh-price-label {
-  font-size: 9px;
-  color: #888;
+.qsh-flagship-price-unit {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
   font-weight: 600;
 }
+.qsh-flagship-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, #2563eb 0%, #3B82F6 100%);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 12px 20px;
+  border-radius: 50px;
+  box-shadow: 0 6px 20px rgba(59,130,246,0.4);
+  transition: transform 0.2s var(--qsh-spring), box-shadow 0.2s ease;
+  letter-spacing: 0.1px;
+}
+.qsh-flagship:hover .qsh-flagship-btn {
+  transform: scale(1.04);
+  box-shadow: 0 10px 28px rgba(59,130,246,0.5);
+}
 
-/* Book button */
-.qsh-book-btn {
+/* Service mini-grid inside laundry card */
+.qsh-laundry-services {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(255,255,255,0.05);
+  border-top: 1px solid rgba(59,130,246,0.12);
+  border-radius: 0 0 22px 22px;
+  overflow: hidden;
+}
+.qsh-ls-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 8px;
+  background: rgba(0,0,0,0.2);
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  text-align: center;
+}
+.qsh-ls-item:hover { background: rgba(59,130,246,0.08); color: rgba(255,255,255,0.8); }
+.qsh-ls-icon { font-size: 20px; }
+
+/* ══════════════════════════════════════
+   VENDOR REGISTRATION CARD
+══════════════════════════════════════ */
+.qsh-vendor-wrap {
+  padding: 16px 14px 8px;
+}
+.qsh-vendor-card {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  text-decoration: none;
+  display: block;
+  transition: transform 0.25s var(--qsh-spring), box-shadow 0.25s ease;
+}
+[data-theme="dark"] .qsh-vendor-card {
+  background: linear-gradient(145deg, #1a0f00 0%, #120c00 100%);
+  border: 1px solid rgba(244,180,0,0.15);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+}
+html:not([data-theme="dark"]) .qsh-vendor-card {
+  background: linear-gradient(145deg, #2a1e00 0%, #1a1300 100%);
+  border: 1px solid rgba(244,180,0,0.2);
+  box-shadow: 0 4px 20px rgba(42,30,0,0.3);
+}
+.qsh-vendor-card:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 14px 40px rgba(244,180,0,0.18);
+}
+.qsh-vendor-card::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, rgba(244,180,0,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.qsh-vendor-body {
+  padding: 22px 20px 20px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.qsh-vendor-icon-wrap {
+  width: 56px; height: 56px;
+  border-radius: 16px;
+  background: rgba(244,180,0,0.12);
+  border: 1px solid rgba(244,180,0,0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  width: 100%;
-  padding: 9px 0;
-  background: rgba(244,180,0,0.1);
-  border: 1px solid rgba(244,180,0,0.25);
-  border-radius: 10px;
-  color: #F4B400;
-  font-size: 11px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: auto;
-  text-decoration: none;
+  font-size: 28px;
+  flex-shrink: 0;
 }
-.qsh-book-btn:hover {
-  background: rgba(244,180,0,0.18);
-  border-color: rgba(244,180,0,0.5);
-  transform: translateY(-1px);
-}
-
-/* ── Category divider ── */
-.qsh-cat-divider {
-  display: flex;
+.qsh-vendor-info { flex: 1; }
+.qsh-vendor-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  padding: 24px 16px 12px;
-}
-.qsh-cat-icon { font-size: 20px; }
-.qsh-cat-info { flex: 1; }
-.qsh-cat-name {
-  font-size: 16px;
-  font-weight: 900;
-  letter-spacing: -0.3px;
-}
-[data-theme="dark"] .qsh-cat-name { color: #fff; }
-html:not([data-theme="dark"]) .qsh-cat-name { color: #111; }
-.qsh-cat-sub {
-  font-size: 11px;
-  color: #888;
-  margin-top: 2px;
-}
-.qsh-cat-line {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(244,180,0,0.2) 0%, transparent 100%);
-}
-
-/* ── Coming Soon Section ── */
-.qsh-soon-section {
-  padding: 20px 12px;
-  margin-top: 16px;
-}
-[data-theme="dark"] .qsh-soon-section {
-  background: linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%);
-  border-top: 1px solid rgba(255,255,255,0.04);
-}
-html:not([data-theme="dark"]) .qsh-soon-section {
-  background: #f5f5f5;
-  border-top: 1px solid #e8e8e8;
-}
-.qsh-soon-title {
-  font-size: 13px;
+  gap: 5px;
+  background: rgba(244,180,0,0.12);
+  border: 1px solid rgba(244,180,0,0.25);
+  color: #F4B400;
+  font-size: 9px;
   font-weight: 800;
-  color: #444;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  text-align: center;
-  margin-bottom: 14px;
-}
-.qsh-soon-grid {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  scrollbar-width: none;
-}
-.qsh-soon-grid::-webkit-scrollbar { display: none; }
-.qsh-soon-card {
-  flex: 0 0 130px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 14px;
-  padding: 16px 12px;
-  display: flex; flex-direction: column;
-  align-items: center; gap: 8px;
-  opacity: 0.5;
-}
-.qsh-soon-icon { font-size: 28px; }
-.qsh-soon-name { font-size: 11px; font-weight: 700; color: #555; text-align: center; }
-.qsh-soon-badge {
-  font-size: 9px; font-weight: 800;
-  color: #444; background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.07);
-  padding: 3px 8px; border-radius: 20px;
-}
-
-/* ── Bottom CTA ── */
-.qsh-bottom-cta {
-  background: linear-gradient(135deg, #1a1100 0%, #0f0f0f 50%, #001a0a 100%);
-  border: 1px solid rgba(244,180,0,0.12);
+  padding: 4px 9px;
   border-radius: 20px;
-  margin: 16px 12px 24px;
-  padding: 28px 20px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
 }
-.qsh-bottom-cta::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #F4B400, transparent);
-  opacity: 0.5;
-}
-.qsh-cta-title {
+.qsh-vendor-name {
   font-size: 18px;
   font-weight: 900;
   color: #fff;
-  margin-bottom: 6px;
   letter-spacing: -0.3px;
+  margin-bottom: 4px;
 }
-.qsh-cta-sub {
-  font-size: 13px;
-  color: rgba(255,255,255,0.4);
-  margin-bottom: 18px;
+.qsh-vendor-desc {
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.5;
 }
-.qsh-cta-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: linear-gradient(135deg, #F4B400, #FFD700);
-  color: #000;
-  font-size: 13px;
-  font-weight: 900;
-  padding: 12px 28px;
-  border-radius: 12px;
-  text-decoration: none;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 16px rgba(244,180,0,0.38);
-}
-.qsh-cta-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(244,180,0,0.52);
-}
-
-/* ── Vendor badge strip ── */
-.qsh-vendor-strip {
+.qsh-vendor-arrow {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: rgba(244,180,0,0.1);
+  border: 1px solid rgba(244,180,0,0.2);
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-[data-theme="dark"] .qsh-vendor-strip {
-  background: rgba(255,255,255,0.02);
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-html:not([data-theme="dark"]) .qsh-vendor-strip {
-  background: #f9f9f9;
-  border-bottom: 1px solid #eeeeee;
-}
-.qsh-vendor-strip::-webkit-scrollbar { display: none; }
-.qsh-vendor-tag {
+  justify-content: center;
+  color: #F4B400;
+  font-size: 16px;
   flex-shrink: 0;
+  transition: transform 0.2s var(--qsh-spring), background 0.2s ease;
+}
+.qsh-vendor-card:hover .qsh-vendor-arrow {
+  transform: translateX(3px) scale(1.1);
+  background: rgba(244,180,0,0.18);
+}
+
+/* ══════════════════════════════════════
+   COMING SOON DIVIDER
+══════════════════════════════════════ */
+.qsh-soon-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 16px 16px;
+}
+.qsh-soon-divider-line {
+  flex: 1;
+  height: 1px;
+}
+[data-theme="dark"] .qsh-soon-divider-line { background: rgba(255,255,255,0.06); }
+html:not([data-theme="dark"]) .qsh-soon-divider-line { background: rgba(0,0,0,0.08); }
+.qsh-soon-divider-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
   color: #555;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
-  padding: 4px 10px;
+  padding: 5px 14px;
   border-radius: 20px;
   white-space: nowrap;
 }
-.qsh-vendor-label {
+[data-theme="dark"] .qsh-soon-divider-label {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: #555;
+}
+html:not([data-theme="dark"]) .qsh-soon-divider-label {
+  background: rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.08);
+  color: #888;
+}
+
+/* ══════════════════════════════════════
+   COMING SOON GRID
+══════════════════════════════════════ */
+.qsh-soon-grid-wrap {
+  padding: 0 14px 16px;
+}
+.qsh-soon-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+@media (min-width: 480px) {
+  .qsh-soon-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.qsh-soon-card {
+  position: relative;
+  border-radius: 18px;
+  padding: 18px 14px 16px;
+  overflow: hidden;
+  cursor: not-allowed;
+  user-select: none;
+}
+[data-theme="dark"] .qsh-soon-card {
+  background: #111;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+html:not([data-theme="dark"]) .qsh-soon-card {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.07);
+}
+
+/* frosted locked overlay */
+.qsh-soon-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  z-index: 2;
+}
+[data-theme="dark"] .qsh-soon-card::before { background: rgba(10,10,10,0.55); }
+html:not([data-theme="dark"]) .qsh-soon-card::before { background: rgba(240,240,240,0.6); }
+
+.qsh-soon-icon {
+  font-size: 30px;
+  margin-bottom: 8px;
+  display: block;
+  filter: grayscale(60%) opacity(0.6);
+  position: relative;
+  z-index: 1;
+}
+.qsh-soon-name {
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 3px;
+  position: relative;
+  z-index: 1;
+}
+[data-theme="dark"] .qsh-soon-name { color: rgba(255,255,255,0.35); }
+html:not([data-theme="dark"]) .qsh-soon-name { color: rgba(0,0,0,0.3); }
+.qsh-soon-sub {
   font-size: 10px;
-  font-weight: 700;
-  color: #333;
+  color: #444;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 1;
+}
+html:not([data-theme="dark"]) .qsh-soon-sub { color: #aaa; }
+
+/* Lock badge */
+.qsh-soon-lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  white-space: nowrap;
-  flex-shrink: 0;
+  padding: 4px 9px;
+  border-radius: 20px;
+  position: relative;
+  z-index: 3;
 }
+[data-theme="dark"] .qsh-soon-lock {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #444;
+}
+html:not([data-theme="dark"]) .qsh-soon-lock {
+  background: rgba(0,0,0,0.05);
+  border: 1px solid rgba(0,0,0,0.1);
+  color: #bbb;
+}
+
+/* ══════════════════════════════════════
+   APP DOWNLOAD FOOTER BANNER
+══════════════════════════════════════ */
+.qsh-app-banner {
+  margin: 24px 14px 0;
+  border-radius: 20px;
+  padding: 22px 20px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+[data-theme="dark"] .qsh-app-banner {
+  background: linear-gradient(135deg, #111 0%, #0d0d0d 100%);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+html:not([data-theme="dark"]) .qsh-app-banner {
+  background: linear-gradient(135deg, #1e2124 0%, #16181a 100%);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.qsh-app-banner-icon { font-size: 40px; flex-shrink: 0; }
+.qsh-app-banner-info { flex: 1; }
+.qsh-app-banner-title {
+  font-size: 15px;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 3px;
+}
+.qsh-app-banner-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.5;
+}
+.qsh-app-banner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(244,180,0,0.1);
+  border: 1px solid rgba(244,180,0,0.2);
+  color: #F4B400;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-top: 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+/* Animations */
+@keyframes qshFadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.qsh-anim { animation: qshFadeUp 0.45s ease both; }
+.qsh-anim-d1 { animation-delay: 0.05s; }
+.qsh-anim-d2 { animation-delay: 0.12s; }
+.qsh-anim-d3 { animation-delay: 0.20s; }
+.qsh-anim-d4 { animation-delay: 0.28s; }
 </style>
 
 <div class="qsh-wrap">
 
-  <!-- HERO -->
+  <!-- ══ HERO ══ -->
   <div class="qsh-hero">
-    <div class="qsh-hero-orb"></div>
-    <div class="qsh-hero-orb"></div>
-    <div class="qsh-hero-badge">
-      <span class="qsh-hero-dot"></span>
-      Live in Kathmandu Valley
+    <div class="qsh-orb qsh-orb-1"></div>
+    <div class="qsh-orb qsh-orb-2"></div>
+    <div class="qsh-orb qsh-orb-3"></div>
+
+    <div class="qsh-anim qsh-anim-d1">
+      <div class="qsh-hero-badge">
+        <span class="qsh-live-dot"></span>
+        Now Available in Kathmandu
+      </div>
     </div>
-    <h1 class="qsh-hero-title">QuickBee<br><span>Services</span></h1>
-    <p class="qsh-hero-sub">Trusted professionals for your home, tech & vehicle — booked in seconds, done by experts.</p>
-    <div class="qsh-hero-stats">
+
+    <span class="qsh-hero-icon qsh-anim qsh-anim-d1">👕</span>
+
+    <div class="qsh-hero-title qsh-anim qsh-anim-d2">
+      Professional<br><span class="accent">Laundry</span> at Your<br><span class="gold">Doorstep</span>
+    </div>
+    <div class="qsh-hero-sub qsh-anim qsh-anim-d2">
+      Fresh, clean &amp; neatly folded — picked up and delivered right to you. No hassle, just sparkling results.
+    </div>
+
+    <div class="qsh-stats qsh-anim qsh-anim-d3">
       <div class="qsh-stat">
-        <span class="qsh-stat-num">500+</span>
-        <span class="qsh-stat-label">Vendors</span>
+        <span class="qsh-stat-num">2K+</span>
+        <span class="qsh-stat-label">Orders Done</span>
       </div>
       <div class="qsh-stat">
-        <span class="qsh-stat-num">20+</span>
-        <span class="qsh-stat-label">Services</span>
+        <span class="qsh-stat-num gold">4.9★</span>
+        <span class="qsh-stat-label">Rating</span>
       </div>
       <div class="qsh-stat">
-        <span class="qsh-stat-num">4.8★</span>
-        <span class="qsh-stat-label">Avg Rating</span>
+        <span class="qsh-stat-num">24hr</span>
+        <span class="qsh-stat-label">Turnaround</span>
       </div>
       <div class="qsh-stat">
-        <span class="qsh-stat-num">KTM</span>
-        <span class="qsh-stat-label">Valley Wide</span>
+        <span class="qsh-stat-num gold">Free</span>
+        <span class="qsh-stat-label">Pickup &amp; Drop</span>
       </div>
     </div>
+
+    <a href="/pages/laundry" class="qsh-hero-cta qsh-anim qsh-anim-d4">
+      Book Laundry Now <span class="qsh-hero-cta-arrow">→</span>
+    </a>
   </div>
 
-  <!-- TRENDING SCROLL STRIP -->
-  <div class="qsh-trending">
-    <div class="qsh-trending-inner">
-      <a href="#home-services" class="qsh-trend-pill active">🏠 Home</a>
-      <a href="#tech-services" class="qsh-trend-pill">💻 Tech</a>
-      <a href="#vehicle-services" class="qsh-trend-pill">🚗 Vehicle</a>
-      <a href="#beauty-services" class="qsh-trend-pill">💇 Beauty</a>
-      <a href="#education" class="qsh-trend-pill">📚 Tutoring</a>
-      <a href="#car-accessories" class="qsh-trend-pill">🔧 Car Accessories</a>
-      <a href="#laundry" class="qsh-trend-pill">👕 Laundry</a>
+  <!-- ══ TRUST CHIPS ══ -->
+  <div class="qsh-trust-row">
+    <div class="qsh-chip qsh-chip-green">✅ Verified Cleaners</div>
+    <div class="qsh-chip qsh-chip-blue">🚚 Free Pickup &amp; Drop</div>
+    <div class="qsh-chip qsh-chip-gold">⚡ 24hr Express Option</div>
+    <div class="qsh-chip qsh-chip-green">♻️ Eco-Friendly Detergent</div>
+    <div class="qsh-chip qsh-chip-blue">🔒 Safe Packaging</div>
+    <div class="qsh-chip qsh-chip-gold">📦 Item-by-Item Tracking</div>
+  </div>
+
+  <!-- ══ LAUNDRY FLAGSHIP CARD ══ -->
+  <div class="qsh-flagship-wrap qsh-anim qsh-anim-d2">
+    <div class="qsh-section-label">
+      <div class="qsh-section-label-dot"></div>
+      <span class="qsh-section-label-text">Live Service</span>
     </div>
-  </div>
 
-  <!-- VENDOR TRUST STRIP -->
-  <div class="qsh-vendor-strip">
-    <span class="qsh-vendor-label">Trusted by</span>
-    <span class="qsh-vendor-tag">🔑 Verified Pros</span>
-    <span class="qsh-vendor-tag">📋 Background Checked</span>
-    <span class="qsh-vendor-tag">⭐ Rated 4.8+</span>
-    <span class="qsh-vendor-tag">🛡️ Service Guarantee</span>
-    <span class="qsh-vendor-tag">💬 24/7 Support</span>
-  </div>
+    <a href="/pages/laundry" class="qsh-flagship">
+      <div class="qsh-flagship-body">
+        <div class="qsh-flagship-top">
+          <span class="qsh-flagship-emoji">🧺</span>
+          <div class="qsh-flagship-live-badge">
+            <span class="dot"></span> Live
+          </div>
+        </div>
 
-  <!-- ══ HOME SERVICES ══ -->
-  <div id="home-services">
-    <div class="qsh-cat-divider">
-      <span class="qsh-cat-icon">🏠</span>
-      <div class="qsh-cat-info">
-        <div class="qsh-cat-name">Home Services</div>
-        <div class="qsh-cat-sub">Repair, maintenance & upkeep for your home</div>
+        <div class="qsh-flagship-name">Laundry Services</div>
+        <div class="qsh-flagship-desc">Wash, dry, iron &amp; fold — handled by professionals. We pick up from your door and deliver back fresh.</div>
+
+        <div class="qsh-flagship-features">
+          <span class="qsh-ff-pill">👕 Wash &amp; Fold</span>
+          <span class="qsh-ff-pill">🔥 Dry Cleaning</span>
+          <span class="qsh-ff-pill">👔 Steam Iron</span>
+          <span class="qsh-ff-pill">🛏️ Bedsheets</span>
+          <span class="qsh-ff-pill">🏠 Pickup &amp; Drop</span>
+        </div>
+
+        <div class="qsh-flagship-bottom">
+          <div class="qsh-flagship-price">
+            <span class="qsh-flagship-price-from">Starting from</span>
+            <span class="qsh-flagship-price-val">Rs 60</span>
+            <span class="qsh-flagship-price-unit">per garment</span>
+          </div>
+          <div class="qsh-flagship-btn">
+            Book Now <span>→</span>
+          </div>
+        </div>
       </div>
-      <div class="qsh-cat-line"></div>
-    </div>
-    <div class="qsh-section-title">
-      <span class="qsh-section-dot live"></span>
-      <span class="qsh-section-label">Available Now</span>
-      <span class="qsh-section-count">7 services</span>
-    </div>
-    <div class="qsh-grid">
-      <a href="/pages/service-plumbing" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">🪠</div><span class="qsh-badge live-badge">LIVE</span></div>
-        <div class="qsh-name">Plumbing Repair</div>
-        <div class="qsh-desc">Leaks, pipe fixing, tap replacement, drainage issues solved fast</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 500</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-electrician" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">⚡</div><span class="qsh-badge fast-badge">FAST</span></div>
-        <div class="qsh-name">Electrician</div>
-        <div class="qsh-desc">Wiring, switch boards, fan & light installation, power issues</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 400</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-cleaning" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">🧹</div><span class="qsh-badge live-badge">LIVE</span></div>
-        <div class="qsh-name">Deep Cleaning</div>
-        <div class="qsh-desc">Full home deep clean, bathroom, kitchen, sofa & carpet cleaning</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 1,200</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-painting" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">🖌️</div><span class="qsh-badge live-badge">LIVE</span></div>
-        <div class="qsh-name">Wall Painting</div>
-        <div class="qsh-desc">Interior & exterior painting, texture, waterproofing services</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 15/sqft</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-pest-control" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">🐜</div><span class="qsh-badge live-badge">LIVE</span></div>
-        <div class="qsh-name">Pest Control</div>
-        <div class="qsh-desc">Cockroaches, mosquitoes, termites, rodents — full treatment</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 800</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-carpentry" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">🪚</div><span class="qsh-badge live-badge">LIVE</span></div>
-        <div class="qsh-name">Carpentry</div>
-        <div class="qsh-desc">Furniture assembly, door fixing, cabinet repair, custom woodwork</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 600</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-hvac" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">❄️</div><span class="qsh-badge fast-badge">FAST</span></div>
-        <div class="qsh-name">AC Service & Repair</div>
-        <div class="qsh-desc">AC cleaning, gas refill, installation, repair & maintenance</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 700</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-    </div>
-  </div>
 
-  <!-- ══ TECH SERVICES ══ -->
-  <div id="tech-services">
-    <div class="qsh-cat-divider">
-      <span class="qsh-cat-icon">💻</span>
-      <div class="qsh-cat-info">
-        <div class="qsh-cat-name">Tech Repair</div>
-        <div class="qsh-cat-sub">Laptop, mobile & electronics repair at your doorstep</div>
+      <!-- Mini service tiles -->
+      <div class="qsh-laundry-services">
+        <div class="qsh-ls-item">
+          <span class="qsh-ls-icon">👕</span>
+          Wash &amp; Fold
+        </div>
+        <div class="qsh-ls-item">
+          <span class="qsh-ls-icon">🧥</span>
+          Dry Clean
+        </div>
+        <div class="qsh-ls-item">
+          <span class="qsh-ls-icon">👔</span>
+          Steam Iron
+        </div>
+        <div class="qsh-ls-item">
+          <span class="qsh-ls-icon">🛏️</span>
+          Bedsheets
+        </div>
       </div>
-      <div class="qsh-cat-line"></div>
-    </div>
-    <div class="qsh-section-title">
-      <span class="qsh-section-dot live"></span>
-      <span class="qsh-section-label">Available Now</span>
-      <span class="qsh-section-count">5 services</span>
-    </div>
-    <div class="qsh-grid">
-      <a href="/pages/service-it" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">💻</div><span class="qsh-badge live-badge">LIVE</span></div>
-        <div class="qsh-name">Laptop & PC Repair</div>
-        <div class="qsh-desc">Hardware fix, OS install, virus removal, data recovery & upgrades</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 500</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-repair" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">📱</div><span class="qsh-badge hot-badge">HOT</span></div>
-        <div class="qsh-name">Screen Replacement</div>
-        <div class="qsh-desc">Cracked iPhone, Samsung & other mobile screen replacement — same day</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 1,500</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-repair" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">🔧</div><span class="qsh-badge live-badge">LIVE</span></div>
-        <div class="qsh-name">Phone Repair</div>
-        <div class="qsh-desc">Battery, charging port, camera, speaker & water damage repairs</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 300</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-security" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">📹</div><span class="qsh-badge live-badge">LIVE</span></div>
-        <div class="qsh-name">CCTV Installation</div>
-        <div class="qsh-desc">Security camera setup, DVR config, remote viewing & maintenance</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 2,500</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-water-purification" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">💧</div><span class="qsh-badge live-badge">LIVE</span></div>
-        <div class="qsh-name">Water Purifier Service</div>
-        <div class="qsh-desc">Filter change, RO service, installation & annual maintenance</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 600</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-    </div>
+    </a>
   </div>
 
-  <!-- ══ VEHICLE SERVICES ══ -->
-  <div id="vehicle-services">
-    <div class="qsh-cat-divider">
-      <span class="qsh-cat-icon">🚗</span>
-      <div class="qsh-cat-info">
-        <div class="qsh-cat-name">Vehicle Services</div>
-        <div class="qsh-cat-sub">Car & bike service, repair, wash & accessories</div>
+  <!-- ══ VENDOR REGISTRATION ══ -->
+  <div class="qsh-vendor-wrap qsh-anim qsh-anim-d3">
+    <div class="qsh-section-label">
+      <div class="qsh-section-label-dot" style="background:#F4B400;box-shadow:0 0 0 3px rgba(244,180,0,0.2);animation:none;"></div>
+      <span class="qsh-section-label-text" style="color:#F4B400;">For Businesses</span>
+    </div>
+
+    <a href="/pages/vendor-registration" class="qsh-vendor-card">
+      <div class="qsh-vendor-body">
+        <div class="qsh-vendor-icon-wrap">🏪</div>
+        <div class="qsh-vendor-info">
+          <div class="qsh-vendor-badge">
+            ✦ Open Registration
+          </div>
+          <div class="qsh-vendor-name">Vendor Registration</div>
+          <div class="qsh-vendor-desc">Partner with QuickBee. List your services, grow your business &amp; reach thousands of customers in your area.</div>
+        </div>
+        <div class="qsh-vendor-arrow">→</div>
       </div>
-      <div class="qsh-cat-line"></div>
-    </div>
-    <div class="qsh-section-title">
-      <span class="qsh-section-dot live"></span>
-      <span class="qsh-section-label">Available Now</span>
-      <span class="qsh-section-count">4 services</span>
-    </div>
-    <div class="qsh-grid">
-      <a href="/pages/service-mechanic" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">🔩</div><span class="qsh-badge live-badge">LIVE</span></div>
-        <div class="qsh-name">Car Mechanic</div>
-        <div class="qsh-desc">Engine check, oil change, brake repair, tyre & general servicing</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 800</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-mechanic" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">🚿</div><span class="qsh-badge fast-badge">FAST</span></div>
-        <div class="qsh-name">Car Wash & Detailing</div>
-        <div class="qsh-desc">Full exterior & interior cleaning, waxing, polish at your doorstep</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 600</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-car-accessories" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">🛞</div><span class="qsh-badge new-badge">NEW</span></div>
-        <div class="qsh-name">Car Accessories Fitting</div>
-        <div class="qsh-desc">Seat covers, dashcam, music system, LED lights & alloy fitting</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 500</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-mechanic" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">🏍️</div><span class="qsh-badge live-badge">LIVE</span></div>
-        <div class="qsh-name">Bike Service</div>
-        <div class="qsh-desc">Engine oil, chain lube, tune-up & general bike maintenance</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 400</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-    </div>
+    </a>
   </div>
 
-  <!-- ══ BEAUTY & WELLNESS ══ -->
-  <div id="beauty-services">
-    <div class="qsh-cat-divider">
-      <span class="qsh-cat-icon">💇</span>
-      <div class="qsh-cat-info">
-        <div class="qsh-cat-name">Beauty & Wellness</div>
-        <div class="qsh-cat-sub">Salon, fitness & self-care at your doorstep</div>
-      </div>
-      <div class="qsh-cat-line"></div>
+  <!-- ══ COMING SOON DIVIDER ══ -->
+  <div class="qsh-soon-divider">
+    <div class="qsh-soon-divider-line"></div>
+    <div class="qsh-soon-divider-label">
+      🔒 Coming Soon
     </div>
-    <div class="qsh-grid">
-      <a href="/pages/service-beauty" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">💅</div><span class="qsh-badge hot-badge">HOT</span></div>
-        <div class="qsh-name">Salon at Home</div>
-        <div class="qsh-desc">Haircut, facial, threading, waxing & bridal packages at your home</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 300</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-beauty" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">🧘</div><span class="qsh-badge live-badge">LIVE</span></div>
-        <div class="qsh-name">Massage Therapy</div>
-        <div class="qsh-desc">Full body, head, foot & sports massage by certified therapists</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 800</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-fitness" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">🏋️</div><span class="qsh-badge live-badge">LIVE</span></div>
-        <div class="qsh-name">Home Fitness Trainer</div>
-        <div class="qsh-desc">Certified personal trainer for yoga, weight loss & strength training</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 500/session</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-    </div>
+    <div class="qsh-soon-divider-line"></div>
   </div>
 
-  <!-- ══ EDUCATION & LAUNDRY ══ -->
-  <div id="education">
-    <div class="qsh-cat-divider">
-      <span class="qsh-cat-icon">📚</span>
-      <div class="qsh-cat-info">
-        <div class="qsh-cat-name">Education & Laundry</div>
-        <div class="qsh-cat-sub">Tutoring, coaching & laundry services</div>
-      </div>
-      <div class="qsh-cat-line"></div>
-    </div>
-    <div class="qsh-grid">
-      <a href="/pages/service-tutoring" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">📖</div><span class="qsh-badge live-badge">LIVE</span></div>
-        <div class="qsh-name">Home Tutor</div>
-        <div class="qsh-desc">Qualified tutors for school, college, competitive exams & coding</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 400/hr</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-laundry" class="qsh-card" id="laundry">
-        <div class="qsh-card-top"><div class="qsh-icon">👕</div><span class="qsh-badge fast-badge">FAST</span></div>
-        <div class="qsh-name">Laundry & Dry Clean</div>
-        <div class="qsh-desc">Pickup & delivery laundry, dry cleaning, ironing & express service</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 80/piece</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-cooking" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">👨‍🍳</div><span class="qsh-badge new-badge">NEW</span></div>
-        <div class="qsh-name">Home Cook</div>
-        <div class="qsh-desc">Professional chef for events, daily cooking & meal prep services</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 600/day</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-    </div>
-  </div>
-
-  <!-- ══ CAR ACCESSORIES ══ -->
-  <div id="car-accessories">
-    <div class="qsh-cat-divider">
-      <span class="qsh-cat-icon">🔧</span>
-      <div class="qsh-cat-info">
-        <div class="qsh-cat-name">Car Accessories</div>
-        <div class="qsh-cat-sub">Installation & customization for your vehicle</div>
-      </div>
-      <div class="qsh-cat-line"></div>
-    </div>
-    <div class="qsh-section-title">
-      <span class="qsh-section-dot live"></span>
-      <span class="qsh-section-label">Book Installation</span>
-      <span class="qsh-section-count">6 services</span>
-    </div>
-    <div class="qsh-grid">
-      <a href="/pages/service-car-accessories" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">🎵</div><span class="qsh-badge live-badge">LIVE</span></div>
-        <div class="qsh-name">Music System Fitting</div>
-        <div class="qsh-desc">Car stereo, speakers, subwoofer & amplifier installation</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 500</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-car-accessories" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">📷</div><span class="qsh-badge fast-badge">FAST</span></div>
-        <div class="qsh-name">Dashcam Installation</div>
-        <div class="qsh-desc">Front, rear & interior dashcam fitting with wiring</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 400</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-car-accessories" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">💡</div><span class="qsh-badge new-badge">NEW</span></div>
-        <div class="qsh-name">LED Lights Fitting</div>
-        <div class="qsh-desc">Headlight upgrade, DRL, interior ambient & underglow LED</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 600</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-car-accessories" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">🪑</div><span class="qsh-badge live-badge">LIVE</span></div>
-        <div class="qsh-name">Seat Cover Fitting</div>
-        <div class="qsh-desc">Custom leather, fabric & 3D seat cover fitting</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 2,500</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-car-accessories" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">🛡️</div><span class="qsh-badge live-badge">LIVE</span></div>
-        <div class="qsh-name">Window Tinting</div>
-        <div class="qsh-desc">UV protection, privacy tint & solar film installation</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 3,000</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-      <a href="/pages/service-car-accessories" class="qsh-card">
-        <div class="qsh-card-top"><div class="qsh-icon">📡</div><span class="qsh-badge live-badge">LIVE</span></div>
-        <div class="qsh-name">GPS Tracker Install</div>
-        <div class="qsh-desc">Vehicle tracking device installation with real-time monitoring</div>
-        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 1,500</div></div>
-        <div class="qsh-book-btn">Book Now →</div>
-      </a>
-    </div>
-  </div>
-
-  <!-- ══ COMING SOON ══ -->
-  <div class="qsh-soon-section">
-    <div class="qsh-soon-title">⏳ Coming Soon</div>
+  <!-- ══ COMING SOON GRID ══ -->
+  <div class="qsh-soon-grid-wrap">
     <div class="qsh-soon-grid">
-      <div class="qsh-soon-card"><span class="qsh-soon-icon">☀️</span><span class="qsh-soon-name">Solar Panel Install</span><span class="qsh-soon-badge">SOON</span></div>
-      <div class="qsh-soon-card"><span class="qsh-soon-icon">🔒</span><span class="qsh-soon-name">Locksmith Service</span><span class="qsh-soon-badge">SOON</span></div>
-      <div class="qsh-soon-card"><span class="qsh-soon-icon">🏗️</span><span class="qsh-soon-name">Roofing & Waterproof</span><span class="qsh-soon-badge">SOON</span></div>
-      <div class="qsh-soon-card"><span class="qsh-soon-icon">🌿</span><span class="qsh-soon-name">Garden & Landscaping</span><span class="qsh-soon-badge">SOON</span></div>
-      <div class="qsh-soon-card"><span class="qsh-soon-icon">🏢</span><span class="qsh-soon-name">Commercial Cleaning</span><span class="qsh-soon-badge">SOON</span></div>
-      <div class="qsh-soon-card"><span class="qsh-soon-icon">🔦</span><span class="qsh-soon-name">Appliance Repair</span><span class="qsh-soon-badge">SOON</span></div>
+
+      <div class="qsh-soon-card">
+        <span class="qsh-soon-icon">🔧</span>
+        <div class="qsh-soon-name">Plumbing</div>
+        <div class="qsh-soon-sub">Leak fix &amp; pipe work</div>
+        <span class="qsh-soon-lock">🔒 Soon</span>
+      </div>
+
+      <div class="qsh-soon-card">
+        <span class="qsh-soon-icon">💻</span>
+        <div class="qsh-soon-name">Laptop Repair</div>
+        <div class="qsh-soon-sub">Hardware &amp; software</div>
+        <span class="qsh-soon-lock">🔒 Soon</span>
+      </div>
+
+      <div class="qsh-soon-card">
+        <span class="qsh-soon-icon">📱</span>
+        <div class="qsh-soon-name">Phone Repair</div>
+        <div class="qsh-soon-sub">Screen &amp; battery fix</div>
+        <span class="qsh-soon-lock">🔒 Soon</span>
+      </div>
+
+      <div class="qsh-soon-card">
+        <span class="qsh-soon-icon">💡</span>
+        <div class="qsh-soon-name">Electrician</div>
+        <div class="qsh-soon-sub">Wiring &amp; fittings</div>
+        <span class="qsh-soon-lock">🔒 Soon</span>
+      </div>
+
+      <div class="qsh-soon-card">
+        <span class="qsh-soon-icon">🚗</span>
+        <div class="qsh-soon-name">Car Accessories</div>
+        <div class="qsh-soon-sub">Music, GPS &amp; more</div>
+        <span class="qsh-soon-lock">🔒 Soon</span>
+      </div>
+
+      <div class="qsh-soon-card">
+        <span class="qsh-soon-icon">✂️</span>
+        <div class="qsh-soon-name">Beauty &amp; Salon</div>
+        <div class="qsh-soon-sub">Haircut &amp; grooming</div>
+        <span class="qsh-soon-lock">🔒 Soon</span>
+      </div>
+
+      <div class="qsh-soon-card">
+        <span class="qsh-soon-icon">🏠</span>
+        <div class="qsh-soon-name">Home Cleaning</div>
+        <div class="qsh-soon-sub">Deep clean &amp; sanitize</div>
+        <span class="qsh-soon-lock">🔒 Soon</span>
+      </div>
+
+      <div class="qsh-soon-card">
+        <span class="qsh-soon-icon">🎨</span>
+        <div class="qsh-soon-name">Painting</div>
+        <div class="qsh-soon-sub">Interior &amp; exterior</div>
+        <span class="qsh-soon-lock">🔒 Soon</span>
+      </div>
+
+      <div class="qsh-soon-card">
+        <span class="qsh-soon-icon">📚</span>
+        <div class="qsh-soon-name">Home Tutor</div>
+        <div class="qsh-soon-sub">Classes at your home</div>
+        <span class="qsh-soon-lock">🔒 Soon</span>
+      </div>
+
+      <div class="qsh-soon-card">
+        <span class="qsh-soon-icon">🐾</span>
+        <div class="qsh-soon-name">Pet Care</div>
+        <div class="qsh-soon-sub">Grooming &amp; sitting</div>
+        <span class="qsh-soon-lock">🔒 Soon</span>
+      </div>
+
+      <div class="qsh-soon-card">
+        <span class="qsh-soon-icon">🛻</span>
+        <div class="qsh-soon-name">Moving &amp; Shifting</div>
+        <div class="qsh-soon-sub">Furniture &amp; boxes</div>
+        <span class="qsh-soon-lock">🔒 Soon</span>
+      </div>
+
+      <div class="qsh-soon-card">
+        <span class="qsh-soon-icon">🔩</span>
+        <div class="qsh-soon-name">Carpentry</div>
+        <div class="qsh-soon-sub">Furniture &amp; woodwork</div>
+        <span class="qsh-soon-lock">🔒 Soon</span>
+      </div>
+
     </div>
   </div>
 
-  <!-- ══ BOTTOM CTA ══ -->
-  <div class="qsh-bottom-cta">
-    <div class="qsh-cta-title">Are You a Service Provider?</div>
-    <div class="qsh-cta-sub">Join 500+ professionals on QuickBee and grow your business</div>
-    <a href="/pages/contact" class="qsh-cta-btn">🤝 Become a Vendor</a>
+  <!-- ══ APP BANNER ══ -->
+  <div class="qsh-app-banner">
+    <div class="qsh-app-banner-icon">📲</div>
+    <div class="qsh-app-banner-info">
+      <div class="qsh-app-banner-title">QuickBee App — Coming Soon</div>
+      <div class="qsh-app-banner-sub">Book services, track orders &amp; get exclusive deals — all in one place.</div>
+      <div class="qsh-app-banner-badge">⚡ Early Access Opening Soon</div>
+    </div>
   </div>
 
 </div>
 
-<script>
-(function() {
-  // Trending pill active state
-  const pills = document.querySelectorAll('.qsh-trend-pill');
-  pills.forEach(pill => {
-    pill.addEventListener('click', function() {
-      pills.forEach(p => p.classList.remove('active'));
-      this.classList.add('active');
-    });
-  });
-
-  // Future-ready: programmatically update service status
-  window.qshSetServiceStatus = function(serviceHandle, status) {
-    document.querySelectorAll(`[href*="${serviceHandle}"]`).forEach(card => {
-      const badge = card.querySelector('.qsh-badge');
-      if (!badge) return;
-      if (status === 'live') {
-        badge.className = 'qsh-badge live-badge'; badge.textContent = 'LIVE';
-        card.classList.remove('soon');
-      } else if (status === 'soon') {
-        badge.className = 'qsh-badge soon-badge'; badge.textContent = 'SOON';
-        card.classList.add('soon');
-      } else if (status === 'fast') {
-        badge.className = 'qsh-badge fast-badge'; badge.textContent = 'FAST';
-      } else if (status === 'hot') {
-        badge.className = 'qsh-badge hot-badge'; badge.textContent = 'HOT';
-      }
-    });
-  };
-
-  // Future-ready: update service pricing dynamically
-  window.qshSetServicePrice = function(serviceHandle, price) {
-    document.querySelectorAll(`[href*="${serviceHandle}"] .qsh-price`).forEach(el => {
-      el.textContent = price;
-    });
-  };
-})();
-</script>
-
 {% schema %}
 {
-  "name": "QuickBee Services Hub",
-  "settings": [],
-  "presets": [{ "name": "QuickBee Services Hub" }]
+  "name": "QB Services Hub",
+  "settings": []
 }
 {% endschema %}
