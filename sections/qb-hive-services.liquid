@@ -1,496 +1,934 @@
-<!-- QuickBee — Quick Service Hub v2 -->
-<div class="qsh-page" id="qb-hive-page">
+{%- doc -%}
+  QuickBee Services Hub — Professional home, tech & vehicle services.
+  Pure service bookings only (no products).
+{%- enddoc -%}
 
-  <!-- ── HERO ── -->
+<style>
+/* ═══════════════════════════════════════
+   QSH — QuickBee Services Hub v3
+═══════════════════════════════════════ */
+:root {
+  --qsh-gold: #F4B400;
+  --qsh-spring: cubic-bezier(0.34,1.56,0.64,1);
+  --qsh-smooth: cubic-bezier(0.4,0,0.2,1);
+}
+
+.qsh-wrap {
+  background: #0a0a0a;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+  padding-bottom: 100px;
+}
+
+/* ── Hero Banner ── */
+.qsh-hero {
+  position: relative;
+  background: linear-gradient(135deg, #0f0f0f 0%, #1a1200 50%, #0f0f0f 100%);
+  padding: 40px 20px 36px;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(244,180,0,0.12);
+}
+.qsh-hero::before {
+  content: '';
+  position: absolute;
+  top: -60px; left: 50%; transform: translateX(-50%);
+  width: 500px; height: 220px;
+  background: radial-gradient(ellipse, rgba(244,180,0,0.14) 0%, transparent 70%);
+  pointer-events: none;
+}
+.qsh-hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.07;
+  pointer-events: none;
+  animation: qshFloat 7s ease-in-out infinite;
+}
+.qsh-hero-orb:nth-child(1) { width: 200px; height: 200px; background: #F4B400; top: -60px; right: -40px; animation-delay: 0s; }
+.qsh-hero-orb:nth-child(2) { width: 120px; height: 120px; background: #FF6B35; bottom: -30px; left: 10%; animation-delay: 3s; }
+@keyframes qshFloat {
+  0%,100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-14px) scale(1.05); }
+}
+
+.qsh-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(244,180,0,0.12);
+  border: 1px solid rgba(244,180,0,0.3);
+  color: #F4B400;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 5px 12px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.qsh-hero-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #F4B400;
+  animation: qshDotPulse 1.5s ease-in-out infinite;
+}
+@keyframes qshDotPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(244,180,0,0.7); }
+  50% { box-shadow: 0 0 0 5px rgba(244,180,0,0); }
+}
+
+.qsh-hero-title {
+  font-size: clamp(26px, 7vw, 40px);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  margin: 0 0 10px 0;
+}
+.qsh-hero-title span { color: #F4B400; }
+
+.qsh-hero-sub {
+  font-size: 14px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.6;
+  max-width: 480px;
+  margin: 0 0 24px 0;
+}
+
+.qsh-hero-stats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.qsh-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.qsh-stat-num {
+  font-size: 20px;
+  font-weight: 900;
+  color: #F4B400;
+  line-height: 1;
+}
+.qsh-stat-label {
+  font-size: 10px;
+  color: rgba(255,255,255,0.4);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* ── Trending Strip ── */
+.qsh-trending {
+  background: #111;
+  border-bottom: 1px solid #1e1e1e;
+  padding: 0;
+  overflow: hidden;
+}
+.qsh-trending-inner {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 14px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  white-space: nowrap;
+}
+.qsh-trending-inner::-webkit-scrollbar { display: none; }
+.qsh-trend-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #bbb;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.qsh-trend-pill:hover, .qsh-trend-pill.active {
+  background: rgba(244,180,0,0.12);
+  border-color: rgba(244,180,0,0.35);
+  color: #F4B400;
+}
+
+/* ── Section Title ── */
+.qsh-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 16px 14px;
+}
+.qsh-section-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.qsh-section-dot.live {
+  background: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34,197,94,0.25);
+  animation: qshLivePulse 2s ease-in-out infinite;
+}
+.qsh-section-dot.soon { background: #888; }
+@keyframes qshLivePulse {
+  0%,100% { box-shadow: 0 0 0 2px rgba(34,197,94,0.25); }
+  50% { box-shadow: 0 0 0 6px rgba(34,197,94,0); }
+}
+.qsh-section-label {
+  font-size: 15px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.2px;
+  text-transform: uppercase;
+}
+.qsh-section-count {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  color: #555;
+}
+
+/* ── Service Grid ── */
+.qsh-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 0 12px 8px;
+}
+@media (min-width: 640px) { .qsh-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 900px) { .qsh-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1200px) { .qsh-grid { grid-template-columns: repeat(5, 1fr); } }
+
+/* ── Service Card ── */
+.qsh-card {
+  background: linear-gradient(155deg, #1c1c1c 0%, #141414 100%);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 16px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.22s var(--qsh-spring), box-shadow 0.22s ease, border-color 0.22s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.45);
+}
+.qsh-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+  transition: left 0.5s ease;
+  pointer-events: none;
+}
+.qsh-card:hover::before { left: 150%; }
+.qsh-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  border-color: rgba(244,180,0,0.3);
+  box-shadow: 0 14px 38px rgba(0,0,0,0.55), 0 0 0 1px rgba(244,180,0,0.12), 0 4px 14px rgba(244,180,0,0.06);
+}
+.qsh-card.soon {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Card header row */
+.qsh-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+/* Icon */
+.qsh-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  background: rgba(244,180,0,0.08);
+  flex-shrink: 0;
+  transition: transform 0.2s var(--qsh-spring);
+}
+.qsh-card:hover .qsh-icon { transform: scale(1.1) rotate(-4deg); }
+
+/* Badges */
+.qsh-badge {
+  font-size: 9px;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.qsh-badge.live-badge {
+  background: rgba(34,197,94,0.15);
+  color: #4ade80;
+  border: 1px solid rgba(34,197,94,0.3);
+}
+.qsh-badge.fast-badge {
+  background: rgba(244,180,0,0.15);
+  color: #F4B400;
+  border: 1px solid rgba(244,180,0,0.3);
+}
+.qsh-badge.soon-badge {
+  background: rgba(120,120,120,0.1);
+  color: #777;
+  border: 1px solid rgba(120,120,120,0.2);
+}
+.qsh-badge.new-badge {
+  background: rgba(139,92,246,0.15);
+  color: #a78bfa;
+  border: 1px solid rgba(139,92,246,0.3);
+}
+.qsh-badge.hot-badge {
+  background: rgba(239,68,68,0.15);
+  color: #f87171;
+  border: 1px solid rgba(239,68,68,0.3);
+}
+
+/* Service name */
+.qsh-name {
+  font-size: 12px;
+  font-weight: 800;
+  color: #f0f0f0;
+  line-height: 1.3;
+  letter-spacing: -0.1px;
+}
+
+/* Description */
+.qsh-desc {
+  font-size: 10px;
+  color: #666;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Price */
+.qsh-price {
+  font-size: 13px;
+  font-weight: 900;
+  color: #F4B400;
+  letter-spacing: -0.2px;
+}
+.qsh-price-label {
+  font-size: 9px;
+  color: #555;
+  font-weight: 600;
+}
+
+/* Book button */
+.qsh-book-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  padding: 9px 0;
+  background: rgba(244,180,0,0.1);
+  border: 1px solid rgba(244,180,0,0.25);
+  border-radius: 10px;
+  color: #F4B400;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: auto;
+  text-decoration: none;
+}
+.qsh-book-btn:hover {
+  background: rgba(244,180,0,0.18);
+  border-color: rgba(244,180,0,0.5);
+  transform: translateY(-1px);
+}
+
+/* ── Category divider ── */
+.qsh-cat-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 16px 12px;
+}
+.qsh-cat-icon { font-size: 20px; }
+.qsh-cat-info { flex: 1; }
+.qsh-cat-name {
+  font-size: 16px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.3px;
+}
+.qsh-cat-sub {
+  font-size: 11px;
+  color: #555;
+  margin-top: 2px;
+}
+.qsh-cat-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(244,180,0,0.2) 0%, transparent 100%);
+}
+
+/* ── Coming Soon Section ── */
+.qsh-soon-section {
+  padding: 20px 12px;
+  background: linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%);
+  border-top: 1px solid rgba(255,255,255,0.04);
+  margin-top: 16px;
+}
+.qsh-soon-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  text-align: center;
+  margin-bottom: 14px;
+}
+.qsh-soon-grid {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+.qsh-soon-grid::-webkit-scrollbar { display: none; }
+.qsh-soon-card {
+  flex: 0 0 130px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 14px;
+  padding: 16px 12px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 8px;
+  opacity: 0.5;
+}
+.qsh-soon-icon { font-size: 28px; }
+.qsh-soon-name { font-size: 11px; font-weight: 700; color: #555; text-align: center; }
+.qsh-soon-badge {
+  font-size: 9px; font-weight: 800;
+  color: #444; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  padding: 3px 8px; border-radius: 20px;
+}
+
+/* ── Bottom CTA ── */
+.qsh-bottom-cta {
+  background: linear-gradient(135deg, #1a1100 0%, #0f0f0f 50%, #001a0a 100%);
+  border: 1px solid rgba(244,180,0,0.12);
+  border-radius: 20px;
+  margin: 16px 12px 24px;
+  padding: 28px 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.qsh-bottom-cta::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #F4B400, transparent);
+  opacity: 0.5;
+}
+.qsh-cta-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+}
+.qsh-cta-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 18px;
+}
+.qsh-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #F4B400, #FFD700);
+  color: #000;
+  font-size: 13px;
+  font-weight: 900;
+  padding: 12px 28px;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(244,180,0,0.38);
+}
+.qsh-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(244,180,0,0.52);
+}
+
+/* ── Vendor badge strip ── */
+.qsh-vendor-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.qsh-vendor-strip::-webkit-scrollbar { display: none; }
+.qsh-vendor-tag {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  color: #555;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.qsh-vendor-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+</style>
+
+<div class="qsh-wrap">
+
+  <!-- HERO -->
   <div class="qsh-hero">
-    <div class="qsh-hero-glow"></div>
-    <div class="qsh-hero-inner">
-      <div class="qsh-hero-badge">⚡ Quick Service Hub</div>
-      <h1 class="qsh-title">QuickBee<br><span>Services</span></h1>
-      <p class="qsh-sub">Everything delivered in ~20 minutes</p>
-      <div class="qsh-hero-meta">
-        <div class="qsh-meta-pill">🏍️ 18–22 min avg</div>
-        <div class="qsh-meta-pill">📍 Kathmandu Valley</div>
+    <div class="qsh-hero-orb"></div>
+    <div class="qsh-hero-orb"></div>
+    <div class="qsh-hero-badge">
+      <span class="qsh-hero-dot"></span>
+      Live in Kathmandu Valley
+    </div>
+    <h1 class="qsh-hero-title">QuickBee<br><span>Services</span></h1>
+    <p class="qsh-hero-sub">Trusted professionals for your home, tech & vehicle — booked in seconds, done by experts.</p>
+    <div class="qsh-hero-stats">
+      <div class="qsh-stat">
+        <span class="qsh-stat-num">500+</span>
+        <span class="qsh-stat-label">Vendors</span>
+      </div>
+      <div class="qsh-stat">
+        <span class="qsh-stat-num">20+</span>
+        <span class="qsh-stat-label">Services</span>
+      </div>
+      <div class="qsh-stat">
+        <span class="qsh-stat-num">4.8★</span>
+        <span class="qsh-stat-label">Avg Rating</span>
+      </div>
+      <div class="qsh-stat">
+        <span class="qsh-stat-num">KTM</span>
+        <span class="qsh-stat-label">Valley Wide</span>
       </div>
     </div>
-    <!-- floating orbs -->
-    <div class="qsh-orb qsh-orb1"></div>
-    <div class="qsh-orb qsh-orb2"></div>
   </div>
 
-  <!-- ── TRENDING STRIP ── -->
-  <div class="qsh-trending-wrap">
+  <!-- TRENDING SCROLL STRIP -->
+  <div class="qsh-trending">
     <div class="qsh-trending-inner">
-      <span class="qsh-trending-label">🔥 Trending</span>
-      <div class="qsh-trending-scroll">
-        <a href="/products/alcohol-delivery"   class="qsh-tpill">🍻 Alcohol</a>
-        <a href="/products/cigarette"          class="qsh-tpill">🚬 Smokes</a>
-        <a href="/products/food-snacks"        class="qsh-tpill">🍔 Food</a>
-        <a href="/products/grocery"            class="qsh-tpill">🛒 Grocery</a>
-        <a href="/products/drinks-energy"      class="qsh-tpill">🧃 Drinks</a>
-        <a href="/products/ice-party-supplies" class="qsh-tpill">🧊 Ice & Party</a>
-      </div>
+      <a href="#home-services" class="qsh-trend-pill active">🏠 Home</a>
+      <a href="#tech-services" class="qsh-trend-pill">💻 Tech</a>
+      <a href="#vehicle-services" class="qsh-trend-pill">🚗 Vehicle</a>
+      <a href="#beauty-services" class="qsh-trend-pill">💇 Beauty</a>
+      <a href="#education" class="qsh-trend-pill">📚 Tutoring</a>
+      <a href="#car-accessories" class="qsh-trend-pill">🔧 Car Accessories</a>
+      <a href="#laundry" class="qsh-trend-pill">👕 Laundry</a>
     </div>
   </div>
 
-  <!-- ── LIVE SERVICES ── -->
-  <div class="qsh-section-head">
-    <span class="qsh-section-dot live"></span>
-    <span class="qsh-section-txt">Available Now</span>
-    <span class="qsh-fastest-badge">⚡ Fastest Delivery</span>
+  <!-- VENDOR TRUST STRIP -->
+  <div class="qsh-vendor-strip">
+    <span class="qsh-vendor-label">Trusted by</span>
+    <span class="qsh-vendor-tag">🔑 Verified Pros</span>
+    <span class="qsh-vendor-tag">📋 Background Checked</span>
+    <span class="qsh-vendor-tag">⭐ Rated 4.8+</span>
+    <span class="qsh-vendor-tag">🛡️ Service Guarantee</span>
+    <span class="qsh-vendor-tag">💬 24/7 Support</span>
   </div>
 
-  <div class="qsh-grid">
-
-    <!-- 1 Alcohol -->
-    <a href="/products/alcohol-delivery" class="qsh-card live" data-service="alcohol">
-      <div class="qsh-card-shine"></div>
-      <div class="qsh-badge live"><span class="qsh-live-dot"></span>LIVE</div>
-      <div class="qsh-emoji">🍻</div>
-      <div class="qsh-card-body">
-        <div class="qsh-name">Alcohol Delivery</div>
-        <div class="qsh-desc">Beer, Wine & Spirits</div>
+  <!-- ══ HOME SERVICES ══ -->
+  <div id="home-services">
+    <div class="qsh-cat-divider">
+      <span class="qsh-cat-icon">🏠</span>
+      <div class="qsh-cat-info">
+        <div class="qsh-cat-name">Home Services</div>
+        <div class="qsh-cat-sub">Repair, maintenance & upkeep for your home</div>
       </div>
-      <div class="qsh-card-foot">⚡ 20 mins</div>
-    </a>
-
-    <!-- 2 Cigarettes -->
-    <a href="/products/cigarette" class="qsh-card live" data-service="cigarette">
-      <div class="qsh-card-shine"></div>
-      <div class="qsh-badge live"><span class="qsh-live-dot"></span>LIVE</div>
-      <div class="qsh-emoji">🚬</div>
-      <div class="qsh-card-body">
-        <div class="qsh-name">Cigarettes</div>
-        <div class="qsh-desc">All brands, all sizes</div>
-      </div>
-      <div class="qsh-card-foot">⚡ 20 mins</div>
-    </a>
-
-    <!-- 3 Food & Snacks -->
-    <a href="/products/food-snacks" class="qsh-card live" data-service="food-snacks">
-      <div class="qsh-card-shine"></div>
-      <div class="qsh-badge fast">FAST</div>
-      <div class="qsh-emoji">🍔</div>
-      <div class="qsh-card-body">
-        <div class="qsh-name">Food & Snacks</div>
-        <div class="qsh-desc">Quick bites & munchies</div>
-      </div>
-      <div class="qsh-card-foot">⚡ 20 mins</div>
-    </a>
-
-    <!-- 4 Grocery -->
-    <a href="/products/grocery" class="qsh-card live" data-service="grocery">
-      <div class="qsh-card-shine"></div>
-      <div class="qsh-badge live"><span class="qsh-live-dot"></span>LIVE</div>
-      <div class="qsh-emoji">🛒</div>
-      <div class="qsh-card-body">
-        <div class="qsh-name">Grocery</div>
-        <div class="qsh-desc">Daily essentials</div>
-      </div>
-      <div class="qsh-card-foot">⚡ 20 mins</div>
-    </a>
-
-    <!-- 5 Ice & Party -->
-    <a href="/products/ice-party-supplies" class="qsh-card live" data-service="ice-party">
-      <div class="qsh-card-shine"></div>
-      <div class="qsh-badge fast">FAST</div>
-      <div class="qsh-emoji">🧊</div>
-      <div class="qsh-card-body">
-        <div class="qsh-name">Ice & Party</div>
-        <div class="qsh-desc">Ice packs, party supplies</div>
-      </div>
-      <div class="qsh-card-foot">⚡ 20 mins</div>
-    </a>
-
-    <!-- 6 Drinks & Energy -->
-    <a href="/products/drinks-energy" class="qsh-card live" data-service="drinks">
-      <div class="qsh-card-shine"></div>
-      <div class="qsh-badge live"><span class="qsh-live-dot"></span>LIVE</div>
-      <div class="qsh-emoji">🧃</div>
-      <div class="qsh-card-body">
-        <div class="qsh-name">Drinks & Energy</div>
-        <div class="qsh-desc">Hydrate in minutes</div>
-      </div>
-      <div class="qsh-card-foot">⚡ 20 mins</div>
-    </a>
-
-    <!-- 7 Custom Delivery -->
-    <a href="/products/custom-delivery" class="qsh-card live featured" data-service="custom-delivery">
-      <div class="qsh-card-shine"></div>
-      <div class="qsh-badge live"><span class="qsh-live-dot"></span>LIVE</div>
-      <div class="qsh-emoji">🚗</div>
-      <div class="qsh-card-body">
-        <div class="qsh-name">Custom Delivery</div>
-        <div class="qsh-desc">Anything, anywhere in city</div>
-      </div>
-      <div class="qsh-card-foot">⚡ On demand</div>
-    </a>
-
+      <div class="qsh-cat-line"></div>
+    </div>
+    <div class="qsh-section-title">
+      <span class="qsh-section-dot live"></span>
+      <span class="qsh-section-label">Available Now</span>
+      <span class="qsh-section-count">7 services</span>
+    </div>
+    <div class="qsh-grid">
+      <a href="/pages/service-plumbing" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">🪠</div><span class="qsh-badge live-badge">LIVE</span></div>
+        <div class="qsh-name">Plumbing Repair</div>
+        <div class="qsh-desc">Leaks, pipe fixing, tap replacement, drainage issues solved fast</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 500</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-electrician" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">⚡</div><span class="qsh-badge fast-badge">FAST</span></div>
+        <div class="qsh-name">Electrician</div>
+        <div class="qsh-desc">Wiring, switch boards, fan & light installation, power issues</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 400</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-cleaning" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">🧹</div><span class="qsh-badge live-badge">LIVE</span></div>
+        <div class="qsh-name">Deep Cleaning</div>
+        <div class="qsh-desc">Full home deep clean, bathroom, kitchen, sofa & carpet cleaning</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 1,200</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-painting" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">🖌️</div><span class="qsh-badge live-badge">LIVE</span></div>
+        <div class="qsh-name">Wall Painting</div>
+        <div class="qsh-desc">Interior & exterior painting, texture, waterproofing services</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 15/sqft</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-pest-control" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">🐜</div><span class="qsh-badge live-badge">LIVE</span></div>
+        <div class="qsh-name">Pest Control</div>
+        <div class="qsh-desc">Cockroaches, mosquitoes, termites, rodents — full treatment</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 800</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-carpentry" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">🪚</div><span class="qsh-badge live-badge">LIVE</span></div>
+        <div class="qsh-name">Carpentry</div>
+        <div class="qsh-desc">Furniture assembly, door fixing, cabinet repair, custom woodwork</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 600</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-hvac" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">❄️</div><span class="qsh-badge fast-badge">FAST</span></div>
+        <div class="qsh-name">AC Service & Repair</div>
+        <div class="qsh-desc">AC cleaning, gas refill, installation, repair & maintenance</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 700</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+    </div>
   </div>
 
-  <!-- ── COMING SOON ── -->
-  <div class="qsh-section-head" style="margin-top:8px;">
-    <span class="qsh-section-dot soon"></span>
-    <span class="qsh-section-txt muted">Coming Soon</span>
+  <!-- ══ TECH SERVICES ══ -->
+  <div id="tech-services">
+    <div class="qsh-cat-divider">
+      <span class="qsh-cat-icon">💻</span>
+      <div class="qsh-cat-info">
+        <div class="qsh-cat-name">Tech Repair</div>
+        <div class="qsh-cat-sub">Laptop, mobile & electronics repair at your doorstep</div>
+      </div>
+      <div class="qsh-cat-line"></div>
+    </div>
+    <div class="qsh-section-title">
+      <span class="qsh-section-dot live"></span>
+      <span class="qsh-section-label">Available Now</span>
+      <span class="qsh-section-count">5 services</span>
+    </div>
+    <div class="qsh-grid">
+      <a href="/pages/service-it" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">💻</div><span class="qsh-badge live-badge">LIVE</span></div>
+        <div class="qsh-name">Laptop & PC Repair</div>
+        <div class="qsh-desc">Hardware fix, OS install, virus removal, data recovery & upgrades</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 500</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-repair" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">📱</div><span class="qsh-badge hot-badge">HOT</span></div>
+        <div class="qsh-name">Screen Replacement</div>
+        <div class="qsh-desc">Cracked iPhone, Samsung & other mobile screen replacement — same day</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 1,500</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-repair" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">🔧</div><span class="qsh-badge live-badge">LIVE</span></div>
+        <div class="qsh-name">Phone Repair</div>
+        <div class="qsh-desc">Battery, charging port, camera, speaker & water damage repairs</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 300</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-security" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">📹</div><span class="qsh-badge live-badge">LIVE</span></div>
+        <div class="qsh-name">CCTV Installation</div>
+        <div class="qsh-desc">Security camera setup, DVR config, remote viewing & maintenance</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 2,500</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-water-purification" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">💧</div><span class="qsh-badge live-badge">LIVE</span></div>
+        <div class="qsh-name">Water Purifier Service</div>
+        <div class="qsh-desc">Filter change, RO service, installation & annual maintenance</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 600</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+    </div>
   </div>
 
-  <div class="qsh-grid qsh-grid-soon">
-
-    <div class="qsh-card soon" data-service="meat-fresh">
-      <div class="qsh-badge soon">SOON</div>
-      <div class="qsh-emoji">🍗</div>
-      <div class="qsh-card-body">
-        <div class="qsh-name">Meat & Fresh</div>
-        <div class="qsh-desc">Farm fresh cuts</div>
+  <!-- ══ VEHICLE SERVICES ══ -->
+  <div id="vehicle-services">
+    <div class="qsh-cat-divider">
+      <span class="qsh-cat-icon">🚗</span>
+      <div class="qsh-cat-info">
+        <div class="qsh-cat-name">Vehicle Services</div>
+        <div class="qsh-cat-sub">Car & bike service, repair, wash & accessories</div>
       </div>
-      <div class="qsh-card-foot muted">Coming soon…</div>
+      <div class="qsh-cat-line"></div>
     </div>
-
-    <div class="qsh-card soon" data-service="pharmacy">
-      <div class="qsh-badge soon">SOON</div>
-      <div class="qsh-emoji">💊</div>
-      <div class="qsh-card-body">
-        <div class="qsh-name">Pharmacy</div>
-        <div class="qsh-desc">Health & wellness</div>
-      </div>
-      <div class="qsh-card-foot muted">Coming soon…</div>
+    <div class="qsh-section-title">
+      <span class="qsh-section-dot live"></span>
+      <span class="qsh-section-label">Available Now</span>
+      <span class="qsh-section-count">4 services</span>
     </div>
-
-    <div class="qsh-card soon" data-service="gifts">
-      <div class="qsh-badge soon">SOON</div>
-      <div class="qsh-emoji">🎁</div>
-      <div class="qsh-card-body">
-        <div class="qsh-name">Gifts & Surprise</div>
-        <div class="qsh-desc">Same-day gifting</div>
-      </div>
-      <div class="qsh-card-foot muted">Coming soon…</div>
+    <div class="qsh-grid">
+      <a href="/pages/service-mechanic" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">🔩</div><span class="qsh-badge live-badge">LIVE</span></div>
+        <div class="qsh-name">Car Mechanic</div>
+        <div class="qsh-desc">Engine check, oil change, brake repair, tyre & general servicing</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 800</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-mechanic" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">🚿</div><span class="qsh-badge fast-badge">FAST</span></div>
+        <div class="qsh-name">Car Wash & Detailing</div>
+        <div class="qsh-desc">Full exterior & interior cleaning, waxing, polish at your doorstep</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 600</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-car-accessories" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">🛞</div><span class="qsh-badge new-badge">NEW</span></div>
+        <div class="qsh-name">Car Accessories Fitting</div>
+        <div class="qsh-desc">Seat covers, dashcam, music system, LED lights & alloy fitting</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 500</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-mechanic" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">🏍️</div><span class="qsh-badge live-badge">LIVE</span></div>
+        <div class="qsh-name">Bike Service</div>
+        <div class="qsh-desc">Engine oil, chain lube, tune-up & general bike maintenance</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 400</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
     </div>
-
   </div>
 
-  <!-- ── BOTTOM CTA ── -->
-  <div class="qsh-cta-bar">
-    <div class="qsh-cta-inner">
-      <div class="qsh-cta-left">
-        <div class="qsh-cta-emoji">🤙</div>
-        <div>
-          <div class="qsh-cta-title">Need something else?</div>
-          <div class="qsh-cta-sub">We'll get it in 20 mins — just ask</div>
-        </div>
+  <!-- ══ BEAUTY & WELLNESS ══ -->
+  <div id="beauty-services">
+    <div class="qsh-cat-divider">
+      <span class="qsh-cat-icon">💇</span>
+      <div class="qsh-cat-info">
+        <div class="qsh-cat-name">Beauty & Wellness</div>
+        <div class="qsh-cat-sub">Salon, fitness & self-care at your doorstep</div>
       </div>
-      <a href="/products/custom-delivery" class="qsh-cta-btn">Custom Pickup →</a>
+      <div class="qsh-cat-line"></div>
     </div>
+    <div class="qsh-grid">
+      <a href="/pages/service-beauty" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">💅</div><span class="qsh-badge hot-badge">HOT</span></div>
+        <div class="qsh-name">Salon at Home</div>
+        <div class="qsh-desc">Haircut, facial, threading, waxing & bridal packages at your home</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 300</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-beauty" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">🧘</div><span class="qsh-badge live-badge">LIVE</span></div>
+        <div class="qsh-name">Massage Therapy</div>
+        <div class="qsh-desc">Full body, head, foot & sports massage by certified therapists</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 800</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-fitness" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">🏋️</div><span class="qsh-badge live-badge">LIVE</span></div>
+        <div class="qsh-name">Home Fitness Trainer</div>
+        <div class="qsh-desc">Certified personal trainer for yoga, weight loss & strength training</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 500/session</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ══ EDUCATION & LAUNDRY ══ -->
+  <div id="education">
+    <div class="qsh-cat-divider">
+      <span class="qsh-cat-icon">📚</span>
+      <div class="qsh-cat-info">
+        <div class="qsh-cat-name">Education & Laundry</div>
+        <div class="qsh-cat-sub">Tutoring, coaching & laundry services</div>
+      </div>
+      <div class="qsh-cat-line"></div>
+    </div>
+    <div class="qsh-grid">
+      <a href="/pages/service-tutoring" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">📖</div><span class="qsh-badge live-badge">LIVE</span></div>
+        <div class="qsh-name">Home Tutor</div>
+        <div class="qsh-desc">Qualified tutors for school, college, competitive exams & coding</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 400/hr</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-laundry" class="qsh-card" id="laundry">
+        <div class="qsh-card-top"><div class="qsh-icon">👕</div><span class="qsh-badge fast-badge">FAST</span></div>
+        <div class="qsh-name">Laundry & Dry Clean</div>
+        <div class="qsh-desc">Pickup & delivery laundry, dry cleaning, ironing & express service</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 80/piece</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-cooking" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">👨‍🍳</div><span class="qsh-badge new-badge">NEW</span></div>
+        <div class="qsh-name">Home Cook</div>
+        <div class="qsh-desc">Professional chef for events, daily cooking & meal prep services</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 600/day</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ══ CAR ACCESSORIES ══ -->
+  <div id="car-accessories">
+    <div class="qsh-cat-divider">
+      <span class="qsh-cat-icon">🔧</span>
+      <div class="qsh-cat-info">
+        <div class="qsh-cat-name">Car Accessories</div>
+        <div class="qsh-cat-sub">Installation & customization for your vehicle</div>
+      </div>
+      <div class="qsh-cat-line"></div>
+    </div>
+    <div class="qsh-section-title">
+      <span class="qsh-section-dot live"></span>
+      <span class="qsh-section-label">Book Installation</span>
+      <span class="qsh-section-count">6 services</span>
+    </div>
+    <div class="qsh-grid">
+      <a href="/pages/service-car-accessories" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">🎵</div><span class="qsh-badge live-badge">LIVE</span></div>
+        <div class="qsh-name">Music System Fitting</div>
+        <div class="qsh-desc">Car stereo, speakers, subwoofer & amplifier installation</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 500</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-car-accessories" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">📷</div><span class="qsh-badge fast-badge">FAST</span></div>
+        <div class="qsh-name">Dashcam Installation</div>
+        <div class="qsh-desc">Front, rear & interior dashcam fitting with wiring</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 400</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-car-accessories" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">💡</div><span class="qsh-badge new-badge">NEW</span></div>
+        <div class="qsh-name">LED Lights Fitting</div>
+        <div class="qsh-desc">Headlight upgrade, DRL, interior ambient & underglow LED</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 600</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-car-accessories" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">🪑</div><span class="qsh-badge live-badge">LIVE</span></div>
+        <div class="qsh-name">Seat Cover Fitting</div>
+        <div class="qsh-desc">Custom leather, fabric & 3D seat cover fitting</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 2,500</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-car-accessories" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">🛡️</div><span class="qsh-badge live-badge">LIVE</span></div>
+        <div class="qsh-name">Window Tinting</div>
+        <div class="qsh-desc">UV protection, privacy tint & solar film installation</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 3,000</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+      <a href="/pages/service-car-accessories" class="qsh-card">
+        <div class="qsh-card-top"><div class="qsh-icon">📡</div><span class="qsh-badge live-badge">LIVE</span></div>
+        <div class="qsh-name">GPS Tracker Install</div>
+        <div class="qsh-desc">Vehicle tracking device installation with real-time monitoring</div>
+        <div><div class="qsh-price-label">Starting from</div><div class="qsh-price">Rs 1,500</div></div>
+        <div class="qsh-book-btn">Book Now →</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ══ COMING SOON ══ -->
+  <div class="qsh-soon-section">
+    <div class="qsh-soon-title">⏳ Coming Soon</div>
+    <div class="qsh-soon-grid">
+      <div class="qsh-soon-card"><span class="qsh-soon-icon">☀️</span><span class="qsh-soon-name">Solar Panel Install</span><span class="qsh-soon-badge">SOON</span></div>
+      <div class="qsh-soon-card"><span class="qsh-soon-icon">🔒</span><span class="qsh-soon-name">Locksmith Service</span><span class="qsh-soon-badge">SOON</span></div>
+      <div class="qsh-soon-card"><span class="qsh-soon-icon">🏗️</span><span class="qsh-soon-name">Roofing & Waterproof</span><span class="qsh-soon-badge">SOON</span></div>
+      <div class="qsh-soon-card"><span class="qsh-soon-icon">🌿</span><span class="qsh-soon-name">Garden & Landscaping</span><span class="qsh-soon-badge">SOON</span></div>
+      <div class="qsh-soon-card"><span class="qsh-soon-icon">🏢</span><span class="qsh-soon-name">Commercial Cleaning</span><span class="qsh-soon-badge">SOON</span></div>
+      <div class="qsh-soon-card"><span class="qsh-soon-icon">🔦</span><span class="qsh-soon-name">Appliance Repair</span><span class="qsh-soon-badge">SOON</span></div>
+    </div>
+  </div>
+
+  <!-- ══ BOTTOM CTA ══ -->
+  <div class="qsh-bottom-cta">
+    <div class="qsh-cta-title">Are You a Service Provider?</div>
+    <div class="qsh-cta-sub">Join 500+ professionals on QuickBee and grow your business</div>
+    <a href="/pages/contact" class="qsh-cta-btn">🤝 Become a Vendor</a>
   </div>
 
 </div>
 
-<style>
-/* ════════════════════════════════════════════════
-   QSH — Quick Service Hub  (mobile-first)
-════════════════════════════════════════════════ */
-.qsh-page {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #FFFBF0;
-  min-height: 100vh;
-  padding-bottom: 100px;
-  overflow-x: hidden;
-}
-[data-theme="dark"] .qsh-page { background: #0A0A0A; }
-
-/* ── HERO ── */
-.qsh-hero {
-  position: relative;
-  padding: 40px 20px 52px;
-  text-align: center;
-  overflow: hidden;
-  background: linear-gradient(160deg, #111 0%, #1a1200 60%, #2a1800 100%);
-}
-/* warm glow blob */
-.qsh-hero-glow {
-  position: absolute;
-  top: -60px; left: 50%; transform: translateX(-50%);
-  width: 420px; height: 280px;
-  background: radial-gradient(ellipse, rgba(244,180,0,.35) 0%, transparent 70%);
-  pointer-events: none;
-}
-/* floating orbs */
-.qsh-orb {
-  position: absolute; border-radius: 50%;
-  background: rgba(244,180,0,.08);
-  pointer-events: none;
-  animation: qshFloat 6s ease-in-out infinite;
-}
-.qsh-orb1 { width:160px; height:160px; top:-40px; right:-30px; animation-delay:0s; }
-.qsh-orb2 { width:90px;  height:90px;  bottom:20px; left:-20px; animation-delay:-3s; }
-@keyframes qshFloat {
-  0%,100%{ transform:translateY(0) scale(1); }
-  50%{ transform:translateY(-12px) scale(1.05); }
-}
-
-.qsh-hero-inner { position:relative; z-index:2; }
-.qsh-hero-badge {
-  display:inline-flex; align-items:center; gap:5px;
-  background:rgba(244,180,0,.18); border:1px solid rgba(244,180,0,.35);
-  color:#F4B400; font-size:11px; font-weight:800;
-  letter-spacing:1.2px; text-transform:uppercase;
-  padding:5px 14px; border-radius:999px; margin-bottom:14px;
-}
-.qsh-title {
-  font-size: clamp(2.4rem, 8vw, 4rem);
-  font-weight: 900; color:#fff; margin:0 0 10px;
-  letter-spacing: -0.04em; line-height:1.05;
-  text-shadow: 0 2px 20px rgba(244,180,0,.2);
-}
-.qsh-title span {
-  background: linear-gradient(135deg, #F4B400, #FB923C);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-}
-.qsh-sub { font-size:14px; color:rgba(255,255,255,.65); margin:0 0 20px; font-weight:500; }
-.qsh-hero-meta { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
-.qsh-meta-pill {
-  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
-  color:rgba(255,255,255,.85); font-size:12px; font-weight:600;
-  padding:6px 14px; border-radius:999px; backdrop-filter:blur(6px);
-}
-
-/* ── TRENDING STRIP ── */
-.qsh-trending-wrap {
-  background: #fff; border-bottom: 1px solid #f0e8d0;
-  padding: 10px 16px;
-  position: sticky; top: 0; z-index: 20;
-}
-[data-theme="dark"] .qsh-trending-wrap { background:#111; border-bottom-color:#222; }
-.qsh-trending-inner { display:flex; align-items:center; gap:10px; max-width:900px; margin:0 auto; }
-.qsh-trending-label { font-size:12px; font-weight:800; color:#F4B400; white-space:nowrap; flex-shrink:0; }
-.qsh-trending-scroll {
-  display:flex; gap:7px; overflow-x:auto; -webkit-overflow-scrolling:touch;
-  scrollbar-width:none; padding:2px 0;
-}
-.qsh-trending-scroll::-webkit-scrollbar { display:none; }
-.qsh-tpill {
-  white-space:nowrap; padding:6px 14px;
-  background:#FFF9EE; border:1px solid #FBBF24;
-  color:#92400E; font-size:12px; font-weight:700;
-  border-radius:999px; text-decoration:none; flex-shrink:0;
-  transition:all .15s;
-}
-.qsh-tpill:hover { background:#FEF3C7; transform:scale(1.03); }
-[data-theme="dark"] .qsh-tpill { background:#1a1500; border-color:#3d2e00; color:#F4B400; }
-[data-theme="dark"] .qsh-tpill:hover { background:#231c00; }
-
-/* ── SECTION HEADERS ── */
-.qsh-section-head {
-  display:flex; align-items:center; gap:8px;
-  padding:20px 20px 10px; max-width:900px; margin:0 auto;
-}
-.qsh-section-dot {
-  width:8px; height:8px; border-radius:50%; flex-shrink:0;
-}
-.qsh-section-dot.live { background:#10B981; box-shadow:0 0 8px #10B981; animation:qshLivePulse 1.8s ease-in-out infinite; }
-.qsh-section-dot.soon { background:#6B7280; }
-@keyframes qshLivePulse {
-  0%,100%{ box-shadow:0 0 0 0 rgba(16,185,129,.6); }
-  50%{ box-shadow:0 0 0 6px rgba(16,185,129,0); }
-}
-.qsh-section-txt { font-size:13px; font-weight:800; color:#111; }
-[data-theme="dark"] .qsh-section-txt { color:#f0f0f0; }
-.qsh-section-txt.muted { color:#9CA3AF; }
-.qsh-fastest-badge {
-  margin-left:auto; background:rgba(244,180,0,.12); border:1px solid rgba(244,180,0,.3);
-  color:#D97706; font-size:11px; font-weight:800; padding:3px 10px; border-radius:999px;
-}
-[data-theme="dark"] .qsh-fastest-badge { color:#F4B400; background:rgba(244,180,0,.1); }
-
-/* ── GRID ── */
-.qsh-grid {
-  display:grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap:12px; padding:4px 16px 16px;
-  max-width:900px; margin:0 auto;
-}
-@media(min-width:600px){ .qsh-grid { grid-template-columns: repeat(3,1fr); gap:14px; } }
-@media(min-width:900px){ .qsh-grid { grid-template-columns: repeat(4,1fr); gap:16px; } }
-.qsh-grid-soon { grid-template-columns: repeat(3,1fr); gap:10px; }
-@media(min-width:600px){ .qsh-grid-soon { grid-template-columns: repeat(3,1fr); } }
-
-/* ── CARD BASE ── */
-.qsh-card {
-  position: relative; overflow: hidden;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 22px 12px 14px;
-  border-radius: 20px; text-align: center;
-  text-decoration: none; cursor: pointer;
-  transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s ease;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  gap: 6px;
-}
-.qsh-card:active { transform: scale(0.93) !important; }
-
-/* LIVE card */
-.qsh-card.live {
-  background: linear-gradient(145deg, #FEF3C7 0%, #FDE68A 40%, #FBBF24 100%);
-  border: 1px solid rgba(245,158,11,.3);
-  box-shadow: 0 4px 16px rgba(245,158,11,.18), 0 1px 3px rgba(0,0,0,.08);
-  color: #111;
-}
-.qsh-card.live:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 12px 28px rgba(245,158,11,.32), 0 2px 6px rgba(0,0,0,.1);
-}
-/* featured LIVE (Custom Delivery) */
-.qsh-card.live.featured {
-  background: linear-gradient(145deg, #FFF7ED 0%, #FED7AA 40%, #FB923C 100%);
-  border-color: rgba(249,115,22,.3);
-  box-shadow: 0 4px 16px rgba(249,115,22,.2);
-}
-/* Shine sweep on LIVE cards */
-.qsh-card-shine {
-  position:absolute; inset:0; border-radius:inherit;
-  background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%);
-  background-size:200% 100%;
-  background-position:200% 0;
-  transition:background-position .5s;
-  pointer-events:none;
-}
-.qsh-card.live:hover .qsh-card-shine { background-position:-100% 0; }
-
-/* SOON card */
-.qsh-card.soon {
-  background: #F5F5F5; border:1px solid #E5E7EB;
-  color:#9CA3AF; opacity:.65; pointer-events:none;
-}
-.qsh-card.soon .qsh-emoji { filter:grayscale(1); }
-[data-theme="dark"] .qsh-card.soon { background:#1A1A1A; border-color:#2A2A2A; }
-
-/* ── BADGE ── */
-.qsh-badge {
-  position: absolute; top: 10px; right: 10px;
-  font-size: 9px; font-weight: 900; letter-spacing: .8px;
-  text-transform: uppercase; padding: 3px 8px;
-  border-radius: 999px; display:flex; align-items:center; gap:4px;
-}
-.qsh-badge.live { background:rgba(16,185,129,.15); color:#059669; border:1px solid rgba(16,185,129,.3); }
-.qsh-badge.fast { background:rgba(245,158,11,.18); color:#B45309; border:1px solid rgba(245,158,11,.35); }
-.qsh-badge.soon { background:rgba(0,0,0,.08); color:#9CA3AF; }
-[data-theme="dark"] .qsh-badge.soon { background:rgba(255,255,255,.06); }
-
-/* pulsing live dot inside LIVE badge */
-.qsh-live-dot {
-  width:5px; height:5px; border-radius:50%;
-  background:#10B981; flex-shrink:0;
-  animation:qshDotPulse 1.6s ease-in-out infinite;
-}
-@keyframes qshDotPulse {
-  0%,100%{ opacity:1; transform:scale(1); }
-  50%{ opacity:.4; transform:scale(1.4); }
-}
-
-/* ── CARD CONTENT ── */
-.qsh-emoji {
-  font-size: 2.4rem; line-height:1;
-  transition: transform .2s cubic-bezier(.34,1.56,.64,1);
-}
-.qsh-card.live:hover .qsh-emoji { transform:scale(1.18) rotate(-5deg); }
-.qsh-card-body { display:flex; flex-direction:column; gap:3px; }
-.qsh-name {
-  font-size:13px; font-weight:800; line-height:1.2; color:inherit;
-}
-.qsh-desc {
-  font-size:10px; font-weight:500; opacity:.65; line-height:1.3; color:inherit;
-}
-.qsh-card-foot {
-  font-size:10px; font-weight:700; color:#B45309;
-  background:rgba(0,0,0,.07); padding:3px 10px;
-  border-radius:999px; margin-top:4px;
-}
-.qsh-card.soon .qsh-card-foot { color:#9CA3AF; background:rgba(0,0,0,.04); }
-.qsh-card-foot.muted { color:#aaa; }
-[data-theme="dark"] .qsh-card-foot { color:#D97706; background:rgba(0,0,0,.2); }
-
-/* ── BOTTOM CTA ── */
-.qsh-cta-bar {
-  margin: 16px 16px 0; max-width:868px; /* 900-16-16 */
-  margin-left:auto; margin-right:auto;
-}
-.qsh-cta-inner {
-  display:flex; align-items:center; justify-content:space-between;
-  gap:12px; padding:16px 20px;
-  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
-  border-radius:20px;
-  border:1px solid rgba(245,158,11,.3);
-  box-shadow:0 4px 16px rgba(245,158,11,.12);
-}
-[data-theme="dark"] .qsh-cta-inner {
-  background:linear-gradient(135deg,#1a1200,#221800);
-  border-color:rgba(244,180,0,.2);
-}
-.qsh-cta-left { display:flex; align-items:center; gap:12px; }
-.qsh-cta-emoji { font-size:28px; flex-shrink:0; animation:qshFloat 3s ease-in-out infinite; }
-.qsh-cta-title { font-size:13px; font-weight:800; color:#111; }
-[data-theme="dark"] .qsh-cta-title { color:#F4B400; }
-.qsh-cta-sub { font-size:11px; color:#92400E; margin-top:2px; }
-[data-theme="dark"] .qsh-cta-sub { color:#aaa; }
-.qsh-cta-btn {
-  flex-shrink:0; background:linear-gradient(135deg,#F4B400,#F59E0B);
-  color:#000 !important; font-size:12px; font-weight:900;
-  padding:10px 18px; border-radius:14px; text-decoration:none;
-  box-shadow:0 4px 14px rgba(244,180,0,.4);
-  transition:transform .18s,box-shadow .18s;
-  white-space:nowrap;
-}
-.qsh-cta-btn:hover { transform:scale(1.04); box-shadow:0 6px 20px rgba(244,180,0,.5); }
-.qsh-cta-btn:active { transform:scale(.96); }
-
-/* ── LIGHT MODE explicit overrides (for when site is in light mode) ── */
-html:not([data-theme="dark"]) .qsh-page { background:#FFF9EE; }
-html:not([data-theme="dark"]) .qsh-section-txt { color:#111; }
-</style>
-
 <script>
 (function() {
-  /* Tap ripple feedback on LIVE cards */
-  document.querySelectorAll('.qsh-card.live').forEach(function(card) {
-    card.addEventListener('touchstart', function() {
-      this.style.transition = 'transform .08s ease';
-    }, { passive: true });
-    card.addEventListener('touchend', function() {
-      this.style.transition = 'transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s ease';
-    }, { passive: true });
+  // Trending pill active state
+  const pills = document.querySelectorAll('.qsh-trend-pill');
+  pills.forEach(pill => {
+    pill.addEventListener('click', function() {
+      pills.forEach(p => p.classList.remove('active'));
+      this.classList.add('active');
+    });
   });
 
-  /* Future hook: location-based availability toggle
-     Usage: window.qshSetServiceStatus('alcohol', 'disabled') */
-  window.qshSetServiceStatus = function(handle, status) {
-    var card = document.querySelector('[data-service="' + handle + '"]');
-    if (!card) return;
-    if (status === 'disabled') {
-      card.classList.remove('live');
-      card.classList.add('soon');
-      card.removeAttribute('href');
-      card.style.pointerEvents = 'none';
-    } else if (status === 'live') {
-      card.classList.remove('soon');
-      card.classList.add('live');
-    }
+  // Future-ready: programmatically update service status
+  window.qshSetServiceStatus = function(serviceHandle, status) {
+    document.querySelectorAll(`[href*="${serviceHandle}"]`).forEach(card => {
+      const badge = card.querySelector('.qsh-badge');
+      if (!badge) return;
+      if (status === 'live') {
+        badge.className = 'qsh-badge live-badge'; badge.textContent = 'LIVE';
+        card.classList.remove('soon');
+      } else if (status === 'soon') {
+        badge.className = 'qsh-badge soon-badge'; badge.textContent = 'SOON';
+        card.classList.add('soon');
+      } else if (status === 'fast') {
+        badge.className = 'qsh-badge fast-badge'; badge.textContent = 'FAST';
+      } else if (status === 'hot') {
+        badge.className = 'qsh-badge hot-badge'; badge.textContent = 'HOT';
+      }
+    });
   };
 
-  /* Future hook: set per-service delivery time
-     Usage: window.qshSetDeliveryTime('alcohol', '25 mins') */
-  window.qshSetDeliveryTime = function(handle, time) {
-    var card = document.querySelector('[data-service="' + handle + '"]');
-    if (!card) return;
-    var foot = card.querySelector('.qsh-card-foot');
-    if (foot) foot.textContent = '⚡ ' + time;
+  // Future-ready: update service pricing dynamically
+  window.qshSetServicePrice = function(serviceHandle, price) {
+    document.querySelectorAll(`[href*="${serviceHandle}"] .qsh-price`).forEach(el => {
+      el.textContent = price;
+    });
   };
 })();
 </script>
 
 {% schema %}
 {
-  "name": "Hive Services",
+  "name": "QuickBee Services Hub",
   "settings": [],
-  "presets": [{ "name": "Hive Services" }]
+  "presets": [{ "name": "QuickBee Services Hub" }]
 }
 {% endschema %}
