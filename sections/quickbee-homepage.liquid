@@ -326,8 +326,8 @@ body {
 </style>
 
 <style>
-  /* ── Banner Grid ── */
-  .qb-banners-perfect {
+  /* ── 4 Small Banners Grid ── */
+  .qb-top-banners {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
@@ -337,67 +337,43 @@ body {
     background: var(--theme-bg-primary);
   }
 
-  /* Large banners always span full width */
-  .qb-banner-large {
-    grid-column: 1 / -1;
-  }
-
-  /* Small banners: 2 per row on mobile (default), 4 per row on desktop */
-  .qb-banner-small {
-    grid-column: span 1;
-  }
-
-  @media (min-width: 768px) {
-    .qb-banners-perfect {
+  @media (min-width: 640px) {
+    .qb-top-banners {
       grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      padding: 16px;
+      gap: 12px;
+      padding: 14px;
     }
   }
 
   @media (min-width: 1024px) {
-    .qb-banners-perfect {
+    .qb-top-banners {
       gap: 16px;
-      padding: 20px;
+      padding: 16px 20px;
     }
   }
 
-  .qb-banner-item {
+  .qb-top-banners .qb-banner-item {
     position: relative;
     display: block;
     overflow: hidden;
     border-radius: 12px;
     text-decoration: none;
+    aspect-ratio: 4 / 3;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.25);
   }
 
-  .qb-banner-item:active {
-    transform: scale(0.98);
-  }
-
-  .qb-banner-item:hover {
+  .qb-top-banners .qb-banner-item:active { transform: scale(0.98); }
+  .qb-top-banners .qb-banner-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
   }
 
-  .qb-banner-item img {
+  .qb-top-banners .qb-banner-item img {
     width: 100%;
     height: 100%;
     display: block;
     object-fit: cover;
-  }
-
-  /* Large banner image aspect ratio */
-  .qb-banner-large .qb-banner-item,
-  .qb-banner-large.qb-banner-item {
-    aspect-ratio: 21 / 8;
-  }
-
-  /* Small banner image aspect ratio */
-  .qb-banner-small .qb-banner-item,
-  .qb-banner-small.qb-banner-item {
-    aspect-ratio: 4 / 3;
   }
 </style>
 
@@ -693,44 +669,20 @@ html:not([data-theme="dark"]) .qb-combo-arrow {
 </style>
 
 <div class="qb-hp">
-  <!-- BANNER GRID -->
-  <div class="qb-banners-perfect">
-
-    <!-- ── GROUP A ── -->
-    <a href="/collections/imported-liquor" class="qb-banner-item qb-banner-large">
-      <img src="{{ 'LARGE - A1.png' | asset_url }}" alt="Liquor Delivery">
-    </a>
-    <a href="/collections/beer" class="qb-banner-item qb-banner-small">
+  <!-- 4 SMALL BANNERS ONLY -->
+  <div class="qb-top-banners">
+    <a href="/collections/beer" class="qb-banner-item">
       <img src="{{ 'SMALL - A1.png' | asset_url }}" alt="Beer Happy">
     </a>
-    <a href="/collections/smokes" class="qb-banner-item qb-banner-small">
+    <a href="/collections/smokes" class="qb-banner-item">
       <img src="{{ 'SMALL - A2.png' | asset_url }}" alt="Smokes & More">
     </a>
-    <a href="/collections/whiskey" class="qb-banner-item qb-banner-small">
+    <a href="/collections/whiskey" class="qb-banner-item">
       <img src="{{ 'SMALL - A3.png' | asset_url }}" alt="Whiskey">
     </a>
-    <a href="/collections/vodka" class="qb-banner-item qb-banner-small">
+    <a href="/collections/vodka" class="qb-banner-item">
       <img src="{{ 'SMALL - A4.png' | asset_url }}" alt="Vodka">
     </a>
-
-
-    <!-- ── GROUP C ── -->
-    <a href="/collections/all" class="qb-banner-item qb-banner-large">
-      <img src="{{ 'LARGE - C1.png' | asset_url }}" alt="Quick Delivery">
-    </a>
-    <a href="/collections/dairy" class="qb-banner-item qb-banner-small">
-      <img src="{{ 'SMALL - C1.png' | asset_url }}" alt="Fresh Lassi">
-    </a>
-    <a href="/collections/yeti-kafe" class="qb-banner-item qb-banner-small">
-      <img src="{{ 'SMALL - C2.png' | asset_url }}" alt="Bubble Tea">
-    </a>
-    <a href="/collections/beverages" class="qb-banner-item qb-banner-small">
-      <img src="{{ 'SMALL - C3.png' | asset_url }}" alt="Peach Ice Tea">
-    </a>
-    <a href="/collections/desserts" class="qb-banner-item qb-banner-small">
-      <img src="{{ 'SMALL - C4.png' | asset_url }}" alt="Chocolava Combos">
-    </a>
-
   </div>
 
   <!-- ══════════════════════════════════════════
@@ -805,167 +757,6 @@ html:not([data-theme="dark"]) .qb-combo-arrow {
   </section>
   {% endif %}
 
-  <!-- Yeti Kafe - Carousel -->
-  {% assign yeti_products = collections.yeti-kafe.products %}
-  {% if yeti_products.size > 0 %}
-  <section class="qb-section">
-    <h2>☕ Yeti Kafe</h2>
-    <div class="qb-carousel-container">
-      <div class="qb-carousel-scroll">
-          {% for product in yeti_products %}
-            <div class="qb-product-card">
-              <div class="qb-carousel-image-wrap" data-product-url="{{ product.url }}" style="cursor: pointer;">
-                {% if product.featured_image %}
-                  <img src="{{ product.featured_image | img_url: '1080x1080', crop: 'center' }}" alt="{{ product.title }}" loading="lazy">
-                {% else %}
-                  <div class="qb-no-image" style="background:var(--qb-dark4);width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:40px;">🐝</div>
-                {% endif %}
-                <div class="qb-delivery-badge">⚡ 18-22 mins</div>
-              </div>
-              <div class="qb-carousel-content">
-                <h3 class="qb-product-name">{{ product.title }}</h3>
-                <div class="qb-product-price">
-                  <span class="qb-price">Rs {{ product.price | divided_by: 100 }}</span>
-                  {% if product.compare_at_price and product.compare_at_price > product.price %}
-                    <span class="qb-original-price">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
-                  {% endif %}
-                </div>
-                <form action="/cart/add" method="post" class="qb-carousel-form">
-                  <input type="hidden" name="id" value="{{ product.variants.first.id }}">
-                  <input type="hidden" name="quantity" value="1">
-                  <button type="submit" class="qb-add-btn">Add to Cart</button>
-                </form>
-              </div>
-            </div>
-          {% endfor %}
-      </div>
-    </div>
-  </section>
-  {% endif %}
-
-  <!-- Farm Fresh -->
-  {% assign new_arrivals = collections.farm-fresh.products %}
-  {% if new_arrivals.size > 0 %}
-  <section class="qb-section">
-    <h2>🥕 Farm Fresh</h2>
-    <div class="qb-product-grid">
-        {% for product in new_arrivals limit: 4 %}
-          <div class="qb-product-card">
-            <div class="qb-product-image-wrap" style="cursor: pointer;" data-product-url="{{ product.url }}">
-              {% if product.featured_image %}
-                <img src="{{ product.featured_image | img_url: '1080x1080', crop: 'center' }}" alt="{{ product.title }}" class="qb-product-image" style="cursor: pointer;">
-              {% else %}
-                <div style="width:100%;height:100%;background:var(--qb-dark4);display:flex;align-items:center;justify-content:center;font-size:36px;">🐝</div>
-              {% endif %}
-              <div class="qb-delivery-badge">⚡ 18-22 mins</div>
-            </div>
-            <div class="qb-carousel-content">
-              <h3 class="qb-product-name">{{ product.title }}</h3>
-              <div class="qb-product-price">Rs {{ product.price | divided_by: 100 }}</div>
-              <form action="/cart/add" method="post" class="product-form">
-                <input type="hidden" name="id" value="{{ product.variants.first.id }}">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="qb-add-btn">ADD TO CART</button>
-              </form>
-            </div>
-          </div>
-        {% endfor %}
-    </div>
-  </section>
-  {% endif %}
-
-  <!-- Pet Care -->
-  {% assign featured = collections.pet-care.products %}
-  {% if featured.size > 0 %}
-  <section class="qb-section">
-    <h2>🐕 Pet Care</h2>
-    <div class="qb-product-grid">
-        {% for product in featured limit: 4 %}
-          <div class="qb-product-card">
-            <div class="qb-product-image-wrap" style="cursor: pointer;" data-product-url="{{ product.url }}">
-              {% if product.featured_image %}
-                <img src="{{ product.featured_image | img_url: '1080x1080', crop: 'center' }}" alt="{{ product.title }}" class="qb-product-image" style="cursor: pointer;">
-              {% else %}
-                <div style="width:100%;height:100%;background:var(--qb-dark4);display:flex;align-items:center;justify-content:center;font-size:36px;">🐝</div>
-              {% endif %}
-              <div class="qb-delivery-badge">⚡ 18-22 mins</div>
-            </div>
-            <div class="qb-carousel-content">
-              <h3 class="qb-product-name">{{ product.title }}</h3>
-              <div class="qb-product-price">Rs {{ product.price | divided_by: 100 }}</div>
-              <form action="/cart/add" method="post" class="product-form">
-                <input type="hidden" name="id" value="{{ product.variants.first.id }}">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="qb-add-btn">ADD TO CART</button>
-              </form>
-            </div>
-          </div>
-        {% endfor %}
-    </div>
-  </section>
-  {% endif %}
-
-  <!-- Baby Care -->
-  {% assign babies = collections.baby-care.products %}
-  {% if babies.size > 0 %}
-  <section class="qb-section">
-    <h2>👶 Baby Care</h2>
-    <div class="qb-product-grid">
-        {% for product in babies limit: 4 %}
-          <div class="qb-product-card">
-            <div class="qb-product-image-wrap" style="cursor: pointer;" data-product-url="{{ product.url }}">
-              {% if product.featured_image %}
-                <img src="{{ product.featured_image | img_url: '1080x1080', crop: 'center' }}" alt="{{ product.title }}" class="qb-product-image" style="cursor: pointer;">
-              {% else %}
-                <div style="width:100%;height:100%;background:var(--qb-dark4);display:flex;align-items:center;justify-content:center;font-size:36px;">🐝</div>
-              {% endif %}
-              <div class="qb-delivery-badge">⚡ 18-22 mins</div>
-            </div>
-            <div class="qb-carousel-content">
-              <h3 class="qb-product-name">{{ product.title }}</h3>
-              <div class="qb-product-price">Rs {{ product.price | divided_by: 100 }}</div>
-              <form action="/cart/add" method="post" class="product-form">
-                <input type="hidden" name="id" value="{{ product.variants.first.id }}">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="qb-add-btn">ADD TO CART</button>
-              </form>
-            </div>
-          </div>
-        {% endfor %}
-    </div>
-  </section>
-  {% endif %}
-
-  <!-- Bubble Tea -->
-  {% assign bubble_tea = collections.bubble-tea.products %}
-  {% if bubble_tea.size > 0 %}
-  <section class="qb-section">
-    <h2>🧋 Bubble Tea</h2>
-    <div class="qb-product-grid">
-        {% for product in bubble_tea limit: 4 %}
-          <div class="qb-product-card">
-            <div class="qb-product-image-wrap" style="cursor: pointer;" data-product-url="{{ product.url }}">
-              {% if product.featured_image %}
-                <img src="{{ product.featured_image | img_url: '1080x1080', crop: 'center' }}" alt="{{ product.title }}" class="qb-product-image" style="cursor: pointer;">
-              {% else %}
-                <div style="width:100%;height:100%;background:var(--qb-dark4);display:flex;align-items:center;justify-content:center;font-size:36px;">🐝</div>
-              {% endif %}
-              <div class="qb-delivery-badge">⚡ 18-22 mins</div>
-            </div>
-            <div class="qb-carousel-content">
-              <h3 class="qb-product-name">{{ product.title }}</h3>
-              <div class="qb-product-price">Rs {{ product.price | divided_by: 100 }}</div>
-              <form action="/cart/add" method="post" class="product-form">
-                <input type="hidden" name="id" value="{{ product.variants.first.id }}">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="qb-add-btn">ADD TO CART</button>
-              </form>
-            </div>
-          </div>
-        {% endfor %}
-    </div>
-  </section>
-  {% endif %}
 </div>
 
 <script>
