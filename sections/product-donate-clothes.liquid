@@ -588,139 +588,123 @@ html:not([data-theme="dark"]) .dc-footer-text { color: #6B7280; }
   <div class="dc-form-section">
     <div class="dc-form-card" id="dcFormCard">
 
-      {%- form 'contact', id: 'dcDonationForm', class: 'dc-form' -%}
+      <!-- Direct-to-checkout form — adds product with line item properties then redirects /checkout -->
+      <div class="dc-form" id="dcDonationForm">
 
-        {% if form.posted_successfully? %}
-          <!-- SUCCESS STATE -->
-          <div class="dc-success">
-            <div class="dc-success-icon">✅</div>
-            <h2>Pickup Scheduled! 🎉</h2>
-            <p>Thank you for making a difference. Our team will confirm your pickup shortly. Please share this with friends and family!</p>
-            <div class="dc-success-actions">
-              <button type="button" class="dc-action-btn primary" id="dcCopyBtn">
-                <span>🔗</span> <span id="dcCopyText">Copy Page Link</span>
-              </button>
-              <a href="/" class="dc-action-btn secondary">← Back to Home</a>
-            </div>
-          </div>
+        <div class="dc-form-header">
+          <h2>📦 Schedule Your Donation Pickup</h2>
+          <p>All fields marked <span style="color:#F472B6;">*</span> are required. Pickup is completely free.</p>
+        </div>
 
-        {% else %}
+        <!-- Error banner -->
+        <div id="dcErrorBanner" style="display:none;background:rgba(255,0,85,0.1);border:1px solid rgba(255,0,85,0.3);border-radius:10px;padding:12px 16px;font-size:13px;color:#FF4488;"></div>
 
-          <div class="dc-form-header">
-            <h2>📦 Schedule Your Donation Pickup</h2>
-            <p>All fields marked <span style="color:#F472B6;">*</span> are required. Pickup is completely free.</p>
-          </div>
-
-          {{ form.errors | default_errors }}
-          <input type="hidden" name="contact[subject]" value="🎽 New Clothes Donation Pickup Request">
-
-          <!-- Name + Email -->
-          <div class="dc-field-row">
-            <div class="dc-field">
-              <label class="dc-label" for="dc-name">
-                <span class="dc-label-icon">👤</span> Full Name <span class="dc-required">*</span>
-              </label>
-              <input class="dc-input" type="text" id="dc-name" name="contact[Full Name]" placeholder="Your full name" required>
-            </div>
-            <div class="dc-field">
-              <label class="dc-label" for="dc-email">
-                <span class="dc-label-icon">✉️</span> Email Address <span class="dc-required">*</span>
-              </label>
-              <input class="dc-input" type="email" id="dc-email" name="contact[email]" placeholder="you@example.com" required>
-            </div>
-          </div>
-
-          <!-- Phone + Location -->
-          <div class="dc-field-row">
-            <div class="dc-field">
-              <label class="dc-label" for="dc-phone">
-                <span class="dc-label-icon">📱</span> Phone Number <span class="dc-required">*</span>
-              </label>
-              <input class="dc-input" type="tel" id="dc-phone" name="contact[Phone Number]" placeholder="98XXXXXXXX" required pattern="[0-9]{10}">
-            </div>
-            <div class="dc-field">
-              <label class="dc-label" for="dc-location">
-                <span class="dc-label-icon">📍</span> Your Area <span class="dc-required">*</span>
-              </label>
-              <select class="dc-select" id="dc-location" name="contact[Location Area]" required>
-                <option value="" disabled selected>Select area</option>
-                <option value="Kathmandu">Kathmandu</option>
-                <option value="Lalitpur">Lalitpur</option>
-                <option value="Bhaktapur">Bhaktapur</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Pickup Address -->
+        <!-- Name + Email -->
+        <div class="dc-field-row">
           <div class="dc-field">
-            <label class="dc-label" for="dc-address">
-              <span class="dc-label-icon">🏠</span> Pickup Address <span class="dc-required">*</span>
+            <label class="dc-label" for="dc-name">
+              <span class="dc-label-icon">👤</span> Full Name <span class="dc-required">*</span>
             </label>
-            <textarea class="dc-textarea" id="dc-address" name="contact[Pickup Address]" placeholder="Street name, house number, nearby landmark..." required></textarea>
+            <input class="dc-input" type="text" id="dc-name" placeholder="Your full name" required>
           </div>
-
-          <!-- Date + Time -->
-          <div class="dc-field-row">
-            <div class="dc-field">
-              <label class="dc-label" for="dc-date">
-                <span class="dc-label-icon">📅</span> Preferred Pickup Date <span class="dc-required">*</span>
-              </label>
-              <input class="dc-input" type="date" id="dc-date" name="contact[Preferred Pickup Date]" required>
-            </div>
-            <div class="dc-field">
-              <label class="dc-label" for="dc-time">
-                <span class="dc-label-icon">⏰</span> Time Slot <span class="dc-required">*</span>
-              </label>
-              <select class="dc-select" id="dc-time" name="contact[Preferred Time Slot]" required>
-                <option value="Morning (8AM–12PM)">Morning (8 AM – 12 PM)</option>
-                <option value="Afternoon (12PM–4PM)">Afternoon (12 PM – 4 PM)</option>
-                <option value="Evening (4PM–8PM)">Evening (4 PM – 8 PM)</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Number of clothes (pill selector) -->
           <div class="dc-field">
-            <label class="dc-label">
-              <span class="dc-label-icon">👕</span> Approx. Number of Clothes <span class="dc-required">*</span>
+            <label class="dc-label" for="dc-email">
+              <span class="dc-label-icon">✉️</span> Email Address <span class="dc-required">*</span>
             </label>
-            <div class="dc-count-group" id="dcCountGroup">
-              <label class="dc-count-pill selected">
-                <input type="radio" name="contact[Number of Clothes]" value="5–10 clothes" checked> 5–10
-              </label>
-              <label class="dc-count-pill">
-                <input type="radio" name="contact[Number of Clothes]" value="10–20 clothes"> 10–20
-              </label>
-              <label class="dc-count-pill">
-                <input type="radio" name="contact[Number of Clothes]" value="20–50 clothes"> 20–50
-              </label>
-              <label class="dc-count-pill">
-                <input type="radio" name="contact[Number of Clothes]" value="50+ clothes"> 50+
-              </label>
-            </div>
+            <input class="dc-input" type="email" id="dc-email" placeholder="you@example.com" required>
           </div>
+        </div>
 
-          <!-- Notes -->
+        <!-- Phone + Location -->
+        <div class="dc-field-row">
           <div class="dc-field">
-            <label class="dc-label" for="dc-notes">
-              <span class="dc-label-icon">📝</span> Special Instructions <span style="color:var(--dc-muted);font-weight:400;font-size:12px;">(optional)</span>
+            <label class="dc-label" for="dc-phone">
+              <span class="dc-label-icon">📱</span> Phone Number <span class="dc-required">*</span>
             </label>
-            <textarea class="dc-textarea" id="dc-notes" name="contact[Special Notes]" placeholder="Gate code, specific items, accessibility info..." style="min-height:80px;"></textarea>
+            <input class="dc-input" type="tel" id="dc-phone" placeholder="98XXXXXXXX" required pattern="[0-9]{10}">
           </div>
+          <div class="dc-field">
+            <label class="dc-label" for="dc-location">
+              <span class="dc-label-icon">📍</span> Your Area <span class="dc-required">*</span>
+            </label>
+            <select class="dc-select" id="dc-location" required>
+              <option value="" disabled selected>Select area</option>
+              <option value="Kathmandu">Kathmandu</option>
+              <option value="Lalitpur">Lalitpur</option>
+              <option value="Bhaktapur">Bhaktapur</option>
+            </select>
+          </div>
+        </div>
 
-          <!-- Submit -->
-          <button type="submit" class="dc-submit-btn" id="dcSubmitBtn">
-            <span id="dcBtnText">🚀 Schedule Free Pickup</span>
-            <div class="dc-btn-loader" id="dcBtnLoader"></div>
-          </button>
+        <!-- Pickup Address -->
+        <div class="dc-field">
+          <label class="dc-label" for="dc-address">
+            <span class="dc-label-icon">🏠</span> Pickup Address <span class="dc-required">*</span>
+          </label>
+          <textarea class="dc-textarea" id="dc-address" placeholder="Street name, house number, nearby landmark..." required></textarea>
+        </div>
 
-          <p style="text-align:center;font-size:12px;color:var(--dc-muted);margin-top:8px;">
-            🔒 Your information is safe with us. We never share personal details.
-          </p>
+        <!-- Date + Time -->
+        <div class="dc-field-row">
+          <div class="dc-field">
+            <label class="dc-label" for="dc-date">
+              <span class="dc-label-icon">📅</span> Preferred Pickup Date <span class="dc-required">*</span>
+            </label>
+            <input class="dc-input" type="date" id="dc-date" required>
+          </div>
+          <div class="dc-field">
+            <label class="dc-label" for="dc-time">
+              <span class="dc-label-icon">⏰</span> Time Slot <span class="dc-required">*</span>
+            </label>
+            <select class="dc-select" id="dc-time" required>
+              <option value="Morning (8AM–12PM)">Morning (8 AM – 12 PM)</option>
+              <option value="Afternoon (12PM–4PM)">Afternoon (12 PM – 4 PM)</option>
+              <option value="Evening (4PM–8PM)">Evening (4 PM – 8 PM)</option>
+            </select>
+          </div>
+        </div>
 
-        {% endif %}
+        <!-- Clothes count pills -->
+        <div class="dc-field">
+          <label class="dc-label">
+            <span class="dc-label-icon">👕</span> Approx. Number of Clothes <span class="dc-required">*</span>
+          </label>
+          <div class="dc-count-group" id="dcCountGroup">
+            <label class="dc-count-pill selected">
+              <input type="radio" name="dc_clothes_count" value="5–10 clothes" checked> 5–10
+            </label>
+            <label class="dc-count-pill">
+              <input type="radio" name="dc_clothes_count" value="10–20 clothes"> 10–20
+            </label>
+            <label class="dc-count-pill">
+              <input type="radio" name="dc_clothes_count" value="20–50 clothes"> 20–50
+            </label>
+            <label class="dc-count-pill">
+              <input type="radio" name="dc_clothes_count" value="50+ clothes"> 50+
+            </label>
+          </div>
+        </div>
 
-      {%- endform -%}
+        <!-- Notes -->
+        <div class="dc-field">
+          <label class="dc-label" for="dc-notes">
+            <span class="dc-label-icon">📝</span> Special Instructions
+            <span style="color:var(--dc-muted);font-weight:400;font-size:12px;">(optional)</span>
+          </label>
+          <textarea class="dc-textarea" id="dc-notes" placeholder="Gate code, specific items, accessibility info..." style="min-height:80px;"></textarea>
+        </div>
+
+        <!-- Submit -->
+        <button type="button" class="dc-submit-btn" id="dcSubmitBtn" onclick="dcSubmitPickup({{ product.variants.first.id }})">
+          <span id="dcBtnText">🚀 Schedule Free Pickup</span>
+          <div class="dc-btn-loader" id="dcBtnLoader"></div>
+        </button>
+
+        <p style="text-align:center;font-size:12px;color:var(--dc-muted);margin-top:8px;">
+          🔒 Your info is attached to your order. No cart detour — straight to checkout.
+        </p>
+
+      </div>
     </div>
   </div>
 
@@ -740,10 +724,12 @@ html:not([data-theme="dark"]) .dc-footer-text { color: #6B7280; }
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
-  // Set min date to today
+  // Set min date to tomorrow
   var dateInput = document.getElementById('dc-date');
   if (dateInput) {
-    dateInput.min = new Date().toISOString().split('T')[0];
+    var tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    dateInput.min = tomorrow.toISOString().split('T')[0];
   }
 
   // Pill selector for clothes count
@@ -755,34 +741,121 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Submit loader
-  var form = document.getElementById('dcDonationForm');
-  var submitBtn = document.getElementById('dcSubmitBtn');
-  if (form && submitBtn) {
-    form.addEventListener('submit', function() {
-      var btnText = document.getElementById('dcBtnText');
-      var loader  = document.getElementById('dcBtnLoader');
-      if (btnText) btnText.textContent = 'Scheduling…';
-      if (loader)  loader.style.display = 'block';
+});
+
+// ── DIRECT-TO-CHECKOUT PICKUP SUBMIT ──────────────────────────────────────
+function dcSubmitPickup(variantId) {
+  var errorBanner = document.getElementById('dcErrorBanner');
+  var btnText     = document.getElementById('dcBtnText');
+  var btnLoader   = document.getElementById('dcBtnLoader');
+  var submitBtn   = document.getElementById('dcSubmitBtn');
+
+  function showError(msg) {
+    errorBanner.innerHTML = '⚠️ ' + msg;
+    errorBanner.style.display = 'block';
+    errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function hideError() {
+    errorBanner.style.display = 'none';
+    errorBanner.innerHTML = '';
+  }
+
+  function setLoading(on) {
+    if (on) {
+      btnText.textContent = 'Scheduling…';
+      btnLoader.style.display = 'block';
       submitBtn.disabled = true;
       submitBtn.style.opacity = '0.75';
-    });
+    } else {
+      btnText.textContent = '🚀 Schedule Free Pickup';
+      btnLoader.style.display = 'none';
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = '1';
+    }
   }
 
-  // Copy link button
-  var copyBtn = document.getElementById('dcCopyBtn');
-  if (copyBtn) {
-    copyBtn.addEventListener('click', function() {
-      var url = window.location.origin + window.location.pathname;
-      navigator.clipboard.writeText(url).then(function() {
-        var t = document.getElementById('dcCopyText');
-        if (t) { t.textContent = '✓ Copied!'; }
-        setTimeout(function() { if (t) t.textContent = 'Copy Page Link'; }, 2000);
+  // ── 1. Collect field values ──────────────────────────────────────────────
+  var name     = (document.getElementById('dc-name')     || {}).value || '';
+  var email    = (document.getElementById('dc-email')    || {}).value || '';
+  var phone    = (document.getElementById('dc-phone')    || {}).value || '';
+  var location = (document.getElementById('dc-location') || {}).value || '';
+  var address  = (document.getElementById('dc-address')  || {}).value || '';
+  var date     = (document.getElementById('dc-date')     || {}).value || '';
+  var time     = (document.getElementById('dc-time')     || {}).value || '';
+  var notes    = (document.getElementById('dc-notes')    || {}).value || '';
+
+  var selectedPill = document.querySelector('.dc-count-pill.selected input[type="radio"]');
+  var clothesCount = selectedPill ? selectedPill.value : '5–10 clothes';
+
+  // ── 2. Validate ──────────────────────────────────────────────────────────
+  hideError();
+
+  if (!name.trim()) {
+    showError('Please enter your full name.'); return;
+  }
+  if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    showError('Please enter a valid email address.'); return;
+  }
+  if (!phone.trim() || !/^[0-9]{10}$/.test(phone.trim())) {
+    showError('Please enter a valid 10-digit phone number.'); return;
+  }
+  if (!location) {
+    showError('Please select your area.'); return;
+  }
+  if (!address.trim()) {
+    showError('Please enter your pickup address.'); return;
+  }
+  if (!date) {
+    showError('Please choose a preferred pickup date.'); return;
+  }
+
+  // ── 3. Start loading ─────────────────────────────────────────────────────
+  setLoading(true);
+
+  // ── 4. Clear cart, then add donation product with pickup details ─────────
+  fetch('/cart/clear.js', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  })
+  .then(function() {
+    return fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: variantId,
+        quantity: 1,
+        properties: {
+          'Donor Name':       name.trim(),
+          'Email':            email.trim(),
+          'Phone':            phone.trim(),
+          'Pickup Area':      location,
+          'Pickup Address':   address.trim(),
+          'Pickup Date':      date,
+          'Time Slot':        time,
+          'Clothes Count':    clothesCount,
+          'Special Notes':    notes.trim() || '—'
+        }
+      })
+    });
+  })
+  .then(function(res) {
+    if (!res.ok) {
+      return res.json().then(function(d) {
+        throw new Error(d.description || 'Failed to add to cart.');
       });
-    });
-  }
-
-});
+    }
+    return res.json();
+  })
+  .then(function() {
+    // ── 5. Redirect straight to checkout ────────────────────────────────
+    window.location.href = '/checkout';
+  })
+  .catch(function(err) {
+    setLoading(false);
+    showError(err.message || 'Something went wrong. Please try again.');
+  });
+}
 </script>
 
 {% schema %}
