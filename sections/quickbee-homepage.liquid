@@ -401,6 +401,297 @@ body {
   }
 </style>
 
+<style>
+/* ═══════════════════════════════════════
+   BEER COMBOS SLIDER
+═══════════════════════════════════════ */
+.qb-combo-slider-section {
+  padding: 0 0 8px;
+  background: var(--theme-bg-primary);
+  position: relative;
+}
+
+/* Header */
+.qb-combo-slider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 16px 14px;
+  gap: 12px;
+}
+@media(min-width:768px){ .qb-combo-slider-header { padding: 24px 24px 16px; } }
+@media(min-width:1024px){ .qb-combo-slider-header { padding: 28px 48px 18px; } }
+
+.qb-combo-slider-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.qb-combo-fire-icon {
+  font-size: 32px;
+  line-height: 1;
+  filter: drop-shadow(0 0 8px rgba(244,180,0,0.5));
+}
+.qb-combo-title {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--theme-text-main);
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: -0.3px;
+}
+@media(min-width:768px){ .qb-combo-title { font-size: 24px; } }
+.qb-combo-subtitle {
+  font-size: 12px;
+  color: var(--theme-text-muted);
+  margin: 2px 0 0;
+  font-weight: 500;
+}
+.qb-combo-view-all {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  background: rgba(244,180,0,0.1);
+  border: 1.5px solid rgba(244,180,0,0.4);
+  border-radius: 20px;
+  color: #F4B400;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.qb-combo-view-all:hover {
+  background: rgba(244,180,0,0.2);
+  border-color: #F4B400;
+  transform: translateX(2px);
+}
+.qb-combo-view-all span { transition: transform 0.2s ease; }
+.qb-combo-view-all:hover span { transform: translateX(3px); }
+
+/* Slider outer — positions arrows */
+.qb-combo-slider-outer {
+  position: relative;
+  padding: 0 16px;
+}
+@media(min-width:768px){ .qb-combo-slider-outer { padding: 0 24px; } }
+@media(min-width:1024px){ .qb-combo-slider-outer { padding: 0 48px; } }
+
+/* Track */
+.qb-combo-track {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  padding-bottom: 6px;
+}
+.qb-combo-track::-webkit-scrollbar { height: 3px; }
+.qb-combo-track::-webkit-scrollbar-track { background: transparent; }
+.qb-combo-track::-webkit-scrollbar-thumb { background: rgba(244,180,0,0.4); border-radius: 10px; }
+
+/* Cards */
+.qb-combo-card {
+  flex: 0 0 calc(48% - 4px);
+  scroll-snap-align: start;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  background: var(--theme-bg-secondary);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(244,180,0,0.12);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.2s;
+  position: relative;
+}
+@media(min-width:480px){ .qb-combo-card { flex: 0 0 calc(40% - 4px); } }
+@media(min-width:768px){ .qb-combo-card { flex: 0 0 calc(30% - 8px); } }
+@media(min-width:1024px){ .qb-combo-card { flex: 0 0 240px; } }
+
+.qb-combo-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(244,180,0,0.5);
+  box-shadow: 0 12px 32px rgba(244,180,0,0.15);
+}
+
+/* Image */
+.qb-combo-img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #1a1a1a;
+}
+html:not([data-theme="dark"]) .qb-combo-img-wrap { background: #f0f0f0; }
+
+.qb-combo-img-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+.qb-combo-card:hover .qb-combo-img-wrap img { transform: scale(1.05); }
+
+.qb-combo-no-img {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 44px;
+}
+
+/* Badges */
+.qb-combo-off-badge {
+  position: absolute;
+  top: 8px; left: 8px;
+  background: linear-gradient(135deg, #FF0055, #FF4488);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 8px;
+  z-index: 3;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 8px rgba(255,0,85,0.4);
+}
+.qb-combo-delivery-badge {
+  position: absolute;
+  bottom: 8px; right: 8px;
+  background: rgba(10,10,10,0.82);
+  color: #F4B400;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 4px 7px;
+  border-radius: 10px;
+  z-index: 3;
+  backdrop-filter: blur(4px);
+  letter-spacing: 0.3px;
+  border: 1px solid rgba(244,180,0,0.25);
+}
+
+/* Info */
+.qb-combo-info {
+  padding: 8px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+.qb-combo-product-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--theme-text-main);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 32px;
+}
+.qb-combo-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+.qb-combo-price-col {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+.qb-combo-price {
+  font-size: 15px;
+  font-weight: 900;
+  color: #F4B400;
+  letter-spacing: -0.3px;
+}
+.qb-combo-old-price {
+  font-size: 11px;
+  color: var(--theme-text-muted);
+  text-decoration: line-through;
+}
+.qb-combo-add-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #FF0055;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(255,0,85,0.4);
+}
+.qb-combo-add-btn:hover {
+  background: #e6004d;
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(255,0,85,0.5);
+}
+.qb-combo-add-btn:active { transform: scale(0.92); }
+
+/* Arrows */
+.qb-combo-arrow {
+  display: none;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(244,180,0,0.4);
+  background: rgba(18,18,18,0.9);
+  color: #F4B400;
+  font-size: 24px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+@media(min-width:768px){ .qb-combo-arrow { display: flex; } }
+.qb-combo-arrow:hover { background: rgba(244,180,0,0.15); border-color: #F4B400; transform: translateY(-50%) scale(1.08); }
+.qb-combo-arrow-left { left: -8px; }
+.qb-combo-arrow-right { right: -8px; }
+@media(min-width:1024px){ .qb-combo-arrow-left { left: 20px; } .qb-combo-arrow-right { right: 20px; } }
+
+/* Dots */
+.qb-combo-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 0 4px;
+}
+.qb-combo-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(244,180,0,0.25);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.qb-combo-dot.active {
+  background: #F4B400;
+  width: 18px;
+  border-radius: 3px;
+}
+
+/* Light mode card adjustments */
+html:not([data-theme="dark"]) .qb-combo-card {
+  background: #ffffff;
+  border-color: #ececec;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+html:not([data-theme="dark"]) .qb-combo-arrow {
+  background: rgba(255,255,255,0.95);
+  border-color: rgba(244,180,0,0.5);
+}
+</style>
+
 <div class="qb-hp">
   <!-- BANNER GRID -->
   <div class="qb-banners-perfect">
@@ -441,6 +732,78 @@ body {
     </a>
 
   </div>
+
+  <!-- ══════════════════════════════════════════
+       🍺 BEER COMBOS SLIDER
+  ══════════════════════════════════════════ -->
+  {% assign beer_combos = collections['beer-combos'].products %}
+  {% if beer_combos.size > 0 %}
+  <section class="qb-combo-slider-section">
+
+    <!-- Section Header -->
+    <div class="qb-combo-slider-header">
+      <div class="qb-combo-slider-title-wrap">
+        <span class="qb-combo-fire-icon">🍺</span>
+        <div>
+          <h2 class="qb-combo-title">Beer Combos</h2>
+          <p class="qb-combo-subtitle">Perfect Chill Packs · Delivered in 20 mins</p>
+        </div>
+      </div>
+      <a href="/collections/beer-combos" class="qb-combo-view-all">View All <span>→</span></a>
+    </div>
+
+    <!-- Slider Track -->
+    <div class="qb-combo-slider-outer">
+      <button class="qb-combo-arrow qb-combo-arrow-left" id="qbBeerPrev" aria-label="Previous">&#8249;</button>
+      <div class="qb-combo-track" id="qbBeerTrack">
+        {% for product in beer_combos %}
+          {%- assign combo_discount = false -%}
+          {%- assign combo_pct = 0 -%}
+          {%- if product.compare_at_price > product.price -%}
+            {%- assign combo_discount = true -%}
+            {%- assign combo_savings = product.compare_at_price | minus: product.price -%}
+            {%- assign combo_pct = combo_savings | times: 100 | divided_by: product.compare_at_price -%}
+          {%- endif -%}
+          <a href="{{ product.url }}" class="qb-combo-card">
+            <div class="qb-combo-img-wrap">
+              {% if combo_discount %}
+                <div class="qb-combo-off-badge">{{ combo_pct }}% OFF</div>
+              {% endif %}
+              {% if product.featured_image %}
+                <img src="{{ product.featured_image | img_url: '600x600', crop: 'center' }}" alt="{{ product.title }}" loading="lazy">
+              {% else %}
+                <div class="qb-combo-no-img">🍺</div>
+              {% endif %}
+              <div class="qb-combo-delivery-badge">⚡ 18-22 MINS</div>
+            </div>
+            <div class="qb-combo-info">
+              <div class="qb-combo-product-name">{{ product.title }}</div>
+              <div class="qb-combo-price-row">
+                <div class="qb-combo-price-col">
+                  <span class="qb-combo-price">Rs {{ product.price | divided_by: 100 }}</span>
+                  {% if combo_discount %}
+                    <span class="qb-combo-old-price">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
+                  {% endif %}
+                </div>
+                <button class="qb-combo-add-btn" onclick="event.preventDefault();event.stopPropagation();
+                  var btn=this;
+                  fetch('/cart/add.js',{method:'POST',headers:{'Content-Type':'application/json'},
+                  body:JSON.stringify({items:[{id:{{ product.variants.first.id }},quantity:1}]})})
+                  .then(function(){btn.textContent='✓';btn.style.background='#22c55e';
+                  setTimeout(function(){btn.textContent='+';btn.style.background='';},1500)})">+</button>
+              </div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+      <button class="qb-combo-arrow qb-combo-arrow-right" id="qbBeerNext" aria-label="Next">&#8250;</button>
+    </div>
+
+    <!-- Dots -->
+    <div class="qb-combo-dots" id="qbBeerDots"></div>
+
+  </section>
+  {% endif %}
 
   <!-- Yeti Kafe - Carousel -->
   {% assign yeti_products = collections.yeti-kafe.products %}
@@ -672,4 +1035,51 @@ body {
   } else {
     initDeliveryTimeSystem();
   }
+
+  // ── Beer Combos Slider ──
+  (function() {
+    var track = document.getElementById('qbBeerTrack');
+    var prev  = document.getElementById('qbBeerPrev');
+    var next  = document.getElementById('qbBeerNext');
+    var dots  = document.getElementById('qbBeerDots');
+    if (!track) return;
+
+    var cards = track.querySelectorAll('.qb-combo-card');
+    var total = cards.length;
+
+    // Build dots
+    cards.forEach(function(_, i) {
+      var d = document.createElement('div');
+      d.className = 'qb-combo-dot' + (i === 0 ? ' active' : '');
+      d.addEventListener('click', function() { scrollToCard(i); });
+      dots.appendChild(d);
+    });
+
+    function getCardWidth() {
+      if (!cards[0]) return 200;
+      return cards[0].offsetWidth + 12; // card width + gap
+    }
+
+    function scrollToCard(i) {
+      track.scrollTo({ left: i * getCardWidth(), behavior: 'smooth' });
+    }
+
+    function updateDots() {
+      var idx = Math.round(track.scrollLeft / getCardWidth());
+      dots.querySelectorAll('.qb-combo-dot').forEach(function(d, i) {
+        d.classList.toggle('active', i === idx);
+      });
+    }
+
+    if (prev) prev.addEventListener('click', function() {
+      var idx = Math.round(track.scrollLeft / getCardWidth());
+      scrollToCard(Math.max(0, idx - 1));
+    });
+    if (next) next.addEventListener('click', function() {
+      var idx = Math.round(track.scrollLeft / getCardWidth());
+      scrollToCard(Math.min(total - 1, idx + 1));
+    });
+
+    track.addEventListener('scroll', updateDots, { passive: true });
+  })();
 </script>
