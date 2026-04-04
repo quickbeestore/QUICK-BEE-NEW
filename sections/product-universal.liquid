@@ -266,31 +266,44 @@
 .qbp2-delivery {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #FFFBF0;
-  border: 1px solid rgba(244,180,0,0.3);
-  border-radius: 12px;
-  padding: 10px 14px;
+  gap: 12px;
+  background: linear-gradient(135deg, #FFFBF0 0%, #FFF8E1 100%);
+  border: 1.5px solid rgba(244,180,0,0.4);
+  border-radius: 14px;
+  padding: 12px 16px;
   margin-bottom: 16px;
   animation: qbp2-fade-up 0.4s ease both;
   animation-delay: 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.qbp2-delivery::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,215,0,0.08) 50%, transparent 100%);
+  animation: qbp2-del-shine 3s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes qbp2-del-shine {
+  0%,100% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
 }
 [data-theme="dark"] .qbp2-delivery {
-  background: rgba(244,180,0,0.07);
-  border-color: rgba(244,180,0,0.2);
+  background: linear-gradient(135deg, rgba(244,180,0,0.08) 0%, rgba(244,180,0,0.04) 100%);
+  border-color: rgba(244,180,0,0.25);
 }
 .qbp2-delivery-icon {
-  width: 36px; height: 36px;
-  background: rgba(244,180,0,0.15);
-  border-radius: 10px;
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, rgba(244,180,0,0.2) 0%, rgba(244,180,0,0.1) 100%);
+  border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
+  font-size: 20px;
   flex-shrink: 0;
   animation: qbp2-bolt 2.6s ease-in-out infinite;
 }
 @keyframes qbp2-bolt {
   0%,100% { text-shadow: 0 0 4px #F4B400, 0 0 8px rgba(244,180,0,0.4); }
-  50%      { text-shadow: 0 0 10px #FFD700, 0 0 22px rgba(255,215,0,0.5), 0 0 32px rgba(244,180,0,0.2); }
+  50%      { text-shadow: 0 0 12px #FFD700, 0 0 24px rgba(255,215,0,0.6); }
 }
 .qbp2-delivery-info { flex: 1; }
 .qbp2-delivery-time {
@@ -397,38 +410,74 @@
 
 .qbp2-atc {
   flex: 1;
-  height: 50px;
-  background: linear-gradient(135deg, #C41E3A 0%, #a0182e 100%);
+  height: 52px;
+  background: linear-gradient(135deg, #e8192c 0%, #C41E3A 45%, #9b1226 100%);
   color: #fff;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   font-size: 15px;
   font-weight: 900;
   cursor: pointer;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
-  box-shadow: 0 6px 20px rgba(196,30,58,0.35);
-  transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease;
+  box-shadow: 0 4px 14px rgba(196,30,58,0.3), 0 1px 3px rgba(196,30,58,0.2);
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease, background 0.2s ease;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
 }
+/* Top gloss highlight */
+.qbp2-atc::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.18) 0%, transparent 100%);
+  pointer-events: none;
+  border-radius: 14px 14px 0 0;
+}
+/* Shimmer sweep on load */
 .qbp2-atc::after {
   content: '';
   position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+  top: 0; left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+  animation: qbp2-atc-shimmer 2.8s ease 0.8s infinite;
   pointer-events: none;
 }
-.qbp2-atc:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(196,30,58,0.45);
+@keyframes qbp2-atc-shimmer {
+  0% { left: -60%; }
+  60%,100% { left: 120%; }
 }
-.qbp2-atc:active:not(:disabled) { transform: scale(0.97); }
+.qbp2-atc:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 24px rgba(196,30,58,0.45), 0 2px 6px rgba(196,30,58,0.25);
+  background: linear-gradient(135deg, #f01f30 0%, #d42038 45%, #a8152c 100%);
+}
+.qbp2-atc:active:not(:disabled) {
+  transform: scale(0.97);
+  box-shadow: 0 2px 8px rgba(196,30,58,0.3);
+}
 .qbp2-atc:disabled {
-  background: linear-gradient(135deg, #bbb, #999);
+  background: linear-gradient(135deg, #c8c8c8, #aaa);
   box-shadow: none;
   cursor: not-allowed;
+  opacity: 0.7;
 }
+.qbp2-atc-icon {
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.qbp2-atc:hover:not(:disabled) .qbp2-atc-icon { transform: scale(1.2) rotate(-8deg); }
+.qbp2-atc-label { font-size: 14px; font-weight: 900; letter-spacing: 0.8px; }
 
 /* ── Trust bar ── */
 .qbp2-trust {
@@ -679,6 +728,147 @@
 }
 
 /* ═══════════════════════════════════════
+   WHY QUICKBEE
+═══════════════════════════════════════ */
+.qbp2-why {
+  background: #fff;
+  padding: 24px 16px 28px;
+  border-top: 6px solid #f5f5f5;
+}
+[data-theme="dark"] .qbp2-why {
+  background: #111;
+  border-top-color: #0a0a0a;
+}
+.qbp2-why-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.qbp2-why-bee {
+  font-size: 22px;
+  animation: qbp2-bee-wobble 3s ease-in-out infinite;
+}
+@keyframes qbp2-bee-wobble {
+  0%,100% { transform: rotate(0deg); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
+}
+.qbp2-why-hdr h2 {
+  font-size: 16px;
+  font-weight: 900;
+  color: #111;
+  letter-spacing: -0.2px;
+}
+[data-theme="dark"] .qbp2-why-hdr h2 { color: #f0f0f0; }
+
+.qbp2-why-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.qbp2-why-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #f8f8f8;
+  border-radius: 12px;
+  padding: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+[data-theme="dark"] .qbp2-why-card {
+  background: #1a1a1a;
+}
+.qbp2-why-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+[data-theme="dark"] .qbp2-why-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+.qbp2-why-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+.qbp2-why-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #111;
+  margin-bottom: 3px;
+}
+[data-theme="dark"] .qbp2-why-title { color: #f0f0f0; }
+.qbp2-why-desc {
+  font-size: 10.5px;
+  color: #777;
+  line-height: 1.4;
+}
+[data-theme="dark"] .qbp2-why-desc { color: #555; }
+
+/* ═══════════════════════════════════════
+   FAQs
+═══════════════════════════════════════ */
+.qbp2-faqs {
+  background: #fff;
+  padding: 24px 16px 32px;
+  border-top: 6px solid #f5f5f5;
+}
+[data-theme="dark"] .qbp2-faqs {
+  background: #111;
+  border-top-color: #0a0a0a;
+}
+.qbp2-faqs-hdr {
+  margin-bottom: 16px;
+}
+.qbp2-faqs-hdr h2 {
+  font-size: 16px;
+  font-weight: 900;
+  color: #111;
+  letter-spacing: -0.2px;
+}
+[data-theme="dark"] .qbp2-faqs-hdr h2 { color: #f0f0f0; }
+.qbp2-faq-list { display: flex; flex-direction: column; gap: 0; }
+.qbp2-faq-item {
+  border-bottom: 1px solid #f0f0f0;
+}
+[data-theme="dark"] .qbp2-faq-item { border-bottom-color: #1e1e1e; }
+.qbp2-faq-item:first-child { border-top: 1px solid #f0f0f0; }
+[data-theme="dark"] .qbp2-faq-item:first-child { border-top-color: #1e1e1e; }
+.qbp2-faq-btn {
+  width: 100%;
+  padding: 14px 4px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  line-height: 1.4;
+}
+[data-theme="dark"] .qbp2-faq-btn { color: #f0f0f0; }
+.qbp2-faq-arrow {
+  font-size: 9px;
+  color: #F4B400;
+  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+  flex-shrink: 0;
+}
+.qbp2-faq-btn.open .qbp2-faq-arrow { transform: rotate(180deg); }
+.qbp2-faq-body {
+  display: none;
+  padding: 0 4px 14px;
+  font-size: 12.5px;
+  color: #666;
+  line-height: 1.65;
+}
+[data-theme="dark"] .qbp2-faq-body { color: #888; }
+.qbp2-faq-body.open { display: block; }
+.qbp2-faq-body strong { color: #C41E3A; }
+[data-theme="dark"] .qbp2-faq-body strong { color: #ff6b6b; }
+
+/* ═══════════════════════════════════════
    DESKTOP LAYOUT — 2 column split
 ═══════════════════════════════════════ */
 @media (min-width: 768px) {
@@ -850,7 +1040,12 @@
           <input type="hidden" id="qbp2-qty-h" name="quantity" value="1">
           <button type="submit" class="qbp2-atc" id="qbp2-atc"
                   {% unless product.available %}disabled{% endunless %}>
-            {% if product.available %}🛒 Add to Cart{% else %}Out of Stock{% endif %}
+            {% if product.available %}
+              <span class="qbp2-atc-icon">🛒</span>
+              <span class="qbp2-atc-label">Add to Cart</span>
+            {% else %}
+              <span class="qbp2-atc-label">Out of Stock</span>
+            {% endif %}
           </button>
         </form>
       </div>
@@ -952,6 +1147,109 @@
     </div>
     {% endif %}
 
+    <!-- ══ WHY QUICKBEE ══ -->
+    <div class="qbp2-why">
+      <div class="qbp2-why-hdr">
+        <span class="qbp2-why-bee">🐝</span>
+        <h2>Why QuickBee.store?</h2>
+      </div>
+      <div class="qbp2-why-grid">
+        <div class="qbp2-why-card">
+          <div class="qbp2-why-icon">⚡</div>
+          <div>
+            <div class="qbp2-why-title">Express Delivery</div>
+            <div class="qbp2-why-desc">Orders delivered in minutes across Kathmandu Valley, 7 days a week.</div>
+          </div>
+        </div>
+        <div class="qbp2-why-card">
+          <div class="qbp2-why-icon">💰</div>
+          <div>
+            <div class="qbp2-why-title">Best Prices</div>
+            <div class="qbp2-why-desc">Exclusive deals, daily discounts & promo codes you won't find elsewhere.</div>
+          </div>
+        </div>
+        <div class="qbp2-why-card">
+          <div class="qbp2-why-icon">✅</div>
+          <div>
+            <div class="qbp2-why-title">100% Genuine</div>
+            <div class="qbp2-why-desc">Every product is quality-checked and sourced from verified suppliers.</div>
+          </div>
+        </div>
+        <div class="qbp2-why-card">
+          <div class="qbp2-why-icon">🔒</div>
+          <div>
+            <div class="qbp2-why-title">Secure Payments</div>
+            <div class="qbp2-why-desc">Pay via eSewa, Khalti, cash on delivery — fully safe & encrypted.</div>
+          </div>
+        </div>
+        <div class="qbp2-why-card">
+          <div class="qbp2-why-icon">📍</div>
+          <div>
+            <div class="qbp2-why-title">Live Order Tracking</div>
+            <div class="qbp2-why-desc">Track your order in real-time from checkout to your doorstep.</div>
+          </div>
+        </div>
+        <div class="qbp2-why-card">
+          <div class="qbp2-why-icon">💬</div>
+          <div>
+            <div class="qbp2-why-title">24/7 Support</div>
+            <div class="qbp2-why-desc">Our team is always on standby to help you — any time, any day.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ FAQs ══ -->
+    <div class="qbp2-faqs">
+      <div class="qbp2-faqs-hdr">
+        <h2>Frequently Asked Questions</h2>
+      </div>
+      <div class="qbp2-faq-list">
+        <div class="qbp2-faq-item">
+          <button class="qbp2-faq-btn" type="button">
+            <span>How fast is delivery?</span>
+            <span class="qbp2-faq-arrow">▼</span>
+          </button>
+          <div class="qbp2-faq-body">We deliver within 15–40 minutes depending on your location in Kathmandu Valley. Your exact estimated time is shown on the product page based on your selected area.</div>
+        </div>
+        <div class="qbp2-faq-item">
+          <button class="qbp2-faq-btn" type="button">
+            <span>Is there a delivery charge?</span>
+            <span class="qbp2-faq-arrow">▼</span>
+          </button>
+          <div class="qbp2-faq-body">We offer free delivery on selected orders and promotions. Use code <strong>FREE28</strong> to claim your free delivery on your next order.</div>
+        </div>
+        <div class="qbp2-faq-item">
+          <button class="qbp2-faq-btn" type="button">
+            <span>Which areas do you deliver to?</span>
+            <span class="qbp2-faq-arrow">▼</span>
+          </button>
+          <div class="qbp2-faq-body">We currently deliver across Kathmandu Valley including Kathmandu, Lalitpur, and Bhaktapur. We're expanding rapidly — select your location to see if you're covered.</div>
+        </div>
+        <div class="qbp2-faq-item">
+          <button class="qbp2-faq-btn" type="button">
+            <span>What payment methods do you accept?</span>
+            <span class="qbp2-faq-arrow">▼</span>
+          </button>
+          <div class="qbp2-faq-body">We accept eSewa, Khalti, IME Pay, cash on delivery, and major debit/credit cards. All online payments are processed securely.</div>
+        </div>
+        <div class="qbp2-faq-item">
+          <button class="qbp2-faq-btn" type="button">
+            <span>Can I return or exchange a product?</span>
+            <span class="qbp2-faq-arrow">▼</span>
+          </button>
+          <div class="qbp2-faq-body">Yes! If you receive a damaged or incorrect item, contact us within 24 hours of delivery and we'll arrange a replacement or refund — no questions asked.</div>
+        </div>
+        <div class="qbp2-faq-item">
+          <button class="qbp2-faq-btn" type="button">
+            <span>How do I track my order?</span>
+            <span class="qbp2-faq-arrow">▼</span>
+          </button>
+          <div class="qbp2-faq-body">After placing your order you'll receive a confirmation with a live tracking link. You can also track your delivery in real-time from your QuickBee account dashboard.</div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /.qbp2-content-col -->
 
   <!-- STICKY BAR (mobile) -->
@@ -964,7 +1262,12 @@
     <button type="button" class="qbp2-atc" id="qbp2-s-atc"
             style="flex:1;"
             {% unless product.available %}disabled{% endunless %}>
-      {% if product.available %}🛒 Add to Cart{% else %}Out of Stock{% endif %}
+      {% if product.available %}
+        <span class="qbp2-atc-icon">🛒</span>
+        <span class="qbp2-atc-label">Add to Cart</span>
+      {% else %}
+        <span class="qbp2-atc-label">Out of Stock</span>
+      {% endif %}
     </button>
   </div>
 
@@ -1007,17 +1310,16 @@
 
   /* ── Delivery sync ── */
   function syncDelivery() {
-    var range = '18-22 mins';
+    var range = null;
     try {
       var s = localStorage.getItem('qb_delivery_time');
-      if (s) { var d = JSON.parse(s); if (d.range) range = d.range; }
+      if (s) { var d = JSON.parse(s); if (d && d.range) range = d.range; }
     } catch(e) {}
-    if (range === '18-22 mins' && window.QB_DELIVERY_TIME && window.QB_DELIVERY_TIME.range)
+    if (!range && window.QB_DELIVERY_TIME && window.QB_DELIVERY_TIME.range)
       range = window.QB_DELIVERY_TIME.range;
-    var m = range.match(/(\d+)-(\d+)\s*(mins?)/);
-    var t = m ? (Math.round((+m[1]+m[2])/2) + ' ' + m[3]) : range;
+    if (!range) range = '18-22 mins';
     var el = document.querySelector('.qbp2-delivery-sync');
-    if (el) el.textContent = t;
+    if (el) el.textContent = range;
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncDelivery);
   else syncDelivery();
@@ -1044,13 +1346,16 @@
       var btn = document.getElementById(id);
       if (btn) {
         btn.disabled = !v.available;
-        btn.textContent = v.available ? '🛒 Add to Cart' : 'Out of Stock';
+        var label = btn.querySelector('.qbp2-atc-label');
+        var icon  = btn.querySelector('.qbp2-atc-icon');
+        if (label) label.textContent = v.available ? 'Add to Cart' : 'Out of Stock';
+        if (icon)  icon.style.display = v.available ? '' : 'none';
       }
     });
   }
   selects.forEach(function(s) { s.addEventListener('change', matchVariant); });
 
-  /* ── Accordion ── */
+  /* ── Product Details Accordion ── */
   var accBtn  = document.getElementById('qbp2-desc-btn');
   var accBody = document.getElementById('qbp2-desc-body');
   if (accBtn && accBody) {
@@ -1060,6 +1365,22 @@
       accBtn.classList.toggle('open', !open);
     });
   }
+
+  /* ── FAQ Accordion ── */
+  document.querySelectorAll('.qbp2-faq-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var body = this.nextElementSibling;
+      var isOpen = body.classList.contains('open');
+      // Close all
+      document.querySelectorAll('.qbp2-faq-body').forEach(function(b) { b.classList.remove('open'); });
+      document.querySelectorAll('.qbp2-faq-btn').forEach(function(b) { b.classList.remove('open'); });
+      // Open this one if it was closed
+      if (!isOpen) {
+        body.classList.add('open');
+        btn.classList.add('open');
+      }
+    });
+  });
 
   /* ── Smokes infinite auto-scroll ── */
   var track = document.getElementById('qbp2-smokes-track');
