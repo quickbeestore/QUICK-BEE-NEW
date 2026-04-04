@@ -29,6 +29,10 @@
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0);    }
 }
+@keyframes qbpSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
 @keyframes qbpSlideUp {
   from { opacity: 0; transform: translateY(28px); }
   to   { opacity: 1; transform: translateY(0);    }
@@ -547,8 +551,13 @@
         <span style="display:inline-block;background:rgba(244,180,0,0.15);border:1.5px solid rgba(244,180,0,0.3);border-radius:999px;padding:6px 18px;font-size:16px;font-weight:900;color:#F4B400;" id="qbpQRAmount">Rs —</span>
       </div>
 
-      <div class="qbp-qr-wrap">
-        <img src="{{ 'PAYMENTSQRONLINE.png' | asset_url }}" alt="QuickBee Payment QR Code" class="qbp-qr-img" loading="eager" id="qbpQRImage">
+      <div class="qbp-qr-wrap" style="position:relative;min-height:220px;">
+        <!-- Loading spinner shown while QR generates -->
+        <div id="qbpQRLoader" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;">
+          <svg width="40" height="40" viewBox="0 0 40 40" style="animation:qbpSpin 0.8s linear infinite;"><circle cx="20" cy="20" r="16" fill="none" stroke="#F4B400" stroke-width="4" stroke-dasharray="60 40" stroke-linecap="round"/></svg>
+          <span style="font-size:13px;color:#888;">Generating your QR…</span>
+        </div>
+        <img src="" alt="QuickBee Payment QR Code" class="qbp-qr-img" id="qbpQRImage" style="display:none;">
       </div>
 
       <!-- Customer name (instead of transaction ID) -->
@@ -624,8 +633,10 @@
 (function () {
   'use strict';
 
-  var selectedMethod = null;
-  var cartTotal      = 0;
+  var selectedMethod  = null;
+  var cartTotal       = 0;
+  var activeQRString  = '';
+  var RAILWAY_API     = 'https://quickbee-fonepay-qr-production.up.railway.app';
 
   /* ── helpers ────────────────────────────────── */
   function show(id) {
@@ -688,6 +699,30 @@
       if (!selectedMethod) return;
       if (selectedMethod === 'qr') {
         show('qbpStepQR');
+        /* ── Fetch dynamic QR from Railway ── */
+        var qrImg    = document.getElementById('qbpQRImage');
+        var qrLoader = document.getElementById('qbpQRLoader');
+        var amtRs    = Math.round(cartTotal / 100);
+        if (qrImg && amtRs > 0) {
+          if (qrLoader) qrLoader.style.display = 'flex';
+          qrImg.style.display = 'none';
+          fetch(RAILWAY_API + '/api/generate-qr?amount=' + amtRs)
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+              if (data.success && data.qr_image) {
+                activeQRString = data.qr_string || '';
+                qrImg.src = data.qr_image;
+                qrImg.style.display = 'block';
+                if (qrLoader) qrLoader.style.display = 'none';
+              }
+            })
+            .catch(function () {
+              /* Fallback to static QR if API fails */
+              qrImg.src = '{{ "PAYMENTSQRONLINE.png" | asset_url }}';
+              qrImg.style.display = 'block';
+              if (qrLoader) qrLoader.style.display = 'none';
+            });
+        }
       } else {
         var desc = document.getElementById('qbpCODDesc');
         if (desc) desc.textContent = selectedMethod === 'card'
@@ -723,9 +758,23 @@
       paidBtn.disabled = true;
       paidBtn.textContent = 'Submitting…';
 
-      var noteStr = 'Payment Method: Online QR | Name: ' + name + ' | Phone: +977' + num + ' | Amount: Rs ' + Math.round(cartTotal / 100);
+      var amtRs   = Math.round(cartTotal / 100);
+      var noteStr = 'Payment Method: Online QR | Name: ' + name + ' | Phone: +977' + num + ' | Amount: Rs ' + amtRs;
 
-      cartNote(noteStr)
+      /* Submit to Railway for order tracking + save cart note */
+      var railwaySubmit = fetch(RAILWAY_API + '/api/submit-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: amtRs,
+          customer_name: name,
+          customer_phone: '+977' + num,
+          qr_string: activeQRString,
+          cart_token: ''
+        })
+      }).catch(function () { /* ignore if Railway unavailable */ });
+
+      Promise.all([cartNote(noteStr), railwaySubmit])
         .finally(function () {
           show('qbpStepSuccess');
           /* Auto-forward to checkout after 3s */
