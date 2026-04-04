@@ -621,9 +621,74 @@ body { background: var(--c-bg) !important; color: var(--c-text) !important; }
   }
 
   /* ═══════════════════════════════════════════════════════
-     CHECKOUT FLOW: Extract location → Update cart note → Redirect
+     DELIVERY CHARGE AUTO-INJECT
+     Flat Delivery  : 6:00 AM – 8:00 PM
+     Late Night     : 8:00 PM – 6:00 AM
+     Skipped for    : carts with only Rs 0 / donation items
      ═══════════════════════════════════════════════════════ */
-  window.proceedToCheckout = function() {
+  async function injectDeliveryCharge() {
+    /* 1. Determine Nepal time (UTC +5:45) */
+    const nowUtc   = Date.now();
+    const npOffset = (5 * 60 + 45) * 60 * 1000;
+    const npDate   = new Date(nowUtc + npOffset + (new Date().getTimezoneOffset() * 60000));
+    const totalMin = npDate.getHours() * 60 + npDate.getMinutes();
+    // Late night = before 6am (< 360) OR 8pm and after (>= 1200)
+    const isLateNight = totalMin < 360 || totalMin >= 1200;
+
+    /* 2. Fetch live cart */
+    const cartResp = await fetch('/cart.js');
+    const cart     = await cartResp.json();
+
+    const FLAT_HANDLE  = 'flat-delivery-charge';
+    const LATE_HANDLE  = 'late-night-delivery-charge';
+
+    /* 3. Skip if cart has no paid non-delivery items */
+    const paidItems = cart.items.filter(i =>
+      i.price > 0 &&
+      i.handle !== FLAT_HANDLE &&
+      i.handle !== LATE_HANDLE
+    );
+    if (paidItems.length === 0) return;
+
+    /* 4. Fetch both product variant IDs dynamically */
+    const [flatProd, lateProd] = await Promise.all([
+      fetch('/products/' + FLAT_HANDLE + '.js').then(r => r.json()),
+      fetch('/products/' + LATE_HANDLE + '.js').then(r => r.json())
+    ]);
+    const flatVariantId = flatProd.variants[0].id;
+    const lateVariantId = lateProd.variants[0].id;
+
+    const correctHandle    = isLateNight ? LATE_HANDLE  : FLAT_HANDLE;
+    const correctVariantId = isLateNight ? lateVariantId : flatVariantId;
+    const wrongHandle      = isLateNight ? FLAT_HANDLE  : LATE_HANDLE;
+
+    /* 5. Remove wrong delivery charge if present */
+    const wrongItem = cart.items.find(i => i.handle === wrongHandle);
+    if (wrongItem) {
+      await fetch('/cart/change.js', {
+        method : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body   : JSON.stringify({ id: wrongItem.key, quantity: 0 })
+      });
+    }
+
+    /* 6. Add correct delivery charge if missing */
+    const hasCorrect = cart.items.some(i => i.handle === correctHandle);
+    if (!hasCorrect) {
+      await fetch('/cart/add.js', {
+        method : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body   : JSON.stringify({ id: correctVariantId, quantity: 1 })
+      });
+    }
+
+    console.log('[QB Delivery] ' + (isLateNight ? 'Late Night' : 'Flat') + ' charge applied ✓');
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     CHECKOUT FLOW: Inject charge → Extract location → Update cart note → Redirect
+     ═══════════════════════════════════════════════════════ */
+  window.proceedToCheckout = async function() {
     const btn = document.getElementById('qbMainCheckoutBtn');
     if (btn.disabled) return;
 
@@ -650,7 +715,15 @@ body { background: var(--c-bg) !important; color: var(--c-text) !important; }
       return;
     }
 
-    /* STEP 3: Format order note with location + user details */
+    /* STEP 3: Auto-inject correct delivery charge based on Nepal time */
+    btn.textContent = 'Adding delivery fee...';
+    try {
+      await injectDeliveryCharge();
+    } catch (err) {
+      console.warn('[QB Delivery] charge injection failed:', err);
+    }
+
+    /* STEP 4: Format order note with location + user details */
     let orderNote = `📍 DELIVERY LOCATION:
 ${displayAddr}
 
@@ -671,7 +744,7 @@ Map: https://www.google.com/maps?q=${locationData.latitude},${locationData.longi
 
     orderNote += `\nTimestamp: ${locationData.timestamp || 'N/A'}`;
 
-    /* STEP 4: Update cart with the order note */
+    /* STEP 5: Update cart with the order note */
     fetch('/cart/update.js', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
