@@ -680,14 +680,7 @@
         <label class="qbp-label" for="qbpNameInput">Your Name <span style="color:#ef4444">*</span></label>
         <input type="text" id="qbpNameInput" class="qbp-input" placeholder="e.g. Ramesh Sharma" autocomplete="name" autocorrect="off" spellcheck="false">
       </div>
-      <div class="qbp-field">
-        <label class="qbp-label" for="qbpPhoneQR">Phone Number <span style="color:#ef4444">*</span></label>
-        <div class="qbp-phone-row">
-          <span class="qbp-phone-prefix">+977</span>
-          <input type="tel" id="qbpPhoneQR" class="qbp-input" placeholder="98XXXXXXXX" maxlength="10" inputmode="numeric">
-        </div>
-      </div>
-
+      <p style="font-size:12.5px;color:#666;text-align:center;margin:0 0 14px;">📞 Contact number will be asked on the next page</p>
       <button class="qbp-btn" id="qbpPaidBtn" disabled>I Have Paid →</button>
     </div>
 
@@ -709,10 +702,6 @@
           <div class="qbp-info-row">
             <span class="qbp-info-label">👤 Name</span>
             <span class="qbp-info-val" id="qbpSuccessName">—</span>
-          </div>
-          <div class="qbp-info-row">
-            <span class="qbp-info-label">📞 Phone</span>
-            <span class="qbp-info-val" id="qbpSuccessPhone">—</span>
           </div>
           <div class="qbp-info-row">
             <span class="qbp-info-label">💳 Method</span>
@@ -747,13 +736,7 @@
         <label class="qbp-label" for="qbpNameCOD">Your Name <span style="color:#ef4444">*</span></label>
         <input type="text" id="qbpNameCOD" class="qbp-input" placeholder="e.g. Ramesh Sharma" autocomplete="name">
       </div>
-      <div class="qbp-field">
-        <label class="qbp-label" for="qbpPhoneCOD">Phone Number (for delivery updates)</label>
-        <div class="qbp-phone-row">
-          <span class="qbp-phone-prefix">+977</span>
-          <input type="tel" id="qbpPhoneCOD" class="qbp-input" placeholder="98XXXXXXXX" maxlength="10" inputmode="numeric">
-        </div>
-      </div>
+      <p style="font-size:12.5px;color:#666;text-align:center;margin:0 0 14px;">📞 Contact number will be asked on the next page</p>
       <button class="qbp-btn" id="qbpCODCheckoutBtn">Confirm &amp; Checkout →</button>
     </div>
 
@@ -955,23 +938,19 @@
     paidBtn.addEventListener('click', function (e) {
       e.preventDefault();
       var name  = nameInput ? nameInput.value.trim() : '—';
-      var phoneEl = document.getElementById('qbpPhoneQR');
-      var num   = phoneEl ? phoneEl.value.trim() : '';
       if (name.length < 2) { nameInput && nameInput.focus(); return; }
 
       paidBtn.disabled = true;
       paidBtn.textContent = 'Submitting…';
 
       var amtRs   = Math.round(cartTotal / 100);
-      var noteStr = 'Payment Method: Online QR | Name: ' + name + ' | Phone: +977' + num + ' | Amount: Rs ' + amtRs;
+      var noteStr = 'Payment Method: Online QR | Name: ' + name + ' | Amount: Rs ' + amtRs;
 
       /* Populate success screen */
-      var sAmt   = document.getElementById('qbpSuccessAmt');
-      var sName  = document.getElementById('qbpSuccessName');
-      var sPhone = document.getElementById('qbpSuccessPhone');
-      if (sAmt)   sAmt.textContent   = 'Rs ' + amtRs;
-      if (sName)  sName.textContent  = name;
-      if (sPhone) sPhone.textContent = num ? '+977 ' + num : '—';
+      var sAmt  = document.getElementById('qbpSuccessAmt');
+      var sName = document.getElementById('qbpSuccessName');
+      if (sAmt)  sAmt.textContent  = 'Rs ' + amtRs;
+      if (sName) sName.textContent = name;
 
       cartNote(noteStr)
         .finally(function () {
@@ -998,15 +977,13 @@
     codBtn.addEventListener('click', function (e) {
       e.preventDefault();
       var name  = nameCOD ? nameCOD.value.trim() : '—';
-      var phone = document.getElementById('qbpPhoneCOD');
-      var num   = phone ? phone.value.trim() : '';
       var method = selectedMethod === 'card' ? 'Card on Delivery' : 'Cash on Delivery';
       if (name.length < 2) { nameCOD && nameCOD.focus(); return; }
 
       codBtn.disabled = true;
       codBtn.textContent = 'Processing…';
 
-      var noteStr = 'Payment Method: ' + method + ' | Name: ' + name + ' | Phone: +977' + num;
+      var noteStr = 'Payment Method: ' + method + ' | Name: ' + name;
       cartNote(noteStr).finally(goCheckout);
     });
   }
