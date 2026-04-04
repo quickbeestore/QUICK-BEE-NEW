@@ -332,59 +332,109 @@
   letter-spacing: -0.5px;
 }
 
-/* Old cart order banner (shown on back-nav) */
-.lb-cart-banner {
-  margin: 0 16px 4px;
-  background: var(--lb-card);
-  border: 1.5px solid rgba(34,197,94,0.4);
-  border-radius: var(--lb-radius); overflow: hidden;
-  animation: lb-co-in 0.35s cubic-bezier(0.4,0,0.2,1) both;
-  display: none;
+/* ── BUTTON RIPPLE ── */
+.lb-ripple {
+  position: absolute;
+  width: 12px; height: 12px;
+  background: rgba(255,255,255,0.45);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: lb-ripple-expand 0.55s ease-out forwards;
+  pointer-events: none;
 }
-.lb-cb-header {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 14px; background: rgba(34,197,94,0.07);
-  border-bottom: 1px solid rgba(34,197,94,0.2);
+@keyframes lb-ripple-expand {
+  to { transform: translate(-50%, -50%) scale(22); opacity: 0; }
 }
-.lb-cb-dot {
-  width: 8px; height: 8px; background: #22c55e; border-radius: 50%;
-  flex-shrink: 0; animation: lb-co-pulse 2s ease-in-out infinite;
+
+/* ── CONFIRM SUCCESS OVERLAY ── */
+.lb-success-overlay {
+  position: fixed; inset: 0; z-index: 99999;
+  background: rgba(0,0,0,0);
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+  transition: background 0.38s ease, backdrop-filter 0.38s ease;
 }
-.lb-cb-title {
-  font-size: 12px; font-weight: 800; color: #16a34a;
-  text-transform: uppercase; letter-spacing: 0.5px;
+.lb-success-overlay.show {
+  background: rgba(0,0,0,0.6);
+  pointer-events: all;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
-[data-theme="dark"] .lb-cb-title { color: #4ade80; }
-.lb-cb-time { font-size: 11px; color: var(--lb-muted); flex: 1; margin-left: 2px; }
-.lb-cb-remove {
-  background: transparent; border: 1px solid rgba(239,68,68,0.3);
-  border-radius: 8px; color: #ef4444; font-size: 11px;
-  font-weight: 700; padding: 4px 10px; cursor: pointer; flex-shrink: 0;
+.lb-success-card {
+  background: #fff;
+  border-radius: 28px;
+  padding: 40px 28px 32px;
+  text-align: center;
+  max-width: 292px; width: 88%;
+  transform: scale(0.72) translateY(28px);
+  opacity: 0;
+  transition: transform 0.48s cubic-bezier(0.34,1.56,0.64,1) 0.08s,
+              opacity 0.3s ease 0.08s;
+  box-shadow: 0 28px 72px rgba(0,0,0,0.35);
 }
-.lb-cb-items { padding: 8px 14px 2px; }
-.lb-cb-item-row {
-  display: flex; justify-content: space-between;
-  font-size: 12.5px; padding: 4px 0;
-  border-bottom: 1px solid var(--lb-border);
+[data-theme="dark"] .lb-success-card {
+  background: #141414;
+  border: 1px solid #2a2a2a;
 }
-.lb-cb-item-row:last-child { border-bottom: none; }
-.lb-cb-item-name { color: var(--lb-text); font-weight: 600; flex: 1; }
-.lb-cb-item-detail { color: var(--lb-muted); font-size: 11px; }
-.lb-cb-item-price { font-weight: 700; color: var(--lb-text); }
-.lb-cb-footer {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 10px 14px; border-top: 1px dashed var(--lb-border);
+.lb-success-overlay.show .lb-success-card {
+  transform: scale(1) translateY(0);
+  opacity: 1;
 }
-.lb-cb-total-lbl { font-size: 12px; color: var(--lb-muted); }
-.lb-cb-total-val { font-size: 16px; font-weight: 900; color: var(--lb-text); }
-.lb-cb-modify {
-  display: block; width: 100%; padding: 10px 14px;
-  background: rgba(244,180,0,0.08); border: none;
-  border-top: 1px solid rgba(244,180,0,0.2);
-  color: #c68a00; font-size: 13px; font-weight: 700;
-  cursor: pointer; text-align: center; font-family: inherit;
+.lb-success-bee {
+  font-size: 70px; display: block; line-height: 1;
+  transform: scale(0) rotate(-15deg);
+  transition: transform 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.25s;
 }
-[data-theme="dark"] .lb-cb-modify { color: #F4B400; background: rgba(244,180,0,0.06); }
+.lb-success-overlay.show .lb-success-bee {
+  transform: scale(1) rotate(0deg);
+}
+.lb-success-rings {
+  position: relative; display: inline-block;
+  margin-bottom: 4px;
+}
+.lb-success-rings::before, .lb-success-rings::after {
+  content: '';
+  position: absolute; inset: -8px;
+  border-radius: 50%; border: 2px solid rgba(34,197,94,0.3);
+  animation: none;
+}
+.lb-success-overlay.show .lb-success-rings::before {
+  animation: lb-ring-expand 1.4s ease-out 0.5s infinite;
+}
+.lb-success-overlay.show .lb-success-rings::after {
+  animation: lb-ring-expand 1.4s ease-out 0.8s infinite;
+}
+@keyframes lb-ring-expand {
+  0%   { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+.lb-success-title {
+  font-size: 22px; font-weight: 900;
+  color: #0d0d0d; margin: 16px 0 6px; letter-spacing: -0.4px;
+  opacity: 0; transform: translateY(8px);
+  transition: opacity 0.35s ease 0.42s, transform 0.4s ease 0.42s;
+}
+[data-theme="dark"] .lb-success-title { color: #f0f0f0; }
+.lb-success-overlay.show .lb-success-title {
+  opacity: 1; transform: translateY(0);
+}
+.lb-success-sub {
+  font-size: 13px; color: #777; margin-bottom: 22px;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.35s ease 0.52s;
+}
+.lb-success-overlay.show .lb-success-sub { opacity: 1; }
+.lb-success-bar-wrap {
+  height: 5px; background: #f0f0f0; border-radius: 3px; overflow: hidden;
+}
+[data-theme="dark"] .lb-success-bar-wrap { background: #222; }
+.lb-success-bar {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+  border-radius: 3px;
+  transition: width 1.6s cubic-bezier(0.4, 0, 0.2, 1) 0.45s;
+}
 
 /* ── EXPRESS TOGGLE ── */
 .lb-express-box {
@@ -566,22 +616,6 @@
 
   <div class="lb-content">
 
-    <!-- CART BANNER (shown on back-nav from checkout) -->
-    <div class="lb-cart-banner" id="lb-cart-banner">
-      <div class="lb-cb-header">
-        <span class="lb-cb-dot"></span>
-        <span class="lb-cb-title">Order in Cart</span>
-        <span class="lb-cb-time" id="lb-cb-time"></span>
-        <button class="lb-cb-remove" id="lb-cb-remove" type="button">✕ Remove</button>
-      </div>
-      <div class="lb-cb-items" id="lb-cb-items"></div>
-      <div class="lb-cb-footer">
-        <span class="lb-cb-total-lbl">Total Paid</span>
-        <span class="lb-cb-total-val" id="lb-cb-total"></span>
-      </div>
-      <button class="lb-cb-modify" id="lb-cb-modify" type="button">✏️ Modify Order</button>
-    </div>
-
     <!-- LIVE ORDER SUMMARY (updates as user selects) -->
     <div class="lb-live-summary" id="lb-live-summary" style="display:none;">
       <div class="lb-ls-header">
@@ -750,6 +784,20 @@
       Payment collected after service is complete.
     </div>
 
+  </div>
+</div>
+
+<!-- CONFIRM SUCCESS OVERLAY -->
+<div class="lb-success-overlay" id="lb-success-overlay" role="dialog" aria-modal="true" aria-label="Order confirmed">
+  <div class="lb-success-card">
+    <div class="lb-success-rings">
+      <span class="lb-success-bee">🛵</span>
+    </div>
+    <div class="lb-success-title">Order Confirmed! 🎉</div>
+    <div class="lb-success-sub">Taking you to checkout…</div>
+    <div class="lb-success-bar-wrap">
+      <div class="lb-success-bar" id="lb-success-bar"></div>
+    </div>
   </div>
 </div>
 
@@ -1042,11 +1090,8 @@
       addBtn.disabled = false;
     }
 
-    // Button label
-    var existingOrder = loadOrder();
-    if (btnText) {
-      btnText.textContent = existingOrder ? 'Update Order' : 'Confirm Order';
-    }
+    // Button always says Confirm Order
+    if (btnText) btnText.textContent = 'Confirm Order';
   }
 
   /* ── Feedback ── */
@@ -1082,8 +1127,7 @@
       btn.innerHTML = '<span class="lb-spinner"></span><span style="font-size:13px;font-weight:700;letter-spacing:0.3px;">Processing…</span>';
     } else {
       btn.classList.remove('loading');
-      var existing = loadOrder();
-      btn.innerHTML = '<span class="lb-add-btn-content"><span>✅</span><span id="lb-btn-text">' + (existing ? 'Update Order' : 'Confirm Order') + '</span></span>';
+      btn.innerHTML = '<span class="lb-add-btn-content"><span>✅</span><span id="lb-btn-text">Confirm Order</span></span>';
     }
   }
 
@@ -1148,7 +1192,7 @@
       });
 
       if (typeof window.qbSyncCartNote === 'function') window.qbSyncCartNote();
-      setTimeout(function() { window.location.href = '/checkout'; }, 120);
+      showSuccessOverlay(function() { window.location.href = '/checkout'; });
     })
     .catch(function(err) {
       setLoading(false);
@@ -1157,7 +1201,7 @@
     });
   }
 
-  document.getElementById('lb-add-btn').addEventListener('click', function() {
+  document.getElementById('lb-add-btn').addEventListener('click', function(e) {
     if (Object.keys(selections).length === 0) {
       document.querySelectorAll('.lb-service-card').forEach(function(c) {
         c.classList.remove('error-flash');
@@ -1167,9 +1211,21 @@
       showFeedback('error', 'Please select at least one service first.');
       return;
     }
+
+    // Ripple animation
+    var btn = this;
+    var ripple = document.createElement('span');
+    ripple.className = 'lb-ripple';
+    var rect = btn.getBoundingClientRect();
+    ripple.style.left = (e.clientX - rect.left) + 'px';
+    ripple.style.top  = (e.clientY - rect.top) + 'px';
+    btn.appendChild(ripple);
+    setTimeout(function() { if (ripple.parentNode) ripple.parentNode.removeChild(ripple); }, 600);
+
     hideFeedback();
     setLoading(true);
 
+    // Silently clear any previous cart items before adding fresh ones
     var existing = loadOrder();
     if (existing && existing.cartKeys && existing.cartKeys.length) {
       removeCartKeys(existing.cartKeys, function() {
@@ -1182,141 +1238,26 @@
   });
 
   /* ════════════════════════════════════
-     CART BANNER (bfcache / back nav)
+     SUCCESS OVERLAY ANIMATION
   ════════════════════════════════════ */
-  function renderCartBanner(order) {
-    if (!order) return;
-    var banner   = document.getElementById('lb-cart-banner');
-    var timeEl   = document.getElementById('lb-cb-time');
-    var itemsEl  = document.getElementById('lb-cb-items');
-    var totalEl  = document.getElementById('lb-cb-total');
-    if (!banner) return;
+  function showSuccessOverlay(cb) {
+    var overlay = document.getElementById('lb-success-overlay');
+    var bar     = document.getElementById('lb-success-bar');
+    if (!overlay) { setTimeout(cb, 400); return; }
 
-    if (timeEl) timeEl.textContent = '· ' + timeAgo(order.addedAt);
-    if (totalEl) totalEl.textContent = 'Rs ' + order.total;
+    // Show overlay + animate card in
+    overlay.classList.add('show');
 
-    // Build item rows
-    if (itemsEl) {
-      itemsEl.innerHTML = '';
-      var itemList = order.items || [];
-      // Support v1 single-item format
-      if (!itemList.length && order.service) {
-        itemList = [{ displayTitle: order.service, unit: order.unit, qty: order.qty, lineTotal: order.total, icon: '🫧' }];
-      }
-      itemList.forEach(function(item) {
-        var row = document.createElement('div');
-        row.className = 'lb-cb-item-row';
-        row.innerHTML =
-          '<span class="lb-cb-item-name">' + (item.icon||'') + ' ' + item.displayTitle + '</span>' +
-          '<span class="lb-cb-item-detail">' + item.qty + ' ' + item.unit + '</span>' +
-          '<span class="lb-cb-item-price">Rs ' + item.lineTotal + '</span>';
-        itemsEl.appendChild(row);
-      });
-    }
+    // Start progress bar fill slightly after overlay appears
+    setTimeout(function() {
+      if (bar) bar.style.width = '100%';
+    }, 200);
 
-    banner.style.display = 'block';
-
-    // Update sticky button label
-    var btnText = document.getElementById('lb-btn-text');
-    if (btnText) btnText.textContent = 'Update Order';
+    // Navigate once bar finishes (1.6s transition + 0.2s delay + small buffer)
+    setTimeout(cb, 2100);
   }
-
-  function hideCartBanner() {
-    var banner = document.getElementById('lb-cart-banner');
-    if (banner) banner.style.display = 'none';
-    var btnText = document.getElementById('lb-btn-text');
-    if (btnText) btnText.textContent = 'Confirm Order';
-  }
-
-  // Remove button in cart banner
-  var cbRemove = document.getElementById('lb-cb-remove');
-  if (cbRemove) {
-    cbRemove.addEventListener('click', function() {
-      var order = loadOrder();
-      clearOrder();
-      hideCartBanner();
-      if (order && order.cartKeys && order.cartKeys.length) {
-        removeCartKeys(order.cartKeys, function() {
-          document.dispatchEvent(new CustomEvent('cart:updated'));
-        });
-      } else if (order && order.cartKey) {
-        // v1 format
-        fetch('/cart/change.js', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: order.cartKey, quantity: 0 })
-        }).catch(function(){});
-      }
-    });
-  }
-
-  // Modify button — pre-select cards from saved order
-  var cbModify = document.getElementById('lb-cb-modify');
-  if (cbModify) {
-    cbModify.addEventListener('click', function() {
-      var order = loadOrder();
-      if (!order) return;
-      hideCartBanner();
-
-      var itemList = order.items || [];
-      if (!itemList.length && order.service) {
-        itemList = [{ variantTitle: null, displayTitle: order.service, unit: order.unit, qty: order.qty }];
-      }
-
-      // Pre-select cards
-      document.querySelectorAll('.lb-service-card').forEach(function(card) {
-        var cardTitle = displayTitle(card.getAttribute('data-variant-title'));
-        itemList.forEach(function(item) {
-          if (item.displayTitle === cardTitle) {
-            var rawTitle = card.getAttribute('data-variant-title');
-            var unit     = card.getAttribute('data-unit');
-            var variant  = findVariant(rawTitle);
-            var key      = cleanStr(rawTitle);
-            if (variant && !selections[key]) {
-              addService(card, rawTitle, unit, variant);
-              // Set qty
-              if (item.qty > 1) {
-                selections[key].qty = item.qty;
-                var qv = card.querySelector('.lb-card-qty-val');
-                if (qv) qv.textContent = item.qty;
-                var mb = card.querySelector('.lb-cq-minus');
-                if (mb) mb.disabled = item.qty <= MIN_QTY;
-                updateLinePriceOnCard(card, selections[key]);
-              }
-            }
-          }
-        });
-      });
-
-      // Restore express
-      if (order.express && !expressOn) {
-        expressBox.click();
-      }
-      // Restore notes
-      if (order.notes) document.getElementById('lb-notes').value = order.notes;
-
-      updateSummary();
-      document.querySelector('.lb-services-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  }
-
-  /* ── bfcache fix ── */
-  function checkBannerOnLoad() {
-    var order = loadOrder();
-    if (order) renderCartBanner(order);
-    else hideCartBanner();
-  }
-
-  window.addEventListener('pageshow', function(e) {
-    if (e.persisted) checkBannerOnLoad();
-  });
-
-  document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'visible') checkBannerOnLoad();
-  });
 
   /* ── Boot ── */
-  checkBannerOnLoad();
   updateSummary();
 
 })();
