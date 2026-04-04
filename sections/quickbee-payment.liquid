@@ -903,11 +903,80 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function cartNote(note) {
+  /* ─────────────────────────────────────────────────────
+     CART NOTE — comprehensive order data
+  ───────────────────────────────────────────────────── */
+  var cartItems = [];
+
+  function buildOrderNote(paymentMethod, customerName, amtRs) {
+    /* Nepal time */
+    var nowUtc  = Date.now();
+    var npMs    = nowUtc + (5*3600000 + 45*60000) + (new Date().getTimezoneOffset()*60000);
+    var npDate  = new Date(npMs);
+    var npTime  = npDate.toLocaleString('en-US', { dateStyle:'medium', timeStyle:'short' });
+    var totalMin = npDate.getHours()*60 + npDate.getMinutes();
+    var isLate  = totalMin < 360 || totalMin >= 1200;
+
+    /* Location from localStorage */
+    var loc = null;
+    try { loc = JSON.parse(localStorage.getItem('qb_selected_location') || 'null'); } catch(e){}
+
+    /* Cart items summary */
+    var itemLines = '';
+    if (cartItems.length > 0) {
+      cartItems.forEach(function(item) {
+        itemLines += '\n  • ' + item.quantity + 'x ' + item.product_title +
+                     ' — Rs ' + Math.round(item.final_line_price / 100);
+      });
+    }
+
+    /* Build note */
+    var note = '';
+    note += '═══════════════════════════════\n';
+    note += '  QUICKBEE ORDER DETAILS\n';
+    note += '═══════════════════════════════\n\n';
+
+    note += '💳 PAYMENT\n';
+    note += '  Method : ' + paymentMethod + '\n';
+    note += '  Name   : ' + customerName  + '\n';
+    note += '  Amount : Rs ' + amtRs       + '\n\n';
+
+    if (loc) {
+      var addr = loc.address || loc.street || loc.landmark_link || '';
+      note += '📍 DELIVERY LOCATION\n';
+      if (addr)             note += '  Address : ' + addr + '\n';
+      if (loc.mode)         note += '  Mode    : ' + loc.mode + '\n';
+      if (loc.latitude)     note += '  Lat     : ' + loc.latitude  + '\n';
+      if (loc.longitude)    note += '  Lng     : ' + loc.longitude + '\n';
+      if (loc.latitude && loc.longitude) {
+        note += '  Map     : https://www.google.com/maps?q=' + loc.latitude + ',' + loc.longitude + '\n';
+      }
+      if (loc.recipient_name) note += '  Recipient : ' + loc.recipient_name + '\n';
+      note += '\n';
+    }
+
+    note += '🕐 ORDER TIME\n';
+    note += '  Nepal Time    : ' + npTime + '\n';
+    note += '  Delivery Type : ' + (isLate ? 'Late Night (8PM–6AM)' : 'Daytime (6AM–8PM)') + '\n\n';
+
+    if (itemLines) {
+      note += '🛒 CART ITEMS' + itemLines + '\n';
+      note += '  ─────────────────────\n';
+      note += '  Total : Rs ' + amtRs + '\n\n';
+    }
+
+    note += '═══════════════════════════════\n';
+    note += '  quickbee.store\n';
+    note += '═══════════════════════════════';
+
+    return note;
+  }
+
+  function cartNote(noteText) {
     return fetch('/cart/update.js', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-      body: JSON.stringify({ note: note })
+      body: JSON.stringify({ note: noteText })
     });
   }
 
@@ -921,6 +990,7 @@
     .then(function (r) { return r.json(); })
     .then(function (cart) {
       cartTotal = cart.total_price || 0;
+      cartItems = cart.items || [];
       var totalEl = document.getElementById('qbpCartTotal');
       if (totalEl) totalEl.textContent = 'Rs ' + Math.round(cartTotal / 100);
       var amtEl = document.getElementById('qbpQRAmount');
@@ -1064,7 +1134,7 @@
       paidBtn.textContent = 'Submitting…';
 
       var amtRs   = Math.round(cartTotal / 100);
-      var noteStr = 'Payment Method: Online QR | Name: ' + name + ' | Amount: Rs ' + amtRs;
+      var noteStr = buildOrderNote('Fonepay QR (Online)', name, amtRs);
 
       /* Populate success screen */
       var sAmt  = document.getElementById('qbpSuccessAmt');
@@ -1103,7 +1173,8 @@
       codBtn.disabled = true;
       codBtn.textContent = 'Processing…';
 
-      var noteStr = 'Payment Method: ' + method + ' | Name: ' + name;
+      var amtRsCOD = Math.round(cartTotal / 100);
+      var noteStr  = buildOrderNote(method, name, amtRsCOD);
       cartNote(noteStr).finally(goCheckout);
     });
   }

@@ -723,26 +723,48 @@ body { background: var(--c-bg) !important; color: var(--c-text) !important; }
       console.warn('[QB Delivery] charge injection failed:', err);
     }
 
-    /* STEP 4: Format order note with location + user details */
-    let orderNote = `📍 DELIVERY LOCATION:
-${displayAddr}
+    /* STEP 4: Format comprehensive order note */
+    /* Nepal time */
+    const npMs      = Date.now() + (5*3600000 + 45*60000) + (new Date().getTimezoneOffset()*60000);
+    const npDate    = new Date(npMs);
+    const npTimeStr = npDate.toLocaleString('en-US', { dateStyle:'medium', timeStyle:'short' });
+    const totalMin  = npDate.getHours()*60 + npDate.getMinutes();
+    const delivType = (totalMin < 360 || totalMin >= 1200) ? 'Late Night (8PM–6AM)' : 'Daytime (6AM–8PM)';
 
-📊 LOCATION DETAILS:
-Mode: ${locationData.mode || 'N/A'}
-`;
+    let orderNote = `═══════════════════════════════
+  QUICKBEE ORDER DETAILS
+═══════════════════════════════
+
+📍 DELIVERY LOCATION
+  Address : ${displayAddr}
+  Mode    : ${locationData.mode || 'N/A'}`;
 
     if (locationData.mode === 'someone_else') {
-      orderNote += `Recipient: ${locationData.recipient_name || 'N/A'}
-Landmark: ${locationData.landmark_link || 'N/A'}
-`;
+      orderNote += `
+  Recipient : ${locationData.recipient_name || 'N/A'}
+  Landmark  : ${locationData.landmark_link || 'N/A'}`;
     } else if (locationData.latitude && locationData.longitude) {
-      orderNote += `Latitude: ${locationData.latitude}
-Longitude: ${locationData.longitude}
-Map: https://www.google.com/maps?q=${locationData.latitude},${locationData.longitude}
-`;
+      orderNote += `
+  Lat  : ${locationData.latitude}
+  Lng  : ${locationData.longitude}
+  Map  : https://www.google.com/maps?q=${locationData.latitude},${locationData.longitude}`;
     }
 
-    orderNote += `\nTimestamp: ${locationData.timestamp || 'N/A'}`;
+    orderNote += `
+
+🕐 ORDER TIME
+  Nepal Time    : ${npTimeStr}
+  Delivery Type : ${delivType}
+
+💳 PAYMENT
+  Method : (to be selected on payment page)
+  Status : Pending
+
+═══════════════════════════════
+  quickbee.store
+═══════════════════════════════`;
+
+    /* timestamp already in npTimeStr above */
 
     /* STEP 5: Update cart with the order note */
     fetch('/cart/update.js', {
