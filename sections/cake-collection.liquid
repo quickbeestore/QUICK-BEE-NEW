@@ -1,0 +1,1440 @@
+{%- comment -%}
+  Premium Bakery Collection — sections/cake-collection.liquid
+  Luxury cream × soft rose × gold design
+{%- endcomment -%}
+
+{%- liquid
+  assign all_products = collection.products
+
+  assign has_pound  = false
+  assign pound_count = 0
+  assign has_bento  = false
+  assign bento_count = 0
+  assign has_mini   = false
+  assign mini_count  = 0
+  assign has_others = false
+  assign other_count = 0
+
+  for p in all_products
+    assign pt = p.type | downcase | strip
+    if pt contains 'pound'
+      assign has_pound = true
+      assign pound_count = pound_count | plus: 1
+    elsif pt contains 'bento'
+      assign has_bento = true
+      assign bento_count = bento_count | plus: 1
+    elsif pt contains 'mini'
+      assign has_mini = true
+      assign mini_count = mini_count | plus: 1
+    else
+      assign has_others = true
+      assign other_count = other_count | plus: 1
+    endif
+  endfor
+-%}
+
+<style>
+/* ============================================================
+   PREMIUM BAKERY COLLECTION — Cream × Rose × Gold
+   ============================================================ */
+
+/* ── Google Font ─────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap');
+
+/* ── Tokens ──────────────────────────────────────── */
+.bk-wrap {
+  --bk-cream:     #FEFBF6;
+  --bk-cream2:    #FFF5EC;
+  --bk-card:      #FFFFFF;
+  --bk-border:    #F0DDD0;
+  --bk-border2:   #F7EAE0;
+  --bk-text:      #2C1A10;
+  --bk-text2:     #8C6B58;
+  --bk-text3:     #C4A090;
+  --bk-gold:      #C9972C;
+  --bk-gold-lt:   #E8C96A;
+  --bk-gold-bg:   #FFF8E7;
+  --bk-rose:      #E8909E;
+  --bk-rose-lt:   #FCEEF2;
+  --bk-rose2:     #F5C8D0;
+  --bk-green:     #5BAB7A;
+  --bk-shadow-sm: 0 2px 12px rgba(180,100,60,0.08);
+  --bk-shadow-md: 0 6px 28px rgba(180,100,60,0.13);
+  --bk-shadow-lg: 0 16px 48px rgba(180,100,60,0.18);
+  --bk-radius:    18px;
+  --bk-radius-sm: 12px;
+  --bk-heading:   "Cormorant Garamond", "Garamond", "Book Antiqua", Georgia, serif;
+  --bk-body:      "Jost", "Gill Sans", "Helvetica Neue", system-ui, sans-serif;
+}
+
+/* ── Base ────────────────────────────────────────── */
+.bk-wrap *, .bk-wrap *::before, .bk-wrap *::after { box-sizing: border-box; }
+.bk-wrap {
+  background: var(--bk-cream);
+  font-family: var(--bk-body);
+  color: var(--bk-text);
+}
+.bk-wrap img { display: block; max-width: 100%; }
+
+/* ── Keyframes ───────────────────────────────────── */
+@keyframes bk-fadein   { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes bk-pop      { 0%{transform:scale(0.6);opacity:0} 65%{transform:scale(1.08)} 100%{transform:scale(1);opacity:1} }
+@keyframes bk-spin     { to{transform:rotate(360deg)} }
+@keyframes bk-spring   { 0%{transform:translateX(-50%) translateY(100px)} 60%{transform:translateX(-50%) translateY(-8px)} 80%{transform:translateX(-50%) translateY(4px)} 100%{transform:translateX(-50%) translateY(0)} }
+@keyframes bk-float    { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes bk-shimmer  { from{background-position:-200% 0} to{background-position:200% 0} }
+@keyframes bk-heartbeat{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
+
+/* ══════════════════════════════════════════════════
+   1. HERO BANNER
+   ══════════════════════════════════════════════════ */
+.bk-hero {
+  position: relative;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 60px 24px 80px;
+}
+.bk-hero-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #FFE8CC 0%, #FFDDE8 40%, #FFF0F7 70%, #FEFBF6 100%);
+  z-index: 0;
+}
+.bk-hero-bg-img {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 1;
+}
+.bk-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(254,247,240,0.55) 0%, rgba(254,247,240,0.82) 100%);
+  z-index: 2;
+}
+/* Decorative blobs */
+.bk-hero-blob {
+  position: absolute;
+  border-radius: 50%;
+  z-index: 1;
+  filter: blur(60px);
+  pointer-events: none;
+}
+.bk-hero-blob--1 {
+  width: 300px; height: 300px;
+  background: rgba(232,144,158,0.25);
+  top: -60px; right: -40px;
+  animation: bk-float 6s ease-in-out infinite;
+}
+.bk-hero-blob--2 {
+  width: 200px; height: 200px;
+  background: rgba(201,151,44,0.18);
+  bottom: -40px; left: 10%;
+  animation: bk-float 8s ease-in-out infinite 2s;
+}
+.bk-hero-blob--3 {
+  width: 150px; height: 150px;
+  background: rgba(245,200,208,0.35);
+  top: 30%; left: -30px;
+  animation: bk-float 7s ease-in-out infinite 1s;
+}
+
+.bk-hero-content {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  max-width: 620px;
+  animation: bk-fadein 0.7s ease both;
+}
+.bk-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--bk-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--bk-gold);
+  background: var(--bk-gold-bg);
+  border: 1px solid rgba(201,151,44,0.25);
+  padding: 6px 16px;
+  border-radius: 20px;
+  margin-bottom: 18px;
+}
+.bk-hero-title {
+  font-family: var(--bk-heading);
+  font-size: clamp(34px, 6vw, 58px);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--bk-text);
+  margin: 0 0 14px;
+  letter-spacing: -0.5px;
+}
+.bk-hero-title em {
+  font-style: italic;
+  color: var(--bk-rose);
+}
+.bk-hero-sub {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--bk-text2);
+  margin: 0 0 28px;
+  line-height: 1.6;
+}
+.bk-hero-chips {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.bk-hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background: rgba(255,255,255,0.85);
+  border: 1.5px solid var(--bk-border);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bk-text2);
+  backdrop-filter: blur(8px);
+}
+/* Wave divider */
+.bk-hero-wave {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  z-index: 4;
+  line-height: 0;
+}
+.bk-hero-wave svg { width: 100%; height: 48px; }
+
+/* ══════════════════════════════════════════════════
+   2. CATEGORY PILLS
+   ══════════════════════════════════════════════════ */
+.bk-pills-outer {
+  position: sticky;
+  top: 0;
+  z-index: 400;
+  background: var(--bk-cream);
+  border-bottom: 1px solid var(--bk-border2);
+}
+.bk-pills-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.bk-pills-inner::-webkit-scrollbar { display: none; }
+.bk-pill {
+  flex-shrink: 0;
+  padding: 9px 20px;
+  border: 1.5px solid var(--bk-border);
+  background: white;
+  color: var(--bk-text2);
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--bk-body);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+.bk-pill:hover { border-color: var(--bk-rose); color: var(--bk-rose); }
+.bk-pill.active {
+  background: var(--bk-text);
+  border-color: var(--bk-text);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(44,26,16,0.25);
+}
+.bk-pill-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  font-size: 10px;
+  margin-left: 4px;
+}
+.bk-pill:not(.active) .bk-pill-count {
+  background: var(--bk-rose-lt);
+  color: var(--bk-rose);
+}
+
+/* ══════════════════════════════════════════════════
+   3. PRODUCT GRID
+   ══════════════════════════════════════════════════ */
+.bk-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 16px 48px;
+}
+
+.bk-sec { margin-bottom: 48px; }
+.bk-sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--bk-border2);
+}
+.bk-sec-title {
+  font-family: var(--bk-heading);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--bk-text);
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+.bk-sec-sub {
+  font-size: 13px;
+  color: var(--bk-text3);
+  font-style: italic;
+}
+.bk-sec-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--bk-border2), transparent);
+}
+
+.bk-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media(min-width: 640px)  { .bk-grid { grid-template-columns: repeat(3, 1fr); gap: 18px; } }
+@media(min-width: 1024px) { .bk-grid { grid-template-columns: repeat(3, 1fr); gap: 22px; } }
+
+/* ══════════════════════════════════════════════════
+   4. PRODUCT CARD
+   ══════════════════════════════════════════════════ */
+.bk-card {
+  background: var(--bk-card);
+  border-radius: var(--bk-radius);
+  overflow: hidden;
+  box-shadow: var(--bk-shadow-sm);
+  border: 1px solid var(--bk-border2);
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
+  animation: bk-fadein 0.5s ease both;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+.bk-card:hover {
+  transform: translateY(-7px);
+  box-shadow: var(--bk-shadow-lg);
+}
+
+.bk-card-img-wrap {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--bk-rose-lt);
+}
+.bk-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.bk-card:hover .bk-card-img { transform: scale(1.07); }
+.bk-card-no-img {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52px;
+  background: linear-gradient(135deg, var(--bk-rose-lt) 0%, var(--bk-gold-bg) 100%);
+}
+
+/* Badges */
+.bk-card-badges {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.bk-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  backdrop-filter: blur(6px);
+}
+.bk-badge--bestseller { background: rgba(201,151,44,0.92); color: #fff; }
+.bk-badge--new        { background: rgba(91,171,122,0.92); color: #fff; }
+.bk-badge--custom     { background: rgba(232,144,158,0.92); color: #fff; }
+.bk-badge--deal       { background: rgba(44,26,16,0.85); color: #fff; }
+
+.bk-wishlist {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+  backdrop-filter: blur(4px);
+  border: none;
+}
+.bk-wishlist:hover { background: var(--bk-rose-lt); animation: bk-heartbeat 0.4s ease; }
+
+/* Card body */
+.bk-card-body {
+  padding: 14px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.bk-card-type {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--bk-gold);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+}
+.bk-card-name {
+  font-family: var(--bk-heading);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--bk-text);
+  margin: 0 0 5px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.bk-card-desc {
+  font-size: 12px;
+  color: var(--bk-text2);
+  margin: 0 0 12px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+.bk-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+}
+.bk-price-wrap { display: flex; flex-direction: column; gap: 1px; }
+.bk-price {
+  font-family: var(--bk-body);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--bk-text);
+}
+.bk-price-compare {
+  font-size: 11px;
+  color: var(--bk-text3);
+  text-decoration: line-through;
+}
+.bk-price-save {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--bk-green);
+  background: rgba(91,171,122,0.1);
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+
+/* ══════════════════════════════════════════════════
+   5. ADD TO CART — Button + Stepper
+   ══════════════════════════════════════════════════ */
+.bk-add-btn {
+  flex-shrink: 0;
+  padding: 9px 16px;
+  background: var(--bk-text);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--bk-body);
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.bk-add-btn:hover { background: var(--bk-rose); transform: scale(1.05); }
+.bk-add-btn:active { transform: scale(0.95); }
+.bk-add-btn.loading {
+  color: transparent !important;
+  pointer-events: none;
+  background: var(--bk-rose) !important;
+}
+.bk-add-btn.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 14px; height: 14px;
+  margin: -7px 0 0 -7px;
+  border: 2.5px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: bk-spin 0.5s linear infinite;
+}
+.bk-add-btn.success {
+  background: var(--bk-green) !important;
+  pointer-events: none;
+  animation: bk-pop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.bk-stepper {
+  display: none;
+  align-items: center;
+  border-radius: 12px;
+  background: var(--bk-text);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.bk-stepper.visible { display: flex; animation: bk-pop 0.28s cubic-bezier(0.34,1.56,0.64,1); }
+.bk-stepper-btn {
+  width: 30px; height: 30px;
+  background: none; border: none;
+  color: #fff; font-size: 17px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+  font-family: var(--bk-body);
+}
+.bk-stepper-btn:hover { background: rgba(255,255,255,0.15); }
+.bk-stepper-btn:active { background: rgba(255,255,255,0.25); }
+.bk-stepper-btn.busy { opacity: 0.4; pointer-events: none; }
+.bk-stepper-qty {
+  min-width: 22px; text-align: center;
+  font-size: 13px; font-weight: 800; color: #fff;
+  font-family: var(--bk-body);
+}
+
+/* ══════════════════════════════════════════════════
+   6. STICKY CART BAR
+   ══════════════════════════════════════════════════ */
+.bk-cart-bar {
+  position: fixed;
+  bottom: calc(65px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(calc(100% + 80px + env(safe-area-inset-bottom)));
+  z-index: 1000;
+  width: calc(100% - 32px);
+  max-width: 520px;
+  background: var(--bk-text);
+  border-radius: 18px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  box-shadow: 0 12px 40px rgba(44,26,16,0.35);
+  transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1);
+  cursor: pointer;
+}
+.bk-cart-bar.visible { transform: translateX(-50%) translateY(0); animation: bk-spring 0.55s cubic-bezier(0.34,1.56,0.64,1); }
+.bk-cart-bar-left { display: flex; align-items: center; gap: 12px; }
+.bk-cart-bar-count {
+  background: var(--bk-rose);
+  color: #fff;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800;
+  font-family: var(--bk-body);
+}
+.bk-cart-bar-info { display: flex; flex-direction: column; gap: 1px; }
+.bk-cart-bar-label { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.65); }
+.bk-cart-bar-total { font-size: 15px; font-weight: 800; color: #fff; }
+.bk-cart-bar-cta {
+  background: var(--bk-gold);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--bk-body);
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+.bk-cart-bar:hover .bk-cart-bar-cta { background: var(--bk-gold-lt); }
+
+/* ══════════════════════════════════════════════════
+   7. TRUST SECTION
+   ══════════════════════════════════════════════════ */
+.bk-trust {
+  background: linear-gradient(135deg, var(--bk-rose-lt) 0%, var(--bk-gold-bg) 100%);
+  border-top: 1px solid var(--bk-border2);
+  border-bottom: 1px solid var(--bk-border2);
+  padding: 36px 20px;
+}
+.bk-trust-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  text-align: center;
+}
+@media(max-width: 540px) { .bk-trust-inner { grid-template-columns: 1fr; gap: 20px; } }
+.bk-trust-item { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.bk-trust-icon {
+  width: 52px; height: 52px;
+  background: white;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  box-shadow: var(--bk-shadow-sm);
+  border: 1.5px solid var(--bk-border);
+}
+.bk-trust-title {
+  font-family: var(--bk-heading);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--bk-text);
+  margin: 0;
+}
+.bk-trust-desc {
+  font-size: 12.5px;
+  color: var(--bk-text2);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ══════════════════════════════════════════════════
+   8. CAKE MESSAGE
+   ══════════════════════════════════════════════════ */
+.bk-message-section {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 28px 24px;
+  background: white;
+  border-radius: var(--bk-radius);
+  border: 1.5px solid var(--bk-border2);
+  box-shadow: var(--bk-shadow-sm);
+  text-align: center;
+}
+.bk-message-icon { font-size: 36px; margin-bottom: 10px; animation: bk-float 4s ease-in-out infinite; }
+.bk-message-title {
+  font-family: var(--bk-heading);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--bk-text);
+  margin: 0 0 6px;
+}
+.bk-message-sub {
+  font-size: 13px;
+  color: var(--bk-text2);
+  margin: 0 0 18px;
+}
+.bk-message-input-wrap {
+  position: relative;
+  margin-bottom: 14px;
+}
+.bk-message-input {
+  width: 100%;
+  padding: 13px 18px;
+  background: var(--bk-cream2);
+  border: 1.5px solid var(--bk-border);
+  border-radius: 14px;
+  font-size: 15px;
+  font-family: var(--bk-body);
+  color: var(--bk-text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  text-align: center;
+}
+.bk-message-input::placeholder { color: var(--bk-text3); font-style: italic; }
+.bk-message-input:focus { outline: none; border-color: var(--bk-rose); box-shadow: 0 0 0 3px rgba(232,144,158,0.15); }
+.bk-message-char { font-size: 11px; color: var(--bk-text3); margin-bottom: 14px; }
+.bk-message-btn {
+  padding: 12px 32px;
+  background: linear-gradient(135deg, var(--bk-rose) 0%, #E87890 100%);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--bk-body);
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+.bk-message-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(232,144,158,0.4); }
+.bk-message-btn:active { transform: scale(0.97); }
+.bk-message-saved {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bk-green);
+  margin-top: 10px;
+}
+.bk-message-saved.show { display: flex; animation: bk-pop 0.3s ease; }
+
+/* ══════════════════════════════════════════════════
+   9. UPSELL
+   ══════════════════════════════════════════════════ */
+.bk-upsell {
+  padding: 40px 20px 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.bk-upsell-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.bk-upsell-title {
+  font-family: var(--bk-heading);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--bk-text);
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+.bk-upsell-title em { font-style: italic; color: var(--bk-rose); }
+.bk-upsell-outer {
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+  cursor: grab;
+}
+.bk-upsell-outer::-webkit-scrollbar { display: none; }
+.bk-upsell-outer:active { cursor: grabbing; }
+.bk-upsell-track {
+  display: flex;
+  gap: 16px;
+  padding: 4px 0;
+}
+.bk-upsell-card {
+  flex-shrink: 0;
+  width: 180px;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--bk-border2);
+  box-shadow: var(--bk-shadow-sm);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+}
+.bk-upsell-card:hover { transform: translateY(-5px); box-shadow: var(--bk-shadow-md); }
+.bk-upsell-img {
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--bk-rose-lt);
+}
+.bk-upsell-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s ease; }
+.bk-upsell-card:hover .bk-upsell-img img { transform: scale(1.08); }
+.bk-upsell-no-img { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 36px; }
+.bk-upsell-body { padding: 10px 12px 12px; }
+.bk-upsell-name { font-family: var(--bk-heading); font-size: 14px; font-weight: 700; color: var(--bk-text); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bk-upsell-price { font-size: 13px; font-weight: 700; color: var(--bk-gold); }
+.bk-upsell-add {
+  width: 100%;
+  padding: 8px;
+  background: var(--bk-rose-lt);
+  border: none;
+  color: var(--bk-rose);
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--bk-body);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.bk-upsell-add:hover { background: var(--bk-rose); color: white; }
+
+/* ── Toast ───────────────────────────────────────── */
+.bk-toast {
+  position: fixed;
+  bottom: calc(145px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bk-green);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--bk-body);
+  padding: 10px 22px;
+  border-radius: 24px;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.22s;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(91,171,122,0.4);
+}
+.bk-toast.show { opacity: 1; }
+
+/* ── Empty ───────────────────────────────────────── */
+.bk-empty {
+  padding: 64px 24px;
+  text-align: center;
+}
+.bk-empty-icon { font-size: 64px; margin-bottom: 16px; animation: bk-float 3s ease-in-out infinite; }
+.bk-empty-title { font-family: var(--bk-heading); font-size: 24px; font-weight: 700; color: var(--bk-text); margin: 0 0 8px; }
+.bk-empty-sub { font-size: 14px; color: var(--bk-text2); margin: 0; }
+
+/* ── Hidden ──────────────────────────────────────── */
+.bk-card.bk-hidden  { display: none !important; }
+.bk-sec.bk-hidden-sec { display: none !important; }
+</style>
+
+<!-- ════════════════════════════════════════════════
+     PREMIUM BAKERY COLLECTION PAGE
+     ════════════════════════════════════════════════ -->
+<div class="bk-wrap" id="bkWrap">
+
+  <!-- ── 1. HERO ────────────────────────────────── -->
+  <div class="bk-hero">
+    <div class="bk-hero-bg"></div>
+    {%- if collection.image -%}
+    <div class="bk-hero-bg-img" style="background-image:url('{{ collection.image | img_url: '1600x600', crop: 'center' }}')"></div>
+    <div class="bk-hero-overlay"></div>
+    {%- endif -%}
+    <div class="bk-hero-blob bk-hero-blob--1"></div>
+    <div class="bk-hero-blob bk-hero-blob--2"></div>
+    <div class="bk-hero-blob bk-hero-blob--3"></div>
+
+    <div class="bk-hero-content">
+      <div class="bk-hero-eyebrow">✦ Handcrafted with Love ✦</div>
+      <h1 class="bk-hero-title">
+        Fresh <em>Cakes</em><br>for Every Occasion
+      </h1>
+      <p class="bk-hero-sub">
+        Artisan baked goods made fresh daily — delivered to your door across Kathmandu Valley
+      </p>
+      <div class="bk-hero-chips">
+        <span class="bk-hero-chip">🎂 Custom Orders</span>
+        <span class="bk-hero-chip">⚡ Same-Day Delivery</span>
+        <span class="bk-hero-chip">👑 Premium Ingredients</span>
+      </div>
+    </div>
+
+    <div class="bk-hero-wave">
+      <svg viewBox="0 0 1440 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,48 C240,16 480,0 720,16 C960,32 1200,48 1440,24 L1440,48 Z" fill="#FEFBF6"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ── 2. CATEGORY PILLS ──────────────────────── -->
+  <div class="bk-pills-outer">
+    <div class="bk-pills-inner" id="bkPills">
+      <button class="bk-pill active" data-target="all">🎂 All <span class="bk-pill-count">{{ all_products.size }}</span></button>
+      {%- if has_pound -%}
+      <button class="bk-pill" data-target="pound">⚖️ Per Pound Cakes <span class="bk-pill-count">{{ pound_count }}</span></button>
+      {%- endif -%}
+      {%- if has_bento -%}
+      <button class="bk-pill" data-target="bento">🎁 Mini Bento Cakes <span class="bk-pill-count">{{ bento_count }}</span></button>
+      {%- endif -%}
+      {%- if has_mini -%}
+      <button class="bk-pill" data-target="mini">🍰 Mini Cakes <span class="bk-pill-count">{{ mini_count }}</span></button>
+      {%- endif -%}
+      {%- if has_others and all_products.size > 0 -%}
+      <button class="bk-pill" data-target="others">✨ More <span class="bk-pill-count">{{ other_count }}</span></button>
+      {%- endif -%}
+    </div>
+  </div>
+
+  <!-- ── 3. PRODUCTS ────────────────────────────── -->
+  <div class="bk-content" id="bkContent">
+
+    {%- if all_products.size == 0 -%}
+    <div class="bk-empty">
+      <div class="bk-empty-icon">🎂</div>
+      <h3 class="bk-empty-title">Baking something special…</h3>
+      <p class="bk-empty-sub">Our collection is being updated. Check back very soon!</p>
+    </div>
+
+    {%- else -%}
+
+    {%- comment -%} PER POUND CAKES {%- endcomment -%}
+    {%- if has_pound -%}
+    <div class="bk-sec" id="bk-sec-pound">
+      <div class="bk-sec-head">
+        <h2 class="bk-sec-title">⚖️ Per Pound Cakes</h2>
+        <span class="bk-sec-sub">Priced by weight — perfect for celebrations</span>
+        <div class="bk-sec-line"></div>
+      </div>
+      <div class="bk-grid">
+        {%- for p in all_products -%}
+          {%- assign pt = p.type | downcase | strip -%}
+          {%- if pt contains 'pound' -%}
+            {%- assign vid = p.variants.first.id -%}
+            {%- assign cp = p.compare_at_price_min -%}
+            {%- assign pp = p.price -%}
+            {%- assign pct = 0 -%}
+            {%- if cp > pp -%}{%- assign diff = cp | minus: pp -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+            <div class="bk-card" data-vid="{{ vid }}" data-sec="pound" data-title="{{ p.title | downcase | escape }}">
+              <div class="bk-card-img-wrap">
+                {%- if p.featured_image -%}
+                  <img class="bk-card-img" src="{{ p.featured_image | img_url: '500x500', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy">
+                {%- else -%}
+                  <div class="bk-card-no-img">🎂</div>
+                {%- endif -%}
+                <div class="bk-card-badges">
+                  {%- if p.tags contains 'popular' or p.tags contains 'Popular' or p.tags contains 'bestseller' -%}<span class="bk-badge bk-badge--bestseller">⭐ Best Seller</span>{%- endif -%}
+                  {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="bk-badge bk-badge--new">✨ New</span>{%- endif -%}
+                  {%- if pct >= 10 -%}<span class="bk-badge bk-badge--deal">{{ pct }}% OFF</span>{%- endif -%}
+                  {%- if p.tags contains 'custom' or p.tags contains 'Custom' -%}<span class="bk-badge bk-badge--custom">🎨 Custom</span>{%- endif -%}
+                </div>
+                <button class="bk-wishlist" aria-label="Save">🤍</button>
+              </div>
+              <div class="bk-card-body">
+                <div class="bk-card-type">Per Pound Cake</div>
+                <h3 class="bk-card-name">{{ p.title }}</h3>
+                {%- unless p.description == blank -%}
+                <p class="bk-card-desc">{{ p.description | strip_html | truncate: 65 }}</p>
+                {%- endunless -%}
+                <div class="bk-card-footer">
+                  <div class="bk-price-wrap">
+                    <span class="bk-price">Rs {{ pp | divided_by: 100 }}</span>
+                    {%- if cp > pp -%}<span class="bk-price-compare">Rs {{ cp | divided_by: 100 }}</span>{%- endif -%}
+                    {%- if pct >= 10 -%}<span class="bk-price-save">Save {{ pct }}%</span>{%- endif -%}
+                  </div>
+                  <button class="bk-add-btn" data-vid="{{ vid }}">Add +</button>
+                  <div class="bk-stepper" data-vid="{{ vid }}">
+                    <button class="bk-stepper-btn bk-stepper-minus" data-vid="{{ vid }}">−</button>
+                    <span class="bk-stepper-qty" data-vid="{{ vid }}">1</span>
+                    <button class="bk-stepper-btn bk-stepper-plus" data-vid="{{ vid }}">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+    {%- endif -%}
+
+    {%- comment -%} MINI BENTO CAKES {%- endcomment -%}
+    {%- if has_bento -%}
+    <div class="bk-sec" id="bk-sec-bento">
+      <div class="bk-sec-head">
+        <h2 class="bk-sec-title">🎁 Mini Bento Cakes</h2>
+        <span class="bk-sec-sub">Adorable single-serving cakes — gift-ready</span>
+        <div class="bk-sec-line"></div>
+      </div>
+      <div class="bk-grid">
+        {%- for p in all_products -%}
+          {%- assign pt = p.type | downcase | strip -%}
+          {%- if pt contains 'bento' -%}
+            {%- assign vid = p.variants.first.id -%}
+            {%- assign cp = p.compare_at_price_min -%}
+            {%- assign pp = p.price -%}
+            {%- assign pct = 0 -%}
+            {%- if cp > pp -%}{%- assign diff = cp | minus: pp -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+            <div class="bk-card" data-vid="{{ vid }}" data-sec="bento" data-title="{{ p.title | downcase | escape }}">
+              <div class="bk-card-img-wrap">
+                {%- if p.featured_image -%}
+                  <img class="bk-card-img" src="{{ p.featured_image | img_url: '500x500', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy">
+                {%- else -%}
+                  <div class="bk-card-no-img">🎁</div>
+                {%- endif -%}
+                <div class="bk-card-badges">
+                  {%- if p.tags contains 'popular' or p.tags contains 'Popular' or p.tags contains 'bestseller' -%}<span class="bk-badge bk-badge--bestseller">⭐ Best Seller</span>{%- endif -%}
+                  {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="bk-badge bk-badge--new">✨ New</span>{%- endif -%}
+                  {%- if pct >= 10 -%}<span class="bk-badge bk-badge--deal">{{ pct }}% OFF</span>{%- endif -%}
+                </div>
+                <button class="bk-wishlist" aria-label="Save">🤍</button>
+              </div>
+              <div class="bk-card-body">
+                <div class="bk-card-type">Mini Bento Cake</div>
+                <h3 class="bk-card-name">{{ p.title }}</h3>
+                {%- unless p.description == blank -%}
+                <p class="bk-card-desc">{{ p.description | strip_html | truncate: 65 }}</p>
+                {%- endunless -%}
+                <div class="bk-card-footer">
+                  <div class="bk-price-wrap">
+                    <span class="bk-price">Rs {{ pp | divided_by: 100 }}</span>
+                    {%- if cp > pp -%}<span class="bk-price-compare">Rs {{ cp | divided_by: 100 }}</span>{%- endif -%}
+                  </div>
+                  <button class="bk-add-btn" data-vid="{{ vid }}">Add +</button>
+                  <div class="bk-stepper" data-vid="{{ vid }}">
+                    <button class="bk-stepper-btn bk-stepper-minus" data-vid="{{ vid }}">−</button>
+                    <span class="bk-stepper-qty" data-vid="{{ vid }}">1</span>
+                    <button class="bk-stepper-btn bk-stepper-plus" data-vid="{{ vid }}">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+    {%- endif -%}
+
+    {%- comment -%} MINI CAKES {%- endcomment -%}
+    {%- if has_mini -%}
+    <div class="bk-sec" id="bk-sec-mini">
+      <div class="bk-sec-head">
+        <h2 class="bk-sec-title">🍰 Mini Cakes</h2>
+        <span class="bk-sec-sub">Individually sized, big on flavour</span>
+        <div class="bk-sec-line"></div>
+      </div>
+      <div class="bk-grid">
+        {%- for p in all_products -%}
+          {%- assign pt = p.type | downcase | strip -%}
+          {%- if pt contains 'mini' -%}
+            {%- assign vid = p.variants.first.id -%}
+            {%- assign cp = p.compare_at_price_min -%}
+            {%- assign pp = p.price -%}
+            {%- assign pct = 0 -%}
+            {%- if cp > pp -%}{%- assign diff = cp | minus: pp -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+            <div class="bk-card" data-vid="{{ vid }}" data-sec="mini" data-title="{{ p.title | downcase | escape }}">
+              <div class="bk-card-img-wrap">
+                {%- if p.featured_image -%}
+                  <img class="bk-card-img" src="{{ p.featured_image | img_url: '500x500', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy">
+                {%- else -%}
+                  <div class="bk-card-no-img">🍰</div>
+                {%- endif -%}
+                <div class="bk-card-badges">
+                  {%- if p.tags contains 'popular' or p.tags contains 'Popular' or p.tags contains 'bestseller' -%}<span class="bk-badge bk-badge--bestseller">⭐ Best Seller</span>{%- endif -%}
+                  {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="bk-badge bk-badge--new">✨ New</span>{%- endif -%}
+                  {%- if pct >= 10 -%}<span class="bk-badge bk-badge--deal">{{ pct }}% OFF</span>{%- endif -%}
+                </div>
+                <button class="bk-wishlist" aria-label="Save">🤍</button>
+              </div>
+              <div class="bk-card-body">
+                <div class="bk-card-type">Mini Cake</div>
+                <h3 class="bk-card-name">{{ p.title }}</h3>
+                {%- unless p.description == blank -%}
+                <p class="bk-card-desc">{{ p.description | strip_html | truncate: 65 }}</p>
+                {%- endunless -%}
+                <div class="bk-card-footer">
+                  <div class="bk-price-wrap">
+                    <span class="bk-price">Rs {{ pp | divided_by: 100 }}</span>
+                    {%- if cp > pp -%}<span class="bk-price-compare">Rs {{ cp | divided_by: 100 }}</span>{%- endif -%}
+                  </div>
+                  <button class="bk-add-btn" data-vid="{{ vid }}">Add +</button>
+                  <div class="bk-stepper" data-vid="{{ vid }}">
+                    <button class="bk-stepper-btn bk-stepper-minus" data-vid="{{ vid }}">−</button>
+                    <span class="bk-stepper-qty" data-vid="{{ vid }}">1</span>
+                    <button class="bk-stepper-btn bk-stepper-plus" data-vid="{{ vid }}">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+    {%- endif -%}
+
+    {%- comment -%} OTHERS {%- endcomment -%}
+    {%- if has_others -%}
+    <div class="bk-sec" id="bk-sec-others">
+      <div class="bk-sec-head">
+        <h2 class="bk-sec-title">✨ More from the Bakery</h2>
+        <span class="bk-sec-sub">More delights from our kitchen</span>
+        <div class="bk-sec-line"></div>
+      </div>
+      <div class="bk-grid">
+        {%- for p in all_products -%}
+          {%- assign pt = p.type | downcase | strip -%}
+          {%- unless pt contains 'pound' or pt contains 'bento' or pt contains 'mini' -%}
+            {%- assign vid = p.variants.first.id -%}
+            {%- assign cp = p.compare_at_price_min -%}
+            {%- assign pp = p.price -%}
+            {%- assign pct = 0 -%}
+            {%- if cp > pp -%}{%- assign diff = cp | minus: pp -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+            <div class="bk-card" data-vid="{{ vid }}" data-sec="others" data-title="{{ p.title | downcase | escape }}">
+              <div class="bk-card-img-wrap">
+                {%- if p.featured_image -%}
+                  <img class="bk-card-img" src="{{ p.featured_image | img_url: '500x500', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy">
+                {%- else -%}
+                  <div class="bk-card-no-img">🍰</div>
+                {%- endif -%}
+                <div class="bk-card-badges">
+                  {%- if p.tags contains 'popular' or p.tags contains 'Popular' or p.tags contains 'bestseller' -%}<span class="bk-badge bk-badge--bestseller">⭐ Best Seller</span>{%- endif -%}
+                  {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="bk-badge bk-badge--new">✨ New</span>{%- endif -%}
+                  {%- if pct >= 10 -%}<span class="bk-badge bk-badge--deal">{{ pct }}% OFF</span>{%- endif -%}
+                </div>
+                <button class="bk-wishlist" aria-label="Save">🤍</button>
+              </div>
+              <div class="bk-card-body">
+                <div class="bk-card-type">{{ p.type | default: 'Bakery' }}</div>
+                <h3 class="bk-card-name">{{ p.title }}</h3>
+                {%- unless p.description == blank -%}
+                <p class="bk-card-desc">{{ p.description | strip_html | truncate: 65 }}</p>
+                {%- endunless -%}
+                <div class="bk-card-footer">
+                  <div class="bk-price-wrap">
+                    <span class="bk-price">Rs {{ pp | divided_by: 100 }}</span>
+                    {%- if cp > pp -%}<span class="bk-price-compare">Rs {{ cp | divided_by: 100 }}</span>{%- endif -%}
+                  </div>
+                  <button class="bk-add-btn" data-vid="{{ vid }}">Add +</button>
+                  <div class="bk-stepper" data-vid="{{ vid }}">
+                    <button class="bk-stepper-btn bk-stepper-minus" data-vid="{{ vid }}">−</button>
+                    <span class="bk-stepper-qty" data-vid="{{ vid }}">1</span>
+                    <button class="bk-stepper-btn bk-stepper-plus" data-vid="{{ vid }}">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {%- endunless -%}
+        {%- endfor -%}
+      </div>
+    </div>
+    {%- endif -%}
+
+    {%- endif -%}
+  </div>
+
+  <!-- ── 7. TRUST SECTION ───────────────────────── -->
+  <div class="bk-trust">
+    <div class="bk-trust-inner">
+      <div class="bk-trust-item">
+        <div class="bk-trust-icon">🌸</div>
+        <h4 class="bk-trust-title">Freshly Baked</h4>
+        <p class="bk-trust-desc">Every cake made fresh daily with premium ingredients — no preservatives</p>
+      </div>
+      <div class="bk-trust-item">
+        <div class="bk-trust-icon">⚡</div>
+        <h4 class="bk-trust-title">Same-Day Delivery</h4>
+        <p class="bk-trust-desc">Order before 2 PM for same-day delivery across Kathmandu Valley</p>
+      </div>
+      <div class="bk-trust-item">
+        <div class="bk-trust-icon">🎨</div>
+        <h4 class="bk-trust-title">Custom Orders</h4>
+        <p class="bk-trust-desc">Personalized designs, messages & flavours — just for you</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 8. CAKE MESSAGE ────────────────────────── -->
+  <div style="padding: 0 16px;">
+    <div class="bk-message-section" id="bkMsgSection">
+      <div class="bk-message-icon">✍️</div>
+      <h3 class="bk-message-title">Write a Message on Your Cake</h3>
+      <p class="bk-message-sub">Add a personal touch — we'll pipe it on with love 💕</p>
+      <div class="bk-message-input-wrap">
+        <input type="text" class="bk-message-input" id="bkCakeMsg" placeholder='e.g. "Happy Birthday Sarah! 🎂"' maxlength="40">
+      </div>
+      <div class="bk-message-char" id="bkMsgChar">0 / 40 characters</div>
+      <button class="bk-message-btn" id="bkSaveMsgBtn">Save Message 🎀</button>
+      <div class="bk-message-saved" id="bkMsgSaved">
+        <span>✅</span> Message saved! It will be noted with your order.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 9. UPSELL ─────────────────────────────── -->
+  {%- if all_products.size > 0 -%}
+  <div class="bk-upsell" id="bkUpsell">
+    <div class="bk-upsell-head">
+      <h2 class="bk-upsell-title">You May Also <em>Love</em></h2>
+    </div>
+    <div class="bk-upsell-outer" id="bkUpsellOuter">
+      <div class="bk-upsell-track" id="bkUpsellTrack">
+        {%- for p in all_products limit: 12 -%}
+          {%- assign vid = p.variants.first.id -%}
+          <div class="bk-upsell-card" data-vid="{{ vid }}">
+            <div class="bk-upsell-img">
+              {%- if p.featured_image -%}
+                <img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy">
+              {%- else -%}
+                <div class="bk-upsell-no-img">🎂</div>
+              {%- endif -%}
+            </div>
+            <div class="bk-upsell-body">
+              <div class="bk-upsell-name">{{ p.title }}</div>
+              <div class="bk-upsell-price">Rs {{ p.price | divided_by: 100 }}</div>
+            </div>
+            <button class="bk-upsell-add" data-vid="{{ vid }}">Add to Cart</button>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+  {%- endif -%}
+
+  <!-- ── 6. STICKY CART BAR ─────────────────────── -->
+  <div class="bk-cart-bar" id="bkCartBar" role="button" aria-label="View cart">
+    <div class="bk-cart-bar-left">
+      <div class="bk-cart-bar-count" id="bkBarCount">0</div>
+      <div class="bk-cart-bar-info">
+        <span class="bk-cart-bar-label">items in your order</span>
+        <span class="bk-cart-bar-total" id="bkBarTotal">Rs 0</span>
+      </div>
+    </div>
+    <div class="bk-cart-bar-cta">Checkout 🎂</div>
+  </div>
+
+  <!-- Toast -->
+  <div class="bk-toast" id="bkToast">Added to cart ✓</div>
+
+</div>
+
+<!-- Product prices for JS -->
+<script type="application/json" id="bkProductData">
+[
+  {%- for p in all_products -%}
+  { "id": {{ p.variants.first.id }}, "price": {{ p.price }} }{%- unless forloop.last -%},{%- endunless -%}
+  {%- endfor -%}
+]
+</script>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── State ──────────────────────────────────── */
+  var bkCart   = {};
+  var bkPrices = {};
+  var toastTimer = null;
+
+  /* ── Price map ──────────────────────────────── */
+  try {
+    JSON.parse(document.getElementById('bkProductData').textContent)
+      .forEach(function (p) { bkPrices[p.id] = p.price; });
+  } catch(e) {}
+
+  /* ── Restore cart ───────────────────────────── */
+  fetch('/cart.js', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+    .then(function (r) { return r.json(); })
+    .then(function (cart) {
+      cart.items.forEach(function (item) {
+        bkCart[item.variant_id] = item.quantity;
+        if (!bkPrices[item.variant_id]) bkPrices[item.variant_id] = item.price;
+      });
+      Object.keys(bkCart).forEach(function (v) { renderVid(parseInt(v, 10)); });
+      updateBar();
+    }).catch(function () {});
+
+  /* ── Render single variant ──────────────────── */
+  function renderVid(vid) {
+    var qty = bkCart[vid] || 0;
+    document.querySelectorAll('.bk-add-btn[data-vid="' + vid + '"]').forEach(function (btn) {
+      if (qty > 0) {
+        btn.style.display = 'none';
+      } else {
+        btn.style.display = '';
+        btn.classList.remove('loading', 'success');
+        btn.removeAttribute('disabled');
+        btn.textContent = 'Add +';
+      }
+    });
+    document.querySelectorAll('.bk-stepper[data-vid="' + vid + '"]').forEach(function (s) {
+      if (qty > 0) { s.classList.add('visible'); } else { s.classList.remove('visible'); }
+    });
+    document.querySelectorAll('.bk-stepper-qty[data-vid="' + vid + '"]').forEach(function (c) {
+      c.textContent = qty;
+    });
+  }
+
+  /* ── AJAX Add ───────────────────────────────── */
+  function bkAdd(vid, qty, btn) {
+    if (btn) { btn.classList.add('loading'); btn.setAttribute('disabled', true); }
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ id: parseInt(vid, 10), quantity: qty })
+    }).then(function (r) { return r.json(); })
+    .then(function () {
+      bkCart[vid] = (bkCart[vid] || 0) + qty;
+      if (btn) {
+        btn.classList.remove('loading');
+        btn.classList.add('success');
+        btn.textContent = '✓';
+        setTimeout(function () { renderVid(vid); updateBar(); showToast('Added to cart 🎂'); }, 300);
+      } else { renderVid(vid); updateBar(); showToast('Added ✓'); }
+    }).catch(function () {
+      if (btn) { btn.classList.remove('loading'); btn.removeAttribute('disabled'); btn.textContent = 'Add +'; }
+    });
+  }
+
+  /* ── AJAX Change qty ────────────────────────── */
+  function bkChange(vid, newQty, btn) {
+    if (btn) btn.classList.add('busy');
+    fetch('/cart/change.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ id: parseInt(vid, 10), quantity: newQty })
+    }).then(function (r) { return r.json(); })
+    .then(function () {
+      if (newQty <= 0) { delete bkCart[vid]; } else { bkCart[vid] = newQty; }
+      if (btn) btn.classList.remove('busy');
+      renderVid(vid);
+      updateBar();
+    }).catch(function () { if (btn) btn.classList.remove('busy'); });
+  }
+
+  /* ── Cart bar ───────────────────────────────── */
+  function updateBar() {
+    var totalQty = 0, totalPrice = 0;
+    Object.keys(bkCart).forEach(function (v) {
+      totalQty   += bkCart[v];
+      totalPrice += (bkPrices[v] || 0) * bkCart[v];
+    });
+    var bar = document.getElementById('bkCartBar');
+    var cnt = document.getElementById('bkBarCount');
+    var tot = document.getElementById('bkBarTotal');
+    if (cnt) cnt.textContent = totalQty;
+    if (tot) tot.textContent = 'Rs ' + Math.round(totalPrice / 100);
+    if (bar) {
+      if (totalQty > 0) { bar.classList.add('visible'); } else { bar.classList.remove('visible'); }
+    }
+  }
+
+  /* ── Toast ──────────────────────────────────── */
+  function showToast(msg) {
+    var t = document.getElementById('bkToast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2000);
+  }
+
+  /* ── Cart bar click ─────────────────────────── */
+  var cartBar = document.getElementById('bkCartBar');
+  if (cartBar) { cartBar.addEventListener('click', function () { window.location.href = '/pages/payment'; }); }
+
+  /* ── Event delegation: cards ────────────────── */
+  var content = document.getElementById('bkContent');
+  if (content) {
+    content.addEventListener('click', function (e) {
+      var t = e.target;
+      if (t.classList.contains('bk-add-btn') && !t.classList.contains('loading') && !t.classList.contains('success')) {
+        bkAdd(parseInt(t.getAttribute('data-vid'), 10), 1, t);
+      }
+      if (t.classList.contains('bk-stepper-minus') && !t.classList.contains('busy')) {
+        var v = parseInt(t.getAttribute('data-vid'), 10);
+        bkChange(v, Math.max(0, (bkCart[v] || 0) - 1), t);
+      }
+      if (t.classList.contains('bk-stepper-plus') && !t.classList.contains('busy')) {
+        var v2 = parseInt(t.getAttribute('data-vid'), 10);
+        bkChange(v2, (bkCart[v2] || 0) + 1, t);
+      }
+      if (t.classList.contains('bk-wishlist')) {
+        t.textContent = t.textContent === '🤍' ? '❤️' : '🤍';
+      }
+    });
+  }
+
+  /* ── Upsell quick add ───────────────────────── */
+  var upsell = document.getElementById('bkUpsell');
+  if (upsell) {
+    upsell.addEventListener('click', function (e) {
+      var btn = e.target.closest('.bk-upsell-add');
+      if (btn) {
+        var vid = parseInt(btn.getAttribute('data-vid'), 10);
+        bkAdd(vid, 1, null);
+        btn.textContent = '✓ Added';
+        btn.style.background = 'var(--bk-green)';
+        btn.style.color = '#fff';
+      }
+    });
+    /* Drag scroll upsell */
+    var outer = document.getElementById('bkUpsellOuter');
+    if (outer) {
+      var isDown = false, startX, scrollLeft;
+      outer.addEventListener('mousedown', function (e) { isDown = true; startX = e.pageX - outer.offsetLeft; scrollLeft = outer.scrollLeft; });
+      outer.addEventListener('mouseleave', function () { isDown = false; });
+      outer.addEventListener('mouseup', function () { isDown = false; });
+      outer.addEventListener('mousemove', function (e) {
+        if (!isDown) return;
+        e.preventDefault();
+        var x = e.pageX - outer.offsetLeft;
+        outer.scrollLeft = scrollLeft - (x - startX);
+      });
+    }
+  }
+
+  /* ── Category pills ─────────────────────────── */
+  var pillsWrap = document.getElementById('bkPills');
+  if (pillsWrap) {
+    pillsWrap.addEventListener('click', function (e) {
+      var pill = e.target.closest('.bk-pill');
+      if (!pill) return;
+      document.querySelectorAll('.bk-pill').forEach(function (p) { p.classList.remove('active'); });
+      pill.classList.add('active');
+      var target = pill.getAttribute('data-target');
+      if (target === 'all') {
+        document.querySelectorAll('.bk-sec').forEach(function (s) { s.classList.remove('bk-hidden-sec'); });
+      } else {
+        document.querySelectorAll('.bk-sec').forEach(function (s) { s.classList.add('bk-hidden-sec'); });
+        var sec = document.getElementById('bk-sec-' + target);
+        if (sec) {
+          sec.classList.remove('bk-hidden-sec');
+          setTimeout(function () { sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
+        }
+      }
+    });
+  }
+
+  /* ── Cake message ───────────────────────────── */
+  var msgInput = document.getElementById('bkCakeMsg');
+  var msgChar  = document.getElementById('bkMsgChar');
+  var msgBtn   = document.getElementById('bkSaveMsgBtn');
+  var msgSaved = document.getElementById('bkMsgSaved');
+
+  if (msgInput) {
+    msgInput.addEventListener('input', function () {
+      var len = msgInput.value.length;
+      if (msgChar) msgChar.textContent = len + ' / 40 characters';
+      if (msgSaved) msgSaved.classList.remove('show');
+    });
+  }
+  if (msgBtn) {
+    msgBtn.addEventListener('click', function () {
+      var msg = msgInput ? msgInput.value.trim() : '';
+      if (!msg) { if (msgInput) msgInput.focus(); return; }
+      fetch('/cart/update.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ note: '🎂 Cake Message: ' + msg })
+      }).then(function () {
+        if (msgSaved) msgSaved.classList.add('show');
+        showToast('Cake message saved! 🎀');
+      }).catch(function () {
+        if (msgSaved) msgSaved.classList.add('show');
+      });
+    });
+  }
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Cake Collection",
+  "settings": [],
+  "presets": [
+    { "name": "Cake Collection" }
+  ]
+}
+{% endschema %}
