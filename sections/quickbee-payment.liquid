@@ -1,0 +1,763 @@
+{% comment %} QuickBee Payment Page — sections/quickbee-payment.liquid {% endcomment %}
+
+<style>
+/* ============================================================
+   QUICKBEE PAYMENT PAGE
+   CashApp-styled · Dark/Light sync · Smooth animations
+   ============================================================ */
+
+.qbp-page {
+  min-height: 80vh;
+  background: var(--theme-bg-primary, #0f0f0f);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px 16px 120px;
+  font-family: inherit;
+}
+.qbp-wrap {
+  width: 100%;
+  max-width: 460px;
+  position: relative;
+}
+
+/* ── Steps ─────────────────────────────────────────── */
+.qbp-step { animation: qbpFadeUp 0.38s cubic-bezier(0.25,0.46,0.45,0.94) forwards; }
+.qbp-step.hidden { display: none !important; }
+
+@keyframes qbpFadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes qbpSlideUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes qbpPop {
+  0%   { transform: scale(0.3); opacity: 0; }
+  70%  { transform: scale(1.1); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+@keyframes qbpRingDraw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes qbpTickDraw {
+  to { stroke-dashoffset: 60; }
+}
+@keyframes qbpDotPulse {
+  0%, 80%, 100% { transform: scale(0.55); opacity: 0.35; }
+  40%           { transform: scale(1);    opacity: 1; }
+}
+@keyframes qbpShieldFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+/* ── Header ─────────────────────────────────────────── */
+.qbp-header {
+  text-align: center;
+  padding: 28px 0 20px;
+}
+.qbp-logo {
+  font-size: 42px;
+  display: block;
+  margin-bottom: 10px;
+  animation: qbpPop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+.qbp-header h1 {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--theme-text-main, #f0f0f0);
+  margin: 0 0 6px;
+}
+.qbp-header p {
+  font-size: 13px;
+  color: var(--theme-text-muted, #888);
+  margin: 0;
+}
+
+/* ── Method Cards ───────────────────────────────────── */
+.qbp-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.qbp-method {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 16px;
+  background: var(--theme-bg-secondary, #1c1c1c);
+  border: 2px solid var(--theme-border, #2e2e2e);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.qbp-method:active { transform: scale(0.98); }
+.qbp-method.selected {
+  border-color: #ffcc00;
+  box-shadow: 0 0 0 3px rgba(255,204,0,0.12);
+}
+.qbp-method-icon {
+  font-size: 26px;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--theme-bg-primary, #111);
+  border-radius: 13px;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.qbp-method.selected .qbp-method-icon {
+  background: rgba(255,204,0,0.1);
+}
+.qbp-method-info { flex: 1; min-width: 0; }
+.qbp-method-title {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--theme-text-main, #f0f0f0);
+  margin-bottom: 2px;
+}
+.qbp-method-sub {
+  display: block;
+  font-size: 11.5px;
+  color: var(--theme-text-muted, #888);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.qbp-method-radio {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--theme-border, #3a3a3a);
+  flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.qbp-method.selected .qbp-method-radio {
+  background: #ffcc00;
+  border-color: #ffcc00;
+}
+.qbp-method.selected .qbp-method-radio::after {
+  content: '';
+  width: 7px;
+  height: 11px;
+  border: 2.5px solid #1a1a1a;
+  border-top: none;
+  border-left: none;
+  transform: rotate(42deg) translateY(-1px);
+  display: block;
+}
+
+/* ── Secure badge ───────────────────────────────────── */
+.qbp-secure-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--theme-text-muted, #666);
+  margin-bottom: 16px;
+  letter-spacing: 0.3px;
+}
+.qbp-secure-badge::before,
+.qbp-secure-badge::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--theme-border, #2a2a2a);
+}
+
+/* ── Buttons ────────────────────────────────────────── */
+.qbp-btn {
+  width: 100%;
+  padding: 15px 20px;
+  background: #ffcc00;
+  color: #1a1a1a;
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+  letter-spacing: 0.1px;
+  display: block;
+}
+.qbp-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+.qbp-btn:not(:disabled):hover {
+  background: #ffd700;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(255,204,0,0.38);
+}
+.qbp-btn:not(:disabled):active { transform: scale(0.97); }
+
+.qbp-btn-ghost {
+  width: 100%;
+  padding: 13px 20px;
+  background: transparent;
+  color: var(--theme-text-muted, #888);
+  border: 1.5px solid var(--theme-border, #2e2e2e);
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  display: block;
+  transition: all 0.2s;
+}
+.qbp-btn-ghost:hover {
+  border-color: #ffcc00;
+  color: var(--theme-text-main, #f0f0f0);
+}
+
+/* ── Back button ────────────────────────────────────── */
+.qbp-back {
+  background: none;
+  border: none;
+  color: var(--theme-text-muted, #888);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.2s;
+}
+.qbp-back:hover { color: var(--theme-text-main, #f0f0f0); }
+
+/* ── Step titles ────────────────────────────────────── */
+.qbp-step-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--theme-text-main, #f0f0f0);
+  margin: 0 0 6px;
+}
+.qbp-step-sub {
+  font-size: 13.5px;
+  color: var(--theme-text-muted, #888);
+  margin: 0 0 20px;
+  line-height: 1.55;
+}
+
+/* ── QR image ───────────────────────────────────────── */
+.qbp-qr-wrap {
+  background: #fff;
+  border-radius: 20px;
+  padding: 14px;
+  margin: 18px 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+  animation: qbpFadeUp 0.4s ease 0.1s both;
+}
+.qbp-qr-img {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+
+/* ── Inputs ─────────────────────────────────────────── */
+.qbp-field {
+  margin-bottom: 18px;
+}
+.qbp-label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--theme-text-muted, #888);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.qbp-input {
+  width: 100%;
+  padding: 13px 16px;
+  background: var(--theme-bg-secondary, #1c1c1c);
+  border: 1.5px solid var(--theme-border, #2e2e2e);
+  border-radius: 12px;
+  color: var(--theme-text-main, #f0f0f0);
+  font-size: 16px;
+  font-weight: 600;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+  display: block;
+}
+.qbp-input::placeholder { color: var(--theme-text-muted, #555); font-weight: 400; }
+.qbp-input:focus {
+  outline: none;
+  border-color: #ffcc00;
+  box-shadow: 0 0 0 3px rgba(255,204,0,0.1);
+}
+.qbp-phone-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.qbp-phone-prefix {
+  padding: 13px 14px;
+  background: var(--theme-bg-secondary, #1c1c1c);
+  border: 1.5px solid var(--theme-border, #2e2e2e);
+  border-radius: 12px;
+  color: var(--theme-text-main, #f0f0f0);
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+.qbp-phone-row .qbp-input { flex: 1; }
+
+/* ── Verify step ────────────────────────────────────── */
+.qbp-verify-emoji {
+  font-size: 50px;
+  text-align: center;
+  display: block;
+  margin-bottom: 10px;
+  animation: qbpPop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+}
+.qbp-txn-box {
+  background: var(--theme-bg-secondary, #1c1c1c);
+  border: 2px solid #ffcc00;
+  border-radius: 14px;
+  padding: 18px 20px;
+  font-size: 19px;
+  font-weight: 800;
+  color: #ffcc00;
+  text-align: center;
+  letter-spacing: 1.5px;
+  margin: 16px 0 10px;
+  word-break: break-all;
+  animation: qbpFadeUp 0.3s ease 0.1s both;
+}
+.qbp-verify-note {
+  font-size: 12.5px;
+  color: var(--theme-text-muted, #777);
+  text-align: center;
+  margin: 0 0 24px;
+  line-height: 1.5;
+}
+
+/* ── SVG Success Animation ──────────────────────────── */
+.qbp-anim-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 0 12px;
+}
+.qbp-svg {
+  width: 96px;
+  height: 96px;
+}
+.qbp-ring {
+  fill: none;
+  stroke: #22c55e;
+  stroke-width: 4;
+  stroke-dasharray: 226;
+  stroke-dashoffset: 226;
+  stroke-linecap: round;
+  transform-origin: center;
+  animation: qbpRingDraw 0.65s cubic-bezier(0.65,0,0.35,1) 0.1s forwards;
+}
+.qbp-tick {
+  fill: none;
+  stroke: #22c55e;
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 60;
+  stroke-dashoffset: -60;
+  animation: qbpTickDraw 0.38s cubic-bezier(0.65,0,0.35,1) 0.72s forwards;
+}
+.qbp-anim-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--theme-text-main, #f0f0f0);
+  text-align: center;
+  margin: 14px 0 6px;
+  animation: qbpSlideUp 0.4s ease 0.88s both;
+}
+.qbp-anim-sub {
+  font-size: 13.5px;
+  color: var(--theme-text-muted, #888);
+  text-align: center;
+  margin: 0 0 28px;
+  line-height: 1.5;
+  animation: qbpSlideUp 0.4s ease 1s both;
+}
+
+/* ── Phone section ──────────────────────────────────── */
+.qbp-phone-section {
+  animation: qbpSlideUp 0.4s ease 1.15s both;
+}
+.qbp-phone-section .qbp-btn { margin-top: 14px; }
+
+/* ── COD secured ────────────────────────────────────── */
+.qbp-cod-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0 8px;
+}
+.qbp-shield-icon {
+  font-size: 52px;
+  display: block;
+  animation: qbpShieldFloat 2.5s ease-in-out infinite, qbpPop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  margin-bottom: 10px;
+}
+.qbp-cod-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--theme-text-main, #f0f0f0);
+  text-align: center;
+  margin: 14px 0 6px;
+}
+.qbp-cod-sub {
+  font-size: 13.5px;
+  color: var(--theme-text-muted, #888);
+  text-align: center;
+  margin: 0 0 26px;
+  line-height: 1.55;
+  max-width: 320px;
+}
+
+/* ── Final redirect ─────────────────────────────────── */
+.qbp-final-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 0 24px;
+  text-align: center;
+}
+.qbp-final-emoji {
+  font-size: 60px;
+  display: block;
+  animation: qbpPop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  margin-bottom: 16px;
+}
+.qbp-final-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--theme-text-main, #f0f0f0);
+  margin: 0 0 8px;
+}
+.qbp-final-sub {
+  font-size: 14px;
+  color: var(--theme-text-muted, #888);
+  margin: 0 0 24px;
+}
+.qbp-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.qbp-dots span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ffcc00;
+  animation: qbpDotPulse 1.3s ease-in-out infinite;
+}
+.qbp-dots span:nth-child(2) { animation-delay: 0.22s; }
+.qbp-dots span:nth-child(3) { animation-delay: 0.44s; }
+</style>
+
+<!-- ══════════════════════════════════════════════════════
+     QuickBee Payment Page
+     ══════════════════════════════════════════════════════ -->
+<div class="qbp-page">
+  <div class="qbp-wrap">
+
+    <!-- ─── STEP 1: Choose Method ─────────────────────── -->
+    <div class="qbp-step" id="qbpStep1">
+      <div class="qbp-header">
+        <span class="qbp-logo">🐝</span>
+        <h1>Choose Payment</h1>
+        <p>Select how you'd like to pay for your order</p>
+      </div>
+
+      <div class="qbp-methods">
+        <div class="qbp-method" data-method="qr" id="qbpM_qr">
+          <div class="qbp-method-icon">📱</div>
+          <div class="qbp-method-info">
+            <span class="qbp-method-title">Online QR Payment</span>
+            <span class="qbp-method-sub">Fonepay · eSewa · Khalti · Bank QR</span>
+          </div>
+          <div class="qbp-method-radio"></div>
+        </div>
+
+        <div class="qbp-method" data-method="card" id="qbpM_card">
+          <div class="qbp-method-icon">💳</div>
+          <div class="qbp-method-info">
+            <span class="qbp-method-title">Card on Delivery</span>
+            <span class="qbp-method-sub">Debit/credit card paid when delivered</span>
+          </div>
+          <div class="qbp-method-radio"></div>
+        </div>
+
+        <div class="qbp-method" data-method="cash" id="qbpM_cash">
+          <div class="qbp-method-icon">💵</div>
+          <div class="qbp-method-info">
+            <span class="qbp-method-title">Cash on Delivery</span>
+            <span class="qbp-method-sub">Pay in cash when your order arrives</span>
+          </div>
+          <div class="qbp-method-radio"></div>
+        </div>
+      </div>
+
+      <div class="qbp-secure-badge">🔒 SSL Encrypted &amp; Secure</div>
+      <button class="qbp-btn" id="qbpContinueBtn" disabled>Continue →</button>
+    </div>
+
+    <!-- ─── STEP 2: QR Scan & Pay ─────────────────────── -->
+    <div class="qbp-step hidden" id="qbpStepQR">
+      <button class="qbp-back" id="qbpBackQR">← Back</button>
+      <h2 class="qbp-step-title">Scan &amp; Pay</h2>
+      <p class="qbp-step-sub">Scan the QR below using Fonepay, eSewa, Khalti or any bank app — then enter your transaction reference code.</p>
+
+      <div class="qbp-qr-wrap">
+        <img src="{{ 'PAYMENTSQRONLINE.png' | asset_url }}" alt="QuickBee Payment QR Code" class="qbp-qr-img" loading="eager">
+      </div>
+
+      <div class="qbp-field">
+        <label class="qbp-label" for="qbpTxnInput">Transaction ID / Reference Code</label>
+        <input type="text" id="qbpTxnInput" class="qbp-input" placeholder="e.g. TXN123456789" autocomplete="off" autocorrect="off" spellcheck="false">
+      </div>
+
+      <button class="qbp-btn" id="qbpTxnSubmitBtn" disabled>Submit Payment →</button>
+    </div>
+
+    <!-- ─── STEP 3: Verify Transaction ───────────────── -->
+    <div class="qbp-step hidden" id="qbpStepVerify">
+      <button class="qbp-back" id="qbpBackVerify">← Edit</button>
+      <span class="qbp-verify-emoji">🔍</span>
+      <h2 class="qbp-step-title">Double Check</h2>
+      <p class="qbp-step-sub">Please confirm your transaction ID is correct before submitting:</p>
+      <div class="qbp-txn-box" id="qbpTxnDisplay">—</div>
+      <p class="qbp-verify-note">Once confirmed, our team will verify your payment within 5–10 minutes and notify you via SMS.</p>
+      <button class="qbp-btn" id="qbpConfirmBtn">✓ Yes, Confirm Payment</button>
+      <button class="qbp-btn-ghost" id="qbpEditTxnBtn">← Edit Transaction ID</button>
+    </div>
+
+    <!-- ─── STEP 4: QR Success ────────────────────────── -->
+    <div class="qbp-step hidden" id="qbpStepSuccess">
+      <div class="qbp-anim-wrap">
+        <svg class="qbp-svg" viewBox="0 0 80 80" aria-hidden="true">
+          <circle class="qbp-ring" cx="40" cy="40" r="36"/>
+          <polyline class="qbp-tick" points="22,40 34,52 58,28"/>
+        </svg>
+      </div>
+      <p class="qbp-anim-title">Payment Request Submitted!</p>
+      <p class="qbp-anim-sub">You will be notified via SMS once our team verifies your payment 🎉</p>
+
+      <div class="qbp-phone-section">
+        <div class="qbp-field">
+          <label class="qbp-label" for="qbpPhoneQR">Contact number for SMS updates</label>
+          <div class="qbp-phone-row">
+            <span class="qbp-phone-prefix">+977</span>
+            <input type="tel" id="qbpPhoneQR" class="qbp-input" placeholder="98XXXXXXXX" maxlength="10" inputmode="numeric">
+          </div>
+        </div>
+        <button class="qbp-btn" id="qbpPhoneNextBtn">Next →</button>
+      </div>
+    </div>
+
+    <!-- ─── STEP COD/Card: Payment Secured ───────────── -->
+    <div class="qbp-step hidden" id="qbpStepCOD">
+      <div class="qbp-cod-wrap">
+        <span class="qbp-shield-icon">🔒</span>
+        <svg class="qbp-svg" viewBox="0 0 80 80" id="qbpCODSvg" aria-hidden="true">
+          <circle class="qbp-ring" cx="40" cy="40" r="36" id="qbpCODRing"/>
+          <polyline class="qbp-tick" points="22,40 34,52 58,28" id="qbpCODTick"/>
+        </svg>
+        <p class="qbp-cod-title">Payment Secured ✓</p>
+        <p class="qbp-cod-sub" id="qbpCODDesc">Your order will be ready. Please have your payment ready upon delivery.</p>
+      </div>
+
+      <div class="qbp-field">
+        <label class="qbp-label" for="qbpPhoneCOD">Contact number for delivery updates</label>
+        <div class="qbp-phone-row">
+          <span class="qbp-phone-prefix">+977</span>
+          <input type="tel" id="qbpPhoneCOD" class="qbp-input" placeholder="98XXXXXXXX" maxlength="10" inputmode="numeric">
+        </div>
+      </div>
+      <button class="qbp-btn" id="qbpCODCheckoutBtn">Proceed to Checkout →</button>
+    </div>
+
+    <!-- ─── FINAL: Redirect ───────────────────────────── -->
+    <div class="qbp-step hidden" id="qbpStepFinal">
+      <div class="qbp-final-center">
+        <span class="qbp-final-emoji">🎉</span>
+        <h2 class="qbp-final-title">All Set!</h2>
+        <p class="qbp-final-sub">Completing your order, please wait…</p>
+        <div class="qbp-dots">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── state ──────────────────────────────────────── */
+  var selectedMethod = null;
+
+  /* ── helpers ────────────────────────────────────── */
+  function show(id) {
+    document.querySelectorAll('.qbp-step').forEach(function (s) {
+      s.classList.add('hidden');
+    });
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('hidden');
+    // re-trigger CSS animations on SVGs
+    el.querySelectorAll('.qbp-ring, .qbp-tick').forEach(function (n) {
+      n.style.animation = 'none';
+      void n.offsetHeight; // reflow
+      n.style.animation = '';
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function cartNote(note) {
+    return fetch('/cart/update.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ note: 'QuickBee Payment — ' + note })
+    });
+  }
+
+  function finalRedirect(note) {
+    show('qbpStepFinal');
+    cartNote(note).finally(function () {
+      setTimeout(function () { window.location.href = '/checkout'; }, 2000);
+    });
+  }
+
+  /* ── Method selection ───────────────────────────── */
+  document.querySelectorAll('.qbp-method').forEach(function (card) {
+    card.addEventListener('click', function () {
+      document.querySelectorAll('.qbp-method').forEach(function (c) {
+        c.classList.remove('selected');
+      });
+      card.classList.add('selected');
+      selectedMethod = card.getAttribute('data-method');
+      var btn = document.getElementById('qbpContinueBtn');
+      if (btn) btn.disabled = false;
+    });
+  });
+
+  /* ── Continue ───────────────────────────────────── */
+  var continueBtn = document.getElementById('qbpContinueBtn');
+  if (continueBtn) {
+    continueBtn.addEventListener('click', function () {
+      if (!selectedMethod) return;
+      if (selectedMethod === 'qr') {
+        show('qbpStepQR');
+      } else {
+        var desc = document.getElementById('qbpCODDesc');
+        if (desc) {
+          desc.textContent = selectedMethod === 'card'
+            ? 'Pay with your debit or credit card when the delivery arrives at your door.'
+            : 'Pay in cash when your order is delivered to your door. Please keep exact change ready!';
+        }
+        show('qbpStepCOD');
+      }
+    });
+  }
+
+  /* ── Back buttons ───────────────────────────────── */
+  var backQR = document.getElementById('qbpBackQR');
+  if (backQR) backQR.addEventListener('click', function () { show('qbpStep1'); });
+
+  var backVerify = document.getElementById('qbpBackVerify');
+  if (backVerify) backVerify.addEventListener('click', function () { show('qbpStepQR'); });
+
+  var editTxn = document.getElementById('qbpEditTxnBtn');
+  if (editTxn) editTxn.addEventListener('click', function () { show('qbpStepQR'); });
+
+  /* ── Transaction input ──────────────────────────── */
+  var txnInput  = document.getElementById('qbpTxnInput');
+  var txnSubmit = document.getElementById('qbpTxnSubmitBtn');
+
+  if (txnInput && txnSubmit) {
+    txnInput.addEventListener('input', function () {
+      txnSubmit.disabled = txnInput.value.trim().length < 4;
+    });
+
+    txnSubmit.addEventListener('click', function () {
+      var val = txnInput.value.trim();
+      if (val.length < 4) return;
+      var display = document.getElementById('qbpTxnDisplay');
+      if (display) display.textContent = val;
+      show('qbpStepVerify');
+    });
+  }
+
+  /* ── Confirm payment ────────────────────────────── */
+  var confirmBtn = document.getElementById('qbpConfirmBtn');
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', function () {
+      show('qbpStepSuccess');
+    });
+  }
+
+  /* ── QR phone → Next ────────────────────────────── */
+  var phoneNextBtn = document.getElementById('qbpPhoneNextBtn');
+  if (phoneNextBtn) {
+    phoneNextBtn.addEventListener('click', function () {
+      var txn   = txnInput ? txnInput.value.trim() : '—';
+      var phone = document.getElementById('qbpPhoneQR');
+      var num   = phone ? phone.value.trim() : '';
+      finalRedirect('Online QR | TXN: ' + txn + ' | Phone: +977' + num);
+    });
+  }
+
+  /* ── COD/Card checkout ──────────────────────────── */
+  var codBtn = document.getElementById('qbpCODCheckoutBtn');
+  if (codBtn) {
+    codBtn.addEventListener('click', function () {
+      var phone  = document.getElementById('qbpPhoneCOD');
+      var num    = phone ? phone.value.trim() : '';
+      var method = selectedMethod === 'card' ? 'Card on Delivery' : 'Cash on Delivery';
+      finalRedirect(method + ' | Phone: +977' + num);
+    });
+  }
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QuickBee Payment",
+  "settings": [],
+  "presets": [
+    { "name": "QuickBee Payment" }
+  ]
+}
+{% endschema %}
