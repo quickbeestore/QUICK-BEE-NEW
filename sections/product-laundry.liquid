@@ -1453,6 +1453,34 @@
   var savedOrder = loadOrder();
   if (savedOrder) renderCurrentOrder(savedOrder);
 
+  /* ── bfcache fix ──────────────────────────────────────────
+     When the user taps browser Back from /checkout, the page
+     is restored from bfcache (frozen snapshot) — JS does NOT
+     re-run from scratch. The pageshow event fires instead.
+     We re-check localStorage and refresh the "Update Order"
+     banner every time the page becomes visible again.
+  ──────────────────────────────────────────────────────────── */
+  window.addEventListener('pageshow', function(e) {
+    if (e.persisted) {
+      // Page was restored from bfcache (back/forward navigation)
+      var order = loadOrder();
+      if (order) {
+        renderCurrentOrder(order);
+      } else {
+        hideCurrentOrder();
+      }
+    }
+  });
+
+  /* Also handles tab visibility restore on some mobile browsers */
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') {
+      var order = loadOrder();
+      if (order) renderCurrentOrder(order);
+      else hideCurrentOrder();
+    }
+  });
+
 })();
 </script>
 
