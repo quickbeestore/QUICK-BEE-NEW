@@ -1,0 +1,1154 @@
+{%- comment -%}
+  The Dhido & The Grills — Premium Food Collection
+  Dark green × gold × cream — Swiggy/Zomato premium UI
+{%- endcomment -%}
+
+{%- liquid
+  assign all_products = collection.products
+
+  comment — category buckets
+  endcomment
+  assign cat_lassi      = '' | split: ''
+  assign cat_noodles    = '' | split: ''
+  assign cat_grills     = '' | split: ''
+  assign cat_burger     = '' | split: ''
+  assign cat_momo       = '' | split: ''
+  assign cat_snacks     = '' | split: ''
+  assign cat_beverages  = '' | split: ''
+  assign cat_icecream   = '' | split: ''
+  assign cat_all        = all_products
+
+  for p in all_products
+    assign pt = p.type | downcase | strip
+    assign pt2 = p.title | downcase | strip
+    if pt contains 'lassi' or pt2 contains 'lassi'
+      assign cat_lassi = cat_lassi | concat: p
+    elsif pt contains 'noodle' or pt2 contains 'noodle' or pt2 contains 'chow' or pt2 contains 'thukpa'
+      assign cat_noodles = cat_noodles | concat: p
+    elsif pt contains 'grill' or pt2 contains 'grill' or pt2 contains 'sekuwa' or pt2 contains 'bbq'
+      assign cat_grills = cat_grills | concat: p
+    elsif pt contains 'burger' or pt contains 'sandwich' or pt2 contains 'burger' or pt2 contains 'sandwich' or pt2 contains 'wrap'
+      assign cat_burger = cat_burger | concat: p
+    elsif pt contains 'momo' or pt2 contains 'momo' or pt2 contains 'dumpling'
+      assign cat_momo = cat_momo | concat: p
+    elsif pt contains 'snack' or pt2 contains 'snack' or pt2 contains 'fries' or pt2 contains 'chips' or pt2 contains 'samosa'
+      assign cat_snacks = cat_snacks | concat: p
+    elsif pt contains 'beverage' or pt contains 'drink' or pt2 contains 'juice' or pt2 contains 'tea' or pt2 contains 'coffee' or pt2 contains 'shake'
+      assign cat_beverages = cat_beverages | concat: p
+    elsif pt contains 'ice cream' or pt contains 'icecream' or pt2 contains 'ice cream' or pt2 contains 'gelato' or pt2 contains 'sorbet'
+      assign cat_icecream = cat_icecream | concat: p
+    endif
+  endfor
+-%}
+
+<style>
+/* ============================================================
+   THE DHIDO & THE GRILLS — Premium Dark Food UI
+   Dark green #1f3d2b × Gold #D4AF37 × Cream #FFF8EE
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ── Tokens ─────────────────────────────────────────────── */
+.dg-wrap {
+  --dg-dark:    #0f1f16;
+  --dg-green:   #1f3d2b;
+  --dg-green2:  #2a5239;
+  --dg-green3:  #163323;
+  --dg-gold:    #D4AF37;
+  --dg-gold2:   #F2D060;
+  --dg-gold-dim: rgba(212,175,55,0.15);
+  --dg-gold-glow: 0 0 32px rgba(212,175,55,0.25);
+  --dg-cream:   #FFF8EE;
+  --dg-cream2:  #FFF2DC;
+  --dg-card:    #192e20;
+  --dg-card2:   #1e3527;
+  --dg-border:  rgba(212,175,55,0.12);
+  --dg-border2: rgba(212,175,55,0.22);
+  --dg-text:    #EEE8D5;
+  --dg-text2:   #B8AD95;
+  --dg-text3:   #7A7363;
+  --dg-red:     #E84040;
+  --dg-badge-pop: #E84040;
+  --dg-badge-fresh: #16A34A;
+  --dg-badge-fast: #EA8C00;
+  --dg-ease:    cubic-bezier(0.4,0,0.2,1);
+  --dg-r:       16px;
+  --dg-r2:      24px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.dg-wrap {
+  background: var(--dg-dark);
+  min-height: 100vh;
+  color: var(--dg-text);
+}
+
+/* ── HERO ────────────────────────────────────────────────── */
+.dg-hero {
+  position: relative;
+  background: linear-gradient(135deg, #0a1a10 0%, var(--dg-green) 45%, #2a5239 100%);
+  padding: 80px 20px 120px;
+  overflow: hidden;
+  text-align: center;
+}
+.dg-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(212,175,55,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.dg-hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--dg-gold-dim); border: 1px solid var(--dg-border2);
+  border-radius: 100px; padding: 6px 16px;
+  font-size: 11px; font-weight: 600; letter-spacing: 2px;
+  color: var(--dg-gold); text-transform: uppercase;
+  margin-bottom: 20px;
+  backdrop-filter: blur(8px);
+}
+.dg-hero-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(36px, 8vw, 72px);
+  font-weight: 800; line-height: 1.05;
+  color: var(--dg-cream);
+  margin-bottom: 16px;
+}
+.dg-hero-title span {
+  color: var(--dg-gold);
+  text-shadow: var(--dg-gold-glow);
+}
+.dg-hero-sub {
+  font-size: clamp(14px, 3vw, 18px);
+  color: var(--dg-text2);
+  font-style: italic;
+  letter-spacing: 0.5px;
+  margin-bottom: 32px;
+}
+.dg-hero-badges {
+  display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;
+}
+.dg-hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 100px; padding: 8px 18px;
+  font-size: 13px; color: var(--dg-text2);
+  backdrop-filter: blur(8px);
+}
+.dg-hero-badge strong { color: var(--dg-cream); }
+
+/* Floating food particles */
+.dg-particles {
+  position: absolute; inset: 0;
+  pointer-events: none; overflow: hidden;
+}
+.dg-particle {
+  position: absolute;
+  font-size: 28px;
+  opacity: 0.15;
+  animation: dgFloat var(--dur, 8s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes dgFloat {
+  0%,100% { transform: translateY(0) rotate(0deg); opacity: 0.12; }
+  50%      { transform: translateY(-24px) rotate(12deg); opacity: 0.22; }
+}
+.dg-hero-wave {
+  position: absolute; bottom: -1px; left: 0; right: 0;
+}
+
+/* ── CATEGORY NAV (STICKY) ───────────────────────────────── */
+.dg-cat-outer {
+  position: sticky; top: 0; z-index: 90;
+  background: linear-gradient(180deg, var(--dg-green3) 0%, rgba(15,31,22,0.98) 100%);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--dg-border);
+  padding: 0 0;
+}
+.dg-cat-inner {
+  display: flex; gap: 0; overflow-x: auto; scrollbar-width: none;
+  padding: 0 16px;
+  scroll-behavior: smooth;
+}
+.dg-cat-inner::-webkit-scrollbar { display: none; }
+.dg-cat-btn {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 14px 18px;
+  font-size: 13px; font-weight: 500;
+  color: var(--dg-text2);
+  border: none; background: none; cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: all 0.22s var(--dg-ease);
+  position: relative;
+}
+.dg-cat-btn:hover { color: var(--dg-cream); }
+.dg-cat-btn.active {
+  color: var(--dg-gold);
+  border-bottom-color: var(--dg-gold);
+  font-weight: 600;
+}
+.dg-cat-btn .dg-cat-count {
+  font-size: 10px; background: var(--dg-gold-dim);
+  border: 1px solid var(--dg-border2);
+  border-radius: 100px; padding: 1px 6px;
+  color: var(--dg-gold);
+}
+.dg-cat-btn.active .dg-cat-count { background: var(--dg-gold); color: #000; border-color: var(--dg-gold); }
+
+/* ── COMBO DEAL BANNER ───────────────────────────────────── */
+.dg-combo-strip {
+  margin: 20px 16px 0;
+  border-radius: var(--dg-r2);
+  overflow: hidden;
+}
+.dg-combo-card {
+  background: linear-gradient(120deg, #2a1a00 0%, #3d2800 50%, #1f3d2b 100%);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: var(--dg-r2);
+  padding: 18px 20px;
+  display: flex; align-items: center; gap: 16px;
+  position: relative; overflow: hidden;
+}
+.dg-combo-card::before {
+  content: '';
+  position: absolute; top: -40px; right: -40px;
+  width: 120px; height: 120px;
+  background: radial-gradient(circle, rgba(212,175,55,0.2) 0%, transparent 70%);
+}
+.dg-combo-emoji { font-size: 36px; flex-shrink: 0; }
+.dg-combo-body { flex: 1; }
+.dg-combo-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--dg-gold); margin-bottom: 4px;
+}
+.dg-combo-title {
+  font-size: 16px; font-weight: 700; color: var(--dg-cream);
+  margin-bottom: 4px;
+}
+.dg-combo-save {
+  font-size: 13px; color: var(--dg-text2);
+}
+.dg-combo-save strong { color: #4ADE80; }
+.dg-combo-action {
+  flex-shrink: 0;
+  background: var(--dg-gold); color: #000;
+  font-size: 12px; font-weight: 700;
+  padding: 10px 16px; border-radius: 12px;
+  border: none; cursor: pointer;
+  transition: all 0.18s;
+}
+.dg-combo-action:hover { background: var(--dg-gold2); transform: scale(1.04); }
+
+/* ── SECTION HEADER ──────────────────────────────────────── */
+.dg-section-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 28px 16px 14px;
+}
+.dg-section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 700; color: var(--dg-cream);
+}
+.dg-section-title span { color: var(--dg-gold); }
+.dg-section-count { font-size: 13px; color: var(--dg-text3); }
+
+/* ── PRODUCT GRID ─────────────────────────────────────────── */
+.dg-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  padding: 0 16px 24px;
+}
+@media (min-width: 600px) { .dg-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 900px) { .dg-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.dg-card {
+  background: var(--dg-card);
+  border: 1px solid var(--dg-border);
+  border-radius: var(--dg-r2);
+  overflow: hidden;
+  transition: transform 0.26s var(--dg-ease), box-shadow 0.26s var(--dg-ease), border-color 0.26s;
+  cursor: pointer;
+  position: relative;
+}
+.dg-card:hover {
+  transform: translateY(-6px) scale(1.025);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px var(--dg-border2), var(--dg-gold-glow);
+  border-color: var(--dg-border2);
+}
+.dg-card-img-wrap {
+  position: relative; overflow: hidden;
+  aspect-ratio: 4/3;
+  background: var(--dg-card2);
+}
+.dg-card-img-wrap img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.5s var(--dg-ease);
+  loading: lazy;
+}
+.dg-card:hover .dg-card-img-wrap img { transform: scale(1.08); }
+.dg-card-no-img {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 48px; background: var(--dg-card2);
+}
+
+/* Badges */
+.dg-badges {
+  position: absolute; top: 10px; left: 10px;
+  display: flex; flex-direction: column; gap: 4px;
+  z-index: 2;
+}
+.dg-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 100px; backdrop-filter: blur(8px);
+}
+.dg-badge-popular  { background: rgba(232,64,64,0.9); color: #fff; }
+.dg-badge-fresh    { background: rgba(22,163,74,0.9); color: #fff; }
+.dg-badge-fast     { background: rgba(234,140,0,0.9); color: #fff; }
+.dg-badge-new      { background: rgba(212,175,55,0.9); color: #000; }
+
+/* Sold out overlay */
+.dg-sold-out-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(2px);
+}
+.dg-sold-out-label {
+  background: rgba(232,64,64,0.95); color: #fff;
+  font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  padding: 6px 16px; border-radius: 100px;
+}
+
+/* Card body */
+.dg-card-body { padding: 12px 14px 14px; }
+.dg-card-name {
+  font-size: 14px; font-weight: 600; color: var(--dg-cream);
+  margin-bottom: 5px; line-height: 1.35;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.dg-card-desc {
+  font-size: 11px; color: var(--dg-text3); line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  margin-bottom: 10px;
+}
+.dg-card-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+}
+.dg-card-price { font-size: 16px; font-weight: 700; color: var(--dg-gold); }
+.dg-card-price-compare {
+  font-size: 11px; color: var(--dg-text3);
+  text-decoration: line-through;
+}
+
+/* Add to cart / Qty stepper */
+.dg-add-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 12px;
+  background: var(--dg-gold); color: #000;
+  border: none; cursor: pointer; font-size: 20px; font-weight: 700;
+  transition: all 0.18s var(--dg-ease);
+  flex-shrink: 0; position: relative; overflow: hidden;
+}
+.dg-add-btn:hover { background: var(--dg-gold2); transform: scale(1.12); box-shadow: 0 4px 16px rgba(212,175,55,0.45); }
+.dg-add-btn:disabled { background: var(--dg-text3); cursor: not-allowed; transform: none; }
+.dg-add-btn .ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  transform: scale(0);
+  animation: ripple 0.55s linear;
+  pointer-events: none;
+}
+@keyframes ripple {
+  to { transform: scale(3); opacity: 0; }
+}
+
+/* Qty stepper (shown when item in cart) */
+.dg-qty-stepper {
+  display: none; align-items: center; gap: 0;
+  background: var(--dg-card2); border: 1px solid var(--dg-border2);
+  border-radius: 12px; overflow: hidden; height: 36px;
+}
+.dg-qty-stepper.visible { display: flex; }
+.dg-qty-btn {
+  width: 36px; height: 36px;
+  background: none; border: none; cursor: pointer;
+  color: var(--dg-gold); font-size: 18px; font-weight: 700;
+  transition: all 0.16s; display: flex; align-items: center; justify-content: center;
+}
+.dg-qty-btn:hover { background: var(--dg-gold-dim); }
+.dg-qty-val {
+  min-width: 28px; text-align: center;
+  font-size: 14px; font-weight: 700; color: var(--dg-cream);
+}
+
+/* ── UPSELL RAIL ─────────────────────────────────────────── */
+.dg-upsell {
+  padding: 0 0 24px;
+  background: var(--dg-green3);
+  border-top: 1px solid var(--dg-border);
+  border-bottom: 1px solid var(--dg-border);
+  margin-bottom: 24px;
+}
+.dg-upsell-rail {
+  display: flex; gap: 12px;
+  overflow-x: auto; scrollbar-width: none;
+  padding: 4px 16px 8px;
+}
+.dg-upsell-rail::-webkit-scrollbar { display: none; }
+.dg-upsell-card {
+  flex-shrink: 0; width: 140px;
+  background: var(--dg-card);
+  border: 1px solid var(--dg-border);
+  border-radius: 16px; overflow: hidden;
+  transition: transform 0.22s;
+}
+.dg-upsell-card:hover { transform: translateY(-4px); }
+.dg-upsell-img {
+  width: 100%; aspect-ratio: 1;
+  object-fit: cover;
+  background: var(--dg-card2);
+}
+.dg-upsell-body { padding: 8px 10px 10px; }
+.dg-upsell-name { font-size: 11px; font-weight: 600; color: var(--dg-cream); margin-bottom: 4px; }
+.dg-upsell-price { font-size: 13px; font-weight: 700; color: var(--dg-gold); }
+.dg-upsell-add {
+  margin-top: 6px; width: 100%;
+  background: var(--dg-gold); color: #000;
+  font-size: 11px; font-weight: 700;
+  border: none; border-radius: 8px; padding: 6px;
+  cursor: pointer; transition: all 0.18s;
+}
+.dg-upsell-add:hover { background: var(--dg-gold2); }
+
+/* ── CART DRAWER ─────────────────────────────────────────── */
+.dg-drawer-overlay {
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.dg-drawer-overlay.open { opacity: 1; pointer-events: all; }
+
+.dg-drawer {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: min(380px, 100vw);
+  background: var(--dg-green3);
+  border-left: 1px solid var(--dg-border);
+  z-index: 901;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.32,0,0.67,0);
+  box-shadow: -20px 0 60px rgba(0,0,0,0.5);
+}
+.dg-drawer.open {
+  transform: translateX(0);
+  transition-timing-function: cubic-bezier(0.22,1,0.36,1);
+}
+.dg-drawer-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--dg-border);
+}
+.dg-drawer-title { font-size: 18px; font-weight: 700; color: var(--dg-cream); }
+.dg-drawer-close {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--dg-card2); border: 1px solid var(--dg-border);
+  color: var(--dg-text); font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s;
+}
+.dg-drawer-close:hover { background: var(--dg-gold-dim); color: var(--dg-gold); }
+.dg-drawer-body { flex: 1; overflow-y: auto; padding: 16px; }
+.dg-drawer-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--dg-border);
+}
+.dg-drawer-item-img {
+  width: 56px; height: 56px; border-radius: 12px; object-fit: cover;
+  background: var(--dg-card2); flex-shrink: 0;
+}
+.dg-drawer-item-info { flex: 1; min-width: 0; }
+.dg-drawer-item-name { font-size: 13px; font-weight: 600; color: var(--dg-cream); }
+.dg-drawer-item-price { font-size: 14px; font-weight: 700; color: var(--dg-gold); margin-top: 2px; }
+.dg-drawer-item-qty {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--dg-card); border: 1px solid var(--dg-border2);
+  border-radius: 10px; padding: 4px 6px;
+  flex-shrink: 0;
+}
+.dg-drawer-qty-btn {
+  background: none; border: none; color: var(--dg-gold);
+  font-size: 16px; font-weight: 700; cursor: pointer; width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+}
+.dg-drawer-qty-val { font-size: 13px; font-weight: 700; color: var(--dg-cream); min-width: 20px; text-align: center; }
+.dg-drawer-empty {
+  text-align: center; padding: 60px 20px;
+  color: var(--dg-text2);
+}
+.dg-drawer-empty-icon { font-size: 56px; margin-bottom: 12px; }
+.dg-drawer-footer {
+  border-top: 1px solid var(--dg-border);
+  padding: 16px 20px 20px;
+}
+.dg-drawer-subtotal {
+  display: flex; justify-content: space-between;
+  font-size: 14px; color: var(--dg-text2); margin-bottom: 8px;
+}
+.dg-drawer-total {
+  display: flex; justify-content: space-between;
+  font-size: 18px; font-weight: 700; color: var(--dg-cream);
+  margin-bottom: 16px;
+}
+.dg-drawer-total span:last-child { color: var(--dg-gold); }
+.dg-drawer-checkout {
+  width: 100%;
+  background: linear-gradient(135deg, var(--dg-gold) 0%, var(--dg-gold2) 100%);
+  color: #000; font-size: 15px; font-weight: 700;
+  padding: 16px; border-radius: 14px; border: none; cursor: pointer;
+  transition: all 0.22s; letter-spacing: 0.3px;
+}
+.dg-drawer-checkout:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(212,175,55,0.45); }
+
+/* ── STICKY BOTTOM BAR ───────────────────────────────────── */
+.dg-sticky-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 800;
+  background: linear-gradient(135deg, var(--dg-green) 0%, var(--dg-green2) 100%);
+  border-top: 1px solid var(--dg-border2);
+  padding: 12px 16px 16px;
+  display: none;
+  align-items: center; justify-content: space-between; gap: 12px;
+  box-shadow: 0 -12px 40px rgba(0,0,0,0.4);
+  backdrop-filter: blur(12px);
+}
+.dg-sticky-bar.visible { display: flex; }
+.dg-sticky-info {}
+.dg-sticky-count { font-size: 11px; color: var(--dg-text2); margin-bottom: 2px; }
+.dg-sticky-total { font-size: 20px; font-weight: 700; color: var(--dg-gold); }
+.dg-sticky-checkout {
+  background: linear-gradient(135deg, var(--dg-gold) 0%, var(--dg-gold2) 100%);
+  color: #000; font-size: 14px; font-weight: 700;
+  padding: 14px 28px; border-radius: 14px; border: none; cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.22s;
+}
+.dg-sticky-checkout:hover { transform: scale(1.04); box-shadow: 0 6px 24px rgba(212,175,55,0.4); }
+
+/* Cart FAB */
+.dg-cart-fab {
+  position: fixed; top: 60px; right: 16px; z-index: 800;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--dg-gold); color: #000;
+  font-size: 22px; cursor: pointer; border: none;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 24px rgba(212,175,55,0.4);
+  transition: all 0.22s;
+}
+.dg-cart-fab:hover { transform: scale(1.1); }
+.dg-cart-fab-count {
+  position: absolute; top: -4px; right: -4px;
+  background: var(--dg-red); color: #fff;
+  font-size: 10px; font-weight: 700;
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--dg-dark);
+}
+
+/* ── TOAST ───────────────────────────────────────────────── */
+.dg-toast {
+  position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--dg-card); border: 1px solid var(--dg-border2);
+  border-radius: 12px; padding: 12px 20px;
+  font-size: 13px; font-weight: 600; color: var(--dg-cream);
+  z-index: 950; opacity: 0; pointer-events: none;
+  transition: all 0.3s var(--dg-ease);
+  white-space: nowrap;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.dg-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── TRUST BADGES ────────────────────────────────────────── */
+.dg-trust {
+  display: flex; justify-content: center; gap: 32px; flex-wrap: wrap;
+  padding: 24px 16px 32px;
+  border-top: 1px solid var(--dg-border);
+}
+.dg-trust-item {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  text-align: center;
+}
+.dg-trust-icon { font-size: 28px; }
+.dg-trust-label { font-size: 11px; font-weight: 600; color: var(--dg-text2); text-transform: uppercase; letter-spacing: 0.8px; }
+
+/* ── SCROLL REVEAL ───────────────────────────────────────── */
+.dg-reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.5s, transform 0.5s; }
+.dg-reveal.in-view { opacity: 1; transform: none; }
+
+/* ── EMPTY STATE ─────────────────────────────────────────── */
+.dg-empty {
+  text-align: center; padding: 80px 20px;
+  color: var(--dg-text2);
+}
+.dg-empty-icon { font-size: 64px; margin-bottom: 16px; }
+.dg-empty h3 { font-size: 20px; font-weight: 700; color: var(--dg-cream); margin-bottom: 8px; }
+</style>
+
+<div class="dg-wrap" id="dgWrap">
+
+  <!-- ═══ HERO ═══ -->
+  <section class="dg-hero" id="dgHero">
+    <div class="dg-particles" aria-hidden="true">
+      <span class="dg-particle" style="left:8%;top:20%;--dur:7s;--delay:0s">🍖</span>
+      <span class="dg-particle" style="left:18%;top:65%;--dur:9s;--delay:1.2s">🥘</span>
+      <span class="dg-particle" style="left:78%;top:15%;--dur:8s;--delay:0.5s">🍜</span>
+      <span class="dg-particle" style="left:88%;top:60%;--dur:10s;--delay:2s">🥩</span>
+      <span class="dg-particle" style="left:45%;top:80%;--dur:6s;--delay:0.8s">🌶️</span>
+      <span class="dg-particle" style="left:60%;top:25%;--dur:11s;--delay:3s">🍺</span>
+      <span class="dg-particle" style="left:30%;top:45%;--dur:8.5s;--delay:1.5s">🥗</span>
+    </div>
+    <div class="dg-hero-eyebrow">
+      <span>🌿</span> Authentic Nepali Cuisine
+    </div>
+    <h1 class="dg-hero-title">
+      The Dhido &<br><span>The Grills</span>
+    </h1>
+    <p class="dg-hero-sub">The Essence of Nepal</p>
+    <div class="dg-hero-badges">
+      <span class="dg-hero-badge">⚡ <strong>20 min</strong> delivery</span>
+      <span class="dg-hero-badge">⭐ <strong>4.8</strong> rating</span>
+      <span class="dg-hero-badge">🔥 <strong>Fresh</strong> daily</span>
+    </div>
+    <svg class="dg-hero-wave" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 60" preserveAspectRatio="none">
+      <path fill="#0f1f16" d="M0,40 C360,70 1080,10 1440,40 L1440,60 L0,60 Z"/>
+    </svg>
+  </section>
+
+  <!-- ═══ CATEGORY NAV ═══ -->
+  <nav class="dg-cat-outer" id="dgCatOuter">
+    <div class="dg-cat-inner" id="dgCatInner" role="tablist">
+      <button class="dg-cat-btn active" data-cat="all" role="tab" aria-selected="true">
+        🍽️ All <span class="dg-cat-count">{{ collection.products_count }}</span>
+      </button>
+      {%- if cat_lassi.size > 0 -%}
+      <button class="dg-cat-btn" data-cat="lassi" role="tab">
+        🥛 Lassi <span class="dg-cat-count">{{ cat_lassi.size }}</span>
+      </button>
+      {%- endif -%}
+      {%- if cat_noodles.size > 0 -%}
+      <button class="dg-cat-btn" data-cat="noodles" role="tab">
+        🍜 Noodles <span class="dg-cat-count">{{ cat_noodles.size }}</span>
+      </button>
+      {%- endif -%}
+      {%- if cat_grills.size > 0 -%}
+      <button class="dg-cat-btn" data-cat="grills" role="tab">
+        🥩 Grills <span class="dg-cat-count">{{ cat_grills.size }}</span>
+      </button>
+      {%- endif -%}
+      {%- if cat_burger.size > 0 -%}
+      <button class="dg-cat-btn" data-cat="burger" role="tab">
+        🍔 Burger &amp; Sandwiches <span class="dg-cat-count">{{ cat_burger.size }}</span>
+      </button>
+      {%- endif -%}
+      {%- if cat_momo.size > 0 -%}
+      <button class="dg-cat-btn" data-cat="momo" role="tab">
+        🥟 Momo <span class="dg-cat-count">{{ cat_momo.size }}</span>
+      </button>
+      {%- endif -%}
+      {%- if cat_snacks.size > 0 -%}
+      <button class="dg-cat-btn" data-cat="snacks" role="tab">
+        🍟 Snacks <span class="dg-cat-count">{{ cat_snacks.size }}</span>
+      </button>
+      {%- endif -%}
+      {%- if cat_beverages.size > 0 -%}
+      <button class="dg-cat-btn" data-cat="beverages" role="tab">
+        🥤 Beverages <span class="dg-cat-count">{{ cat_beverages.size }}</span>
+      </button>
+      {%- endif -%}
+      {%- if cat_icecream.size > 0 -%}
+      <button class="dg-cat-btn" data-cat="icecream" role="tab">
+        🍦 Ice Cream <span class="dg-cat-count">{{ cat_icecream.size }}</span>
+      </button>
+      {%- endif -%}
+    </div>
+  </nav>
+
+  <!-- ═══ COMBO DEAL BANNER ═══ -->
+  <div class="dg-combo-strip" id="dgCombo">
+    <div class="dg-combo-card">
+      <div class="dg-combo-emoji">🍔</div>
+      <div class="dg-combo-body">
+        <div class="dg-combo-label">⚡ Today's Deal</div>
+        <div class="dg-combo-title">Burger + Coke Combo</div>
+        <div class="dg-combo-save">Save <strong>Rs 50</strong> on combo order</div>
+      </div>
+      <button class="dg-combo-action" onclick="document.querySelector('[data-cat=burger]')?.click()">
+        Order Now
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN PRODUCT GRID ═══ -->
+  <main>
+    {%- if collection.products_count == 0 -%}
+      <div class="dg-empty">
+        <div class="dg-empty-icon">🍽️</div>
+        <h3>Menu Coming Soon</h3>
+        <p>We're preparing something delicious for you!</p>
+      </div>
+    {%- else -%}
+
+      <!-- All Products Grid (default view) -->
+      <div id="dgGridAll">
+        <div class="dg-section-hdr">
+          <h2 class="dg-section-title">Our <span>Menu</span></h2>
+          <span class="dg-section-count">{{ collection.products_count }} items</span>
+        </div>
+        <div class="dg-grid" id="dgGridMain">
+          {%- for product in collection.products -%}
+            {%- render 'dg-product-card', product: product -%}
+          {%- endfor -%}
+        </div>
+      </div>
+
+      <!-- Category filtered grids (hidden by default, shown by JS) -->
+      {%- assign cats = 'lassi,noodles,grills,burger,momo,snacks,beverages,icecream' | split: ',' -%}
+      {%- assign cat_labels = 'Lassi,Noodles,Grills,Burger & Sandwiches,Momo,Snacks,Beverages,Ice Cream' | split: ',' -%}
+      {%- assign cat_emojis = '🥛,🍜,🥩,🍔,🥟,🍟,🥤,🍦' | split: ',' -%}
+
+      {%- for cat_key in cats -%}
+        {%- assign cat_label = cat_labels[forloop.index0] -%}
+        {%- assign cat_emoji = cat_emojis[forloop.index0] -%}
+        {%- if cat_key == 'lassi' -%}{%- assign cat_products = cat_lassi -%}
+        {%- elsif cat_key == 'noodles' -%}{%- assign cat_products = cat_noodles -%}
+        {%- elsif cat_key == 'grills' -%}{%- assign cat_products = cat_grills -%}
+        {%- elsif cat_key == 'burger' -%}{%- assign cat_products = cat_burger -%}
+        {%- elsif cat_key == 'momo' -%}{%- assign cat_products = cat_momo -%}
+        {%- elsif cat_key == 'snacks' -%}{%- assign cat_products = cat_snacks -%}
+        {%- elsif cat_key == 'beverages' -%}{%- assign cat_products = cat_beverages -%}
+        {%- elsif cat_key == 'icecream' -%}{%- assign cat_products = cat_icecream -%}
+        {%- endif -%}
+        {%- if cat_products.size > 0 -%}
+          <div id="dgGrid_{{ cat_key }}" style="display:none">
+            <div class="dg-section-hdr">
+              <h2 class="dg-section-title">{{ cat_emoji }} <span>{{ cat_label }}</span></h2>
+              <span class="dg-section-count">{{ cat_products.size }} items</span>
+            </div>
+            <div class="dg-grid">
+              {%- for product in cat_products -%}
+                {%- render 'dg-product-card', product: product -%}
+              {%- endfor -%}
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+
+    {%- endif -%}
+  </main>
+
+  <!-- ═══ "PEOPLE ALSO ORDERED" UPSELL ═══ -->
+  {%- if collection.products_count > 3 -%}
+  <section class="dg-upsell dg-reveal" id="dgUpsell">
+    <div class="dg-section-hdr">
+      <h2 class="dg-section-title">People Also <span>Ordered</span></h2>
+    </div>
+    <div class="dg-upsell-rail" id="dgUpsellRail">
+      {%- assign upsell_count = 0 -%}
+      {%- for p in collection.products limit: 12 -%}
+        {%- if upsell_count < 8 and p.available -%}
+          {%- assign upsell_count = upsell_count | plus: 1 -%}
+          <div class="dg-upsell-card">
+            {%- if p.featured_image -%}
+              <img class="dg-upsell-img" src="{{ p.featured_image | image_url: width: 280 }}" alt="{{ p.title | escape }}" loading="lazy">
+            {%- else -%}
+              <div class="dg-upsell-img" style="display:flex;align-items:center;justify-content:center;font-size:32px;background:var(--dg-card2)">🍽️</div>
+            {%- endif -%}
+            <div class="dg-upsell-body">
+              <div class="dg-upsell-name">{{ p.title | truncate: 24 }}</div>
+              <div class="dg-upsell-price">Rs {{ p.price | money_without_currency }}</div>
+              <button class="dg-upsell-add"
+                data-variant="{{ p.variants.first.id }}"
+                data-name="{{ p.title | escape }}"
+                data-price="{{ p.price | money_without_currency }}"
+                onclick="dgAddToCart(this)">+ Add</button>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </section>
+  {%- endif -%}
+
+  <!-- ═══ TRUST BADGES ═══ -->
+  <div class="dg-trust dg-reveal">
+    <div class="dg-trust-item">
+      <span class="dg-trust-icon">🔥</span>
+      <span class="dg-trust-label">Fresh Cooked</span>
+    </div>
+    <div class="dg-trust-item">
+      <span class="dg-trust-icon">⚡</span>
+      <span class="dg-trust-label">Fast Delivery</span>
+    </div>
+    <div class="dg-trust-item">
+      <span class="dg-trust-icon">🌿</span>
+      <span class="dg-trust-label">Authentic</span>
+    </div>
+    <div class="dg-trust-item">
+      <span class="dg-trust-icon">⭐</span>
+      <span class="dg-trust-label">Top Rated</span>
+    </div>
+  </div>
+
+</div><!-- /dg-wrap -->
+
+<!-- ═══ CART FAB ═══ -->
+<button class="dg-cart-fab" id="dgCartFab" onclick="dgToggleDrawer()" aria-label="Open cart">
+  🛒
+  <span class="dg-cart-fab-count" id="dgFabCount" style="display:none">0</span>
+</button>
+
+<!-- ═══ CART DRAWER ═══ -->
+<div class="dg-drawer-overlay" id="dgDrawerOverlay" onclick="dgToggleDrawer()"></div>
+<div class="dg-drawer" id="dgDrawer" role="dialog" aria-label="Cart">
+  <div class="dg-drawer-hdr">
+    <div class="dg-drawer-title">🛒 Your Order</div>
+    <button class="dg-drawer-close" onclick="dgToggleDrawer()" aria-label="Close">✕</button>
+  </div>
+  <div class="dg-drawer-body" id="dgDrawerBody">
+    <div class="dg-drawer-empty">
+      <div class="dg-drawer-empty-icon">🍽️</div>
+      <p>Your order is empty</p>
+    </div>
+  </div>
+  <div class="dg-drawer-footer" id="dgDrawerFooter" style="display:none">
+    <div class="dg-drawer-subtotal">
+      <span>Subtotal</span>
+      <span id="dgDrawerSubtotal">Rs 0</span>
+    </div>
+    <div class="dg-drawer-total">
+      <span>Total</span>
+      <span id="dgDrawerTotal">Rs 0</span>
+    </div>
+    <button class="dg-drawer-checkout" onclick="window.location.href='/pages/payment'">
+      Proceed to Checkout →
+    </button>
+  </div>
+</div>
+
+<!-- ═══ STICKY BAR ═══ -->
+<div class="dg-sticky-bar" id="dgStickyBar">
+  <div class="dg-sticky-info">
+    <div class="dg-sticky-count" id="dgStickyCount">0 items</div>
+    <div class="dg-sticky-total" id="dgStickyTotal">Rs 0</div>
+  </div>
+  <button class="dg-sticky-checkout" onclick="window.location.href='/pages/payment'">
+    Checkout →
+  </button>
+</div>
+
+<!-- ═══ TOAST ═══ -->
+<div class="dg-toast" id="dgToast"></div>
+
+<script>
+(function() {
+  /* ══ State ══ */
+  var dgCart = { items: [], item_count: 0, total_price: 0 };
+
+  /* ══ Init ══ */
+  document.addEventListener('DOMContentLoaded', function() {
+    dgFetchCart();
+    dgInitCategoryNav();
+    dgInitScrollReveal();
+    dgInitProductButtons();
+  });
+
+  /* ══════════════════════════════════════
+     CATEGORY NAV
+  ══════════════════════════════════════ */
+  function dgInitCategoryNav() {
+    document.querySelectorAll('.dg-cat-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var cat = this.dataset.cat;
+        // Update active state
+        document.querySelectorAll('.dg-cat-btn').forEach(function(b) {
+          b.classList.remove('active');
+          b.setAttribute('aria-selected', 'false');
+        });
+        this.classList.add('active');
+        this.setAttribute('aria-selected', 'true');
+
+        // Show/hide grids
+        var allGrid = document.getElementById('dgGridAll');
+        var catGrids = document.querySelectorAll('[id^="dgGrid_"]');
+        if (cat === 'all') {
+          if (allGrid) allGrid.style.display = '';
+          catGrids.forEach(function(g) { g.style.display = 'none'; });
+        } else {
+          if (allGrid) allGrid.style.display = 'none';
+          catGrids.forEach(function(g) { g.style.display = 'none'; });
+          var target = document.getElementById('dgGrid_' + cat);
+          if (target) target.style.display = '';
+        }
+
+        // Scroll cat button into view
+        this.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      });
+    });
+  }
+
+  /* ══════════════════════════════════════
+     CART OPERATIONS
+  ══════════════════════════════════════ */
+  window.dgFetchCart = function() {
+    fetch('/cart.js')
+      .then(function(r) { return r.json(); })
+      .then(function(cart) {
+        dgCart = cart;
+        dgUpdateCartUI();
+        dgSyncQtySteppers();
+      })
+      .catch(function(e) { console.warn('[DG Cart] fetch error:', e); });
+  };
+
+  window.dgAddToCart = function(btnOrVariantId, qty, name, price) {
+    var variantId, productName, productPrice;
+    if (typeof btnOrVariantId === 'object') {
+      var btn = btnOrVariantId;
+      variantId    = btn.dataset.variant;
+      productName  = btn.dataset.name || '';
+      productPrice = btn.dataset.price || '';
+    } else {
+      variantId    = btnOrVariantId;
+      productName  = name || '';
+      productPrice = price || '';
+    }
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: parseInt(variantId), quantity: qty || 1 })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function() {
+      dgFetchCart();
+      dgShowToast('Added to cart: ' + (productName || 'Item'));
+      // Ripple on button
+      if (typeof btnOrVariantId === 'object' && btnOrVariantId.tagName) {
+        var btn = btnOrVariantId;
+        var span = document.createElement('span');
+        span.className = 'ripple';
+        span.style.cssText = 'width:40px;height:40px;left:50%;top:50%;margin-left:-20px;margin-top:-20px;';
+        btn.appendChild(span);
+        setTimeout(function() { span.remove(); }, 600);
+      }
+    })
+    .catch(function(e) { console.warn('[DG Cart] add error:', e); });
+  };
+
+  window.dgChangeQty = function(key, qty) {
+    fetch('/cart/change.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: key, quantity: qty })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function() { dgFetchCart(); })
+    .catch(function(e) { console.warn('[DG Cart] change error:', e); });
+  };
+
+  /* ══════════════════════════════════════
+     CART UI UPDATE
+  ══════════════════════════════════════ */
+  function dgUpdateCartUI() {
+    var count    = dgCart.item_count || 0;
+    var total    = dgCart.total_price || 0;
+    var totalStr = 'Rs ' + (total / 100).toLocaleString('en-NP');
+
+    // FAB
+    var fab = document.getElementById('dgCartFab');
+    var fabCount = document.getElementById('dgFabCount');
+    if (fabCount) {
+      fabCount.textContent = count;
+      fabCount.style.display = count > 0 ? '' : 'none';
+    }
+
+    // Sticky bar
+    var stickyBar   = document.getElementById('dgStickyBar');
+    var stickyCount = document.getElementById('dgStickyCount');
+    var stickyTotal = document.getElementById('dgStickyTotal');
+    if (stickyBar) stickyBar.classList.toggle('visible', count > 0);
+    if (stickyCount) stickyCount.textContent = count + (count === 1 ? ' item' : ' items');
+    if (stickyTotal) stickyTotal.textContent = totalStr;
+
+    // Drawer
+    dgUpdateDrawer(count, total, totalStr);
+  }
+
+  function dgUpdateDrawer(count, total, totalStr) {
+    var body   = document.getElementById('dgDrawerBody');
+    var footer = document.getElementById('dgDrawerFooter');
+    var subEl  = document.getElementById('dgDrawerSubtotal');
+    var totEl  = document.getElementById('dgDrawerTotal');
+
+    if (!body) return;
+
+    if (count === 0) {
+      body.innerHTML = '<div class="dg-drawer-empty"><div class="dg-drawer-empty-icon">🍽️</div><p>Your order is empty</p></div>';
+      if (footer) footer.style.display = 'none';
+      return;
+    }
+
+    if (footer) footer.style.display = '';
+    if (subEl) subEl.querySelector('span:last-child') ? subEl.querySelector('span:last-child').textContent = totalStr : null;
+    if (subEl) subEl.innerHTML = '<span>Subtotal</span><span>' + totalStr + '</span>';
+    if (totEl) totEl.innerHTML = '<span>Total</span><span>' + totalStr + '</span>';
+
+    // Build item list
+    var html = '';
+    (dgCart.items || []).forEach(function(item) {
+      var imgSrc = item.image ? item.image.replace(/(\.\w+)$/, '_120x120$1') : '';
+      html += '<div class="dg-drawer-item">' +
+        (imgSrc ? '<img class="dg-drawer-item-img" src="' + imgSrc + '" alt="" loading="lazy">'
+                : '<div class="dg-drawer-item-img" style="display:flex;align-items:center;justify-content:center;font-size:24px">🍽️</div>') +
+        '<div class="dg-drawer-item-info">' +
+          '<div class="dg-drawer-item-name">' + item.product_title + '</div>' +
+          '<div class="dg-drawer-item-price">Rs ' + (item.final_line_price / 100).toLocaleString('en-NP') + '</div>' +
+        '</div>' +
+        '<div class="dg-drawer-item-qty">' +
+          '<button class="dg-drawer-qty-btn" onclick="dgChangeQty(\'' + item.key + '\',' + (item.quantity - 1) + ')">−</button>' +
+          '<span class="dg-drawer-qty-val">' + item.quantity + '</span>' +
+          '<button class="dg-drawer-qty-btn" onclick="dgChangeQty(\'' + item.key + '\',' + (item.quantity + 1) + ')">+</button>' +
+        '</div>' +
+      '</div>';
+    });
+    body.innerHTML = html;
+  }
+
+  /* ══════════════════════════════════════
+     QTY STEPPERS on product cards
+  ══════════════════════════════════════ */
+  function dgSyncQtySteppers() {
+    document.querySelectorAll('.dg-card[data-variant]').forEach(function(card) {
+      var variantId = card.dataset.variant;
+      var cartItem  = (dgCart.items || []).find(function(i) { return String(i.variant_id) === String(variantId); });
+      var addBtn    = card.querySelector('.dg-add-btn');
+      var stepper   = card.querySelector('.dg-qty-stepper');
+      var valEl     = card.querySelector('.dg-qty-val');
+
+      if (cartItem && cartItem.quantity > 0) {
+        if (addBtn)  addBtn.style.display = 'none';
+        if (stepper) stepper.classList.add('visible');
+        if (valEl)   valEl.textContent = cartItem.quantity;
+      } else {
+        if (addBtn)  addBtn.style.display = '';
+        if (stepper) stepper.classList.remove('visible');
+      }
+    });
+  }
+
+  /* ══════════════════════════════════════
+     PRODUCT CARD BUTTON DELEGATION
+  ══════════════════════════════════════ */
+  function dgInitProductButtons() {
+    document.addEventListener('click', function(e) {
+      // Add button
+      var addBtn = e.target.closest('.dg-add-btn:not([disabled])');
+      if (addBtn) {
+        var card      = addBtn.closest('.dg-card[data-variant]');
+        var variantId = card ? card.dataset.variant : null;
+        var name      = card ? card.dataset.name : '';
+        var price     = card ? card.dataset.price : '';
+        if (variantId) {
+          dgAddToCart(addBtn, 1, name, price);
+        }
+        return;
+      }
+
+      // Stepper minus
+      var minusBtn = e.target.closest('.dg-qty-btn[data-action="minus"]');
+      if (minusBtn) {
+        var card = minusBtn.closest('.dg-card[data-variant]');
+        var variantId = card ? card.dataset.variant : null;
+        if (variantId) {
+          var cartItem = (dgCart.items || []).find(function(i) { return String(i.variant_id) === String(variantId); });
+          if (cartItem) dgChangeQty(cartItem.key, cartItem.quantity - 1);
+        }
+        return;
+      }
+
+      // Stepper plus
+      var plusBtn = e.target.closest('.dg-qty-btn[data-action="plus"]');
+      if (plusBtn) {
+        var card = plusBtn.closest('.dg-card[data-variant]');
+        var variantId = card ? card.dataset.variant : null;
+        if (variantId) {
+          var cartItem = (dgCart.items || []).find(function(i) { return String(i.variant_id) === String(variantId); });
+          if (cartItem) dgChangeQty(cartItem.key, cartItem.quantity + 1);
+          else dgAddToCart(variantId, 1);
+        }
+        return;
+      }
+    });
+  }
+
+  /* ══════════════════════════════════════
+     DRAWER TOGGLE
+  ══════════════════════════════════════ */
+  window.dgToggleDrawer = function() {
+    var overlay = document.getElementById('dgDrawerOverlay');
+    var drawer  = document.getElementById('dgDrawer');
+    var isOpen  = drawer.classList.contains('open');
+    overlay.classList.toggle('open', !isOpen);
+    drawer.classList.toggle('open', !isOpen);
+    document.body.style.overflow = isOpen ? '' : 'hidden';
+  };
+
+  /* ══════════════════════════════════════
+     TOAST
+  ══════════════════════════════════════ */
+  var toastTimer;
+  window.dgShowToast = function(msg) {
+    var t = document.getElementById('dgToast');
+    if (!t) return;
+    t.textContent = '✅ ' + msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() { t.classList.remove('show'); }, 2200);
+  };
+
+  /* ══════════════════════════════════════
+     SCROLL REVEAL
+  ══════════════════════════════════════ */
+  function dgInitScrollReveal() {
+    if (!('IntersectionObserver' in window)) {
+      document.querySelectorAll('.dg-reveal').forEach(function(el) { el.classList.add('in-view'); });
+      return;
+    }
+    var obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.dg-reveal').forEach(function(el) { obs.observe(el); });
+  }
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Dhido & Grills Collection",
+  "settings": [],
+  "presets": [{ "name": "Dhido & Grills Collection" }]
+}
+{% endschema %}

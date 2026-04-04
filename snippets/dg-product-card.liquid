@@ -1,0 +1,100 @@
+{%- comment -%}
+  Dhido & Grills — Product Card Snippet
+  Usage: {% render 'dg-product-card', product: product %}
+{%- endcomment -%}
+
+{%- liquid
+  assign img      = product.featured_image
+  assign title_lc = product.title | downcase
+  assign tags_lc  = product.tags | join: ',' | downcase
+
+  assign badge_popular = false
+  assign badge_fresh   = false
+  assign badge_fast    = false
+  assign badge_new     = false
+
+  if tags_lc contains 'popular' or tags_lc contains 'bestseller' or tags_lc contains 'best seller'
+    assign badge_popular = true
+  endif
+  if tags_lc contains 'fresh' or tags_lc contains 'daily'
+    assign badge_fresh = true
+  endif
+  if tags_lc contains 'fast' or tags_lc contains 'quick'
+    assign badge_fast = true
+  endif
+  if tags_lc contains 'new' or tags_lc contains 'new arrival'
+    assign badge_new = true
+  endif
+
+  assign variant    = product.variants.first
+  assign price_str  = product.price | money_without_currency
+  assign is_sale    = false
+  if product.compare_at_price > product.price
+    assign is_sale = true
+  endif
+-%}
+
+<div class="dg-card dg-reveal"
+     data-variant="{{ variant.id }}"
+     data-name="{{ product.title | escape }}"
+     data-price="{{ price_str }}"
+     role="article">
+
+  <a href="{{ product.url }}" class="dg-card-img-wrap" tabindex="-1" aria-hidden="true">
+    {%- if img -%}
+      <img src="{{ img | image_url: width: 480 }}" alt="{{ product.title | escape }}" loading="lazy">
+    {%- else -%}
+      <div class="dg-card-no-img">🍽️</div>
+    {%- endif -%}
+
+    <!-- Badges -->
+    {%- if badge_popular or badge_fresh or badge_fast or badge_new -%}
+    <div class="dg-badges">
+      {%- if badge_popular -%}<span class="dg-badge dg-badge-popular">🔥 Popular</span>{%- endif -%}
+      {%- if badge_fresh   -%}<span class="dg-badge dg-badge-fresh">🌿 Fresh</span>{%- endif -%}
+      {%- if badge_fast    -%}<span class="dg-badge dg-badge-fast">⚡ Fast</span>{%- endif -%}
+      {%- if badge_new     -%}<span class="dg-badge dg-badge-new">✨ New</span>{%- endif -%}
+    </div>
+    {%- endif -%}
+
+    {%- unless product.available -%}
+    <div class="dg-sold-out-overlay">
+      <span class="dg-sold-out-label">Sold Out</span>
+    </div>
+    {%- endunless -%}
+  </a>
+
+  <div class="dg-card-body">
+    <a href="{{ product.url }}" style="text-decoration:none">
+      <div class="dg-card-name">{{ product.title }}</div>
+    </a>
+    {%- if product.description != blank -%}
+      <div class="dg-card-desc">{{ product.description | strip_html | truncate: 60 }}</div>
+    {%- endif -%}
+
+    <div class="dg-card-footer">
+      <div>
+        <div class="dg-card-price">Rs {{ price_str }}</div>
+        {%- if is_sale -%}
+          <div class="dg-card-price-compare">Rs {{ product.compare_at_price | money_without_currency }}</div>
+        {%- endif -%}
+      </div>
+
+      {%- if product.available -%}
+        <!-- Add button (shown when qty = 0) -->
+        <button class="dg-add-btn"
+                data-variant="{{ variant.id }}"
+                aria-label="Add {{ product.title | escape }} to cart">+</button>
+
+        <!-- Qty stepper (shown when qty > 0) -->
+        <div class="dg-qty-stepper" data-variant="{{ variant.id }}">
+          <button class="dg-qty-btn" data-action="minus" aria-label="Decrease">−</button>
+          <span class="dg-qty-val">1</span>
+          <button class="dg-qty-btn" data-action="plus" aria-label="Increase">+</button>
+        </div>
+      {%- else -%}
+        <button class="dg-add-btn" disabled aria-label="Sold out">✕</button>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
