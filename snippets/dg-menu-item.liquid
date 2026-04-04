@@ -1,0 +1,126 @@
+{%- comment -%}
+  Dhido & Grills — Horizontal Menu Item Card
+  Usage: {% render 'dg-menu-item', product: product %}
+{%- endcomment -%}
+
+{%- liquid
+  assign ptl  = product.title | downcase
+  assign tags = product.tags | join: ',' | downcase
+  assign v    = product.variants.first
+  assign img  = product.featured_image
+
+  comment — Smart emoji based on product name
+  endcomment
+  assign ico = '🍽️'
+  if ptl contains 'momo' or ptl contains 'dumpling'
+    assign ico = '🥟'
+  elsif ptl contains 'grill' or ptl contains 'sekuwa' or ptl contains 'bbq' or ptl contains 'chop' or ptl contains 'tikka'
+    assign ico = '🥩'
+  elsif ptl contains 'burger'
+    assign ico = '🍔'
+  elsif ptl contains 'sandwich' or ptl contains 'wrap'
+    assign ico = '🥙'
+  elsif ptl contains 'noodle' or ptl contains 'chow' or ptl contains 'thukpa' or ptl contains 'ramen'
+    assign ico = '🍜'
+  elsif ptl contains 'lassi'
+    assign ico = '🥛'
+  elsif ptl contains 'pizza'
+    assign ico = '🍕'
+  elsif ptl contains 'rice' or ptl contains 'fried rice' or ptl contains 'dhido' or ptl contains 'dal'
+    assign ico = '🍲'
+  elsif ptl contains 'soup' or ptl contains 'curry'
+    assign ico = '🥘'
+  elsif ptl contains 'fries' or ptl contains 'chips'
+    assign ico = '🍟'
+  elsif ptl contains 'samosa' or ptl contains 'roll' or ptl contains 'snack'
+    assign ico = '🥗'
+  elsif ptl contains 'juice' or ptl contains 'lemonade'
+    assign ico = '🥤'
+  elsif ptl contains 'tea' or ptl contains 'coffee'
+    assign ico = '☕'
+  elsif ptl contains 'beer' or ptl contains 'drink' or ptl contains 'cocktail'
+    assign ico = '🍺'
+  elsif ptl contains 'ice cream' or ptl contains 'gelato' or ptl contains 'kulfi'
+    assign ico = '🍦'
+  elsif ptl contains 'cake' or ptl contains 'dessert' or ptl contains 'sweet'
+    assign ico = '🍰'
+  endif
+
+  comment — badges
+  endcomment
+  assign b_pop   = false
+  assign b_fresh = false
+  assign b_fast  = false
+  assign b_new   = false
+  if tags contains 'popular' or tags contains 'bestseller'
+    assign b_pop = true
+  endif
+  if tags contains 'fresh' or tags contains 'daily'
+    assign b_fresh = true
+  endif
+  if tags contains 'fast' or tags contains 'quick'
+    assign b_fast = true
+  endif
+  if tags contains 'new'
+    assign b_new = true
+  endif
+
+  assign is_sale = false
+  if product.compare_at_price > product.price
+    assign is_sale = true
+  endif
+-%}
+
+<div class="dg-item dg-r{% unless product.available %} dg-item-sold{% endunless %}"
+     data-v="{{ v.id }}"
+     data-n="{{ product.title | escape }}">
+
+  <!-- Icon / Image -->
+  <div class="dg-item-ico">
+    {%- if img -%}
+      <img src="{{ img | image_url: width: 200 }}" alt="{{ product.title | escape }}" loading="lazy">
+    {%- else -%}
+      {{ ico }}
+    {%- endif -%}
+  </div>
+
+  <!-- Body -->
+  <div class="dg-item-body">
+    {%- if b_pop or b_fresh or b_fast or b_new -%}
+    <div class="dg-item-tags">
+      {%- if b_pop   -%}<span class="dg-tag dg-tag-pop">🔥 Popular</span>{%- endif -%}
+      {%- if b_fresh -%}<span class="dg-tag dg-tag-fresh">🌿 Fresh</span>{%- endif -%}
+      {%- if b_fast  -%}<span class="dg-tag dg-tag-fast">⚡ Fast</span>{%- endif -%}
+      {%- if b_new   -%}<span class="dg-tag dg-tag-new">✨ New</span>{%- endif -%}
+    </div>
+    {%- endif -%}
+
+    <a href="{{ product.url }}" style="text-decoration:none">
+      <div class="dg-item-name">{{ product.title }}</div>
+    </a>
+
+    {%- if product.description != blank -%}
+      <div class="dg-item-desc">{{ product.description | strip_html | truncate: 55 }}</div>
+    {%- endif -%}
+
+    <div class="dg-item-footer">
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <div class="dg-item-price">Rs {{ product.price | money_without_currency }}</div>
+        {%- if is_sale -%}
+          <div class="dg-item-compare">Rs {{ product.compare_at_price | money_without_currency }}</div>
+        {%- endif -%}
+      </div>
+
+      {%- if product.available -%}
+        <button class="dg-add" aria-label="Add {{ product.title | escape }}">+</button>
+        <div class="dg-stepper">
+          <button class="dg-s-btn" data-a="minus">−</button>
+          <span class="dg-s-val">1</span>
+          <button class="dg-s-btn" data-a="plus">+</button>
+        </div>
+      {%- else -%}
+        <button class="dg-add" disabled>✕</button>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
