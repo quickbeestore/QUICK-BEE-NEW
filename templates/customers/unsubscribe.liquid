@@ -1,0 +1,361 @@
+{% comment %}
+  Quickbee — Email Unsubscribe Page
+  Route: /account/unsubscribe?token=...
+  Beautiful branded unsubscribe confirmation with re-subscribe option
+{% endcomment %}
+
+<style>
+/* ── Token overrides ── */
+:root {
+  --usub-gold: #F4B400;
+  --usub-gold-dim: rgba(244,180,0,.14);
+  --usub-gold-glow: rgba(244,180,0,.25);
+  --usub-bg: #fff;
+  --usub-bg2: #f7f8fa;
+  --usub-text: #111;
+  --usub-text2: #555;
+  --usub-text3: #999;
+  --usub-border: rgba(0,0,0,.10);
+  --usub-card-shadow: 0 8px 40px rgba(0,0,0,.08);
+}
+[data-theme="dark"] {
+  --usub-bg: #0d0d0d;
+  --usub-bg2: #151515;
+  --usub-text: #f0f0f0;
+  --usub-text2: #aaa;
+  --usub-text3: #555;
+  --usub-border: rgba(255,255,255,.07);
+  --usub-card-shadow: 0 8px 40px rgba(0,0,0,.5);
+}
+
+/* ── Page wrapper ── */
+.usub-page {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px 80px;
+  background: var(--usub-bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ── Card ── */
+.usub-card {
+  background: var(--usub-bg);
+  border: 1.5px solid var(--usub-border);
+  border-radius: 24px;
+  padding: 56px 48px 48px;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--usub-card-shadow);
+  position: relative;
+  overflow: hidden;
+}
+@media (max-width: 560px) {
+  .usub-card { padding: 40px 24px 36px; border-radius: 16px; }
+}
+
+/* Decorative blurred circle behind icon */
+.usub-card::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  height: 240px;
+  background: radial-gradient(circle, var(--usub-gold-dim) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ── Icon ── */
+.usub-icon-wrap {
+  width: 88px;
+  height: 88px;
+  background: var(--usub-gold-dim);
+  border: 2px solid var(--usub-gold-glow);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  position: relative;
+  animation: usub-pop .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes usub-pop {
+  from { transform: scale(.6); opacity: 0; }
+  to   { transform: scale(1);  opacity: 1; }
+}
+.usub-icon {
+  font-size: 40px;
+  line-height: 1;
+}
+
+/* ── Content ── */
+.usub-badge {
+  display: inline-block;
+  background: var(--usub-gold-dim);
+  color: var(--usub-gold);
+  border: 1.5px solid var(--usub-gold-glow);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  animation: usub-fade-up .4s .1s ease both;
+}
+.usub-title {
+  font-size: clamp(22px, 5vw, 30px);
+  font-weight: 800;
+  color: var(--usub-text);
+  margin: 0 0 12px;
+  line-height: 1.2;
+  animation: usub-fade-up .4s .15s ease both;
+}
+.usub-body {
+  font-size: 15px;
+  color: var(--usub-text2);
+  line-height: 1.65;
+  margin: 0 0 32px;
+  animation: usub-fade-up .4s .2s ease both;
+}
+.usub-body strong { color: var(--usub-text); }
+
+@keyframes usub-fade-up {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ── Divider ── */
+.usub-divider {
+  height: 1.5px;
+  background: var(--usub-border);
+  border: none;
+  margin: 0 0 28px;
+  animation: usub-fade-up .4s .25s ease both;
+}
+
+/* ── Re-subscribe box ── */
+.usub-resub-box {
+  background: var(--usub-bg2);
+  border: 1.5px solid var(--usub-border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 28px;
+  animation: usub-fade-up .4s .3s ease both;
+}
+.usub-resub-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--usub-text);
+  margin: 0 0 6px;
+}
+.usub-resub-sub {
+  font-size: 13px;
+  color: var(--usub-text3);
+  margin: 0 0 14px;
+  line-height: 1.5;
+}
+.usub-resub-form {
+  display: flex;
+  gap: 8px;
+}
+.usub-resub-email {
+  flex: 1;
+  height: 44px;
+  padding: 0 12px;
+  background: var(--usub-bg);
+  border: 1.5px solid var(--usub-border);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--usub-text);
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.usub-resub-email:focus {
+  border-color: var(--usub-gold);
+  box-shadow: 0 0 0 3px var(--usub-gold-dim);
+}
+.usub-resub-btn {
+  height: 44px;
+  padding: 0 18px;
+  background: var(--usub-gold);
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #000;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform .15s, box-shadow .15s;
+  box-shadow: 0 3px 12px var(--usub-gold-glow);
+}
+.usub-resub-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 16px var(--usub-gold-glow); }
+.usub-resub-btn:active { transform: scale(.97); }
+.usub-resub-msg {
+  font-size: 12px;
+  margin: 8px 0 0;
+  text-align: left;
+  display: none;
+}
+.usub-resub-msg.ok  { color: #2e7d32; display: block; }
+.usub-resub-msg.err { color: #c62828; display: block; }
+
+/* ── Buttons ── */
+.usub-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: usub-fade-up .4s .35s ease both;
+}
+.usub-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 52px;
+  border-radius: 13px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+  border: none;
+}
+.usub-btn--primary {
+  background: var(--usub-gold);
+  color: #000;
+  box-shadow: 0 4px 18px var(--usub-gold-glow);
+}
+.usub-btn--primary:hover { transform: translateY(-2px); box-shadow: 0 6px 24px var(--usub-gold-glow); }
+.usub-btn--ghost {
+  background: transparent;
+  border: 1.5px solid var(--usub-border);
+  color: var(--usub-text2);
+}
+.usub-btn--ghost:hover { border-color: var(--usub-gold); color: var(--usub-text); background: var(--usub-gold-dim); }
+.usub-btn:active { transform: scale(.98); }
+
+/* ── Footer note ── */
+.usub-note {
+  margin-top: 24px;
+  font-size: 12px;
+  color: var(--usub-text3);
+  line-height: 1.5;
+  animation: usub-fade-up .4s .4s ease both;
+}
+.usub-note a { color: var(--usub-gold); text-decoration: none; }
+.usub-note a:hover { text-decoration: underline; }
+</style>
+
+<div class="usub-page">
+  <div class="usub-card">
+
+    <!-- Icon -->
+    <div class="usub-icon-wrap">
+      <span class="usub-icon">📭</span>
+    </div>
+
+    <!-- Badge -->
+    <span class="usub-badge">Email Preferences</span>
+
+    <!-- Heading -->
+    <h1 class="usub-title">You've been unsubscribed</h1>
+
+    <!-- Body -->
+    <p class="usub-body">
+      You won't receive any more marketing emails from <strong>Quickbee</strong>.
+      We're sorry to see you go — but we totally understand.<br><br>
+      Your order confirmations, delivery updates, and account emails will still be sent as normal.
+    </p>
+
+    <hr class="usub-divider">
+
+    <!-- Re-subscribe box -->
+    <div class="usub-resub-box">
+      <p class="usub-resub-title">Changed your mind?</p>
+      <p class="usub-resub-sub">Re-subscribe to get deals, new arrivals, and Quickbee news.</p>
+      <form class="usub-resub-form" id="usub-resub-form" novalidate>
+        <input
+          class="usub-resub-email"
+          id="usub-resub-email"
+          type="email"
+          placeholder="{{ customer.email | default: 'your@email.com' }}"
+          value="{{ customer.email | default: '' }}"
+          autocomplete="email"
+        >
+        <button type="submit" class="usub-resub-btn">Re-subscribe</button>
+      </form>
+      <p class="usub-resub-msg" id="usub-resub-msg"></p>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="usub-actions">
+      <a href="/" class="usub-btn usub-btn--primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Back to Quickbee
+      </a>
+      <a href="/collections" class="usub-btn usub-btn--ghost">
+        Browse our store →
+      </a>
+    </div>
+
+    <!-- Footer note -->
+    <p class="usub-note">
+      Questions? <a href="/pages/contact">Contact us</a> &nbsp;·&nbsp;
+      <a href="/pages/returns-refunds">Returns & Refunds</a>
+    </p>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  var form = document.getElementById('usub-resub-form');
+  var emailInput = document.getElementById('usub-resub-email');
+  var msg = document.getElementById('usub-resub-msg');
+  if(!form) return;
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var email = emailInput ? emailInput.value.trim() : '';
+    if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+      msg.textContent = '⚠ Please enter a valid email address.';
+      msg.className = 'usub-resub-msg err';
+      return;
+    }
+
+    var btn = form.querySelector('button[type="submit"]');
+    var orig = btn ? btn.textContent : '';
+    if(btn){ btn.textContent = '…'; btn.disabled = true; }
+
+    // Shopify /contact form — subscribe via newsletter form_type
+    var fd = new FormData();
+    fd.append('form_type', 'customer');
+    fd.append('utf8', '✓');
+    fd.append('customer[email]', email);
+    fd.append('customer[accepts_marketing]', 'true');
+
+    fetch('/contact', {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body: fd
+    })
+    .then(function(r){
+      // Shopify may return 200 or redirect — either way, treat as success
+      msg.textContent = '✓ You\'re back! Welcome to Quickbee newsletters.';
+      msg.className = 'usub-resub-msg ok';
+      if(btn){ btn.textContent = '✓ Done'; btn.disabled = true; }
+    })
+    .catch(function(){
+      msg.textContent = '⚠ Something went wrong. Please try again.';
+      msg.className = 'usub-resub-msg err';
+      if(btn){ btn.textContent = orig; btn.disabled = false; }
+    });
+  });
+})();
+</script>

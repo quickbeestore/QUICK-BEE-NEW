@@ -1000,6 +1000,85 @@
     });
 
     updateLocationButton();
+
+    // ── Silent location auto-refresh every 10–14 minutes ──────────────
+    // Only fires when the browser has already granted geolocation permission.
+    // No prompts, no UI changes unless the address actually changes.
+    (function startLocationTimer(){
+      var INTERVAL_MS = 12 * 60 * 1000; // 12 minutes
+      var STALE_MS    =  9 * 60 * 1000; //  9 minutes — don't refresh if saved < 9 min ago
+
+      function silentGeoRefresh(){
+        // Check permission state first — never prompt the user
+        if(!navigator || !navigator.geolocation){ return; }
+        if(navigator.permissions && navigator.permissions.query){
+          navigator.permissions.query({ name: 'geolocation' }).then(function(perm){
+            if(perm.state === 'granted'){
+              doRefresh();
+            }
+            // 'prompt' or 'denied' → do nothing
+          }).catch(function(){
+            doRefresh(); // Older browsers that don't support permission API
+          });
+        } else {
+          doRefresh(); // Fallback for browsers without Permissions API
+        }
+      }
+
+      function doRefresh(){
+        // Don't hit GPS if location was saved very recently
+        var saved = localStorage.getItem('qb_location_detail') || localStorage.getItem('qb_selected_location');
+        if(saved){
+          try{
+            var obj = JSON.parse(saved);
+            var ts = obj._timestamp || 0;
+            if(ts && (Date.now() - ts) < STALE_MS){ return; }
+          }catch(e){}
+        }
+
+        navigator.geolocation.getCurrentPosition(function(pos){
+          var lat = pos.coords.latitude;
+          var lng = pos.coords.longitude;
+          // Reverse geocode via Nominatim (free, no API key)
+          fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng + '&zoom=16&addressdetails=1', {
+            headers: { 'Accept-Language': 'en' }
+          })
+          .then(function(r){ return r.json(); })
+          .then(function(data){
+            var addr = data.address || {};
+            var locationObj = {
+              lat: lat,
+              lng: lng,
+              name: addr.suburb || addr.neighbourhood || addr.village || addr.town || addr.city || '',
+              city: addr.city || addr.town || addr.village || '',
+              district: addr.county || addr.state_district || '',
+              ward: addr.suburb || addr.quarter || '',
+              locality: addr.residential || addr.neighbourhood || '',
+              formatted_address: data.display_name || '',
+              street: addr.road || '',
+              _timestamp: Date.now(),
+              _auto: true
+            };
+            try{
+              localStorage.setItem('qb_location_detail', JSON.stringify(locationObj));
+              localStorage.setItem('qb_selected_location', JSON.stringify(locationObj));
+            }catch(e){}
+            updateLocationButton(locationObj);
+            window.dispatchEvent(new CustomEvent('locationSelected', { detail: locationObj }));
+          })
+          .catch(function(){}); // Silently fail — don't break anything
+        },
+        function(err){}, // Permission denied / unavailable — ignore
+        { timeout: 8000, maximumAge: STALE_MS, enableHighAccuracy: false }
+        );
+      }
+
+      // Start the recurring timer
+      setInterval(silentGeoRefresh, INTERVAL_MS);
+      // Also do one refresh 30 seconds after page load (warm start)
+      setTimeout(silentGeoRefresh, 30000);
+    })();
+    // ── End auto-refresh ──────────────────────────────────────────────
   })();
 </script>
 

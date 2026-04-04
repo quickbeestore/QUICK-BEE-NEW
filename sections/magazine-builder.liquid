@@ -1,423 +1,1840 @@
-<!-- MAGAZINE BUILDER SECTION FOR SHOPIFY -->
-<!-- Include this in your theme and load the supporting JS files -->
+{% comment %}
+  Birthday Magazine Builder — Quickbee
+  Fully self-contained multi-step custom magazine builder.
+  - 5-step wizard with live CSS magazine mockup
+  - Photo upload with drag & drop (up to 20 photos, client-side compressed)
+  - EmailJS integration → sends photos to print@quickbee.store
+  - Shopify cart via /cart/add.js with order note + line item properties
+  - Dark/light theme aware, fully responsive
+{% endcomment %}
 
-{{ 'magazine-builder.css' | asset_url | stylesheet_tag }}
-
-<div
-  class="mag-wizard"
-  x-data="magazineBuilder()"
-  @magazine:changed="onStateChange($event)"
-  @upload:progress="onUploadProgress($event)">
-
-  <!-- PROGRESS BAR -->
-  <div class="mag-progress">
-    <div class="mag-progress-bar" :style="`width: ${progress}%`"></div>
-  </div>
-
-  <!-- STEP 0: CONFIGURATION -->
-  <div class="mag-step" :class="{ active: step === 0 }">
-    <div class="step-content">
-      <div class="step-header">
-        <h1>Create Your Magazine</h1>
-        <p>Start by choosing how many pages and telling us about you</p>
-      </div>
-
-      <div class="form-group">
-        <label>How many pages?</label>
-        <div class="page-options">
-          <button
-            type="button"
-            class="page-option"
-            :class="{ selected: config.page_count === 16 }"
-            @click="selectPages(16)">
-            <strong>16</strong>
-            <small>Pages</small>
-          </button>
-          <button
-            type="button"
-            class="page-option"
-            :class="{ selected: config.page_count === 20 }"
-            @click="selectPages(20)">
-            <strong>20</strong>
-            <small>Pages</small>
-          </button>
-          <button
-            type="button"
-            class="page-option"
-            :class="{ selected: config.page_count === 24 }"
-            @click="selectPages(24)">
-            <strong>24</strong>
-            <small>Pages</small>
-          </button>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Names of the couple</label>
-        <div class="form-row">
-          <input
-            type="text"
-            placeholder="First person's name"
-            @input="updateMetadata('person1', $el.value)">
-          <input
-            type="text"
-            placeholder="Second person's name"
-            @input="updateMetadata('person2', $el.value)">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Magazine title (optional)</label>
-        <input
-          type="text"
-          placeholder="e.g. Forever Ours, Our Story..."
-          @input="updateMetadata('title', $el.value)">
-      </div>
-
-      <div class="form-group">
-        <label>Special details (optional)</label>
-        <div class="form-row">
-          <input
-            type="text"
-            placeholder="Important date"
-            @input="updateMetadata('date', $el.value)">
-          <input
-            type="text"
-            placeholder="Special places"
-            @input="updateMetadata('location', $el.value)">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Your favourite quote (optional)</label>
-        <textarea
-          placeholder="A lyric, poem, or phrase..."
-          @input="updateMetadata('quote', $el.value)"
-          rows="3"></textarea>
-      </div>
-
-      <div class="btn-nav">
-        <div></div>
-        <button class="btn btn-primary" @click="nextStep()">Continue to Themes →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 1: THEME SELECTION -->
-  <div class="mag-step" :class="{ active: step === 1 }">
-    <div class="step-content">
-      <div class="step-header">
-        <h1>Choose Your Theme</h1>
-        <p>Select a design aesthetic for your magazine</p>
-      </div>
-
-      <div class="theme-cards">
-        <template x-for="theme in themes" :key="theme.id">
-          <button
-            type="button"
-            class="theme-card"
-            :class="{ selected: global.theme_id === theme.id }"
-            @click="selectTheme(theme.id)">
-            <div class="theme-swatch">
-              <div class="color-box" :style="`background: ${theme.palette.primary}`"></div>
-              <div class="color-box" :style="`background: ${theme.palette.accent}`"></div>
-              <div class="color-box" :style="`background: ${theme.palette.text}`"></div>
-              <div class="color-box" :style="`background: ${theme.palette.bg}`"></div>
-            </div>
-            <h3 x-text="theme.name"></h3>
-            <p x-text="theme.description"></p>
-          </button>
-        </template>
-      </div>
-
-      <div class="btn-nav">
-        <button class="btn btn-secondary" @click="prevStep()">← Back</button>
-        <button class="btn btn-primary" @click="nextStep()">Upload Photos →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 2: PHOTO UPLOAD -->
-  <div class="mag-step" :class="{ active: step === 2 }">
-    <div class="step-content">
-      <div class="step-header">
-        <h1>Upload Your Photos</h1>
-        <p x-text="`${Object.keys(assets).length} / 10 photos uploaded`"></p>
-      </div>
-
-      <div class="upload-zone"
-        @click="document.getElementById('file-input').click()"
-        @dragover.prevent="$el.classList.add('drag')"
-        @dragleave="$el.classList.remove('drag')"
-        @drop.prevent="handleDrop($event)">
-        <span class="upload-icon">📷</span>
-        <h3>Click to upload or drag photos here</h3>
-        <p>JPEG or PNG · <strong>Up to 10 photos</strong> · Higher quality = better magazine</p>
-      </div>
-
-      <input
-        id="file-input"
-        type="file"
-        multiple
-        accept="image/jpeg,image/png,image/webp"
-        @change="handleFileSelect($event)">
-
-      <div class="asset-grid">
-        <template x-for="asset in Object.values(assets)" :key="asset.id">
-          <div class="asset-thumb">
-            <img :src="asset.thumbnail_url" :alt="asset.original_name">
-            <div class="asset-status" x-text="asset.status"></div>
-          </div>
-        </template>
-      </div>
-
-      <div class="btn-nav">
-        <button class="btn btn-secondary" @click="prevStep()">← Back</button>
-        <button
-          class="btn btn-primary"
-          :disabled="Object.keys(assets).length < 2"
-          @click="nextStep()">
-          Edit Pages →
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 3: PAGE EDITOR -->
-  <div class="mag-step" :class="{ active: step === 3 }">
-    <div class="editor-layout">
-      <!-- Page sidebar -->
-      <div class="page-sidebar">
-        <h3 style="margin-bottom: 16px; font-size: 11px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase;">Pages</h3>
-        <template x-for="(page, idx) in pages" :key="idx">
-          <canvas
-            class="page-thumb"
-            :class="{ active: active_page === idx }"
-            @click="editPage(idx)"></canvas>
-        </template>
-      </div>
-
-      <!-- Main canvas -->
-      <div class="page-canvas-wrapper">
-        <canvas id="page-canvas"></canvas>
-      </div>
-
-      <!-- Editor panel -->
-      <div class="editor-panel">
-        <div class="panel-section">
-          <h3>Image</h3>
-          <div class="slot-selector">
-            <button type="button" @click="assignAsset('primary_image')">
-              Primary Image
-            </button>
-            <small style="color: rgba(255,255,255,0.5);" x-text="`Current: ${pages[active_page].slots.primary_image ? 'Assigned' : 'None'}`"></small>
-          </div>
-        </div>
-
-        <div class="panel-section">
-          <h3>Text</h3>
-          <div class="form-group">
-            <label>Headline</label>
-            <input
-              type="text"
-              placeholder="Main headline"
-              @input="updatePageText('headline', $el.value)">
-          </div>
-          <div class="form-group">
-            <label>Subheadline</label>
-            <input
-              type="text"
-              placeholder="Secondary text"
-              @input="updatePageText('subheadline', $el.value)">
-          </div>
-          <div class="form-group">
-            <label>Body text</label>
-            <textarea
-              placeholder="Main paragraph..."
-              @input="updatePageText('body', $el.value)"
-              rows="4"></textarea>
-          </div>
-        </div>
-
-        <button class="btn btn-primary" @click="nextStep()">Review →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 4: REVIEW -->
-  <div class="mag-step" :class="{ active: step === 4 }">
-    <div class="step-content">
-      <div class="step-header">
-        <h1>Review Your Magazine</h1>
-        <p>Everything looks good? Let's add it to your cart</p>
-      </div>
-
-      <div style="margin-bottom: 40px;">
-        <p style="margin-bottom: 16px; font-size: 14px;">
-          <strong x-text="`${metadata.person1} & ${metadata.person2}`"></strong>
-        </p>
-        <p style="color: rgba(255,255,255,0.6); font-size: 13px; line-height: 1.8;">
-          <span x-show="metadata.date" x-text="`📅 ${metadata.date}`" style="display: block;"></span>
-          <span x-show="metadata.location" x-text="`📍 ${metadata.location}`" style="display: block;"></span>
-          <span x-show="config.page_count" x-text="`📖 ${config.page_count} pages`" style="display: block;"></span>
-        </p>
-      </div>
-
-      <div style="background: rgba(201,168,76,0.08); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 32px;">
-        <h4 style="font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px;">Order Summary</h4>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 13px;">
-          <div>
-            <span style="color: rgba(255,255,255,0.6);">Photos</span>
-            <div style="font-size: 16px; margin-top: 4px;" x-text="`${Object.keys(assets).length}`"></div>
-          </div>
-          <div>
-            <span style="color: rgba(255,255,255,0.6);">Pages</span>
-            <div style="font-size: 16px; margin-top: 4px;" x-text="`${config.page_count}`"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="btn-nav">
-        <button class="btn btn-secondary" @click="prevStep()">← Edit</button>
-        <button class="btn btn-primary" @click="submit()">Add to Cart →</button>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<script src="{{ 'magazine-store.js' | asset_url }}" defer></script>
-<script src="{{ 'magazine-uploader.js' | asset_url }}" defer></script>
-<script src="{{ 'magazine-renderer.js' | asset_url }}" defer></script>
-<script src="{{ 'magazine-cart.js' | asset_url }}" defer></script>
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
+{% if section.settings.emailjs_public_key != blank %}
 <script>
-function magazineBuilder() {
-  return {
-    step: 0,
-    progress: 0,
-    store: window.MagazineStore,
-
-    // Local refs for Alpine reactivity
-    get config() { return this.store.getState().config; },
-    get global() { return this.store.getState().global; },
-    get metadata() { return this.store.getState().metadata; },
-    get assets() { return this.store.getState().assets; },
-    get pages() { return this.store.getState().pages; },
-    get active_page() { return this.store.getState().ui.active_page; },
-
-    // Theme definitions
-    themes: [
-      {
-        id: 'romance-dark',
-        name: 'Romance Dark',
-        description: 'Deep, luxurious aesthetic',
-        palette: { primary: '#280818', accent: '#c9a84c', text: '#ffffff', bg: '#07030a' }
-      },
-      {
-        id: 'minimalist-light',
-        name: 'Minimalist Light',
-        description: 'Clean and modern',
-        palette: { primary: '#ffffff', accent: '#000000', text: '#000000', bg: '#f5f5f5' }
-      },
-      {
-        id: 'bohemian',
-        name: 'Bohemian',
-        description: 'Warm and artistic',
-        palette: { primary: '#d4a574', accent: '#8b6f47', text: '#3d2817', bg: '#f9f5ef' }
-      }
-    ],
-
-    init() {
-      // Listen for state changes
-      this.store.subscribe((eventType, detail) => {
-        this.$nextTick(() => this.updateProgress());
-      });
-
-      // Render first page
-      this.$nextTick(() => {
-        const canvas = document.getElementById('page-canvas');
-        if (canvas) window.MagazineRenderer.renderPage(0, canvas);
-      });
-    },
-
-    selectPages(count) {
-      this.store.update('config.page_count', count);
-      // Regenerate pages
-      const newPages = this.store._generatePages(count);
-      this.store.update('pages', newPages);
-    },
-
-    selectTheme(themeId) {
-      this.store.update('global.theme_id', themeId);
-      const theme = this.themes.find(t => t.id === themeId);
-      if (theme) this.store.update('global.palette', theme.palette);
-    },
-
-    updateMetadata(key, value) {
-      this.store.update(`metadata.${key}`, value);
-    },
-
-    editPage(idx) {
-      this.store.update('ui.active_page', idx);
-      this.$nextTick(() => {
-        const canvas = document.getElementById('page-canvas');
-        if (canvas) window.MagazineRenderer.renderPage(idx, canvas);
-      });
-    },
-
-    updatePageText(field, value) {
-      const idx = this.active_page;
-      this.store.update(`pages.${idx}.text.${field}`, value);
-      // Re-render
-      this.$nextTick(() => {
-        const canvas = document.getElementById('page-canvas');
-        if (canvas) window.MagazineRenderer.renderPage(idx, canvas);
-      });
-    },
-
-    assignAsset(slot) {
-      alert('Click an asset to assign');
-      // In full implementation, show modal with asset picker
-    },
-
-    handleFileSelect(e) {
-      const files = Array.from(e.target.files || []);
-      files.forEach(f => window.MagazineUploader.enqueue(f));
-    },
-
-    handleDrop(e) {
-      const files = Array.from(e.dataTransfer.files || []).filter(f => f.type.startsWith('image/'));
-      files.forEach(f => window.MagazineUploader.enqueue(f));
-    },
-
-    async submit() {
-      try {
-        const variantId = new URLSearchParams(window.location.search).get('variant_id') || this.config.variant_id;
-        await window.MagazineCart.submitOrder(variantId);
-      } catch (err) {
-        alert(`Error: ${err.message}`);
-      }
-    },
-
-    nextStep() { if (this.step < 4) this.step++; },
-    prevStep() { if (this.step > 0) this.step--; },
-
-    onStateChange(e) {
-      this.$nextTick(() => this.updateProgress());
-    },
-
-    onUploadProgress(e) {
-      // Update thumbnail
-      const { assetId, progress } = e.detail;
-    },
-
-    updateProgress() {
-      const filled = this.pages.filter(p => p.slots.primary_image).length;
-      const total = this.pages.length;
-      this.progress = Math.round((this.step / 4) * 50) + Math.round((filled / total) * 50);
-    }
-  };
-}
+(function(){
+  var s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+  s.onload=function(){ try{ emailjs.init('{{ section.settings.emailjs_public_key | escape }}'); }catch(e){} };
+  document.head.appendChild(s);
+})();
 </script>
+{% endif %}
+
+<div class="bmb"
+  id="bmb-root"
+  data-product-id="{{ product.id }}"
+  data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+  data-service-id="{{ section.settings.emailjs_service_id | escape }}"
+  data-template-id="{{ section.settings.emailjs_template_id | escape }}"
+  data-max-photos="{{ section.settings.max_photos | default: 20 }}"
+  data-print-email="{{ section.settings.print_email | default: 'print@quickbee.store' }}">
+
+  <!-- HERO -->
+  <div class="bmb-hero">
+    <span class="bmb-hero-chip">🎂 Custom Birthday Magazine</span>
+    <h1 class="bmb-hero-h1">Build a Magazine They'll<br><span class="bmb-gold">Never Forget</span></h1>
+    <p class="bmb-hero-p">Turn your favourite memories into a stunning printed magazine — personalised, beautifully designed, delivered fresh.</p>
+  </div>
+
+  <!-- STEP PROGRESS -->
+  <div class="bmb-prog-wrap">
+    <div class="bmb-prog-rail">
+      <div class="bmb-prog-fill" id="bmb-prog-fill"></div>
+    </div>
+    <div class="bmb-prog-steps">
+      {% assign step_labels = "Person,Photos,Style,Message,Order" | split: "," %}
+      {% for lbl in step_labels %}
+      <div class="bmb-prog-dot{% if forloop.first %} active{% endif %}" data-step="{{ forloop.index }}">
+        <div class="bmb-prog-circle">
+          <span class="bmb-prog-n">{{ forloop.index }}</span>
+          <span class="bmb-prog-ck" aria-hidden="true">✓</span>
+        </div>
+        <span class="bmb-prog-lbl">{{ lbl }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- BODY: FORM + PREVIEW -->
+  <div class="bmb-body">
+
+    <!-- ── FORM SIDE ── -->
+    <div class="bmb-form-side">
+
+      <!-- ╔══════════╗ -->
+      <!-- ║  STEP 1  ║ -->
+      <!-- ╚══════════╝ -->
+      <div class="bmb-panel" id="bmb-panel-1" data-panel="1">
+        <div class="bmb-panel-head">
+          <div class="bmb-panel-emoji">🎂</div>
+          <div>
+            <h2 class="bmb-panel-title">Who's the star?</h2>
+            <p class="bmb-panel-sub">Tell us about the person being celebrated.</p>
+          </div>
+        </div>
+
+        <div class="bmb-fg">
+          <div class="bmb-f bmb-f--full">
+            <label class="bmb-lbl" for="bmb-recipient">Recipient's Name <span class="bmb-ast">*</span></label>
+            <input class="bmb-inp" id="bmb-recipient" type="text" placeholder="e.g. Priya Sharma" autocomplete="off">
+          </div>
+
+          <div class="bmb-f bmb-f--full">
+            <label class="bmb-lbl">Occasion <span class="bmb-ast">*</span></label>
+            <div class="bmb-occ-wrap">
+              <button type="button" class="bmb-occ bmb-occ--on" data-occ="Birthday">🎂<span>Birthday</span></button>
+              <button type="button" class="bmb-occ" data-occ="Anniversary">💑<span>Anniversary</span></button>
+              <button type="button" class="bmb-occ" data-occ="Graduation">🎓<span>Graduation</span></button>
+              <button type="button" class="bmb-occ" data-occ="Farewell">✈️<span>Farewell</span></button>
+              <button type="button" class="bmb-occ" data-occ="Appreciation">🌟<span>Appreciation</span></button>
+              <button type="button" class="bmb-occ" data-occ="Wedding">💍<span>Wedding</span></button>
+            </div>
+            <input type="hidden" id="bmb-occasion" value="Birthday">
+          </div>
+
+          <div class="bmb-f">
+            <label class="bmb-lbl" for="bmb-date">Date of Occasion</label>
+            <input class="bmb-inp" id="bmb-date" type="date">
+          </div>
+
+          <div class="bmb-f">
+            <label class="bmb-lbl" for="bmb-from">From (Your Name) <span class="bmb-ast">*</span></label>
+            <input class="bmb-inp" id="bmb-from" type="text" placeholder="e.g. The Sharma Family">
+          </div>
+        </div>
+      </div>
+
+      <!-- ╔══════════╗ -->
+      <!-- ║  STEP 2  ║ -->
+      <!-- ╚══════════╝ -->
+      <div class="bmb-panel bmb-gone" id="bmb-panel-2" data-panel="2">
+        <div class="bmb-panel-head">
+          <div class="bmb-panel-emoji">📸</div>
+          <div>
+            <h2 class="bmb-panel-title">Upload your memories</h2>
+            <p class="bmb-panel-sub">These photos will fill the pages of your magazine. <strong>Up to <span id="bmb-max-label">20</span> photos.</strong></p>
+          </div>
+        </div>
+
+        <div class="bmb-drop" id="bmb-drop" role="button" tabindex="0" aria-label="Upload photos — click or drag here">
+          <input type="file" id="bmb-file-input" accept="image/*" multiple>
+          <div class="bmb-drop-icon">📷</div>
+          <p class="bmb-drop-title">Drag & drop photos <span class="bmb-drop-or">or</span> <span class="bmb-drop-browse">browse</span></p>
+          <p class="bmb-drop-hint">JPG · PNG · HEIC · up to 10 MB each</p>
+        </div>
+
+        <div class="bmb-photo-bar">
+          <span class="bmb-photo-count"><b id="bmb-photo-n">0</b> / <b id="bmb-photo-max-n">20</b> photos</span>
+          <button type="button" class="bmb-clear-btn" id="bmb-clear" hidden>✕ Clear all</button>
+        </div>
+        <div class="bmb-photo-grid" id="bmb-photo-grid"></div>
+      </div>
+
+      <!-- ╔══════════╗ -->
+      <!-- ║  STEP 3  ║ -->
+      <!-- ╚══════════╝ -->
+      <div class="bmb-panel bmb-gone" id="bmb-panel-3" data-panel="3">
+        <div class="bmb-panel-head">
+          <div class="bmb-panel-emoji">✨</div>
+          <div>
+            <h2 class="bmb-panel-title">Choose your style</h2>
+            <p class="bmb-panel-sub">Pick the package and visual theme for your magazine.</p>
+          </div>
+        </div>
+
+        <!-- Packages (from Shopify variants) -->
+        <div class="bmb-f bmb-f--full">
+          <label class="bmb-lbl">Magazine Package</label>
+          <div class="bmb-pkgs" id="bmb-pkgs">
+            {% for variant in product.variants %}
+            <label class="bmb-pkg{% if forloop.first %} bmb-pkg--on{% endif %}"
+                   data-vid="{{ variant.id }}"
+                   data-price="{{ variant.price | money_without_currency }}">
+              <input type="radio" name="bmb-variant" value="{{ variant.id }}"{% if forloop.first %} checked{% endif %}>
+              <div class="bmb-pkg-inner">
+                <div class="bmb-pkg-name">{{ variant.title }}</div>
+                <div class="bmb-pkg-price">{{ variant.price | money }}</div>
+                {% if forloop.index == 3 %}<div class="bmb-pkg-badge">⭐ Most Popular</div>{% endif %}
+              </div>
+            </label>
+            {% else %}
+            <label class="bmb-pkg bmb-pkg--on"
+                   data-vid="{{ product.variants.first.id }}"
+                   data-price="{{ product.price | money_without_currency }}">
+              <input type="radio" name="bmb-variant" value="{{ product.variants.first.id }}" checked>
+              <div class="bmb-pkg-inner">
+                <div class="bmb-pkg-name">Birthday Magazine</div>
+                <div class="bmb-pkg-price">{{ product.price | money }}</div>
+              </div>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Cover Style -->
+        <div class="bmb-f bmb-f--full">
+          <label class="bmb-lbl">Cover Style</label>
+          <div class="bmb-cs-wrap">
+            <button type="button" class="bmb-cs bmb-cs--on" data-cs="Modern"    data-cc="#1a1a2e">
+              <div class="bmb-cs-dot" style="background:#1a1a2e"></div><span>Modern</span>
+            </button>
+            <button type="button" class="bmb-cs" data-cs="Vintage"   data-cc="#6b4a2a">
+              <div class="bmb-cs-dot" style="background:#6b4a2a"></div><span>Vintage</span>
+            </button>
+            <button type="button" class="bmb-cs" data-cs="Elegant"   data-cc="#2d3a4a">
+              <div class="bmb-cs-dot" style="background:#2d3a4a"></div><span>Elegant</span>
+            </button>
+            <button type="button" class="bmb-cs" data-cs="Playful"   data-cc="#e91e8c">
+              <div class="bmb-cs-dot" style="background:#e91e8c"></div><span>Playful</span>
+            </button>
+            <button type="button" class="bmb-cs" data-cs="Minimal"   data-cc="#f5f5f0">
+              <div class="bmb-cs-dot" style="background:#f5f5f0;border:2px solid #ccc"></div><span>Minimal</span>
+            </button>
+            <button type="button" class="bmb-cs" data-cs="Golden"    data-cc="#b8860b">
+              <div class="bmb-cs-dot" style="background:linear-gradient(135deg,#b8860b,#F4B400)"></div><span>Golden</span>
+            </button>
+          </div>
+          <input type="hidden" id="bmb-cs-val" value="Modern">
+          <input type="hidden" id="bmb-cc-val" value="#1a1a2e">
+        </div>
+
+        <div class="bmb-fg">
+          <div class="bmb-f">
+            <label class="bmb-lbl">Paper Finish</label>
+            <div class="bmb-pills" data-target="bmb-paper">
+              <button type="button" class="bmb-pill bmb-pill--on" data-v="Glossy">Glossy ✨</button>
+              <button type="button" class="bmb-pill" data-v="Matte">Matte</button>
+              <button type="button" class="bmb-pill" data-v="Satin">Satin</button>
+            </div>
+            <input type="hidden" id="bmb-paper" value="Glossy">
+          </div>
+          <div class="bmb-f">
+            <label class="bmb-lbl">Orientation</label>
+            <div class="bmb-pills" data-target="bmb-orientation">
+              <button type="button" class="bmb-pill bmb-pill--on" data-v="Portrait">Portrait</button>
+              <button type="button" class="bmb-pill" data-v="Square">Square</button>
+            </div>
+            <input type="hidden" id="bmb-orientation" value="Portrait">
+          </div>
+        </div>
+      </div>
+
+      <!-- ╔══════════╗ -->
+      <!-- ║  STEP 4  ║ -->
+      <!-- ╚══════════╝ -->
+      <div class="bmb-panel bmb-gone" id="bmb-panel-4" data-panel="4">
+        <div class="bmb-panel-head">
+          <div class="bmb-panel-emoji">💬</div>
+          <div>
+            <h2 class="bmb-panel-title">Add your words</h2>
+            <p class="bmb-panel-sub">These appear on the cover and opening page of your magazine.</p>
+          </div>
+        </div>
+
+        <div class="bmb-fg">
+          <div class="bmb-f bmb-f--full">
+            <label class="bmb-lbl" for="bmb-headline">Magazine Headline <span class="bmb-ast">*</span></label>
+            <input class="bmb-inp bmb-inp--big" id="bmb-headline" type="text"
+                   placeholder="e.g. 25 Years of Priya" maxlength="50">
+            <span class="bmb-cnt"><span id="bmb-hl-n">0</span>/50</span>
+          </div>
+
+          <div class="bmb-f bmb-f--full">
+            <label class="bmb-lbl" for="bmb-ded">Dedication Message</label>
+            <textarea class="bmb-ta" id="bmb-ded" rows="4"
+                      placeholder="A heartfelt message for the opening page…" maxlength="400"></textarea>
+            <span class="bmb-cnt"><span id="bmb-ded-n">0</span>/400</span>
+          </div>
+
+          <div class="bmb-f bmb-f--full">
+            <label class="bmb-lbl" for="bmb-quote">Special Quote <span class="bmb-opt">(optional)</span></label>
+            <input class="bmb-inp" id="bmb-quote" type="text"
+                   placeholder='"Happiness is homemade"' maxlength="120">
+          </div>
+        </div>
+      </div>
+
+      <!-- ╔══════════╗ -->
+      <!-- ║  STEP 5  ║ -->
+      <!-- ╚══════════╝ -->
+      <div class="bmb-panel bmb-gone" id="bmb-panel-5" data-panel="5">
+        <div class="bmb-panel-head">
+          <div class="bmb-panel-emoji">🎉</div>
+          <div>
+            <h2 class="bmb-panel-title">Review & Order</h2>
+            <p class="bmb-panel-sub">One last look before we start printing your memories.</p>
+          </div>
+        </div>
+
+        <div class="bmb-review" id="bmb-review"><!-- filled by JS --></div>
+        <div class="bmb-photo-chip" id="bmb-photo-chip"><!-- filled by JS --></div>
+
+        <div class="bmb-f bmb-f--full bmb-email-row">
+          <label class="bmb-lbl" for="bmb-email">Your Email <span class="bmb-ast">*</span></label>
+          <input class="bmb-inp" id="bmb-email" type="email"
+                 placeholder="your@email.com"
+                 value="{{ customer.email | default: '' }}">
+          <p class="bmb-email-note">📬 Your photos are sent securely to our print team. Order confirmation goes to you.</p>
+        </div>
+
+        <button type="button" class="bmb-atc" id="bmb-atc">
+          <span class="bmb-atc-idle">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            Add to Cart &amp; Send Photos
+          </span>
+          <span class="bmb-atc-busy" hidden><span class="bmb-spin"></span> Processing…</span>
+          <span class="bmb-atc-ok"   hidden>✓ Done! Redirecting to cart…</span>
+        </button>
+        <p class="bmb-atc-legal">Photos sent securely to <b>{{ section.settings.print_email | default: 'print@quickbee.store' }}</b></p>
+        <div class="bmb-err" id="bmb-err" hidden></div>
+      </div>
+
+      <!-- NAVIGATION -->
+      <div class="bmb-nav">
+        <button type="button" class="bmb-btn-back" id="bmb-back" hidden>← Back</button>
+        <button type="button" class="bmb-btn-next" id="bmb-next">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── PREVIEW SIDE ── -->
+    <div class="bmb-prev-side">
+      <div class="bmb-prev-sticky">
+        <p class="bmb-prev-tag">✦ Live Preview</p>
+
+        <!-- Magazine Mockup -->
+        <div class="bmb-mag-scene">
+          <div class="bmb-mag" id="bmb-mag">
+            <div class="bmb-mag-spine" id="bmb-mag-spine"></div>
+            <div class="bmb-mag-front" id="bmb-mag-front">
+              <div class="bmb-mag-img-wrap" id="bmb-mag-img-wrap">
+                <img class="bmb-mag-img" id="bmb-mag-img" src="" alt="" hidden>
+                <div class="bmb-mag-placeholder" id="bmb-mag-ph">
+                  <span>📷</span>
+                  <p>Cover photo<br>appears here</p>
+                </div>
+              </div>
+              <div class="bmb-mag-overlay" id="bmb-mag-overlay">
+                <div class="bmb-mag-brand">QUICKBEE MAGAZINE</div>
+                <div class="bmb-mag-hl" id="bmb-mag-hl">Your Title Here</div>
+                <div class="bmb-mag-who" id="bmb-mag-who">For Someone Special</div>
+                <div class="bmb-mag-when" id="bmb-mag-when"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview Stats -->
+        <div class="bmb-prev-stats">
+          <div class="bmb-prev-row">
+            <span class="bmb-prev-k">Package</span>
+            <span class="bmb-prev-v" id="bmb-pv-pkg">—</span>
+          </div>
+          <div class="bmb-prev-row">
+            <span class="bmb-prev-k">Photos</span>
+            <span class="bmb-prev-v" id="bmb-pv-photos">0 added</span>
+          </div>
+          <div class="bmb-prev-row">
+            <span class="bmb-prev-k">Style</span>
+            <span class="bmb-prev-v" id="bmb-pv-style">Modern</span>
+          </div>
+        </div>
+        <div class="bmb-prev-price-row">
+          <span>Total</span>
+          <span class="bmb-prev-price-amt" id="bmb-pv-price">{{ product.price | money }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /bmb-body -->
+</div><!-- /bmb -->
+
+<!-- ════════════════════════════════════════════════════ -->
+<!--                       STYLES                        -->
+<!-- ════════════════════════════════════════════════════ -->
+<style>
+/* ── Design Tokens ── */
+.bmb {
+  --bmb-gold: #F4B400;
+  --bmb-gold-dim: rgba(244,180,0,.18);
+  --bmb-bg: #fff;
+  --bmb-bg2: #f6f7f9;
+  --bmb-bg3: #eef0f3;
+  --bmb-text: #111;
+  --bmb-text2: #555;
+  --bmb-text3: #888;
+  --bmb-border: rgba(0,0,0,.10);
+  --bmb-radius: 16px;
+  --bmb-radius-sm: 10px;
+  --bmb-shadow: 0 4px 24px rgba(0,0,0,.08);
+  --bmb-shadow-card: 0 2px 12px rgba(0,0,0,.06);
+  --bmb-inp-bg: #f5f6f8;
+  --bmb-inp-border: rgba(0,0,0,.12);
+}
+[data-theme="dark"] .bmb {
+  --bmb-bg: #111;
+  --bmb-bg2: #1a1a1a;
+  --bmb-bg3: #232323;
+  --bmb-text: #f0f0f0;
+  --bmb-text2: #aaa;
+  --bmb-text3: #666;
+  --bmb-border: rgba(255,255,255,.08);
+  --bmb-shadow: 0 4px 24px rgba(0,0,0,.4);
+  --bmb-shadow-card: 0 2px 12px rgba(0,0,0,.3);
+  --bmb-inp-bg: #1e1e1e;
+  --bmb-inp-border: rgba(255,255,255,.10);
+}
+
+/* ── Wrapper ── */
+.bmb {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 0 80px;
+  color: var(--bmb-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ── Hero ── */
+.bmb-hero {
+  text-align: center;
+  padding: 56px 24px 40px;
+}
+.bmb-hero-chip {
+  display: inline-block;
+  background: var(--bmb-gold-dim);
+  color: var(--bmb-gold);
+  border: 1.5px solid var(--bmb-gold-dim);
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  margin-bottom: 16px;
+}
+.bmb-hero-h1 {
+  font-size: clamp(26px, 5vw, 44px);
+  font-weight: 800;
+  line-height: 1.15;
+  margin: 0 0 12px;
+  color: var(--bmb-text);
+}
+.bmb-gold { color: var(--bmb-gold); }
+.bmb-hero-p {
+  font-size: 16px;
+  color: var(--bmb-text2);
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ── Progress ── */
+.bmb-prog-wrap {
+  position: relative;
+  padding: 0 24px 40px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+.bmb-prog-rail {
+  position: absolute;
+  top: 20px;
+  left: calc(24px + 10%);
+  right: calc(24px + 10%);
+  height: 3px;
+  background: var(--bmb-bg3);
+  border-radius: 2px;
+  z-index: 0;
+}
+.bmb-prog-fill {
+  height: 100%;
+  background: var(--bmb-gold);
+  border-radius: 2px;
+  transition: width .4s ease;
+  width: 0%;
+}
+.bmb-prog-steps {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+}
+.bmb-prog-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: default;
+}
+.bmb-prog-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bmb-bg3);
+  border: 2.5px solid var(--bmb-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--bmb-text3);
+  transition: all .3s ease;
+  position: relative;
+}
+.bmb-prog-ck { display: none; }
+.bmb-prog-dot.active .bmb-prog-circle {
+  background: var(--bmb-gold);
+  border-color: var(--bmb-gold);
+  color: #000;
+  box-shadow: 0 0 0 5px rgba(244,180,0,.18);
+}
+.bmb-prog-dot.done .bmb-prog-circle {
+  background: var(--bmb-gold);
+  border-color: var(--bmb-gold);
+  color: #000;
+}
+.bmb-prog-dot.done .bmb-prog-n { display: none; }
+.bmb-prog-dot.done .bmb-prog-ck { display: block; }
+.bmb-prog-lbl {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bmb-text3);
+  letter-spacing: .02em;
+}
+.bmb-prog-dot.active .bmb-prog-lbl,
+.bmb-prog-dot.done .bmb-prog-lbl { color: var(--bmb-text); }
+
+/* ── Body Layout ── */
+.bmb-body {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 32px;
+  padding: 0 24px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .bmb-body { grid-template-columns: 1fr; }
+}
+
+/* ── Panel ── */
+.bmb-panel {
+  background: var(--bmb-bg);
+  border: 1.5px solid var(--bmb-border);
+  border-radius: var(--bmb-radius);
+  padding: 32px;
+  box-shadow: var(--bmb-shadow-card);
+  margin-bottom: 0;
+}
+.bmb-gone { display: none !important; }
+.bmb-panel-head {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+.bmb-panel-emoji {
+  font-size: 36px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.bmb-panel-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0 0 4px;
+  color: var(--bmb-text);
+}
+.bmb-panel-sub {
+  font-size: 14px;
+  color: var(--bmb-text2);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Field Grid ── */
+.bmb-fg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.bmb-f { display: flex; flex-direction: column; gap: 6px; position: relative; }
+.bmb-f--full { grid-column: 1 / -1; }
+.bmb-lbl {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bmb-text);
+  letter-spacing: .01em;
+}
+.bmb-ast { color: var(--bmb-gold); }
+.bmb-opt { color: var(--bmb-text3); font-weight: 400; }
+@media (max-width: 520px) {
+  .bmb-fg { grid-template-columns: 1fr; }
+}
+
+/* ── Inputs ── */
+.bmb-inp {
+  height: 48px;
+  padding: 0 14px;
+  background: var(--bmb-inp-bg);
+  border: 1.5px solid var(--bmb-inp-border);
+  border-radius: var(--bmb-radius-sm);
+  font-size: 15px;
+  color: var(--bmb-text);
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+  width: 100%;
+}
+.bmb-inp:focus {
+  border-color: var(--bmb-gold);
+  box-shadow: 0 0 0 3px rgba(244,180,0,.15);
+  background: var(--bmb-bg);
+}
+.bmb-inp--big { font-size: 17px; font-weight: 600; }
+.bmb-ta {
+  padding: 12px 14px;
+  background: var(--bmb-inp-bg);
+  border: 1.5px solid var(--bmb-inp-border);
+  border-radius: var(--bmb-radius-sm);
+  font-size: 15px;
+  color: var(--bmb-text);
+  outline: none;
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color .15s, box-shadow .15s;
+  width: 100%;
+  font-family: inherit;
+}
+.bmb-ta:focus {
+  border-color: var(--bmb-gold);
+  box-shadow: 0 0 0 3px rgba(244,180,0,.15);
+  background: var(--bmb-bg);
+}
+.bmb-cnt {
+  font-size: 11px;
+  color: var(--bmb-text3);
+  text-align: right;
+  margin-top: 2px;
+}
+
+/* ── Occasion buttons ── */
+.bmb-occ-wrap {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.bmb-occ {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  background: var(--bmb-inp-bg);
+  border: 2px solid var(--bmb-inp-border);
+  border-radius: var(--bmb-radius-sm);
+  font-size: 22px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.bmb-occ span {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--bmb-text2);
+}
+.bmb-occ--on {
+  border-color: var(--bmb-gold);
+  background: rgba(244,180,0,.08);
+  box-shadow: 0 0 0 3px rgba(244,180,0,.12);
+}
+.bmb-occ--on span { color: var(--bmb-text); }
+.bmb-occ:hover { border-color: var(--bmb-gold); transform: translateY(-2px); }
+@media (max-width: 400px) {
+  .bmb-occ-wrap { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Drop zone ── */
+.bmb-drop {
+  border: 2.5px dashed var(--bmb-inp-border);
+  border-radius: var(--bmb-radius);
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  position: relative;
+  background: var(--bmb-inp-bg);
+  margin-bottom: 16px;
+}
+.bmb-drop input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.bmb-drop:hover, .bmb-drop.drag-over {
+  border-color: var(--bmb-gold);
+  background: rgba(244,180,0,.05);
+}
+.bmb-drop-icon { font-size: 42px; margin-bottom: 10px; }
+.bmb-drop-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--bmb-text);
+  margin: 0 0 4px;
+}
+.bmb-drop-or { color: var(--bmb-text3); }
+.bmb-drop-browse {
+  color: var(--bmb-gold);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.bmb-drop-hint { font-size: 12px; color: var(--bmb-text3); margin: 0; }
+
+/* Photo grid */
+.bmb-photo-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--bmb-text2);
+}
+.bmb-clear-btn {
+  background: none;
+  border: none;
+  color: #e53e3e;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.bmb-clear-btn:hover { background: rgba(229,62,62,.1); }
+.bmb-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+@media (max-width: 520px) {
+  .bmb-photo-grid { grid-template-columns: repeat(3, 1fr); }
+}
+.bmb-thumb {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bmb-bg3);
+  border: 1.5px solid var(--bmb-border);
+}
+.bmb-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.bmb-thumb-del {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  background: rgba(0,0,0,.7);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s;
+  line-height: 1;
+}
+.bmb-thumb:hover .bmb-thumb-del { opacity: 1; }
+.bmb-thumb--cover::after {
+  content: 'Cover';
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  background: var(--bmb-gold);
+  color: #000;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: .03em;
+}
+
+/* ── Package cards ── */
+.bmb-pkgs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+.bmb-pkg {
+  border: 2px solid var(--bmb-inp-border);
+  border-radius: var(--bmb-radius-sm);
+  padding: 14px 12px;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+  background: var(--bmb-inp-bg);
+}
+.bmb-pkg input { position: absolute; opacity: 0; pointer-events: none; }
+.bmb-pkg--on {
+  border-color: var(--bmb-gold);
+  background: rgba(244,180,0,.06);
+  box-shadow: 0 0 0 3px rgba(244,180,0,.14);
+}
+.bmb-pkg:hover { border-color: var(--bmb-gold); transform: translateY(-2px); }
+.bmb-pkg-name { font-size: 13px; font-weight: 700; color: var(--bmb-text); margin-bottom: 4px; }
+.bmb-pkg-price { font-size: 16px; font-weight: 800; color: var(--bmb-gold); }
+.bmb-pkg-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--bmb-gold);
+  margin-top: 4px;
+  letter-spacing: .02em;
+}
+
+/* ── Cover styles ── */
+.bmb-cs-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.bmb-cs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px 8px 8px;
+  border: 2px solid var(--bmb-inp-border);
+  border-radius: 999px;
+  background: var(--bmb-inp-bg);
+  cursor: pointer;
+  transition: all .2s;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bmb-text);
+}
+.bmb-cs-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.bmb-cs--on {
+  border-color: var(--bmb-gold);
+  background: rgba(244,180,0,.06);
+  box-shadow: 0 0 0 3px rgba(244,180,0,.12);
+}
+.bmb-cs:hover { border-color: var(--bmb-gold); }
+
+/* ── Pill groups ── */
+.bmb-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.bmb-pill {
+  padding: 8px 16px;
+  border: 1.5px solid var(--bmb-inp-border);
+  border-radius: 999px;
+  background: var(--bmb-inp-bg);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bmb-text2);
+  cursor: pointer;
+  transition: all .15s;
+}
+.bmb-pill--on {
+  background: var(--bmb-gold);
+  border-color: var(--bmb-gold);
+  color: #000;
+}
+.bmb-pill:hover:not(.bmb-pill--on) { border-color: var(--bmb-gold); color: var(--bmb-text); }
+
+/* ── Review card ── */
+.bmb-review {
+  background: var(--bmb-bg2);
+  border: 1.5px solid var(--bmb-border);
+  border-radius: var(--bmb-radius-sm);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.bmb-review-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--bmb-border);
+  font-size: 14px;
+}
+.bmb-review-row:last-child { border-bottom: none; }
+.bmb-review-k { color: var(--bmb-text3); font-weight: 500; }
+.bmb-review-v { color: var(--bmb-text); font-weight: 600; text-align: right; max-width: 60%; }
+.bmb-photo-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(244,180,0,.08);
+  border: 1.5px solid rgba(244,180,0,.25);
+  border-radius: var(--bmb-radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: var(--bmb-text);
+}
+.bmb-email-row { margin-bottom: 20px; }
+.bmb-email-note {
+  font-size: 12px;
+  color: var(--bmb-text3);
+  margin: 4px 0 0;
+  line-height: 1.4;
+}
+
+/* ── Add to Cart ── */
+.bmb-atc {
+  width: 100%;
+  height: 56px;
+  background: var(--bmb-gold);
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform .15s, box-shadow .15s, opacity .15s;
+  box-shadow: 0 4px 20px rgba(244,180,0,.35);
+  margin-bottom: 10px;
+  letter-spacing: .01em;
+}
+.bmb-atc:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(244,180,0,.45); }
+.bmb-atc:active { transform: scale(.98); }
+.bmb-atc:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+.bmb-atc-idle { display: flex; align-items: center; gap: 8px; }
+.bmb-atc-legal {
+  text-align: center;
+  font-size: 12px;
+  color: var(--bmb-text3);
+  margin: 0 0 16px;
+}
+.bmb-err {
+  background: #fff0f0;
+  border: 1.5px solid #ffcdd2;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #c62828;
+  margin-top: 8px;
+}
+[data-theme="dark"] .bmb-err {
+  background: rgba(198,40,40,.12);
+  border-color: rgba(198,40,40,.3);
+  color: #ef9a9a;
+}
+.bmb-spin {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(0,0,0,.2);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: bmbSpin .7s linear infinite;
+  display: inline-block;
+}
+@keyframes bmbSpin { to { transform: rotate(360deg); } }
+
+/* ── Navigation buttons ── */
+.bmb-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+.bmb-btn-back, .bmb-btn-next {
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+  border: none;
+}
+.bmb-btn-back {
+  background: var(--bmb-bg2);
+  border: 1.5px solid var(--bmb-border);
+  color: var(--bmb-text);
+}
+.bmb-btn-back:hover { background: var(--bmb-bg3); }
+.bmb-btn-next {
+  background: var(--bmb-gold);
+  color: #000;
+  box-shadow: 0 4px 16px rgba(244,180,0,.3);
+  margin-left: auto;
+}
+.bmb-btn-next:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(244,180,0,.4); }
+.bmb-btn-next:active { transform: scale(.98); }
+
+/* ── Preview side ── */
+.bmb-prev-side { position: relative; }
+.bmb-prev-sticky {
+  position: sticky;
+  top: 90px;
+  background: var(--bmb-bg);
+  border: 1.5px solid var(--bmb-border);
+  border-radius: var(--bmb-radius);
+  padding: 24px;
+  box-shadow: var(--bmb-shadow-card);
+}
+.bmb-prev-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--bmb-gold);
+  margin: 0 0 16px;
+  text-align: center;
+}
+
+/* ── Magazine mockup ── */
+.bmb-mag-scene {
+  perspective: 800px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  padding: 20px 0;
+}
+.bmb-mag {
+  position: relative;
+  width: 160px;
+  height: 213px;
+  transform: rotateY(-12deg) rotateX(3deg);
+  transform-style: preserve-3d;
+  filter: drop-shadow(10px 14px 28px rgba(0,0,0,.35));
+  transition: transform .4s ease, filter .4s ease;
+}
+.bmb-mag:hover {
+  transform: rotateY(-6deg) rotateX(1deg);
+  filter: drop-shadow(14px 20px 36px rgba(0,0,0,.4));
+}
+.bmb-mag-spine {
+  position: absolute;
+  left: -14px;
+  top: 0;
+  width: 14px;
+  height: 100%;
+  background: linear-gradient(to right, #0a0a0a, #1a1a2e);
+  border-radius: 3px 0 0 3px;
+  transform-origin: right center;
+}
+.bmb-mag-front {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px 6px 6px 2px;
+  overflow: hidden;
+  background: #1a1a2e;
+  transition: background .4s;
+}
+.bmb-mag-img-wrap {
+  position: absolute;
+  inset: 0;
+}
+.bmb-mag-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.bmb-mag-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: rgba(255,255,255,.04);
+}
+.bmb-mag-placeholder span { font-size: 28px; }
+.bmb-mag-placeholder p { font-size: 9px; color: rgba(255,255,255,.4); margin: 0; text-align: center; line-height: 1.4; }
+.bmb-mag-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 10px 10px;
+  background: linear-gradient(to top, rgba(0,0,0,.9), rgba(0,0,0,.6), transparent);
+}
+.bmb-mag-brand {
+  font-size: 6px;
+  letter-spacing: .15em;
+  color: var(--bmb-gold);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  opacity: .9;
+}
+.bmb-mag-hl {
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.25;
+  margin-bottom: 2px;
+  word-break: break-word;
+}
+.bmb-mag-who {
+  font-size: 8px;
+  color: rgba(255,255,255,.8);
+  font-weight: 500;
+}
+.bmb-mag-when {
+  font-size: 7px;
+  color: var(--bmb-gold);
+  margin-top: 2px;
+}
+
+/* Preview stats */
+.bmb-prev-stats { margin-bottom: 12px; }
+.bmb-prev-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--bmb-border);
+  font-size: 13px;
+}
+.bmb-prev-row:last-child { border-bottom: none; }
+.bmb-prev-k { color: var(--bmb-text3); }
+.bmb-prev-v { font-weight: 600; color: var(--bmb-text); }
+.bmb-prev-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--bmb-bg2);
+  border-radius: var(--bmb-radius-sm);
+  font-size: 14px;
+  color: var(--bmb-text2);
+}
+.bmb-prev-price-amt {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--bmb-gold);
+}
+
+/* Mobile preview goes top */
+@media (max-width: 900px) {
+  .bmb-prev-side { order: -1; }
+  .bmb-prev-sticky { position: static; }
+  .bmb-mag { width: 120px; height: 160px; }
+  .bmb-panel { padding: 24px 18px; }
+}
+</style>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!--                    JAVASCRIPT                       -->
+<!-- ════════════════════════════════════════════════════ -->
+<script>
+(function(){
+'use strict';
+
+// ── State ──────────────────────────────────────────────
+var state = {
+  step: 1,
+  recipient: '',
+  occasion: 'Birthday',
+  date: '',
+  from: '',
+  photos: [],       // {id, dataUrl, thumbUrl, name, size}
+  variantId: null,
+  variantTitle: '',
+  variantPrice: '',
+  coverStyle: 'Modern',
+  coverColor: '#1a1a2e',
+  paper: 'Glossy',
+  orientation: 'Portrait',
+  headline: '',
+  dedication: '',
+  quote: '',
+  email: ''
+};
+
+var MAX_PHOTOS = parseInt(document.getElementById('bmb-root').dataset.maxPhotos) || 20;
+var PRINT_EMAIL = document.getElementById('bmb-root').dataset.printEmail || 'print@quickbee.store';
+
+// ── DOM refs ───────────────────────────────────────────
+function $id(id){ return document.getElementById(id); }
+
+// ── INIT ───────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function(){
+  init();
+});
+// Also call directly in case DOM already loaded
+if(document.readyState !== 'loading'){ init(); }
+
+function init(){
+  var root = $id('bmb-root');
+  if(!root || root.dataset.bmbInit){ return; }
+  root.dataset.bmbInit = '1';
+
+  // Set max labels
+  var maxLabel = $id('bmb-max-label');
+  var maxLabelN = $id('bmb-photo-max-n');
+  if(maxLabel) maxLabel.textContent = MAX_PHOTOS;
+  if(maxLabelN) maxLabelN.textContent = MAX_PHOTOS;
+
+  // Default variantId from first package
+  var firstPkg = root.querySelector('.bmb-pkg');
+  if(firstPkg){
+    state.variantId = firstPkg.dataset.vid;
+    state.variantTitle = firstPkg.querySelector('.bmb-pkg-name') ? firstPkg.querySelector('.bmb-pkg-name').textContent.trim() : '';
+    state.variantPrice = firstPkg.dataset.price;
+  }
+
+  bindStep1();
+  bindStep2();
+  bindStep3();
+  bindStep4();
+  bindStep5();
+  bindNav();
+  updateProgress();
+  updatePreview();
+}
+
+// ── Step 1 bindings ────────────────────────────────────
+function bindStep1(){
+  var rec = $id('bmb-recipient');
+  var frm = $id('bmb-from');
+  var dte = $id('bmb-date');
+  if(rec) rec.addEventListener('input', function(){ state.recipient = rec.value.trim(); updatePreview(); });
+  if(frm) frm.addEventListener('input', function(){ state.from = frm.value.trim(); });
+  if(dte) dte.addEventListener('change', function(){ state.date = dte.value; updatePreview(); });
+
+  // Occasion buttons
+  var occBtns = document.querySelectorAll('.bmb-occ');
+  occBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      occBtns.forEach(function(b){ b.classList.remove('bmb-occ--on'); });
+      btn.classList.add('bmb-occ--on');
+      state.occasion = btn.dataset.occ;
+      var hid = $id('bmb-occasion');
+      if(hid) hid.value = state.occasion;
+    });
+  });
+}
+
+// ── Step 2 bindings ────────────────────────────────────
+function bindStep2(){
+  var drop = $id('bmb-drop');
+  var input = $id('bmb-file-input');
+  var clearBtn = $id('bmb-clear');
+
+  if(!drop || !input) return;
+
+  drop.addEventListener('dragover', function(e){
+    e.preventDefault();
+    drop.classList.add('drag-over');
+  });
+  drop.addEventListener('dragleave', function(){
+    drop.classList.remove('drag-over');
+  });
+  drop.addEventListener('drop', function(e){
+    e.preventDefault();
+    drop.classList.remove('drag-over');
+    handleFiles(e.dataTransfer.files);
+  });
+
+  input.addEventListener('change', function(){
+    handleFiles(input.files);
+    input.value = '';
+  });
+
+  if(clearBtn){
+    clearBtn.addEventListener('click', function(){
+      state.photos = [];
+      renderPhotoGrid();
+      updatePreview();
+    });
+  }
+}
+
+function handleFiles(files){
+  var arr = Array.from(files);
+  arr.forEach(function(file){
+    if(!file.type.startsWith('image/')) return;
+    if(state.photos.length >= MAX_PHOTOS) return;
+    compressImage(file, 900, 0.75, function(dataUrl, thumbUrl){
+      var id = 'ph_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+      state.photos.push({ id: id, dataUrl: dataUrl, thumbUrl: thumbUrl, name: file.name, size: file.size });
+      renderPhotoGrid();
+      updatePreview();
+    });
+  });
+}
+
+function compressImage(file, maxSize, quality, cb){
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var img = new Image();
+    img.onload = function(){
+      // Full size (max 900px)
+      var canvas = document.createElement('canvas');
+      var w = img.width, h = img.height;
+      if(w > maxSize || h > maxSize){
+        var ratio = Math.min(maxSize/w, maxSize/h);
+        w = Math.round(w*ratio); h = Math.round(h*ratio);
+      }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      var dataUrl = canvas.toDataURL('image/jpeg', quality);
+      // Thumbnail (120px)
+      var tc = document.createElement('canvas');
+      var ts = 120;
+      tc.width = ts; tc.height = ts;
+      var cx = tc.getContext('2d');
+      var scale = Math.max(ts/w, ts/h);
+      var dw = w*scale, dh = h*scale;
+      cx.drawImage(img, (ts-dw)/2, (ts-dh)/2, dw, dh);
+      var thumbUrl = tc.toDataURL('image/jpeg', 0.6);
+      cb(dataUrl, thumbUrl);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderPhotoGrid(){
+  var grid = $id('bmb-photo-grid');
+  var nEl = $id('bmb-photo-n');
+  var clearBtn = $id('bmb-clear');
+  if(!grid) return;
+  if(nEl) nEl.textContent = state.photos.length;
+  if(clearBtn) clearBtn.hidden = state.photos.length === 0;
+  grid.innerHTML = '';
+  state.photos.forEach(function(ph, idx){
+    var div = document.createElement('div');
+    div.className = 'bmb-thumb' + (idx === 0 ? ' bmb-thumb--cover' : '');
+    var img = document.createElement('img');
+    img.src = ph.thumbUrl;
+    img.alt = ph.name;
+    var del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'bmb-thumb-del';
+    del.textContent = '×';
+    del.setAttribute('aria-label', 'Remove photo');
+    del.addEventListener('click', function(e){
+      e.stopPropagation();
+      state.photos = state.photos.filter(function(p){ return p.id !== ph.id; });
+      renderPhotoGrid();
+      updatePreview();
+    });
+    div.appendChild(img);
+    div.appendChild(del);
+    grid.appendChild(div);
+  });
+  // Update preview stats
+  var pvPhotos = $id('bmb-pv-photos');
+  if(pvPhotos) pvPhotos.textContent = state.photos.length + ' added';
+}
+
+// ── Step 3 bindings ────────────────────────────────────
+function bindStep3(){
+  // Package selection
+  var pkgs = document.querySelectorAll('.bmb-pkg');
+  pkgs.forEach(function(pkg){
+    pkg.addEventListener('click', function(){
+      pkgs.forEach(function(p){ p.classList.remove('bmb-pkg--on'); });
+      pkg.classList.add('bmb-pkg--on');
+      var radio = pkg.querySelector('input[type="radio"]');
+      if(radio) radio.checked = true;
+      state.variantId = pkg.dataset.vid;
+      state.variantTitle = pkg.querySelector('.bmb-pkg-name') ? pkg.querySelector('.bmb-pkg-name').textContent.trim() : '';
+      state.variantPrice = pkg.dataset.price;
+      var pvPkg = $id('bmb-pv-pkg');
+      if(pvPkg) pvPkg.textContent = state.variantTitle;
+      var pvPrice = $id('bmb-pv-price');
+      if(pvPrice) pvPrice.textContent = formatMoney(state.variantPrice);
+    });
+  });
+
+  // Cover styles
+  var csbtns = document.querySelectorAll('.bmb-cs');
+  csbtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      csbtns.forEach(function(b){ b.classList.remove('bmb-cs--on'); });
+      btn.classList.add('bmb-cs--on');
+      state.coverStyle = btn.dataset.cs;
+      state.coverColor = btn.dataset.cc;
+      var csv = $id('bmb-cs-val');
+      var ccv = $id('bmb-cc-val');
+      if(csv) csv.value = state.coverStyle;
+      if(ccv) ccv.value = state.coverColor;
+      var pvStyle = $id('bmb-pv-style');
+      if(pvStyle) pvStyle.textContent = state.coverStyle;
+      applyMagCoverColor(state.coverColor);
+    });
+  });
+
+  // Pill groups
+  var pillGroups = document.querySelectorAll('.bmb-pills');
+  pillGroups.forEach(function(grp){
+    var pills = grp.querySelectorAll('.bmb-pill');
+    var targetId = grp.dataset.target;
+    pills.forEach(function(pill){
+      pill.addEventListener('click', function(){
+        pills.forEach(function(p){ p.classList.remove('bmb-pill--on'); });
+        pill.classList.add('bmb-pill--on');
+        var hid = $id(targetId);
+        if(hid) hid.value = pill.dataset.v;
+        if(targetId === 'bmb-paper') state.paper = pill.dataset.v;
+        if(targetId === 'bmb-orientation') state.orientation = pill.dataset.v;
+      });
+    });
+  });
+}
+
+function formatMoney(val){
+  if(!val) return '';
+  // val could be like "1500" or already formatted
+  var num = parseFloat(String(val).replace(/[^0-9.]/g, ''));
+  if(isNaN(num)) return val;
+  return 'Rs. ' + num.toLocaleString('en-IN');
+}
+
+function applyMagCoverColor(color){
+  var front = $id('bmb-mag-front');
+  var spine = $id('bmb-mag-spine');
+  if(front) front.style.background = color;
+  if(spine){
+    spine.style.background = 'linear-gradient(to right, rgba(0,0,0,.6), ' + color + ')';
+  }
+}
+
+// ── Step 4 bindings ────────────────────────────────────
+function bindStep4(){
+  var hl = $id('bmb-headline');
+  var ded = $id('bmb-ded');
+  var qt = $id('bmb-quote');
+  var hlN = $id('bmb-hl-n');
+  var dedN = $id('bmb-ded-n');
+
+  if(hl){
+    hl.addEventListener('input', function(){
+      state.headline = hl.value;
+      if(hlN) hlN.textContent = hl.value.length;
+      var magHl = $id('bmb-mag-hl');
+      if(magHl) magHl.textContent = hl.value || 'Your Title Here';
+    });
+  }
+  if(ded){
+    ded.addEventListener('input', function(){
+      state.dedication = ded.value;
+      if(dedN) dedN.textContent = ded.value.length;
+    });
+  }
+  if(qt){
+    qt.addEventListener('input', function(){
+      state.quote = qt.value;
+    });
+  }
+}
+
+// ── Step 5 bindings ────────────────────────────────────
+function bindStep5(){
+  var emailInput = $id('bmb-email');
+  if(emailInput){
+    emailInput.addEventListener('input', function(){
+      state.email = emailInput.value.trim();
+    });
+    // Pre-fill
+    state.email = emailInput.value.trim();
+  }
+
+  var atcBtn = $id('bmb-atc');
+  if(atcBtn){
+    atcBtn.addEventListener('click', handleOrder);
+  }
+}
+
+// ── Navigation ─────────────────────────────────────────
+function bindNav(){
+  var nextBtn = $id('bmb-next');
+  var backBtn = $id('bmb-back');
+  if(nextBtn) nextBtn.addEventListener('click', goNext);
+  if(backBtn) backBtn.addEventListener('click', goBack);
+}
+
+function goNext(){
+  if(!validateStep(state.step)) return;
+  if(state.step < 5){
+    setStep(state.step + 1);
+  }
+}
+function goBack(){
+  if(state.step > 1) setStep(state.step - 1);
+}
+
+function setStep(n){
+  var old = state.step;
+  state.step = n;
+
+  var oldPanel = $id('bmb-panel-' + old);
+  var newPanel = $id('bmb-panel-' + n);
+  if(oldPanel) oldPanel.classList.add('bmb-gone');
+  if(newPanel) newPanel.classList.remove('bmb-gone');
+
+  // Nav buttons
+  var backBtn = $id('bmb-back');
+  var nextBtn = $id('bmb-next');
+  if(backBtn) backBtn.hidden = n === 1;
+  if(nextBtn) nextBtn.hidden = n === 5;
+
+  // Dots
+  updateProgress();
+
+  // Step 5 populate
+  if(n === 5) populateReview();
+
+  // Scroll to top of form
+  var formSide = document.querySelector('.bmb-form-side');
+  if(formSide){ formSide.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+}
+
+function validateStep(n){
+  var err = $id('bmb-err');
+  function showErr(msg){
+    if(err){ err.textContent = msg; err.hidden = false; }
+    setTimeout(function(){ if(err) err.hidden = true; }, 4000);
+  }
+  if(n === 1){
+    var rec = $id('bmb-recipient');
+    var frm = $id('bmb-from');
+    if(!rec || !rec.value.trim()){ showErr('Please enter the recipient\'s name.'); rec && rec.focus(); return false; }
+    if(!frm || !frm.value.trim()){ showErr('Please enter your name (From).'); frm && frm.focus(); return false; }
+    state.recipient = rec.value.trim();
+    state.from = frm.value.trim();
+  }
+  if(n === 2){
+    if(state.photos.length < 1){ showErr('Please upload at least 1 photo.'); return false; }
+  }
+  if(n === 4){
+    var hl = $id('bmb-headline');
+    if(!hl || !hl.value.trim()){ showErr('Please enter a magazine headline.'); hl && hl.focus(); return false; }
+    state.headline = hl.value.trim();
+  }
+  return true;
+}
+
+function updateProgress(){
+  var fill = $id('bmb-prog-fill');
+  var pct = ((state.step - 1) / 4) * 100;
+  if(fill) fill.style.width = pct + '%';
+
+  var dots = document.querySelectorAll('.bmb-prog-dot');
+  dots.forEach(function(dot){
+    var ds = parseInt(dot.dataset.step);
+    dot.classList.remove('active', 'done');
+    if(ds === state.step) dot.classList.add('active');
+    else if(ds < state.step) dot.classList.add('done');
+  });
+}
+
+// ── Review ─────────────────────────────────────────────
+function populateReview(){
+  var card = $id('bmb-review');
+  var chip = $id('bmb-photo-chip');
+  if(!card) return;
+
+  var dateStr = state.date ? new Date(state.date + 'T00:00:00').toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }) : '—';
+
+  var rows = [
+    { k: 'Recipient', v: state.recipient || '—' },
+    { k: 'Occasion',  v: state.occasion },
+    { k: 'From',      v: state.from || '—' },
+    { k: 'Date',      v: dateStr },
+    { k: 'Package',   v: state.variantTitle || '—' },
+    { k: 'Cover Style', v: state.coverStyle },
+    { k: 'Paper',     v: state.paper },
+    { k: 'Headline',  v: state.headline || '—' },
+  ];
+
+  card.innerHTML = rows.map(function(r){
+    return '<div class="bmb-review-row"><span class="bmb-review-k">' + escHtml(r.k) +
+      '</span><span class="bmb-review-v">' + escHtml(r.v) + '</span></div>';
+  }).join('');
+
+  if(chip){
+    chip.innerHTML = '📷 <strong>' + state.photos.length + ' photo' + (state.photos.length !== 1 ? 's' : '') +
+      '</strong> will be sent to our print team at ' + escHtml(PRINT_EMAIL);
+  }
+}
+
+// ── Live Preview ───────────────────────────────────────
+function updatePreview(){
+  // Cover photo
+  var img = $id('bmb-mag-img');
+  var ph  = $id('bmb-mag-ph');
+  if(state.photos.length > 0){
+    if(img){ img.src = state.photos[0].thumbUrl; img.hidden = false; }
+    if(ph)  ph.style.display = 'none';
+  } else {
+    if(img) img.hidden = true;
+    if(ph)  ph.style.display = '';
+  }
+
+  // Text
+  var magHl = $id('bmb-mag-hl');
+  var magWho = $id('bmb-mag-who');
+  var magWhen = $id('bmb-mag-when');
+  if(magHl)  magHl.textContent = state.headline || 'Your Title Here';
+  if(magWho) magWho.textContent = state.recipient ? 'For ' + state.recipient : 'For Someone Special';
+  if(magWhen && state.date){
+    magWhen.textContent = new Date(state.date+'T00:00:00').toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+  }
+
+  // Stats
+  var pvPkg = $id('bmb-pv-pkg');
+  var pvPhotos = $id('bmb-pv-photos');
+  var pvStyle = $id('bmb-pv-style');
+  if(pvPkg) pvPkg.textContent = state.variantTitle || '—';
+  if(pvPhotos) pvPhotos.textContent = state.photos.length + ' added';
+  if(pvStyle) pvStyle.textContent = state.coverStyle;
+}
+
+// ── Order Handling ─────────────────────────────────────
+async function handleOrder(){
+  var emailInput = $id('bmb-email');
+  state.email = emailInput ? emailInput.value.trim() : '';
+
+  if(!state.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email)){
+    showError('Please enter a valid email address.');
+    if(emailInput) emailInput.focus();
+    return;
+  }
+
+  setAtcState('busy');
+
+  try {
+    // 1. Build order note
+    var note = buildOrderNote();
+
+    // 2. Build line item properties
+    var props = buildProperties();
+
+    // 3. Add to cart
+    await addToCart(props);
+
+    // 4. Update cart note
+    await updateCartNote(note);
+
+    // 5. Send photos via EmailJS (non-blocking, don't fail order if email fails)
+    sendPhotosEmail().catch(function(e){ console.warn('Email send failed:', e); });
+
+    // 6. Success
+    setAtcState('ok');
+    setTimeout(function(){ window.location.href = '/cart'; }, 1800);
+
+  } catch(err){
+    setAtcState('idle');
+    showError('Something went wrong: ' + (err.message || 'Please try again.'));
+    console.error(err);
+  }
+}
+
+function buildOrderNote(){
+  var lines = [
+    '=== BIRTHDAY MAGAZINE ORDER ===',
+    'Recipient: ' + state.recipient,
+    'Occasion: ' + state.occasion,
+    'From: ' + state.from,
+    state.date ? 'Date: ' + state.date : '',
+    'Package: ' + state.variantTitle,
+    'Cover Style: ' + state.coverStyle,
+    'Paper Finish: ' + state.paper,
+    'Orientation: ' + state.orientation,
+    'Headline: ' + state.headline,
+    state.dedication ? 'Dedication: ' + state.dedication : '',
+    state.quote ? 'Quote: ' + state.quote : '',
+    'Photos: ' + state.photos.length + ' photo(s)',
+    'Customer Email: ' + state.email,
+    '=== Print photos sent to ' + PRINT_EMAIL + ' ==='
+  ].filter(Boolean);
+  return lines.join('\n');
+}
+
+function buildProperties(){
+  var props = {
+    'Recipient': state.recipient,
+    'Occasion': state.occasion,
+    'From': state.from,
+    'Cover Style': state.coverStyle,
+    'Paper': state.paper,
+    'Orientation': state.orientation,
+    'Headline': state.headline,
+    'Photos Uploaded': state.photos.length + ' photo(s)',
+    'Customer Email': state.email
+  };
+  if(state.date) props['Occasion Date'] = state.date;
+  if(state.dedication) props['Dedication'] = state.dedication.slice(0,250);
+  if(state.quote) props['Quote'] = state.quote;
+  return props;
+}
+
+async function addToCart(properties){
+  var vid = state.variantId;
+  if(!vid){
+    var root = $id('bmb-root');
+    vid = root ? root.dataset.variantId : null;
+  }
+  if(!vid) throw new Error('No product variant selected.');
+
+  var resp = await fetch('/cart/add.js', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+    body: JSON.stringify({ id: parseInt(vid), quantity: 1, properties: properties })
+  });
+  if(!resp.ok){
+    var text = await resp.text();
+    throw new Error('Cart error: ' + text);
+  }
+  return resp.json();
+}
+
+async function updateCartNote(note){
+  var resp = await fetch('/cart/update.js', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+    body: JSON.stringify({ note: note })
+  });
+  if(!resp.ok) console.warn('Note update failed');
+}
+
+async function sendPhotosEmail(){
+  var root = $id('bmb-root');
+  var serviceId = root ? root.dataset.serviceId : '';
+  var templateId = root ? root.dataset.templateId : '';
+
+  if(!serviceId || !templateId){
+    console.info('EmailJS not configured — skipping photo email.');
+    return;
+  }
+  if(typeof emailjs === 'undefined'){
+    console.warn('EmailJS not loaded');
+    return;
+  }
+
+  // Build template params
+  var params = {
+    to_email: PRINT_EMAIL,
+    customer_email: state.email,
+    recipient_name: state.recipient,
+    occasion: state.occasion,
+    from_name: state.from,
+    headline: state.headline,
+    package: state.variantTitle,
+    cover_style: state.coverStyle,
+    paper: state.paper,
+    orientation: state.orientation,
+    dedication: state.dedication || '—',
+    quote: state.quote || '—',
+    photo_count: state.photos.length,
+    occasion_date: state.date || '—',
+    order_note: buildOrderNote()
+  };
+
+  // Attach up to 10 compressed thumbnails as inline params
+  state.photos.slice(0, 10).forEach(function(ph, idx){
+    params['photo_' + (idx + 1)] = ph.thumbUrl;
+    params['photo_name_' + (idx + 1)] = ph.name;
+  });
+
+  return emailjs.send(serviceId, templateId, params);
+}
+
+// ── UI helpers ─────────────────────────────────────────
+function setAtcState(st){
+  var btn = $id('bmb-atc');
+  if(!btn) return;
+  var idle = btn.querySelector('.bmb-atc-idle');
+  var busy = btn.querySelector('.bmb-atc-busy');
+  var ok   = btn.querySelector('.bmb-atc-ok');
+  if(idle) idle.hidden = st !== 'idle';
+  if(busy) busy.hidden = st !== 'busy';
+  if(ok)   ok.hidden   = st !== 'ok';
+  btn.disabled = st !== 'idle';
+}
+
+function showError(msg){
+  var err = $id('bmb-err');
+  if(err){ err.textContent = msg; err.hidden = false; }
+  setTimeout(function(){ if(err) err.hidden = true; }, 6000);
+}
+
+function escHtml(s){
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Birthday Magazine Builder",
+  "tag": "section",
+  "class": "birthday-magazine-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "EmailJS Configuration"
+    },
+    {
+      "type": "paragraph",
+      "content": "Create a free account at emailjs.com to enable automatic photo emails to print@quickbee.store"
+    },
+    {
+      "type": "text",
+      "id": "emailjs_public_key",
+      "label": "EmailJS Public Key",
+      "placeholder": "user_xxxxxxxxxxxxxxx"
+    },
+    {
+      "type": "text",
+      "id": "emailjs_service_id",
+      "label": "EmailJS Service ID",
+      "placeholder": "service_xxxxxxx"
+    },
+    {
+      "type": "text",
+      "id": "emailjs_template_id",
+      "label": "EmailJS Template ID",
+      "placeholder": "template_xxxxxxx"
+    },
+    {
+      "type": "header",
+      "content": "Print Settings"
+    },
+    {
+      "type": "text",
+      "id": "print_email",
+      "label": "Print Team Email",
+      "default": "print@quickbee.store"
+    },
+    {
+      "type": "range",
+      "id": "max_photos",
+      "label": "Maximum Photos",
+      "min": 5,
+      "max": 50,
+      "step": 5,
+      "default": 20
+    }
+  ],
+  "presets": [
+    {
+      "name": "Birthday Magazine Builder"
+    }
+  ]
+}
+{% endschema %}
