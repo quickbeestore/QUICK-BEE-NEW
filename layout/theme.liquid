@@ -482,6 +482,21 @@
   </head>
 
   <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">
+    <!-- Block cart transitions until page is fully painted to prevent flash-open bug -->
+    <script>
+      (function(){
+        // Add qb-ready AFTER first paint — this enables transitions only after initial render
+        if (window.requestAnimationFrame) {
+          requestAnimationFrame(function(){
+            requestAnimationFrame(function(){
+              document.body.classList.add('qb-ready');
+            });
+          });
+        } else {
+          setTimeout(function(){ document.body.classList.add('qb-ready'); }, 100);
+        }
+      })();
+    </script>
     {% render 'skip-to-content-link', href: '#MainContent', text: 'accessibility.skip_to_text' %}
     <div id="header-group">
       {% section 'quickbee-header' %}
@@ -894,6 +909,18 @@
   }
   #qb-cart-overlay.qb-open { opacity: 1; pointer-events: auto; }
 
+  /* ── Block all transitions until page is ready ── */
+  #qb-cart-drawer,
+  #qb-cart-overlay {
+    transition: none !important;
+  }
+  body.qb-ready #qb-cart-drawer {
+    transition: transform 0.36s cubic-bezier(0.32,0.72,0,1) !important;
+  }
+  body.qb-ready #qb-cart-overlay {
+    transition: opacity 0.3s ease !important;
+  }
+
   #qb-cart-drawer {
     position: fixed;
     right: 0; top: 0; bottom: 0;
@@ -901,8 +928,7 @@
     background: #111;
     z-index: 49999;
     display: flex; flex-direction: column;
-    transform: translateX(100%);
-    transition: transform 0.36s cubic-bezier(0.32,0.72,0,1);
+    transform: translateX(110%);   /* start fully off-screen, no animation */
     box-shadow: -8px 0 48px rgba(0,0,0,0.6);
   }
   #qb-cart-drawer.qb-open { transform: translateX(0); }
@@ -916,7 +942,7 @@
       width: 100%; max-width: 100%;
       height: 88vh;
       border-radius: 22px 22px 0 0;
-      transform: translateY(100%);
+      transform: translateY(110%);   /* start fully below screen */
       box-shadow: 0 -8px 48px rgba(0,0,0,0.5);
     }
     #qb-cart-drawer.qb-open { transform: translateY(0); }
@@ -1264,6 +1290,5 @@
   })();
   </script>
 
-  {%- render 'qb-cart-note-sync' -%}
   </body>
 </html>
