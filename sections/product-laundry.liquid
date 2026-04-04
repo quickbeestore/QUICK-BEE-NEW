@@ -688,7 +688,7 @@
       <div class="lb-section-title">① Choose Service</div>
       <div class="lb-services-grid" id="lb-services" role="radiogroup" aria-label="Laundry services">
 
-        <div class="lb-service-card" data-variant-title="Wash &amp; Fold" data-unit="kg" tabindex="0" role="radio" aria-checked="false">
+        <div class="lb-service-card" data-variant-title="Wash &amp; Fold (kg)" data-unit="kg" tabindex="0" role="radio" aria-checked="false">
           <div class="lb-svc-icon-wrap">🫧</div>
           <div class="lb-svc-info">
             <div class="lb-svc-name">Wash &amp; Fold</div>
@@ -704,7 +704,7 @@
           <div class="lb-selected-check">✓</div>
         </div>
 
-        <div class="lb-service-card" data-variant-title="Wash &amp; Fold + Iron" data-unit="kg" tabindex="0" role="radio" aria-checked="false">
+        <div class="lb-service-card" data-variant-title="Wash &amp; Fold + Iron (kg)" data-unit="kg" tabindex="0" role="radio" aria-checked="false">
           <div class="lb-svc-icon-wrap">♨️</div>
           <div class="lb-svc-info">
             <div class="lb-svc-name">Wash &amp; Fold + Iron</div>
@@ -720,7 +720,7 @@
           <div class="lb-selected-check">✓</div>
         </div>
 
-        <div class="lb-service-card" data-variant-title="Dry Cleaning" data-unit="pcs" tabindex="0" role="radio" aria-checked="false">
+        <div class="lb-service-card" data-variant-title="Dry Cleaning (pcs)" data-unit="pcs" tabindex="0" role="radio" aria-checked="false">
           <div class="lb-svc-icon-wrap">🧴</div>
           <div class="lb-svc-info">
             <div class="lb-svc-name">Dry Cleaning</div>
@@ -736,7 +736,7 @@
           <div class="lb-selected-check">✓</div>
         </div>
 
-        <div class="lb-service-card" data-variant-title="Iron Only" data-unit="pcs" tabindex="0" role="radio" aria-checked="false">
+        <div class="lb-service-card" data-variant-title="Iron Only (pcs)" data-unit="pcs" tabindex="0" role="radio" aria-checked="false">
           <div class="lb-svc-icon-wrap">🔥</div>
           <div class="lb-svc-info">
             <div class="lb-svc-name">Iron Only</div>
@@ -752,7 +752,7 @@
           <div class="lb-selected-check">✓</div>
         </div>
 
-        <div class="lb-service-card" data-variant-title="Bedsheets &amp; Linen" data-unit="set" tabindex="0" role="radio" aria-checked="false">
+        <div class="lb-service-card" data-variant-title="Bedsheets &amp; Linen (set)" data-unit="set" tabindex="0" role="radio" aria-checked="false">
           <div class="lb-svc-icon-wrap">🛏️</div>
           <div class="lb-svc-info">
             <div class="lb-svc-name">Bedsheets &amp; Linen</div>
@@ -860,10 +860,10 @@
       <div class="lb-sticky-price-main" id="lb-sticky-price">Rs —</div>
       <div class="lb-sticky-price-sub" id="lb-sticky-price-sub">Select service</div>
     </div>
-    <button class="lb-add-btn" id="lb-add-btn" disabled aria-label="Schedule laundry pickup">
+    <button class="lb-add-btn" id="lb-add-btn" disabled aria-label="Confirm order and go to checkout">
       <span class="lb-add-btn-content">
-        <span>🧺</span>
-        <span id="lb-btn-text">Add Pickup</span>
+        <span>✅</span>
+        <span id="lb-btn-text">Confirm Order</span>
       </span>
     </button>
   </div>
@@ -917,26 +917,38 @@
   /* ══════════════════════════════════
      VARIANT LOOKUP
   ══════════════════════════════════ */
+  function cleanStr(s) {
+    return String(s)
+      .replace(/&amp;/g, '&')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+  }
   function findVariant(titleMatch) {
-    // Normalise HTML entities before comparing
-    var clean = function(s) {
-      return s.replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ').trim().toLowerCase();
-    };
-    var needle = clean(titleMatch);
+    var needle = cleanStr(titleMatch);
     return ALL_VARIANTS.find(function (v) {
-      return clean(v.title) === needle;
+      return cleanStr(v.title) === needle ||
+             cleanStr(v.option1 || '') === needle;
     }) || null;
   }
 
   /* ══════════════════════════════════
      PRICE FORMATTING
+     Shopify Liquid JSON prices are in subunits (paisa × 100)
   ══════════════════════════════════ */
-  function fmtPrice(paisa) {
-    // Shopify stores prices in paisa (smallest unit × 100)
-    return 'Rs ' + Math.round(paisa / 100);
-  }
   function variantRs(variant) {
-    return variant ? Math.round(variant.price / 100) : 0;
+    if (!variant) return 0;
+    // price from {{ product.variants | json }} is integer subunits (e.g. 9900 = Rs 99)
+    return Math.round(parseFloat(variant.price) / 100);
+  }
+
+  /* Strip trailing unit suffix "(kg)" / "(pcs)" / "(set)" for display */
+  function displayTitle(rawTitle) {
+    return rawTitle
+      .replace(/&amp;/g, '&')
+      .replace(/\s*\((kg|pcs|set)\)\s*$/i, '')
+      .trim();
   }
 
   /* ══════════════════════════════════
@@ -1046,8 +1058,8 @@
     els.addBtn.disabled            = false;
 
     // Summary rows
-    var rawTitle = state.selectedCard.getAttribute('data-variant-title').replace(/&amp;/g, '&');
-    els.sumService.textContent   = rawTitle;
+    var rawTitle = state.selectedCard.getAttribute('data-variant-title');
+    els.sumService.textContent   = displayTitle(rawTitle);
     els.sumQty.textContent       = state.qty + ' ' + unit;
     els.sumUnitPrice.textContent = 'Rs ' + variantRs(v) + '/' + unit;
     els.sumTotal.textContent     = 'Rs ' + p.total;
@@ -1101,17 +1113,17 @@
     var btn = els.addBtn;
     if (on) {
       btn.classList.add('loading');
-      btn.innerHTML = '<span class="lb-spinner"></span>';
+      btn.innerHTML = '<span class="lb-spinner"></span><span style="font-size:13px;font-weight:700;letter-spacing:0.3px;">Processing…</span>';
     } else {
       btn.classList.remove('loading');
-      btn.innerHTML = '<span class="lb-add-btn-content"><span>🧺</span><span id="lb-btn-text">Add Pickup</span></span>';
+      btn.innerHTML = '<span class="lb-add-btn-content"><span>✅</span><span id="lb-btn-text">Confirm Order</span></span>';
     }
   }
 
   function addToCart() {
     if (!validate()) return;
 
-    var rawTitle = state.selectedCard.getAttribute('data-variant-title').replace(/&amp;/g, '&');
+    var rawTitle = state.selectedCard.getAttribute('data-variant-title');
     var unit     = state.selectedCard.getAttribute('data-unit');
     var p        = calcTotal();
     var notes    = (els.notes.value || '').trim();
@@ -1120,7 +1132,7 @@
       id:         state.selectedVariant.id,
       quantity:   state.qty,
       properties: {
-        'Service':        rawTitle,
+        'Service':        displayTitle(rawTitle),
         'Quantity':       state.qty + ' ' + unit,
         'Express':        state.express ? 'Yes (+Rs ' + p.express + ')' : 'No',
         'Pickup Notes':   notes || 'None',
@@ -1142,15 +1154,18 @@
       return res.json();
     })
     .then(function () {
-      setLoading(false);
-      showFeedback('success', 'Pickup added! <a href="/cart" style="color:inherit;font-weight:900;text-decoration:underline;">View Cart →</a>');
-      // Update cart count in header if available
-      if (typeof refreshCart === 'function') refreshCart();
-      document.dispatchEvent(new CustomEvent('cart:updated'));
+      // Sync location data to cart note, then go straight to checkout
+      if (typeof window.qbSyncCartNote === 'function') {
+        window.qbSyncCartNote();
+      }
+      // Small delay to let cart note update before redirect
+      setTimeout(function () {
+        window.location.href = '/checkout';
+      }, 120);
     })
     .catch(function (err) {
       setLoading(false);
-      showFeedback('error', 'Could not add to cart. Please try again.');
+      showFeedback('error', 'Something went wrong. Please try again.');
       console.error('[lb] cart add failed:', err);
     });
   }

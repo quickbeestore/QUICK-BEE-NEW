@@ -1,0 +1,68 @@
+{% comment %}
+  qb-cart-note-sync.liquid
+  Automatically writes QB location picker data into the Shopify cart note.
+  Runs on every page load. Safe — silently skips if no location data exists.
+{% endcomment %}
+<script>
+(function () {
+  'use strict';
+
+  /* ── Read location + delivery data from localStorage ── */
+  function getQBLocation() {
+    try { return JSON.parse(localStorage.getItem('qb_selected_location') || 'null'); } catch (_) { return null; }
+  }
+  function getQBDelivery() {
+    try { return JSON.parse(localStorage.getItem('qb_delivery_time') || 'null'); } catch (_) { return null; }
+  }
+
+  /* ── Build a human-readable cart note ── */
+  function buildNote(loc, del) {
+    var parts = [];
+    if (loc) {
+      var addr = loc.address || loc.street || loc.location || '';
+      var name = loc.recipient_name || loc.name || '';
+      var link = loc.landmark_link || '';
+      if (addr)  parts.push('📍 Delivery Address: ' + addr);
+      if (link && link !== addr) parts.push('🔗 Location Link: ' + link);
+      if (name)  parts.push('👤 Recipient: ' + name);
+      if (loc.latitude && loc.longitude) {
+        parts.push('🗺 Coordinates: ' + parseFloat(loc.latitude).toFixed(5) + ', ' + parseFloat(loc.longitude).toFixed(5));
+      }
+    }
+    if (del) {
+      if (del.range) parts.push('⚡ Est. Delivery: ' + del.range);
+    }
+    return parts.join('\n');
+  }
+
+  /* ── Push note to Shopify cart via /cart/update.js ── */
+  function syncCartNote() {
+    var loc = getQBLocation();
+    var del = getQBDelivery();
+    if (!loc && !del) return; // nothing to sync
+
+    var note = buildNote(loc, del);
+    if (!note) return;
+
+    fetch('/cart/update.js', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body:    JSON.stringify({ note: note })
+    }).catch(function () {}); // silent fail
+  }
+
+  /* ── Run on page load + whenever location is updated ── */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', syncCartNote);
+  } else {
+    syncCartNote();
+  }
+
+  /* Re-sync when user picks a new location */
+  window.addEventListener('locationSelected',    syncCartNote);
+  window.addEventListener('qb_location_changed', syncCartNote);
+
+  /* Expose globally so other scripts (laundry booking, etc.) can call it */
+  window.qbSyncCartNote = syncCartNote;
+})();
+</script>
