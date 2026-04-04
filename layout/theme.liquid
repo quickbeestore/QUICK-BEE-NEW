@@ -726,69 +726,148 @@
 
 
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const checkoutButtons = document.querySelectorAll('button[name="checkout"], input[name="checkout"], a[href="/checkout"]');
-        
-        checkoutButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                // Only intercept if we are on the cart page or a cart drawer/popup
-                e.preventDefault();
-                const checkoutTarget = this;
-                
-                try {
-                    // 1. Grab the raw data from local storage using QuickBee keys
-                    const rawLocation = localStorage.getItem('qb_selected_location');
-                    const nickname = localStorage.getItem('qb_active_nickname') || 'Unspecified';
-                    const mapsLink = localStorage.getItem('qb_landmark_' + nickname) || localStorage.getItem('qb_landmark_Current') || '';
-                    
-                    if (rawLocation) {
-                        // 2. Parse the JSON string safely
-                        const locData = JSON.parse(rawLocation);
-                        const streetName = locData.street || rawLocation; // Fallback to raw string if 'street' key is missing
-                        
-                        // 3. Format a beautiful, readable note for the delivery rider
-                        let formattedNote = `📍 Delivery Address: ${streetName}\n`;
-                        formattedNote += `🏠 Type: ${nickname}\n`;
-                        
-                        if (mapsLink) {
-                            formattedNote += `🗺️ Maps Link: ${mapsLink}\n`;
-                        }
-                        
-                        // 4. Send the formatted note to Shopify's Cart API
-                        fetch(window.Shopify.routes.root + 'cart/update.js', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ note: formattedNote })
-                        })
-                        .then(() => {
-                            goToCheckout(checkoutTarget);
-                        })
-                        .catch((error) => {
-                            console.error('QuickBee: Error saving location note:', error);
-                            goToCheckout(checkoutTarget); // Don't block checkout on failure
-                        });
-                    } else {
-                        // No location data found, proceed normally
-                        goToCheckout(checkoutTarget);
-                    }
-                } catch (err) {
-                    console.error('QuickBee: Error processing local storage data:', err);
-                    goToCheckout(checkoutTarget); // Proceed to checkout even if JSON parsing fails
-                }
-            });
-        });
+    /* ═══════════════════════════════════════════════════════════
+       QUICKBEE — GLOBAL CHECKOUT GATE
+       All "Proceed to Checkout" flows route through /pages/payment
+       unless cart total is zero (e.g. free/donation orders).
+       ═══════════════════════════════════════════════════════════ */
+    (function () {
+      'use strict';
 
-        function goToCheckout(button) {
-            const form = button.closest('form[action="/cart"]');
-            if (form) {
-                form.submit();
-            } else {
-                window.location.href = '/checkout';
-            }
+      var PAYMENT_PAGE = '/pages/payment';
+      var CHECKOUT_URL = '/checkout';
+
+      /* ── Check if an element is a checkout trigger ── */
+      function isCheckoutTrigger(el) {
+        if (!el) return false;
+        /* buttons / inputs */
+        if ((el.tagName === 'BUTTON' || el.tagName === 'INPUT') && el.name === 'checkout') return true;
+        /* links pointing to /checkout */
+        if (el.tagName === 'A') {
+          var href = el.getAttribute('href') || '';
+          if (href === CHECKOUT_URL || href.startsWith(CHECKOUT_URL + '?') || href.startsWith(CHECKOUT_URL + '/')) return true;
         }
-      });
+        /* forms that submit to checkout */
+        if (el.tagName === 'FORM') {
+          var action = el.getAttribute('action') || '';
+          if (action === CHECKOUT_URL || action === '/cart') {
+            var sub = el.querySelector('[name="checkout"]');
+            if (sub) return true;
+          }
+        }
+        /* text-matched buttons (Proceed to Checkout, etc.) */
+        var text = (el.textContent || el.value || '').toLowerCase().trim();
+        if (/proceed.*(checkout|payment)|checkout now|place order/i.test(text)) return true;
+        return false;
+      }
+
+      /* ── Save location note to cart ── */
+      function saveLocationNote() {
+        try {
+          var rawLocation = localStorage.getItem('qb_selected_location');
+          var nickname    = localStorage.getItem('qb_active_nickname') || 'Unspecified';
+          var mapsLink    = localStorage.getItem('qb_landmark_' + nickname) || localStorage.getItem('qb_landmark_Current') || '';
+          if (!rawLocation) return Promise.resolve();
+          var locData   = JSON.parse(rawLocation);
+          var streetName = locData.street || rawLocation;
+          var note = '📍 Delivery Address: ' + streetName + '\n🏠 Type: ' + nickname;
+          if (mapsLink) note += '\n🗺️ Maps Link: ' + mapsLink;
+          return fetch('/cart/update.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ note: note })
+          }).catch(function () {});
+        } catch (e) { return Promise.resolve(); }
+      }
+
+      /* ── Main interceptor ── */
+      function handleCheckoutAttempt(e) {
+        var target = e.target;
+        /* walk up to 4 levels to find the real trigger */
+        var el = target;
+        var found = null;
+        for (var i = 0; i < 5 && el && el !== document.body; i++) {
+          if (isCheckoutTrigger(el)) { found = el; break; }
+          el = el.parentElement;
+        }
+        if (!found) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        fetch('/cart.js', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+          .then(function (r) { return r.json(); })
+          .then(function (cart) {
+            var total = cart.total_price || 0;
+            if (total === 0) {
+              /* Free / donation order — save note then go straight to checkout */
+              saveLocationNote().then(function () {
+                window.location.href = CHECKOUT_URL;
+              });
+            } else {
+              /* Paid order — route through payment page */
+              saveLocationNote().then(function () {
+                window.location.href = PAYMENT_PAGE;
+              });
+            }
+          })
+          .catch(function () {
+            /* On network error, save note and try to go to payment page anyway */
+            saveLocationNote().then(function () {
+              window.location.href = PAYMENT_PAGE;
+            });
+          });
+      }
+
+      /* ── Intercept form submits (cart form) ── */
+      function handleFormSubmit(e) {
+        var form = e.target;
+        if (!form || form.tagName !== 'FORM') return;
+        var action = form.getAttribute('action') || '';
+        if (action !== '/cart' && action !== CHECKOUT_URL) return;
+        var sub = form.querySelector('[name="checkout"]');
+        if (!sub) return;
+        /* Treat as checkout attempt */
+        e.preventDefault();
+        e.stopPropagation();
+        fetch('/cart.js', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+          .then(function (r) { return r.json(); })
+          .then(function (cart) {
+            var total = cart.total_price || 0;
+            saveLocationNote().then(function () {
+              window.location.href = total === 0 ? CHECKOUT_URL : PAYMENT_PAGE;
+            });
+          })
+          .catch(function () {
+            saveLocationNote().then(function () {
+              window.location.href = PAYMENT_PAGE;
+            });
+          });
+      }
+
+      /* ── Also guard direct navigation to /checkout ── */
+      if (window.location.pathname === CHECKOUT_URL || window.location.pathname.startsWith(CHECKOUT_URL + '/')) {
+        /* If someone lands directly on /checkout, send them through payment */
+        fetch('/cart.js', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+          .then(function (r) { return r.json(); })
+          .then(function (cart) {
+            if ((cart.total_price || 0) > 0) {
+              window.location.replace(PAYMENT_PAGE);
+            }
+          })
+          .catch(function () {});
+      }
+
+      /* ── Attach listeners ── */
+      document.addEventListener('click',  handleCheckoutAttempt, true);
+      document.addEventListener('submit', handleFormSubmit,      true);
+
+      /* Re-scan after any DOM mutation (catches dynamically added buttons) */
+      if (window.MutationObserver) {
+        var _mo = new MutationObserver(function () { /* listeners already cover new nodes via delegation */ });
+        _mo.observe(document.body || document.documentElement, { childList: true, subtree: true });
+      }
+    })();
     </script>
   {%- render 'qb-cart-note-sync' -%}
   </body>
