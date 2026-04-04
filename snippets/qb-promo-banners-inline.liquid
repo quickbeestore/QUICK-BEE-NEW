@@ -1,0 +1,184 @@
+{%- comment -%}
+  QuickBee — Code-Based Promotional Banner Carousel (Snippet)
+  Renders fire-themed food promo banners — no image files needed
+{%- endcomment -%}
+
+<style>
+.qbpb-outer { position:relative; overflow:hidden; touch-action:pan-y; }
+.qbpb-track { display:flex; transition:transform .45s cubic-bezier(.4,0,.2,1); will-change:transform; }
+
+.qbpb-slide {
+  flex-shrink:0; width:100%; min-height:180px;
+  position:relative; overflow:hidden;
+  display:flex; align-items:center;
+  cursor:pointer; padding:28px 22px 28px 28px; gap:0;
+  text-decoration:none;
+}
+@media(min-width:480px){.qbpb-slide{min-height:200px;padding:32px 28px}}
+@media(min-width:768px){.qbpb-slide{min-height:220px;padding:36px 40px}}
+
+.qbpb-slide-1{background:linear-gradient(135deg,#7a1200 0%,#c93100 35%,#e84e00 65%,#ff7a00 100%)}
+.qbpb-slide-2{background:linear-gradient(135deg,#5a0a0a 0%,#a01515 35%,#cc2222 65%,#e83a00 100%)}
+.qbpb-slide-3{background:linear-gradient(135deg,#1a1a00 0%,#4a3500 35%,#7a5500 65%,#c48c00 100%)}
+.qbpb-slide-4{background:linear-gradient(135deg,#3a1800 0%,#6b2e00 35%,#a04800 65%,#c86000 100%)}
+.qbpb-slide-5{background:linear-gradient(135deg,#001a3a 0%,#002d6b 40%,#003d8f 70%,#0055c8 100%)}
+
+.qbpb-slide::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(ellipse 60% 70% at 80% 50%,rgba(255,200,50,.18) 0%,transparent 65%),
+             radial-gradient(circle 200px at 20% 100%,rgba(255,100,0,.2) 0%,transparent 60%);
+  animation:qbpbGlow 3s ease-in-out infinite alternate;
+}
+.qbpb-slide::after {
+  content:'🔥'; position:absolute; font-size:120px;
+  right:-10px; bottom:-20px; opacity:.07; transform:rotate(-15deg);
+  pointer-events:none; animation:qbpbFloat 4s ease-in-out infinite;
+}
+.qbpb-slide-5::after{content:'⚡'}
+@keyframes qbpbGlow{from{opacity:.8}to{opacity:1.2}}
+@keyframes qbpbFloat{0%,100%{transform:rotate(-15deg) translateY(0)}50%{transform:rotate(-10deg) translateY(-10px)}}
+
+.qbpb-content{flex:1;min-width:0;position:relative;z-index:2}
+.qbpb-eyebrow {
+  display:inline-flex; align-items:center; gap:5px;
+  background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25);
+  border-radius:100px; padding:3px 10px;
+  font-size:9px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase;
+  color:rgba(255,255,255,.9); margin-bottom:8px;
+}
+.qbpb-title {
+  font-size:clamp(26px,7vw,52px); font-weight:900; line-height:1;
+  color:#fff; text-transform:uppercase; letter-spacing:-1px; margin-bottom:4px;
+  text-shadow:0 2px 8px rgba(0,0,0,.4);
+}
+.qbpb-title em{font-style:normal;color:#FFD700;display:block}
+.qbpb-subtitle{font-size:clamp(11px,2.5vw,14px);color:rgba(255,255,255,.8);line-height:1.4;margin-bottom:16px;font-weight:500}
+.qbpb-cta {
+  display:inline-flex; align-items:center; gap:6px;
+  background:#FFD700; color:#1a0a00;
+  font-size:clamp(11px,2.5vw,13px); font-weight:900;
+  padding:8px 16px; border-radius:100px;
+  text-transform:uppercase; letter-spacing:.5px;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+  animation:qbpbPulse 2s ease-in-out infinite; text-decoration:none;
+}
+@keyframes qbpbPulse{0%,100%{transform:scale(1);box-shadow:0 4px 20px rgba(0,0,0,.3)}50%{transform:scale(1.04);box-shadow:0 6px 28px rgba(255,215,0,.4)}}
+
+.qbpb-icon {
+  position:absolute; right:16px; top:50%; transform:translateY(-50%);
+  font-size:clamp(72px,16vw,110px); line-height:1;
+  filter:drop-shadow(0 8px 24px rgba(0,0,0,.35));
+  animation:qbpbBounce 2.5s ease-in-out infinite;
+  pointer-events:none; z-index:2;
+}
+@media(max-width:380px){.qbpb-icon{font-size:58px;right:8px}}
+@keyframes qbpbBounce{0%,100%{transform:translateY(-50%) rotate(-5deg)}50%{transform:translateY(calc(-50% - 8px)) rotate(3deg)}}
+
+.qbpb-ptag {
+  position:absolute; top:16px; right:16px;
+  background:rgba(0,0,0,.45); backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.2); border-radius:12px;
+  padding:6px 12px; text-align:center; z-index:3;
+}
+.qbpb-ptag .from{font-size:8px;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:1px;display:block}
+.qbpb-ptag .amt {font-size:20px;font-weight:900;color:#FFD700;line-height:1}
+.qbpb-ptag .unit{font-size:9px;color:rgba(255,255,255,.7)}
+
+.qbpb-dots{display:flex;justify-content:center;gap:6px;padding:10px 0 6px}
+.qbpb-dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.25);transition:all .3s;cursor:pointer}
+.qbpb-dot.act{width:22px;background:#F4B400}
+.qbpb-progress{position:absolute;bottom:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#FFD700,#F4B400);z-index:10;transition:none}
+.qbpb-progress.running{width:100%;transition:width 4s linear}
+</style>
+
+<div class="qbpb-outer" id="qbpbOuter">
+  <div class="qbpb-track" id="qbpbTrack">
+
+    <a href="/collections/typical-taste" class="qbpb-slide qbpb-slide-1">
+      <div class="qbpb-content">
+        <div class="qbpb-eyebrow">🔥 Hot &amp; Crispy</div>
+        <div class="qbpb-title">FRIED<br><em>CHICKEN</em></div>
+        <div class="qbpb-subtitle">Crispy on the outside,<br>juicy on the inside, every time.</div>
+        <span class="qbpb-cta">🛒 Order Now</span>
+      </div>
+      <div class="qbpb-icon">🍗</div>
+    </a>
+
+    <a href="/collections/typical-taste" class="qbpb-slide qbpb-slide-2">
+      <div class="qbpb-ptag"><span class="from">Free</span><span class="amt">Onion</span><span class="unit">Ring</span></div>
+      <div class="qbpb-content">
+        <div class="qbpb-eyebrow">🌶️ With Flavor Sauce</div>
+        <div class="qbpb-title">SPICY<br><em>WINGS</em></div>
+        <div class="qbpb-subtitle">Chili • Mayo • Cheese<br>Free Onion Ring included!</div>
+        <span class="qbpb-cta">🛒 Order Now</span>
+      </div>
+      <div class="qbpb-icon">🍖</div>
+    </a>
+
+    <a href="/collections/typical-taste" class="qbpb-slide qbpb-slide-3">
+      <div class="qbpb-ptag"><span class="from">Only</span><span class="amt">789</span><span class="unit">Rs</span></div>
+      <div class="qbpb-content">
+        <div class="qbpb-eyebrow">⚡ Get 3 Burgers</div>
+        <div class="qbpb-title">TRIPLE<br><em>COMBO</em></div>
+        <div class="qbpb-subtitle">+Add on Coke &nbsp;·&nbsp; +French Fries<br>Best deal of the day!</div>
+        <span class="qbpb-cta">🛒 Order Now</span>
+      </div>
+      <div class="qbpb-icon">🍔</div>
+    </a>
+
+    <a href="/collections/typical-taste" class="qbpb-slide qbpb-slide-4">
+      <div class="qbpb-ptag"><span class="from">Starting</span><span class="amt">149</span><span class="unit">Rs /-</span></div>
+      <div class="qbpb-content">
+        <div class="qbpb-eyebrow">🍚 Chef's Special</div>
+        <div class="qbpb-title">BIRYANI<br><em>149/-</em></div>
+        <div class="qbpb-subtitle">Aromatic · Fresh · Authentic<br>Delivered hot to your door</div>
+        <span class="qbpb-cta">🛒 Order Now</span>
+      </div>
+      <div class="qbpb-icon">🍛</div>
+    </a>
+
+    <a href="/collections/all" class="qbpb-slide qbpb-slide-5">
+      <div class="qbpb-content">
+        <div class="qbpb-eyebrow">⚡ QuickBee Promise</div>
+        <div class="qbpb-title">20 MIN<br><em>DELIVERY</em></div>
+        <div class="qbpb-subtitle">Across Kathmandu Valley<br>Use code <strong style="color:#FFD700">FREE28</strong> for free delivery</div>
+        <span class="qbpb-cta">🐝 Shop Now</span>
+      </div>
+      <div class="qbpb-icon" style="animation:none;transform:translateY(-50%)">🛵</div>
+    </a>
+
+  </div>
+  <div class="qbpb-progress" id="qbpbProgress"></div>
+</div>
+<div class="qbpb-dots" id="qbpbDots"></div>
+
+<script>
+(function(){
+  var track=document.getElementById('qbpbTrack');
+  var dotsW=document.getElementById('qbpbDots');
+  var prog =document.getElementById('qbpbProgress');
+  if(!track)return;
+  var slides=track.querySelectorAll('.qbpb-slide');
+  var total=slides.length, cur=0, timer;
+  slides.forEach(function(_,i){
+    var d=document.createElement('div');
+    d.className='qbpb-dot'+(i===0?' act':'');
+    d.addEventListener('click',function(){goTo(i);reset();});
+    dotsW.appendChild(d);
+  });
+  function goTo(i){
+    cur=(i+total)%total;
+    track.style.transform='translateX(-'+cur+'00%)';
+    dotsW.querySelectorAll('.qbpb-dot').forEach(function(d,j){d.classList.toggle('act',j===cur);});
+    if(prog){prog.classList.remove('running');prog.style.width='0';void prog.offsetWidth;prog.classList.add('running');}
+  }
+  function reset(){clearInterval(timer);timer=setInterval(function(){goTo(cur+1);},4200);}
+  var sx=0;
+  track.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;},{passive:true});
+  track.addEventListener('touchend',function(e){
+    var dx=e.changedTouches[0].clientX-sx;
+    if(Math.abs(dx)>40){dx<0?goTo(cur+1):goTo(cur-1);reset();}
+  },{passive:true});
+  goTo(0);reset();
+})();
+</script>

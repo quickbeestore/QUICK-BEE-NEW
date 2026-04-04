@@ -659,7 +659,169 @@ html:not([data-theme="dark"]) .qb-svc-card.live {
 }
 </style>
 
+<style>
+/* ═══════════════════════════════════════
+   QUICKBEE HOMEPAGE v3 — MOBILE FIRST
+   ═══════════════════════════════════════ */
+
+/* ── Category Nav ── */
+.qb-cat-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--theme-bg-primary);
+  border-bottom: 1px solid rgba(244,180,0,0.08);
+  padding: 10px 0;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.qb-cat-track {
+  display: flex;
+  gap: 8px;
+  padding: 0 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-snap-type: x mandatory;
+}
+.qb-cat-track::-webkit-scrollbar { display: none; }
+.qb-cat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(244,180,0,0.18);
+  background: rgba(244,180,0,0.06);
+  color: var(--theme-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+.qb-cat-pill:hover,
+.qb-cat-pill.active {
+  background: #F4B400;
+  border-color: #F4B400;
+  color: #111;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(244,180,0,0.3);
+}
+
+/* ── Improved product cards ── */
+.qb-combo-card {
+  flex: 0 0 calc(46% - 4px) !important;
+}
+@media(min-width:480px) { .qb-combo-card { flex: 0 0 calc(38% - 4px) !important; } }
+@media(min-width:768px) { .qb-combo-card { flex: 0 0 calc(28% - 8px) !important; } }
+@media(min-width:1024px) { .qb-combo-card { flex: 0 0 230px !important; } }
+
+/* ADD button on combo cards — more prominent */
+.qb-combo-add-btn {
+  width: 36px !important;
+  height: 36px !important;
+  font-size: 22px !important;
+  border-radius: 12px !important;
+  background: #F4B400 !important;
+  color: #111 !important;
+  box-shadow: 0 4px 14px rgba(244,180,0,0.38) !important;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1) !important;
+}
+.qb-combo-add-btn:hover {
+  background: #ffd700 !important;
+  transform: scale(1.12) !important;
+  box-shadow: 0 6px 18px rgba(244,180,0,0.5) !important;
+}
+.qb-combo-add-btn:active { transform: scale(0.9) !important; }
+
+/* Bigger, bolder section title */
+.qb-combo-title {
+  font-size: 19px !important;
+  letter-spacing: -0.5px !important;
+}
+.qb-combo-subtitle { font-size: 11px !important; }
+
+/* Product name in card */
+.qb-combo-product-name {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+}
+
+/* Price - brighter */
+.qb-combo-price {
+  font-size: 16px !important;
+  letter-spacing: -0.5px !important;
+}
+
+/* Card image - slightly bigger aspect ratio */
+.qb-combo-img-wrap { aspect-ratio: 4/3 !important; }
+
+/* Scroll indicator gradient on slider */
+.qb-combo-slider-outer::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 32px;
+  background: linear-gradient(to right, transparent, var(--theme-bg-primary));
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Section fade-in animation */
+.qb-section-fadein {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.qb-section-fadein.qb-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Section header separator line */
+.qb-combo-slider-section {
+  border-top: 1px solid rgba(244,180,0,0.06);
+}
+
+/* Banner rounded corners on mobile */
+.qb-large-banner-wrap a {
+  border-radius: 14px !important;
+}
+@media (max-width: 640px) {
+  .qb-large-banner-wrap { padding: 4px 10px !important; }
+}
+</style>
+
 <div class="qb-hp">
+
+  <!-- ══════════════════════════════════════════
+       📌 STICKY CATEGORY NAVIGATION
+  ══════════════════════════════════════════ -->
+  <nav class="qb-cat-nav" aria-label="Browse categories">
+    <div class="qb-cat-track" id="qbCatTrack">
+      <a href="/collections/typical-taste" class="qb-cat-pill">🍖 Food</a>
+      <a href="/collections/cake"          class="qb-cat-pill">🎂 Cakes</a>
+      <a href="#qb-beer-combos"  class="qb-cat-pill active" data-target="qb-beer-combos">🍺 Beer Combos</a>
+      <a href="#qb-beer"         class="qb-cat-pill" data-target="qb-beer">🍻 Beer</a>
+      <a href="#qb-smokes"       class="qb-cat-pill" data-target="qb-smokes">🚬 Smokes</a>
+      <a href="#qb-whiskey"      class="qb-cat-pill" data-target="qb-whiskey">🥃 Whiskey</a>
+      <a href="#qb-vodka"        class="qb-cat-pill" data-target="qb-vodka">🍸 Vodka</a>
+      <a href="#qb-imported"     class="qb-cat-pill" data-target="qb-imported">🌍 Imported</a>
+      <a href="#qb-baby"         class="qb-cat-pill" data-target="qb-baby">🍼 Baby</a>
+      <a href="#qb-pet"          class="qb-cat-pill" data-target="qb-pet">🐾 Pet</a>
+      <a href="#qb-yeti"         class="qb-cat-pill" data-target="qb-yeti">☕ Yeti Kafe</a>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════════
+       🔥 PROMO BANNER CAROUSEL (code-based)
+  ══════════════════════════════════════════ -->
+  {%- render 'qb-promo-banners-inline' -%}
 
   <!-- ══════════════════════════════════════════
        🏠 4 SMALL TOP BANNERS — ROW A
@@ -678,6 +840,125 @@ html:not([data-theme="dark"]) .qb-svc-card.live {
       <img src="{{ 'SMALL - A4.png' | asset_url }}" alt="Yeti Kafe" loading="eager">
     </a>
   </div>
+
+  <!-- ══════════════════════════════════════════
+       🍖 TYPICAL TASTE — FOOD SLIDER
+  ══════════════════════════════════════════ -->
+  {% assign food_products = collections['typical-taste'].products %}
+  {% if food_products.size > 0 %}
+  <section class="qb-combo-slider-section" id="qb-food">
+    <div class="qb-combo-slider-header">
+      <div class="qb-combo-slider-title-wrap">
+        <span class="qb-combo-fire-icon">🍖</span>
+        <div>
+          <h2 class="qb-combo-title">Typical Taste</h2>
+          <p class="qb-combo-subtitle">The Dhido & The Grills · Authentic Nepali</p>
+        </div>
+      </div>
+      <a href="/collections/typical-taste" class="qb-combo-view-all">View All <span>→</span></a>
+    </div>
+    <div class="qb-combo-slider-outer">
+      <button class="qb-combo-arrow qb-combo-arrow-left" id="qbFoodPrev" aria-label="Previous">&#8249;</button>
+      <div class="qb-combo-track" id="qbFoodTrack">
+        {% for product in food_products %}
+          {%- assign c_disc = false -%}{%- assign c_pct = 0 -%}
+          {%- if product.compare_at_price > product.price -%}
+            {%- assign c_disc = true -%}
+            {%- assign c_sav = product.compare_at_price | minus: product.price -%}
+            {%- assign c_pct = c_sav | times: 100 | divided_by: product.compare_at_price -%}
+          {%- endif -%}
+          {%- assign ptl = product.title | downcase -%}
+          {%- assign food_ico = '🍽️' -%}
+          {%- if ptl contains 'momo' -%}{%- assign food_ico = '🥟' -%}
+          {%- elsif ptl contains 'grill' or ptl contains 'sekuwa' -%}{%- assign food_ico = '🥩' -%}
+          {%- elsif ptl contains 'burger' -%}{%- assign food_ico = '🍔' -%}
+          {%- elsif ptl contains 'noodle' or ptl contains 'thukpa' -%}{%- assign food_ico = '🍜' -%}
+          {%- elsif ptl contains 'chicken' -%}{%- assign food_ico = '🍗' -%}
+          {%- elsif ptl contains 'biryani' or ptl contains 'rice' -%}{%- assign food_ico = '🍛' -%}
+          {%- endif -%}
+          <a href="{{ product.url }}" class="qb-combo-card">
+            <div class="qb-combo-img-wrap">
+              {% if c_disc %}<div class="qb-combo-off-badge">{{ c_pct }}% OFF</div>{% endif %}
+              {% if product.featured_image %}
+                <img src="{{ product.featured_image | img_url: '600x600', crop: 'center' }}" alt="{{ product.title }}" loading="lazy">
+              {% else %}
+                <div class="qb-combo-no-img">{{ food_ico }}</div>
+              {% endif %}
+              <div class="qb-combo-delivery-badge">⚡ 18-22 MINS</div>
+            </div>
+            <div class="qb-combo-info">
+              <div class="qb-combo-product-name">{{ product.title }}</div>
+              <div class="qb-combo-price-row">
+                <div class="qb-combo-price-col">
+                  <span class="qb-combo-price">Rs {{ product.price | divided_by: 100 }}</span>
+                  {% if c_disc %}<span class="qb-combo-old-price">Rs {{ product.compare_at_price | divided_by: 100 }}</span>{% endif %}
+                </div>
+                <button class="qb-combo-add-btn" onclick="event.preventDefault();event.stopPropagation();qbAddToCart({{ product.variants.first.id }},this)">+</button>
+              </div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+      <button class="qb-combo-arrow qb-combo-arrow-right" id="qbFoodNext" aria-label="Next">&#8250;</button>
+    </div>
+    <div class="qb-combo-dots" id="qbFoodDots"></div>
+  </section>
+  {% endif %}
+
+  <!-- ══════════════════════════════════════════
+       🎂 CAKE COLLECTION SLIDER
+  ══════════════════════════════════════════ -->
+  {% assign cake_products = collections['cake'].products %}
+  {% if cake_products.size > 0 %}
+  <section class="qb-combo-slider-section" id="qb-cakes">
+    <div class="qb-combo-slider-header">
+      <div class="qb-combo-slider-title-wrap">
+        <span class="qb-combo-fire-icon">🎂</span>
+        <div>
+          <h2 class="qb-combo-title">Fresh Cakes</h2>
+          <p class="qb-combo-subtitle">Artisan Baked · Same Day Delivery</p>
+        </div>
+      </div>
+      <a href="/collections/cake" class="qb-combo-view-all">View All <span>→</span></a>
+    </div>
+    <div class="qb-combo-slider-outer">
+      <button class="qb-combo-arrow qb-combo-arrow-left" id="qbCakePrev" aria-label="Previous">&#8249;</button>
+      <div class="qb-combo-track" id="qbCakeTrack">
+        {% for product in cake_products %}
+          {%- assign c_disc = false -%}{%- assign c_pct = 0 -%}
+          {%- if product.compare_at_price > product.price -%}
+            {%- assign c_disc = true -%}
+            {%- assign c_sav = product.compare_at_price | minus: product.price -%}
+            {%- assign c_pct = c_sav | times: 100 | divided_by: product.compare_at_price -%}
+          {%- endif -%}
+          <a href="{{ product.url }}" class="qb-combo-card">
+            <div class="qb-combo-img-wrap">
+              {% if c_disc %}<div class="qb-combo-off-badge">{{ c_pct }}% OFF</div>{% endif %}
+              {% if product.featured_image %}
+                <img src="{{ product.featured_image | img_url: '600x600', crop: 'center' }}" alt="{{ product.title }}" loading="lazy">
+              {% else %}
+                <div class="qb-combo-no-img">🎂</div>
+              {% endif %}
+              <div class="qb-combo-delivery-badge">⚡ SAME DAY</div>
+            </div>
+            <div class="qb-combo-info">
+              <div class="qb-combo-product-name">{{ product.title }}</div>
+              <div class="qb-combo-price-row">
+                <div class="qb-combo-price-col">
+                  <span class="qb-combo-price">Rs {{ product.price | divided_by: 100 }}</span>
+                  {% if c_disc %}<span class="qb-combo-old-price">Rs {{ product.compare_at_price | divided_by: 100 }}</span>{% endif %}
+                </div>
+                <button class="qb-combo-add-btn" onclick="event.preventDefault();event.stopPropagation();qbAddToCart({{ product.variants.first.id }},this)">+</button>
+              </div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+      <button class="qb-combo-arrow qb-combo-arrow-right" id="qbCakeNext" aria-label="Next">&#8250;</button>
+    </div>
+    <div class="qb-combo-dots" id="qbCakeDots"></div>
+  </section>
+  {% endif %}
 
   <!-- ══════════════════════════════════════════
        🍺 BEER COMBOS SLIDER
@@ -1339,8 +1620,8 @@ function initDeliveryTimeSystem() {
 // ──────────────────────────────────────
 function qbAddToCart(variantId, btn) {
   if (!variantId || !btn) return;
-  var orig = btn.textContent;
-  btn.textContent = '…';
+  var orig = btn.innerHTML;
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
   btn.disabled = true;
   fetch('/cart/add.js', {
     method: 'POST',
@@ -1348,21 +1629,31 @@ function qbAddToCart(variantId, btn) {
     body: JSON.stringify({ items: [{ id: variantId, quantity: 1 }] })
   })
   .then(function(res) { return res.json(); })
-  .then(function() {
-    btn.textContent = '✓';
+  .then(function(data) {
+    btn.innerHTML = '✓';
     btn.style.background = '#22c55e';
     btn.style.boxShadow = '0 4px 12px rgba(34,197,94,0.4)';
+    // ── Update cart count live ──
+    fetch('/cart.js', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(function(r) { return r.json(); })
+      .then(function(cart) {
+        var el = document.getElementById('cart-count');
+        if (el) el.textContent = cart.item_count;
+      });
+    // ── Open cart drawer ──
+    if (window.qbCartDrawer) {
+      setTimeout(function() { window.qbCartDrawer.open(); }, 200);
+    }
     setTimeout(function() {
-      btn.textContent = orig;
+      btn.innerHTML = '+';
       btn.style.background = '';
       btn.style.boxShadow = '';
       btn.disabled = false;
-    }, 1600);
-    // Trigger cart count update if theme supports it
+    }, 1800);
     document.dispatchEvent(new CustomEvent('cart:updated'));
   })
   .catch(function() {
-    btn.textContent = orig;
+    btn.innerHTML = orig;
     btn.disabled = false;
   });
 }
@@ -1430,6 +1721,8 @@ function qbHomepageBoot() {
   initDeliveryTimeSystem();
 
   // Init all sliders
+  initSlider('qbFoodTrack',       'qbFoodPrev',       'qbFoodNext',       'qbFoodDots');
+  initSlider('qbCakeTrack',       'qbCakePrev',       'qbCakeNext',       'qbCakeDots');
   initSlider('qbBeerComboTrack',  'qbBeerComboPrev',  'qbBeerComboNext',  'qbBeerComboDots');
   initSlider('qbBeerTrack',       'qbBeerPrev',       'qbBeerNext',       'qbBeerDots');
   initSlider('qbSmokesTrack',     'qbSmokesPrev',     'qbSmokesNext',     'qbSmokesDots');
