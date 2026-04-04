@@ -536,56 +536,55 @@
 }
 
 /* ── STICKY BOTTOM BAR ── */
-/* QB mobile nav = position:fixed; bottom:0; height:65px; z-index:9999 */
-/* This bar floats above it with a 2px visual gap                        */
 .lb-sticky {
   position: fixed;
-  bottom: calc(67px + env(safe-area-inset-bottom));
-  left: 8px; right: 8px;
+  bottom: calc(65px + env(safe-area-inset-bottom));
+  left: 0; right: 0;
   z-index: 10001;
-  padding: 10px 14px;
+  padding: 12px 16px;
   background: #fff;
-  border: 1px solid var(--lb-border);
-  border-radius: 18px;
-  box-shadow: 0 -2px 24px rgba(0,0,0,0.13), 0 4px 16px rgba(0,0,0,0.06);
+  border-top: 1.5px solid #ebebeb;
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.08);
 }
 [data-theme="dark"] .lb-sticky {
-  background: #1a1a1a;
-  border-color: #2a2a2a;
-  box-shadow: 0 -2px 24px rgba(0,0,0,0.6);
+  background: #111;
+  border-top-color: #222;
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
 }
 .lb-sticky-inner {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   max-width: 640px;
   margin: 0 auto;
 }
 .lb-sticky-price {
   flex-shrink: 0;
+  min-width: 90px;
 }
 .lb-sticky-price-main {
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 900;
   color: var(--lb-text);
   letter-spacing: -0.5px;
   line-height: 1;
 }
 .lb-sticky-price-sub {
-  font-size: 10px;
+  font-size: 10.5px;
   color: var(--lb-muted);
-  margin-top: 2px;
+  margin-top: 3px;
+  font-weight: 500;
 }
 .lb-add-btn {
   flex: 1;
-  height: 52px;
-  background: linear-gradient(135deg, #e8192c 0%, var(--lb-red) 50%, var(--lb-red-dark) 100%);
+  height: 54px;
+  background: linear-gradient(135deg, #ff1f35 0%, #C41E3A 55%, #9b1226 100%);
   color: #fff;
   border: none;
-  border-radius: 14px;
+  border-radius: 16px;
   font-size: 15px;
   font-weight: 900;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
   cursor: pointer;
   display: flex;
@@ -594,42 +593,59 @@
   gap: 8px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(196,30,58,0.35);
+  box-shadow: 0 6px 20px rgba(196,30,58,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
   transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
+/* Gloss shine on top */
 .lb-add-btn::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 50%;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.15), transparent);
-  border-radius: 14px 14px 0 0;
+  top: 0; left: 0; right: 0; height: 45%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.18), transparent);
+  border-radius: 16px 16px 0 0;
   pointer-events: none;
 }
+/* Sweep shimmer */
 .lb-add-btn::after {
   content: '';
   position: absolute;
-  top: 0; left: -100%;
-  width: 50%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
-  animation: lb-btn-shine 3s ease 1s infinite;
+  top: 0; left: -80%;
+  width: 55%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: lb-btn-shine 3s ease 0.6s infinite;
   pointer-events: none;
 }
 @keyframes lb-btn-shine {
   0% { left: -60%; }
-  60%,100% { left: 120%; }
+  55%,100% { left: 120%; }
 }
-.lb-add-btn:active:not(:disabled) { transform: scale(0.97); }
+.lb-add-btn:not(:disabled) {
+  animation: lb-btn-ready 2.5s ease-in-out infinite;
+}
+@keyframes lb-btn-ready {
+  0%,100% { box-shadow: 0 6px 20px rgba(196,30,58,0.4), inset 0 1px 0 rgba(255,255,255,0.15); }
+  50%      { box-shadow: 0 8px 28px rgba(196,30,58,0.6), inset 0 1px 0 rgba(255,255,255,0.15); }
+}
+.lb-add-btn:active:not(:disabled) {
+  transform: scale(0.97);
+  animation: none;
+}
 .lb-add-btn:disabled {
-  background: linear-gradient(135deg, #ccc, #aaa);
+  background: #d0d0d0;
   box-shadow: none;
-  opacity: 0.7;
   cursor: not-allowed;
+  animation: none;
+  opacity: 1;
+}
+[data-theme="dark"] .lb-add-btn:disabled {
+  background: #2a2a2a;
+  color: #555;
 }
 .lb-add-btn.loading {
   pointer-events: none;
-  opacity: 0.85;
+  animation: none;
+  opacity: 0.9;
 }
 .lb-spinner {
   width: 18px; height: 18px;
