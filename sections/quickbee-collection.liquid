@@ -479,7 +479,14 @@ html:not([data-theme="dark"]) .qb-product-original-price {
         </div>
       </div>
 
-      <div class="qb-collection-grid">
+      <!-- Live search within collection -->
+      <div style="margin-bottom:16px;position:relative;">
+        <input type="text" id="qbColSearch" placeholder="Search in {{ collection.title }}…" autocomplete="off" style="width:100%;padding:12px 16px 12px 42px;background:var(--qb-card-bg,#1a1a1a);border:1.5px solid rgba(255,255,255,0.08);border-radius:14px;color:var(--qb-text-main,#f0f0f0);font-size:15px;font-weight:600;outline:none;box-sizing:border-box;transition:border-color 0.2s;">
+        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none;">🔍</span>
+      </div>
+      <div id="qbColNoResults" style="display:none;text-align:center;padding:40px 20px;color:#888;font-size:15px;">No products found</div>
+
+      <div class="qb-collection-grid" id="qbColGrid">
         {% for product in collection.products %}
           {%- assign has_discount = false -%}
           {%- assign discount_pct = 0 -%}
@@ -530,6 +537,26 @@ html:not([data-theme="dark"]) .qb-product-original-price {
 
 <script>
 (function() {
+  /* ── Collection live search ─────────────────── */
+  var colSearch = document.getElementById('qbColSearch');
+  if (colSearch) {
+    colSearch.addEventListener('focus', function() { this.style.borderColor = 'rgba(244,180,0,0.5)'; });
+    colSearch.addEventListener('blur',  function() { this.style.borderColor = 'rgba(255,255,255,0.08)'; });
+    colSearch.addEventListener('input', function() {
+      var q = this.value.trim().toLowerCase();
+      var cards = document.querySelectorAll('#qbColGrid .qb-product');
+      var visible = 0;
+      cards.forEach(function(card) {
+        var title = (card.querySelector('.qb-product-title') || card).textContent.toLowerCase();
+        var match = !q || title.includes(q);
+        card.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      var noRes = document.getElementById('qbColNoResults');
+      if (noRes) noRes.style.display = (visible === 0 && q) ? 'block' : 'none';
+    });
+  }
+
   function applyQBCardTheme() {
     var isDark = document.documentElement.getAttribute('data-theme') === 'dark'
                  || document.body.classList.contains('dark-theme');
