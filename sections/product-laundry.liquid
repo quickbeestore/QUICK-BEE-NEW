@@ -1,13 +1,12 @@
-{% comment %} QuickBee — Laundry Service Booking Page {% endcomment %}
+{% comment %} QuickBee — Laundry Service Booking Page v2 (Multi-Select) {% endcomment %}
 
 {%- assign variants_json = product.variants | json -%}
 
 <style>
 /* ═══════════════════════════════════════════════
-   LAUNDRY BOOKING — MOBILE-FIRST PRODUCTION UI
+   LAUNDRY BOOKING v2 — Multi-Select + Live Summary
    QuickBee × KapadaWash
 ═══════════════════════════════════════════════ */
-
 :root {
   --lb-red:      #C41E3A;
   --lb-red-dark: #9b1226;
@@ -32,8 +31,7 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: var(--lb-bg);
   min-height: 100vh;
-  /* bottom space = sticky confirm bar (~72px) + mobile nav (65px) + safe area */
-  padding-bottom: calc(155px + env(safe-area-inset-bottom));
+  padding-bottom: calc(145px + env(safe-area-inset-bottom));
   -webkit-tap-highlight-color: transparent;
   color: var(--lb-text);
 }
@@ -56,25 +54,15 @@
   pointer-events: none;
 }
 .lb-hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--lb-gold-dim);
-  border: 1px solid rgba(244,180,0,0.3);
-  color: var(--lb-gold);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  padding: 5px 14px;
-  border-radius: 20px;
-  margin-bottom: 16px;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--lb-gold-dim); border: 1px solid rgba(244,180,0,0.3);
+  color: var(--lb-gold); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  padding: 5px 14px; border-radius: 20px; margin-bottom: 16px;
   position: relative; z-index: 1;
 }
 .lb-hero-icon {
-  font-size: 58px;
-  display: block;
-  margin-bottom: 12px;
+  font-size: 58px; display: block; margin-bottom: 12px;
   position: relative; z-index: 1;
   animation: lb-float 3.5s ease-in-out infinite;
 }
@@ -83,102 +71,60 @@
   50%      { transform: translateY(-8px) rotate(4deg); }
 }
 .lb-hero-title {
-  font-size: 26px;
-  font-weight: 900;
-  color: #fff;
-  line-height: 1.15;
-  letter-spacing: -0.5px;
-  position: relative; z-index: 1;
-  margin-bottom: 8px;
+  font-size: 26px; font-weight: 900; color: #fff;
+  line-height: 1.15; letter-spacing: -0.5px;
+  position: relative; z-index: 1; margin-bottom: 8px;
 }
 .lb-hero-title span { color: var(--lb-gold); }
 .lb-hero-sub {
-  font-size: 13px;
-  color: rgba(255,255,255,0.55);
-  position: relative; z-index: 1;
-  line-height: 1.5;
+  font-size: 13px; color: rgba(255,255,255,0.55);
+  position: relative; z-index: 1; line-height: 1.5;
 }
 
 /* ── TRUST PILLS ── */
 .lb-trust-row {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 14px 16px;
-  scrollbar-width: none;
+  display: flex; gap: 8px; overflow-x: auto;
+  padding: 14px 16px; scrollbar-width: none;
 }
 .lb-trust-row::-webkit-scrollbar { display: none; }
 .lb-trust-pill {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: var(--lb-card);
-  border: 1px solid var(--lb-border);
-  border-radius: 20px;
-  padding: 6px 12px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--lb-text);
-  white-space: nowrap;
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px;
+  background: var(--lb-card); border: 1px solid var(--lb-border);
+  border-radius: 20px; padding: 6px 12px; font-size: 11px;
+  font-weight: 600; color: var(--lb-text); white-space: nowrap;
 }
 
 /* ── SECTION LABEL ── */
-.lb-section {
-  padding: 0 16px;
-  margin-bottom: 16px;
-}
+.lb-section { padding: 0 16px; margin-bottom: 16px; }
 .lb-section-title {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--lb-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  font-size: 13px; font-weight: 800; color: var(--lb-muted);
+  text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 6px;
 }
 .lb-section-title::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--lb-border);
+  content: ''; flex: 1; height: 1px; background: var(--lb-border);
 }
 
-/* ── SERVICE CARDS ── */
+/* ════════════════════════════════════
+   SERVICE CARDS — Multi-select with inline qty
+════════════════════════════════════ */
 .lb-services-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display: flex; flex-direction: column; gap: 10px;
 }
 .lb-service-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: var(--lb-card);
-  border: 2px solid var(--lb-border);
-  border-radius: var(--lb-radius);
-  padding: 14px 16px;
-  cursor: pointer;
-  transition: border-color 0.18s ease, transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  position: relative;
-  overflow: hidden;
+  display: flex; align-items: center; gap: 12px;
+  background: var(--lb-card); border: 2px solid var(--lb-border);
+  border-radius: var(--lb-radius); padding: 12px 14px;
+  cursor: pointer; transition: border-color 0.18s ease, transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease;
+  -webkit-tap-highlight-color: transparent; user-select: none;
+  position: relative; overflow: hidden;
 }
 .lb-service-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
+  content: ''; position: absolute; inset: 0;
   background: linear-gradient(135deg, rgba(244,180,0,0) 0%, rgba(244,180,0,0.04) 100%);
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  pointer-events: none;
+  opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
 }
-.lb-service-card:active {
-  transform: scale(0.97);
-}
+.lb-service-card:active { transform: scale(0.97); }
 .lb-service-card.selected {
   border-color: var(--lb-gold);
   box-shadow: 0 0 0 3px rgba(244,180,0,0.15), 0 4px 16px rgba(0,0,0,0.1);
@@ -188,8 +134,7 @@
   box-shadow: 0 0 0 3px rgba(244,180,0,0.2), 0 4px 20px rgba(0,0,0,0.5);
 }
 .lb-service-card.selected .lb-svc-icon-wrap {
-  background: var(--lb-gold);
-  color: #000;
+  background: var(--lb-gold); color: #000;
 }
 .lb-service-card.error-flash {
   animation: lb-error-flash 0.5s ease;
@@ -200,204 +145,284 @@
 }
 
 .lb-svc-icon-wrap {
-  width: 48px; height: 48px;
-  background: var(--lb-gold-dim);
-  border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  flex-shrink: 0;
+  width: 46px; height: 46px; background: var(--lb-gold-dim);
+  border-radius: 13px; display: flex; align-items: center;
+  justify-content: center; font-size: 22px; flex-shrink: 0;
   transition: background 0.2s, color 0.2s;
 }
 .lb-svc-info { flex: 1; min-width: 0; }
 .lb-svc-name {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--lb-text);
-  margin-bottom: 3px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 14px; font-weight: 800; color: var(--lb-text);
+  margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .lb-svc-meta {
-  font-size: 11px;
-  color: var(--lb-muted);
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  font-size: 11px; color: var(--lb-muted);
+  display: flex; align-items: center; gap: 6px;
 }
 .lb-svc-unit {
-  background: var(--lb-gold-dim);
-  color: var(--lb-gold);
-  padding: 2px 7px;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 10px;
+  background: var(--lb-gold-dim); color: var(--lb-gold);
+  padding: 2px 7px; border-radius: 8px;
+  font-weight: 700; font-size: 10px;
 }
-.lb-svc-price-col {
-  text-align: right;
-  flex-shrink: 0;
+
+/* ── Right side of card (price + add/qty) ── */
+.lb-svc-right {
+  display: flex; flex-direction: column;
+  align-items: flex-end; gap: 6px; flex-shrink: 0;
 }
-.lb-svc-price {
-  font-size: 16px;
-  font-weight: 900;
-  color: var(--lb-text);
-  line-height: 1;
+.lb-svc-price-line {
+  font-size: 15px; font-weight: 900; color: var(--lb-text);
+  line-height: 1; text-align: right;
 }
 .lb-svc-price-unit {
-  font-size: 10px;
-  color: var(--lb-muted);
-  font-weight: 500;
+  font-size: 10px; color: var(--lb-muted); font-weight: 500;
 }
-.lb-selected-check {
-  position: absolute;
-  top: 10px; right: 10px;
-  width: 20px; height: 20px;
-  background: var(--lb-gold);
-  border-radius: 50%;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 900;
-  color: #000;
-}
-.lb-service-card.selected .lb-selected-check { display: flex; }
-.lb-service-card.selected .lb-svc-price-col { padding-right: 26px; }
 
-/* ── QUANTITY ── */
-.lb-qty-box {
-  background: var(--lb-card);
-  border: 1.5px solid var(--lb-border);
-  border-radius: var(--lb-radius);
-  padding: 16px;
-  display: flex;
+/* ── ADD button (shown when unselected) ── */
+.lb-svc-add-btn {
+  width: 34px; height: 34px;
+  background: var(--lb-gold); color: #000;
+  border: none; border-radius: 50%;
+  font-size: 22px; font-weight: 300; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), background 0.15s;
+  flex-shrink: 0;
+}
+.lb-svc-add-btn:active { transform: scale(0.9); }
+.lb-service-card.selected .lb-svc-add-btn { display: none; }
+
+/* ── Inline qty stepper (shown when selected) ── */
+.lb-card-qty {
+  display: none; /* hidden by default */
   align-items: center;
-  gap: 14px;
-}
-.lb-qty-label {
-  flex: 1;
-}
-.lb-qty-label-main {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--lb-text);
-  display: block;
-}
-.lb-qty-label-sub {
-  font-size: 11px;
-  color: var(--lb-muted);
-  display: block;
-  margin-top: 2px;
-}
-.lb-qty-controls {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  border: 1.5px solid var(--lb-border);
+  background: rgba(244,180,0,0.1);
+  border: 1.5px solid rgba(244,180,0,0.35);
   border-radius: 12px;
   overflow: hidden;
 }
-.lb-qty-btn {
-  width: 44px; height: 44px;
-  background: transparent;
-  border: none;
-  font-size: 20px;
-  font-weight: 300;
-  color: var(--lb-text);
-  cursor: pointer;
+.lb-service-card.selected .lb-card-qty { display: flex; }
+
+.lb-card-qty-btn {
+  width: 34px; height: 34px; background: transparent; border: none;
+  font-size: 20px; font-weight: 400; color: #c68a00;
   display: flex; align-items: center; justify-content: center;
-  transition: background 0.15s;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
+  cursor: pointer; transition: background 0.15s;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
 }
-.lb-qty-btn:active { background: rgba(244,180,0,0.1); }
-.lb-qty-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-.lb-qty-val {
-  min-width: 40px;
-  text-align: center;
-  font-size: 18px;
-  font-weight: 900;
-  color: var(--lb-text);
-  border-left: 1.5px solid var(--lb-border);
-  border-right: 1.5px solid var(--lb-border);
-  line-height: 44px;
-  user-select: none;
+[data-theme="dark"] .lb-card-qty-btn { color: var(--lb-gold); }
+.lb-card-qty-btn:active { background: rgba(244,180,0,0.2); }
+.lb-card-qty-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.lb-card-qty-val {
+  min-width: 28px; text-align: center;
+  font-size: 15px; font-weight: 900; color: var(--lb-text);
+  line-height: 34px; user-select: none;
+  border-left: 1px solid rgba(244,180,0,0.3);
+  border-right: 1px solid rgba(244,180,0,0.3);
 }
+
+/* Selected price shows line total */
+.lb-service-card.selected .lb-svc-price-line {
+  color: var(--lb-gold);
+}
+
+/* ════════════════════════════════════
+   LIVE ORDER SUMMARY
+════════════════════════════════════ */
+.lb-live-summary {
+  margin: 0 16px 4px;
+  border-radius: var(--lb-radius);
+  overflow: hidden;
+  border: 1.5px solid rgba(34,197,94,0.35);
+  background: var(--lb-card);
+  animation: lb-co-in 0.35s cubic-bezier(0.4,0,0.2,1) both;
+  transition: all 0.25s ease;
+}
+@keyframes lb-co-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Header row */
+.lb-ls-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  background: rgba(34,197,94,0.07);
+  border-bottom: 1px solid rgba(34,197,94,0.2);
+}
+.lb-ls-dot {
+  width: 8px; height: 8px; background: #22c55e; border-radius: 50%;
+  flex-shrink: 0; animation: lb-co-pulse 2s ease-in-out infinite;
+}
+@keyframes lb-co-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+  50%      { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+}
+.lb-ls-title {
+  font-size: 12px; font-weight: 800; color: #16a34a;
+  text-transform: uppercase; letter-spacing: 0.5px; flex: 1;
+}
+[data-theme="dark"] .lb-ls-title { color: #4ade80; }
+.lb-ls-count {
+  font-size: 11px; font-weight: 700;
+  background: rgba(34,197,94,0.15); color: #16a34a;
+  padding: 2px 8px; border-radius: 10px;
+}
+[data-theme="dark"] .lb-ls-count { color: #4ade80; background: rgba(34,197,94,0.1); }
+
+/* Empty state */
+.lb-ls-empty {
+  padding: 16px 14px;
+  font-size: 13px; color: var(--lb-muted);
+  text-align: center; line-height: 1.5;
+}
+
+/* Item rows */
+.lb-ls-items { padding: 2px 0; }
+.lb-ls-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--lb-border);
+  animation: lb-item-in 0.25s cubic-bezier(0.4,0,0.2,1) both;
+  transition: opacity 0.2s, transform 0.2s;
+}
+@keyframes lb-item-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.lb-ls-item:last-child { border-bottom: none; }
+.lb-ls-item-icon { font-size: 18px; flex-shrink: 0; }
+.lb-ls-item-name {
+  flex: 1; font-size: 13px; font-weight: 700; color: var(--lb-text);
+}
+.lb-ls-item-qty {
+  font-size: 11px; color: var(--lb-muted); font-weight: 500;
+}
+.lb-ls-item-price {
+  font-size: 14px; font-weight: 900; color: var(--lb-text); text-align: right;
+}
+.lb-ls-item-remove {
+  background: none; border: none; cursor: pointer;
+  color: #ef4444; font-size: 14px; padding: 2px 4px;
+  opacity: 0.6; transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+.lb-ls-item-remove:hover { opacity: 1; }
+
+/* Express + Total rows */
+.lb-ls-express-row {
+  display: none; padding: 8px 14px;
+  border-top: 1px solid var(--lb-border);
+}
+.lb-ls-express-row.show {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px; color: #f97316; font-weight: 600;
+}
+.lb-ls-total-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px;
+  background: var(--lb-gold-dim);
+  border-top: 1.5px solid rgba(244,180,0,0.25);
+}
+.lb-ls-total-label {
+  font-size: 13px; font-weight: 800; color: var(--lb-text);
+}
+.lb-ls-total-price {
+  font-size: 22px; font-weight: 900; color: var(--lb-text);
+  letter-spacing: -0.5px;
+}
+
+/* Old cart order banner (shown on back-nav) */
+.lb-cart-banner {
+  margin: 0 16px 4px;
+  background: var(--lb-card);
+  border: 1.5px solid rgba(34,197,94,0.4);
+  border-radius: var(--lb-radius); overflow: hidden;
+  animation: lb-co-in 0.35s cubic-bezier(0.4,0,0.2,1) both;
+  display: none;
+}
+.lb-cb-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; background: rgba(34,197,94,0.07);
+  border-bottom: 1px solid rgba(34,197,94,0.2);
+}
+.lb-cb-dot {
+  width: 8px; height: 8px; background: #22c55e; border-radius: 50%;
+  flex-shrink: 0; animation: lb-co-pulse 2s ease-in-out infinite;
+}
+.lb-cb-title {
+  font-size: 12px; font-weight: 800; color: #16a34a;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+[data-theme="dark"] .lb-cb-title { color: #4ade80; }
+.lb-cb-time { font-size: 11px; color: var(--lb-muted); flex: 1; margin-left: 2px; }
+.lb-cb-remove {
+  background: transparent; border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 8px; color: #ef4444; font-size: 11px;
+  font-weight: 700; padding: 4px 10px; cursor: pointer; flex-shrink: 0;
+}
+.lb-cb-items { padding: 8px 14px 2px; }
+.lb-cb-item-row {
+  display: flex; justify-content: space-between;
+  font-size: 12.5px; padding: 4px 0;
+  border-bottom: 1px solid var(--lb-border);
+}
+.lb-cb-item-row:last-child { border-bottom: none; }
+.lb-cb-item-name { color: var(--lb-text); font-weight: 600; flex: 1; }
+.lb-cb-item-detail { color: var(--lb-muted); font-size: 11px; }
+.lb-cb-item-price { font-weight: 700; color: var(--lb-text); }
+.lb-cb-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 14px; border-top: 1px dashed var(--lb-border);
+}
+.lb-cb-total-lbl { font-size: 12px; color: var(--lb-muted); }
+.lb-cb-total-val { font-size: 16px; font-weight: 900; color: var(--lb-text); }
+.lb-cb-modify {
+  display: block; width: 100%; padding: 10px 14px;
+  background: rgba(244,180,0,0.08); border: none;
+  border-top: 1px solid rgba(244,180,0,0.2);
+  color: #c68a00; font-size: 13px; font-weight: 700;
+  cursor: pointer; text-align: center; font-family: inherit;
+}
+[data-theme="dark"] .lb-cb-modify { color: #F4B400; background: rgba(244,180,0,0.06); }
 
 /* ── EXPRESS TOGGLE ── */
 .lb-express-box {
-  background: var(--lb-card);
-  border: 1.5px solid var(--lb-border);
-  border-radius: var(--lb-radius);
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  cursor: pointer;
-  transition: border-color 0.2s ease;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
+  background: var(--lb-card); border: 1.5px solid var(--lb-border);
+  border-radius: var(--lb-radius); padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px;
+  cursor: pointer; transition: border-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent; user-select: none;
 }
 .lb-express-box.active {
-  border-color: #f97316;
-  background: rgba(249,115,22,0.04);
+  border-color: #f97316; background: rgba(249,115,22,0.04);
 }
-[data-theme="dark"] .lb-express-box.active {
-  background: rgba(249,115,22,0.06);
-}
+[data-theme="dark"] .lb-express-box.active { background: rgba(249,115,22,0.06); }
 .lb-express-icon {
-  width: 44px; height: 44px;
-  background: rgba(249,115,22,0.1);
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  flex-shrink: 0;
-  transition: background 0.2s;
+  width: 44px; height: 44px; background: rgba(249,115,22,0.1);
+  border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; font-size: 22px; flex-shrink: 0; transition: background 0.2s;
 }
-.lb-express-box.active .lb-express-icon {
-  background: #f97316;
-}
+.lb-express-box.active .lb-express-icon { background: #f97316; }
 .lb-express-text { flex: 1; }
 .lb-express-name {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--lb-text);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 2px;
+  font-size: 14px; font-weight: 800; color: var(--lb-text);
+  display: flex; align-items: center; gap: 6px; margin-bottom: 2px;
 }
 .lb-express-badge {
-  font-size: 10px;
-  font-weight: 700;
-  background: #f97316;
-  color: #fff;
-  padding: 2px 7px;
-  border-radius: 8px;
-  letter-spacing: 0.3px;
+  font-size: 10px; font-weight: 700; background: #f97316;
+  color: #fff; padding: 2px 7px; border-radius: 8px; letter-spacing: 0.3px;
 }
-.lb-express-sub {
-  font-size: 11px;
-  color: var(--lb-muted);
-}
+.lb-express-sub { font-size: 11px; color: var(--lb-muted); }
 .lb-toggle {
-  width: 48px; height: 26px;
-  background: #ddd;
-  border-radius: 13px;
-  position: relative;
-  flex-shrink: 0;
-  transition: background 0.2s ease;
-  pointer-events: none;
+  width: 48px; height: 26px; background: #ddd; border-radius: 13px;
+  position: relative; flex-shrink: 0; transition: background 0.2s ease; pointer-events: none;
 }
 [data-theme="dark"] .lb-toggle { background: #333; }
 .lb-express-box.active .lb-toggle { background: #f97316; }
 .lb-toggle::after {
-  content: '';
-  position: absolute;
-  top: 3px; left: 3px;
-  width: 20px; height: 20px;
-  background: #fff;
-  border-radius: 50%;
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 20px; height: 20px; background: #fff; border-radius: 50%;
   transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
   box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
@@ -405,361 +430,108 @@
 
 /* ── NOTES ── */
 .lb-notes-box {
-  background: var(--lb-card);
-  border: 1.5px solid var(--lb-border);
-  border-radius: var(--lb-radius);
-  overflow: hidden;
-  transition: border-color 0.2s;
+  background: var(--lb-card); border: 1.5px solid var(--lb-border);
+  border-radius: var(--lb-radius); overflow: hidden; transition: border-color 0.2s;
 }
 .lb-notes-box:focus-within {
-  border-color: var(--lb-gold);
-  box-shadow: 0 0 0 3px rgba(244,180,0,0.1);
+  border-color: var(--lb-gold); box-shadow: 0 0 0 3px rgba(244,180,0,0.1);
 }
 .lb-notes-top {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--lb-border);
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; border-bottom: 1px solid var(--lb-border);
 }
-.lb-notes-icon {
-  font-size: 18px;
-  flex-shrink: 0;
-}
-.lb-notes-label {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--lb-text);
-}
-.lb-notes-label span {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--lb-muted);
-  margin-left: 4px;
-}
+.lb-notes-icon { font-size: 18px; flex-shrink: 0; }
+.lb-notes-label { font-size: 13px; font-weight: 700; color: var(--lb-text); }
+.lb-notes-label span { font-size: 11px; font-weight: 500; color: var(--lb-muted); margin-left: 4px; }
 .lb-notes-textarea {
-  width: 100%;
-  padding: 12px 16px;
-  background: transparent;
-  border: none;
-  font-size: 13px;
-  color: var(--lb-text);
-  line-height: 1.5;
-  resize: none;
-  min-height: 80px;
-  font-family: inherit;
+  width: 100%; padding: 12px 16px; background: transparent; border: none;
+  font-size: 13px; color: var(--lb-text); line-height: 1.5; resize: none;
+  min-height: 80px; font-family: inherit;
 }
 .lb-notes-textarea:focus { outline: none; }
 .lb-notes-textarea::placeholder { color: var(--lb-muted); }
 
-/* ── ORDER SUMMARY ── */
-.lb-summary {
-  background: var(--lb-card);
-  border: 1.5px solid var(--lb-border);
-  border-radius: var(--lb-radius);
-  overflow: hidden;
-}
-.lb-summary-hdr {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--lb-border);
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--lb-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.lb-summary-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 16px;
-  font-size: 13px;
-  color: var(--lb-text);
-  border-bottom: 1px solid var(--lb-border);
-}
-.lb-summary-row:last-child { border-bottom: none; }
-.lb-summary-label { color: var(--lb-muted); font-size: 12px; }
-.lb-summary-value { font-weight: 700; }
-.lb-summary-total {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 16px;
-  background: var(--lb-gold-dim);
-  border-top: 1.5px solid rgba(244,180,0,0.25);
-}
-.lb-summary-total-label {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--lb-text);
-}
-.lb-summary-total-price {
-  font-size: 24px;
-  font-weight: 900;
-  color: var(--lb-text);
-  letter-spacing: -0.5px;
-}
-.lb-express-surcharge-row {
-  display: none;
-}
-.lb-express-surcharge-row.show {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 16px;
-  font-size: 12px;
-  color: #f97316;
-  font-weight: 600;
-  border-bottom: 1px solid var(--lb-border);
-}
-
 /* ── FEEDBACK ── */
 .lb-feedback {
-  border-radius: 12px;
-  padding: 12px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  display: none;
-  align-items: center;
-  gap: 8px;
+  border-radius: 12px; padding: 12px 14px; font-size: 13px;
+  font-weight: 600; display: none; align-items: center; gap: 8px;
 }
 .lb-feedback.show { display: flex; }
 .lb-feedback.error {
-  background: rgba(239,68,68,0.1);
-  border: 1px solid rgba(239,68,68,0.3);
-  color: #ef4444;
+  background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #ef4444;
 }
 .lb-feedback.success {
-  background: rgba(34,197,94,0.1);
-  border: 1px solid rgba(34,197,94,0.3);
-  color: #22c55e;
+  background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #22c55e;
 }
 
 /* ── STICKY BOTTOM BAR ── */
 .lb-sticky {
-  position: fixed;
-  bottom: calc(65px + env(safe-area-inset-bottom));
-  left: 0; right: 0;
-  z-index: 10001;
-  padding: 12px 16px;
-  background: #fff;
+  position: fixed; bottom: calc(65px + env(safe-area-inset-bottom));
+  left: 0; right: 0; z-index: 10001;
+  padding: 12px 16px; background: #fff;
   border-top: 1.5px solid #ebebeb;
   box-shadow: 0 -8px 32px rgba(0,0,0,0.08);
 }
 [data-theme="dark"] .lb-sticky {
-  background: #111;
-  border-top-color: #222;
+  background: #111; border-top-color: #222;
   box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
 }
 .lb-sticky-inner {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  max-width: 640px;
-  margin: 0 auto;
+  display: flex; align-items: center; gap: 14px;
+  max-width: 640px; margin: 0 auto;
 }
-.lb-sticky-price {
-  flex-shrink: 0;
-  min-width: 90px;
-}
+.lb-sticky-price { flex-shrink: 0; min-width: 90px; }
 .lb-sticky-price-main {
-  font-size: 21px;
-  font-weight: 900;
-  color: var(--lb-text);
-  letter-spacing: -0.5px;
-  line-height: 1;
+  font-size: 21px; font-weight: 900; color: var(--lb-text);
+  letter-spacing: -0.5px; line-height: 1;
 }
 .lb-sticky-price-sub {
-  font-size: 10.5px;
-  color: var(--lb-muted);
-  margin-top: 3px;
-  font-weight: 500;
+  font-size: 10.5px; color: var(--lb-muted); margin-top: 3px; font-weight: 500;
 }
 .lb-add-btn {
-  flex: 1;
-  height: 54px;
+  flex: 1; height: 54px;
   background: linear-gradient(135deg, #ff1f35 0%, #C41E3A 55%, #9b1226 100%);
-  color: #fff;
-  border: none;
-  border-radius: 16px;
-  font-size: 15px;
-  font-weight: 900;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  position: relative;
-  overflow: hidden;
+  color: #fff; border: none; border-radius: 16px; font-size: 15px;
+  font-weight: 900; letter-spacing: 0.6px; text-transform: uppercase;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  gap: 8px; position: relative; overflow: hidden;
   box-shadow: 0 6px 20px rgba(196,30,58,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
   transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
-/* Gloss shine on top */
 .lb-add-btn::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; height: 45%;
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 45%;
   background: linear-gradient(to bottom, rgba(255,255,255,0.18), transparent);
-  border-radius: 16px 16px 0 0;
-  pointer-events: none;
+  border-radius: 16px 16px 0 0; pointer-events: none;
 }
-/* Sweep shimmer */
 .lb-add-btn::after {
-  content: '';
-  position: absolute;
-  top: 0; left: -80%;
-  width: 55%; height: 100%;
+  content: ''; position: absolute; top: 0; left: -80%; width: 55%; height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  animation: lb-btn-shine 3s ease 0.6s infinite;
-  pointer-events: none;
+  animation: lb-btn-shine 3s ease 0.6s infinite; pointer-events: none;
 }
-@keyframes lb-btn-shine {
-  0% { left: -60%; }
-  55%,100% { left: 120%; }
-}
-.lb-add-btn:not(:disabled) {
-  animation: lb-btn-ready 2.5s ease-in-out infinite;
-}
+@keyframes lb-btn-shine { 0% { left: -60%; } 55%,100% { left: 120%; } }
+.lb-add-btn:not(:disabled) { animation: lb-btn-ready 2.5s ease-in-out infinite; }
 @keyframes lb-btn-ready {
   0%,100% { box-shadow: 0 6px 20px rgba(196,30,58,0.4), inset 0 1px 0 rgba(255,255,255,0.15); }
   50%      { box-shadow: 0 8px 28px rgba(196,30,58,0.6), inset 0 1px 0 rgba(255,255,255,0.15); }
 }
-.lb-add-btn:active:not(:disabled) {
-  transform: scale(0.97);
-  animation: none;
-}
+.lb-add-btn:active:not(:disabled) { transform: scale(0.97); animation: none; }
 .lb-add-btn:disabled {
-  background: #d0d0d0;
-  box-shadow: none;
-  cursor: not-allowed;
-  animation: none;
-  opacity: 1;
+  background: #d0d0d0; box-shadow: none; cursor: not-allowed; animation: none; opacity: 1;
 }
-[data-theme="dark"] .lb-add-btn:disabled {
-  background: #2a2a2a;
-  color: #555;
-}
-.lb-add-btn.loading {
-  pointer-events: none;
-  animation: none;
-  opacity: 0.9;
-}
+[data-theme="dark"] .lb-add-btn:disabled { background: #2a2a2a; color: #555; }
+.lb-add-btn.loading { pointer-events: none; animation: none; opacity: 0.9; }
 .lb-spinner {
   width: 18px; height: 18px;
-  border: 2.5px solid rgba(255,255,255,0.35);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: lb-spin 0.7s linear infinite;
+  border: 2.5px solid rgba(255,255,255,0.35); border-top-color: #fff;
+  border-radius: 50%; animation: lb-spin 0.7s linear infinite;
 }
 @keyframes lb-spin { to { transform: rotate(360deg); } }
 
-/* ── CURRENT ORDER BANNER ── */
-.lb-current-order {
-  margin: 14px 16px 0;
-  background: var(--lb-card);
-  border: 1.5px solid rgba(34,197,94,0.4);
-  border-radius: var(--lb-radius);
-  overflow: hidden;
-  animation: lb-co-in 0.35s cubic-bezier(0.4,0,0.2,1) both;
-}
-@keyframes lb-co-in {
-  from { opacity: 0; transform: translateY(-10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.lb-co-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  background: rgba(34,197,94,0.07);
-  border-bottom: 1px solid rgba(34,197,94,0.2);
-}
-.lb-co-dot {
-  width: 8px; height: 8px;
-  background: #22c55e;
-  border-radius: 50%;
-  flex-shrink: 0;
-  animation: lb-co-pulse 2s ease-in-out infinite;
-}
-@keyframes lb-co-pulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
-  50%      { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
-}
-.lb-co-title {
-  font-size: 12px;
-  font-weight: 800;
-  color: #16a34a;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-[data-theme="dark"] .lb-co-title { color: #4ade80; }
-.lb-co-time {
-  font-size: 11px;
-  color: var(--lb-muted);
-  margin-left: 2px;
-  flex: 1;
-}
-.lb-co-remove {
-  background: transparent;
-  border: 1px solid rgba(239,68,68,0.3);
-  border-radius: 8px;
-  color: #ef4444;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 10px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.lb-co-body {
-  padding: 10px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.lb-co-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12.5px;
-}
-.lb-co-lbl { color: var(--lb-muted); }
-.lb-co-val { font-weight: 700; color: var(--lb-text); }
-.lb-co-total-row {
-  padding-top: 6px;
-  border-top: 1px dashed var(--lb-border);
-  margin-top: 2px;
-}
-.lb-co-total {
-  font-size: 16px;
-  font-weight: 900;
-  color: var(--lb-text);
-}
-.lb-co-modify {
-  display: block;
-  width: 100%;
-  padding: 10px 14px;
-  background: rgba(244,180,0,0.08);
-  border: none;
-  border-top: 1px solid rgba(244,180,0,0.2);
-  color: #c68a00;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  text-align: center;
-  letter-spacing: 0.2px;
-}
-[data-theme="dark"] .lb-co-modify { color: #F4B400; background: rgba(244,180,0,0.06); }
-
 /* ── DISCLAIMER ── */
 .lb-disclaimer {
-  padding: 0 16px 16px;
-  font-size: 11px;
-  color: var(--lb-muted);
-  text-align: center;
-  line-height: 1.5;
+  padding: 0 16px 16px; font-size: 11px; color: var(--lb-muted);
+  text-align: center; line-height: 1.5;
 }
 
 /* ── DESKTOP ── */
@@ -780,7 +552,7 @@
     <div class="lb-hero-badge">🐝 QuickBee × KapadaWash</div>
     <span class="lb-hero-icon">👕</span>
     <h1 class="lb-hero-title">Laundry,<br><span>Done Right.</span></h1>
-    <p class="lb-hero-sub">Select your service · Schedule pickup · Relax</p>
+    <p class="lb-hero-sub">Pick multiple services · Set quantity inline · Checkout fast</p>
   </div>
 
   <!-- TRUST PILLS -->
@@ -792,24 +564,43 @@
     <div class="lb-trust-pill">💧 Eco-friendly</div>
   </div>
 
-  <!-- MAIN CONTENT -->
   <div class="lb-content">
 
-    <!-- CURRENT ORDER BANNER (shown when localStorage has a pending order) -->
-    <div class="lb-current-order" id="lb-current-order" style="display:none;">
-      <div class="lb-co-header">
-        <span class="lb-co-dot"></span>
-        <span class="lb-co-title">Order in Cart</span>
-        <span class="lb-co-time" id="lb-co-time"></span>
-        <button class="lb-co-remove" id="lb-co-remove" type="button">✕ Remove</button>
+    <!-- CART BANNER (shown on back-nav from checkout) -->
+    <div class="lb-cart-banner" id="lb-cart-banner">
+      <div class="lb-cb-header">
+        <span class="lb-cb-dot"></span>
+        <span class="lb-cb-title">Order in Cart</span>
+        <span class="lb-cb-time" id="lb-cb-time"></span>
+        <button class="lb-cb-remove" id="lb-cb-remove" type="button">✕ Remove</button>
       </div>
-      <div class="lb-co-body">
-        <div class="lb-co-row"><span class="lb-co-lbl">Service</span><span class="lb-co-val" id="lb-co-svc"></span></div>
-        <div class="lb-co-row"><span class="lb-co-lbl">Quantity</span><span class="lb-co-val" id="lb-co-qty"></span></div>
-        <div class="lb-co-row"><span class="lb-co-lbl">Express</span><span class="lb-co-val" id="lb-co-exp"></span></div>
-        <div class="lb-co-row lb-co-total-row"><span class="lb-co-lbl">Total Paid</span><span class="lb-co-total" id="lb-co-total"></span></div>
+      <div class="lb-cb-items" id="lb-cb-items"></div>
+      <div class="lb-cb-footer">
+        <span class="lb-cb-total-lbl">Total Paid</span>
+        <span class="lb-cb-total-val" id="lb-cb-total"></span>
       </div>
-      <button class="lb-co-modify" id="lb-co-modify" type="button">✏️ Modify Order</button>
+      <button class="lb-cb-modify" id="lb-cb-modify" type="button">✏️ Modify Order</button>
+    </div>
+
+    <!-- LIVE ORDER SUMMARY (updates as user selects) -->
+    <div class="lb-live-summary" id="lb-live-summary" style="display:none;">
+      <div class="lb-ls-header">
+        <span class="lb-ls-dot"></span>
+        <span class="lb-ls-title">Your Order</span>
+        <span class="lb-ls-count" id="lb-ls-count">0 items</span>
+      </div>
+      <div class="lb-ls-empty" id="lb-ls-empty" style="display:none;">
+        Tap a service below to start your order 👇
+      </div>
+      <div class="lb-ls-items" id="lb-ls-items"></div>
+      <div class="lb-ls-express-row" id="lb-ls-express-row">
+        <span>⚡ Express surcharge</span>
+        <span id="lb-ls-express-amt"></span>
+      </div>
+      <div class="lb-ls-total-row">
+        <span class="lb-ls-total-label">Total</span>
+        <span class="lb-ls-total-price" id="lb-ls-total">Rs 0</span>
+      </div>
     </div>
 
     <!-- FEEDBACK -->
@@ -817,12 +608,12 @@
       <div class="lb-feedback" id="lb-feedback" role="alert"></div>
     </div>
 
-    <!-- STEP 1: SELECT SERVICE -->
+    <!-- SELECT SERVICE -->
     <div class="lb-section" style="margin-top:20px;">
-      <div class="lb-section-title">① Choose Service</div>
-      <div class="lb-services-grid" id="lb-services" role="radiogroup" aria-label="Laundry services">
+      <div class="lb-section-title">① Choose Services</div>
+      <div class="lb-services-grid" id="lb-services" role="group" aria-label="Laundry services">
 
-        <div class="lb-service-card" data-variant-title="Wash &amp; Fold (kg)" data-unit="kg" tabindex="0" role="radio" aria-checked="false">
+        <div class="lb-service-card" data-variant-title="Wash &amp; Fold (kg)" data-unit="kg" data-icon="🫧" tabindex="0">
           <div class="lb-svc-icon-wrap">🫧</div>
           <div class="lb-svc-info">
             <div class="lb-svc-name">Wash &amp; Fold</div>
@@ -831,14 +622,18 @@
               <span>Washed, dried &amp; folded</span>
             </div>
           </div>
-          <div class="lb-svc-price-col">
-            <div class="lb-svc-price" data-price>—</div>
-            <div class="lb-svc-price-unit">/kg</div>
+          <div class="lb-svc-right">
+            <div class="lb-svc-price-line" data-price>—<span class="lb-svc-price-unit">/kg</span></div>
+            <button class="lb-svc-add-btn" aria-label="Add" type="button">+</button>
+            <div class="lb-card-qty">
+              <button class="lb-card-qty-btn lb-cq-minus" type="button" aria-label="Decrease">−</button>
+              <span class="lb-card-qty-val">1</span>
+              <button class="lb-card-qty-btn lb-cq-plus" type="button" aria-label="Increase">+</button>
+            </div>
           </div>
-          <div class="lb-selected-check">✓</div>
         </div>
 
-        <div class="lb-service-card" data-variant-title="Wash &amp; Fold + Iron (kg)" data-unit="kg" tabindex="0" role="radio" aria-checked="false">
+        <div class="lb-service-card" data-variant-title="Wash &amp; Fold + Iron (kg)" data-unit="kg" data-icon="♨️" tabindex="0">
           <div class="lb-svc-icon-wrap">♨️</div>
           <div class="lb-svc-info">
             <div class="lb-svc-name">Wash &amp; Fold + Iron</div>
@@ -847,14 +642,18 @@
               <span>Washed, dried &amp; ironed</span>
             </div>
           </div>
-          <div class="lb-svc-price-col">
-            <div class="lb-svc-price" data-price>—</div>
-            <div class="lb-svc-price-unit">/kg</div>
+          <div class="lb-svc-right">
+            <div class="lb-svc-price-line" data-price>—<span class="lb-svc-price-unit">/kg</span></div>
+            <button class="lb-svc-add-btn" aria-label="Add" type="button">+</button>
+            <div class="lb-card-qty">
+              <button class="lb-card-qty-btn lb-cq-minus" type="button" aria-label="Decrease">−</button>
+              <span class="lb-card-qty-val">1</span>
+              <button class="lb-card-qty-btn lb-cq-plus" type="button" aria-label="Increase">+</button>
+            </div>
           </div>
-          <div class="lb-selected-check">✓</div>
         </div>
 
-        <div class="lb-service-card" data-variant-title="Dry Cleaning (pcs)" data-unit="pcs" tabindex="0" role="radio" aria-checked="false">
+        <div class="lb-service-card" data-variant-title="Dry Cleaning (pcs)" data-unit="pcs" data-icon="🧴" tabindex="0">
           <div class="lb-svc-icon-wrap">🧴</div>
           <div class="lb-svc-info">
             <div class="lb-svc-name">Dry Cleaning</div>
@@ -863,14 +662,18 @@
               <span>Suits, silk &amp; delicates</span>
             </div>
           </div>
-          <div class="lb-svc-price-col">
-            <div class="lb-svc-price" data-price>—</div>
-            <div class="lb-svc-price-unit">/pcs</div>
+          <div class="lb-svc-right">
+            <div class="lb-svc-price-line" data-price>—<span class="lb-svc-price-unit">/pcs</span></div>
+            <button class="lb-svc-add-btn" aria-label="Add" type="button">+</button>
+            <div class="lb-card-qty">
+              <button class="lb-card-qty-btn lb-cq-minus" type="button" aria-label="Decrease">−</button>
+              <span class="lb-card-qty-val">1</span>
+              <button class="lb-card-qty-btn lb-cq-plus" type="button" aria-label="Increase">+</button>
+            </div>
           </div>
-          <div class="lb-selected-check">✓</div>
         </div>
 
-        <div class="lb-service-card" data-variant-title="Iron Only (pcs)" data-unit="pcs" tabindex="0" role="radio" aria-checked="false">
+        <div class="lb-service-card" data-variant-title="Iron Only (pcs)" data-unit="pcs" data-icon="🔥" tabindex="0">
           <div class="lb-svc-icon-wrap">🔥</div>
           <div class="lb-svc-info">
             <div class="lb-svc-name">Iron Only</div>
@@ -879,14 +682,18 @@
               <span>Press &amp; crease-free</span>
             </div>
           </div>
-          <div class="lb-svc-price-col">
-            <div class="lb-svc-price" data-price>—</div>
-            <div class="lb-svc-price-unit">/pcs</div>
+          <div class="lb-svc-right">
+            <div class="lb-svc-price-line" data-price>—<span class="lb-svc-price-unit">/pcs</span></div>
+            <button class="lb-svc-add-btn" aria-label="Add" type="button">+</button>
+            <div class="lb-card-qty">
+              <button class="lb-card-qty-btn lb-cq-minus" type="button" aria-label="Decrease">−</button>
+              <span class="lb-card-qty-val">1</span>
+              <button class="lb-card-qty-btn lb-cq-plus" type="button" aria-label="Increase">+</button>
+            </div>
           </div>
-          <div class="lb-selected-check">✓</div>
         </div>
 
-        <div class="lb-service-card" data-variant-title="Bedsheets &amp; Linen (set)" data-unit="set" tabindex="0" role="radio" aria-checked="false">
+        <div class="lb-service-card" data-variant-title="Bedsheets &amp; Linen (set)" data-unit="set" data-icon="🛏️" tabindex="0">
           <div class="lb-svc-icon-wrap">🛏️</div>
           <div class="lb-svc-info">
             <div class="lb-svc-name">Bedsheets &amp; Linen</div>
@@ -895,41 +702,29 @@
               <span>Sheets, covers &amp; pillows</span>
             </div>
           </div>
-          <div class="lb-svc-price-col">
-            <div class="lb-svc-price" data-price>—</div>
-            <div class="lb-svc-price-unit">/set</div>
+          <div class="lb-svc-right">
+            <div class="lb-svc-price-line" data-price>—<span class="lb-svc-price-unit">/set</span></div>
+            <button class="lb-svc-add-btn" aria-label="Add" type="button">+</button>
+            <div class="lb-card-qty">
+              <button class="lb-card-qty-btn lb-cq-minus" type="button" aria-label="Decrease">−</button>
+              <span class="lb-card-qty-val">1</span>
+              <button class="lb-card-qty-btn lb-cq-plus" type="button" aria-label="Increase">+</button>
+            </div>
           </div>
-          <div class="lb-selected-check">✓</div>
         </div>
 
       </div>
     </div>
 
-    <!-- STEP 2: QUANTITY -->
+    <!-- EXPRESS DELIVERY -->
     <div class="lb-section" style="margin-top:20px;">
-      <div class="lb-section-title">② Quantity</div>
-      <div class="lb-qty-box">
-        <div class="lb-qty-label">
-          <span class="lb-qty-label-main">How many <span id="lb-unit-label">units</span>?</span>
-          <span class="lb-qty-label-sub" id="lb-qty-hint">Select a service first</span>
-        </div>
-        <div class="lb-qty-controls">
-          <button class="lb-qty-btn" id="lb-qty-minus" aria-label="Decrease quantity" touch-action="manipulation">−</button>
-          <div class="lb-qty-val" id="lb-qty-disp" aria-live="polite">1</div>
-          <button class="lb-qty-btn" id="lb-qty-plus" aria-label="Increase quantity">+</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- STEP 3: EXPRESS -->
-    <div class="lb-section" style="margin-top:20px;">
-      <div class="lb-section-title">③ Express Delivery</div>
+      <div class="lb-section-title">② Express Delivery</div>
       <div class="lb-express-box" id="lb-express" role="switch" aria-checked="false" tabindex="0">
         <div class="lb-express-icon">⚡</div>
         <div class="lb-express-text">
           <div class="lb-express-name">
             Express 6-Hour
-            <span class="lb-express-badge" id="lb-express-badge">+Rs 80/kg</span>
+            <span class="lb-express-badge" id="lb-express-badge">+Rs 80/item</span>
           </div>
           <div class="lb-express-sub">Priority processing · Done in 6 hours</div>
         </div>
@@ -937,43 +732,15 @@
       </div>
     </div>
 
-    <!-- STEP 4: NOTES -->
+    <!-- SPECIAL INSTRUCTIONS -->
     <div class="lb-section" style="margin-top:20px;">
-      <div class="lb-section-title">④ Special Instructions <span style="text-transform:none;letter-spacing:0;font-size:11px;color:var(--lb-muted);font-weight:500;">(optional)</span></div>
+      <div class="lb-section-title">③ Special Instructions <span style="text-transform:none;letter-spacing:0;font-size:11px;color:var(--lb-muted);font-weight:500;">(optional)</span></div>
       <div class="lb-notes-box">
         <div class="lb-notes-top">
           <span class="lb-notes-icon">📝</span>
           <div class="lb-notes-label">Add a note <span>e.g. "Handle delicately"</span></div>
         </div>
-        <textarea class="lb-notes-textarea" id="lb-notes" placeholder="Any special requests, stain details, fabric types..." rows="3" maxlength="250"></textarea>
-      </div>
-    </div>
-
-    <!-- ORDER SUMMARY -->
-    <div class="lb-section" style="margin-top:20px;">
-      <div class="lb-section-title">Order Summary</div>
-      <div class="lb-summary">
-        <div class="lb-summary-hdr">Booking Details</div>
-        <div class="lb-summary-row">
-          <span class="lb-summary-label">Service</span>
-          <span class="lb-summary-value" id="lb-sum-service">—</span>
-        </div>
-        <div class="lb-summary-row">
-          <span class="lb-summary-label">Quantity</span>
-          <span class="lb-summary-value" id="lb-sum-qty">—</span>
-        </div>
-        <div class="lb-summary-row">
-          <span class="lb-summary-label">Unit Price</span>
-          <span class="lb-summary-value" id="lb-sum-unit-price">—</span>
-        </div>
-        <div class="lb-express-surcharge-row" id="lb-sum-express-row">
-          <span>⚡ Express surcharge</span>
-          <span id="lb-sum-express-amt">—</span>
-        </div>
-        <div class="lb-summary-total">
-          <span class="lb-summary-total-label">Total</span>
-          <span class="lb-summary-total-price" id="lb-sum-total">Rs —</span>
-        </div>
+        <textarea class="lb-notes-textarea" id="lb-notes" placeholder="Stain details, fabric types, special requests..." rows="3" maxlength="250"></textarea>
       </div>
     </div>
 
@@ -983,18 +750,17 @@
       Payment collected after service is complete.
     </div>
 
-  </div><!-- /.lb-content -->
+  </div>
+</div>
 
-</div><!-- /.lb-wrap -->
-
-<!-- STICKY BOTTOM BAR -->
+<!-- STICKY BOTTOM -->
 <div class="lb-sticky">
   <div class="lb-sticky-inner">
     <div class="lb-sticky-price">
-      <div class="lb-sticky-price-main" id="lb-sticky-price">Rs —</div>
-      <div class="lb-sticky-price-sub" id="lb-sticky-price-sub">Select service</div>
+      <div class="lb-sticky-price-main" id="lb-sticky-price">Rs 0</div>
+      <div class="lb-sticky-price-sub" id="lb-sticky-price-sub">Select services</div>
     </div>
-    <button class="lb-add-btn" id="lb-add-btn" disabled aria-label="Confirm order and go to checkout">
+    <button class="lb-add-btn" id="lb-add-btn" disabled aria-label="Confirm order">
       <span class="lb-add-btn-content">
         <span>✅</span>
         <span id="lb-btn-text">Confirm Order</span>
@@ -1007,354 +773,381 @@
 (function () {
   'use strict';
 
-  /* ── CONSTANTS ── */
-  var EXPRESS_SURCHARGE = 80; // Rs per unit
+  var EXPRESS_PER_UNIT = 80;
   var MAX_QTY = 50;
   var MIN_QTY = 1;
+  var LS_KEY  = 'qb_laundry_order';
 
-  /* ── VARIANT DATA ── */
   var ALL_VARIANTS = {{ product.variants | json }};
 
-  /* ── STATE ── */
-  var state = {
-    selectedVariant: null,
-    selectedCard:    null,
-    qty:             1,
-    express:         false,
-    notes:           ''
-  };
+  /* ── State: { variantTitle → { variant, unit, icon, qty, priceRs } } ── */
+  var selections = {};
+  var expressOn  = false;
 
-  /* ── ELEMENTS ── */
-  var els = {
-    services:        document.getElementById('lb-services'),
-    cards:           document.querySelectorAll('.lb-service-card'),
-    qtyMinus:        document.getElementById('lb-qty-minus'),
-    qtyPlus:         document.getElementById('lb-qty-plus'),
-    qtyDisp:         document.getElementById('lb-qty-disp'),
-    qtyHint:         document.getElementById('lb-qty-hint'),
-    unitLabel:       document.getElementById('lb-unit-label'),
-    expressBox:      document.getElementById('lb-express'),
-    notes:           document.getElementById('lb-notes'),
-    addBtn:          document.getElementById('lb-add-btn'),
-    btnText:         document.getElementById('lb-btn-text'),
-    feedback:        document.getElementById('lb-feedback'),
-    stickyPrice:     document.getElementById('lb-sticky-price'),
-    stickyPriceSub:  document.getElementById('lb-sticky-price-sub'),
-    sumService:      document.getElementById('lb-sum-service'),
-    sumQty:          document.getElementById('lb-sum-qty'),
-    sumUnitPrice:    document.getElementById('lb-sum-unit-price'),
-    sumExpressRow:   document.getElementById('lb-sum-express-row'),
-    sumExpressAmt:   document.getElementById('lb-sum-express-amt'),
-    sumTotal:        document.getElementById('lb-sum-total')
-  };
-
-  /* ══════════════════════════════════
-     VARIANT LOOKUP
-  ══════════════════════════════════ */
+  /* ── Helpers ── */
   function cleanStr(s) {
-    return String(s)
-      .replace(/&amp;/g, '&')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .toLowerCase();
+    return String(s).replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim().toLowerCase();
   }
-  function findVariant(titleMatch) {
-    var needle = cleanStr(titleMatch);
-    return ALL_VARIANTS.find(function (v) {
-      return cleanStr(v.title) === needle ||
-             cleanStr(v.option1 || '') === needle;
+  function findVariant(title) {
+    var needle = cleanStr(title);
+    return ALL_VARIANTS.find(function(v) {
+      return cleanStr(v.title) === needle || cleanStr(v.option1||'') === needle;
     }) || null;
   }
-
-  /* ══════════════════════════════════
-     PRICE FORMATTING
-     Shopify Liquid JSON prices are in subunits (paisa × 100)
-  ══════════════════════════════════ */
-  function variantRs(variant) {
-    if (!variant) return 0;
-    // price from {{ product.variants | json }} is integer subunits (e.g. 9900 = Rs 99)
-    return Math.round(parseFloat(variant.price) / 100);
+  function variantRs(v) {
+    return v ? Math.round(parseFloat(v.price) / 100) : 0;
+  }
+  function displayTitle(raw) {
+    return raw.replace(/&amp;/g,'&').replace(/\s*\((kg|pcs|set)\)\s*$/i,'').trim();
+  }
+  function timeAgo(iso) {
+    var diff = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+    if (diff < 1) return 'just now';
+    if (diff < 60) return diff + ' min ago';
+    return Math.floor(diff/60) + 'h ago';
   }
 
-  /* Strip trailing unit suffix "(kg)" / "(pcs)" / "(set)" for display */
-  function displayTitle(rawTitle) {
-    return rawTitle
-      .replace(/&amp;/g, '&')
-      .replace(/\s*\((kg|pcs|set)\)\s*$/i, '')
-      .trim();
-  }
-
-  /* ══════════════════════════════════
-     INIT — populate prices on cards
-  ══════════════════════════════════ */
-  function initCards() {
-    els.cards.forEach(function (card) {
-      var title   = card.getAttribute('data-variant-title');
-      var variant = findVariant(title);
-      var priceEl = card.querySelector('[data-price]');
-      if (variant && priceEl) {
-        priceEl.textContent = 'Rs ' + variantRs(variant);
-      } else if (priceEl) {
-        priceEl.textContent = 'N/A';
-      }
-    });
-  }
-
-  /* ══════════════════════════════════
-     SERVICE SELECTION
-  ══════════════════════════════════ */
-  function selectCard(card) {
-    // Deselect all
-    els.cards.forEach(function (c) {
-      c.classList.remove('selected');
-      c.setAttribute('aria-checked', 'false');
-    });
-
-    // Select clicked
-    card.classList.add('selected');
-    card.setAttribute('aria-checked', 'true');
-
-    var title   = card.getAttribute('data-variant-title');
-    var unit    = card.getAttribute('data-unit');
-    var variant = findVariant(title);
-
-    state.selectedVariant = variant;
-    state.selectedCard    = card;
-
-    // Update unit label
-    var unitLabel = unit === 'kg' ? 'kg' : unit === 'pcs' ? 'pieces' : 'sets';
-    els.unitLabel.textContent = unitLabel;
-    els.qtyHint.textContent   = 'Min 1 ' + unit + (unit === 'kg' ? ' (≈ 5–6 garments per kg)' : '');
-
-    // Update express badge unit
-    var expressBadge = document.getElementById('lb-express-badge');
-    if (expressBadge) expressBadge.textContent = '+Rs 80/' + unit;
-
-    // Reset qty to 1 when switching service
-    state.qty = 1;
-    els.qtyDisp.textContent = '1';
-
-    hideFeedback();
-    updateUI();
-  }
-
-  /* ══════════════════════════════════
-     QUANTITY
-  ══════════════════════════════════ */
-  function setQty(n) {
-    state.qty = Math.min(MAX_QTY, Math.max(MIN_QTY, n));
-    els.qtyDisp.textContent = state.qty;
-    els.qtyMinus.disabled   = state.qty <= MIN_QTY;
-    updateUI();
-  }
-
-  /* ══════════════════════════════════
-     EXPRESS TOGGLE
-  ══════════════════════════════════ */
-  function toggleExpress() {
-    state.express = !state.express;
-    els.expressBox.classList.toggle('active', state.express);
-    els.expressBox.setAttribute('aria-checked', String(state.express));
-    updateUI();
-  }
-
-  /* ══════════════════════════════════
-     PRICE CALC
-  ══════════════════════════════════ */
-  function calcTotal() {
-    if (!state.selectedVariant) return null;
-    var base     = variantRs(state.selectedVariant) * state.qty;
-    var express  = state.express ? EXPRESS_SURCHARGE * state.qty : 0;
-    return { base: base, express: express, total: base + express };
-  }
-
-  /* ══════════════════════════════════
-     UI UPDATE (reactive)
-  ══════════════════════════════════ */
-  function updateUI() {
-    var p = calcTotal();
-    var v = state.selectedVariant;
-    var unit = state.selectedCard ? state.selectedCard.getAttribute('data-unit') : 'unit';
-
-    if (!v || !p) {
-      // No service selected
-      els.stickyPrice.textContent    = 'Rs —';
-      els.stickyPriceSub.textContent = 'Select service';
-      els.addBtn.disabled            = true;
-      els.sumService.textContent     = '—';
-      els.sumQty.textContent         = '—';
-      els.sumUnitPrice.textContent   = '—';
-      els.sumTotal.textContent       = 'Rs —';
-      els.sumExpressRow.classList.remove('show');
-      return;
-    }
-
-    // Sticky bar
-    els.stickyPrice.textContent    = 'Rs ' + p.total;
-    els.stickyPriceSub.textContent = state.qty + ' ' + unit + (state.express ? ' · Express' : '');
-    els.addBtn.disabled            = false;
-
-    // Summary rows
-    var rawTitle = state.selectedCard.getAttribute('data-variant-title');
-    els.sumService.textContent   = displayTitle(rawTitle);
-    els.sumQty.textContent       = state.qty + ' ' + unit;
-    els.sumUnitPrice.textContent = 'Rs ' + variantRs(v) + '/' + unit;
-    els.sumTotal.textContent     = 'Rs ' + p.total;
-
-    if (state.express && p.express > 0) {
-      els.sumExpressRow.classList.add('show');
-      els.sumExpressAmt.textContent = '+Rs ' + p.express;
-    } else {
-      els.sumExpressRow.classList.remove('show');
-    }
-  }
-
-  /* ══════════════════════════════════
-     FEEDBACK
-  ══════════════════════════════════ */
-  function showFeedback(type, msg) {
-    els.feedback.className = 'lb-feedback show ' + type;
-    els.feedback.innerHTML = (type === 'error' ? '⚠️ ' : '✅ ') + msg;
-    els.feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-  function hideFeedback() {
-    els.feedback.className = 'lb-feedback';
-    els.feedback.textContent = '';
-  }
-
-  /* ══════════════════════════════════
-     VALIDATION
-  ══════════════════════════════════ */
-  function validate() {
-    if (!state.selectedVariant) {
-      // Flash all cards
-      els.cards.forEach(function (c) {
-        c.classList.remove('error-flash');
-        void c.offsetWidth; // reflow
-        c.classList.add('error-flash');
-      });
-      showFeedback('error', 'Please select a laundry service first.');
-      return false;
-    }
-    if (!state.qty || state.qty < MIN_QTY) {
-      showFeedback('error', 'Please enter a valid quantity.');
-      return false;
-    }
-    return true;
-  }
-
-  /* ══════════════════════════════════
-     LOCAL STORAGE — CURRENT ORDER
-  ══════════════════════════════════ */
-  var LS_KEY = 'qb_laundry_order';
-
+  /* ── localStorage ── */
   function saveOrder(data) {
     try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(_) {}
   }
   function loadOrder() {
-    try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch(_) { return null; }
+    try { return JSON.parse(localStorage.getItem(LS_KEY)||'null'); } catch(_) { return null; }
   }
   function clearOrder() {
     try { localStorage.removeItem(LS_KEY); } catch(_) {}
   }
 
-  function timeAgo(iso) {
-    var diff = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
-    if (diff < 1)  return 'just now';
-    if (diff < 60) return diff + ' min ago';
-    return Math.floor(diff / 60) + 'h ago';
+  /* ── Init: populate prices, wire up card events ── */
+  document.querySelectorAll('.lb-service-card').forEach(function(card) {
+    var title   = card.getAttribute('data-variant-title');
+    var unit    = card.getAttribute('data-unit');
+    var variant = findVariant(title);
+    var priceEl = card.querySelector('[data-price]');
+
+    if (variant && priceEl) {
+      priceEl.innerHTML = 'Rs ' + variantRs(variant) + '<span class="lb-svc-price-unit">/' + unit + '</span>';
+    } else if (priceEl) {
+      priceEl.textContent = 'N/A';
+    }
+
+    /* Tap on card body (not on the stepper buttons) → add with qty 1 */
+    card.addEventListener('click', function(e) {
+      // Don't re-add if clicking stepper buttons
+      if (e.target.closest('.lb-card-qty') || e.target.classList.contains('lb-svc-add-btn')) return;
+      if (!card.classList.contains('selected')) {
+        addService(card, title, unit, variant);
+      }
+    });
+
+    /* "+" add button click */
+    var addBtn = card.querySelector('.lb-svc-add-btn');
+    if (addBtn) {
+      addBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        addService(card, title, unit, variant);
+      });
+    }
+
+    /* Stepper minus */
+    var minusBtn = card.querySelector('.lb-cq-minus');
+    if (minusBtn) {
+      minusBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var key = cleanStr(title);
+        if (!selections[key]) return;
+        var newQty = selections[key].qty - 1;
+        if (newQty < MIN_QTY) {
+          // Remove this service
+          removeService(card, key);
+        } else {
+          selections[key].qty = newQty;
+          card.querySelector('.lb-card-qty-val').textContent = newQty;
+          minusBtn.disabled = newQty <= MIN_QTY;
+          updateLinePriceOnCard(card, selections[key]);
+          updateSummary();
+        }
+      });
+    }
+
+    /* Stepper plus */
+    var plusBtn = card.querySelector('.lb-cq-plus');
+    if (plusBtn) {
+      plusBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var key = cleanStr(title);
+        if (!selections[key]) return;
+        if (selections[key].qty >= MAX_QTY) return;
+        selections[key].qty++;
+        card.querySelector('.lb-card-qty-val').textContent = selections[key].qty;
+        card.querySelector('.lb-cq-minus').disabled = false;
+        updateLinePriceOnCard(card, selections[key]);
+        updateSummary();
+      });
+    }
+
+    /* keyboard */
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        if (!card.classList.contains('selected')) addService(card, title, unit, variant);
+      }
+    });
+  });
+
+  function addService(card, title, unit, variant) {
+    if (!variant) { showFeedback('error', 'Service unavailable. Please refresh.'); return; }
+    var key = cleanStr(title);
+    if (selections[key]) return; // already selected
+    selections[key] = {
+      card:         card,
+      variant:      variant,
+      unit:         unit,
+      icon:         card.getAttribute('data-icon') || '🫧',
+      displayTitle: displayTitle(title),
+      qty:          1,
+      priceRs:      variantRs(variant)
+    };
+    card.classList.add('selected');
+    var qv = card.querySelector('.lb-card-qty-val');
+    if (qv) qv.textContent = '1';
+    var mb = card.querySelector('.lb-cq-minus');
+    if (mb) mb.disabled = true; // can't go below 1 (tap minus to remove)
+    updateLinePriceOnCard(card, selections[key]);
+    hideFeedback();
+    updateSummary();
+    // Animate the summary panel in
+    document.getElementById('lb-live-summary').style.display = 'block';
   }
 
-  function renderCurrentOrder(order) {
-    var wrap = document.getElementById('lb-current-order');
-    if (!wrap) return;
-    document.getElementById('lb-co-svc').textContent   = order.service;
-    document.getElementById('lb-co-qty').textContent   = order.qty + ' ' + order.unit;
-    document.getElementById('lb-co-exp').textContent   = order.express ? '⚡ Yes' : 'No';
-    document.getElementById('lb-co-total').textContent = 'Rs ' + order.total;
-    document.getElementById('lb-co-time').textContent  = '· ' + timeAgo(order.addedAt);
-    wrap.style.display = 'block';
-    // Button becomes "Update Order"
-    setBtnLabel('Update Order');
+  function removeService(card, key) {
+    delete selections[key];
+    card.classList.remove('selected');
+    var qv = card.querySelector('.lb-card-qty-val');
+    if (qv) qv.textContent = '1';
+    var mb = card.querySelector('.lb-cq-minus');
+    if (mb) mb.disabled = false;
+    // Reset price display
+    var variant = findVariant(card.getAttribute('data-variant-title'));
+    var unit    = card.getAttribute('data-unit');
+    var priceEl = card.querySelector('[data-price]');
+    if (priceEl && variant) {
+      priceEl.innerHTML = 'Rs ' + variantRs(variant) + '<span class="lb-svc-price-unit">/' + unit + '</span>';
+    }
+    updateSummary();
   }
 
-  function hideCurrentOrder() {
-    var wrap = document.getElementById('lb-current-order');
-    if (wrap) wrap.style.display = 'none';
-    setBtnLabel('Confirm Order');
+  function updateLinePriceOnCard(card, sel) {
+    // Show line total (qty × price) on card while selected
+    var lineTotal = sel.qty * sel.priceRs;
+    var priceEl = card.querySelector('[data-price]');
+    if (priceEl) {
+      priceEl.innerHTML = '<span style="font-size:11px;font-weight:500;color:var(--lb-muted);">' + sel.qty + ' × Rs ' + sel.priceRs + '</span><br>Rs ' + lineTotal;
+    }
   }
 
-  function setBtnLabel(label) {
-    var btn = els.addBtn;
-    btn.innerHTML = '<span class="lb-add-btn-content"><span>✅</span><span id="lb-btn-text">' + label + '</span></span>';
+  /* ── Express ── */
+  var expressBox = document.getElementById('lb-express');
+  expressBox.addEventListener('click', function() {
+    expressOn = !expressOn;
+    expressBox.classList.toggle('active', expressOn);
+    expressBox.setAttribute('aria-checked', String(expressOn));
+    updateSummary();
+  });
+  expressBox.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); expressBox.click(); }
+  });
+
+  /* ── Live Summary update ── */
+  function calcTotals() {
+    var subtotal = 0;
+    Object.keys(selections).forEach(function(key) {
+      var s = selections[key];
+      subtotal += s.qty * s.priceRs;
+    });
+    var expressSurcharge = expressOn ? subtotal * 0 + Object.values(selections).reduce(function(acc, s) {
+      return acc + s.qty * EXPRESS_PER_UNIT;
+    }, 0) : 0;
+    return { subtotal: subtotal, express: expressSurcharge, total: subtotal + expressSurcharge };
   }
 
-  function removeExistingCartItem(cartKey, cb) {
-    if (!cartKey) { cb(); return; }
-    fetch('/cart/change.js', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ id: cartKey, quantity: 0 })
-    }).then(cb).catch(cb);
+  function updateSummary() {
+    var keys   = Object.keys(selections);
+    var totals = calcTotals();
+    var count  = keys.length;
+
+    var summaryEl   = document.getElementById('lb-live-summary');
+    var itemsEl     = document.getElementById('lb-ls-items');
+    var countEl     = document.getElementById('lb-ls-count');
+    var expressRow  = document.getElementById('lb-ls-express-row');
+    var expressAmt  = document.getElementById('lb-ls-express-amt');
+    var totalEl     = document.getElementById('lb-ls-total');
+    var stickyPrice = document.getElementById('lb-sticky-price');
+    var stickySub   = document.getElementById('lb-sticky-price-sub');
+    var addBtn      = document.getElementById('lb-add-btn');
+    var btnText     = document.getElementById('lb-btn-text');
+
+    if (count === 0) {
+      summaryEl.style.display = 'none';
+    } else {
+      summaryEl.style.display = 'block';
+    }
+
+    // Count
+    countEl.textContent = count + (count === 1 ? ' item' : ' items');
+
+    // Build item rows
+    itemsEl.innerHTML = '';
+    keys.forEach(function(key) {
+      var s   = selections[key];
+      var row = document.createElement('div');
+      row.className = 'lb-ls-item';
+      row.innerHTML =
+        '<span class="lb-ls-item-icon">' + s.icon + '</span>' +
+        '<span class="lb-ls-item-name">' + s.displayTitle + '</span>' +
+        '<span class="lb-ls-item-qty">' + s.qty + ' ' + s.unit + '</span>' +
+        '<span class="lb-ls-item-price">Rs ' + (s.qty * s.priceRs) + '</span>' +
+        '<button class="lb-ls-item-remove" data-key="' + key + '" type="button" aria-label="Remove">✕</button>';
+      itemsEl.appendChild(row);
+    });
+
+    // Remove buttons in summary
+    itemsEl.querySelectorAll('.lb-ls-item-remove').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var k = btn.getAttribute('data-key');
+        if (selections[k]) removeService(selections[k].card, k);
+      });
+    });
+
+    // Express row
+    if (expressOn && totals.express > 0) {
+      expressRow.classList.add('show');
+      expressAmt.textContent = '+Rs ' + totals.express;
+    } else {
+      expressRow.classList.remove('show');
+    }
+
+    // Total
+    totalEl.textContent = 'Rs ' + totals.total;
+
+    // Sticky bar
+    if (count === 0) {
+      stickyPrice.textContent = 'Rs 0';
+      stickySub.textContent   = 'Select services';
+      addBtn.disabled = true;
+    } else {
+      stickyPrice.textContent = 'Rs ' + totals.total;
+      stickySub.textContent   = count + (count===1?' service':' services') + (expressOn ? ' · Express' : '');
+      addBtn.disabled = false;
+    }
+
+    // Button label
+    var existingOrder = loadOrder();
+    if (btnText) {
+      btnText.textContent = existingOrder ? 'Update Order' : 'Confirm Order';
+    }
   }
 
-  /* ══════════════════════════════════
-     ADD TO CART
-  ══════════════════════════════════ */
+  /* ── Feedback ── */
+  function showFeedback(type, msg) {
+    var el = document.getElementById('lb-feedback');
+    el.className = 'lb-feedback show ' + type;
+    el.innerHTML = (type==='error'?'⚠️ ':'✅ ') + msg;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function hideFeedback() {
+    var el = document.getElementById('lb-feedback');
+    el.className = 'lb-feedback';
+    el.textContent = '';
+  }
+
+  /* ── Add to Cart (bulk) ── */
+  function removeCartKeys(keys, cb) {
+    if (!keys || !keys.length) { cb(); return; }
+    var promises = keys.map(function(key) {
+      return fetch('/cart/change.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: key, quantity: 0 })
+      }).catch(function(){});
+    });
+    Promise.all(promises).then(cb).catch(cb);
+  }
+
   function setLoading(on) {
-    var btn = els.addBtn;
+    var btn = document.getElementById('lb-add-btn');
     if (on) {
       btn.classList.add('loading');
       btn.innerHTML = '<span class="lb-spinner"></span><span style="font-size:13px;font-weight:700;letter-spacing:0.3px;">Processing…</span>';
     } else {
       btn.classList.remove('loading');
       var existing = loadOrder();
-      setBtnLabel(existing ? 'Update Order' : 'Confirm Order');
+      btn.innerHTML = '<span class="lb-add-btn-content"><span>✅</span><span id="lb-btn-text">' + (existing ? 'Update Order' : 'Confirm Order') + '</span></span>';
     }
   }
 
-  function doCartAdd(oldCartKey) {
-    var rawTitle = state.selectedCard.getAttribute('data-variant-title');
-    var unit     = state.selectedCard.getAttribute('data-unit');
-    var p        = calcTotal();
-    var notes    = (els.notes.value || '').trim();
+  function doCartAdd() {
+    var keys = Object.keys(selections);
+    if (!keys.length) { showFeedback('error', 'Please select at least one service.'); return; }
 
-    var payload = {
-      id:         state.selectedVariant.id,
-      quantity:   state.qty,
-      properties: {
-        'Service':      displayTitle(rawTitle),
-        'Quantity':     state.qty + ' ' + unit,
-        'Express':      state.express ? 'Yes (+Rs ' + p.express + ')' : 'No',
-        'Pickup Notes': notes || 'None'
-      }
-    };
+    var notes   = (document.getElementById('lb-notes').value || '').trim();
+    var totals  = calcTotals();
+
+    var items = keys.map(function(key) {
+      var s = selections[key];
+      return {
+        id:         s.variant.id,
+        quantity:   s.qty,
+        properties: {
+          'Service':      s.displayTitle,
+          'Quantity':     s.qty + ' ' + s.unit,
+          'Express':      expressOn ? 'Yes (+Rs ' + (s.qty * EXPRESS_PER_UNIT) + ')' : 'No',
+          'Pickup Notes': notes || 'None'
+        }
+      };
+    });
 
     fetch('/cart/add.js', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body:    JSON.stringify(payload)
+      body:    JSON.stringify({ items: items })
     })
     .then(function(res) {
       if (!res.ok) throw new Error('Server error ' + res.status);
       return res.json();
     })
-    .then(function(item) {
-      // Save to localStorage
-      saveOrder({
-        cartKey:  item.key || '',
-        service:  displayTitle(rawTitle),
-        unit:     unit,
-        qty:      state.qty,
-        express:  state.express,
-        notes:    notes,
-        total:    p.total,
-        addedAt:  new Date().toISOString()
+    .then(function(data) {
+      var addedItems = data.items || [];
+      var cartKeys   = addedItems.map(function(i) { return i.key || ''; }).filter(Boolean);
+
+      // Build saved items array for localStorage
+      var savedItems = keys.map(function(key, idx) {
+        var s = selections[key];
+        return {
+          variantTitle: key,
+          displayTitle: s.displayTitle,
+          unit:         s.unit,
+          icon:         s.icon,
+          qty:          s.qty,
+          priceRs:      s.priceRs,
+          lineTotal:    s.qty * s.priceRs
+        };
       });
-      // Sync location note
+
+      saveOrder({
+        version:   2,
+        cartKeys:  cartKeys,
+        items:     savedItems,
+        express:   expressOn,
+        expressTotal: totals.express,
+        notes:     notes,
+        subtotal:  totals.subtotal,
+        total:     totals.total,
+        addedAt:   new Date().toISOString()
+      });
+
       if (typeof window.qbSyncCartNote === 'function') window.qbSyncCartNote();
-      // Redirect to checkout
       setTimeout(function() { window.location.href = '/checkout'; }, 120);
     })
     .catch(function(err) {
@@ -1364,122 +1157,167 @@
     });
   }
 
-  function addToCart() {
-    if (!validate()) return;
-    setLoading(true);
+  document.getElementById('lb-add-btn').addEventListener('click', function() {
+    if (Object.keys(selections).length === 0) {
+      document.querySelectorAll('.lb-service-card').forEach(function(c) {
+        c.classList.remove('error-flash');
+        void c.offsetWidth;
+        c.classList.add('error-flash');
+      });
+      showFeedback('error', 'Please select at least one service first.');
+      return;
+    }
     hideFeedback();
+    setLoading(true);
 
     var existing = loadOrder();
-    if (existing && existing.cartKey) {
-      // Remove old item first, then add updated one
-      removeExistingCartItem(existing.cartKey, function() {
+    if (existing && existing.cartKeys && existing.cartKeys.length) {
+      removeCartKeys(existing.cartKeys, function() {
         clearOrder();
-        doCartAdd(existing.cartKey);
+        doCartAdd();
       });
     } else {
-      doCartAdd(null);
+      doCartAdd();
     }
+  });
+
+  /* ════════════════════════════════════
+     CART BANNER (bfcache / back nav)
+  ════════════════════════════════════ */
+  function renderCartBanner(order) {
+    if (!order) return;
+    var banner   = document.getElementById('lb-cart-banner');
+    var timeEl   = document.getElementById('lb-cb-time');
+    var itemsEl  = document.getElementById('lb-cb-items');
+    var totalEl  = document.getElementById('lb-cb-total');
+    if (!banner) return;
+
+    if (timeEl) timeEl.textContent = '· ' + timeAgo(order.addedAt);
+    if (totalEl) totalEl.textContent = 'Rs ' + order.total;
+
+    // Build item rows
+    if (itemsEl) {
+      itemsEl.innerHTML = '';
+      var itemList = order.items || [];
+      // Support v1 single-item format
+      if (!itemList.length && order.service) {
+        itemList = [{ displayTitle: order.service, unit: order.unit, qty: order.qty, lineTotal: order.total, icon: '🫧' }];
+      }
+      itemList.forEach(function(item) {
+        var row = document.createElement('div');
+        row.className = 'lb-cb-item-row';
+        row.innerHTML =
+          '<span class="lb-cb-item-name">' + (item.icon||'') + ' ' + item.displayTitle + '</span>' +
+          '<span class="lb-cb-item-detail">' + item.qty + ' ' + item.unit + '</span>' +
+          '<span class="lb-cb-item-price">Rs ' + item.lineTotal + '</span>';
+        itemsEl.appendChild(row);
+      });
+    }
+
+    banner.style.display = 'block';
+
+    // Update sticky button label
+    var btnText = document.getElementById('lb-btn-text');
+    if (btnText) btnText.textContent = 'Update Order';
   }
 
-  /* ══════════════════════════════════
-     EVENT LISTENERS
-  ══════════════════════════════════ */
-  // Service cards — click & keyboard
-  els.cards.forEach(function (card) {
-    card.addEventListener('click', function () { selectCard(card); });
-    card.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectCard(card); }
-    });
-  });
+  function hideCartBanner() {
+    var banner = document.getElementById('lb-cart-banner');
+    if (banner) banner.style.display = 'none';
+    var btnText = document.getElementById('lb-btn-text');
+    if (btnText) btnText.textContent = 'Confirm Order';
+  }
 
-  // Qty
-  els.qtyMinus.addEventListener('click', function () { setQty(state.qty - 1); });
-  els.qtyPlus.addEventListener('click',  function () { setQty(state.qty + 1); });
-
-  // Express
-  els.expressBox.addEventListener('click', toggleExpress);
-  els.expressBox.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpress(); }
-  });
-
-  // Notes — just track changes, no state needed beyond reading at submit
-  // (reading directly from DOM at submit time)
-
-  // Add to cart
-  els.addBtn.addEventListener('click', addToCart);
-
-  // Current order — Remove button
-  var coRemove = document.getElementById('lb-co-remove');
-  if (coRemove) {
-    coRemove.addEventListener('click', function() {
+  // Remove button in cart banner
+  var cbRemove = document.getElementById('lb-cb-remove');
+  if (cbRemove) {
+    cbRemove.addEventListener('click', function() {
       var order = loadOrder();
       clearOrder();
-      hideCurrentOrder();
-      if (order && order.cartKey) {
-        removeExistingCartItem(order.cartKey, function() {
+      hideCartBanner();
+      if (order && order.cartKeys && order.cartKeys.length) {
+        removeCartKeys(order.cartKeys, function() {
           document.dispatchEvent(new CustomEvent('cart:updated'));
         });
+      } else if (order && order.cartKey) {
+        // v1 format
+        fetch('/cart/change.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: order.cartKey, quantity: 0 })
+        }).catch(function(){});
       }
     });
   }
 
-  // Current order — Modify button (pre-fill the form)
-  var coModify = document.getElementById('lb-co-modify');
-  if (coModify) {
-    coModify.addEventListener('click', function() {
+  // Modify button — pre-select cards from saved order
+  var cbModify = document.getElementById('lb-cb-modify');
+  if (cbModify) {
+    cbModify.addEventListener('click', function() {
       var order = loadOrder();
       if (!order) return;
-      // Find and select the matching card
-      els.cards.forEach(function(card) {
-        var t = displayTitle(card.getAttribute('data-variant-title'));
-        if (t === order.service) {
-          selectCard(card);
-          setQty(order.qty);
-          if (order.express !== state.express) toggleExpress();
-          if (order.notes) els.notes.value = order.notes;
-          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+      hideCartBanner();
+
+      var itemList = order.items || [];
+      if (!itemList.length && order.service) {
+        itemList = [{ variantTitle: null, displayTitle: order.service, unit: order.unit, qty: order.qty }];
+      }
+
+      // Pre-select cards
+      document.querySelectorAll('.lb-service-card').forEach(function(card) {
+        var cardTitle = displayTitle(card.getAttribute('data-variant-title'));
+        itemList.forEach(function(item) {
+          if (item.displayTitle === cardTitle) {
+            var rawTitle = card.getAttribute('data-variant-title');
+            var unit     = card.getAttribute('data-unit');
+            var variant  = findVariant(rawTitle);
+            var key      = cleanStr(rawTitle);
+            if (variant && !selections[key]) {
+              addService(card, rawTitle, unit, variant);
+              // Set qty
+              if (item.qty > 1) {
+                selections[key].qty = item.qty;
+                var qv = card.querySelector('.lb-card-qty-val');
+                if (qv) qv.textContent = item.qty;
+                var mb = card.querySelector('.lb-cq-minus');
+                if (mb) mb.disabled = item.qty <= MIN_QTY;
+                updateLinePriceOnCard(card, selections[key]);
+              }
+            }
+          }
+        });
       });
+
+      // Restore express
+      if (order.express && !expressOn) {
+        expressBox.click();
+      }
+      // Restore notes
+      if (order.notes) document.getElementById('lb-notes').value = order.notes;
+
+      updateSummary();
+      document.querySelector('.lb-services-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
 
-  /* ══════════════════════════════════
-     BOOT
-  ══════════════════════════════════ */
-  initCards();
-  setQty(1); // sets disabled state on minus
+  /* ── bfcache fix ── */
+  function checkBannerOnLoad() {
+    var order = loadOrder();
+    if (order) renderCartBanner(order);
+    else hideCartBanner();
+  }
 
-  // Restore current order banner if one exists
-  var savedOrder = loadOrder();
-  if (savedOrder) renderCurrentOrder(savedOrder);
-
-  /* ── bfcache fix ──────────────────────────────────────────
-     When the user taps browser Back from /checkout, the page
-     is restored from bfcache (frozen snapshot) — JS does NOT
-     re-run from scratch. The pageshow event fires instead.
-     We re-check localStorage and refresh the "Update Order"
-     banner every time the page becomes visible again.
-  ──────────────────────────────────────────────────────────── */
   window.addEventListener('pageshow', function(e) {
-    if (e.persisted) {
-      // Page was restored from bfcache (back/forward navigation)
-      var order = loadOrder();
-      if (order) {
-        renderCurrentOrder(order);
-      } else {
-        hideCurrentOrder();
-      }
-    }
+    if (e.persisted) checkBannerOnLoad();
   });
 
-  /* Also handles tab visibility restore on some mobile browsers */
   document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'visible') {
-      var order = loadOrder();
-      if (order) renderCurrentOrder(order);
-      else hideCurrentOrder();
-    }
+    if (document.visibilityState === 'visible') checkBannerOnLoad();
   });
+
+  /* ── Boot ── */
+  checkBannerOnLoad();
+  updateSummary();
 
 })();
 </script>
