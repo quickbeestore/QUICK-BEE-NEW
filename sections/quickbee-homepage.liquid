@@ -969,6 +969,348 @@ html:not([data-theme="dark"]) .qb-svc-card.live {
 }
 </style>
 
+<style>
+/* ══════════════════════════════════════════════════════
+   🔴 LIVE ORDER TICKER
+══════════════════════════════════════════════════════ */
+.qb-ticker {
+  display: flex; align-items: center; overflow: hidden;
+  height: 38px; position: relative;
+  background: linear-gradient(90deg,#0d0600,#0d0d0d,#0d0600);
+  border-top: 1px solid rgba(244,180,0,0.1);
+  border-bottom: 1px solid rgba(244,180,0,0.08);
+}
+.qb-ticker-label {
+  flex-shrink: 0; padding: 0 14px; height: 100%;
+  display: flex; align-items: center; gap: 5px;
+  background: #E53935; color: #fff;
+  font-size: 10px; font-weight: 900; letter-spacing: 1.2px;
+  text-transform: uppercase; white-space: nowrap;
+  border-right: 1px solid rgba(0,0,0,0.3);
+}
+.qb-ticker-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: #fff;
+  animation: tickDot 1.2s ease-in-out infinite;
+}
+@keyframes tickDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+.qb-ticker-track {
+  display: flex; align-items: center; white-space: nowrap;
+  animation: qbTick 36s linear infinite;
+  will-change: transform;
+}
+.qb-ticker-track span {
+  padding: 0 36px; font-size: 12px; font-weight: 500;
+  color: rgba(255,255,255,0.65);
+  display: flex; align-items: center; gap: 8px;
+}
+.qb-ticker-track span b { color: rgba(255,255,255,0.9); font-weight: 700; }
+.qb-ticker-track span::after {
+  content:"●"; margin-left:36px; color:rgba(244,180,0,0.35); font-size:7px;
+}
+@keyframes qbTick { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+/* ══════════════════════════════════════════════════════
+   🎁 DEAL / COUPON STRIP
+══════════════════════════════════════════════════════ */
+.qb-coupon-strip {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; padding: 11px 16px;
+  background: linear-gradient(90deg,rgba(229,57,53,0.07),rgba(244,180,0,0.09),rgba(229,57,53,0.07));
+  background-size: 200% 100%;
+  animation: couponShimmer 4s ease-in-out infinite;
+  border-bottom: 1px solid rgba(244,180,0,0.12);
+  flex-wrap: wrap; gap: 8px;
+}
+@keyframes couponShimmer {
+  0%,100%{background-position:0% 50%} 50%{background-position:100% 50%}
+}
+.qb-coupon-text { font-size: 13px; font-weight: 600; color: var(--theme-text-main); }
+.qb-coupon-code {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(244,180,0,0.1); border: 1.5px dashed rgba(244,180,0,0.55);
+  border-radius: 8px; padding: 5px 13px;
+  font-size: 14px; font-weight: 900; letter-spacing: 1.5px;
+  color: #F4B400; cursor: pointer; position: relative;
+  transition: background .18s, transform .15s;
+  user-select: all;
+}
+.qb-coupon-code:hover { background: rgba(244,180,0,0.2); transform: scale(1.03); }
+.qb-coupon-code:active { transform: scale(0.97); }
+.qb-coupon-copy-toast {
+  display: none; position: absolute; inset: 0;
+  background: rgba(34,197,94,0.95); border-radius: 6px;
+  align-items: center; justify-content: center;
+  color: #fff; font-size: 12px; font-weight: 700;
+}
+.qb-coupon-code.qb-copied .qb-coupon-copy-toast { display: flex; }
+.qb-coupon-copy-hint {
+  font-size: 10px; color: var(--theme-text-muted);
+  display: flex; align-items: center; gap: 3px;
+}
+
+/* ══════════════════════════════════════════════════════
+   🍖 RESTAURANT SPOTLIGHT
+══════════════════════════════════════════════════════ */
+.qb-rs-wrap {
+  padding: 12px 12px 4px;
+}
+.qb-rs-card {
+  border-radius: 20px; overflow: hidden; position: relative;
+  background: linear-gradient(135deg, #0b1e10 0%, #162b18 45%, #0d1f13 100%);
+  border: 1.5px solid rgba(229,194,90,0.22);
+  box-shadow: 0 12px 48px rgba(0,0,0,0.5), inset 0 0 40px rgba(229,194,90,0.03);
+  padding: 22px 18px; display: flex; align-items: center;
+  gap: 16px; cursor: pointer; text-decoration: none;
+  transition: transform .2s, box-shadow .2s;
+}
+.qb-rs-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 56px rgba(0,0,0,0.5), 0 0 0 2px rgba(229,194,90,0.35);
+}
+/* Decorative orb */
+.qb-rs-card::before {
+  content:''; position:absolute; top:-30px; right:-20px;
+  width:160px; height:160px; border-radius:50%;
+  background: radial-gradient(circle, rgba(229,194,90,0.1) 0%, transparent 70%);
+  pointer-events:none;
+}
+.qb-rs-open-badge {
+  position: absolute; top: 14px; right: 14px;
+  background: rgba(34,197,94,0.18); border: 1px solid rgba(34,197,94,0.45);
+  color: #22c55e; font-size: 10px; font-weight: 900;
+  padding: 4px 10px; border-radius: 20px; letter-spacing: 0.6px;
+  text-transform: uppercase;
+  animation: openPulse 2.5s ease-in-out infinite;
+}
+@keyframes openPulse {
+  0%,100%{opacity:1;box-shadow:0 0 6px rgba(34,197,94,0.3)}
+  50%{opacity:0.65;box-shadow:none}
+}
+.qb-rs-logo-box {
+  width: 70px; height: 70px; border-radius: 18px;
+  background: linear-gradient(135deg,#091a09,#163016);
+  border: 2px solid rgba(229,194,90,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px; flex-shrink: 0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 12px rgba(229,194,90,0.1);
+}
+.qb-rs-body { flex: 1; min-width: 0; }
+.qb-rs-name {
+  font-size: 17px; font-weight: 900; color: #e5c25a;
+  letter-spacing: -0.4px; line-height: 1.2;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+.qb-rs-tagline { font-size: 11px; color: rgba(229,194,90,0.55); margin: 2px 0 9px; }
+.qb-rs-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.qb-rs-pill {
+  display: flex; align-items: center; gap: 3px;
+  padding: 3px 8px; border-radius: 20px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.65);
+}
+.qb-rs-order-btn {
+  flex-shrink: 0; display: flex; align-items: center; gap: 4px;
+  padding: 11px 18px; border-radius: 12px;
+  background: linear-gradient(135deg,#e5c25a,#c8a840);
+  color: #0b1e10; font-size: 13px; font-weight: 900;
+  border: none; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(229,194,90,0.3);
+  transition: all .2s; text-decoration: none;
+  white-space: nowrap;
+}
+.qb-rs-order-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(229,194,90,0.45); }
+
+/* Light mode adjustments */
+html:not([data-theme="dark"]) .qb-rs-card {
+  background: linear-gradient(135deg,#0d2010,#1a3520,#0f2213);
+}
+
+/* ══════════════════════════════════════════════════════
+   ⚡ HOW IT WORKS
+══════════════════════════════════════════════════════ */
+.qb-hiw-section {
+  padding: 32px 16px 28px; text-align: center;
+  background: linear-gradient(180deg,
+    var(--theme-bg-primary) 0%,
+    color-mix(in srgb, var(--theme-bg-primary) 92%, #F4B400 8%) 50%,
+    var(--theme-bg-primary) 100%);
+}
+.qb-hiw-eyebrow {
+  font-size: 11px; font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase; color: #F4B400; margin-bottom: 8px;
+}
+.qb-hiw-title {
+  font-size: 24px; font-weight: 900; color: var(--theme-text-main);
+  margin-bottom: 4px; line-height: 1.2; letter-spacing: -0.5px;
+}
+.qb-hiw-sub {
+  font-size: 13px; color: var(--theme-text-muted); margin-bottom: 28px;
+}
+.qb-hiw-steps {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 12px; max-width: 600px; margin: 0 auto;
+}
+.qb-hiw-step {
+  position: relative; display: flex; flex-direction: column;
+  align-items: center; gap: 10px;
+}
+.qb-hiw-step:not(:last-child)::after {
+  content: '···'; position: absolute; top: 24px; left: calc(50% + 32px);
+  width: calc(100% - 64px); color: rgba(244,180,0,0.25);
+  font-size: 18px; letter-spacing: 2px; pointer-events: none;
+  display: none;
+}
+@media(min-width:400px){ .qb-hiw-step:not(:last-child)::after { display: block; } }
+.qb-hiw-ico {
+  width: 62px; height: 62px; border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; position: relative;
+  background: rgba(244,180,0,0.07);
+  border: 1.5px solid rgba(244,180,0,0.18);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+.qb-hiw-step:nth-child(1) .qb-hiw-ico { animation: hiwBounce 3.5s ease-in-out infinite; }
+.qb-hiw-step:nth-child(2) .qb-hiw-ico { animation: hiwBounce 3.5s ease-in-out 1.1s infinite; }
+.qb-hiw-step:nth-child(3) .qb-hiw-ico { animation: hiwBounce 3.5s ease-in-out 2.2s infinite; }
+@keyframes hiwBounce {
+  0%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} 60%{transform:translateY(-4px)}
+}
+.qb-hiw-num {
+  position: absolute; top: -6px; right: -6px; width: 20px; height: 20px;
+  background: #F4B400; color: #000; border-radius: 50%;
+  font-size: 10px; font-weight: 900; display: flex; align-items: center; justify-content: center;
+}
+.qb-hiw-label { font-size: 12px; font-weight: 800; color: var(--theme-text-main); }
+.qb-hiw-desc { font-size: 10px; color: var(--theme-text-muted); line-height: 1.5; }
+
+/* ══════════════════════════════════════════════════════
+   ⭐ CUSTOMER REVIEWS STRIP
+══════════════════════════════════════════════════════ */
+.qb-reviews-section { padding: 8px 0 20px; overflow: hidden; }
+.qb-reviews-header {
+  padding: 0 16px 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.qb-reviews-title {
+  font-size: 18px; font-weight: 900; color: var(--theme-text-main);
+}
+.qb-reviews-avg {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 20px;
+  background: rgba(244,180,0,0.1); border: 1px solid rgba(244,180,0,0.25);
+  font-size: 13px; font-weight: 800; color: #F4B400;
+}
+.qb-reviews-track-wrap { overflow: hidden; }
+.qb-reviews-track {
+  display: flex; gap: 12px; padding: 4px 16px 4px;
+  width: max-content;
+  animation: reviewsScroll 34s linear infinite;
+}
+.qb-reviews-track:hover { animation-play-state: paused; }
+@keyframes reviewsScroll {
+  0%{transform:translateX(0)} 100%{transform:translateX(-50%)}
+}
+.qb-rv-card {
+  width: 230px; flex-shrink: 0; padding: 16px;
+  background: var(--theme-bg-secondary);
+  border-radius: 16px; border: 1px solid rgba(244,180,0,0.1);
+  transition: border-color .2s;
+}
+.qb-rv-card:hover { border-color: rgba(244,180,0,0.3); }
+.qb-rv-stars { color: #F4B400; font-size: 13px; margin-bottom: 7px; letter-spacing: 1px; }
+.qb-rv-text {
+  font-size: 12px; color: var(--theme-text-muted); line-height: 1.6;
+  margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp:3;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.qb-rv-author { display: flex; align-items: center; gap: 8px; }
+.qb-rv-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 900; color: #fff; flex-shrink: 0;
+}
+.qb-rv-name { font-size: 11px; font-weight: 700; color: var(--theme-text-main); line-height: 1.2; }
+.qb-rv-meta { font-size: 10px; color: var(--theme-text-muted); }
+
+/* ══════════════════════════════════════════════════════
+   🤝 PARTNER / VENDOR CTA BANNER
+══════════════════════════════════════════════════════ */
+.qb-partner-section { padding: 12px 12px 16px; }
+.qb-partner-card {
+  border-radius: 20px; overflow: hidden; position: relative;
+  padding: 24px 20px; display: flex; align-items: center;
+  gap: 16px; flex-wrap: wrap;
+  background: linear-gradient(135deg,#0d0830 0%,#1a0f40 50%,#0d0830 100%);
+  border: 1.5px solid rgba(130,80,255,0.25);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  text-decoration: none;
+  transition: transform .2s, box-shadow .2s;
+}
+.qb-partner-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 50px rgba(130,80,255,0.25), 0 0 0 1.5px rgba(130,80,255,0.4);
+}
+.qb-partner-card::before {
+  content:''; position:absolute; bottom:-40px; right:-30px;
+  width:200px; height:200px; border-radius:50%;
+  background: radial-gradient(circle, rgba(130,80,255,0.15) 0%, transparent 70%);
+  pointer-events:none;
+}
+.qb-partner-icon { font-size: 44px; flex-shrink: 0; }
+.qb-partner-body { flex: 1; min-width: 200px; }
+.qb-partner-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(130,80,255,0.18); border: 1px solid rgba(130,80,255,0.4);
+  color: #a878ff; font-size: 10px; font-weight: 900; letter-spacing: 0.8px;
+  text-transform: uppercase; padding: 3px 10px; border-radius: 20px;
+  margin-bottom: 8px;
+}
+.qb-partner-title {
+  font-size: 18px; font-weight: 900; color: #fff;
+  line-height: 1.2; letter-spacing: -0.3px; margin-bottom: 4px;
+}
+.qb-partner-desc { font-size: 12px; color: rgba(255,255,255,0.5); }
+.qb-partner-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 12px 22px; border-radius: 12px; flex-shrink: 0;
+  background: linear-gradient(135deg,#8250ff,#6030d0);
+  color: #fff; font-size: 13px; font-weight: 900;
+  border: none; cursor: pointer; text-decoration: none;
+  box-shadow: 0 4px 18px rgba(130,80,255,0.4);
+  transition: all .2s;
+}
+.qb-partner-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 26px rgba(130,80,255,0.55); }
+
+/* ══════════════════════════════════════════════════════
+   📊 TRUST STATS BAR
+══════════════════════════════════════════════════════ */
+.qb-trust-bar {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; padding: 18px 16px;
+  border-top: 1px solid rgba(244,180,0,0.08);
+  border-bottom: 1px solid rgba(244,180,0,0.08);
+  background: color-mix(in srgb, var(--theme-bg-primary) 96%, #F4B400 4%);
+  flex-wrap: wrap;
+}
+.qb-trust-item {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 8px 20px; text-align: center; position: relative;
+  flex: 1; min-width: 80px;
+}
+.qb-trust-item:not(:last-child)::after {
+  content:''; position:absolute; right:0; top:20%; height:60%;
+  width:1px; background: rgba(244,180,0,0.15);
+}
+.qb-trust-num {
+  font-size: 22px; font-weight: 900; color: #F4B400;
+  line-height: 1; letter-spacing: -0.5px;
+}
+.qb-trust-lbl {
+  font-size: 10px; font-weight: 600; color: var(--theme-text-muted);
+  text-transform: uppercase; letter-spacing: 0.6px; margin-top: 3px;
+}
+</style>
+
 <div class="qb-hp">
 
   <!-- ══════════════════════════════════════════
@@ -1014,6 +1356,32 @@ html:not([data-theme="dark"]) .qb-svc-card.live {
   </section>
 
   <!-- ══════════════════════════════════════════
+       🔴 LIVE ORDER TICKER
+  ══════════════════════════════════════════ -->
+  <div class="qb-ticker" aria-hidden="true">
+    <div class="qb-ticker-label"><div class="qb-ticker-dot"></div>LIVE</div>
+    <div class="qb-ticker-track" id="qbTickerTrack">
+      <span>🥟 <b>Sunil from Thamel</b> just ordered Chicken Momo</span>
+      <span>🎂 <b>Priya from Lazimpat</b> just ordered Chocolate Truffle Cake</span>
+      <span>🍺 <b>Bikash from Baneshwor</b> just ordered Tuborg 6-Pack</span>
+      <span>🥩 <b>Raju from Koteshwor</b> just ordered Sekuwa Platter</span>
+      <span>🍗 <b>Anu from Balaju</b> just ordered Grilled Chicken Combo</span>
+      <span>🥃 <b>Rohit from Maharajgunj</b> just ordered Old Durbar Premium</span>
+      <span>🍛 <b>Sita from Sitapaila</b> just ordered Mutton Biryani</span>
+      <span>☕ <b>Dev from Boudha</b> just ordered Yeti Kafe Special</span>
+      <!-- duplicate for seamless loop -->
+      <span>🥟 <b>Sunil from Thamel</b> just ordered Chicken Momo</span>
+      <span>🎂 <b>Priya from Lazimpat</b> just ordered Chocolate Truffle Cake</span>
+      <span>🍺 <b>Bikash from Baneshwor</b> just ordered Tuborg 6-Pack</span>
+      <span>🥩 <b>Raju from Koteshwor</b> just ordered Sekuwa Platter</span>
+      <span>🍗 <b>Anu from Balaju</b> just ordered Grilled Chicken Combo</span>
+      <span>🥃 <b>Rohit from Maharajgunj</b> just ordered Old Durbar Premium</span>
+      <span>🍛 <b>Sita from Sitapaila</b> just ordered Mutton Biryani</span>
+      <span>☕ <b>Dev from Boudha</b> just ordered Yeti Kafe Special</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
        📦 CATEGORY GRID
   ══════════════════════════════════════════ -->
   <section class="qb-catgrid-section">
@@ -1052,6 +1420,23 @@ html:not([data-theme="dark"]) .qb-svc-card.live {
       </a>
     </div>
   </section>
+
+  <!-- ══════════════════════════════════════════
+       🎁 FREE DELIVERY COUPON STRIP
+  ══════════════════════════════════════════ -->
+  <div class="qb-coupon-strip">
+    <span class="qb-coupon-text">🎉 New here? Use code</span>
+    <span class="qb-coupon-code" id="qbCouponCode" onclick="qbCopyCode(this,'FREE28')" title="Click to copy">
+      FREE28
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <span class="qb-coupon-copy-toast">✓ Copied!</span>
+    </span>
+    <span class="qb-coupon-text">for <b style="color:#F4B400">FREE delivery</b> on your first order!</span>
+    <span class="qb-coupon-copy-hint">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+      tap to copy
+    </span>
+  </div>
 
   <!-- ══════════════════════════════════════════
        🔥 PROMO BANNER CAROUSEL (code-based)
@@ -1213,6 +1598,48 @@ html:not([data-theme="dark"]) .qb-svc-card.live {
     <div class="qb-combo-dots" id="qbCakeDots"></div>
   </section>
   {% endif %}
+
+  <!-- ══════════════════════════════════════════
+       🍖 DHIDO & THE GRILLS — RESTAURANT SPOTLIGHT
+  ══════════════════════════════════════════ -->
+  <div class="qb-rs-wrap">
+    <a href="/collections/dhido-grills" class="qb-rs-card">
+      <span class="qb-rs-open-badge">● Open Now</span>
+      <div class="qb-rs-logo-box">🥩</div>
+      <div class="qb-rs-body">
+        <div class="qb-rs-name">The Dhido &amp; The Grills</div>
+        <div class="qb-rs-tagline">Authentic Nepali Flavours · Premium Grills</div>
+        <div class="qb-rs-meta">
+          <span class="qb-rs-pill">⭐ 4.8</span>
+          <span class="qb-rs-pill">⚡ 18-22 min</span>
+          <span class="qb-rs-pill">🏷️ Rs 0 delivery</span>
+        </div>
+      </div>
+      <span class="qb-rs-order-btn">Order Now →</span>
+    </a>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       📊 TRUST STATS BAR
+  ══════════════════════════════════════════ -->
+  <div class="qb-trust-bar">
+    <div class="qb-trust-item">
+      <span class="qb-trust-num" id="qbTrustOrders">2,400+</span>
+      <span class="qb-trust-lbl">Orders Delivered</span>
+    </div>
+    <div class="qb-trust-item">
+      <span class="qb-trust-num">20 min</span>
+      <span class="qb-trust-lbl">Avg Delivery</span>
+    </div>
+    <div class="qb-trust-item">
+      <span class="qb-trust-num">4.8 ⭐</span>
+      <span class="qb-trust-lbl">Customer Rating</span>
+    </div>
+    <div class="qb-trust-item">
+      <span class="qb-trust-num">500+</span>
+      <span class="qb-trust-lbl">Products</span>
+    </div>
+  </div>
 
   <!-- ══════════════════════════════════════════
        🍺 BEER COMBOS SLIDER
@@ -1776,6 +2203,167 @@ html:not([data-theme="dark"]) .qb-svc-card.live {
   </section>
   {% endif %}
 
+  <!-- ══════════════════════════════════════════
+       ⚡ HOW IT WORKS
+  ══════════════════════════════════════════ -->
+  <section class="qb-hiw-section">
+    <p class="qb-hiw-eyebrow">Simple &amp; Fast</p>
+    <h2 class="qb-hiw-title">Order in 3 Taps</h2>
+    <p class="qb-hiw-sub">Fastest delivery in Kathmandu Valley — guaranteed</p>
+    <div class="qb-hiw-steps">
+      <div class="qb-hiw-step">
+        <div class="qb-hiw-ico">
+          🛒
+          <span class="qb-hiw-num">1</span>
+        </div>
+        <div class="qb-hiw-label">Browse</div>
+        <div class="qb-hiw-desc">Pick from 500+ items across food, drinks &amp; more</div>
+      </div>
+      <div class="qb-hiw-step">
+        <div class="qb-hiw-ico">
+          📍
+          <span class="qb-hiw-num">2</span>
+        </div>
+        <div class="qb-hiw-label">Share Location</div>
+        <div class="qb-hiw-desc">Drop your pin or enter address at checkout</div>
+      </div>
+      <div class="qb-hiw-step">
+        <div class="qb-hiw-ico">
+          🚀
+          <span class="qb-hiw-num">3</span>
+        </div>
+        <div class="qb-hiw-label">Delivered!</div>
+        <div class="qb-hiw-desc">Your order arrives hot &amp; fresh in 20 mins</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       ⭐ CUSTOMER REVIEWS
+  ══════════════════════════════════════════ -->
+  <section class="qb-reviews-section">
+    <div class="qb-reviews-header">
+      <h2 class="qb-reviews-title">What Customers Say</h2>
+      <div class="qb-reviews-avg">⭐ 4.8</div>
+    </div>
+    <div class="qb-reviews-track-wrap">
+      <div class="qb-reviews-track">
+        <div class="qb-rv-card">
+          <div class="qb-rv-stars">★★★★★</div>
+          <div class="qb-rv-text">"Delivered in 18 minutes flat! The momos were still steaming. QuickBee is the only app I use now."</div>
+          <div class="qb-rv-author">
+            <div class="qb-rv-avatar" style="background:linear-gradient(135deg,#e84e00,#7a1200)">S</div>
+            <div><div class="qb-rv-name">Sunil Maharjan</div><div class="qb-rv-meta">Thamel · 2 days ago</div></div>
+          </div>
+        </div>
+        <div class="qb-rv-card">
+          <div class="qb-rv-stars">★★★★★</div>
+          <div class="qb-rv-text">"The chocolate truffle cake was absolutely perfect for my daughter's birthday. Same-day delivery!"</div>
+          <div class="qb-rv-author">
+            <div class="qb-rv-avatar" style="background:linear-gradient(135deg,#b04060,#f07090)">P</div>
+            <div><div class="qb-rv-name">Priya Shrestha</div><div class="qb-rv-meta">Lazimpat · 5 days ago</div></div>
+          </div>
+        </div>
+        <div class="qb-rv-card">
+          <div class="qb-rv-stars">★★★★☆</div>
+          <div class="qb-rv-text">"Beer combo pack with momos is the perfect Friday night combo. Free28 code actually worked!"</div>
+          <div class="qb-rv-author">
+            <div class="qb-rv-avatar" style="background:linear-gradient(135deg,#7a5200,#c48c00)">B</div>
+            <div><div class="qb-rv-name">Bikash Tamang</div><div class="qb-rv-meta">Baneshwor · 1 week ago</div></div>
+          </div>
+        </div>
+        <div class="qb-rv-card">
+          <div class="qb-rv-stars">★★★★★</div>
+          <div class="qb-rv-text">"The Dhido &amp; Grills sekuwa is next level. Tastes like a proper restaurant but delivered home!"</div>
+          <div class="qb-rv-author">
+            <div class="qb-rv-avatar" style="background:linear-gradient(135deg,#0d1f13,#1a3a1a)">R</div>
+            <div><div class="qb-rv-name">Raju Gurung</div><div class="qb-rv-meta">Koteshwor · 3 days ago</div></div>
+          </div>
+        </div>
+        <div class="qb-rv-card">
+          <div class="qb-rv-stars">★★★★★</div>
+          <div class="qb-rv-text">"KapadaWash service is incredible. Clothes came back perfectly pressed. Using it every week now!"</div>
+          <div class="qb-rv-author">
+            <div class="qb-rv-avatar" style="background:linear-gradient(135deg,#001a3a,#0055c8)">A</div>
+            <div><div class="qb-rv-name">Anu Rai</div><div class="qb-rv-meta">Balaju · 1 week ago</div></div>
+          </div>
+        </div>
+        <div class="qb-rv-card">
+          <div class="qb-rv-stars">★★★★★</div>
+          <div class="qb-rv-text">"Order tracking is so smooth. Got WhatsApp update when rider was at door. Super professional!"</div>
+          <div class="qb-rv-author">
+            <div class="qb-rv-avatar" style="background:linear-gradient(135deg,#4a1800,#a04800)">D</div>
+            <div><div class="qb-rv-name">Dev KC</div><div class="qb-rv-meta">Boudha · 4 days ago</div></div>
+          </div>
+        </div>
+        <!-- duplicate set for seamless loop -->
+        <div class="qb-rv-card">
+          <div class="qb-rv-stars">★★★★★</div>
+          <div class="qb-rv-text">"Delivered in 18 minutes flat! The momos were still steaming. QuickBee is the only app I use now."</div>
+          <div class="qb-rv-author">
+            <div class="qb-rv-avatar" style="background:linear-gradient(135deg,#e84e00,#7a1200)">S</div>
+            <div><div class="qb-rv-name">Sunil Maharjan</div><div class="qb-rv-meta">Thamel · 2 days ago</div></div>
+          </div>
+        </div>
+        <div class="qb-rv-card">
+          <div class="qb-rv-stars">★★★★★</div>
+          <div class="qb-rv-text">"The chocolate truffle cake was absolutely perfect for my daughter's birthday. Same-day delivery!"</div>
+          <div class="qb-rv-author">
+            <div class="qb-rv-avatar" style="background:linear-gradient(135deg,#b04060,#f07090)">P</div>
+            <div><div class="qb-rv-name">Priya Shrestha</div><div class="qb-rv-meta">Lazimpat · 5 days ago</div></div>
+          </div>
+        </div>
+        <div class="qb-rv-card">
+          <div class="qb-rv-stars">★★★★☆</div>
+          <div class="qb-rv-text">"Beer combo pack with momos is the perfect Friday night combo. Free28 code actually worked!"</div>
+          <div class="qb-rv-author">
+            <div class="qb-rv-avatar" style="background:linear-gradient(135deg,#7a5200,#c48c00)">B</div>
+            <div><div class="qb-rv-name">Bikash Tamang</div><div class="qb-rv-meta">Baneshwor · 1 week ago</div></div>
+          </div>
+        </div>
+        <div class="qb-rv-card">
+          <div class="qb-rv-stars">★★★★★</div>
+          <div class="qb-rv-text">"The Dhido &amp; Grills sekuwa is next level. Tastes like a proper restaurant but delivered home!"</div>
+          <div class="qb-rv-author">
+            <div class="qb-rv-avatar" style="background:linear-gradient(135deg,#0d1f13,#1a3a1a)">R</div>
+            <div><div class="qb-rv-name">Raju Gurung</div><div class="qb-rv-meta">Koteshwor · 3 days ago</div></div>
+          </div>
+        </div>
+        <div class="qb-rv-card">
+          <div class="qb-rv-stars">★★★★★</div>
+          <div class="qb-rv-text">"KapadaWash service is incredible. Clothes came back perfectly pressed. Using it every week now!"</div>
+          <div class="qb-rv-author">
+            <div class="qb-rv-avatar" style="background:linear-gradient(135deg,#001a3a,#0055c8)">A</div>
+            <div><div class="qb-rv-name">Anu Rai</div><div class="qb-rv-meta">Balaju · 1 week ago</div></div>
+          </div>
+        </div>
+        <div class="qb-rv-card">
+          <div class="qb-rv-stars">★★★★★</div>
+          <div class="qb-rv-text">"Order tracking is so smooth. Got WhatsApp update when rider was at door. Super professional!"</div>
+          <div class="qb-rv-author">
+            <div class="qb-rv-avatar" style="background:linear-gradient(135deg,#4a1800,#a04800)">D</div>
+            <div><div class="qb-rv-name">Dev KC</div><div class="qb-rv-meta">Boudha · 4 days ago</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       🤝 JOIN AS PARTNER BANNER
+  ══════════════════════════════════════════ -->
+  <div class="qb-partner-section">
+    <a href="/products/vendor-registration" class="qb-partner-card">
+      <div class="qb-partner-icon">🏪</div>
+      <div class="qb-partner-body">
+        <div class="qb-partner-badge">🤝 Partner with QuickBee</div>
+        <div class="qb-partner-title">Have an offline business? Go online in 24hrs</div>
+        <div class="qb-partner-desc">Free onboarding · Your own store page · 2,000+ customers ready to order</div>
+      </div>
+      <span class="qb-partner-btn">Join Free →</span>
+    </a>
+  </div>
+
   <div class="qb-section-divider"></div>
 
   <!-- ══════════════════════════════════════════
@@ -1822,6 +2410,23 @@ html:not([data-theme="dark"]) .qb-svc-card.live {
 </div>
 
 <script>
+// ──────────────────────────────────────
+// COPY COUPON CODE
+// ──────────────────────────────────────
+function qbCopyCode(el, code) {
+  if (!el || !code) return;
+  try {
+    navigator.clipboard.writeText(code).catch(function() {
+      var ta = document.createElement('textarea');
+      ta.value = code; document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta);
+    });
+  } catch(e) {}
+  el.classList.add('qb-copied');
+  setTimeout(function() { el.classList.remove('qb-copied'); }, 2200);
+}
+
 // ──────────────────────────────────────
 // DELIVERY TIME SYSTEM
 // ──────────────────────────────────────
