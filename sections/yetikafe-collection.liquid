@@ -1,11 +1,14 @@
 {%- assign all_products = collection.products -%}
+{%- assign has_drinks = false -%}{%- assign drink_count = 0 -%}
 {%- assign has_slices = false -%}{%- assign slice_count = 0 -%}
 {%- assign has_boxes = false -%}{%- assign box_count = 0 -%}
 {%- assign has_biscuits = false -%}{%- assign biscuit_count = 0 -%}
 {%- assign has_others = false -%}{%- assign other_count = 0 -%}
 {%- for p in all_products -%}
   {%- assign pt = p.type | downcase | strip -%}
-  {%- if pt contains 'slice' -%}{%- assign has_slices = true -%}{%- assign slice_count = slice_count | plus: 1 -%}
+  {%- if pt contains 'drink' or pt contains 'tea' or pt contains 'coffee' or pt contains 'juice' or pt contains 'shake' or pt contains 'smoothie' or pt contains 'latte' or pt contains 'cappuccino' or pt contains 'mocktail' or pt contains 'lassi' or pt contains 'bubble' or pt contains 'beverage' -%}
+    {%- assign has_drinks = true -%}{%- assign drink_count = drink_count | plus: 1 -%}
+  {%- elsif pt contains 'slice' -%}{%- assign has_slices = true -%}{%- assign slice_count = slice_count | plus: 1 -%}
   {%- elsif pt contains 'box' -%}{%- assign has_boxes = true -%}{%- assign box_count = box_count | plus: 1 -%}
   {%- elsif pt contains 'biscuit' or pt contains 'bread' or pt contains 'cookie' -%}{%- assign has_biscuits = true -%}{%- assign biscuit_count = biscuit_count | plus: 1 -%}
   {%- else -%}{%- assign has_others = true -%}{%- assign other_count = other_count | plus: 1 -%}
@@ -511,6 +514,60 @@
   opacity: 1;
   animation: yk-toast-in 0.22s ease forwards;
 }
+
+/* ─── ADD Button Loading State ─────────────────────────────────────────── */
+@keyframes yk-spin { to { transform: rotate(360deg); } }
+@keyframes yk-btn-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.88); }
+  70%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+@keyframes yk-checkmark {
+  0%   { stroke-dashoffset: 24; opacity: 0; }
+  30%  { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+.yk-add-btn.loading {
+  color: transparent !important;
+  pointer-events: none;
+  position: relative;
+}
+.yk-add-btn.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 16px; height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2.5px solid rgba(0,0,0,0.18);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: yk-spin 0.55s linear infinite;
+}
+.yk-add-btn.success {
+  background: #22c55e !important;
+  color: #fff !important;
+  pointer-events: none;
+  animation: yk-btn-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+/* Ripple on ADD tap */
+.yk-add-btn .yk-ripple {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.2);
+  transform: translate(-50%,-50%) scale(0);
+  animation: yk-ripple-out 0.5s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes yk-ripple-out {
+  to { transform: translate(-50%,-50%) scale(18); opacity: 0; }
+}
+/* Stepper +/- loading micro-state */
+.yk-stepper-btn.busy {
+  opacity: 0.4;
+  pointer-events: none;
+}
 </style>
 
 <div class="yk-wrap" id="ykWrap">
@@ -534,6 +591,9 @@
   {%- if all_products.size > 0 -%}
   <div class="yk-tabs-wrap">
     <div class="yk-tabs" id="ykTabs">
+      {%- if has_drinks -%}
+      <button class="yk-tab" id="yk-tab-drinks" data-target="yk-sec-drinks">🥤 Drinks</button>
+      {%- endif -%}
       {%- if has_slices -%}
       <button class="yk-tab" id="yk-tab-slices" data-target="yk-sec-slices">🍰 Slices</button>
       {%- endif -%}
@@ -541,10 +601,10 @@
       <button class="yk-tab" id="yk-tab-boxes" data-target="yk-sec-boxes">📦 Boxes</button>
       {%- endif -%}
       {%- if has_biscuits -%}
-      <button class="yk-tab" id="yk-tab-biscuits" data-target="yk-sec-biscuits">🍪 Biscuits</button>
+      <button class="yk-tab" id="yk-tab-biscuits" data-target="yk-sec-biscuits">🍪 Biscuits & Bread</button>
       {%- endif -%}
       {%- if has_others -%}
-      <button class="yk-tab" id="yk-tab-others" data-target="yk-sec-others">☕ More</button>
+      <button class="yk-tab" id="yk-tab-others" data-target="yk-sec-others">🍽️ Food</button>
       {%- endif -%}
     </div>
   </div>
@@ -558,6 +618,64 @@
     <p>We're preparing something delicious</p>
   </div>
   {%- else -%}
+
+    <!-- DRINKS -->
+    {%- if has_drinks -%}
+    <div class="yk-section-head" id="yk-sec-drinks">
+      <div class="yk-section-head-inner">
+        <span class="yk-section-emoji">🥤</span>
+        <div>
+          <h2 class="yk-section-title">Drinks</h2>
+          <p class="yk-section-sub">{{ drink_count }} refreshing choices</p>
+        </div>
+      </div>
+    </div>
+    <div class="yk-list">
+      {%- for p in all_products -%}
+        {%- assign pt = p.type | downcase | strip -%}
+        {%- if pt contains 'drink' or pt contains 'tea' or pt contains 'coffee' or pt contains 'juice' or pt contains 'shake' or pt contains 'smoothie' or pt contains 'latte' or pt contains 'cappuccino' or pt contains 'mocktail' or pt contains 'lassi' or pt contains 'bubble' or pt contains 'beverage' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}
+          {%- assign vid = p.variants.first.id -%}
+          {%- assign pct = 0 -%}
+          {%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+          <div class="yk-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
+            <div class="yk-card-left">
+              <div class="yk-card-top">
+                <span class="yk-veg-dot"></span>
+                {%- if pct >= 10 -%}<span class="yk-badge yk-badge--deal">DEAL</span>{%- endif -%}
+                {%- if p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="yk-badge yk-badge--popular">POPULAR</span>{%- endif -%}
+                {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="yk-badge yk-badge--new">NEW</span>{%- endif -%}
+              </div>
+              <h3 class="yk-item-name">{{ p.title }}</h3>
+              {%- unless p.description == blank -%}
+              <p class="yk-item-desc">{{ p.description | strip_html | truncate: 60 }}</p>
+              {%- endunless -%}
+              <div class="yk-price-row">
+                <span class="yk-price">Rs {{ p.price | divided_by: 100 }}</span>
+                {%- if cp > p.price -%}
+                <span class="yk-old-price">Rs {{ cp | divided_by: 100 }}</span>
+                <span class="yk-save">{{ pct }}% off</span>
+                {%- endif -%}
+              </div>
+            </div>
+            <div class="yk-card-right">
+              {%- if p.featured_image -%}
+              <div class="yk-img-wrap"><img src="{{ p.featured_image | img_url: '200x200', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="72" height="72"></div>
+              {%- else -%}
+              <div class="yk-img-fallback">🥤</div>
+              {%- endif -%}
+              <button class="yk-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="yk-stepper" data-vid="{{ vid }}">
+                <button class="yk-stepper-btn yk-stepper-minus" data-vid="{{ vid }}">−</button>
+                <span class="yk-stepper-count" data-vid="{{ vid }}">1</span>
+                <button class="yk-stepper-btn yk-stepper-plus" data-vid="{{ vid }}">+</button>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
 
     <!-- SLICES -->
     {%- if has_slices -%}
@@ -916,8 +1034,19 @@
     toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2000);
   }
 
-  /* ── Add to cart ─────────────────────────────────────────────── */
-  function ykAddToCart(vid, qty) {
+  /* ── Add to cart (with loading animation) ────────────────────── */
+  function ykAddToCart(vid, qty, btn) {
+    if (btn) {
+      // 1. Ripple effect on tap position
+      btn.style.position = 'relative';
+      btn.style.overflow = 'hidden';
+      var ripple = document.createElement('span');
+      ripple.className = 'yk-ripple';
+      btn.appendChild(ripple);
+      // 2. Enter loading state
+      btn.classList.add('loading');
+      btn.setAttribute('disabled', true);
+    }
     fetch('/cart/add.js', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
@@ -926,15 +1055,36 @@
     .then(function (r) { return r.json(); })
     .then(function () {
       ykCart[vid] = (ykCart[vid] || 0) + qty;
-      ykRenderVid(vid);
-      ykUpdateBar();
-      ykShowToast('Added to cart ✓');
+      // 3. Brief green success flash, then swap to stepper
+      if (btn) {
+        btn.classList.remove('loading');
+        btn.classList.add('success');
+        btn.textContent = '✓';
+        setTimeout(function () {
+          ykRenderVid(vid);
+          ykUpdateBar();
+          ykShowToast('Added to cart ✓');
+        }, 320);
+      } else {
+        ykRenderVid(vid);
+        ykUpdateBar();
+        ykShowToast('Added to cart ✓');
+      }
     })
-    .catch(function (e) { console.error('[YetiKafe] add error', e); });
+    .catch(function (e) {
+      console.error('[YetiKafe] add error', e);
+      if (btn) {
+        btn.classList.remove('loading');
+        btn.removeAttribute('disabled');
+        btn.textContent = 'ADD';
+      }
+    });
   }
 
-  /* ── Change quantity ─────────────────────────────────────────── */
-  function ykChangeQty(vid, newQty) {
+  /* ── Change quantity (with stepper busy state) ────────────────── */
+  function ykChangeQty(vid, newQty, btn) {
+    // Busy-lock the tapped button
+    if (btn) { btn.classList.add('busy'); }
     fetch('/cart/change.js', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
@@ -947,7 +1097,10 @@
       ykRenderVid(vid);
       ykUpdateBar();
     })
-    .catch(function (e) { console.error('[YetiKafe] change error', e); });
+    .catch(function (e) {
+      console.error('[YetiKafe] change error', e);
+      if (btn) { btn.classList.remove('busy'); }
+    });
   }
 
   /* ── Restore cart state on load ──────────────────────────────── */
@@ -1023,23 +1176,23 @@
     wrap.addEventListener('click', function (e) {
       var target = e.target;
 
-      if (target.classList.contains('yk-add-btn')) {
+      if (target.classList.contains('yk-add-btn') && !target.classList.contains('loading') && !target.classList.contains('success')) {
         var vid = target.getAttribute('data-vid');
-        ykAddToCart(vid, 1);
+        ykAddToCart(vid, 1, target);
         return;
       }
 
-      if (target.classList.contains('yk-stepper-minus')) {
+      if (target.classList.contains('yk-stepper-minus') && !target.classList.contains('busy')) {
         var vid     = target.getAttribute('data-vid');
         var current = ykCart[vid] || 0;
-        ykChangeQty(vid, Math.max(0, current - 1));
+        ykChangeQty(vid, Math.max(0, current - 1), target);
         return;
       }
 
-      if (target.classList.contains('yk-stepper-plus')) {
+      if (target.classList.contains('yk-stepper-plus') && !target.classList.contains('busy')) {
         var vid     = target.getAttribute('data-vid');
         var current = ykCart[vid] || 0;
-        ykChangeQty(vid, current + 1);
+        ykChangeQty(vid, current + 1, target);
         return;
       }
     });
