@@ -39,7 +39,7 @@
     background: var(--qb-header-bg);
     border-bottom: 1px solid var(--qb-header-border);
     position: relative;
-    z-index: 1000;
+    z-index: 5000;
     width: 100%;
     max-width: 100%;
     margin: 0;
@@ -202,16 +202,17 @@
     top: calc(100% + 8px);
     left: 0;
     right: 0;
-    z-index: 9999;
+    z-index: 99999;
     background: var(--qb-header-bg);
     border: 1px solid rgba(15, 23, 42, 0.08);
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    border-radius: 16px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.12);
     overflow: hidden;
     display: none;
     padding: 10px;
-    animation: slideDown 0.2s ease;
-    max-height: none;
+    animation: slideDown 0.18s cubic-bezier(0.25,0.46,0.45,0.94);
+    max-height: 80vh;
+    overflow-y: auto;
   }
 
   [data-theme="dark"] .qb-search-dropdown {
@@ -245,9 +246,9 @@
   }
 
   #qbDropdownItems {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
   }
 
   .qb-dropdown-item {
@@ -596,7 +597,7 @@
     .qb-header {
       position: sticky;
       top: 0;
-      z-index: 999;
+      z-index: 5000;
       backdrop-filter: blur(10px);
       background: color-mix(in srgb, var(--qb-header-bg) 95%, transparent); /* Subtle opacity for blur effect */
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -680,52 +681,53 @@
       height: 18px;
     }
 
-    /* Mobile: horizontal scrollable chips */
+    /* Mobile dropdown */
     .qb-search-dropdown {
-      border-radius: 12px;
-      padding: 10px 0 10px 0;
-      left: -12px;
-      right: -12px;
+      border-radius: 16px;
+      padding: 10px;
+      left: 0;
+      right: 0;
+      z-index: 99999;
+      max-height: 75vh;
+      overflow-y: auto;
     }
 
     .qb-dropdown-header {
-      padding: 0 12px 8px;
+      padding: 0 4px 8px;
     }
 
     #qbDropdownItems {
       display: flex;
-      flex-direction: row;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      gap: 8px;
-      padding: 2px 12px 4px;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-    }
-
-    #qbDropdownItems::-webkit-scrollbar {
-      display: none;
+      flex-direction: column;
+      gap: 6px;
+      padding: 0;
     }
 
     .qb-dropdown-item {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
       flex-shrink: 0;
-      width: auto;
-      padding: 8px 12px;
-      border-radius: 999px;
+      display: flex;
       flex-direction: row;
-      gap: 6px;
+      align-items: center;
+      gap: 10px;
     }
 
     .qb-dropdown-item-icon {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      font-size: 12px;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      font-size: 14px;
     }
 
     .qb-dropdown-item-label {
-      font-size: 12px;
-      white-space: nowrap;
+      font-size: 13px;
+      white-space: normal;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      min-width: 0;
     }
   }
 </style>
@@ -1037,70 +1039,148 @@
 </script>
 
 <script>
-  // Dropdown Logic
+  // Dropdown Logic — Shopify Predictive Search
   (function() {
-    const form = document.querySelector('.qb-search-bar-wrap');
-    const input = document.getElementById('qbSearchInput');
-    const dropdown = document.getElementById('qbSearchDropdown');
-    const items = document.getElementById('qbDropdownItems');
-    const trends = [
-      { label: "Cold Drinks", icon: "🥤" },
-      { label: "Instant Noodles", icon: "🍜" },
-      { label: "Chips & Snacks", icon: "🛒" },
-      { label: "Fresh Fruits", icon: "🍎" },
-      { label: "Baby Care", icon: "🍼" },
-      { label: "Domestic Beer", icon: "🍺" }
+    var form     = document.querySelector('.qb-search-bar-wrap');
+    var input    = document.getElementById('qbSearchInput');
+    var dropdown = document.getElementById('qbSearchDropdown');
+    var items    = document.getElementById('qbDropdownItems');
+    var titleEl  = document.querySelector('.qb-dropdown-title');
+
+    var TRENDS = [
+      { label: 'Cold Drinks',     icon: '🥤' },
+      { label: 'Instant Noodles', icon: '🍜' },
+      { label: 'Chips & Snacks',  icon: '🛒' },
+      { label: 'Fresh Fruits',    icon: '🍎' },
+      { label: 'Domestic Beer',   icon: '🍺' },
+      { label: 'Baby Care',       icon: '🍼' }
     ];
 
     if (!form || !input || !dropdown || !items) return;
 
-    function renderSuggestions(query) {
-      const normalized = query.trim().toLowerCase();
-      const filtered = normalized
-        ? trends.filter((item) => item.label.toLowerCase().includes(normalized))
-        : trends;
+    var debounce = null;
+    var lastQuery = '';
 
-      if (!filtered.length) {
-        dropdown.style.display = 'none';
-        return;
-      }
+    /* ── helpers ─────────────────────────────── */
+    function setTitle(t) { if (titleEl) titleEl.textContent = t; }
+    function show()  { dropdown.style.display = 'block'; }
+    function hide()  { dropdown.style.display = 'none'; }
 
-      items.innerHTML = filtered
-        .slice(0, 6)
-        .map((item) => `
-          <button type="button" class="qb-dropdown-item" data-query="${item.label}">
-            <span class="qb-dropdown-item-icon" aria-hidden="true">${item.icon}</span>
-            <span class="qb-dropdown-item-label">${item.label}</span>
-          </button>
-        `)
-        .join('');
+    function chip(icon, label, query, full) {
+      var style = full ? 'grid-column:1/-1;' : '';
+      return '<button type="button" class="qb-dropdown-item" data-query="' + query + '" style="' + style + '">'
+        + '<span class="qb-dropdown-item-icon">' + icon + '</span>'
+        + '<span class="qb-dropdown-item-label">' + label + '</span>'
+        + '</button>';
     }
 
-    function show() {
-      renderSuggestions(input.value);
-      const rect = input.getBoundingClientRect();
-      dropdown.style.display = 'block';
-      dropdown.style.minWidth = rect.width + 'px';
+    /* ── render trends (no query) ─────────────── */
+    function renderTrends() {
+      setTitle('Popular Right Now');
+      items.innerHTML = TRENDS.map(function(t) {
+        return chip(t.icon, t.label, t.label, false);
+      }).join('');
     }
 
-    function hide() {
-      dropdown.style.display = 'none';
+    /* ── render live results ──────────────────── */
+    function renderResults(query, products) {
+      setTitle('Results for "' + query + '"');
+      var html = '';
+
+      products.slice(0, 5).forEach(function(p) {
+        var imgHtml = p.featured_image
+          ? '<img src="' + p.featured_image + '" style="width:28px;height:28px;object-fit:contain;border-radius:6px;background:#fff;" loading="lazy">'
+          : '🛍️';
+        var priceHtml = p.price
+          ? '<span style="font-size:11px;font-weight:800;color:#F4B400;white-space:nowrap;flex-shrink:0;">Rs&nbsp;' + Math.round(p.price / 100) + '</span>'
+          : '';
+        html += '<a href="' + p.url + '" class="qb-dropdown-item" style="text-decoration:none;display:flex;align-items:center;gap:10px;">'
+          + '<span class="qb-dropdown-item-icon" style="font-size:0;">' + imgHtml + '</span>'
+          + '<span class="qb-dropdown-item-label" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escHtml(p.title) + '</span>'
+          + priceHtml
+          + '</a>';
+      });
+
+      /* always append "search all" row */
+      html += chip('🔍',
+        'See all results for <strong>' + escHtml(query) + '</strong> &nbsp;→',
+        query, true);
+      items.innerHTML = html;
     }
 
-    input.addEventListener('input', show);
-    input.addEventListener('focus', show);
-    input.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') hide();
+    /* ── render no-results ────────────────────── */
+    function renderNoResults(query) {
+      setTitle('No matches found');
+      items.innerHTML = chip('🔍',
+        'Search for <strong>' + escHtml(query) + '</strong> &nbsp;→',
+        query, true);
+    }
+
+    /* ── render loading ───────────────────────── */
+    function renderLoading() {
+      setTitle('Searching…');
+      items.innerHTML = '<div style="padding:10px 4px;color:var(--qb-text-muted,#888);font-size:13px;">Loading…</div>';
+    }
+
+    /* ── escape HTML ──────────────────────────── */
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    /* ── fetch Shopify predictive search ─────── */
+    async function fetchProducts(query) {
+      try {
+        var url = '/search/suggest.json?q=' + encodeURIComponent(query)
+          + '&resources[type]=product&resources[limit]=5'
+          + '&resources[fields]=title,url,price,featured_image';
+        var res  = await fetch(url);
+        var data = await res.json();
+        return (data && data.resources && data.resources.results && data.resources.results.products) || [];
+      } catch(e) { return []; }
+    }
+
+    /* ── on input ─────────────────────────────── */
+    function handleInput() {
+      var query = input.value.trim();
+      if (!query) { renderTrends(); show(); return; }
+
+      renderLoading();
+      show();
+      clearTimeout(debounce);
+      debounce = setTimeout(async function() {
+        if (input.value.trim() !== query) return;
+        lastQuery = query;
+        var products = await fetchProducts(query);
+        if (input.value.trim() !== query) return;
+        if (products.length > 0) {
+          renderResults(query, products);
+        } else {
+          renderNoResults(query);
+        }
+      }, 280);
+    }
+
+    /* ── events ───────────────────────────────── */
+    input.addEventListener('focus', function() {
+      if (input.value.trim()) { handleInput(); } else { renderTrends(); show(); }
+    });
+    input.addEventListener('input', handleInput);
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') { hide(); input.blur(); }
     });
 
-    items.addEventListener('click', (event) => {
-      const item = event.target.closest('.qb-dropdown-item');
+    items.addEventListener('click', function(e) {
+      var item = e.target.closest('[data-query]');
       if (!item) return;
-      input.value = item.dataset.query || '';
+      e.preventDefault();
+      input.value = item.getAttribute('data-query') || '';
+      hide();
       form.submit();
     });
 
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', function(e) {
       if (!form.contains(e.target) && !dropdown.contains(e.target)) hide();
     });
   })();

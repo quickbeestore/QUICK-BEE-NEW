@@ -1,555 +1,776 @@
-{%- comment -%}
-  QuickBEE mobile-first search results
-{%- endcomment -%}
+{%- comment -%} QuickBEE Search Results — Professional Redesign {%- endcomment -%}
 
 <style>
-  .search-page__header {
-    display: none;
-  }
+/* ══════════════════════════════════════════════
+   QB SEARCH RESULTS — SWIGGY/BLINKIT STYLE
+   ══════════════════════════════════════════════ */
 
-  .qb-search-page {
-    --qb-search-shell: #ffffff;
-    --qb-search-shell-border: rgba(15, 23, 42, 0.08);
-    --qb-search-surface: #f8fafc;
-    --qb-search-surface-strong: #eef2f7;
-    --qb-search-text: #111827;
-    --qb-search-muted: #64748b;
-    --qb-search-muted-soft: #94a3b8;
-    --qb-search-accent: #f4b400;
-    --qb-search-accent-strong: #d97706;
-    --qb-search-danger: #c41e3a;
-    --qb-search-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-    background: var(--qb-search-shell);
-    color: var(--qb-search-text);
-    min-height: 100vh;
-    padding: 12px 12px 110px;
-  }
+/* Hide default search header */
+.search-page__header { display: none !important; }
 
-  [data-theme="dark"] .qb-search-page {
-    --qb-search-shell: #0b0f17;
-    --qb-search-shell-border: rgba(148, 163, 184, 0.12);
-    --qb-search-surface: #111827;
-    --qb-search-surface-strong: #172132;
-    --qb-search-text: #f8fafc;
-    --qb-search-muted: #94a3b8;
-    --qb-search-muted-soft: #64748b;
-    --qb-search-shadow: 0 18px 38px rgba(0, 0, 0, 0.35);
-  }
+/* ── Variables ── */
+.qbsr-page {
+  --sr-bg:        #0b0b0b;
+  --sr-surface:   #141414;
+  --sr-card:      #1a1a1a;
+  --sr-border:    #242424;
+  --sr-text:      #f0f0f0;
+  --sr-muted:     #777;
+  --sr-muted2:    #555;
+  --sr-accent:    #F4B400;
+  --sr-accent2:   #e06600;
+  --sr-green:     #22c55e;
+  --sr-red:       #ef4444;
+  --sr-radius:    16px;
+}
 
-  .qb-search-shell {
-    max-width: 1180px;
-    margin: 0 auto;
-  }
+[data-theme="light"] .qbsr-page,
+:root:not([data-theme="dark"]) .qbsr-page {
+  --sr-bg:       #f5f5f5;
+  --sr-surface:  #ffffff;
+  --sr-card:     #ffffff;
+  --sr-border:   #e8e8e8;
+  --sr-text:     #111827;
+  --sr-muted:    #6b7280;
+  --sr-muted2:   #9ca3af;
+}
 
-  .qb-search-topbar {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    padding: 8px 0 14px;
-    background: linear-gradient(180deg, var(--qb-search-shell) 78%, rgba(255, 255, 255, 0));
-  }
+.qbsr-page {
+  background: var(--sr-bg);
+  color: var(--sr-text);
+  min-height: 100vh;
+  padding-bottom: 110px;
+}
 
-  [data-theme="dark"] .qb-search-topbar {
-    background: linear-gradient(180deg, var(--qb-search-shell) 78%, rgba(11, 15, 23, 0));
-  }
+/* ── Sticky top bar ── */
+.qbsr-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: var(--sr-bg);
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--sr-border);
+  backdrop-filter: blur(12px);
+}
 
-  .qb-search-form {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
-    border-radius: 20px;
-    background: var(--qb-search-surface);
-    border: 1px solid var(--qb-search-shell-border);
-    box-shadow: var(--qb-search-shadow);
-  }
+/* ── Search bar in results ── */
+.qbsr-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--sr-surface);
+  border: 1.5px solid var(--sr-border);
+  border-radius: 999px;
+  padding: 0 14px 0 18px;
+  height: 52px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
 
-  .qb-search-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 14px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: color-mix(in srgb, var(--qb-search-accent) 15%, var(--qb-search-surface));
-    color: var(--qb-search-accent-strong);
-    flex-shrink: 0;
-  }
+.qbsr-form:focus-within {
+  border-color: var(--sr-accent);
+  box-shadow: 0 0 0 3px rgba(244,180,0,0.12);
+}
 
-  .qb-search-icon svg,
-  .qb-search-reset svg {
-    width: 20px;
-    height: 20px;
-    stroke: currentColor;
-  }
+.qbsr-form-icon {
+  color: var(--sr-muted);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
 
-  .qb-search-field {
-    all: unset;
-    display: block;
-    width: 100%;
-    min-width: 0;
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 1.2;
-    color: var(--qb-search-text);
-    caret-color: currentColor;
-  }
+.qbsr-input {
+  all: unset;
+  flex: 1;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--sr-text);
+  min-width: 0;
+}
 
-  .qb-search-field::placeholder {
-    color: var(--qb-search-muted-soft);
-    opacity: 1;
-  }
+.qbsr-input::placeholder {
+  color: var(--sr-muted2);
+  font-weight: 400;
+}
 
-  .qb-search-submit,
-  .qb-search-reset {
-    border: none;
-    cursor: pointer;
-    transition: transform 0.18s ease, opacity 0.18s ease, background-color 0.18s ease;
-  }
+.qbsr-form-btn {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: var(--sr-accent);
+  border: none;
+  color: #111;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.15s, background 0.15s;
+}
 
-  .qb-search-submit {
-    min-width: 84px;
-    height: 42px;
-    padding: 0 16px;
-    border-radius: 14px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: var(--qb-search-accent);
-    color: #111827;
-    font-size: 14px;
-    font-weight: 900;
-    letter-spacing: 0.01em;
-    box-shadow: 0 10px 22px rgba(244, 180, 0, 0.22);
-  }
+.qbsr-form-btn:hover { background: #ffd700; transform: scale(1.03); }
 
-  .qb-search-reset {
-    width: 42px;
-    height: 42px;
-    border-radius: 14px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--qb-search-surface-strong);
-    color: var(--qb-search-muted);
-    text-decoration: none;
-    opacity: 0;
-    pointer-events: none;
-  }
+/* ── Meta row ── */
+.qbsr-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 16px 0;
+}
 
-  .qb-search-form:focus-within {
-    border-color: rgba(244, 180, 0, 0.55);
-    box-shadow: 0 0 0 4px rgba(244, 180, 0, 0.14), var(--qb-search-shadow);
-  }
+.qbsr-meta-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 
-  .qb-search-form:has(.qb-search-field:not(:placeholder-shown)) .qb-search-reset {
-    opacity: 1;
-    pointer-events: auto;
-  }
+.qbsr-query-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--sr-muted);
+}
 
-  .qb-search-submit:hover,
-  .qb-search-reset:hover {
-    transform: translateY(-1px);
-  }
+.qbsr-query-term {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--sr-text);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
 
-  .qb-search-meta {
-    display: grid;
-    gap: 12px;
-    margin-top: 14px;
-  }
+.qbsr-count-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background: rgba(244,180,0,0.12);
+  border: 1px solid rgba(244,180,0,0.2);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--sr-accent);
+  white-space: nowrap;
+}
 
-  .qb-search-summary {
-    background: var(--qb-search-surface);
-    border: 1px solid var(--qb-search-shell-border);
-    border-radius: 20px;
-    padding: 16px;
-  }
+/* ── Filter chips ── */
+.qbsr-filters {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
 
-  .qb-search-kicker {
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--qb-search-muted);
-    margin: 0 0 8px;
-  }
+.qbsr-filters::-webkit-scrollbar { display: none; }
 
-  .qb-search-title {
-    font-size: 28px;
-    line-height: 0.95;
-    letter-spacing: -0.04em;
-    font-weight: 900;
-    margin: 0 0 10px;
-    text-transform: uppercase;
-  }
+.qbsr-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--sr-border);
+  background: var(--sr-surface);
+  color: var(--sr-muted);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
+  flex-shrink: 0;
+}
 
-  .qb-search-description {
-    font-size: 14px;
-    line-height: 1.5;
-    color: var(--qb-search-muted);
-    margin: 0;
-  }
+.qbsr-filter:hover,
+.qbsr-filter.active {
+  border-color: var(--sr-accent);
+  color: var(--sr-accent);
+  background: rgba(244,180,0,0.08);
+}
 
-  .qb-search-chip-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
+/* ── Grid ── */
+.qbsr-grid-wrap {
+  padding: 16px 12px 0;
+}
 
-  .qb-search-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
-    border-radius: 999px;
-    background: var(--qb-search-surface);
-    border: 1px solid var(--qb-search-shell-border);
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--qb-search-muted);
-  }
+.qbsr-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
 
-  .qb-search-chip strong {
-    color: var(--qb-search-text);
-    font-weight: 800;
-  }
+@media (min-width: 600px) {
+  .qbsr-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+}
 
-  .qb-search-grid {
-    list-style: none;
-    margin: 18px 0 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
+@media (min-width: 900px) {
+  .qbsr-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .qbsr-topbar { padding: 14px 24px 12px; }
+  .qbsr-meta  { padding: 16px 24px 0; }
+  .qbsr-filters { padding: 12px 24px 0; }
+  .qbsr-grid-wrap { padding: 16px 20px 0; }
+}
 
-  .qb-search-card {
-    min-width: 0;
-  }
+@media (min-width: 1200px) {
+  .qbsr-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
 
-  .qb-search-card-link {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    text-decoration: none;
-    color: inherit;
-    background: var(--qb-search-surface);
-    border: 1px solid var(--qb-search-shell-border);
-    border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-  }
+/* ── Card ── */
+.qbsr-card {
+  background: var(--sr-card);
+  border: 1px solid var(--sr-border);
+  border-radius: var(--sr-radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: border-color 0.2s, transform 0.18s, box-shadow 0.2s;
+}
 
-  .qb-search-card-link:hover {
-    transform: translateY(-2px);
-    border-color: rgba(244, 180, 0, 0.38);
-    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.10);
-  }
+.qbsr-card:hover {
+  border-color: rgba(244,180,0,0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.3);
+}
 
-  .qb-search-image-wrap {
-    position: relative;
-    aspect-ratio: 1 / 1;
-    background: var(--qb-search-shell);
-    overflow: hidden;
-  }
+.qbsr-card-link {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  text-decoration: none;
+  color: inherit;
+}
 
-  .qb-search-image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-    padding: 12px;
-    background: #ffffff;
-  }
+/* Image */
+.qbsr-img-wrap {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: #fff;
+  overflow: hidden;
+}
 
-  [data-theme="dark"] .qb-search-image {
-    background: #ffffff;
-  }
+.qbsr-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  padding: 10px;
+  transition: transform 0.25s ease;
+}
 
-  .qb-search-no-image {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 38px;
-    color: var(--qb-search-muted-soft);
-    background: var(--qb-search-surface-strong);
-  }
+.qbsr-card:hover .qbsr-img { transform: scale(1.04); }
 
-  .qb-search-badge,
-  .qb-search-sale {
-    position: absolute;
-    top: 10px;
-    z-index: 2;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 999px;
-    font-size: 10px;
-    font-weight: 900;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
+.qbsr-no-img {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  background: var(--sr-surface);
+  color: var(--sr-muted2);
+}
 
-  .qb-search-sale {
-    left: 10px;
-    padding: 6px 10px;
-    background: var(--qb-search-danger);
-    color: #fff;
-  }
+/* Badges */
+.qbsr-sale-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 4px 8px;
+  background: var(--sr-red);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  z-index: 2;
+}
 
-  .qb-search-badge {
-    right: 10px;
-    padding: 6px 10px;
-    background: #111827;
-    color: #fff;
-  }
+.qbsr-time-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  padding: 3px 8px;
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 999px;
+  z-index: 2;
+  backdrop-filter: blur(4px);
+}
 
-  .qb-search-card-body {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    gap: 10px;
-    padding: 12px;
-  }
+/* Card body */
+.qbsr-card-body {
+  padding: 10px 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
 
-  .qb-search-card-title {
-    font-size: 13px;
-    line-height: 1.35;
-    font-weight: 800;
-    margin: 0;
-    color: var(--qb-search-text);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    min-height: 2.7em;
-  }
+.qbsr-card-name {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--sr-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.7em;
+  margin: 0;
+}
 
-  .qb-search-price-row {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
+.qbsr-price-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
 
-  .qb-search-price {
-    font-size: 18px;
-    font-weight: 900;
-    color: var(--qb-search-text);
-    letter-spacing: -0.03em;
-  }
+.qbsr-price {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--sr-text);
+  letter-spacing: -0.02em;
+}
 
-  .qb-search-price-compare {
-    font-size: 12px;
-    color: var(--qb-search-muted);
-    text-decoration: line-through;
-  }
+.qbsr-compare {
+  font-size: 11px;
+  color: var(--sr-muted);
+  text-decoration: line-through;
+}
 
-  .qb-search-cta {
-    margin-top: auto;
-    width: 100%;
-    min-height: 42px;
-    border: none;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #b80d22, #d61c4e);
-    color: #fff;
-    font-size: 12px;
-    font-weight: 900;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    cursor: pointer;
-  }
+/* ADD button */
+.qbsr-add-btn {
+  margin-top: auto;
+  width: 100%;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  background: var(--sr-accent);
+  color: #111;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  position: relative;
+  overflow: hidden;
+}
 
-  .qb-search-empty {
-    text-align: center;
-    padding: 64px 20px 24px;
-  }
+.qbsr-add-btn:hover { background: #ffd700; transform: scale(1.02); }
 
-  .qb-search-empty-icon {
-    font-size: 52px;
-    margin-bottom: 16px;
-  }
+.qbsr-add-btn.loading {
+  background: var(--sr-border);
+  pointer-events: none;
+  color: var(--sr-muted);
+}
 
-  .qb-search-empty-title {
-    font-size: 24px;
-    line-height: 1;
-    margin: 0 0 12px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: -0.03em;
-  }
+.qbsr-add-btn.success {
+  background: var(--sr-green);
+  color: #fff;
+  pointer-events: none;
+}
 
-  .qb-search-empty-text {
-    font-size: 15px;
-    line-height: 1.5;
-    color: var(--qb-search-muted);
-    margin: 0 auto;
-    max-width: 32ch;
-  }
+.qbsr-add-btn.error {
+  background: rgba(239,68,68,0.15);
+  color: var(--sr-red);
+  border: 1px solid rgba(239,68,68,0.3);
+  pointer-events: none;
+}
 
-  @media (min-width: 768px) {
-    .qb-search-page {
-      padding: 18px 20px 120px;
-    }
+/* ── Toast ── */
+.qbsr-toast {
+  position: fixed;
+  bottom: 88px;
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: var(--sr-green);
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px rgba(34,197,94,0.4);
+}
 
-    .qb-search-topbar {
-      padding-bottom: 18px;
-    }
+.qbsr-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
 
-    .qb-search-meta {
-      grid-template-columns: minmax(0, 1.5fr) auto;
-      align-items: end;
-    }
+.qbsr-toast.error {
+  background: var(--sr-red);
+  box-shadow: 0 6px 20px rgba(239,68,68,0.4);
+}
 
-    .qb-search-summary {
-      padding: 18px 20px;
-    }
+/* ── Empty state ── */
+.qbsr-empty {
+  text-align: center;
+  padding: 64px 24px 32px;
+}
 
-    .qb-search-title {
-      font-size: 48px;
-    }
+.qbsr-empty-icon { font-size: 58px; margin-bottom: 16px; }
+.qbsr-empty-title {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  margin: 0 0 10px;
+  color: var(--sr-text);
+}
 
-    .qb-search-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-      margin-top: 22px;
-    }
+.qbsr-empty-sub {
+  font-size: 14px;
+  color: var(--sr-muted);
+  line-height: 1.6;
+  max-width: 32ch;
+  margin: 0 auto 28px;
+}
 
-    .qb-search-card-body {
-      padding: 14px;
-    }
-  }
+.qbsr-suggestions-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--sr-muted);
+  margin-bottom: 12px;
+}
 
-  @media (min-width: 1100px) {
-    .qb-search-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 18px;
-    }
-  }
+.qbsr-suggestion-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.qbsr-suggestion-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  background: var(--sr-surface);
+  border: 1.5px solid var(--sr-border);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sr-text);
+  text-decoration: none;
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
+}
+
+.qbsr-suggestion-chip:hover {
+  border-color: var(--sr-accent);
+  color: var(--sr-accent);
+  background: rgba(244,180,0,0.08);
+}
+
+/* ── Pagination ── */
+.qbsr-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 28px 16px 0;
+  flex-wrap: wrap;
+}
+
+.qbsr-page-btn {
+  padding: 9px 18px;
+  border-radius: 10px;
+  background: var(--sr-surface);
+  border: 1.5px solid var(--sr-border);
+  color: var(--sr-text);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: border-color 0.18s, color 0.18s;
+  cursor: pointer;
+}
+
+.qbsr-page-btn:hover,
+.qbsr-page-btn.current {
+  border-color: var(--sr-accent);
+  color: var(--sr-accent);
+  background: rgba(244,180,0,0.08);
+}
 </style>
 
-<div class="qb-search-page" section-id="{{ section.id }}">
-  <div class="qb-search-shell">
-    <div class="qb-search-topbar">
-      <div class="qb-search-meta">
-        <div class="qb-search-summary">
-          <p class="qb-search-kicker">Mobile Search</p>
-          <h1 class="qb-search-title">
-            {% if search.results_count > 0 %}
-              {{ search.results_count }} Results
-            {% else %}
-              Search
-            {% endif %}
-          </h1>
-          <p class="qb-search-description">
-            {% if search.terms != blank %}
-              Showing product matches for <strong>{{ search.terms | escape }}</strong>.
-            {% else %}
-              Find snacks, groceries, drinks, and essentials in one quick flow.
-            {% endif %}
-          </p>
-        </div>
+<div class="qbsr-page" id="qbsr">
 
-        {% if search.terms != blank %}
-          <div class="qb-search-chip-row">
-            <span class="qb-search-chip">Query <strong>{{ search.terms | escape }}</strong></span>
-            <span class="qb-search-chip">Products <strong>{{ search.results_count }}</strong></span>
-          </div>
-        {% endif %}
-      </div>
+  <!-- ── Sticky top bar ── -->
+  <div class="qbsr-topbar">
+    <form action="/search" method="get" class="qbsr-form" role="search">
+      <span class="qbsr-form-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><path d="m20 20-3.8-3.8"/></svg>
+      </span>
+      <input
+        type="search"
+        name="q"
+        class="qbsr-input"
+        id="qbsrInput"
+        placeholder="Search products…"
+        value="{{ search.terms | escape }}"
+        autocomplete="off"
+        aria-label="Search products"
+      >
+      <button type="submit" class="qbsr-form-btn">Search</button>
+    </form>
+  </div>
+
+  <!-- ── Meta ── -->
+  {% if search.terms != blank or search.results_count > 0 %}
+  <div class="qbsr-meta">
+    <div class="qbsr-meta-left">
+      {% if search.terms != blank %}
+        <span class="qbsr-query-label">Results for</span>
+        <span class="qbsr-query-term">"{{ search.terms | escape }}"</span>
+      {% else %}
+        <span class="qbsr-query-term">All Products</span>
+      {% endif %}
     </div>
+    <span class="qbsr-count-badge">
+      ⚡ {{ search.results_count | default: 0 }} found
+    </span>
+  </div>
 
-    {% assign product_results = search.results | where: 'object_type', 'product' %}
+  <!-- ── Filter chips ── -->
+  <div class="qbsr-filters" id="qbsrFilters">
+    {% assign base_q = search.terms | escape %}
+    <a href="/search?q={{ base_q }}&type=product" class="qbsr-filter active">🛍️ All</a>
+    <a href="/search?q={{ base_q }}&type=product&filter.p.type=Beer" class="qbsr-filter">🍺 Beer</a>
+    <a href="/search?q={{ base_q }}&type=product&filter.p.type=Food" class="qbsr-filter">🍔 Food</a>
+    <a href="/search?q={{ base_q }}&type=product&filter.p.type=Drinks" class="qbsr-filter">🥤 Drinks</a>
+    <a href="/search?q={{ base_q }}&type=product&filter.p.type=Snacks" class="qbsr-filter">🍟 Snacks</a>
+    <a href="/search?q={{ base_q }}&type=product&filter.p.type=Grocery" class="qbsr-filter">🥦 Grocery</a>
+    <a href="/search?q={{ base_q }}&type=product&filter.p.type=Cigarettes" class="qbsr-filter">🚬 Smokes</a>
+  </div>
+  {% endif %}
 
-    {% if product_results.size > 0 %}
-      <ul class="qb-search-grid">
+  <!-- ── Grid ── -->
+  {% assign product_results = search.results | where: 'object_type', 'product' %}
+
+  {% if product_results.size > 0 %}
+    {% paginate search.results by 24 %}
+    <div class="qbsr-grid-wrap">
+      <ul class="qbsr-grid" id="qbsrGrid">
         {% for product in product_results %}
-          <li class="qb-search-card">
-            <a href="{{ product.url }}" class="qb-search-card-link">
-              <div class="qb-search-image-wrap">
+          {%- assign sale = false -%}
+          {%- if product.compare_at_price > product.price -%}
+            {%- assign sale = true -%}
+            {%- assign discount = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price -%}
+          {%- endif -%}
+
+          <li class="qbsr-card">
+            <a href="{{ product.url }}" class="qbsr-card-link">
+              <div class="qbsr-img-wrap">
                 {% if product.featured_image %}
                   <img
-                    src="{{ product.featured_image | image_url: width: 720 }}"
-                    alt="{{ product.featured_image.alt | default: product.title }}"
-                    class="qb-search-image"
+                    src="{{ product.featured_image | image_url: width: 480 }}"
+                    alt="{{ product.featured_image.alt | default: product.title | escape }}"
+                    class="qbsr-img"
                     loading="lazy"
+                    width="480"
+                    height="480"
                   >
                 {% else %}
-                  <div class="qb-search-no-image">🐝</div>
+                  <div class="qbsr-no-img">🐝</div>
                 {% endif %}
 
-                <div class="qb-search-badge qb-search-badge-sync">⚡ 18-22 mins</div>
-
-                {% if product.compare_at_price > product.price %}
-                  <span class="qb-search-sale">Sale</span>
+                {% if sale %}
+                  <span class="qbsr-sale-badge">{{ discount }}% OFF</span>
                 {% endif %}
+                <span class="qbsr-time-badge qbsr-time-sync">⚡ 20 mins</span>
               </div>
 
-              <div class="qb-search-card-body">
-                <h3 class="qb-search-card-title">{{ product.title }}</h3>
+              <div class="qbsr-card-body">
+                <h3 class="qbsr-card-name">{{ product.title }}</h3>
 
-                <div class="qb-search-price-row">
-                  <span class="qb-search-price">Rs {{ product.price | money_without_currency }}</span>
-                  {% if product.compare_at_price > product.price %}
-                    <span class="qb-search-price-compare">Rs {{ product.compare_at_price | money_without_currency }}</span>
+                <div class="qbsr-price-row">
+                  <span class="qbsr-price">Rs {{ product.price | money_without_currency }}</span>
+                  {% if sale %}
+                    <span class="qbsr-compare">Rs {{ product.compare_at_price | money_without_currency }}</span>
                   {% endif %}
                 </div>
-
-                <button class="qb-search-cta" onclick="event.preventDefault(); event.stopPropagation(); alert('Add to cart: {{ product.title | escape }}');">
-                  Add to Cart
-                </button>
               </div>
             </a>
+
+            <div style="padding: 0 10px 12px;">
+              <button
+                class="qbsr-add-btn"
+                data-variant="{{ product.first_available_variant.id }}"
+                data-name="{{ product.title | escape }}"
+                aria-label="Add {{ product.title | escape }} to cart"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                ADD
+              </button>
+            </div>
           </li>
         {% endfor %}
       </ul>
-    {% else %}
-      <div class="qb-search-empty">
-        <div class="qb-search-empty-icon">🔎</div>
-        <h2 class="qb-search-empty-title">No Products Found</h2>
-        <p class="qb-search-empty-text">
-          Try a shorter keyword, check spelling, or search by category like drinks, snacks, or baby care.
-        </p>
-      </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if paginate.pages > 1 %}
+    <div class="qbsr-pagination">
+      {% if paginate.previous %}
+        <a href="{{ paginate.previous.url }}" class="qbsr-page-btn">← Prev</a>
+      {% endif %}
+
+      {% for part in paginate.parts %}
+        {% if part.is_link %}
+          <a href="{{ part.url }}" class="qbsr-page-btn">{{ part.title }}</a>
+        {% else %}
+          <span class="qbsr-page-btn current">{{ part.title }}</span>
+        {% endif %}
+      {% endfor %}
+
+      {% if paginate.next %}
+        <a href="{{ paginate.next.url }}" class="qbsr-page-btn">Next →</a>
+      {% endif %}
+    </div>
     {% endif %}
-  </div>
+    {% endpaginate %}
+
+  {% else %}
+    <!-- ── Empty state ── -->
+    <div class="qbsr-empty">
+      <div class="qbsr-empty-icon">🔎</div>
+      <h2 class="qbsr-empty-title">
+        {% if search.terms != blank %}No results for "{{ search.terms | escape }}"
+        {% else %}What are you looking for?{% endif %}
+      </h2>
+      <p class="qbsr-empty-sub">
+        {% if search.terms != blank %}
+          Try a shorter word, check spelling, or browse a category below.
+        {% else %}
+          Search across groceries, drinks, snacks, beer and more.
+        {% endif %}
+      </p>
+
+      <p class="qbsr-suggestions-label">Try these</p>
+      <div class="qbsr-suggestion-chips">
+        <a href="/search?q=beer&type=product"           class="qbsr-suggestion-chip">🍺 Beer</a>
+        <a href="/search?q=cold+drinks&type=product"    class="qbsr-suggestion-chip">🥤 Cold Drinks</a>
+        <a href="/search?q=chips&type=product"          class="qbsr-suggestion-chip">🍟 Chips</a>
+        <a href="/search?q=noodles&type=product"        class="qbsr-suggestion-chip">🍜 Noodles</a>
+        <a href="/search?q=vodka&type=product"          class="qbsr-suggestion-chip">🥃 Vodka</a>
+        <a href="/search?q=cigarette&type=product"      class="qbsr-suggestion-chip">🚬 Cigarettes</a>
+        <a href="/search?q=juice&type=product"          class="qbsr-suggestion-chip">🧃 Juice</a>
+        <a href="/search?q=chocolate&type=product"      class="qbsr-suggestion-chip">🍫 Chocolate</a>
+      </div>
+    </div>
+  {% endif %}
+
 </div>
 
+<!-- ── Toast ── -->
+<div class="qbsr-toast" id="qbsrToast"></div>
+
 <script>
-  (function() {
-    function syncSearchBadges() {
-      const range = window.QB_DELIVERY_TIME?.range || '18-22 mins';
-      document.querySelectorAll('.qb-search-badge-sync').forEach((badge) => {
-        badge.textContent = `⚡ ${range}`;
-      });
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', syncSearchBadges);
-    } else {
-      syncSearchBadges();
-    }
-
-    window.addEventListener('locationSelected', () => {
-      setTimeout(syncSearchBadges, 50);
+(function () {
+  /* ── Delivery time badge sync ── */
+  function syncTime() {
+    var range = (window.QB_DELIVERY_TIME && window.QB_DELIVERY_TIME.range) || '20 mins';
+    document.querySelectorAll('.qbsr-time-sync').forEach(function (b) {
+      b.textContent = '⚡ ' + range;
     });
-  })();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', syncTime);
+  } else {
+    syncTime();
+  }
+  window.addEventListener('locationSelected', function () { setTimeout(syncTime, 50); });
+
+  /* ── Toast ── */
+  function showToast(msg, isError) {
+    var t = document.getElementById('qbsrToast');
+    if (!t) return;
+    t.textContent = msg;
+    t.className = 'qbsr-toast show' + (isError ? ' error' : '');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function () { t.classList.remove('show'); }, 2600);
+  }
+
+  /* ── Add to cart ── */
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.qbsr-add-btn');
+    if (!btn || btn.classList.contains('loading') || btn.classList.contains('success')) return;
+
+    var variantId = btn.getAttribute('data-variant');
+    var name      = btn.getAttribute('data-name') || 'Item';
+    if (!variantId || variantId === '') {
+      showToast('⚠️ Out of stock', true);
+      return;
+    }
+
+    btn.classList.add('loading');
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ id: variantId, quantity: 1 })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.id) {
+        btn.classList.remove('loading');
+        btn.classList.add('success');
+        btn.innerHTML = '✓ Added';
+        showToast('✅ ' + name + ' added to cart!');
+        /* update cart count */
+        fetch('/cart.js')
+          .then(function (r) { return r.json(); })
+          .then(function (c) {
+            var countEl = document.getElementById('cart-count');
+            if (countEl) countEl.textContent = c.item_count;
+          });
+        /* reset after 2s */
+        setTimeout(function () {
+          btn.classList.remove('success');
+          btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> ADD';
+        }, 2200);
+      } else {
+        throw new Error(d.description || 'Failed');
+      }
+    })
+    .catch(function (err) {
+      btn.classList.remove('loading');
+      btn.classList.add('error');
+      btn.innerHTML = '✗ Error';
+      showToast('⚠️ Could not add item', true);
+      setTimeout(function () {
+        btn.classList.remove('error');
+        btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> ADD';
+      }, 2000);
+    });
+  });
+})();
 </script>
 
 {% schema %}
 {
   "name": "QuickBEE Search Results",
-  "settings": [
-    {
-      "type": "paragraph",
-      "content": "Mobile-first QuickBEE search results"
-    }
-  ],
+  "settings": [],
   "presets": []
 }
 {% endschema %}
