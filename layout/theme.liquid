@@ -740,7 +740,9 @@
       /* ── Check if an element is a checkout trigger ── */
       function isCheckoutTrigger(el) {
         if (!el) return false;
-        /* buttons / inputs */
+        /* Never intercept anything on the payment page itself */
+        if (window.location.pathname === PAYMENT_PAGE) return false;
+        /* buttons / inputs with name=checkout */
         if ((el.tagName === 'BUTTON' || el.tagName === 'INPUT') && el.name === 'checkout') return true;
         /* links pointing to /checkout */
         if (el.tagName === 'A') {
@@ -755,9 +757,13 @@
             if (sub) return true;
           }
         }
-        /* text-matched buttons (Proceed to Checkout, etc.) */
-        var text = (el.textContent || el.value || '').toLowerCase().trim();
-        if (/proceed.*(checkout|payment)|checkout now|place order/i.test(text)) return true;
+        /* text-matched — ONLY on interactive leaf elements (button/a/input), NOT divs/containers */
+        var tag = el.tagName;
+        if (tag === 'BUTTON' || tag === 'A' || tag === 'INPUT') {
+          var text = (el.textContent || el.value || '').toLowerCase().trim();
+          /* Only match short text (< 60 chars) to avoid matching parent containers */
+          if (text.length < 60 && /proceed.*(checkout|payment)|checkout now|place order/i.test(text)) return true;
+        }
         return false;
       }
 
@@ -869,6 +875,395 @@
       }
     })();
     </script>
+  {%- render 'qb-cart-note-sync' -%}
+
+  <!-- ═══════════════════════════════════════════════
+       QUICKBEE GLOBAL CART DRAWER
+       Bottom-sheet on mobile · Right panel on desktop
+       ═══════════════════════════════════════════════ -->
+  <style>
+  /* ── Cart Drawer Variables ── */
+  #qb-cart-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.62);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 49998;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  #qb-cart-overlay.qb-open { opacity: 1; pointer-events: auto; }
+
+  #qb-cart-drawer {
+    position: fixed;
+    right: 0; top: 0; bottom: 0;
+    width: min(420px, 100vw);
+    background: #111;
+    z-index: 49999;
+    display: flex; flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.36s cubic-bezier(0.32,0.72,0,1);
+    box-shadow: -8px 0 48px rgba(0,0,0,0.6);
+  }
+  #qb-cart-drawer.qb-open { transform: translateX(0); }
+
+  [data-theme="light"] #qb-cart-drawer,
+  html:not([data-theme="dark"]) #qb-cart-drawer { background: #fafafa; }
+
+  @media (max-width: 768px) {
+    #qb-cart-drawer {
+      top: auto; left: 0; right: 0;
+      width: 100%; max-width: 100%;
+      height: 88vh;
+      border-radius: 22px 22px 0 0;
+      transform: translateY(100%);
+      box-shadow: 0 -8px 48px rgba(0,0,0,0.5);
+    }
+    #qb-cart-drawer.qb-open { transform: translateY(0); }
+  }
+
+  /* Handle bar (mobile) */
+  .qb-drawer-handle {
+    width: 40px; height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    margin: 10px auto 0;
+    flex-shrink: 0;
+  }
+  @media (min-width: 769px) { .qb-drawer-handle { display: none; } }
+
+  /* Header */
+  .qb-drawer-head {
+    display: flex; align-items: center;
+    padding: 14px 18px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    flex-shrink: 0; gap: 10px;
+  }
+  [data-theme="light"] .qb-drawer-head,
+  html:not([data-theme="dark"]) .qb-drawer-head { border-color: #e5e5e5; }
+
+  .qb-drawer-title {
+    font-size: 18px; font-weight: 900;
+    color: #f0f0f0; flex: 1; letter-spacing: -0.3px;
+  }
+  html:not([data-theme="dark"]) .qb-drawer-title { color: #111; }
+
+  .qb-drawer-count {
+    padding: 4px 10px; border-radius: 999px;
+    background: rgba(244,180,0,0.15);
+    color: #F4B400; font-size: 12px; font-weight: 800;
+    border: 1px solid rgba(244,180,0,0.25);
+  }
+  .qb-drawer-close {
+    width: 36px; height: 36px; border-radius: 10px;
+    border: none; background: rgba(255,255,255,0.08);
+    color: #aaa; font-size: 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, color 0.2s; flex-shrink: 0;
+  }
+  .qb-drawer-close:hover { background: rgba(239,68,68,0.15); color: #ef4444; }
+  html:not([data-theme="dark"]) .qb-drawer-close { background: #f0f0f0; color: #666; }
+
+  /* Items area */
+  .qb-drawer-items {
+    flex: 1; overflow-y: auto; padding: 10px 16px;
+    scrollbar-width: thin; scrollbar-color: rgba(244,180,0,0.3) transparent;
+  }
+  .qb-drawer-items::-webkit-scrollbar { width: 4px; }
+  .qb-drawer-items::-webkit-scrollbar-thumb { background: rgba(244,180,0,0.3); border-radius: 2px; }
+
+  /* Empty state */
+  .qb-drawer-empty {
+    padding: 52px 20px; text-align: center;
+  }
+  .qb-drawer-empty-icon { font-size: 52px; margin-bottom: 12px; display: block; }
+  .qb-drawer-empty-text {
+    font-size: 16px; font-weight: 700; color: #888;
+    margin: 0 0 6px;
+  }
+  .qb-drawer-empty-sub { font-size: 13px; color: #555; margin: 0; }
+
+  /* Individual item row */
+  .qb-drawer-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    animation: qbDrawerItemIn 0.25s ease both;
+  }
+  html:not([data-theme="dark"]) .qb-drawer-item { border-color: #ececec; }
+  @keyframes qbDrawerItemIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .qb-drawer-item:last-child { border-bottom: none; }
+
+  .qb-drawer-item-img {
+    width: 60px; height: 60px; border-radius: 10px;
+    object-fit: contain; background: #fff; flex-shrink: 0;
+    padding: 4px;
+  }
+  .qb-drawer-item-no-img {
+    width: 60px; height: 60px; border-radius: 10px;
+    background: #222; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+  }
+
+  .qb-drawer-item-info { flex: 1; min-width: 0; }
+  .qb-drawer-item-name {
+    font-size: 13px; font-weight: 700;
+    color: #f0f0f0; line-height: 1.3;
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
+    margin: 0 0 4px;
+  }
+  html:not([data-theme="dark"]) .qb-drawer-item-name { color: #111; }
+  .qb-drawer-item-price {
+    font-size: 14px; font-weight: 900; color: #F4B400;
+  }
+
+  /* Qty stepper */
+  .qb-drawer-qty {
+    display: flex; align-items: center; gap: 0;
+    background: rgba(255,255,255,0.06); border-radius: 10px;
+    overflow: hidden; flex-shrink: 0;
+  }
+  html:not([data-theme="dark"]) .qb-drawer-qty { background: #f0f0f0; }
+  .qb-drawer-qty-btn {
+    width: 32px; height: 32px; border: none; background: none;
+    color: #F4B400; font-size: 18px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .qb-drawer-qty-btn:hover { background: rgba(244,180,0,0.12); }
+  .qb-drawer-qty-num {
+    min-width: 28px; text-align: center;
+    font-size: 14px; font-weight: 800; color: #f0f0f0;
+  }
+  html:not([data-theme="dark"]) .qb-drawer-qty-num { color: #111; }
+
+  /* Footer */
+  .qb-drawer-footer {
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+    border-top: 1px solid rgba(255,255,255,0.08);
+    flex-shrink: 0;
+    background: #111;
+  }
+  html:not([data-theme="dark"]) .qb-drawer-footer { background: #fafafa; border-color: #e5e5e5; }
+
+  .qb-drawer-total-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .qb-drawer-total-label { font-size: 13px; font-weight: 700; color: #888; }
+  .qb-drawer-total-val {
+    font-size: 22px; font-weight: 900; color: #f0f0f0;
+    letter-spacing: -0.5px;
+  }
+  html:not([data-theme="dark"]) .qb-drawer-total-val { color: #111; }
+
+  .qb-drawer-checkout {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; padding: 15px 20px;
+    background: #F4B400;
+    color: #111; font-size: 16px; font-weight: 900;
+    border: none; border-radius: 14px; cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+    letter-spacing: 0.1px;
+  }
+  .qb-drawer-checkout:hover { background: #ffd700; transform: translateY(-1px); }
+  .qb-drawer-checkout:active { transform: scale(0.98); }
+
+  /* Loading shimmer */
+  .qb-drawer-loading {
+    padding: 32px 16px; display: flex; flex-direction: column; gap: 12px;
+  }
+  .qb-drawer-shimmer {
+    height: 72px; border-radius: 12px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+    background-size: 200% 100%;
+    animation: qbShimmer 1.4s infinite;
+  }
+  @keyframes qbShimmer {
+    from { background-position: 200% 0; }
+    to   { background-position: -200% 0; }
+  }
+  </style>
+
+  <!-- Overlay -->
+  <div id="qb-cart-overlay"></div>
+
+  <!-- Drawer -->
+  <div id="qb-cart-drawer" aria-label="Shopping cart" role="dialog">
+    <div class="qb-drawer-handle"></div>
+    <div class="qb-drawer-head">
+      <span class="qb-drawer-title">🛒 Cart</span>
+      <span class="qb-drawer-count" id="qb-drawer-count">0 items</span>
+      <button class="qb-drawer-close" id="qb-drawer-close" aria-label="Close cart">✕</button>
+    </div>
+    <div class="qb-drawer-items" id="qb-drawer-items">
+      <div class="qb-drawer-loading">
+        <div class="qb-drawer-shimmer"></div>
+        <div class="qb-drawer-shimmer"></div>
+        <div class="qb-drawer-shimmer"></div>
+      </div>
+    </div>
+    <div class="qb-drawer-footer" id="qb-drawer-footer" style="display:none;">
+      <div class="qb-drawer-total-row">
+        <span class="qb-drawer-total-label">Total</span>
+        <span class="qb-drawer-total-val" id="qb-drawer-total">Rs 0</span>
+      </div>
+      <a href="/pages/payment" class="qb-drawer-checkout">Proceed to Checkout →</a>
+    </div>
+  </div>
+
+  <script>
+  /* ═══════════════════════════════════════════════
+     QUICKBEE GLOBAL CART DRAWER
+     ═══════════════════════════════════════════════ */
+  (function () {
+    var overlay   = document.getElementById('qb-cart-overlay');
+    var drawer    = document.getElementById('qb-cart-drawer');
+    var closeBtn  = document.getElementById('qb-drawer-close');
+    var itemsEl   = document.getElementById('qb-drawer-items');
+    var footerEl  = document.getElementById('qb-drawer-footer');
+    var countEl   = document.getElementById('qb-drawer-count');
+    var totalEl   = document.getElementById('qb-drawer-total');
+    var headerCnt = document.getElementById('cart-count');
+
+    if (!drawer) return;
+
+    /* ── open / close ── */
+    function open() {
+      overlay.classList.add('qb-open');
+      drawer.classList.add('qb-open');
+      document.body.style.overflow = 'hidden';
+      loadCart();
+    }
+    function close() {
+      overlay.classList.remove('qb-open');
+      drawer.classList.remove('qb-open');
+      document.body.style.overflow = '';
+    }
+
+    overlay.addEventListener('click', close);
+    if (closeBtn) closeBtn.addEventListener('click', close);
+
+    /* ── fetch & render cart ── */
+    function loadCart() {
+      itemsEl.innerHTML = '<div class="qb-drawer-loading"><div class="qb-drawer-shimmer"></div><div class="qb-drawer-shimmer"></div><div class="qb-drawer-shimmer"></div></div>';
+      footerEl.style.display = 'none';
+
+      fetch('/cart.js', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(function (r) { return r.json(); })
+        .then(function (cart) { renderCart(cart); })
+        .catch(function () {
+          itemsEl.innerHTML = '<div class="qb-drawer-empty"><span class="qb-drawer-empty-icon">⚠️</span><p class="qb-drawer-empty-text">Could not load cart</p></div>';
+        });
+    }
+
+    function renderCart(cart) {
+      /* Update header count globally */
+      updateHeaderCount(cart.item_count);
+
+      /* Count badge */
+      if (countEl) countEl.textContent = cart.item_count + (cart.item_count === 1 ? ' item' : ' items');
+
+      if (!cart.items || cart.items.length === 0) {
+        itemsEl.innerHTML = '<div class="qb-drawer-empty"><span class="qb-drawer-empty-icon">🐝</span><p class="qb-drawer-empty-text">Your hive is empty!</p><p class="qb-drawer-empty-sub">Add something delicious from the menu</p></div>';
+        footerEl.style.display = 'none';
+        return;
+      }
+
+      var html = cart.items.map(function (item, idx) {
+        var imgHtml = item.image
+          ? '<img class="qb-drawer-item-img" src="' + item.image + '" alt="' + escH(item.product_title) + '" loading="lazy">'
+          : '<div class="qb-drawer-item-no-img">🛍️</div>';
+        var linePrice = 'Rs ' + Math.round(item.line_price / 100);
+        return (
+          '<div class="qb-drawer-item" style="animation-delay:' + (idx * 0.04) + 's">'
+          + imgHtml
+          + '<div class="qb-drawer-item-info">'
+          +   '<p class="qb-drawer-item-name">' + escH(item.product_title) + '</p>'
+          +   '<span class="qb-drawer-item-price">' + linePrice + '</span>'
+          + '</div>'
+          + '<div class="qb-drawer-qty">'
+          +   '<button class="qb-drawer-qty-btn" data-action="dec" data-key="' + item.key + '" data-qty="' + item.quantity + '">−</button>'
+          +   '<span class="qb-drawer-qty-num">' + item.quantity + '</span>'
+          +   '<button class="qb-drawer-qty-btn" data-action="inc" data-key="' + item.key + '" data-qty="' + item.quantity + '">+</button>'
+          + '</div>'
+          + '</div>'
+        );
+      }).join('');
+      itemsEl.innerHTML = html;
+
+      if (totalEl) totalEl.textContent = 'Rs ' + Math.round(cart.total_price / 100);
+      footerEl.style.display = 'block';
+    }
+
+    /* ── quantity buttons ── */
+    itemsEl.addEventListener('click', function (e) {
+      var btn = e.target.closest('.qb-drawer-qty-btn');
+      if (!btn) return;
+      var key    = btn.getAttribute('data-key');
+      var qty    = parseInt(btn.getAttribute('data-qty')) || 1;
+      var action = btn.getAttribute('data-action');
+      var newQty = action === 'inc' ? qty + 1 : Math.max(0, qty - 1);
+
+      btn.disabled = true;
+      fetch('/cart/change.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ id: key, quantity: newQty })
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (cart) { renderCart(cart); })
+      .catch(function () { btn.disabled = false; });
+    });
+
+    /* ── update header cart count ── */
+    function updateHeaderCount(count) {
+      var el = document.getElementById('cart-count');
+      if (el) el.textContent = count;
+    }
+
+    /* ── HTML escape ── */
+    function escH(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    /* ── Public API ── */
+    window.qbCartDrawer = {
+      open: open,
+      close: close,
+      refresh: function () {
+        fetch('/cart.js', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+          .then(function (r) { return r.json(); })
+          .then(function (cart) {
+            updateHeaderCount(cart.item_count);
+          });
+      }
+    };
+
+    /* ── Listen for cart:updated event ── */
+    document.addEventListener('cart:updated', function () {
+      fetch('/cart.js', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(function (r) { return r.json(); })
+        .then(function (cart) { updateHeaderCount(cart.item_count); });
+    });
+
+    /* ── Cart icon in header opens drawer ── */
+    document.addEventListener('click', function (e) {
+      var cartLink = e.target.closest('a[href="/cart"]');
+      if (cartLink && window.location.pathname !== '/cart') {
+        e.preventDefault();
+        open();
+      }
+    });
+  })();
+  </script>
+
   {%- render 'qb-cart-note-sync' -%}
   </body>
 </html>

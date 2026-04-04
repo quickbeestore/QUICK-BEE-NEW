@@ -484,7 +484,7 @@
 </style>
 
 <!-- ══════════════════════════════════════════════════════
-     QuickBee Payment Page
+     QuickBee Payment Page — v2 (customer name, no txn ID)
      ══════════════════════════════════════════════════════ -->
 <div class="qbp-page">
   <div class="qbp-wrap">
@@ -495,6 +495,12 @@
         <span class="qbp-logo">🐝</span>
         <h1>Choose Payment</h1>
         <p>Select how you'd like to pay for your order</p>
+      </div>
+
+      <!-- Cart total display -->
+      <div id="qbpCartSummary" style="background:rgba(244,180,0,0.08);border:1.5px solid rgba(244,180,0,0.2);border-radius:14px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:13px;font-weight:700;color:#888;">Order Total</span>
+        <span id="qbpCartTotal" style="font-size:22px;font-weight:900;color:#F4B400;letter-spacing:-0.5px;">Loading…</span>
       </div>
 
       <div class="qbp-methods">
@@ -534,33 +540,34 @@
     <div class="qbp-step hidden" id="qbpStepQR">
       <button class="qbp-back" id="qbpBackQR">← Back</button>
       <h2 class="qbp-step-title">Scan &amp; Pay</h2>
-      <p class="qbp-step-sub">Scan the QR below using Fonepay, eSewa, Khalti or any bank app — then enter your transaction reference code.</p>
+      <p class="qbp-step-sub">Open Fonepay, eSewa, Khalti or your bank app → scan the QR → pay the exact amount shown.</p>
+
+      <!-- Amount chip -->
+      <div style="text-align:center;margin:-4px 0 4px;">
+        <span style="display:inline-block;background:rgba(244,180,0,0.15);border:1.5px solid rgba(244,180,0,0.3);border-radius:999px;padding:6px 18px;font-size:16px;font-weight:900;color:#F4B400;" id="qbpQRAmount">Rs —</span>
+      </div>
 
       <div class="qbp-qr-wrap">
-        <img src="{{ 'PAYMENTSQRONLINE.png' | asset_url }}" alt="QuickBee Payment QR Code" class="qbp-qr-img" loading="eager">
+        <img src="{{ 'PAYMENTSQRONLINE.png' | asset_url }}" alt="QuickBee Payment QR Code" class="qbp-qr-img" loading="eager" id="qbpQRImage">
       </div>
 
+      <!-- Customer name (instead of transaction ID) -->
       <div class="qbp-field">
-        <label class="qbp-label" for="qbpTxnInput">Transaction ID / Reference Code</label>
-        <input type="text" id="qbpTxnInput" class="qbp-input" placeholder="e.g. TXN123456789" autocomplete="off" autocorrect="off" spellcheck="false">
+        <label class="qbp-label" for="qbpNameInput">Your Name <span style="color:#ef4444">*</span></label>
+        <input type="text" id="qbpNameInput" class="qbp-input" placeholder="e.g. Ramesh Sharma" autocomplete="name" autocorrect="off" spellcheck="false">
+      </div>
+      <div class="qbp-field">
+        <label class="qbp-label" for="qbpPhoneQR">Phone Number (for delivery updates)</label>
+        <div class="qbp-phone-row">
+          <span class="qbp-phone-prefix">+977</span>
+          <input type="tel" id="qbpPhoneQR" class="qbp-input" placeholder="98XXXXXXXX" maxlength="10" inputmode="numeric">
+        </div>
       </div>
 
-      <button class="qbp-btn" id="qbpTxnSubmitBtn" disabled>Submit Payment →</button>
+      <button class="qbp-btn" id="qbpPaidBtn" disabled>I Have Paid →</button>
     </div>
 
-    <!-- ─── STEP 3: Verify Transaction ───────────────── -->
-    <div class="qbp-step hidden" id="qbpStepVerify">
-      <button class="qbp-back" id="qbpBackVerify">← Edit</button>
-      <span class="qbp-verify-emoji">🔍</span>
-      <h2 class="qbp-step-title">Double Check</h2>
-      <p class="qbp-step-sub">Please confirm your transaction ID is correct before submitting:</p>
-      <div class="qbp-txn-box" id="qbpTxnDisplay">—</div>
-      <p class="qbp-verify-note">Once confirmed, our team will verify your payment within 5–10 minutes and notify you via SMS.</p>
-      <button class="qbp-btn" id="qbpConfirmBtn">✓ Yes, Confirm Payment</button>
-      <button class="qbp-btn-ghost" id="qbpEditTxnBtn">← Edit Transaction ID</button>
-    </div>
-
-    <!-- ─── STEP 4: QR Success ────────────────────────── -->
+    <!-- ─── STEP 3: QR Submitted Success ─────────────── -->
     <div class="qbp-step hidden" id="qbpStepSuccess">
       <div class="qbp-anim-wrap">
         <svg class="qbp-svg" viewBox="0 0 80 80" aria-hidden="true">
@@ -568,41 +575,34 @@
           <polyline class="qbp-tick" points="22,40 34,52 58,28"/>
         </svg>
       </div>
-      <p class="qbp-anim-title">Payment Request Submitted!</p>
-      <p class="qbp-anim-sub">You will be notified via SMS once our team verifies your payment 🎉</p>
-
-      <div class="qbp-phone-section">
-        <div class="qbp-field">
-          <label class="qbp-label" for="qbpPhoneQR">Contact number for SMS updates</label>
-          <div class="qbp-phone-row">
-            <span class="qbp-phone-prefix">+977</span>
-            <input type="tel" id="qbpPhoneQR" class="qbp-input" placeholder="98XXXXXXXX" maxlength="10" inputmode="numeric">
-          </div>
-        </div>
-        <button class="qbp-btn" id="qbpPhoneNextBtn">Next →</button>
-      </div>
+      <p class="qbp-anim-title">Payment Request Sent!</p>
+      <p class="qbp-anim-sub">Our team will verify and confirm your order within 5–10 minutes. Proceeding to checkout… 🎉</p>
     </div>
 
-    <!-- ─── STEP COD/Card: Payment Secured ───────────── -->
+    <!-- ─── STEP COD/Card: Secured ───────────────────── -->
     <div class="qbp-step hidden" id="qbpStepCOD">
       <div class="qbp-cod-wrap">
         <span class="qbp-shield-icon">🔒</span>
-        <svg class="qbp-svg" viewBox="0 0 80 80" id="qbpCODSvg" aria-hidden="true">
-          <circle class="qbp-ring" cx="40" cy="40" r="36" id="qbpCODRing"/>
-          <polyline class="qbp-tick" points="22,40 34,52 58,28" id="qbpCODTick"/>
+        <svg class="qbp-svg" viewBox="0 0 80 80" aria-hidden="true">
+          <circle class="qbp-ring" cx="40" cy="40" r="36"/>
+          <polyline class="qbp-tick" points="22,40 34,52 58,28"/>
         </svg>
-        <p class="qbp-cod-title">Payment Secured ✓</p>
-        <p class="qbp-cod-sub" id="qbpCODDesc">Your order will be ready. Please have your payment ready upon delivery.</p>
+        <p class="qbp-cod-title">Order Confirmed ✓</p>
+        <p class="qbp-cod-sub" id="qbpCODDesc">Your order will be delivered. Please have payment ready.</p>
       </div>
 
       <div class="qbp-field">
-        <label class="qbp-label" for="qbpPhoneCOD">Contact number for delivery updates</label>
+        <label class="qbp-label" for="qbpNameCOD">Your Name <span style="color:#ef4444">*</span></label>
+        <input type="text" id="qbpNameCOD" class="qbp-input" placeholder="e.g. Ramesh Sharma" autocomplete="name">
+      </div>
+      <div class="qbp-field">
+        <label class="qbp-label" for="qbpPhoneCOD">Phone Number (for delivery updates)</label>
         <div class="qbp-phone-row">
           <span class="qbp-phone-prefix">+977</span>
           <input type="tel" id="qbpPhoneCOD" class="qbp-input" placeholder="98XXXXXXXX" maxlength="10" inputmode="numeric">
         </div>
       </div>
-      <button class="qbp-btn" id="qbpCODCheckoutBtn">Proceed to Checkout →</button>
+      <button class="qbp-btn" id="qbpCODCheckoutBtn">Confirm &amp; Checkout →</button>
     </div>
 
     <!-- ─── FINAL: Redirect ───────────────────────────── -->
@@ -610,7 +610,7 @@
       <div class="qbp-final-center">
         <span class="qbp-final-emoji">🎉</span>
         <h2 class="qbp-final-title">All Set!</h2>
-        <p class="qbp-final-sub">Completing your order, please wait…</p>
+        <p class="qbp-final-sub">Taking you to checkout…</p>
         <div class="qbp-dots">
           <span></span><span></span><span></span>
         </div>
@@ -624,22 +624,17 @@
 (function () {
   'use strict';
 
-  /* ── state ──────────────────────────────────────── */
   var selectedMethod = null;
+  var cartTotal      = 0;
 
-  /* ── helpers ────────────────────────────────────── */
+  /* ── helpers ────────────────────────────────── */
   function show(id) {
-    document.querySelectorAll('.qbp-step').forEach(function (s) {
-      s.classList.add('hidden');
-    });
+    document.querySelectorAll('.qbp-step').forEach(function (s) { s.classList.add('hidden'); });
     var el = document.getElementById(id);
     if (!el) return;
     el.classList.remove('hidden');
-    // re-trigger CSS animations on SVGs
     el.querySelectorAll('.qbp-ring, .qbp-tick').forEach(function (n) {
-      n.style.animation = 'none';
-      void n.offsetHeight; // reflow
-      n.style.animation = '';
+      n.style.animation = 'none'; void n.offsetHeight; n.style.animation = '';
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -648,104 +643,122 @@
     return fetch('/cart/update.js', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-      body: JSON.stringify({ note: 'QuickBee Payment — ' + note })
+      body: JSON.stringify({ note: note })
     });
   }
 
-  function finalRedirect(note) {
+  function goCheckout() {
     show('qbpStepFinal');
-    cartNote(note).finally(function () {
-      setTimeout(function () { window.location.href = '/checkout'; }, 2000);
-    });
+    setTimeout(function () { window.location.href = '/checkout'; }, 2200);
   }
 
-  /* ── Method selection ───────────────────────────── */
+  /* ── Load cart total on page load ──────────── */
+  fetch('/cart.js', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+    .then(function (r) { return r.json(); })
+    .then(function (cart) {
+      cartTotal = cart.total_price || 0;
+      var totalEl = document.getElementById('qbpCartTotal');
+      if (totalEl) totalEl.textContent = 'Rs ' + Math.round(cartTotal / 100);
+      var amtEl = document.getElementById('qbpQRAmount');
+      if (amtEl) amtEl.textContent = 'Rs ' + Math.round(cartTotal / 100);
+      /* If cart is empty, auto-redirect to checkout */
+      if (cartTotal === 0) { window.location.href = '/checkout'; }
+    })
+    .catch(function () {
+      var totalEl = document.getElementById('qbpCartTotal');
+      if (totalEl) totalEl.textContent = '—';
+    });
+
+  /* ── Method selection ───────────────────────── */
   document.querySelectorAll('.qbp-method').forEach(function (card) {
     card.addEventListener('click', function () {
-      document.querySelectorAll('.qbp-method').forEach(function (c) {
-        c.classList.remove('selected');
-      });
+      document.querySelectorAll('.qbp-method').forEach(function (c) { c.classList.remove('selected'); });
       card.classList.add('selected');
       selectedMethod = card.getAttribute('data-method');
       var btn = document.getElementById('qbpContinueBtn');
-      if (btn) btn.disabled = false;
+      if (btn) { btn.disabled = false; btn.textContent = 'Continue →'; }
     });
   });
 
-  /* ── Continue ───────────────────────────────────── */
+  /* ── Continue button ────────────────────────── */
   var continueBtn = document.getElementById('qbpContinueBtn');
   if (continueBtn) {
-    continueBtn.addEventListener('click', function () {
+    continueBtn.addEventListener('click', function (e) {
+      e.preventDefault();
       if (!selectedMethod) return;
       if (selectedMethod === 'qr') {
         show('qbpStepQR');
       } else {
         var desc = document.getElementById('qbpCODDesc');
-        if (desc) {
-          desc.textContent = selectedMethod === 'card'
-            ? 'Pay with your debit or credit card when the delivery arrives at your door.'
-            : 'Pay in cash when your order is delivered to your door. Please keep exact change ready!';
-        }
+        if (desc) desc.textContent = selectedMethod === 'card'
+          ? 'Pay with your debit or credit card when delivery arrives.'
+          : 'Pay in cash when your order is delivered. Keep exact change ready!';
         show('qbpStepCOD');
       }
     });
   }
 
-  /* ── Back buttons ───────────────────────────────── */
+  /* ── Back from QR ───────────────────────────── */
   var backQR = document.getElementById('qbpBackQR');
   if (backQR) backQR.addEventListener('click', function () { show('qbpStep1'); });
 
-  var backVerify = document.getElementById('qbpBackVerify');
-  if (backVerify) backVerify.addEventListener('click', function () { show('qbpStepQR'); });
-
-  var editTxn = document.getElementById('qbpEditTxnBtn');
-  if (editTxn) editTxn.addEventListener('click', function () { show('qbpStepQR'); });
-
-  /* ── Transaction input ──────────────────────────── */
-  var txnInput  = document.getElementById('qbpTxnInput');
-  var txnSubmit = document.getElementById('qbpTxnSubmitBtn');
-
-  if (txnInput && txnSubmit) {
-    txnInput.addEventListener('input', function () {
-      txnSubmit.disabled = txnInput.value.trim().length < 4;
-    });
-
-    txnSubmit.addEventListener('click', function () {
-      var val = txnInput.value.trim();
-      if (val.length < 4) return;
-      var display = document.getElementById('qbpTxnDisplay');
-      if (display) display.textContent = val;
-      show('qbpStepVerify');
+  /* ── QR: enable "I Have Paid" when name filled ── */
+  var nameInput = document.getElementById('qbpNameInput');
+  var paidBtn   = document.getElementById('qbpPaidBtn');
+  if (nameInput && paidBtn) {
+    nameInput.addEventListener('input', function () {
+      paidBtn.disabled = nameInput.value.trim().length < 2;
     });
   }
 
-  /* ── Confirm payment ────────────────────────────── */
-  var confirmBtn = document.getElementById('qbpConfirmBtn');
-  if (confirmBtn) {
-    confirmBtn.addEventListener('click', function () {
-      show('qbpStepSuccess');
-    });
-  }
-
-  /* ── QR phone → Next ────────────────────────────── */
-  var phoneNextBtn = document.getElementById('qbpPhoneNextBtn');
-  if (phoneNextBtn) {
-    phoneNextBtn.addEventListener('click', function () {
-      var txn   = txnInput ? txnInput.value.trim() : '—';
+  /* ── "I Have Paid" button ───────────────────── */
+  if (paidBtn) {
+    paidBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      var name  = nameInput ? nameInput.value.trim() : '—';
       var phone = document.getElementById('qbpPhoneQR');
       var num   = phone ? phone.value.trim() : '';
-      finalRedirect('Online QR | TXN: ' + txn + ' | Phone: +977' + num);
+      if (name.length < 2) { nameInput && nameInput.focus(); return; }
+
+      paidBtn.disabled = true;
+      paidBtn.textContent = 'Submitting…';
+
+      var noteStr = 'Payment Method: Online QR | Name: ' + name + ' | Phone: +977' + num + ' | Amount: Rs ' + Math.round(cartTotal / 100);
+
+      cartNote(noteStr)
+        .finally(function () {
+          show('qbpStepSuccess');
+          /* Auto-forward to checkout after 3s */
+          setTimeout(goCheckout, 3000);
+        });
     });
   }
 
-  /* ── COD/Card checkout ──────────────────────────── */
-  var codBtn = document.getElementById('qbpCODCheckoutBtn');
+  /* ── COD/Card: enable Checkout when name filled ── */
+  var nameCOD  = document.getElementById('qbpNameCOD');
+  var codBtn   = document.getElementById('qbpCODCheckoutBtn');
+  if (nameCOD && codBtn) {
+    nameCOD.addEventListener('input', function () {
+      codBtn.disabled = nameCOD.value.trim().length < 2;
+    });
+    codBtn.disabled = true; /* start disabled */
+  }
+
+  /* ── COD/Card Checkout ──────────────────────── */
   if (codBtn) {
-    codBtn.addEventListener('click', function () {
-      var phone  = document.getElementById('qbpPhoneCOD');
-      var num    = phone ? phone.value.trim() : '';
+    codBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      var name  = nameCOD ? nameCOD.value.trim() : '—';
+      var phone = document.getElementById('qbpPhoneCOD');
+      var num   = phone ? phone.value.trim() : '';
       var method = selectedMethod === 'card' ? 'Card on Delivery' : 'Cash on Delivery';
-      finalRedirect(method + ' | Phone: +977' + num);
+      if (name.length < 2) { nameCOD && nameCOD.focus(); return; }
+
+      codBtn.disabled = true;
+      codBtn.textContent = 'Processing…';
+
+      var noteStr = 'Payment Method: ' + method + ' | Name: ' + name + ' | Phone: +977' + num;
+      cartNote(noteStr).finally(goCheckout);
     });
   }
 

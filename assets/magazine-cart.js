@@ -73,8 +73,8 @@ class MagazineCart {
       this.store.update('status', 'pending_payment');
       window.dispatchEvent(new CustomEvent('order:success', { detail: { docRef, pdfUrl } }));
 
-      // Redirect to checkout
-      return window.location.href = '/checkout';
+      // Redirect to payment page
+      return window.location.href = '/pages/payment';
     } catch (error) {
       console.error('Order submission failed:', error);
       window.dispatchEvent(new CustomEvent('order:error', { detail: error.message }));
