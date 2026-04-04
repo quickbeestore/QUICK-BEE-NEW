@@ -1,0 +1,751 @@
+{% comment %}
+  QuickBee — Launch Countdown Banner
+  Shows next Product Category & Service launch timers
+  Schedule: Every Sunday, Tuesday, Friday @ 9 PM (Nepal Time, UTC+5:45)
+{% endcomment %}
+
+<style>
+/* ══════════════════════════════════════════════
+   QB LAUNCH COUNTDOWN — Honey Bee Theme
+══════════════════════════════════════════════ */
+.qblc-wrap {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: 0 16px 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Honeycomb hex background ── */
+.qblc-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50V18L28 2l28 16v32L28 66zM0 50l28 16 28-16' fill='none' stroke='rgba(244,180,0,0.06)' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 56px 100px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Section header ── */
+.qblc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0 16px;
+  position: relative;
+  z-index: 1;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.qblc-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.qblc-bee-icon {
+  font-size: 26px;
+  animation: qblcBeeWiggle 2.5s ease-in-out infinite;
+}
+@keyframes qblcBeeWiggle {
+  0%,100% { transform: rotate(-8deg) scale(1); }
+  50%      { transform: rotate(8deg) scale(1.1); }
+}
+.qblc-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: #F4B400;
+  letter-spacing: -0.3px;
+  margin: 0;
+}
+.qblc-subtitle {
+  font-size: 11px;
+  font-weight: 500;
+  color: #888;
+  margin: 1px 0 0;
+}
+
+/* Live clock badge */
+.qblc-clock-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(244,180,0,0.08);
+  border: 1px solid rgba(244,180,0,0.2);
+  border-radius: 20px;
+  padding: 6px 12px;
+}
+.qblc-clock-dot {
+  width: 7px; height: 7px;
+  background: #22c55e;
+  border-radius: 50%;
+  animation: qblcDotPulse 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes qblcDotPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.5); opacity: 1; }
+  50%      { box-shadow: 0 0 0 5px rgba(34,197,94,0); opacity: 0.8; }
+}
+.qblc-clock-time {
+  font-size: 12px;
+  font-weight: 700;
+  color: #F4B400;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.3px;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+}
+.qblc-clock-tz {
+  font-size: 9px;
+  font-weight: 600;
+  color: #666;
+  letter-spacing: 0.4px;
+}
+
+/* ── Cards Grid ── */
+.qblc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+@media (max-width: 520px) {
+  .qblc-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Individual Card ── */
+.qblc-card {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  padding: 18px 16px 16px;
+  border: 1.5px solid rgba(244,180,0,0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+[data-theme="dark"] .qblc-card,
+body.dark-theme .qblc-card {
+  background: linear-gradient(145deg, #111 0%, #0d0d0d 100%);
+}
+html:not([data-theme="dark"]) .qblc-card {
+  background: linear-gradient(145deg, #0f172a 0%, #1a1f35 100%);
+}
+.qblc-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px rgba(244,180,0,0.15);
+}
+
+/* card hex shimmer */
+.qblc-card::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -40px;
+  width: 140px; height: 140px;
+  background: radial-gradient(circle, rgba(244,180,0,0.1) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+/* Product card accent */
+.qblc-card--product { border-color: rgba(244,180,0,0.25); }
+.qblc-card--product::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #F4B400, #FFD000, #F4B400);
+  background-size: 200% 100%;
+  animation: qblcShimmer 3s linear infinite;
+}
+
+/* Service card accent */
+.qblc-card--service { border-color: rgba(59,130,246,0.25); }
+.qblc-card--service::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3B82F6, #60A5FA, #3B82F6);
+  background-size: 200% 100%;
+  animation: qblcShimmer 3s linear infinite;
+}
+@keyframes qblcShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Card Top Row ── */
+.qblc-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.qblc-card-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+.qblc-card--product .qblc-card-label {
+  color: #F4B400;
+  background: rgba(244,180,0,0.12);
+  border: 1px solid rgba(244,180,0,0.25);
+}
+.qblc-card--service .qblc-card-label {
+  color: #60A5FA;
+  background: rgba(59,130,246,0.1);
+  border: 1px solid rgba(59,130,246,0.25);
+}
+.qblc-card-emoji {
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* ── Upcoming launch info ── */
+.qblc-next-row {
+  margin-bottom: 14px;
+}
+.qblc-next-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #666;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.qblc-next-name {
+  font-size: 18px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.4px;
+  line-height: 1.1;
+}
+.qblc-next-day {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 3px;
+}
+.qblc-card--product .qblc-next-day { color: #F4B400; }
+.qblc-card--service .qblc-next-day { color: #60A5FA; }
+
+/* ── Countdown digits ── */
+.qblc-timer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+.qblc-digit-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.qblc-digit-box {
+  display: flex;
+  gap: 2px;
+}
+.qblc-digit {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 7px;
+  width: 30px; height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 900;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  transition: all 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+.qblc-digit::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 0; right: 0;
+  height: 1px;
+  background: rgba(0,0,0,0.3);
+}
+.qblc-card--product .qblc-digit {
+  background: rgba(244,180,0,0.08);
+  border-color: rgba(244,180,0,0.15);
+}
+.qblc-card--service .qblc-digit {
+  background: rgba(59,130,246,0.08);
+  border-color: rgba(59,130,246,0.15);
+}
+.qblc-digit.flip {
+  animation: qblcFlip 0.18s ease;
+}
+@keyframes qblcFlip {
+  0%  { transform: scaleY(1); }
+  50% { transform: scaleY(0); }
+  100%{ transform: scaleY(1); }
+}
+.qblc-digit-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #555;
+}
+
+/* colon separator */
+.qblc-colon {
+  font-size: 20px;
+  font-weight: 900;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: #444;
+  margin-bottom: 14px;
+  animation: qblcColonBlink 1s step-end infinite;
+}
+@keyframes qblcColonBlink {
+  0%,100% { opacity: 1; }
+  50%     { opacity: 0.2; }
+}
+
+/* ── Bottom bar ── */
+.qblc-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.qblc-schedule-pills {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.qblc-pill {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 5px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.qblc-card--product .qblc-pill {
+  background: rgba(244,180,0,0.1);
+  color: #F4B400;
+  border: 1px solid rgba(244,180,0,0.15);
+}
+.qblc-card--service .qblc-pill {
+  background: rgba(59,130,246,0.08);
+  color: #60A5FA;
+  border: 1px solid rgba(59,130,246,0.15);
+}
+.qblc-pill.active {
+  background: rgba(244,180,0,0.25) !important;
+  color: #FFD000 !important;
+  border-color: rgba(244,180,0,0.4) !important;
+}
+.qblc-card--service .qblc-pill.active {
+  background: rgba(59,130,246,0.22) !important;
+  color: #93C5FD !important;
+  border-color: rgba(59,130,246,0.4) !important;
+}
+
+.qblc-notify-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.qblc-card--product .qblc-notify-btn {
+  background: rgba(244,180,0,0.12);
+  color: #F4B400;
+}
+.qblc-card--product .qblc-notify-btn:hover {
+  background: #F4B400;
+  color: #000;
+}
+.qblc-card--service .qblc-notify-btn {
+  background: rgba(59,130,246,0.1);
+  color: #60A5FA;
+}
+.qblc-card--service .qblc-notify-btn:hover {
+  background: #3B82F6;
+  color: #fff;
+}
+
+/* ── "Just Launched" overlay (when launch time passed within 2h) ── */
+.qblc-live-badge {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  background: rgba(34,197,94,0.12);
+  border: 1px solid rgba(34,197,94,0.3);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #4ade80;
+  margin-bottom: 10px;
+  animation: qblcLivePulse 1.5s ease-in-out infinite;
+}
+.qblc-live-badge.show { display: flex; }
+@keyframes qblcLivePulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.3); }
+  50%     { box-shadow: 0 0 0 6px rgba(34,197,94,0); }
+}
+.qblc-live-dot {
+  width: 6px; height: 6px;
+  background: #22c55e;
+  border-radius: 50%;
+  animation: qblcDotPulse 1s ease-in-out infinite;
+}
+
+/* ── Light mode overrides ── */
+html:not([data-theme="dark"]) .qblc-next-name { color: #fff; }
+html:not([data-theme="dark"]) .qblc-title { color: #F4B400; }
+html:not([data-theme="dark"]) .qblc-subtitle { color: rgba(255,255,255,0.5); }
+
+/* Wrap bg tint so it blends with the page hero */
+[data-theme="dark"] .qblc-wrap {
+  background: linear-gradient(180deg, #0a0a0a 0%, transparent 100%);
+}
+html:not([data-theme="dark"]) .qblc-wrap {
+  background: linear-gradient(180deg, #0d1525 0%, transparent 100%);
+}
+</style>
+
+<!-- ── Launch Countdown Section ── -->
+<div class="qblc-wrap">
+
+  <!-- Header row -->
+  <div class="qblc-header">
+    <div class="qblc-header-left">
+      <div class="qblc-bee-icon">🐝</div>
+      <div>
+        <h2 class="qblc-title">Upcoming Launches</h2>
+        <p class="qblc-subtitle">Sun · Tue · Fri — 9:00 PM NST</p>
+      </div>
+    </div>
+    <div class="qblc-clock-badge">
+      <div class="qblc-clock-dot"></div>
+      <span class="qblc-clock-time" id="qblcLiveTime">--:--:--</span>
+      <span class="qblc-clock-tz">NST</span>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div class="qblc-grid">
+
+    <!-- ── Card 1: Product Category Launch ── -->
+    <div class="qblc-card qblc-card--product">
+      <div class="qblc-card-top">
+        <span class="qblc-card-label">🛒 Product Category</span>
+        <span class="qblc-card-emoji">🥚</span>
+      </div>
+      <div class="qblc-live-badge" id="qblcLive1">
+        <div class="qblc-live-dot"></div> LIVE NOW — Just Launched!
+      </div>
+      <div class="qblc-next-row">
+        <div class="qblc-next-label">Next Launch</div>
+        <div class="qblc-next-name">Eggs &amp; Meats</div>
+        <div class="qblc-next-day" id="qblcDay1">Loading...</div>
+      </div>
+      <div class="qblc-timer" id="qblcTimer1">
+        <div class="qblc-digit-group">
+          <div class="qblc-digit-box">
+            <div class="qblc-digit" id="qblc1-d0">0</div>
+            <div class="qblc-digit" id="qblc1-d1">0</div>
+          </div>
+          <div class="qblc-digit-label">Days</div>
+        </div>
+        <div class="qblc-colon">:</div>
+        <div class="qblc-digit-group">
+          <div class="qblc-digit-box">
+            <div class="qblc-digit" id="qblc1-h0">0</div>
+            <div class="qblc-digit" id="qblc1-h1">0</div>
+          </div>
+          <div class="qblc-digit-label">Hours</div>
+        </div>
+        <div class="qblc-colon">:</div>
+        <div class="qblc-digit-group">
+          <div class="qblc-digit-box">
+            <div class="qblc-digit" id="qblc1-m0">0</div>
+            <div class="qblc-digit" id="qblc1-m1">0</div>
+          </div>
+          <div class="qblc-digit-label">Mins</div>
+        </div>
+        <div class="qblc-colon">:</div>
+        <div class="qblc-digit-group">
+          <div class="qblc-digit-box">
+            <div class="qblc-digit" id="qblc1-s0">0</div>
+            <div class="qblc-digit" id="qblc1-s1">0</div>
+          </div>
+          <div class="qblc-digit-label">Secs</div>
+        </div>
+      </div>
+      <div class="qblc-card-bottom">
+        <div class="qblc-schedule-pills">
+          <span class="qblc-pill" data-day="0">Sun</span>
+          <span class="qblc-pill" data-day="2">Tue</span>
+          <span class="qblc-pill" data-day="5">Fri</span>
+        </div>
+        <a href="/collections" class="qblc-notify-btn">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+          Explore
+        </a>
+      </div>
+    </div>
+
+    <!-- ── Card 2: Services Launch ── -->
+    <div class="qblc-card qblc-card--service">
+      <div class="qblc-card-top">
+        <span class="qblc-card-label">🔧 New Service</span>
+        <span class="qblc-card-emoji">⚡</span>
+      </div>
+      <div class="qblc-live-badge" id="qblcLive2">
+        <div class="qblc-live-dot"></div> LIVE NOW — Just Launched!
+      </div>
+      <div class="qblc-next-row">
+        <div class="qblc-next-label">Next Launch</div>
+        <div class="qblc-next-name">Electrician</div>
+        <div class="qblc-next-day" id="qblcDay2">Loading...</div>
+      </div>
+      <div class="qblc-timer" id="qblcTimer2">
+        <div class="qblc-digit-group">
+          <div class="qblc-digit-box">
+            <div class="qblc-digit" id="qblc2-d0">0</div>
+            <div class="qblc-digit" id="qblc2-d1">0</div>
+          </div>
+          <div class="qblc-digit-label">Days</div>
+        </div>
+        <div class="qblc-colon">:</div>
+        <div class="qblc-digit-group">
+          <div class="qblc-digit-box">
+            <div class="qblc-digit" id="qblc2-h0">0</div>
+            <div class="qblc-digit" id="qblc2-h1">0</div>
+          </div>
+          <div class="qblc-digit-label">Hours</div>
+        </div>
+        <div class="qblc-colon">:</div>
+        <div class="qblc-digit-group">
+          <div class="qblc-digit-box">
+            <div class="qblc-digit" id="qblc2-m0">0</div>
+            <div class="qblc-digit" id="qblc2-m1">0</div>
+          </div>
+          <div class="qblc-digit-label">Mins</div>
+        </div>
+        <div class="qblc-colon">:</div>
+        <div class="qblc-digit-group">
+          <div class="qblc-digit-box">
+            <div class="qblc-digit" id="qblc2-s0">0</div>
+            <div class="qblc-digit" id="qblc2-s1">0</div>
+          </div>
+          <div class="qblc-digit-label">Secs</div>
+        </div>
+      </div>
+      <div class="qblc-card-bottom">
+        <div class="qblc-schedule-pills">
+          <span class="qblc-pill" data-day="0">Sun</span>
+          <span class="qblc-pill" data-day="2">Tue</span>
+          <span class="qblc-pill" data-day="5">Fri</span>
+        </div>
+        <a href="/pages/services" class="qblc-notify-btn">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+          View All
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  /* ── Nepal Time = UTC + 5h 45m ── */
+  var NST_OFFSET_MS = (5 * 60 + 45) * 60 * 1000;
+
+  function getNSTDate() {
+    return new Date(Date.now() + NST_OFFSET_MS - new Date().getTimezoneOffset() * 60000 + new Date().getTimezoneOffset() * 60000);
+  }
+
+  function getNSTNow() {
+    // Returns a date representing current NST
+    var utc = Date.now() + new Date().getTimezoneOffset() * 60000; // UTC ms
+    return new Date(utc + NST_OFFSET_MS);
+  }
+
+  /* ── Pad zero ── */
+  function pad(n) { return String(Math.max(0, n)).padStart(2, '0'); }
+
+  /* ── Next launch day calculation ──
+     Launch days: 0=Sun, 2=Tue, 5=Fri  at 21:00 NST
+  */
+  var LAUNCH_DAYS = [0, 2, 5]; // Sun, Tue, Fri
+  var LAUNCH_HOUR = 21;        // 9 PM NST
+  var DAY_NAMES   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var DAY_SHORT   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  function getNextLaunch(fromDate) {
+    // fromDate is a Date in NST
+    var now    = fromDate;
+    var nowDay = now.getDay();     // 0–6
+    var nowH   = now.getHours();
+    var nowM   = now.getMinutes();
+    var nowS   = now.getSeconds();
+
+    // find next slot in the week
+    for (var offset = 0; offset <= 7; offset++) {
+      var candidateDay = (nowDay + offset) % 7;
+      if (LAUNCH_DAYS.indexOf(candidateDay) === -1) continue;
+
+      // same day — only valid if launch time hasn't passed yet
+      if (offset === 0) {
+        var launchMs = (LAUNCH_HOUR * 3600 + 0) * 1000;
+        var nowMs    = (nowH * 3600 + nowM * 60 + nowS) * 1000;
+        if (nowMs >= launchMs) continue; // already passed today
+      }
+
+      // Build target Date in NST
+      var target = new Date(now);
+      target.setDate(target.getDate() + offset);
+      target.setHours(LAUNCH_HOUR, 0, 0, 0);
+      return target;
+    }
+    // fallback: next Sunday
+    var fallback = new Date(now);
+    fallback.setDate(fallback.getDate() + 7);
+    fallback.setHours(LAUNCH_HOUR, 0, 0, 0);
+    return fallback;
+  }
+
+  function isLiveWindow(nstNow) {
+    // Returns true if we're within 2h AFTER a launch slot
+    var d = nstNow.getDay();
+    var h = nstNow.getHours();
+    var m = nstNow.getMinutes();
+    var minsPastMidnight = h * 60 + m;
+    var launchMinutes    = LAUNCH_HOUR * 60;
+    if (LAUNCH_DAYS.indexOf(d) !== -1 &&
+        minsPastMidnight >= launchMinutes &&
+        minsPastMidnight < launchMinutes + 120) {
+      return true;
+    }
+    return false;
+  }
+
+  /* ── Digit rendering with flip animation ── */
+  var prevVals = { 1: {}, 2: {} };
+
+  function setDigit(id, val, cardN) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (prevVals[cardN][id] !== val) {
+      el.textContent = val;
+      el.classList.remove('flip');
+      void el.offsetWidth; // reflow
+      el.classList.add('flip');
+      prevVals[cardN][id] = val;
+    }
+  }
+
+  function renderCountdown(cardN, ms) {
+    var totalSec = Math.max(0, Math.floor(ms / 1000));
+    var days  = Math.floor(totalSec / 86400);
+    var hours = Math.floor((totalSec % 86400) / 3600);
+    var mins  = Math.floor((totalSec % 3600) / 60);
+    var secs  = totalSec % 60;
+
+    var d2 = pad(days);
+    var h2 = pad(hours);
+    var m2 = pad(mins);
+    var s2 = pad(secs);
+    var n  = cardN;
+
+    setDigit('qblc' + n + '-d0', d2[0], n);
+    setDigit('qblc' + n + '-d1', d2[1], n);
+    setDigit('qblc' + n + '-h0', h2[0], n);
+    setDigit('qblc' + n + '-h1', h2[1], n);
+    setDigit('qblc' + n + '-m0', m2[0], n);
+    setDigit('qblc' + n + '-m1', m2[1], n);
+    setDigit('qblc' + n + '-s0', s2[0], n);
+    setDigit('qblc' + n + '-s1', s2[1], n);
+  }
+
+  /* ── Update next-day label ── */
+  function updateDayLabel(id, targetDate, nstNow) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var diffDays = Math.round((targetDate - nstNow) / 86400000);
+    var dayName  = DAY_NAMES[targetDate.getDay()];
+    var prefix   = diffDays === 0 ? 'Today' : diffDays === 1 ? 'Tomorrow' : 'This ' + dayName;
+    // Format: "This Sunday · Apr 6 · 9:00 PM"
+    var months   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var dateStr  = months[targetDate.getMonth()] + ' ' + targetDate.getDate();
+    el.textContent = prefix + ' · ' + dateStr + ' · 9:00 PM';
+  }
+
+  /* ── Highlight active pill ── */
+  function highlightPills(nstNow) {
+    document.querySelectorAll('.qblc-schedule-pills .qblc-pill').forEach(function(pill) {
+      var day = parseInt(pill.getAttribute('data-day'));
+      pill.classList.toggle('active', day === nstNow.getDay());
+    });
+  }
+
+  /* ── Main tick ── */
+  function tick() {
+    var nstNow = getNSTNow();
+
+    /* Live clock */
+    var tEl = document.getElementById('qblcLiveTime');
+    if (tEl) {
+      var hh = pad(nstNow.getHours());
+      var mm = pad(nstNow.getMinutes());
+      var ss = pad(nstNow.getSeconds());
+      tEl.textContent = hh + ':' + mm + ':' + ss;
+    }
+
+    /* Both countdown cards use the same next launch time */
+    var nextLaunch   = getNextLaunch(nstNow);
+    var msRemaining  = nextLaunch - nstNow;
+    var live         = isLiveWindow(nstNow);
+
+    renderCountdown(1, msRemaining);
+    renderCountdown(2, msRemaining);
+    updateDayLabel('qblcDay1', nextLaunch, nstNow);
+    updateDayLabel('qblcDay2', nextLaunch, nstNow);
+    highlightPills(nstNow);
+
+    /* Live badge */
+    var lv1 = document.getElementById('qblcLive1');
+    var lv2 = document.getElementById('qblcLive2');
+    if (lv1) lv1.classList.toggle('show', live);
+    if (lv2) lv2.classList.toggle('show', live);
+
+    /* If live, hide timer */
+    var t1 = document.getElementById('qblcTimer1');
+    var t2 = document.getElementById('qblcTimer2');
+    if (t1) t1.style.opacity = live ? '0.3' : '1';
+    if (t2) t2.style.opacity = live ? '0.3' : '1';
+  }
+
+  /* Boot */
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Launch Countdown",
+  "settings": []
+}
+{% endschema %}
