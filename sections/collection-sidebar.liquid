@@ -308,6 +308,16 @@
       border: 1px solid rgba(255,255,255,0.06) !important;
       box-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04) !important;
     }
+    /* Beat base.css specificity (0,3,0) — it matches [class*="qb-"][class*="-card"]
+       #product-grid gives us ID specificity (1,1,0) which always wins */
+    [data-theme="dark"] #product-grid .qb-product-card {
+      background: linear-gradient(160deg, #1c1c1c 0%, #141414 100%) !important;
+      background-color: transparent !important;
+    }
+    html:not([data-theme="dark"]) #product-grid .qb-product-card {
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+    }
     html:not([data-theme="dark"]) .qb-product-card {
       background: #ffffff !important;
       border: 1px solid rgba(0,0,0,0.07) !important;
@@ -1532,6 +1542,15 @@
     ═══════════════════════════════════════ */
     function qbApplyCardTheme() {
       var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+      // Card background — beats base.css [class*="qb-"][class*="-card"] { background-color: #1E1E1E !important }
+      // Inline styles with !important always beat stylesheet !important rules
+      document.querySelectorAll('.qb-product-card').forEach(function(el) {
+        el.style.setProperty('background', dark
+          ? 'linear-gradient(160deg, #1c1c1c 0%, #141414 100%)'
+          : '#ffffff', 'important');
+        el.style.setProperty('background-color', dark ? 'transparent' : '#ffffff', 'important');
+      });
 
       // Product name
       document.querySelectorAll('.qb-product-name').forEach(function(el) {
