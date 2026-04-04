@@ -1,513 +1,724 @@
-<!-- QuickBee Blog Article Section — Premium Mobile UI -->
+{% comment %}
+  QuickBee Blog Article — v4 Elite
+  Features: reading progress bar, floating TOC, share bar, structured data (JSON-LD),
+  dark/light mode, related posts grid, author box, CTA card, beautiful typography
+{% endcomment %}
 
-{%- assign current_article = article -%}
+{%- assign word_count = article.content | strip_html | split: ' ' | size -%}
+{%- assign read_time  = word_count | divided_by: 200 | plus: 1 -%}
+{%- assign has_img    = article.image -%}
 
-<article class="qb-article-page" itemscope itemtype="https://schema.org/BlogPosting">
+<!-- ═══ JSON-LD STRUCTURED DATA (SEO) ═══ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": {{ article.title | json }},
+  "description": {{ article.excerpt | strip_html | truncate: 160 | json }},
+  "image": "{% if has_img %}{{ article.image | img_url: '1200x630', crop: 'center' }}{% else %}{{ 'og-default.png' | asset_url }}{% endif %}",
+  "author": { "@type": "Person", "name": {{ article.author | json }} },
+  "publisher": {
+    "@type": "Organization",
+    "name": "QuickBee",
+    "logo": { "@type": "ImageObject", "url": "{{ shop.url }}/cdn/shop/files/logo.png" }
+  },
+  "datePublished": "{{ article.published_at | date: '%Y-%m-%dT%H:%M:%SZ' }}",
+  "dateModified":  "{{ article.updated_at  | date: '%Y-%m-%dT%H:%M:%SZ' }}",
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "{{ shop.url }}{{ article.url }}" },
+  "keywords": "{{ article.tags | join: ', ' }}, QuickBee, delivery Nepal, Kathmandu"
+}
+</script>
 
-  <!-- Hero Banner -->
-  <div class="qb-article-hero">
-    {% if article.image %}
-      <div class="qb-article-hero-img">
-        <img
-          src="{{ article.image | img_url: '1200x800', crop: 'center' }}"
-          alt="{{ article.title | escape }}"
-          loading="eager"
-          itemprop="image"
-        >
-        <div class="qb-article-hero-overlay"></div>
+<!-- ═══ READING PROGRESS BAR ═══ -->
+<div class="qba-progress" id="qbaProgress"></div>
+
+<article class="qba-page" itemscope itemtype="https://schema.org/BlogPosting">
+
+  <!-- ═══ HERO ═══ -->
+  <header class="qba-hero">
+    {% if has_img %}
+      <div class="qba-hero-img-wrap">
+        <img src="{{ article.image | img_url: '1600x800', crop: 'center' }}"
+             alt="{{ article.title | escape }}"
+             loading="eager" itemprop="image"
+             class="qba-hero-img">
+        <div class="qba-hero-overlay"></div>
       </div>
     {% else %}
-      <div class="qb-article-hero-img qb-article-hero-no-img">
-        <div class="qb-article-hero-emoji">🐝</div>
+      <div class="qba-hero-img-wrap qba-hero-no-img">
+        {%- assign tl = article.tags | first | downcase -%}
+        {%- if tl contains 'food' or tl contains 'momo' -%}🍖
+        {%- elsif tl contains 'beer' or tl contains 'drink' -%}🍺
+        {%- elsif tl contains 'cake' or tl contains 'bakery' -%}🎂
+        {%- elsif tl contains 'whiskey' or tl contains 'liquor' -%}🥃
+        {%- elsif tl contains 'delivery' or tl contains 'guide' -%}🚀
+        {%- elsif tl contains 'partner' or tl contains 'business' -%}🤝
+        {%- elsif tl contains 'night' -%}🌙
+        {%- elsif tl contains 'kathmandu' or tl contains 'nepal' -%}🏔️
+        {%- else -%}🐝{%- endif -%}
       </div>
     {% endif %}
-    
-    <div class="qb-article-hero-content animate-fade-in">
-      <div class="qb-article-breadcrumb">
+    <div class="qba-hero-body">
+      <!-- Breadcrumb -->
+      <nav class="qba-breadcrumb" aria-label="breadcrumb">
+        <a href="/">Home</a>
+        <span>›</span>
         <a href="/blogs/{{ blog.handle }}">{{ blog.title }}</a>
-        <span class="qb-chevron">›</span>
-        <span>{{ article.title | truncate: 40 }}</span>
-      </div>
-      
-      {% if article.tags.size > 0 %}
-        <span class="qb-hero-tag">{{ article.tags.first }}</span>
-      {% endif %}
+        <span>›</span>
+        <span>{{ article.title | truncate: 42 }}</span>
+      </nav>
 
-      <h1 class="qb-article-title" itemprop="headline">{{ article.title }}</h1>
-      
-      <div class="qb-article-meta">
-        <span class="qb-meta-item" itemprop="datePublished" content="{{ article.published_at | date: '%Y-%m-%d' }}">
-          📅 {{ article.published_at | date: '%B %d, %Y' }}
-        </span>
-        <span class="qb-meta-divider">•</span>
-        <span class="qb-meta-item" itemprop="author">✍️ {{ article.author }}</span>
-        <span class="qb-meta-divider">•</span>
-        <span class="qb-meta-item">⏱️ {{ article.content | strip_html | split: ' ' | size | divided_by: 200 | plus: 1 }} min read</span>
+      <!-- Tags -->
+      <div class="qba-tags">
+        {% for tag in article.tags limit: 3 %}
+          <a href="/blogs/{{ blog.handle }}/tagged/{{ tag | handle }}" class="qba-tag">{{ tag }}</a>
+        {% endfor %}
+      </div>
+
+      <!-- Title -->
+      <h1 class="qba-title" itemprop="headline">{{ article.title }}</h1>
+
+      <!-- Meta row -->
+      <div class="qba-meta">
+        <div class="qba-meta-author">
+          <div class="qba-author-avatar">{{ article.author | slice: 0 }}</div>
+          <div>
+            <div class="qba-author-name" itemprop="author">{{ article.author }}</div>
+            <div class="qba-author-role">QuickBee Writer</div>
+          </div>
+        </div>
+        <div class="qba-meta-details">
+          <span itemprop="datePublished" content="{{ article.published_at | date: '%Y-%m-%d' }}">
+            📅 {{ article.published_at | date: '%B %d, %Y' }}
+          </span>
+          <span class="qba-meta-dot">·</span>
+          <span>⏱ {{ read_time }} min read</span>
+          <span class="qba-meta-dot">·</span>
+          <span>📖 {{ word_count }} words</span>
+        </div>
       </div>
     </div>
-  </div>
+  </header>
 
-  <!-- Main Content Body -->
-  <div class="qb-article-body-wrapper">
-    <div class="qb-article-body animate-fade-in" style="animation-delay: 0.2s">
+  <!-- ═══ CONTENT AREA ═══ -->
+  <div class="qba-layout">
 
-      <!-- Article HTML Content -->
-      <div class="qb-article-content" itemprop="articleBody">
+    <!-- Floating TOC (desktop) -->
+    <aside class="qba-toc-sidebar" id="qbaTocSidebar" aria-label="Table of contents">
+      <div class="qba-toc-inner">
+        <div class="qba-toc-label">📋 In This Article</div>
+        <nav class="qba-toc-nav" id="qbaTocNav"></nav>
+        <!-- Mini share in TOC -->
+        <div class="qba-toc-share">
+          <div class="qba-toc-share-label">Share</div>
+          <div class="qba-toc-share-btns">
+            <a href="https://wa.me/?text={{ article.title | url_encode }}%20{{ shop.url }}{{ article.url | url_encode }}" target="_blank" rel="noopener" class="qba-toc-share-btn qba-share-wa" title="WhatsApp">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.553 4.126 1.524 5.868L0 24l6.308-1.497A11.96 11.96 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.882 9.882 0 01-4.996-1.354l-.356-.213-3.744.889.921-3.636-.232-.374A9.882 9.882 0 1112 21.882z"/></svg>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u={{ shop.url }}{{ article.url | url_encode }}" target="_blank" rel="noopener" class="qba-toc-share-btn qba-share-fb" title="Facebook">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            </a>
+            <button onclick="qbCopyArticleUrl()" class="qba-toc-share-btn qba-share-copy" title="Copy link">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main article body -->
+    <div class="qba-body-col">
+
+      <!-- Excerpt lede -->
+      {% if article.excerpt %}
+      <p class="qba-lede">{{ article.excerpt | strip_html }}</p>
+      {% endif %}
+
+      <!-- Article content -->
+      <div class="qba-content" id="qbaContent" itemprop="articleBody">
         {{ article.content }}
       </div>
 
-      <!-- Share Bar -->
-      <div class="qb-article-share">
-        <span class="qb-share-label">Share this guide:</span>
-        <div class="qb-share-buttons">
-          <a href="https://wa.me/?text={{ article.title | url_encode }}%20{{ shop.url }}{{ article.url | url_encode }}" target="_blank" class="qb-share-btn whatsapp">
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> WhatsApp
+      <!-- Tags footer -->
+      {% if article.tags.size > 0 %}
+      <div class="qba-tags-footer">
+        <span class="qba-tags-label">🏷️ Topics:</span>
+        {% for tag in article.tags %}
+          <a href="/blogs/{{ blog.handle }}/tagged/{{ tag | handle }}" class="qba-tag-link">{{ tag }}</a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Share bar -->
+      <div class="qba-share-bar">
+        <span class="qba-share-label">Found this helpful? Share it 👇</span>
+        <div class="qba-share-btns">
+          <a href="https://wa.me/?text={{ article.title | url_encode }}%20{{ shop.url }}{{ article.url | url_encode }}" target="_blank" rel="noopener" class="qba-share-btn qba-share-green">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.126.553 4.126 1.524 5.868L0 24l6.308-1.497A11.96 11.96 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+            WhatsApp
           </a>
-          <a href="https://www.facebook.com/sharer/sharer.php?u={{ shop.url }}{{ article.url | url_encode }}" target="_blank" class="qb-share-btn facebook">
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg> Facebook
+          <a href="https://www.facebook.com/sharer/sharer.php?u={{ shop.url }}{{ article.url | url_encode }}" target="_blank" rel="noopener" class="qba-share-btn qba-share-blue">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            Facebook
           </a>
+          <a href="https://twitter.com/intent/tweet?text={{ article.title | url_encode }}&url={{ shop.url }}{{ article.url | url_encode }}" target="_blank" rel="noopener" class="qba-share-btn qba-share-dark">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            X / Twitter
+          </a>
+          <button onclick="qbCopyArticleUrl()" class="qba-share-btn qba-share-ghost" id="qbaCopyBtn">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy Link
+          </button>
+        </div>
+      </div>
+
+      <!-- Author bio -->
+      <div class="qba-author-box">
+        <div class="qba-author-box-avatar">{{ article.author | slice: 0 }}</div>
+        <div class="qba-author-box-body">
+          <div class="qba-author-box-name">{{ article.author }}</div>
+          <div class="qba-author-box-role">Writer at QuickBee · Kathmandu, Nepal</div>
+          <p class="qba-author-box-bio">Passionate about food, delivery tech and showcasing the best of Nepal's local businesses. Writing to help Nepali consumers discover the fastest, freshest delivery experience.</p>
         </div>
       </div>
 
       <!-- QuickBee CTA Card -->
-      <div class="qb-article-cta">
-        <div class="qb-cta-icon">🛍️</div>
-        <div class="qb-cta-content">
-          <h3>Get it delivered in 20 minutes</h3>
-          <p>Shop from 20,000+ products — delivered fresh to your doorstep.</p>
+      <div class="qba-cta-card">
+        <div class="qba-cta-left">
+          <div class="qba-cta-badge">🚀 QuickBee</div>
+          <h3 class="qba-cta-title">Get It Delivered in 20 Minutes</h3>
+          <p class="qba-cta-sub">Food, beer, cakes, groceries — delivered fresh across Kathmandu Valley. Use <strong>FREE28</strong> for free delivery on your first order!</p>
+          <div class="qba-cta-btns">
+            <a href="/collections/all" class="qba-cta-primary">Order Now →</a>
+            <a href="/blogs/{{ blog.handle }}" class="qba-cta-ghost">More Articles</a>
+          </div>
         </div>
-        <a href="/collections/all" class="qb-cta-btn">Shop Now</a>
+        <div class="qba-cta-emoji" aria-hidden="true">🛵</div>
       </div>
 
     </div>
   </div>
 
-  <!-- Related Articles -->
-  {% assign related_articles = blog.articles | where: 'id', '!= article.id' %}
+  <!-- ═══ RELATED ARTICLES ═══ -->
   {% if blog.articles_count > 1 %}
-    <div class="qb-article-related-section">
-      <div class="qb-related-inner">
-        <h2 class="qb-related-section-title">More from QuickBee</h2>
-        <div class="qb-related-grid">
-          {% assign shown = 0 %}
-          {% for a in blog.articles %}
-            {% unless a.id == article.id %}
-              {% if shown < 3 %}
-                <a href="{{ a.url }}" class="qb-related-card">
-                  <div class="qb-related-img">
-                    {% if a.image %}
-                      <img src="{{ a.image | img_url: '400x250', crop: 'center' }}" alt="{{ a.title }}" loading="lazy">
-                    {% else %}
-                      <div class="qb-related-no-img">🐝</div>
-                    {% endif %}
+  <section class="qba-related">
+    <div class="qba-related-inner">
+      <h2 class="qba-related-title">More from QuickBee Insider</h2>
+      <div class="qba-related-grid">
+        {%- assign shown = 0 -%}
+        {% for a in blog.articles %}
+          {% unless a.id == article.id %}
+            {% if shown < 3 %}
+              <a href="{{ a.url }}" class="qba-rel-card">
+                <div class="qba-rel-img">
+                  {% if a.image %}
+                    <img src="{{ a.image | img_url: '500x300', crop: 'center' }}" alt="{{ a.title | escape }}" loading="lazy">
+                  {% else %}
+                    <div class="qba-rel-no-img">
+                      {%- assign atl = a.tags | first | downcase -%}
+                      {%- if atl contains 'food' %}🍖{%- elsif atl contains 'beer' %}🍺{%- elsif atl contains 'cake' %}🎂{%- elsif atl contains 'guide' %}📖{%- else %}🐝{%- endif -%}
+                    </div>
+                  {% endif %}
+                  {% if a.tags.size > 0 %}<span class="qba-rel-tag">{{ a.tags.first }}</span>{% endif %}
+                </div>
+                <div class="qba-rel-body">
+                  <h3 class="qba-rel-title">{{ a.title | truncate: 62 }}</h3>
+                  <div class="qba-rel-meta">
+                    <span>{{ a.published_at | date: '%b %d, %Y' }}</span>
+                    <span>·</span>
+                    <span>{{ a.content | strip_html | split: ' ' | size | divided_by: 200 | plus: 1 }} min</span>
                   </div>
-                  <div class="qb-related-info">
-                    {% if a.tags.size > 0 %}
-                      <span class="qb-related-tag">{{ a.tags.first }}</span>
-                    {% endif %}
-                    <h3 class="qb-related-title">{{ a.title | truncate: 60 }}</h3>
-                    <span class="qb-related-date">{{ a.published_at | date: '%b %d, %Y' }}</span>
-                  </div>
-                </a>
-                {% assign shown = shown | plus: 1 %}
-              {% endif %}
-            {% endunless %}
-          {% endfor %}
-        </div>
+                </div>
+              </a>
+              {%- assign shown = shown | plus: 1 -%}
+            {% endif %}
+          {% endunless %}
+        {% endfor %}
+      </div>
+      <div class="qba-related-footer">
+        <a href="/blogs/{{ blog.handle }}" class="qba-rel-all-btn">View All Articles →</a>
       </div>
     </div>
+  </section>
   {% endif %}
 
 </article>
 
+<!-- ═══ FLOATING SHARE FAB (mobile) ═══ -->
+<div class="qba-fab-share" id="qbaFabShare">
+  <button class="qba-fab-trigger" onclick="document.getElementById('qbaFabMenu').classList.toggle('open')" aria-label="Share">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+  </button>
+  <div class="qba-fab-menu" id="qbaFabMenu">
+    <a href="https://wa.me/?text={{ article.title | url_encode }}%20{{ shop.url }}{{ article.url | url_encode }}" target="_blank" class="qba-fab-item qba-fab-wa" title="WhatsApp">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.126.553 4.126 1.524 5.868L0 24l6.308-1.497A11.96 11.96 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+    </a>
+    <a href="https://www.facebook.com/sharer/sharer.php?u={{ shop.url }}{{ article.url | url_encode }}" target="_blank" class="qba-fab-item qba-fab-fb">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+    </a>
+  </div>
+</div>
+
 <style>
-  :root {
-    --qb-purple: #7a14ac;
-    --qb-purple-hover: #5a0d8c;
-    --qb-gold: #F4B400;
-    --qb-black: #111111;
-    --qb-text: #333333;
-    --qb-bg: #f8f9fa;
+/* ═══════════════════════════════════════════════════════
+   QB BLOG ARTICLE v4 — FULL DARK / LIGHT ADAPTIVE
+   ═══════════════════════════════════════════════════════ */
+:root {
+  --qba-bg:      var(--theme-bg-primary, #f8f8f8);
+  --qba-bg2:     var(--theme-bg-secondary, #ffffff);
+  --qba-text:    var(--theme-text-main, #111111);
+  --qba-muted:   var(--theme-text-muted, #666666);
+  --qba-border:  var(--theme-border, #e5e5e5);
+  --qba-gold:    #F4B400;
+  --qba-red:     #E53935;
+  --qba-ease:    cubic-bezier(.4,0,.2,1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Progress */
+.qba-progress {
+  position: fixed; top: 0; left: 0; width: 0; height: 3px; z-index: 9999;
+  background: linear-gradient(90deg, #F4B400, #E53935, #8250ff);
+  box-shadow: 0 0 8px rgba(244,180,0,0.6);
+  transition: width .08s linear;
+}
+
+.qba-page {
+  background: var(--qba-bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100vh; color: var(--qba-text);
+}
+
+/* ── HERO ── */
+.qba-hero {
+  position: relative; min-height: 420px;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  background: #0a0a0a; overflow: hidden;
+}
+@media(min-width:768px){ .qba-hero { min-height: 520px; } }
+.qba-hero-img-wrap { position: absolute; inset: 0; }
+.qba-hero-img { width:100%; height:100%; object-fit:cover; display:block; }
+.qba-hero-no-img {
+  display: flex; align-items: center; justify-content: center; font-size: 80px;
+  background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+}
+.qba-hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.92) 100%);
+}
+.qba-hero-body {
+  position: relative; z-index: 2;
+  padding: 28px 20px 32px; color: #fff;
+  max-width: 860px; margin: 0 auto; width: 100%;
+}
+@media(min-width:768px){ .qba-hero-body { padding: 36px 40px 40px; } }
+
+.qba-breadcrumb {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 14px;
+}
+.qba-breadcrumb a { color: rgba(255,255,255,0.65); text-decoration: none; transition: color .15s; }
+.qba-breadcrumb a:hover { color: var(--qba-gold); }
+.qba-breadcrumb span { color: rgba(255,255,255,0.3); }
+
+.qba-tags { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 14px; }
+.qba-tag {
+  display: inline-block; padding: 4px 12px; border-radius: 20px;
+  background: var(--qba-gold); color: #000;
+  font-size: 10px; font-weight: 900; text-transform: uppercase;
+  letter-spacing: 0.5px; text-decoration: none;
+  transition: opacity .15s;
+}
+.qba-tag:hover { opacity: 0.85; }
+
+.qba-title {
+  font-size: clamp(22px, 4.5vw, 40px);
+  font-weight: 900; color: #fff; line-height: 1.25;
+  letter-spacing: -0.8px; margin-bottom: 18px;
+}
+
+.qba-meta {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.qba-meta-author { display: flex; align-items: center; gap: 10px; }
+.qba-author-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--qba-gold), #c48c00);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 900; color: #000; flex-shrink: 0;
+}
+.qba-author-name { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.9); }
+.qba-author-role { font-size: 11px; color: rgba(255,255,255,0.45); }
+.qba-meta-details {
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+  font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 600;
+}
+.qba-meta-dot { color: rgba(255,255,255,0.2); }
+
+/* ── LAYOUT ── */
+.qba-layout {
+  display: grid; grid-template-columns: 1fr;
+  gap: 0; max-width: 1100px; margin: 0 auto; padding: 32px 16px 16px;
+}
+@media(min-width:900px){
+  .qba-layout {
+    grid-template-columns: 260px 1fr;
+    gap: 40px; align-items: start; padding: 40px 32px;
   }
+}
 
-  .qb-article-page {
-    background: var(--qb-bg);
-    min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  }
+/* ── TOC SIDEBAR ── */
+.qba-toc-sidebar {
+  display: none;
+  position: sticky; top: 90px;
+  align-self: start;
+}
+@media(min-width:900px){ .qba-toc-sidebar { display: block; } }
+.qba-toc-inner {
+  background: var(--qba-bg2); border: 1px solid var(--qba-border);
+  border-radius: 16px; padding: 18px; overflow: hidden;
+}
+.qba-toc-label {
+  font-size: 11px; font-weight: 900; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--qba-muted); margin-bottom: 12px;
+}
+.qba-toc-nav { display: flex; flex-direction: column; gap: 2px; }
+.qba-toc-nav a {
+  font-size: 12px; font-weight: 600; color: var(--qba-muted);
+  text-decoration: none; padding: 5px 8px; border-radius: 6px;
+  border-left: 2px solid transparent; line-height: 1.4;
+  transition: all .15s;
+}
+.qba-toc-nav a:hover,
+.qba-toc-nav a.active {
+  color: var(--qba-text); background: rgba(244,180,0,0.08);
+  border-left-color: var(--qba-gold);
+}
+.qba-toc-nav a.qba-toc-h3 { padding-left: 18px; font-size: 11px; }
+.qba-toc-share { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--qba-border); }
+.qba-toc-share-label { font-size: 10px; font-weight: 800; color: var(--qba-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.qba-toc-share-btns { display: flex; gap: 6px; }
+.qba-toc-share-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none; border: 1px solid var(--qba-border);
+  transition: all .15s; background: none; cursor: pointer;
+  color: var(--qba-muted);
+}
+.qba-toc-share-btn:hover { transform: translateY(-2px); }
+.qba-share-wa  { color: #25d366; border-color: rgba(37,211,102,0.3); }
+.qba-share-wa:hover  { background: rgba(37,211,102,0.1); }
+.qba-share-fb  { color: #1877f2; border-color: rgba(24,119,242,0.3); }
+.qba-share-fb:hover  { background: rgba(24,119,242,0.1); }
+.qba-share-copy { }
+.qba-share-copy:hover { background: rgba(244,180,0,0.1); border-color: rgba(244,180,0,0.3); color: var(--qba-gold); }
 
-  /* ── Hero ── */
-  .qb-article-hero {
-    position: relative;
-    min-height: 380px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    background: var(--qb-black);
-  }
+/* ── ARTICLE BODY TYPOGRAPHY ── */
+.qba-lede {
+  font-size: 18px; font-weight: 500; color: var(--qba-muted);
+  line-height: 1.75; border-left: 4px solid var(--qba-gold);
+  padding-left: 18px; margin-bottom: 28px;
+  font-style: italic;
+}
 
-  .qb-article-hero-img {
-    position: absolute;
-    inset: 0;
-  }
+.qba-content { font-size: 16px; line-height: 1.85; color: var(--qba-text); }
+.qba-content h2 {
+  font-size: clamp(20px,3vw,26px); font-weight: 900;
+  margin: 40px 0 16px; color: var(--qba-text);
+  letter-spacing: -0.4px; line-height: 1.3;
+  padding-top: 16px; border-top: 2px solid rgba(244,180,0,0.15);
+  scroll-margin-top: 100px;
+}
+.qba-content h3 {
+  font-size: clamp(17px,2.5vw,22px); font-weight: 800;
+  margin: 32px 0 12px; color: var(--qba-text);
+  scroll-margin-top: 100px;
+}
+.qba-content h4 { font-size: 17px; font-weight: 700; margin: 24px 0 10px; }
+.qba-content p { margin-bottom: 20px; }
+.qba-content ul, .qba-content ol {
+  margin: 0 0 20px 20px; padding: 0;
+}
+.qba-content li { margin-bottom: 8px; }
+.qba-content ul li::marker { color: var(--qba-gold); }
+.qba-content a {
+  color: var(--qba-gold); text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.qba-content a:hover { opacity: 0.8; }
+.qba-content strong { font-weight: 800; }
+.qba-content em { font-style: italic; }
+.qba-content blockquote {
+  margin: 28px 0; padding: 18px 20px;
+  background: rgba(244,180,0,0.07);
+  border-left: 4px solid var(--qba-gold);
+  border-radius: 0 12px 12px 0;
+  font-style: italic; font-size: 17px;
+  color: var(--qba-text);
+}
+.qba-content img {
+  max-width: 100%; border-radius: 12px;
+  margin: 24px 0; display: block;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+.qba-content hr {
+  border: none; height: 1px;
+  background: linear-gradient(90deg,transparent,var(--qba-border),transparent);
+  margin: 40px 0;
+}
+.qba-content table {
+  width: 100%; border-collapse: collapse; margin: 24px 0;
+  border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--qba-border);
+}
+.qba-content th {
+  background: rgba(244,180,0,0.1); font-weight: 800;
+  padding: 10px 14px; text-align: left; font-size: 13px;
+  border-bottom: 2px solid rgba(244,180,0,0.25);
+}
+.qba-content td {
+  padding: 10px 14px; font-size: 14px;
+  border-bottom: 1px solid var(--qba-border);
+}
+.qba-content code {
+  background: rgba(244,180,0,0.1); border: 1px solid rgba(244,180,0,0.2);
+  padding: 2px 7px; border-radius: 5px; font-size: 14px; font-family: monospace;
+}
+.qba-content pre {
+  background: #1a1a1a; color: #e0e0e0;
+  padding: 20px; border-radius: 12px; overflow-x: auto;
+  margin: 24px 0; font-size: 13px; line-height: 1.6;
+}
 
-  .qb-article-hero-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
+/* ── TAGS FOOTER ── */
+.qba-tags-footer {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+  padding: 20px 0; border-top: 1px solid var(--qba-border);
+  border-bottom: 1px solid var(--qba-border); margin: 32px 0;
+}
+.qba-tags-label { font-size: 12px; font-weight: 800; color: var(--qba-muted); }
+.qba-tag-link {
+  font-size: 12px; font-weight: 700; color: var(--qba-muted);
+  padding: 4px 12px; border-radius: 20px;
+  background: rgba(244,180,0,0.07); border: 1px solid rgba(244,180,0,0.18);
+  text-decoration: none; transition: all .15s;
+}
+.qba-tag-link:hover { background: rgba(244,180,0,0.18); color: var(--qba-text); }
 
-  .qb-article-hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.2) 100%);
-  }
+/* ── SHARE BAR ── */
+.qba-share-bar {
+  padding: 24px; border-radius: 16px;
+  background: var(--qba-bg2); border: 1px solid var(--qba-border);
+  margin-bottom: 28px; text-align: center;
+}
+.qba-share-label { font-size: 14px; font-weight: 700; color: var(--qba-muted); margin-bottom: 14px; display: block; }
+.qba-share-btns { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.qba-share-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 10px 18px; border-radius: 10px;
+  font-size: 13px; font-weight: 700;
+  text-decoration: none; transition: all .18s;
+  border: none; cursor: pointer;
+}
+.qba-share-green { background: #25d366; color: #fff; }
+.qba-share-green:hover { background: #1da851; transform: translateY(-2px); }
+.qba-share-blue  { background: #1877f2; color: #fff; }
+.qba-share-blue:hover  { background: #0d65d9; transform: translateY(-2px); }
+.qba-share-dark  { background: #000; color: #fff; }
+.qba-share-dark:hover  { background: #222; transform: translateY(-2px); }
+.qba-share-ghost {
+  background: var(--qba-bg); border: 1.5px solid var(--qba-border);
+  color: var(--qba-muted);
+}
+.qba-share-ghost:hover { border-color: var(--qba-gold); color: var(--qba-gold); transform: translateY(-2px); }
 
-  .qb-article-hero-no-img {
-    background: linear-gradient(135deg, var(--qb-purple) 0%, #4a086c 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+/* ── AUTHOR BOX ── */
+.qba-author-box {
+  display: flex; gap: 16px; align-items: flex-start;
+  padding: 20px; border-radius: 16px;
+  background: var(--qba-bg2); border: 1px solid var(--qba-border);
+  margin-bottom: 28px;
+}
+.qba-author-box-avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--qba-gold), #c48c00);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 900; color: #000; flex-shrink: 0;
+}
+.qba-author-box-name  { font-size: 16px; font-weight: 900; color: var(--qba-text); margin-bottom: 2px; }
+.qba-author-box-role  { font-size: 11px; color: var(--qba-muted); font-weight: 600; margin-bottom: 8px; }
+.qba-author-box-bio   { font-size: 13px; color: var(--qba-muted); line-height: 1.65; }
 
-  .qb-article-hero-emoji {
-    font-size: 100px;
-    opacity: 0.5;
-  }
+/* ── CTA CARD ── */
+.qba-cta-card {
+  display: flex; align-items: center; gap: 16px;
+  padding: 28px 24px; border-radius: 20px;
+  background: linear-gradient(135deg, #0d0600, #1a0800, #0d0205);
+  border: 1.5px solid rgba(229,57,53,0.25);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+  margin-bottom: 28px; flex-wrap: wrap;
+}
+.qba-cta-left { flex: 1; min-width: 200px; }
+.qba-cta-badge {
+  display: inline-block; background: rgba(229,57,53,0.18);
+  border: 1px solid rgba(229,57,53,0.4); color: #ff6b6b;
+  font-size: 10px; font-weight: 900; padding: 3px 10px; border-radius: 20px;
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+}
+.qba-cta-title { font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 8px; }
+.qba-cta-sub { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.65; margin-bottom: 16px; }
+.qba-cta-sub strong { color: var(--qba-gold); }
+.qba-cta-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.qba-cta-primary {
+  padding: 12px 22px; border-radius: 10px;
+  background: linear-gradient(135deg,#E53935,#b71c1c);
+  color: #fff; font-size: 14px; font-weight: 900; text-decoration: none;
+  box-shadow: 0 4px 16px rgba(229,57,53,0.4); transition: all .18s;
+}
+.qba-cta-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(229,57,53,0.55); }
+.qba-cta-ghost {
+  padding: 12px 22px; border-radius: 10px; text-decoration: none;
+  background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.8); font-size: 14px; font-weight: 700; transition: all .18s;
+}
+.qba-cta-ghost:hover { background: rgba(255,255,255,0.15); }
+.qba-cta-emoji { font-size: 52px; flex-shrink: 0; animation: scooterBounce 2s ease-in-out infinite; }
+@keyframes scooterBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
 
-  .qb-article-hero-content {
-    position: relative;
-    z-index: 2;
-    padding: 40px 20px;
-    max-width: 800px;
-    margin: 0 auto;
-    width: 100%;
-  }
+/* ── RELATED ── */
+.qba-related { background: var(--qba-bg2); padding: 40px 16px; border-top: 1px solid var(--qba-border); }
+.qba-related-inner { max-width: 1100px; margin: 0 auto; }
+.qba-related-title { font-size: 22px; font-weight: 900; color: var(--qba-text); margin-bottom: 20px; }
+.qba-related-grid {
+  display: grid; grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media(min-width:560px){ .qba-related-grid { grid-template-columns: repeat(3,1fr); } }
+.qba-rel-card {
+  text-decoration: none; border-radius: 16px; overflow: hidden;
+  background: var(--qba-bg); border: 1px solid var(--qba-border);
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+}
+.qba-rel-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.1); border-color: rgba(244,180,0,0.35); }
+.qba-rel-img { height: 140px; overflow: hidden; position: relative; background: #1a1a1a; }
+html:not([data-theme="dark"]) .qba-rel-img { background: #f0f0f0; }
+.qba-rel-img img { width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s; }
+.qba-rel-card:hover .qba-rel-img img { transform: scale(1.06); }
+.qba-rel-no-img { width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:40px; }
+.qba-rel-tag {
+  position:absolute;top:8px;left:8px;
+  background:var(--qba-gold);color:#000;
+  font-size:9px;font-weight:900;padding:2px 7px;border-radius:6px;text-transform:uppercase;
+}
+.qba-rel-body { padding: 12px 14px; }
+.qba-rel-title {
+  font-size: 13px; font-weight: 800; color: var(--qba-text);
+  line-height: 1.4; margin-bottom: 6px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.qba-rel-meta { font-size: 11px; color: var(--qba-muted); display:flex;gap:5px; }
+.qba-related-footer { text-align: center; margin-top: 28px; }
+.qba-rel-all-btn {
+  display: inline-block; padding: 12px 28px; border-radius: 12px;
+  background: var(--qba-gold); color: #000; font-weight: 900; text-decoration: none;
+  font-size: 14px; transition: opacity .18s, transform .15s;
+}
+.qba-rel-all-btn:hover { opacity: 0.85; transform: scale(1.03); }
 
-  .qb-article-breadcrumb {
-    font-size: 12px;
-    color: rgba(255,255,255,0.7);
-    margin-bottom: 16px;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .qb-article-breadcrumb a {
-    color: var(--qb-gold);
-    text-decoration: none;
-  }
-
-  .qb-hero-tag {
-    display: inline-block;
-    background: var(--qb-gold);
-    color: var(--qb-black);
-    font-size: 12px;
-    font-weight: 800;
-    padding: 4px 12px;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    text-transform: uppercase;
-  }
-
-  .qb-article-title {
-    font-size: 32px;
-    font-weight: 900;
-    color: #fff;
-    line-height: 1.2;
-    margin: 0 0 20px;
-    letter-spacing: -0.5px;
-  }
-
-  .qb-article-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-    font-size: 13px;
-    color: rgba(255,255,255,0.8);
-    font-weight: 500;
-  }
-
-  .qb-meta-divider { color: rgba(255,255,255,0.3); }
-
-  /* ── Body ── */
-  .qb-article-body-wrapper {
-    padding: 0 20px;
-    margin-top: -30px;
-    position: relative;
-    z-index: 10;
-  }
-
-  .qb-article-body {
-    max-width: 800px;
-    margin: 0 auto;
-    background: white;
-    padding: 32px 24px;
-    border-radius: 24px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
-  }
-
-  /* ── Content Typography ── */
-  .qb-article-content {
-    font-size: 16px;
-    line-height: 1.8;
-    color: var(--qb-text);
-  }
-
-  .qb-article-content h2 {
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--qb-black);
-    margin: 40px 0 16px;
-    line-height: 1.3;
-  }
-
-  .qb-article-content h3 {
-    font-size: 20px;
-    font-weight: 800;
-    color: var(--qb-black);
-    margin: 32px 0 12px;
-  }
-
-  .qb-article-content p {
-    margin: 0 0 20px;
-  }
-
-  .qb-article-content img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 16px;
-    margin: 24px 0;
-  }
-
-  .qb-article-content ul,
-  .qb-article-content ol {
-    margin: 0 0 24px;
-    padding-left: 24px;
-  }
-
-  .qb-article-content li {
-    margin-bottom: 10px;
-  }
-
-  .qb-article-content a {
-    color: var(--qb-purple);
-    text-decoration: none;
-    font-weight: 600;
-    border-bottom: 1px solid rgba(122, 20, 172, 0.3);
-    transition: all 0.2s;
-  }
-
-  .qb-article-content a:hover {
-    border-bottom-color: var(--qb-purple);
-  }
-
-  .qb-article-content blockquote {
-    border-left: 4px solid var(--qb-purple);
-    margin: 32px 0;
-    padding: 20px 24px;
-    background: #fdf7ff;
-    border-radius: 0 16px 16px 0;
-    font-style: italic;
-    font-size: 18px;
-    color: var(--qb-purple);
-    font-weight: 600;
-  }
-
-  /* ── Share ── */
-  .qb-article-share {
-    margin: 40px 0;
-    padding-top: 30px;
-    border-top: 1px solid #eee;
-  }
-
-  .qb-share-label {
-    display: block;
-    font-size: 13px;
-    font-weight: 800;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 16px;
-  }
-
-  .qb-share-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .qb-share-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 700;
-    text-decoration: none;
-    transition: transform 0.2s;
-  }
-
-  .qb-share-btn:hover { transform: translateY(-2px); }
-
-  .qb-share-btn.whatsapp {
-    background: #25D366;
-    color: #fff;
-  }
-
-  .qb-share-btn.facebook {
-    background: #1877F2;
-    color: #fff;
-  }
-
-  /* ── CTA ── */
-  .qb-article-cta {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    background: linear-gradient(135deg, var(--qb-purple) 0%, #4a086c 100%);
-    border-radius: 16px;
-    padding: 24px;
-    color: white;
-    flex-wrap: wrap;
-    box-shadow: 0 10px 30px rgba(122, 20, 172, 0.2);
-  }
-
-  .qb-cta-icon { font-size: 40px; }
-
-  .qb-cta-content { flex: 1; min-width: 200px; }
-
-  .qb-cta-content h3 {
-    font-size: 18px;
-    font-weight: 800;
-    margin: 0 0 6px;
-  }
-
-  .qb-cta-content p {
-    font-size: 14px;
-    color: rgba(255,255,255,0.8);
-    margin: 0;
-  }
-
-  .qb-cta-btn {
-    background: var(--qb-gold);
-    color: var(--qb-black);
-    font-weight: 800;
-    font-size: 15px;
-    padding: 12px 24px;
-    border-radius: 12px;
-    text-decoration: none;
-    white-space: nowrap;
-    transition: transform 0.2s;
-  }
-
-  .qb-cta-btn:hover { transform: scale(1.05); }
-
-  /* ── Related Articles ── */
-  .qb-article-related-section {
-    padding: 60px 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .qb-related-section-title {
-    font-size: 24px;
-    font-weight: 900;
-    color: var(--qb-black);
-    margin: 0 0 24px;
-    text-align: center;
-  }
-
-  .qb-related-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .qb-related-card {
-    display: flex;
-    flex-direction: column;
-    text-decoration: none;
-    background: white;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-    transition: transform 0.2s;
-    border: 1px solid #f0f0f0;
-  }
-
-  .qb-related-card:hover { transform: translateY(-4px); }
-
-  .qb-related-img {
-    width: 100%;
-    height: 180px;
-    background: var(--qb-purple-light);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .qb-related-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .qb-related-no-img { font-size: 40px; }
-
-  .qb-related-info { padding: 16px; }
-
-  .qb-related-tag {
-    display: inline-block;
-    color: var(--qb-purple);
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-
-  .qb-related-title {
-    font-size: 16px;
-    font-weight: 800;
-    color: var(--qb-black);
-    line-height: 1.4;
-    margin: 0 0 8px;
-  }
-
-  .qb-related-date {
-    font-size: 12px;
-    color: #888;
-    font-weight: 500;
-  }
-
-  /* Animations */
-  .animate-fade-in {
-    animation: fadeIn 0.6s ease-out forwards;
-    opacity: 0;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @media (min-width: 768px) {
-    .qb-article-title { font-size: 44px; }
-    .qb-article-body { padding: 48px; }
-    .qb-related-grid { grid-template-columns: repeat(3, 1fr); }
-  }
+/* ── FLOATING FAB ── */
+.qba-fab-share {
+  position: fixed; bottom: 80px; right: 16px;
+  z-index: 100; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+}
+@media(min-width:900px){ .qba-fab-share { display: none; } }
+.qba-fab-trigger {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--qba-gold); color: #000; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 18px rgba(244,180,0,0.5);
+  transition: transform .18s;
+}
+.qba-fab-trigger:hover { transform: scale(1.08); }
+.qba-fab-menu {
+  display: flex; flex-direction: column; gap: 8px;
+  opacity: 0; transform: translateY(12px) scale(0.9);
+  pointer-events: none; transition: all .25s var(--qba-ease);
+  transform-origin: bottom right;
+}
+.qba-fab-menu.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: all; }
+.qba-fab-item {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none; transition: transform .15s;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+}
+.qba-fab-item:hover { transform: scale(1.1); }
+.qba-fab-wa { background: #25d366; color: #fff; }
+.qba-fab-fb { background: #1877f2; color: #fff; }
 </style>
+
+<script>
+(function() {
+  // ── Reading progress ──
+  var bar = document.getElementById('qbaProgress');
+  window.addEventListener('scroll', function() {
+    var s = document.documentElement.scrollTop || document.body.scrollTop;
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    if (bar && h > 0) bar.style.width = Math.min(100, (s/h)*100) + '%';
+  }, { passive: true });
+
+  // ── Auto-generate TOC from article h2/h3 ──
+  var content = document.getElementById('qbaContent');
+  var tocNav  = document.getElementById('qbaTocNav');
+  if (content && tocNav) {
+    var headings = content.querySelectorAll('h2, h3');
+    headings.forEach(function(h, i) {
+      if (!h.id) h.id = 'qba-h-' + i;
+      var a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent;
+      a.className = h.tagName === 'H3' ? 'qba-toc-h3' : '';
+      tocNav.appendChild(a);
+    });
+
+    // Highlight active heading on scroll
+    var links = tocNav.querySelectorAll('a');
+    window.addEventListener('scroll', function() {
+      var scrollY = window.scrollY;
+      var activeIdx = 0;
+      headings.forEach(function(h, i) {
+        if (h.getBoundingClientRect().top + window.scrollY - 120 < scrollY) activeIdx = i;
+      });
+      links.forEach(function(l, i) {
+        l.classList.toggle('active', i === activeIdx);
+      });
+    }, { passive: true });
+  }
+
+  // ── Copy article URL ──
+  window.qbCopyArticleUrl = function() {
+    var btn = document.getElementById('qbaCopyBtn');
+    try {
+      navigator.clipboard.writeText(window.location.href).catch(function() {
+        var ta = document.createElement('textarea');
+        ta.value = window.location.href; document.body.appendChild(ta);
+        ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+      });
+    } catch(e) {}
+    if (btn) {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+      btn.style.borderColor = '#22c55e'; btn.style.color = '#22c55e';
+      setTimeout(function() { btn.innerHTML = orig; btn.style.borderColor=''; btn.style.color=''; }, 2200);
+    }
+  };
+})();
+</script>
 
 {% schema %}
 {
-  "name": "QuickBee Blog Article",
+  "name": "QB Blog Article v4",
   "settings": [],
-  "presets": [{ "name": "QuickBee Blog Article" }]
+  "presets": [{ "name": "QB Blog Article v4" }]
 }
 {% endschema %}
