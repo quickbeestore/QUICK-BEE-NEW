@@ -1,0 +1,969 @@
+{% comment %} YetiKafe — Premium Food Delivery App Collection {% endcomment %}
+{%- assign all_products = collection.products -%}
+
+<style>
+/* ═══════════════════════════════════════════
+   YETIKAFE — FOOD DELIVERY APP UI
+   Mobile-first · Dark Theme · #ffcc00 accent
+═══════════════════════════════════════════ */
+:root {
+  --yk-bg:      #0f0f0f;
+  --yk-card:    #1a1a1a;
+  --yk-card2:   #212121;
+  --yk-border:  #2a2a2a;
+  --yk-acc:     #ffcc00;
+  --yk-acc2:    #e6b800;
+  --yk-text:    #f2f2f2;
+  --yk-text2:   #999;
+  --yk-text3:   #555;
+  --yk-green:   #22c55e;
+  --yk-r:       13px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.yk-wrap {
+  background: var(--yk-bg);
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--yk-text);
+  -webkit-tap-highlight-color: transparent;
+  padding-bottom: calc(110px + env(safe-area-inset-bottom));
+}
+
+/* ─── HERO HEADER ─── */
+.yk-hero {
+  background: linear-gradient(160deg, #1b1400 0%, #0f0f0f 55%);
+  padding: 28px 18px 22px;
+  position: relative; overflow: hidden;
+  border-bottom: 1px solid var(--yk-border);
+}
+.yk-hero::before {
+  content: '';
+  position: absolute; top: -50px; right: -30px;
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(255,204,0,0.14) 0%, transparent 70%);
+  pointer-events: none;
+}
+.yk-hero::after {
+  content: '';
+  position: absolute; bottom: -20px; left: -20px;
+  width: 100px; height: 100px;
+  background: radial-gradient(circle, rgba(255,204,0,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.yk-hero-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(255,204,0,0.1);
+  border: 1px solid rgba(255,204,0,0.28);
+  color: var(--yk-acc);
+  font-size: 10px; font-weight: 800;
+  padding: 4px 11px; border-radius: 20px;
+  letter-spacing: 0.7px; text-transform: uppercase;
+  margin-bottom: 12px; position: relative; z-index: 1;
+}
+.yk-hero-badge span {
+  width: 6px; height: 6px;
+  background: var(--yk-acc); border-radius: 50%;
+  animation: yk-blink 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes yk-blink {
+  0%,100% { opacity: 1; }
+  50%     { opacity: 0.3; }
+}
+.yk-hero-title {
+  font-size: 28px; font-weight: 900;
+  color: #fff; line-height: 1.1;
+  letter-spacing: -0.8px; margin-bottom: 6px;
+  position: relative; z-index: 1;
+}
+.yk-hero-title em { color: var(--yk-acc); font-style: normal; }
+.yk-hero-meta {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--yk-text2);
+  position: relative; z-index: 1;
+}
+.yk-hero-dot {
+  width: 7px; height: 7px;
+  background: var(--yk-green); border-radius: 50%;
+  flex-shrink: 0;
+  animation: yk-pulse 2.2s ease-in-out infinite;
+}
+@keyframes yk-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.5); }
+  50%     { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+}
+.yk-hero-pills {
+  display: flex; gap: 8px; margin-top: 14px;
+  flex-wrap: wrap; position: relative; z-index: 1;
+}
+.yk-hero-pill {
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--yk-border);
+  border-radius: 20px; padding: 4px 10px;
+  font-size: 11px; font-weight: 600; color: var(--yk-text2);
+}
+
+/* ─── CATEGORY NAV ─── */
+.yk-nav {
+  display: flex; gap: 8px;
+  overflow-x: auto; padding: 11px 16px;
+  scrollbar-width: none;
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(15,15,15,0.97);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--yk-border);
+}
+.yk-nav::-webkit-scrollbar { display: none; }
+.yk-nav-pill {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 14px; border-radius: 20px;
+  background: var(--yk-card); border: 1px solid var(--yk-border);
+  font-size: 12px; font-weight: 700; color: var(--yk-text2);
+  cursor: pointer; text-decoration: none;
+  transition: all 0.2s ease; white-space: nowrap;
+  user-select: none;
+}
+.yk-nav-pill:hover { border-color: rgba(255,204,0,0.4); color: var(--yk-acc); }
+.yk-nav-pill.active {
+  background: var(--yk-acc); border-color: var(--yk-acc);
+  color: #000;
+}
+
+/* ─── CATEGORY SECTION ─── */
+.yk-section { }
+.yk-section-head {
+  position: sticky; top: 46px; z-index: 100;
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 16px;
+  background: rgba(15,15,15,0.97);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.yk-section-icon { font-size: 18px; line-height: 1; }
+.yk-section-label {
+  font-size: 12px; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 0.9px;
+  color: var(--yk-text); flex: 1;
+}
+.yk-section-count {
+  font-size: 11px; font-weight: 600;
+  color: var(--yk-text3);
+  background: var(--yk-card2);
+  padding: 2px 8px; border-radius: 8px;
+}
+
+/* ─── PRODUCT CARD ─── */
+.yk-card {
+  display: flex; align-items: flex-start;
+  gap: 12px; padding: 16px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.045);
+  transition: background 0.15s ease;
+  position: relative; overflow: hidden;
+}
+.yk-card:active { background: rgba(255,255,255,0.02); }
+.yk-card:last-child { border-bottom: none; }
+
+/* LEFT */
+.yk-card-info { flex: 1; min-width: 0; padding-right: 4px; }
+.yk-card-veg {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 15px; height: 15px;
+  border: 1.5px solid var(--yk-green); border-radius: 3px;
+  margin-bottom: 6px; flex-shrink: 0;
+}
+.yk-card-veg::after {
+  content: ''; width: 7px; height: 7px;
+  background: var(--yk-green); border-radius: 50%;
+}
+.yk-card-name {
+  font-size: 14.5px; font-weight: 800;
+  color: var(--yk-text); line-height: 1.25;
+  margin-bottom: 5px;
+  word-break: break-word;
+}
+.yk-card-desc {
+  font-size: 11.5px; color: var(--yk-text2);
+  line-height: 1.5; margin-bottom: 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.yk-card-price-row {
+  display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;
+}
+.yk-card-price {
+  font-size: 15px; font-weight: 900; color: var(--yk-text);
+}
+.yk-card-compare {
+  font-size: 11.5px; color: var(--yk-text3);
+  text-decoration: line-through; font-weight: 500;
+}
+.yk-card-off {
+  font-size: 10px; font-weight: 800;
+  color: var(--yk-green);
+  background: rgba(34,197,94,0.1);
+  padding: 2px 6px; border-radius: 6px;
+}
+
+/* RIGHT */
+.yk-card-right {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0; flex-shrink: 0;
+}
+.yk-card-img {
+  width: 96px; height: 86px;
+  border-radius: 12px; overflow: hidden;
+  background: var(--yk-card2);
+  margin-bottom: 8px; position: relative;
+}
+.yk-card-img img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  transition: transform 0.3s ease;
+}
+.yk-card:hover .yk-card-img img { transform: scale(1.06); }
+.yk-card-no-img {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; color: var(--yk-text3);
+}
+.yk-card-off-badge {
+  position: absolute; top: 0; left: 0;
+  background: #FF0055; color: #fff;
+  font-size: 9px; font-weight: 900;
+  padding: 3px 7px; border-radius: 0 0 8px 0;
+  letter-spacing: 0.3px;
+}
+
+/* ADD button */
+.yk-add-btn {
+  width: 80px; height: 34px;
+  background: transparent;
+  border: 1.5px solid var(--yk-acc);
+  color: var(--yk-acc);
+  border-radius: 9px;
+  font-size: 13px; font-weight: 900;
+  letter-spacing: 0.8px; cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  user-select: none; flex-shrink: 0;
+}
+.yk-add-btn:active { transform: scale(0.92); }
+.yk-add-btn.loading { pointer-events: none; }
+.yk-add-btn.loading::after {
+  content: '';
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,204,0,0.3);
+  border-top-color: var(--yk-acc);
+  border-radius: 50%;
+  animation: yk-spin 0.6s linear infinite;
+}
+@keyframes yk-spin { to { transform: rotate(360deg); } }
+
+/* QTY STEPPER */
+.yk-stepper {
+  display: none;
+  width: 90px; height: 34px;
+  background: var(--yk-acc); border-radius: 9px;
+  overflow: hidden; flex-shrink: 0;
+}
+.yk-stepper.show { display: flex; align-items: center; justify-content: space-between; }
+.yk-stepper-btn {
+  width: 32px; height: 34px;
+  background: transparent; border: none;
+  color: #000; font-size: 20px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s; flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.yk-stepper-btn:active { background: rgba(0,0,0,0.14); }
+.yk-stepper-val {
+  font-size: 15px; font-weight: 900; color: #000;
+  min-width: 22px; text-align: center;
+  user-select: none; transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+/* ─── STICKY CART BAR ─── */
+.yk-cart-bar {
+  position: fixed;
+  bottom: calc(65px + env(safe-area-inset-bottom));
+  left: 50%; transform: translateX(-50%) translateY(130%);
+  width: calc(100% - 28px); max-width: 452px;
+  height: 60px;
+  background: var(--yk-acc);
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 6px 0 14px;
+  box-shadow: 0 8px 36px rgba(255,204,0,0.38), 0 2px 8px rgba(0,0,0,0.5);
+  z-index: 9000;
+  transition: transform 0.42s cubic-bezier(0.34,1.56,0.64,1);
+  text-decoration: none; cursor: pointer;
+}
+.yk-cart-bar.visible { transform: translateX(-50%) translateY(0); }
+.yk-cart-bar-left { display: flex; align-items: center; gap: 10px; }
+.yk-cart-count {
+  background: #000; color: var(--yk-acc);
+  min-width: 28px; height: 28px; border-radius: 9px;
+  font-size: 13px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 5px; flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+.yk-cart-count.bump { transform: scale(1.35); }
+.yk-cart-bar-text {}
+.yk-cart-bar-subtitle { font-size: 10.5px; font-weight: 700; color: rgba(0,0,0,0.55); }
+.yk-cart-bar-total { font-size: 17px; font-weight: 900; color: #000; letter-spacing: -0.4px; }
+.yk-cart-cta {
+  background: #000; color: var(--yk-acc);
+  padding: 10px 18px; border-radius: 13px;
+  font-size: 13px; font-weight: 900;
+  letter-spacing: 0.2px;
+  display: flex; align-items: center; gap: 5px; flex-shrink: 0;
+}
+.yk-cart-cta-arrow { transition: transform 0.2s ease; }
+.yk-cart-bar:hover .yk-cart-cta-arrow { transform: translateX(3px); }
+
+/* ─── EMPTY STATE ─── */
+.yk-empty {
+  padding: 80px 24px;
+  text-align: center;
+}
+.yk-empty-icon { font-size: 64px; display: block; margin-bottom: 20px; }
+.yk-empty-title { font-size: 19px; font-weight: 900; color: var(--yk-text); margin-bottom: 8px; }
+.yk-empty-sub { font-size: 13px; color: var(--yk-text2); }
+
+/* ─── RIPPLE ─── */
+.yk-ripple {
+  position: absolute; pointer-events: none;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(255,204,0,0.35);
+  transform: translate(-50%,-50%) scale(0);
+  animation: yk-ripple-out 0.5s ease-out forwards;
+}
+@keyframes yk-ripple-out {
+  to { transform: translate(-50%,-50%) scale(20); opacity: 0; }
+}
+
+/* ─── TOAST ─── */
+.yk-toast {
+  position: fixed;
+  bottom: calc(140px + env(safe-area-inset-bottom));
+  left: 50%; transform: translateX(-50%) translateY(14px);
+  background: #222; color: var(--yk-text);
+  border: 1px solid var(--yk-border);
+  border-radius: 12px; padding: 9px 18px;
+  font-size: 12.5px; font-weight: 600;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  z-index: 9999; white-space: nowrap;
+}
+.yk-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ─── SECTION FADE-IN ─── */
+.yk-section {
+  opacity: 0; transform: translateY(12px);
+  animation: yk-fade-up 0.4s ease forwards;
+}
+.yk-section:nth-child(1) { animation-delay: 0.05s; }
+.yk-section:nth-child(2) { animation-delay: 0.12s; }
+.yk-section:nth-child(3) { animation-delay: 0.19s; }
+.yk-section:nth-child(4) { animation-delay: 0.26s; }
+@keyframes yk-fade-up {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── RESPONSIVE ─── */
+@media(min-width:480px) {
+  .yk-card-img { width: 100px; height: 92px; }
+}
+</style>
+
+<div class="yk-wrap" id="ykWrap">
+
+  {%- if all_products.size > 0 -%}
+
+  {%- comment -%} ─── PRE-COMPUTE CATEGORY BUCKETS ─── {%- endcomment -%}
+  {%- assign has_slices   = false -%}
+  {%- assign has_box      = false -%}
+  {%- assign has_biscuits = false -%}
+  {%- assign has_others   = false -%}
+  {%- assign slice_count   = 0 -%}
+  {%- assign box_count     = 0 -%}
+  {%- assign biscuit_count = 0 -%}
+  {%- assign other_count   = 0 -%}
+
+  {%- for product in all_products -%}
+    {%- assign pt = product.type | downcase | strip -%}
+    {%- if pt contains "slice" -%}
+      {%- assign has_slices = true -%}
+      {%- assign slice_count = slice_count | plus: 1 -%}
+    {%- elsif pt contains "box" -%}
+      {%- assign has_box = true -%}
+      {%- assign box_count = box_count | plus: 1 -%}
+    {%- elsif pt contains "biscuit" or pt contains "bread" -%}
+      {%- assign has_biscuits = true -%}
+      {%- assign biscuit_count = biscuit_count | plus: 1 -%}
+    {%- else -%}
+      {%- assign has_others = true -%}
+      {%- assign other_count = other_count | plus: 1 -%}
+    {%- endif -%}
+  {%- endfor -%}
+
+  <!-- ── HERO HEADER ── -->
+  <header class="yk-hero">
+    <div class="yk-hero-badge"><span></span> Open Now · Fast Delivery</div>
+    <h1 class="yk-hero-title">Yeti<em>Kafe</em> 🍰</h1>
+    <div class="yk-hero-meta">
+      <span class="yk-hero-dot"></span>
+      <span>15 min delivery · Kathmandu, Bhaktapur & Lalitpur</span>
+    </div>
+    <div class="yk-hero-pills">
+      <span class="yk-hero-pill">⚡ Fast Delivery</span>
+      <span class="yk-hero-pill">🌿 Fresh Daily</span>
+      <span class="yk-hero-pill">⭐ Premium Quality</span>
+    </div>
+  </header>
+
+  <!-- ── CATEGORY NAV ── -->
+  <nav class="yk-nav" id="ykNav" aria-label="Menu categories">
+    {%- if has_slices -%}
+    <a href="#yk-slices" class="yk-nav-pill active" data-target="yk-slices">🍰 Slices</a>
+    {%- endif -%}
+    {%- if has_box -%}
+    <a href="#yk-box" class="yk-nav-pill" data-target="yk-box">📦 Box</a>
+    {%- endif -%}
+    {%- if has_biscuits -%}
+    <a href="#yk-biscuits" class="yk-nav-pill" data-target="yk-biscuits">🍪 Biscuits & Bread</a>
+    {%- endif -%}
+    {%- if has_others -%}
+    <a href="#yk-others" class="yk-nav-pill" data-target="yk-others">🍗 Others</a>
+    {%- endif -%}
+  </nav>
+
+  <!-- ── SLICES ── -->
+  {%- if has_slices -%}
+  <section class="yk-section" id="yk-slices">
+    <div class="yk-section-head">
+      <span class="yk-section-icon">🍰</span>
+      <span class="yk-section-label">Slices</span>
+      <span class="yk-section-count">{{ slice_count }}</span>
+    </div>
+    <div class="yk-list">
+      {%- for product in all_products -%}
+        {%- assign pt = product.type | downcase | strip -%}
+        {%- if pt contains "slice" -%}
+          {%- assign variant = product.variants.first -%}
+          {%- assign has_disc = false -%}
+          {%- if product.compare_at_price > product.price -%}
+            {%- assign has_disc = true -%}
+            {%- assign disc_pct = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price -%}
+          {%- endif -%}
+          <div class="yk-card" data-vid="{{ variant.id }}" data-price="{{ product.price | divided_by: 100 }}">
+            <div class="yk-card-info">
+              <div class="yk-card-veg"></div>
+              <div class="yk-card-name">{{ product.title }}</div>
+              {%- if product.description != blank -%}
+                <div class="yk-card-desc">{{ product.description | strip_html | truncate: 85 }}</div>
+              {%- endif -%}
+              <div class="yk-card-price-row">
+                <span class="yk-card-price">Rs {{ product.price | divided_by: 100 }}</span>
+                {%- if has_disc -%}
+                  <span class="yk-card-compare">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
+                  <span class="yk-card-off">{{ disc_pct }}% off</span>
+                {%- endif -%}
+              </div>
+            </div>
+            <div class="yk-card-right">
+              <div class="yk-card-img">
+                {%- if has_disc -%}<div class="yk-card-off-badge">{{ disc_pct }}%</div>{%- endif -%}
+                {%- if product.featured_image -%}
+                  <img src="{{ product.featured_image | img_url: '200x200', crop: 'center' }}" alt="{{ product.title }}" loading="lazy">
+                {%- else -%}
+                  <div class="yk-card-no-img">🍰</div>
+                {%- endif -%}
+              </div>
+              <button class="yk-add-btn" data-vid="{{ variant.id }}" type="button" aria-label="Add {{ product.title }}">ADD</button>
+              <div class="yk-stepper" data-vid="{{ variant.id }}">
+                <button class="yk-stepper-btn yk-s-minus" type="button" aria-label="Decrease">−</button>
+                <span class="yk-stepper-val">1</span>
+                <button class="yk-stepper-btn yk-s-plus" type="button" aria-label="Increase">+</button>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </section>
+  {%- endif -%}
+
+  <!-- ── BOX ── -->
+  {%- if has_box -%}
+  <section class="yk-section" id="yk-box">
+    <div class="yk-section-head">
+      <span class="yk-section-icon">📦</span>
+      <span class="yk-section-label">Box</span>
+      <span class="yk-section-count">{{ box_count }}</span>
+    </div>
+    <div class="yk-list">
+      {%- for product in all_products -%}
+        {%- assign pt = product.type | downcase | strip -%}
+        {%- if pt contains "box" -%}
+          {%- assign variant = product.variants.first -%}
+          {%- assign has_disc = false -%}
+          {%- if product.compare_at_price > product.price -%}
+            {%- assign has_disc = true -%}
+            {%- assign disc_pct = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price -%}
+          {%- endif -%}
+          <div class="yk-card" data-vid="{{ variant.id }}" data-price="{{ product.price | divided_by: 100 }}">
+            <div class="yk-card-info">
+              <div class="yk-card-veg"></div>
+              <div class="yk-card-name">{{ product.title }}</div>
+              {%- if product.description != blank -%}
+                <div class="yk-card-desc">{{ product.description | strip_html | truncate: 85 }}</div>
+              {%- endif -%}
+              <div class="yk-card-price-row">
+                <span class="yk-card-price">Rs {{ product.price | divided_by: 100 }}</span>
+                {%- if has_disc -%}
+                  <span class="yk-card-compare">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
+                  <span class="yk-card-off">{{ disc_pct }}% off</span>
+                {%- endif -%}
+              </div>
+            </div>
+            <div class="yk-card-right">
+              <div class="yk-card-img">
+                {%- if has_disc -%}<div class="yk-card-off-badge">{{ disc_pct }}%</div>{%- endif -%}
+                {%- if product.featured_image -%}
+                  <img src="{{ product.featured_image | img_url: '200x200', crop: 'center' }}" alt="{{ product.title }}" loading="lazy">
+                {%- else -%}
+                  <div class="yk-card-no-img">📦</div>
+                {%- endif -%}
+              </div>
+              <button class="yk-add-btn" data-vid="{{ variant.id }}" type="button" aria-label="Add {{ product.title }}">ADD</button>
+              <div class="yk-stepper" data-vid="{{ variant.id }}">
+                <button class="yk-stepper-btn yk-s-minus" type="button" aria-label="Decrease">−</button>
+                <span class="yk-stepper-val">1</span>
+                <button class="yk-stepper-btn yk-s-plus" type="button" aria-label="Increase">+</button>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </section>
+  {%- endif -%}
+
+  <!-- ── BISCUITS & BREAD ── -->
+  {%- if has_biscuits -%}
+  <section class="yk-section" id="yk-biscuits">
+    <div class="yk-section-head">
+      <span class="yk-section-icon">🍪</span>
+      <span class="yk-section-label">Biscuits &amp; Bread</span>
+      <span class="yk-section-count">{{ biscuit_count }}</span>
+    </div>
+    <div class="yk-list">
+      {%- for product in all_products -%}
+        {%- assign pt = product.type | downcase | strip -%}
+        {%- if pt contains "biscuit" or pt contains "bread" -%}
+          {%- assign variant = product.variants.first -%}
+          {%- assign has_disc = false -%}
+          {%- if product.compare_at_price > product.price -%}
+            {%- assign has_disc = true -%}
+            {%- assign disc_pct = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price -%}
+          {%- endif -%}
+          <div class="yk-card" data-vid="{{ variant.id }}" data-price="{{ product.price | divided_by: 100 }}">
+            <div class="yk-card-info">
+              <div class="yk-card-veg"></div>
+              <div class="yk-card-name">{{ product.title }}</div>
+              {%- if product.description != blank -%}
+                <div class="yk-card-desc">{{ product.description | strip_html | truncate: 85 }}</div>
+              {%- endif -%}
+              <div class="yk-card-price-row">
+                <span class="yk-card-price">Rs {{ product.price | divided_by: 100 }}</span>
+                {%- if has_disc -%}
+                  <span class="yk-card-compare">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
+                  <span class="yk-card-off">{{ disc_pct }}% off</span>
+                {%- endif -%}
+              </div>
+            </div>
+            <div class="yk-card-right">
+              <div class="yk-card-img">
+                {%- if has_disc -%}<div class="yk-card-off-badge">{{ disc_pct }}%</div>{%- endif -%}
+                {%- if product.featured_image -%}
+                  <img src="{{ product.featured_image | img_url: '200x200', crop: 'center' }}" alt="{{ product.title }}" loading="lazy">
+                {%- else -%}
+                  <div class="yk-card-no-img">🍪</div>
+                {%- endif -%}
+              </div>
+              <button class="yk-add-btn" data-vid="{{ variant.id }}" type="button" aria-label="Add {{ product.title }}">ADD</button>
+              <div class="yk-stepper" data-vid="{{ variant.id }}">
+                <button class="yk-stepper-btn yk-s-minus" type="button" aria-label="Decrease">−</button>
+                <span class="yk-stepper-val">1</span>
+                <button class="yk-stepper-btn yk-s-plus" type="button" aria-label="Increase">+</button>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </section>
+  {%- endif -%}
+
+  <!-- ── OTHERS ── -->
+  {%- if has_others -%}
+  <section class="yk-section" id="yk-others">
+    <div class="yk-section-head">
+      <span class="yk-section-icon">🍗</span>
+      <span class="yk-section-label">Others</span>
+      <span class="yk-section-count">{{ other_count }}</span>
+    </div>
+    <div class="yk-list">
+      {%- for product in all_products -%}
+        {%- assign pt = product.type | downcase | strip -%}
+        {%- assign is_cat = false -%}
+        {%- if pt contains "slice" or pt contains "box" or pt contains "biscuit" or pt contains "bread" -%}
+          {%- assign is_cat = true -%}
+        {%- endif -%}
+        {%- unless is_cat -%}
+          {%- assign variant = product.variants.first -%}
+          {%- assign has_disc = false -%}
+          {%- if product.compare_at_price > product.price -%}
+            {%- assign has_disc = true -%}
+            {%- assign disc_pct = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price -%}
+          {%- endif -%}
+          <div class="yk-card" data-vid="{{ variant.id }}" data-price="{{ product.price | divided_by: 100 }}">
+            <div class="yk-card-info">
+              <div class="yk-card-veg"></div>
+              <div class="yk-card-name">{{ product.title }}</div>
+              {%- if product.description != blank -%}
+                <div class="yk-card-desc">{{ product.description | strip_html | truncate: 85 }}</div>
+              {%- endif -%}
+              <div class="yk-card-price-row">
+                <span class="yk-card-price">Rs {{ product.price | divided_by: 100 }}</span>
+                {%- if has_disc -%}
+                  <span class="yk-card-compare">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
+                  <span class="yk-card-off">{{ disc_pct }}% off</span>
+                {%- endif -%}
+              </div>
+            </div>
+            <div class="yk-card-right">
+              <div class="yk-card-img">
+                {%- if has_disc -%}<div class="yk-card-off-badge">{{ disc_pct }}%</div>{%- endif -%}
+                {%- if product.featured_image -%}
+                  <img src="{{ product.featured_image | img_url: '200x200', crop: 'center' }}" alt="{{ product.title }}" loading="lazy">
+                {%- else -%}
+                  <div class="yk-card-no-img">🍗</div>
+                {%- endif -%}
+              </div>
+              <button class="yk-add-btn" data-vid="{{ variant.id }}" type="button" aria-label="Add {{ product.title }}">ADD</button>
+              <div class="yk-stepper" data-vid="{{ variant.id }}">
+                <button class="yk-stepper-btn yk-s-minus" type="button" aria-label="Decrease">−</button>
+                <span class="yk-stepper-val">1</span>
+                <button class="yk-stepper-btn yk-s-plus" type="button" aria-label="Increase">+</button>
+              </div>
+            </div>
+          </div>
+        {%- endunless -%}
+      {%- endfor -%}
+    </div>
+  </section>
+  {%- endif -%}
+
+  {%- else -%}
+
+  <!-- EMPTY STATE -->
+  <div class="yk-empty">
+    <span class="yk-empty-icon">🍽️</span>
+    <div class="yk-empty-title">No items available</div>
+    <div class="yk-empty-sub">Check back soon — fresh items coming daily!</div>
+  </div>
+
+  {%- endif -%}
+
+</div>
+
+<!-- STICKY CART BAR -->
+<a href="/cart" class="yk-cart-bar" id="ykCartBar" aria-label="View cart">
+  <div class="yk-cart-bar-left">
+    <div class="yk-cart-count" id="ykCartCount">0</div>
+    <div class="yk-cart-bar-text">
+      <div class="yk-cart-bar-subtitle" id="ykCartSubtitle">items added</div>
+      <div class="yk-cart-bar-total" id="ykCartTotal">Rs 0</div>
+    </div>
+  </div>
+  <div class="yk-cart-cta">View Cart <span class="yk-cart-cta-arrow">→</span></div>
+</a>
+
+<!-- TOAST -->
+<div class="yk-toast" id="ykToast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ══════════════════════
+     STATE
+  ══════════════════════ */
+  var cart = {}; // { variantId: { qty, priceRs } }
+
+  /* ══════════════════════
+     DOM
+  ══════════════════════ */
+  var cartBar      = document.getElementById('ykCartBar');
+  var cartCountEl  = document.getElementById('ykCartCount');
+  var cartSubEl    = document.getElementById('ykCartSubtitle');
+  var cartTotalEl  = document.getElementById('ykCartTotal');
+  var toastEl      = document.getElementById('ykToast');
+  var toastTimer   = null;
+
+  /* ══════════════════════
+     CART BAR
+  ══════════════════════ */
+  function refreshCartBar() {
+    var totalQty = 0, totalPrice = 0;
+    Object.keys(cart).forEach(function (id) {
+      totalQty   += cart[id].qty;
+      totalPrice += cart[id].qty * cart[id].priceRs;
+    });
+
+    cartCountEl.textContent = totalQty;
+    cartSubEl.textContent   = totalQty === 1 ? '1 item added' : totalQty + ' items added';
+    cartTotalEl.textContent = 'Rs ' + totalPrice;
+
+    if (totalQty > 0) {
+      cartBar.classList.add('visible');
+      // Bump animation on count
+      cartCountEl.classList.remove('bump');
+      void cartCountEl.offsetWidth;
+      cartCountEl.classList.add('bump');
+      setTimeout(function () { cartCountEl.classList.remove('bump'); }, 300);
+    } else {
+      cartBar.classList.remove('visible');
+    }
+  }
+
+  /* ══════════════════════
+     TOAST
+  ══════════════════════ */
+  function showToast(msg) {
+    clearTimeout(toastTimer);
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2200);
+  }
+
+  /* ══════════════════════
+     AJAX HELPERS
+  ══════════════════════ */
+  function ajaxAdd(vid, qty, cb) {
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ items: [{ id: parseInt(vid, 10), quantity: qty }] })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (d) { cb(null, d); })
+    .catch(function (e) { cb(e); });
+  }
+
+  function ajaxChange(vid, qty, cb) {
+    fetch('/cart/change.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: parseInt(vid, 10), quantity: qty })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (d) { cb(null, d); })
+    .catch(function (e) { cb(e); });
+  }
+
+  /* ══════════════════════
+     RIPPLE
+  ══════════════════════ */
+  function spawnRipple(el, e) {
+    var r = document.createElement('span');
+    r.className = 'yk-ripple';
+    var rect = el.getBoundingClientRect();
+    r.style.left = (e.clientX - rect.left) + 'px';
+    r.style.top  = (e.clientY - rect.top)  + 'px';
+    el.appendChild(r);
+    setTimeout(function () { if (r.parentNode) r.parentNode.removeChild(r); }, 520);
+  }
+
+  /* ══════════════════════
+     CARD INTERACTION
+  ══════════════════════ */
+  function wireCard(card) {
+    var vid     = card.getAttribute('data-vid');
+    var price   = parseInt(card.getAttribute('data-price'), 10) || 0;
+    var addBtn  = card.querySelector('.yk-add-btn');
+    var stepper = card.querySelector('.yk-stepper');
+    var valEl   = stepper ? stepper.querySelector('.yk-stepper-val') : null;
+    var minusBtn = stepper ? stepper.querySelector('.yk-s-minus') : null;
+    var plusBtn  = stepper ? stepper.querySelector('.yk-s-plus')  : null;
+
+    if (!addBtn || !stepper) return;
+
+    /* ── ADD ── */
+    addBtn.addEventListener('click', function (e) {
+      spawnRipple(addBtn, e);
+      addBtn.classList.add('loading');
+      addBtn.textContent = '';
+
+      ajaxAdd(vid, 1, function (err) {
+        addBtn.classList.remove('loading');
+        if (err) {
+          addBtn.textContent = 'ADD';
+          showToast('⚠️ Could not add item');
+          return;
+        }
+        cart[vid] = { qty: 1, priceRs: price };
+        addBtn.style.display = 'none';
+        if (valEl) valEl.textContent = '1';
+        stepper.classList.add('show');
+        refreshCartBar();
+        document.dispatchEvent(new CustomEvent('cart:updated'));
+      });
+    });
+
+    /* ── MINUS ── */
+    if (minusBtn) {
+      minusBtn.addEventListener('click', function () {
+        if (!cart[vid]) return;
+        var newQty = cart[vid].qty - 1;
+        minusBtn.disabled = true; plusBtn.disabled = true;
+
+        if (newQty < 1) {
+          ajaxChange(vid, 0, function (err) {
+            minusBtn.disabled = false; plusBtn.disabled = false;
+            if (err) { showToast('⚠️ Error'); return; }
+            delete cart[vid];
+            stepper.classList.remove('show');
+            addBtn.style.display = '';
+            addBtn.textContent = 'ADD';
+            refreshCartBar();
+            document.dispatchEvent(new CustomEvent('cart:updated'));
+          });
+        } else {
+          ajaxChange(vid, newQty, function (err) {
+            minusBtn.disabled = false; plusBtn.disabled = false;
+            if (err) { showToast('⚠️ Error'); return; }
+            cart[vid].qty = newQty;
+            if (valEl) {
+              valEl.textContent = newQty;
+              valEl.style.transform = 'scale(0.78)';
+              setTimeout(function () { valEl.style.transform = ''; }, 200);
+            }
+            refreshCartBar();
+            document.dispatchEvent(new CustomEvent('cart:updated'));
+          });
+        }
+      });
+    }
+
+    /* ── PLUS ── */
+    if (plusBtn) {
+      plusBtn.addEventListener('click', function () {
+        if (!cart[vid]) return;
+        var newQty = cart[vid].qty + 1;
+        minusBtn.disabled = true; plusBtn.disabled = true;
+
+        ajaxChange(vid, newQty, function (err) {
+          minusBtn.disabled = false; plusBtn.disabled = false;
+          if (err) { showToast('⚠️ Error'); return; }
+          cart[vid].qty = newQty;
+          if (valEl) {
+            valEl.textContent = newQty;
+            valEl.style.transform = 'scale(1.35)';
+            setTimeout(function () { valEl.style.transform = ''; }, 200);
+          }
+          refreshCartBar();
+          document.dispatchEvent(new CustomEvent('cart:updated'));
+        });
+      });
+    }
+  }
+
+  document.querySelectorAll('.yk-card').forEach(wireCard);
+
+  /* ══════════════════════
+     CATEGORY NAV SCROLL
+  ══════════════════════ */
+  var pills    = document.querySelectorAll('.yk-nav-pill');
+  var sections = document.querySelectorAll('.yk-section');
+
+  pills.forEach(function (pill) {
+    pill.addEventListener('click', function (e) {
+      e.preventDefault();
+      var targetId = pill.getAttribute('data-target');
+      var target   = document.getElementById(targetId);
+      if (!target) return;
+      var offset = target.getBoundingClientRect().top + window.pageYOffset - 98;
+      window.scrollTo({ top: offset, behavior: 'smooth' });
+      setActivePill(pill);
+    });
+  });
+
+  function setActivePill(active) {
+    pills.forEach(function (p) { p.classList.remove('active'); });
+    active.classList.add('active');
+    // Scroll pill into view
+    active.scrollIntoView({ inline: 'center', behavior: 'smooth' });
+  }
+
+  /* Scroll spy via IntersectionObserver */
+  if ('IntersectionObserver' in window) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          var sId = entry.target.getAttribute('id');
+          var pill = document.querySelector('.yk-nav-pill[data-target="' + sId + '"]');
+          if (pill) setActivePill(pill);
+        }
+      });
+    }, { threshold: 0.25, rootMargin: '-90px 0px -55% 0px' });
+
+    sections.forEach(function (s) { spy.observe(s); });
+  }
+
+  /* ══════════════════════
+     RESTORE CART STATE
+  ══════════════════════ */
+  fetch('/cart.js', { headers: { 'Accept': 'application/json' } })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (!data || !data.items) return;
+      data.items.forEach(function (item) {
+        var id = String(item.variant_id);
+        cart[id] = { qty: item.quantity, priceRs: Math.round(item.final_price / 100) };
+        var addBtn  = document.querySelector('.yk-add-btn[data-vid="' + id + '"]');
+        var stepper = document.querySelector('.yk-stepper[data-vid="' + id + '"]');
+        if (addBtn && stepper) {
+          addBtn.style.display = 'none';
+          stepper.classList.add('show');
+          var v = stepper.querySelector('.yk-stepper-val');
+          if (v) v.textContent = item.quantity;
+        }
+      });
+      refreshCartBar();
+    })
+    .catch(function () {});
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "YetiKafe Menu",
+  "settings": [],
+  "presets": [{ "name": "YetiKafe Menu" }]
+}
+{% endschema %}
