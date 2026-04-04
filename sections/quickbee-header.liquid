@@ -1046,16 +1046,23 @@
           .then(function(r){ return r.json(); })
           .then(function(data){
             var addr = data.address || {};
+            var streetName = [addr.road, addr.quarter, addr.neighbourhood].filter(Boolean).join(', ');
             var locationObj = {
+              type: 'self',
+              mode: 'self',
               lat: lat,
               lng: lng,
+              latitude: lat,
+              longitude: lng,
               name: addr.suburb || addr.neighbourhood || addr.village || addr.town || addr.city || '',
               city: addr.city || addr.town || addr.village || '',
               district: addr.county || addr.state_district || '',
               ward: addr.suburb || addr.quarter || '',
               locality: addr.residential || addr.neighbourhood || '',
               formatted_address: data.display_name || '',
-              street: addr.road || '',
+              street: streetName || addr.road || '',
+              address: streetName || addr.road || addr.suburb || '',
+              location: streetName || addr.suburb || addr.neighbourhood || addr.village || addr.city || '',
               _timestamp: Date.now(),
               _auto: true
             };

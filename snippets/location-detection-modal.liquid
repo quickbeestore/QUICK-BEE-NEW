@@ -1021,14 +1021,19 @@ body.dark-theme .qb-location-guide-dismiss:hover { background: #fff; }
      STORAGE HELPERS
   ═══════════════════════════════════════════ */
   function loadFromStorage() {
+    // Check both keys — GPS auto-refresh writes to qb_location_detail too
+    const rawA = localStorage.getItem('qb_selected_location');
+    const rawB = localStorage.getItem('qb_location_detail');
+    const raw  = rawA || rawB;
+    if (!raw) return null;
     try {
-      const raw = localStorage.getItem('qb_selected_location');
-      if (!raw) return null;
       const p = JSON.parse(raw);
       if (!p || typeof p !== 'object') return null;
-      // Already new format
+
+      // ── New format (has type field) ──
       if (p.type) return p;
-      // Migrate old format → new format
+
+      // ── Old manual-entry format (has mode field) ──
       if (p.mode) {
         return {
           type:     p.mode === 'someone_else' ? 'other' : 'self',
@@ -1036,11 +1041,27 @@ body.dark-theme .qb-location-guide-dismiss:hover { background: #fff; }
             ? (p.landmark_link || '')
             : (p.street || p.address || ''),
           name:  p.recipient_name  || '',
-          // legacy fields kept for header widget
           mode: p.mode, address: p.address || p.street || '',
           street: p.street || '', recipient_name: p.recipient_name || '',
           landmark_link: p.landmark_link || '',
-          latitude: p.latitude || '', longitude: p.longitude || ''
+          latitude: p.latitude || p.lat || '',
+          longitude: p.longitude || p.lng || ''
+        };
+      }
+
+      // ── GPS auto-refresh format (has lat/lng but no type/mode) ──
+      if (p.lat !== undefined || p.formatted_address || p.street || p.address || p.name) {
+        return {
+          type:      'self',
+          mode:      'self',
+          location:  p.street || p.address || p.formatted_address || p.name || '',
+          address:   p.street || p.address || p.formatted_address || '',
+          street:    p.street || '',
+          name:      p.name  || '',
+          latitude:  p.lat   || p.latitude  || '',
+          longitude: p.lng   || p.longitude || '',
+          formatted_address: p.formatted_address || '',
+          _auto: p._auto || false
         };
       }
     } catch (_) {}
@@ -1596,8 +1617,14 @@ body.dark-theme .qb-location-guide-dismiss:hover { background: #fff; }
     function onPageLoad() {
       const saved = loadFromStorage();
 
-      if (!saved) {
-        // First-time visitor — force modal, block everything behind
+      // Hard safety net: if ANY location key has data at all, never auto-show
+      const hasAnyData = !!(
+        localStorage.getItem('qb_selected_location') ||
+        localStorage.getItem('qb_location_detail')
+      );
+
+      if (!saved && !hasAnyData) {
+        // Truly first-time visitor — force modal, block everything behind
         setTimeout(function () { showModal(true); }, 150);
       } else {
         // Returning visitor — restore delivery time badges
