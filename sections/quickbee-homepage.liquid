@@ -712,6 +712,13 @@ html:not([data-theme="dark"]) .qb-svc-card.live {
   box-shadow: 0 4px 12px rgba(244,180,0,0.3);
 }
 
+/* Category pill scroll targets — offset for sticky header (~120px) */
+#qb-beer-combos, #qb-beer, #qb-smokes, #qb-whiskey,
+#qb-vodka, #qb-imported, #qb-yeti,
+#qb-food, #qb-cakes {
+  scroll-margin-top: 120px;
+}
+
 /* ── Improved product cards ── */
 .qb-combo-card {
   flex: 0 0 calc(46% - 4px) !important;
@@ -2033,7 +2040,7 @@ html:not([data-theme="dark"]) .qb-rs-card {
   ══════════════════════════════════════════ -->
   {% assign beer_combos = collections['beer-combos-1'].products %}
   {% if beer_combos.size > 0 %}
-  <section class="qb-combo-slider-section">
+  <section class="qb-combo-slider-section" id="qb-beer-combos">
     <div class="qb-combo-slider-header">
       <div class="qb-combo-slider-title-wrap">
         <span class="qb-combo-fire-icon">🍺</span>
@@ -2097,7 +2104,7 @@ html:not([data-theme="dark"]) .qb-rs-card {
   ══════════════════════════════════════════ -->
   {% assign beer_products = collections['beer'].products %}
   {% if beer_products.size > 0 %}
-  <section class="qb-combo-slider-section">
+  <section class="qb-combo-slider-section" id="qb-beer">
     <div class="qb-combo-slider-header">
       <div class="qb-combo-slider-title-wrap">
         <span class="qb-combo-fire-icon">🍻</span>
@@ -2172,7 +2179,7 @@ html:not([data-theme="dark"]) .qb-rs-card {
   ══════════════════════════════════════════ -->
   {% assign smokes_products = collections['smokes'].products %}
   {% if smokes_products.size > 0 %}
-  <section class="qb-combo-slider-section">
+  <section class="qb-combo-slider-section" id="qb-smokes">
     <div class="qb-combo-slider-header">
       <div class="qb-combo-slider-title-wrap">
         <span class="qb-combo-fire-icon">🚬</span>
@@ -2227,7 +2234,7 @@ html:not([data-theme="dark"]) .qb-rs-card {
   ══════════════════════════════════════════ -->
   {% assign whiskey_products = collections['whiskey'].products %}
   {% if whiskey_products.size > 0 %}
-  <section class="qb-combo-slider-section">
+  <section class="qb-combo-slider-section" id="qb-whiskey">
     <div class="qb-combo-slider-header">
       <div class="qb-combo-slider-title-wrap">
         <span class="qb-combo-fire-icon">🥃</span>
@@ -2291,7 +2298,7 @@ html:not([data-theme="dark"]) .qb-rs-card {
   ══════════════════════════════════════════ -->
   {% assign vodka_products = collections['vodka'].products %}
   {% if vodka_products.size > 0 %}
-  <section class="qb-combo-slider-section">
+  <section class="qb-combo-slider-section" id="qb-vodka">
     <div class="qb-combo-slider-header">
       <div class="qb-combo-slider-title-wrap">
         <span class="qb-combo-fire-icon">🍸</span>
@@ -2346,7 +2353,7 @@ html:not([data-theme="dark"]) .qb-rs-card {
   ══════════════════════════════════════════ -->
   {% assign imported_products = collections['imported-liquor'].products %}
   {% if imported_products.size > 0 %}
-  <section class="qb-combo-slider-section">
+  <section class="qb-combo-slider-section" id="qb-imported">
     <div class="qb-combo-slider-header">
       <div class="qb-combo-slider-title-wrap">
         <span class="qb-combo-fire-icon">🌍</span>
@@ -2466,7 +2473,7 @@ html:not([data-theme="dark"]) .qb-rs-card {
   ══════════════════════════════════════════ -->
   {% assign yeti_products = collections['yeti-kafe'].products %}
   {% if yeti_products.size > 0 %}
-  <section class="qb-combo-slider-section">
+  <section class="qb-combo-slider-section" id="qb-yeti">
     <div class="qb-combo-slider-header">
       <a href="/collections/yeti-kafe" class="qb-combo-slider-title-wrap" style="text-decoration:none;color:inherit;">
         <span class="qb-combo-fire-icon">☕</span>
@@ -3174,4 +3181,75 @@ if (document.readyState === 'loading') {
 } else {
   qbHomepageBoot();
 }
+
+// ── Category Pill Navigation ──────────────────────────
+(function(){
+  // Map: data-target → section ID (same value)
+  var PILL_TARGETS = [
+    'qb-beer-combos','qb-beer','qb-smokes',
+    'qb-whiskey','qb-vodka','qb-imported','qb-yeti'
+  ];
+
+  var pills = document.querySelectorAll('.qb-cat-pill[data-target]');
+  if (!pills.length) return;
+
+  // Click: smooth-scroll with header offset + set active
+  pills.forEach(function(pill){
+    pill.addEventListener('click', function(e){
+      var targetId = pill.getAttribute('data-target');
+      var section  = document.getElementById(targetId);
+      if (!section) return; // let anchor fall through for non-section pills
+
+      e.preventDefault();
+      // Update active state immediately
+      document.querySelectorAll('.qb-cat-pill').forEach(function(p){
+        p.classList.remove('active');
+      });
+      pill.classList.add('active');
+      // Scroll pills row so active pill is visible
+      pill.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+
+      // Scroll page to section (scroll-margin-top handles the offset via CSS)
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Update URL hash without jumping
+      if (history.replaceState) {
+        history.replaceState(null, '', '#' + targetId);
+      }
+    });
+  });
+
+  // Intersection Observer: auto-highlight pill as user scrolls
+  if (!window.IntersectionObserver) return;
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (entry.isIntersecting){
+        var id  = entry.target.id;
+        var pill = document.querySelector('.qb-cat-pill[data-target="' + id + '"]');
+        if (pill){
+          document.querySelectorAll('.qb-cat-pill').forEach(function(p){ p.classList.remove('active'); });
+          pill.classList.add('active');
+          pill.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+        }
+      }
+    });
+  }, { rootMargin: '-25% 0px -60% 0px', threshold: 0 });
+
+  PILL_TARGETS.forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) obs.observe(el);
+  });
+
+  // If page loaded with a hash, scroll to it after a tick
+  (function(){
+    var hash = window.location.hash && window.location.hash.slice(1);
+    if (!hash) return;
+    var section = document.getElementById(hash);
+    if (!section) return;
+    setTimeout(function(){
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+  })();
+})();
+// ── End Category Pill Navigation ─────────────────────
 </script>
