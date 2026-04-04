@@ -971,43 +971,82 @@ html:not([data-theme="dark"]) .qb-svc-card.live {
 
 <style>
 /* ══════════════════════════════════════════════════════
-   🔴 LIVE ORDER TICKER
+   🔴 LIVE ORDER TICKER — fade-in/out single message
 ══════════════════════════════════════════════════════ */
 .qb-ticker {
-  display: flex; align-items: center; overflow: hidden;
-  height: 38px; position: relative;
-  background: linear-gradient(90deg,#0d0600,#0d0d0d,#0d0600);
-  border-top: 1px solid rgba(244,180,0,0.1);
-  border-bottom: 1px solid rgba(244,180,0,0.08);
+  display: flex; align-items: center;
+  height: 44px; position: relative; overflow: hidden;
+  background: #0a0a0a;
+  border-top: 1px solid rgba(244,180,0,0.12);
+  border-bottom: 1px solid rgba(244,180,0,0.1);
 }
+html:not([data-theme="dark"]) .qb-ticker { background: #111; }
+
 .qb-ticker-label {
   flex-shrink: 0; padding: 0 14px; height: 100%;
-  display: flex; align-items: center; gap: 5px;
+  display: flex; align-items: center; gap: 6px;
   background: #E53935; color: #fff;
-  font-size: 10px; font-weight: 900; letter-spacing: 1.2px;
+  font-size: 10px; font-weight: 900; letter-spacing: 1.4px;
   text-transform: uppercase; white-space: nowrap;
-  border-right: 1px solid rgba(0,0,0,0.3);
+  border-right: 2px solid rgba(0,0,0,0.25);
+  position: relative; z-index: 2;
 }
 .qb-ticker-dot {
-  width: 7px; height: 7px; border-radius: 50%; background: #fff;
-  animation: tickDot 1.2s ease-in-out infinite;
+  width: 8px; height: 8px; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 6px rgba(255,255,255,0.8);
+  animation: tickDot 1s ease-in-out infinite;
 }
-@keyframes tickDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
-.qb-ticker-track {
-  display: flex; align-items: center; white-space: nowrap;
-  animation: qbTick 36s linear infinite;
-  will-change: transform;
+@keyframes tickDot {
+  0%,100% { opacity:1; transform:scale(1); box-shadow:0 0 6px rgba(255,255,255,0.8); }
+  50%      { opacity:0.3; transform:scale(0.6); box-shadow:none; }
 }
-.qb-ticker-track span {
-  padding: 0 36px; font-size: 12px; font-weight: 500;
-  color: rgba(255,255,255,0.65);
-  display: flex; align-items: center; gap: 8px;
+
+/* Message display area */
+.qb-ticker-body {
+  flex: 1; position: relative; overflow: hidden; height: 100%;
+  display: flex; align-items: center;
+  padding: 0 16px;
 }
-.qb-ticker-track span b { color: rgba(255,255,255,0.9); font-weight: 700; }
-.qb-ticker-track span::after {
-  content:"●"; margin-left:36px; color:rgba(244,180,0,0.35); font-size:7px;
+
+/* Fade edges */
+.qb-ticker-body::before,
+.qb-ticker-body::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 36px; z-index: 3; pointer-events: none;
 }
-@keyframes qbTick { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.qb-ticker-body::before { left: 0; background: linear-gradient(90deg, #0a0a0a, transparent); }
+.qb-ticker-body::after  { right: 0; background: linear-gradient(270deg, #0a0a0a, transparent); }
+html:not([data-theme="dark"]) .qb-ticker-body::before { background: linear-gradient(90deg,#111,transparent); }
+html:not([data-theme="dark"]) .qb-ticker-body::after  { background: linear-gradient(270deg,#111,transparent); }
+
+/* Individual message */
+.qb-tick-msg {
+  position: absolute; left: 0; right: 0;
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 16px;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+  white-space: nowrap; pointer-events: none;
+}
+.qb-tick-msg.active {
+  opacity: 1; transform: translateY(0);
+}
+.qb-tick-msg.exit {
+  opacity: 0; transform: translateY(-12px);
+}
+
+.qb-tick-avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 900; color: #fff;
+  flex-shrink: 0; letter-spacing: 0;
+}
+.qb-tick-emoji { font-size: 15px; flex-shrink: 0; }
+.qb-tick-text { font-size: 12.5px; font-weight: 500; color: rgba(255,255,255,0.6); white-space: nowrap; }
+.qb-tick-text b { color: rgba(255,255,255,0.95); font-weight: 700; }
+.qb-tick-text em { color: var(--qbl-gold, #F4B400); font-style: normal; font-weight: 600; }
+.qb-tick-time { font-size: 10px; color: rgba(255,255,255,0.3); font-weight: 600; margin-left: 6px; flex-shrink: 0; }
+.qb-tick-sep { color: rgba(244,180,0,0.25); font-size: 8px; flex-shrink: 0; }
 
 /* ══════════════════════════════════════════════════════
    🎁 DEAL / COUPON STRIP
@@ -1358,26 +1397,10 @@ html:not([data-theme="dark"]) .qb-rs-card {
   <!-- ══════════════════════════════════════════
        🔴 LIVE ORDER TICKER
   ══════════════════════════════════════════ -->
-  <div class="qb-ticker" aria-hidden="true">
+  <div class="qb-ticker" id="qbTicker" aria-live="polite" aria-atomic="true">
     <div class="qb-ticker-label"><div class="qb-ticker-dot"></div>LIVE</div>
-    <div class="qb-ticker-track" id="qbTickerTrack">
-      <span>🥟 <b>Sunil from Thamel</b> just ordered Chicken Momo</span>
-      <span>🎂 <b>Priya from Lazimpat</b> just ordered Chocolate Truffle Cake</span>
-      <span>🍺 <b>Bikash from Baneshwor</b> just ordered Tuborg 6-Pack</span>
-      <span>🥩 <b>Raju from Koteshwor</b> just ordered Sekuwa Platter</span>
-      <span>🍗 <b>Anu from Balaju</b> just ordered Grilled Chicken Combo</span>
-      <span>🥃 <b>Rohit from Maharajgunj</b> just ordered Old Durbar Premium</span>
-      <span>🍛 <b>Sita from Sitapaila</b> just ordered Mutton Biryani</span>
-      <span>☕ <b>Dev from Boudha</b> just ordered Yeti Kafe Special</span>
-      <!-- duplicate for seamless loop -->
-      <span>🥟 <b>Sunil from Thamel</b> just ordered Chicken Momo</span>
-      <span>🎂 <b>Priya from Lazimpat</b> just ordered Chocolate Truffle Cake</span>
-      <span>🍺 <b>Bikash from Baneshwor</b> just ordered Tuborg 6-Pack</span>
-      <span>🥩 <b>Raju from Koteshwor</b> just ordered Sekuwa Platter</span>
-      <span>🍗 <b>Anu from Balaju</b> just ordered Grilled Chicken Combo</span>
-      <span>🥃 <b>Rohit from Maharajgunj</b> just ordered Old Durbar Premium</span>
-      <span>🍛 <b>Sita from Sitapaila</b> just ordered Mutton Biryani</span>
-      <span>☕ <b>Dev from Boudha</b> just ordered Yeti Kafe Special</span>
+    <div class="qb-ticker-body" id="qbTickerBody">
+      <div class="qb-tick-msg" id="qbTickMsg"></div>
     </div>
   </div>
 
@@ -2298,6 +2321,132 @@ html:not([data-theme="dark"]) .qb-rs-card {
 </div>
 
 <script>
+// ══════════════════════════════════════
+// LIVE ORDER TICKER ENGINE
+// ══════════════════════════════════════
+(function() {
+  var NAMES = [
+    ['Sunil','S','#e84e00'],['Priya','P','#b04060'],['Bikash','B','#7a5200'],
+    ['Raju','R','#0d3a0d'],['Anu','A','#001a6a'],['Rohit','R','#4a1800'],
+    ['Sita','S','#8B0000'],['Dev','D','#1a0a4a'],['Maya','M','#8B6914'],
+    ['Arun','A','#006060'],['Nisha','N','#4a0060'],['Kiran','K','#003020'],
+    ['Rita','R','#5a1414'],['Saroj','S','#0a2a5a'],['Bindu','B','#4a3000'],
+    ['Prabin','P','#1a3a00'],['Sunita','S','#6a0030'],['Kamal','K','#003060'],
+    ['Deepa','D','#5a2800'],['Rajesh','R','#0d2a0d'],['Laxmi','L','#7a3a00'],
+    ['Gopal','G','#1a1a5a'],['Kriti','K','#8a1a40'],['Mohan','M','#004040']
+  ];
+  var AREAS = [
+    'Thamel','Lazimpat','Baneshwor','Koteshwor','Balaju','Maharajgunj',
+    'Sitapaila','Boudha','Chabahil','Kalanki','Kirtipur','Bhaktapur',
+    'Lalitpur','Patan','Jwagal','Ekantakuna','Kupandol','Jhamsikhel',
+    'Nagarjun','Basundhara','Tokha','Budhanilkantha','Kapan','Dhumbarahi',
+    'Naxal','Battisputali','Sinamangal','Tinkune','Jadibuti','Lubhu'
+  ];
+  var ITEMS = [
+    ['Chicken Momo','🥟'],['Chocolate Truffle Cake','🎂'],
+    ['Tuborg 6-Pack','🍺'],['Sekuwa Platter','🥩'],
+    ['Grilled Chicken Combo','🍗'],['Old Durbar Premium','🥃'],
+    ['Mutton Biryani','🍛'],['Yeti Kafe Special','☕'],
+    ['Veg Momo (32 pcs)','🥟'],['Black Forest Cake','🎂'],
+    ['Carlsberg 12-Pack','🍺'],['Buff Sekuwa','🥩'],
+    ['Chicken Burger','🍔'],['Khukuri Rum','🥃'],
+    ['Chicken Chowmein','🍜'],['Cappuccino Pack','☕'],
+    ['Pork Chilli','🌶️'],['Red Velvet Cake','🎂'],
+    ['Everest Beer 6-Pack','🍺'],['Mixed Grill Platter','🥩'],
+    ['Paneer Tikka','🧀'],['Jack Daniels 750ml','🥃'],
+    ['Chicken Fried Rice','🍛'],['Strawberry Cake','🎂'],
+    ['Vodka Sunrise Pack','🍸'],['Classic Sekuwa Set','🔥'],
+    ['Thukpa Bowl','🍜'],['Mango Cake','🎂'],
+    ['Sprite + Chips Combo','🛒'],['KapadaWash Laundry','🧺'],
+    ['Chilli Chicken','🌶️'],['Chocolate Brownie','🍫'],
+    ['Galaxy Beer 4-Pack','🍺'],['Pani Puri Set','🫙'],
+    ['Fried Chicken Bucket','🍗'],['Anniversary Cake','💍']
+  ];
+  var ACTIONS = [
+    'just ordered','placed an order for','ordered','just got'
+  ];
+  var TIMES = ['just now','1 min ago','2 mins ago','moments ago','just now'];
+
+  var used = [];
+  function getRandom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+  function getUnusedItem() {
+    if (used.length >= ITEMS.length) used = [];
+    var avail = ITEMS.filter(function(i){ return used.indexOf(i[0]) < 0; });
+    var pick = avail[Math.floor(Math.random() * avail.length)];
+    used.push(pick[0]);
+    return pick;
+  }
+
+  function buildMsg() {
+    var name = getRandom(NAMES);
+    var area = getRandom(AREAS);
+    var item = getUnusedItem();
+    var action = getRandom(ACTIONS);
+    var time = getRandom(TIMES);
+    return {
+      avatar: name[1], avatarBg: name[2],
+      name: name[0], area: area,
+      emoji: item[1], item: item[0],
+      action: action, time: time
+    };
+  }
+
+  function renderMsg(d) {
+    return '<div class="qb-tick-avatar" style="background:' + d.avatarBg + '">' + d.avatar + '</div>'
+      + '<span class="qb-tick-emoji">' + d.emoji + '</span>'
+      + '<span class="qb-tick-text"><b>' + d.name + ' from ' + d.area + '</b> ' + d.action + ' <em>' + d.item + '</em></span>'
+      + '<span class="qb-tick-sep">●</span>'
+      + '<span class="qb-tick-time">' + d.time + '</span>';
+  }
+
+  function initTicker() {
+    var el = document.getElementById('qbTickMsg');
+    if (!el) return;
+
+    var HOLD = 4200;   // how long each message stays visible
+    var FADE = 700;    // fade duration (matches CSS transition)
+
+    function showNext() {
+      // Exit current
+      el.classList.remove('active');
+      el.classList.add('exit');
+
+      setTimeout(function() {
+        // Swap content
+        el.classList.remove('exit');
+        el.innerHTML = renderMsg(buildMsg());
+
+        // Small delay so browser paints reset state
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            el.classList.add('active');
+          });
+        });
+
+        // Schedule next
+        setTimeout(showNext, HOLD);
+      }, FADE + 80);
+    }
+
+    // First message instantly
+    el.innerHTML = renderMsg(buildMsg());
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        el.classList.add('active');
+      });
+    });
+    setTimeout(showNext, HOLD);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTicker);
+  } else {
+    initTicker();
+  }
+})();
+
 // ──────────────────────────────────────
 // COPY COUPON CODE
 // ──────────────────────────────────────
