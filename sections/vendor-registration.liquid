@@ -1,0 +1,673 @@
+{%- comment -%}
+  QuickBee — Vendor Registration
+  Form data → cart note → Shopify checkout (Rs 0)
+{%- endcomment -%}
+
+<style>
+/* ══════════════════════════════════════════════
+   VENDOR REGISTRATION PAGE
+   ══════════════════════════════════════════════ */
+.vr-page {
+  background: var(--theme-bg-primary, #0f0f0f);
+  min-height: 100vh;
+  padding: 0 0 80px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--theme-text-main, #f0f0f0);
+}
+
+/* ── Hero ─────────────────────────────────────── */
+.vr-hero {
+  position: relative;
+  background: linear-gradient(135deg, #0a0a00 0%, #1a1500 40%, #1f1c00 70%, #0f0f0f 100%);
+  padding: 52px 20px 64px;
+  text-align: center;
+  overflow: hidden;
+}
+.vr-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(244,180,0,0.1) 0%, transparent 65%);
+  pointer-events: none;
+}
+.vr-hero-tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(244,180,0,0.1); border: 1px solid rgba(244,180,0,0.25);
+  border-radius: 100px; padding: 5px 16px;
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  color: #F4B400; margin-bottom: 18px;
+}
+.vr-hero-title {
+  font-size: clamp(30px, 7vw, 52px); font-weight: 900;
+  line-height: 1.08; letter-spacing: -1px;
+  color: #fff; margin-bottom: 12px;
+}
+.vr-hero-title em { font-style: normal; color: #F4B400; }
+.vr-hero-sub {
+  font-size: 15px; color: rgba(255,255,255,0.6);
+  max-width: 480px; margin: 0 auto 28px; line-height: 1.6;
+}
+.vr-hero-perks {
+  display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;
+}
+.vr-hero-perk {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 100px; padding: 7px 16px;
+  font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.7);
+}
+.vr-hero-perk b { color: #fff; }
+.vr-hero-wave {
+  position: absolute; bottom: -1px; left: 0; right: 0; line-height: 0;
+}
+
+/* ── Progress steps ───────────────────────────── */
+.vr-steps {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; padding: 24px 20px 0; max-width: 480px; margin: 0 auto;
+}
+.vr-step-item {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  flex: 1; position: relative;
+}
+.vr-step-item:not(:last-child)::after {
+  content: '';
+  position: absolute; top: 16px; left: calc(50% + 16px);
+  right: calc(-50% + 16px);
+  height: 2px; background: rgba(255,255,255,0.1);
+  transition: background .4s;
+}
+.vr-step-item.done::after,
+.vr-step-item.active::after { background: rgba(244,180,0,0.4); }
+.vr-step-num {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800;
+  background: rgba(255,255,255,0.07); border: 2px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.4); transition: all .3s;
+}
+.vr-step-item.active .vr-step-num { background: #F4B400; border-color: #F4B400; color: #000; }
+.vr-step-item.done   .vr-step-num { background: #4ADE80; border-color: #4ADE80; color: #000; }
+.vr-step-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: rgba(255,255,255,0.35); }
+.vr-step-item.active .vr-step-lbl { color: #F4B400; }
+.vr-step-item.done   .vr-step-lbl { color: #4ADE80; }
+
+/* ── Form card ────────────────────────────────── */
+.vr-card {
+  max-width: 520px; margin: 24px auto 0;
+  background: var(--theme-bg-secondary, #181818);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 24px; overflow: hidden;
+}
+.vr-card-hdr {
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; gap: 12px;
+}
+.vr-card-hdr-ico {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: rgba(244,180,0,0.12); border: 1px solid rgba(244,180,0,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.vr-card-hdr-title { font-size: 16px; font-weight: 800; color: var(--theme-text-main, #f0f0f0); }
+.vr-card-hdr-sub   { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+/* ── Form panels (one per step) ───────────────── */
+.vr-panel { display: none; padding: 20px 24px 24px; flex-direction: column; gap: 16px; }
+.vr-panel.active { display: flex; animation: vrFadeUp .3s ease both; }
+@keyframes vrFadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+
+/* ── Field ────────────────────────────────────── */
+.vr-field { display: flex; flex-direction: column; gap: 6px; }
+.vr-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.vr-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+}
+.vr-label span { color: #F4B400; margin-left: 2px; }
+.vr-input, .vr-select, .vr-textarea {
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 12px; padding: 12px 14px;
+  font-size: 14px; font-weight: 500;
+  color: var(--theme-text-main, #f0f0f0);
+  font-family: inherit; width: 100%;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+  outline: none;
+}
+.vr-input::placeholder, .vr-textarea::placeholder { color: rgba(255,255,255,0.2); }
+.vr-input:focus, .vr-select:focus, .vr-textarea:focus {
+  border-color: rgba(244,180,0,0.5);
+  background: rgba(244,180,0,0.04);
+  box-shadow: 0 0 0 3px rgba(244,180,0,0.1);
+}
+.vr-input.error { border-color: rgba(239,68,68,0.6); box-shadow: 0 0 0 3px rgba(239,68,68,0.1); }
+.vr-select { appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.3)' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center;
+  padding-right: 36px;
+}
+.vr-select option { background: #1a1a1a; color: #f0f0f0; }
+.vr-textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+
+/* Category chips */
+.vr-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.vr-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 14px; border-radius: 100px;
+  background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.1);
+  font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.5);
+  cursor: pointer; transition: all .18s; user-select: none;
+}
+.vr-chip:hover  { border-color: rgba(244,180,0,0.3); color: #F4B400; }
+.vr-chip.sel    { background: rgba(244,180,0,0.12); border-color: #F4B400; color: #F4B400; }
+
+/* ── Notice box ───────────────────────────────── */
+.vr-notice {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: rgba(244,180,0,0.06); border: 1px solid rgba(244,180,0,0.18);
+  border-radius: 12px; padding: 12px 14px;
+  font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.5;
+}
+.vr-notice-ico { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.vr-notice b { color: #F4B400; }
+
+/* ── Buttons ──────────────────────────────────── */
+.vr-btn-row { display: flex; gap: 10px; margin-top: 4px; }
+.vr-btn-back {
+  flex-shrink: 0; padding: 14px 20px;
+  background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 14px; color: rgba(255,255,255,0.6);
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  font-family: inherit; transition: all .18s;
+}
+.vr-btn-back:hover { background: rgba(255,255,255,0.08); }
+.vr-btn-next, .vr-btn-submit {
+  flex: 1; padding: 15px 24px;
+  background: #F4B400; color: #000;
+  border: none; border-radius: 14px;
+  font-size: 15px; font-weight: 900;
+  cursor: pointer; font-family: inherit;
+  transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 6px 24px rgba(244,180,0,0.3);
+}
+.vr-btn-next:hover, .vr-btn-submit:hover { background: #FFD700; transform: translateY(-2px); box-shadow: 0 10px 32px rgba(244,180,0,0.45); }
+.vr-btn-submit:disabled { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.3); cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* Spinner */
+.vr-spinner {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2.5px solid rgba(0,0,0,0.2); border-top-color: #000;
+  animation: vrSpin .7s linear infinite; display: none;
+}
+@keyframes vrSpin { to { transform: rotate(360deg); } }
+
+/* Error message */
+.vr-err { font-size: 11px; color: #f87171; margin-top: -8px; display: none; }
+.vr-err.show { display: block; }
+
+/* ── Review panel ─────────────────────────────── */
+.vr-review-list { display: flex; flex-direction: column; gap: 8px; }
+.vr-review-item {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 10px 14px; background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06); border-radius: 10px;
+}
+.vr-review-key { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.6px; }
+.vr-review-val { font-size: 13px; font-weight: 600; color: var(--theme-text-main,#f0f0f0); max-width: 60%; text-align: right; }
+
+/* ── Success screen ───────────────────────────── */
+.vr-success {
+  display: none; flex-direction: column; align-items: center;
+  padding: 48px 24px; text-align: center; gap: 12px;
+}
+.vr-success.show { display: flex; animation: vrFadeUp .4s ease both; }
+.vr-success-circle {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: rgba(74,222,128,0.1); border: 2px solid #4ADE80;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px; margin-bottom: 8px;
+  animation: vrPop .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes vrPop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+.vr-success-title { font-size: 22px; font-weight: 900; color: #fff; }
+.vr-success-sub   { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6; max-width: 320px; }
+.vr-success-id    { font-size: 12px; background: rgba(244,180,0,0.1); border: 1px solid rgba(244,180,0,0.2); border-radius: 8px; padding: 6px 14px; color: #F4B400; font-weight: 700; }
+
+/* Light theme support */
+[data-theme="light"] .vr-page { color: #121826; }
+[data-theme="light"] .vr-card { background: #fff; border-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .vr-input, [data-theme="light"] .vr-select, [data-theme="light"] .vr-textarea {
+  background: #f8f9fa; border-color: #dde2ec; color: #121826;
+}
+[data-theme="light"] .vr-input::placeholder, [data-theme="light"] .vr-textarea::placeholder { color: #aab0bc; }
+[data-theme="light"] .vr-chip { background: #f1f3f7; border-color: #dde2ec; color: #516074; }
+[data-theme="light"] .vr-chip.sel { background: rgba(244,180,0,0.1); }
+[data-theme="light"] .vr-step-num { background: #f1f3f7; border-color: #dde2ec; color: #aab0bc; }
+[data-theme="light"] .vr-review-item { background: #f8f9fa; border-color: #eef0f5; }
+[data-theme="light"] .vr-review-val  { color: #121826; }
+[data-theme="light"] .vr-btn-back { background: #f1f3f7; border-color: #dde2ec; color: #516074; }
+[data-theme="light"] .vr-select option { background: #fff; color: #121826; }
+</style>
+
+<div class="vr-page" id="vrPage">
+
+  <!-- ── Hero ── -->
+  <div class="vr-hero">
+    <div class="vr-hero-tag">🐝 Partner with QuickBee</div>
+    <h1 class="vr-hero-title">Grow Your Business<br>with <em>QuickBee</em></h1>
+    <p class="vr-hero-sub">Join Nepal's fastest growing delivery platform. Reach thousands of customers across Kathmandu Valley — zero setup fee.</p>
+    <div class="vr-hero-perks">
+      <span class="vr-hero-perk">🚀 <b>Free</b> Onboarding</span>
+      <span class="vr-hero-perk">📦 <b>20 min</b> Delivery</span>
+      <span class="vr-hero-perk">💰 <b>Low</b> Commission</span>
+      <span class="vr-hero-perk">📊 <b>Live</b> Dashboard</span>
+    </div>
+    <svg class="vr-hero-wave" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 50" preserveAspectRatio="none">
+      <path fill="var(--theme-bg-primary,#0f0f0f)" d="M0,30 C400,55 1040,5 1440,32 L1440,50 L0,50Z"/>
+    </svg>
+  </div>
+
+  <!-- ── Progress steps ── -->
+  <div class="vr-steps" id="vrSteps">
+    <div class="vr-step-item active" data-step="1">
+      <div class="vr-step-num">1</div>
+      <div class="vr-step-lbl">Business</div>
+    </div>
+    <div class="vr-step-item" data-step="2">
+      <div class="vr-step-num">2</div>
+      <div class="vr-step-lbl">Products</div>
+    </div>
+    <div class="vr-step-item" data-step="3">
+      <div class="vr-step-num">3</div>
+      <div class="vr-step-lbl">Review</div>
+    </div>
+  </div>
+
+  <!-- ── Main card ── -->
+  <div class="vr-card" id="vrCard">
+
+    <!-- STEP 1: Business Info -->
+    <div class="vr-card-hdr" id="vrHdr1">
+      <div class="vr-card-hdr-ico">🏪</div>
+      <div>
+        <div class="vr-card-hdr-title">Business Information</div>
+        <div class="vr-card-hdr-sub">Tell us about your business</div>
+      </div>
+    </div>
+    <div class="vr-panel active" id="vrPanel1">
+      <div class="vr-field">
+        <label class="vr-label">Business / Brand Name <span>*</span></label>
+        <input class="vr-input" id="vrBizName" type="text" placeholder="e.g. Mama's Kitchen, ABC Grocery" autocomplete="organization">
+        <div class="vr-err" id="vrErrBizName">Please enter your business name</div>
+      </div>
+      <div class="vr-field-row">
+        <div class="vr-field">
+          <label class="vr-label">Owner Name <span>*</span></label>
+          <input class="vr-input" id="vrOwner" type="text" placeholder="Full name" autocomplete="name">
+          <div class="vr-err" id="vrErrOwner">Required</div>
+        </div>
+        <div class="vr-field">
+          <label class="vr-label">Business Type <span>*</span></label>
+          <select class="vr-select" id="vrBizType">
+            <option value="">Select type</option>
+            <option>Restaurant / Food</option>
+            <option>Grocery Store</option>
+            <option>Bakery / Cake Shop</option>
+            <option>Liquor / Beverages</option>
+            <option>Pharmacy / Health</option>
+            <option>Electronics</option>
+            <option>Fashion / Clothing</option>
+            <option>Baby & Kids</option>
+            <option>Pet Supplies</option>
+            <option>Other</option>
+          </select>
+          <div class="vr-err" id="vrErrBizType">Required</div>
+        </div>
+      </div>
+      <div class="vr-field">
+        <label class="vr-label">Business Location / Area <span>*</span></label>
+        <input class="vr-input" id="vrLocation" type="text" placeholder="e.g. Thamel, Kathmandu" autocomplete="address-level2">
+        <div class="vr-err" id="vrErrLocation">Required</div>
+      </div>
+      <div class="vr-field-row">
+        <div class="vr-field">
+          <label class="vr-label">WhatsApp Number <span>*</span></label>
+          <input class="vr-input" id="vrPhone" type="tel" placeholder="98XXXXXXXX" autocomplete="tel">
+          <div class="vr-err" id="vrErrPhone">Valid number required</div>
+        </div>
+        <div class="vr-field">
+          <label class="vr-label">Email Address</label>
+          <input class="vr-input" id="vrEmail" type="email" placeholder="you@business.com" autocomplete="email">
+        </div>
+      </div>
+      <div class="vr-notice">
+        <span class="vr-notice-ico">ℹ️</span>
+        <span>You'll enter your <b>full name &amp; contact number</b> on the next page (Shopify checkout). This is free — Rs 0 cost.</span>
+      </div>
+      <div class="vr-btn-row">
+        <button class="vr-btn-next" id="vrNext1">Next: Products →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Products & Details -->
+    <div class="vr-card-hdr" id="vrHdr2" style="display:none">
+      <div class="vr-card-hdr-ico">📦</div>
+      <div>
+        <div class="vr-card-hdr-title">Products & Details</div>
+        <div class="vr-card-hdr-sub">What will you sell on QuickBee?</div>
+      </div>
+    </div>
+    <div class="vr-panel" id="vrPanel2">
+      <div class="vr-field">
+        <label class="vr-label">Product Categories <span>*</span> (select all that apply)</label>
+        <div class="vr-chips" id="vrCategoryChips">
+          <div class="vr-chip" data-val="Food & Drinks">🍽️ Food &amp; Drinks</div>
+          <div class="vr-chip" data-val="Groceries">🛒 Groceries</div>
+          <div class="vr-chip" data-val="Beverages & Alcohol">🍺 Beverages &amp; Alcohol</div>
+          <div class="vr-chip" data-val="Bakery & Sweets">🎂 Bakery &amp; Sweets</div>
+          <div class="vr-chip" data-val="Dairy & Eggs">🥛 Dairy &amp; Eggs</div>
+          <div class="vr-chip" data-val="Snacks">🍟 Snacks</div>
+          <div class="vr-chip" data-val="Health & Beauty">💊 Health &amp; Beauty</div>
+          <div class="vr-chip" data-val="Electronics">📱 Electronics</div>
+          <div class="vr-chip" data-val="Baby & Kids">🍼 Baby &amp; Kids</div>
+          <div class="vr-chip" data-val="Other">📦 Other</div>
+        </div>
+        <div class="vr-err" id="vrErrCat">Select at least one category</div>
+      </div>
+      <div class="vr-field-row">
+        <div class="vr-field">
+          <label class="vr-label">Number of Products</label>
+          <select class="vr-select" id="vrProductCount">
+            <option value="">Approx. count</option>
+            <option>1–10 products</option>
+            <option>11–50 products</option>
+            <option>51–100 products</option>
+            <option>100+ products</option>
+          </select>
+        </div>
+        <div class="vr-field">
+          <label class="vr-label">Monthly Revenue</label>
+          <select class="vr-select" id="vrRevenue">
+            <option value="">Approx. revenue</option>
+            <option>Under Rs 50,000</option>
+            <option>Rs 50,000 – 2 lakh</option>
+            <option>Rs 2 lakh – 5 lakh</option>
+            <option>Rs 5 lakh+</option>
+          </select>
+        </div>
+      </div>
+      <div class="vr-field">
+        <label class="vr-label">How did you hear about QuickBee?</label>
+        <select class="vr-select" id="vrSource">
+          <option value="">Select source</option>
+          <option>Social Media (Facebook/Instagram)</option>
+          <option>Friend / Word of Mouth</option>
+          <option>Online Search</option>
+          <option>QuickBee Rider / Driver</option>
+          <option>Advertisement</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="vr-field">
+        <label class="vr-label">Why do you want to join QuickBee?</label>
+        <textarea class="vr-textarea" id="vrMessage" placeholder="Tell us about your business goals, what you sell, and why QuickBee is right for you…"></textarea>
+      </div>
+      <div class="vr-btn-row">
+        <button class="vr-btn-back" id="vrBack2">← Back</button>
+        <button class="vr-btn-next" id="vrNext2">Review Application →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Review & Submit -->
+    <div class="vr-card-hdr" id="vrHdr3" style="display:none">
+      <div class="vr-card-hdr-ico">✅</div>
+      <div>
+        <div class="vr-card-hdr-title">Review & Submit</div>
+        <div class="vr-card-hdr-sub">Confirm your details before sending</div>
+      </div>
+    </div>
+    <div class="vr-panel" id="vrPanel3">
+      <div class="vr-review-list" id="vrReviewList"></div>
+      <div class="vr-notice" style="margin-top:4px">
+        <span class="vr-notice-ico">📝</span>
+        <span>On the <b>next page</b>, Shopify will ask for your <b>full name &amp; contact number</b> to complete your free registration. This records your application officially.</span>
+      </div>
+      <div class="vr-btn-row">
+        <button class="vr-btn-back" id="vrBack3">← Edit</button>
+        <button class="vr-btn-submit" id="vrSubmit">
+          <span id="vrSubmitTxt">Submit Application 🐝</span>
+          <div class="vr-spinner" id="vrSpinner"></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="vr-success" id="vrSuccess">
+      <div class="vr-success-circle">🎉</div>
+      <div class="vr-success-title">Application Submitted!</div>
+      <div class="vr-success-sub">Redirecting you to complete your registration…<br>Please fill in your name &amp; contact number on the next page.</div>
+      <div class="vr-success-id" id="vrAppId">QB-VR-LOADING</div>
+    </div>
+
+  </div><!-- /vr-card -->
+</div>
+
+<script>
+(function () {
+  var currentStep = 1;
+  var selectedCategories = [];
+
+  /* ── Step navigation ── */
+  function goStep(n) {
+    [1, 2, 3].forEach(function (i) {
+      var panel = document.getElementById('vrPanel' + i);
+      var hdr   = document.getElementById('vrHdr' + i);
+      if (panel) { panel.classList.toggle('active', i === n); }
+      if (hdr)   { hdr.style.display = i === n ? '' : 'none'; }
+
+      var stepEl = document.querySelector('[data-step="' + i + '"]');
+      if (stepEl) {
+        stepEl.classList.toggle('active', i === n);
+        stepEl.classList.toggle('done', i < n);
+      }
+    });
+    currentStep = n;
+    var card = document.getElementById('vrCard');
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ── Validation ── */
+  function clearErr(id) {
+    var el = document.getElementById(id);
+    if (el) { el.classList.remove('show'); }
+  }
+  function showErr(id) {
+    var el = document.getElementById(id);
+    if (el) { el.classList.add('show'); }
+  }
+  function markErr(inputId, errId) {
+    var inp = document.getElementById(inputId);
+    if (inp) inp.classList.add('error');
+    showErr(errId);
+  }
+  function clearInputErr(inputId, errId) {
+    var inp = document.getElementById(inputId);
+    if (inp) {
+      inp.classList.remove('error');
+      inp.addEventListener('input', function () { inp.classList.remove('error'); clearErr(errId); }, { once: true });
+    }
+  }
+
+  function validateStep1() {
+    var ok = true;
+    var fields = [
+      { inp: 'vrBizName', err: 'vrErrBizName', min: 2 },
+      { inp: 'vrOwner',   err: 'vrErrOwner',   min: 2 },
+      { inp: 'vrBizType', err: 'vrErrBizType',  min: 1 },
+      { inp: 'vrLocation',err: 'vrErrLocation', min: 2 },
+      { inp: 'vrPhone',   err: 'vrErrPhone',    min: 7 },
+    ];
+    fields.forEach(function (f) {
+      var el = document.getElementById(f.inp);
+      var val = el ? el.value.trim() : '';
+      if (val.length < f.min) { markErr(f.inp, f.err); clearInputErr(f.inp, f.err); ok = false; }
+      else { clearErr(f.err); if (el) el.classList.remove('error'); }
+    });
+    return ok;
+  }
+
+  function validateStep2() {
+    if (selectedCategories.length === 0) { showErr('vrErrCat'); return false; }
+    clearErr('vrErrCat');
+    return true;
+  }
+
+  /* ── Category chips ── */
+  document.querySelectorAll('.vr-chip').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      var val = this.dataset.val;
+      this.classList.toggle('sel');
+      if (this.classList.contains('sel')) {
+        if (!selectedCategories.includes(val)) selectedCategories.push(val);
+      } else {
+        selectedCategories = selectedCategories.filter(function (v) { return v !== val; });
+      }
+      clearErr('vrErrCat');
+    });
+  });
+
+  /* ── Build review ── */
+  function buildReview() {
+    var list = document.getElementById('vrReviewList');
+    if (!list) return;
+    var data = [
+      { k: '🏪 Business Name',  v: g('vrBizName')      },
+      { k: '👤 Owner',           v: g('vrOwner')        },
+      { k: '📂 Business Type',   v: g('vrBizType')      },
+      { k: '📍 Location',        v: g('vrLocation')     },
+      { k: '📱 WhatsApp',        v: g('vrPhone')        },
+      { k: '📧 Email',           v: g('vrEmail') || '—' },
+      { k: '📦 Categories',      v: selectedCategories.join(', ') || '—' },
+      { k: '🔢 Products',        v: g('vrProductCount') || '—' },
+      { k: '💰 Revenue',         v: g('vrRevenue')      || '—' },
+      { k: '🔍 Source',          v: g('vrSource')       || '—' },
+    ];
+    list.innerHTML = data.map(function (d) {
+      return '<div class="vr-review-item">' +
+        '<span class="vr-review-key">' + d.k + '</span>' +
+        '<span class="vr-review-val">' + (d.v || '—') + '</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  function g(id) {
+    var el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  }
+
+  /* ── Build order note ── */
+  function buildNote() {
+    var msg = g('vrMessage');
+    var note = '═══════════════════════════════\n';
+    note += '  QUICKBEE VENDOR APPLICATION\n';
+    note += '═══════════════════════════════\n\n';
+    note += '🏪 BUSINESS\n';
+    note += '  Name     : ' + g('vrBizName')  + '\n';
+    note += '  Owner    : ' + g('vrOwner')    + '\n';
+    note += '  Type     : ' + g('vrBizType')  + '\n';
+    note += '  Location : ' + g('vrLocation') + '\n\n';
+    note += '📞 CONTACT\n';
+    note += '  WhatsApp : ' + g('vrPhone') + '\n';
+    note += '  Email    : ' + (g('vrEmail') || '—') + '\n\n';
+    note += '📦 PRODUCTS\n';
+    note += '  Categories : ' + (selectedCategories.join(', ') || '—') + '\n';
+    note += '  Count      : ' + (g('vrProductCount') || '—') + '\n';
+    note += '  Revenue    : ' + (g('vrRevenue')      || '—') + '\n\n';
+    note += '🔍 SOURCE : ' + (g('vrSource') || '—') + '\n\n';
+    if (msg) { note += '💬 MESSAGE\n  ' + msg.replace(/\n/g, '\n  ') + '\n\n'; }
+    note += '📝 NOTE: Full name & contact to be filled on checkout page.\n';
+    note += '═══════════════════════════════\n';
+    note += '  quickbee.store/vendor\n';
+    note += '═══════════════════════════════';
+    return note;
+  }
+
+  /* ── Submit ── */
+  function doSubmit() {
+    var btn     = document.getElementById('vrSubmit');
+    var txt     = document.getElementById('vrSubmitTxt');
+    var spinner = document.getElementById('vrSpinner');
+    btn.disabled = true;
+    if (txt) txt.style.display = 'none';
+    if (spinner) spinner.style.display = 'block';
+
+    var note = buildNote();
+    var appId = 'QB-VR-' + Date.now().toString(36).toUpperCase();
+    if (document.getElementById('vrAppId')) document.getElementById('vrAppId').textContent = appId;
+
+    /* 1. Update cart note */
+    fetch('/cart/update.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ note: note })
+    })
+    /* 2. Add vendor registration product (Rs 0) to cart */
+    .then(function () {
+      return fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: {{ product.variants.first.id }},
+          quantity: 1,
+          properties: {
+            'Business Name' : g('vrBizName'),
+            'Owner'         : g('vrOwner'),
+            'WhatsApp'      : g('vrPhone'),
+            'Location'      : g('vrLocation'),
+            'Categories'    : selectedCategories.join(', '),
+            'Application ID': appId
+          }
+        })
+      });
+    })
+    .then(function () {
+      /* Show success, redirect to checkout */
+      document.getElementById('vrSuccess').classList.add('show');
+      document.getElementById('vrPanel3').style.display = 'none';
+      document.getElementById('vrHdr3').style.display   = 'none';
+      setTimeout(function () {
+        window.location.href = '/checkout';
+      }, 2200);
+    })
+    .catch(function () {
+      btn.disabled = false;
+      if (txt) txt.style.display = 'flex';
+      if (spinner) spinner.style.display = 'none';
+      alert('Something went wrong. Please try again.');
+    });
+  }
+
+  /* ── Wire buttons ── */
+  var n1 = document.getElementById('vrNext1');
+  var n2 = document.getElementById('vrNext2');
+  var b2 = document.getElementById('vrBack2');
+  var b3 = document.getElementById('vrBack3');
+  var sub = document.getElementById('vrSubmit');
+
+  if (n1) n1.addEventListener('click', function () { if (validateStep1()) goStep(2); });
+  if (n2) n2.addEventListener('click', function () { if (validateStep2()) { buildReview(); goStep(3); } });
+  if (b2) b2.addEventListener('click', function () { goStep(1); });
+  if (b3) b3.addEventListener('click', function () { goStep(2); });
+  if (sub) sub.addEventListener('click', doSubmit);
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Vendor Registration",
+  "settings": [],
+  "presets": [{ "name": "Vendor Registration" }]
+}
+{% endschema %}
