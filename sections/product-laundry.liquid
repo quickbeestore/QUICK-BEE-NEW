@@ -656,6 +656,103 @@
 }
 @keyframes lb-spin { to { transform: rotate(360deg); } }
 
+/* ── CURRENT ORDER BANNER ── */
+.lb-current-order {
+  margin: 14px 16px 0;
+  background: var(--lb-card);
+  border: 1.5px solid rgba(34,197,94,0.4);
+  border-radius: var(--lb-radius);
+  overflow: hidden;
+  animation: lb-co-in 0.35s cubic-bezier(0.4,0,0.2,1) both;
+}
+@keyframes lb-co-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.lb-co-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(34,197,94,0.07);
+  border-bottom: 1px solid rgba(34,197,94,0.2);
+}
+.lb-co-dot {
+  width: 8px; height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: lb-co-pulse 2s ease-in-out infinite;
+}
+@keyframes lb-co-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+  50%      { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+}
+.lb-co-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #16a34a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+[data-theme="dark"] .lb-co-title { color: #4ade80; }
+.lb-co-time {
+  font-size: 11px;
+  color: var(--lb-muted);
+  margin-left: 2px;
+  flex: 1;
+}
+.lb-co-remove {
+  background: transparent;
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 8px;
+  color: #ef4444;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.lb-co-body {
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lb-co-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+}
+.lb-co-lbl { color: var(--lb-muted); }
+.lb-co-val { font-weight: 700; color: var(--lb-text); }
+.lb-co-total-row {
+  padding-top: 6px;
+  border-top: 1px dashed var(--lb-border);
+  margin-top: 2px;
+}
+.lb-co-total {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--lb-text);
+}
+.lb-co-modify {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(244,180,0,0.08);
+  border: none;
+  border-top: 1px solid rgba(244,180,0,0.2);
+  color: #c68a00;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  letter-spacing: 0.2px;
+}
+[data-theme="dark"] .lb-co-modify { color: #F4B400; background: rgba(244,180,0,0.06); }
+
 /* ── DISCLAIMER ── */
 .lb-disclaimer {
   padding: 0 16px 16px;
@@ -697,6 +794,23 @@
 
   <!-- MAIN CONTENT -->
   <div class="lb-content">
+
+    <!-- CURRENT ORDER BANNER (shown when localStorage has a pending order) -->
+    <div class="lb-current-order" id="lb-current-order" style="display:none;">
+      <div class="lb-co-header">
+        <span class="lb-co-dot"></span>
+        <span class="lb-co-title">Order in Cart</span>
+        <span class="lb-co-time" id="lb-co-time"></span>
+        <button class="lb-co-remove" id="lb-co-remove" type="button">✕ Remove</button>
+      </div>
+      <div class="lb-co-body">
+        <div class="lb-co-row"><span class="lb-co-lbl">Service</span><span class="lb-co-val" id="lb-co-svc"></span></div>
+        <div class="lb-co-row"><span class="lb-co-lbl">Quantity</span><span class="lb-co-val" id="lb-co-qty"></span></div>
+        <div class="lb-co-row"><span class="lb-co-lbl">Express</span><span class="lb-co-val" id="lb-co-exp"></span></div>
+        <div class="lb-co-row lb-co-total-row"><span class="lb-co-lbl">Total Paid</span><span class="lb-co-total" id="lb-co-total"></span></div>
+      </div>
+      <button class="lb-co-modify" id="lb-co-modify" type="button">✏️ Modify Order</button>
+    </div>
 
     <!-- FEEDBACK -->
     <div class="lb-section" style="margin-top:4px;">
@@ -1131,6 +1245,61 @@
   }
 
   /* ══════════════════════════════════
+     LOCAL STORAGE — CURRENT ORDER
+  ══════════════════════════════════ */
+  var LS_KEY = 'qb_laundry_order';
+
+  function saveOrder(data) {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(_) {}
+  }
+  function loadOrder() {
+    try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch(_) { return null; }
+  }
+  function clearOrder() {
+    try { localStorage.removeItem(LS_KEY); } catch(_) {}
+  }
+
+  function timeAgo(iso) {
+    var diff = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+    if (diff < 1)  return 'just now';
+    if (diff < 60) return diff + ' min ago';
+    return Math.floor(diff / 60) + 'h ago';
+  }
+
+  function renderCurrentOrder(order) {
+    var wrap = document.getElementById('lb-current-order');
+    if (!wrap) return;
+    document.getElementById('lb-co-svc').textContent   = order.service;
+    document.getElementById('lb-co-qty').textContent   = order.qty + ' ' + order.unit;
+    document.getElementById('lb-co-exp').textContent   = order.express ? '⚡ Yes' : 'No';
+    document.getElementById('lb-co-total').textContent = 'Rs ' + order.total;
+    document.getElementById('lb-co-time').textContent  = '· ' + timeAgo(order.addedAt);
+    wrap.style.display = 'block';
+    // Button becomes "Update Order"
+    setBtnLabel('Update Order');
+  }
+
+  function hideCurrentOrder() {
+    var wrap = document.getElementById('lb-current-order');
+    if (wrap) wrap.style.display = 'none';
+    setBtnLabel('Confirm Order');
+  }
+
+  function setBtnLabel(label) {
+    var btn = els.addBtn;
+    btn.innerHTML = '<span class="lb-add-btn-content"><span>✅</span><span id="lb-btn-text">' + label + '</span></span>';
+  }
+
+  function removeExistingCartItem(cartKey, cb) {
+    if (!cartKey) { cb(); return; }
+    fetch('/cart/change.js', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ id: cartKey, quantity: 0 })
+    }).then(cb).catch(cb);
+  }
+
+  /* ══════════════════════════════════
      ADD TO CART
   ══════════════════════════════════ */
   function setLoading(on) {
@@ -1140,13 +1309,12 @@
       btn.innerHTML = '<span class="lb-spinner"></span><span style="font-size:13px;font-weight:700;letter-spacing:0.3px;">Processing…</span>';
     } else {
       btn.classList.remove('loading');
-      btn.innerHTML = '<span class="lb-add-btn-content"><span>✅</span><span id="lb-btn-text">Confirm Order</span></span>';
+      var existing = loadOrder();
+      setBtnLabel(existing ? 'Update Order' : 'Confirm Order');
     }
   }
 
-  function addToCart() {
-    if (!validate()) return;
-
+  function doCartAdd(oldCartKey) {
     var rawTitle = state.selectedCard.getAttribute('data-variant-title');
     var unit     = state.selectedCard.getAttribute('data-unit');
     var p        = calcTotal();
@@ -1156,42 +1324,61 @@
       id:         state.selectedVariant.id,
       quantity:   state.qty,
       properties: {
-        'Service':        displayTitle(rawTitle),
-        'Quantity':       state.qty + ' ' + unit,
-        'Express':        state.express ? 'Yes (+Rs ' + p.express + ')' : 'No',
-        'Pickup Notes':   notes || 'None',
-        '_unit_price_rs': variantRs(state.selectedVariant),
-        '_total_rs':      p.total
+        'Service':      displayTitle(rawTitle),
+        'Quantity':     state.qty + ' ' + unit,
+        'Express':      state.express ? 'Yes (+Rs ' + p.express + ')' : 'No',
+        'Pickup Notes': notes || 'None'
       }
     };
-
-    setLoading(true);
-    hideFeedback();
 
     fetch('/cart/add.js', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body:    JSON.stringify(payload)
     })
-    .then(function (res) {
+    .then(function(res) {
       if (!res.ok) throw new Error('Server error ' + res.status);
       return res.json();
     })
-    .then(function () {
-      // Sync location data to cart note, then go straight to checkout
-      if (typeof window.qbSyncCartNote === 'function') {
-        window.qbSyncCartNote();
-      }
-      // Small delay to let cart note update before redirect
-      setTimeout(function () {
-        window.location.href = '/checkout';
-      }, 120);
+    .then(function(item) {
+      // Save to localStorage
+      saveOrder({
+        cartKey:  item.key || '',
+        service:  displayTitle(rawTitle),
+        unit:     unit,
+        qty:      state.qty,
+        express:  state.express,
+        notes:    notes,
+        total:    p.total,
+        addedAt:  new Date().toISOString()
+      });
+      // Sync location note
+      if (typeof window.qbSyncCartNote === 'function') window.qbSyncCartNote();
+      // Redirect to checkout
+      setTimeout(function() { window.location.href = '/checkout'; }, 120);
     })
-    .catch(function (err) {
+    .catch(function(err) {
       setLoading(false);
       showFeedback('error', 'Something went wrong. Please try again.');
       console.error('[lb] cart add failed:', err);
     });
+  }
+
+  function addToCart() {
+    if (!validate()) return;
+    setLoading(true);
+    hideFeedback();
+
+    var existing = loadOrder();
+    if (existing && existing.cartKey) {
+      // Remove old item first, then add updated one
+      removeExistingCartItem(existing.cartKey, function() {
+        clearOrder();
+        doCartAdd(existing.cartKey);
+      });
+    } else {
+      doCartAdd(null);
+    }
   }
 
   /* ══════════════════════════════════
@@ -1221,11 +1408,50 @@
   // Add to cart
   els.addBtn.addEventListener('click', addToCart);
 
+  // Current order — Remove button
+  var coRemove = document.getElementById('lb-co-remove');
+  if (coRemove) {
+    coRemove.addEventListener('click', function() {
+      var order = loadOrder();
+      clearOrder();
+      hideCurrentOrder();
+      if (order && order.cartKey) {
+        removeExistingCartItem(order.cartKey, function() {
+          document.dispatchEvent(new CustomEvent('cart:updated'));
+        });
+      }
+    });
+  }
+
+  // Current order — Modify button (pre-fill the form)
+  var coModify = document.getElementById('lb-co-modify');
+  if (coModify) {
+    coModify.addEventListener('click', function() {
+      var order = loadOrder();
+      if (!order) return;
+      // Find and select the matching card
+      els.cards.forEach(function(card) {
+        var t = displayTitle(card.getAttribute('data-variant-title'));
+        if (t === order.service) {
+          selectCard(card);
+          setQty(order.qty);
+          if (order.express !== state.express) toggleExpress();
+          if (order.notes) els.notes.value = order.notes;
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+    });
+  }
+
   /* ══════════════════════════════════
      BOOT
   ══════════════════════════════════ */
   initCards();
   setQty(1); // sets disabled state on minus
+
+  // Restore current order banner if one exists
+  var savedOrder = loadOrder();
+  if (savedOrder) renderCurrentOrder(savedOrder);
 
 })();
 </script>
