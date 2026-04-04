@@ -363,26 +363,60 @@
   line-height: 1.5;
 }
 
-/* ── SVG Success Animation ──────────────────────────── */
-.qbp-anim-wrap {
+/* ── Success screen ─────────────────────────────────── */
+#qbpStepSuccess {
+  min-height: 70vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 28px 0 12px;
+  justify-content: center;
+  text-align: center;
+  padding: 20px 0 40px;
+  position: relative;
+  overflow: hidden;
+}
+/* Particle canvas */
+#qbpParticleCanvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.qbp-success-inner { position: relative; z-index: 1; width: 100%; }
+
+/* Glow ring */
+.qbp-glow-ring {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  margin: 0 auto 24px;
+}
+.qbp-glow-ring::before {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34,197,94,0.28) 0%, transparent 70%);
+  animation: qbpGlowPulse 2s ease-in-out infinite;
+}
+@keyframes qbpGlowPulse {
+  0%,100% { transform: scale(1);    opacity: 0.7; }
+  50%      { transform: scale(1.12); opacity: 1;   }
 }
 .qbp-svg {
-  width: 96px;
-  height: 96px;
+  width: 130px;
+  height: 130px;
+  filter: drop-shadow(0 0 18px rgba(34,197,94,0.5));
 }
 .qbp-ring {
   fill: none;
   stroke: #22c55e;
-  stroke-width: 4;
-  stroke-dasharray: 226;
-  stroke-dashoffset: 226;
+  stroke-width: 3.5;
+  stroke-dasharray: 326;
+  stroke-dashoffset: 326;
   stroke-linecap: round;
   transform-origin: center;
-  animation: qbpRingDraw 0.65s cubic-bezier(0.65,0,0.35,1) 0.1s forwards;
+  animation: qbpRingDraw 0.7s cubic-bezier(0.65,0,0.35,1) 0.15s forwards;
 }
 .qbp-tick {
   fill: none;
@@ -392,26 +426,108 @@
   stroke-linejoin: round;
   stroke-dasharray: 60;
   stroke-dashoffset: -60;
-  animation: qbpTickDraw 0.38s cubic-bezier(0.65,0,0.35,1) 0.72s forwards;
-}
-.qbp-anim-title {
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--theme-text-main, #f0f0f0);
-  text-align: center;
-  margin: 14px 0 6px;
-  animation: qbpSlideUp 0.4s ease 0.88s both;
-}
-.qbp-anim-sub {
-  font-size: 13.5px;
-  color: var(--theme-text-muted, #888);
-  text-align: center;
-  margin: 0 0 28px;
-  line-height: 1.5;
-  animation: qbpSlideUp 0.4s ease 1s both;
+  animation: qbpTickDraw 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.8s forwards;
 }
 
-/* ── Phone section ──────────────────────────────────── */
+/* Amount flash */
+.qbp-success-amount {
+  font-size: 38px;
+  font-weight: 900;
+  color: #22c55e;
+  letter-spacing: -1px;
+  margin: 0 0 6px;
+  opacity: 0;
+  animation: qbpAmountPop 0.55s cubic-bezier(0.34,1.56,0.64,1) 1.05s forwards;
+}
+@keyframes qbpAmountPop {
+  0%   { opacity: 0; transform: scale(0.5) translateY(10px); }
+  60%  { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.qbp-success-paid-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #22c55e;
+  opacity: 0;
+  animation: qbpSlideUp 0.35s ease 1.25s both;
+}
+
+/* Title & sub */
+.qbp-anim-title {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--theme-text-main, #f0f0f0);
+  margin: 22px 0 8px;
+  opacity: 0;
+  animation: qbpSlideUp 0.4s ease 1.4s both;
+  line-height: 1.2;
+}
+.qbp-anim-sub {
+  font-size: 14px;
+  color: var(--theme-text-muted, #888);
+  margin: 0 0 28px;
+  line-height: 1.6;
+  max-width: 300px;
+  opacity: 0;
+  animation: qbpSlideUp 0.4s ease 1.55s both;
+}
+
+/* Info rows */
+.qbp-success-info {
+  background: var(--theme-bg-secondary, #1c1c1c);
+  border: 1.5px solid rgba(34,197,94,0.2);
+  border-radius: 16px;
+  padding: 16px 20px;
+  width: 100%;
+  margin: 0 0 24px;
+  opacity: 0;
+  animation: qbpSlideUp 0.4s ease 1.7s both;
+}
+.qbp-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  font-size: 13px;
+}
+.qbp-info-row:not(:last-child) {
+  border-bottom: 1px solid var(--theme-border, #222);
+}
+.qbp-info-label { color: var(--theme-text-muted, #666); font-weight: 600; }
+.qbp-info-val   { color: var(--theme-text-main, #f0f0f0); font-weight: 700; }
+.qbp-info-val.green { color: #22c55e; }
+
+/* Progress bar */
+.qbp-progress-wrap {
+  width: 100%;
+  opacity: 0;
+  animation: qbpSlideUp 0.4s ease 1.85s both;
+}
+.qbp-progress-label {
+  font-size: 12px;
+  color: var(--theme-text-muted, #777);
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+.qbp-progress-track {
+  width: 100%;
+  height: 5px;
+  background: var(--theme-bg-secondary, #1c1c1c);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.qbp-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+  border-radius: 99px;
+  transition: width 2.2s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+
+/* Phone section */
 .qbp-phone-section {
   animation: qbpSlideUp 0.4s ease 1.15s both;
 }
@@ -564,22 +680,55 @@
         <label class="qbp-label" for="qbpNameInput">Your Name <span style="color:#ef4444">*</span></label>
         <input type="text" id="qbpNameInput" class="qbp-input" placeholder="e.g. Ramesh Sharma" autocomplete="name" autocorrect="off" spellcheck="false">
       </div>
-
-      <p style="font-size:13px;color:#888;text-align:center;margin:2px 0 10px;">📞 Please fill your contact number on the next page</p>
+      <div class="qbp-field">
+        <label class="qbp-label" for="qbpPhoneQR">Phone Number <span style="color:#ef4444">*</span></label>
+        <div class="qbp-phone-row">
+          <span class="qbp-phone-prefix">+977</span>
+          <input type="tel" id="qbpPhoneQR" class="qbp-input" placeholder="98XXXXXXXX" maxlength="10" inputmode="numeric">
+        </div>
+      </div>
 
       <button class="qbp-btn" id="qbpPaidBtn" disabled>I Have Paid →</button>
     </div>
 
     <!-- ─── STEP 3: QR Submitted Success ─────────────── -->
     <div class="qbp-step hidden" id="qbpStepSuccess">
-      <div class="qbp-anim-wrap">
-        <svg class="qbp-svg" viewBox="0 0 80 80" aria-hidden="true">
-          <circle class="qbp-ring" cx="40" cy="40" r="36"/>
-          <polyline class="qbp-tick" points="22,40 34,52 58,28"/>
-        </svg>
+      <canvas id="qbpParticleCanvas"></canvas>
+      <div class="qbp-success-inner">
+        <div class="qbp-glow-ring">
+          <svg class="qbp-svg" viewBox="0 0 130 130" aria-hidden="true">
+            <circle class="qbp-ring" cx="65" cy="65" r="58"/>
+            <polyline class="qbp-tick" points="36,65 54,83 94,44"/>
+          </svg>
+        </div>
+        <div class="qbp-success-paid-label">AMOUNT PAID</div>
+        <div class="qbp-success-amount" id="qbpSuccessAmt">Rs —</div>
+        <h2 class="qbp-anim-title">Payment Sent! 🎉</h2>
+        <p class="qbp-anim-sub">Our team will verify &amp; confirm your order<br>within 5–10 minutes. Heading to checkout…</p>
+        <div class="qbp-success-info">
+          <div class="qbp-info-row">
+            <span class="qbp-info-label">👤 Name</span>
+            <span class="qbp-info-val" id="qbpSuccessName">—</span>
+          </div>
+          <div class="qbp-info-row">
+            <span class="qbp-info-label">📞 Phone</span>
+            <span class="qbp-info-val" id="qbpSuccessPhone">—</span>
+          </div>
+          <div class="qbp-info-row">
+            <span class="qbp-info-label">💳 Method</span>
+            <span class="qbp-info-val green">Online QR ✓</span>
+          </div>
+        </div>
+        <div class="qbp-progress-wrap">
+          <div class="qbp-progress-label">
+            <span>Redirecting to checkout</span>
+            <span id="qbpProgressPct">0%</span>
+          </div>
+          <div class="qbp-progress-track">
+            <div class="qbp-progress-bar" id="qbpProgressBar"></div>
+          </div>
+        </div>
       </div>
-      <p class="qbp-anim-title">Payment Request Sent!</p>
-      <p class="qbp-anim-sub">Our team will verify and confirm your order within 5–10 minutes. Proceeding to checkout… 🎉</p>
     </div>
 
     <!-- ─── STEP COD/Card: Secured ───────────────────── -->
@@ -728,6 +877,70 @@
   var backQR = document.getElementById('qbpBackQR');
   if (backQR) backQR.addEventListener('click', function () { show('qbpStep1'); });
 
+  /* ── Particle burst ─────────────────────────── */
+  function launchParticles() {
+    var canvas = document.getElementById('qbpParticleCanvas');
+    if (!canvas) return;
+    var step = document.getElementById('qbpStepSuccess');
+    canvas.width  = step.offsetWidth  || 400;
+    canvas.height = step.offsetHeight || 600;
+    var ctx = canvas.getContext('2d');
+    var colors = ['#22c55e','#4ade80','#ffcc00','#ffd700','#fff','#86efac','#fef08a'];
+    var particles = [];
+    for (var i = 0; i < 90; i++) {
+      particles.push({
+        x: canvas.width / 2,
+        y: canvas.height * 0.28,
+        vx: (Math.random() - 0.5) * 14,
+        vy: (Math.random() - 1.2) * 14,
+        r: Math.random() * 5 + 2,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        alpha: 1,
+        gravity: 0.38,
+        shape: Math.random() > 0.5 ? 'circle' : 'rect'
+      });
+    }
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      var alive = false;
+      particles.forEach(function (p) {
+        if (p.alpha <= 0) return;
+        alive = true;
+        p.x  += p.vx;
+        p.y  += p.vy;
+        p.vy += p.gravity;
+        p.alpha -= 0.016;
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        if (p.shape === 'circle') {
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        } else {
+          ctx.rect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 1.4);
+        }
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      if (alive) requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  /* ── Progress bar countdown ──────────────────── */
+  function startProgressBar(durationMs) {
+    var bar  = document.getElementById('qbpProgressBar');
+    var pct  = document.getElementById('qbpProgressPct');
+    var start = Date.now();
+    function tick() {
+      var elapsed = Date.now() - start;
+      var p = Math.min(100, Math.round((elapsed / durationMs) * 100));
+      if (bar)  bar.style.width = p + '%';
+      if (pct)  pct.textContent = p + '%';
+      if (p < 100) requestAnimationFrame(tick);
+    }
+    setTimeout(function () { requestAnimationFrame(tick); }, 1900);
+  }
+
   /* ── QR: enable "I Have Paid" when name filled ── */
   var nameInput = document.getElementById('qbpNameInput');
   var paidBtn   = document.getElementById('qbpPaidBtn');
@@ -742,21 +955,30 @@
     paidBtn.addEventListener('click', function (e) {
       e.preventDefault();
       var name  = nameInput ? nameInput.value.trim() : '—';
-      var phone = document.getElementById('qbpPhoneQR');
-      var num   = phone ? phone.value.trim() : '';
+      var phoneEl = document.getElementById('qbpPhoneQR');
+      var num   = phoneEl ? phoneEl.value.trim() : '';
       if (name.length < 2) { nameInput && nameInput.focus(); return; }
 
       paidBtn.disabled = true;
       paidBtn.textContent = 'Submitting…';
 
       var amtRs   = Math.round(cartTotal / 100);
-      var noteStr = 'Payment Method: Online QR | Name: ' + name + ' | Amount: Rs ' + amtRs;
+      var noteStr = 'Payment Method: Online QR | Name: ' + name + ' | Phone: +977' + num + ' | Amount: Rs ' + amtRs;
+
+      /* Populate success screen */
+      var sAmt   = document.getElementById('qbpSuccessAmt');
+      var sName  = document.getElementById('qbpSuccessName');
+      var sPhone = document.getElementById('qbpSuccessPhone');
+      if (sAmt)   sAmt.textContent   = 'Rs ' + amtRs;
+      if (sName)  sName.textContent  = name;
+      if (sPhone) sPhone.textContent = num ? '+977 ' + num : '—';
 
       cartNote(noteStr)
         .finally(function () {
           show('qbpStepSuccess');
-          /* Auto-forward to checkout after 3s */
-          setTimeout(goCheckout, 3000);
+          setTimeout(launchParticles, 100);
+          startProgressBar(3200);
+          setTimeout(goCheckout, 3800);
         });
     });
   }
