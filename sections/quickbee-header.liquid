@@ -242,112 +242,309 @@
     -webkit-text-fill-color: #FFF8EB !important;
   }
 
+  /* ── Search Backdrop ── */
+  .qb-search-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99990;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    animation: qbBdIn .18s ease;
+  }
+  @keyframes qbBdIn { from{opacity:0} to{opacity:1} }
+  .qb-search-backdrop.open { display: block; }
+
+  /* ── Main Dropdown Panel ── */
   .qb-search-dropdown {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 99999;
-    background: var(--qb-header-bg);
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    border-radius: 16px;
-    box-shadow: 0 16px 48px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.12);
-    overflow: hidden;
     display: none;
-    padding: 10px;
-    animation: slideDown 0.18s cubic-bezier(0.25,0.46,0.45,0.94);
-    max-height: 80vh;
-    overflow-y: auto;
+    overflow: hidden;
+    animation: qbDropIn .22s cubic-bezier(0.16,1,0.3,1);
+
+    /* Light mode */
+    background: #ffffff;
+    border: 1px solid rgba(0,0,0,0.07);
+    border-top: none;
+    border-radius: 0 0 22px 22px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.08);
+  }
+  @keyframes qbDropIn {
+    from { opacity: 0; transform: translateY(-12px) scale(0.99); }
+    to   { opacity: 1; transform: translateY(0)   scale(1);    }
   }
 
+  /* Dark mode dropdown */
   [data-theme="dark"] .qb-search-dropdown {
-    background: #1a1a1a;
+    background: #111111;
     border-color: rgba(255,255,255,0.07);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.85), 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
   }
 
-  @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+  /* Inner scroll area */
+  .qb-sdrop-inner {
+    max-height: calc(75vh - 10px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 12px 16px;
+    scrollbar-width: none;
   }
+  .qb-sdrop-inner::-webkit-scrollbar { display: none; }
 
-  .qb-dropdown-header {
-    padding: 4px 4px 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .qb-dropdown-title {
-    font-size: 11px;
+  /* ── Section label ── */
+  .qb-sdrop-label {
+    font-size: 10.5px;
     font-weight: 800;
-    color: #64748B;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: .08em;
+    color: #94a3b8;
+    padding: 12px 2px 7px;
+  }
+  [data-theme="dark"] .qb-sdrop-label {
+    color: rgba(255,220,140,0.55);
   }
 
-  [data-theme="dark"] .qb-dropdown-title {
-    color: rgba(255, 229, 180, 0.68);
-  }
-
-  #qbDropdownItems {
+  /* ── Quick Category Chips (horizontal scroll) ── */
+  .qb-sdrop-chips {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 0 2px 2px;
+    scrollbar-width: none;
+    margin-bottom: 4px;
   }
-
-  .qb-dropdown-item {
-    width: 100%;
-    padding: 12px 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    border-radius: 14px;
-    background: rgba(248, 250, 252, 0.9);
-    color: var(--qb-text-main);
-    font: inherit;
-    text-align: left;
-  }
-
-  [data-theme="dark"] .qb-dropdown-item {
-    border-color: rgba(244, 180, 0, 0.1);
-    background: rgba(255, 248, 235, 0.04);
-  }
-
-  .qb-dropdown-item:hover {
-    border-color: rgba(244, 180, 0, 0.34);
-    background-color: rgba(244, 180, 0, 0.08);
-    transform: translateY(-1px);
-  }
-
-  [data-theme="dark"] .qb-dropdown-item:hover {
-    background-color: rgba(244, 180, 0, 0.12);
-  }
-
-  .qb-dropdown-item-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 10px;
+  .qb-sdrop-chips::-webkit-scrollbar { display: none; }
+  .qb-sdrop-chip {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    background: rgba(244, 180, 0, 0.12);
-    color: #8A6200;
-    flex-shrink: 0;
-    font-size: 14px;
-  }
-
-  [data-theme="dark"] .qb-dropdown-item-icon {
-    color: #FFD56A;
-  }
-
-  .qb-dropdown-item-label {
-    font-size: 13px;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 50px;
+    border: 1.5px solid rgba(0,0,0,0.09);
+    background: #f8f9fa;
+    color: #1e293b;
+    font-size: 12.5px;
     font-weight: 700;
-    color: var(--qb-text-main);
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: all .15s;
+    flex-shrink: 0;
+    font-family: inherit;
+  }
+  .qb-sdrop-chip:active { transform: scale(.95); }
+  [data-theme="dark"] .qb-sdrop-chip {
+    border-color: rgba(255,255,255,0.09);
+    background: #1e1e1e;
+    color: #e8e8e8;
+  }
+  [data-theme="dark"] .qb-sdrop-chip:hover,
+  [data-theme="dark"] .qb-sdrop-chip:active {
+    border-color: rgba(244,180,0,0.45);
+    background: rgba(244,180,0,0.1);
+    color: #F4B400;
+  }
+  /* Frequent search chips in dark mode */
+  [data-theme="dark"] .qb-sdrop-chip[style*="rgba(244,180,0"] {
+    border-color: rgba(244,180,0,0.25) !important;
+    background: rgba(244,180,0,0.08) !important;
+    color: #F4B400 !important;
+  }
+
+  /* ── Result Items ── */
+  .qb-sdrop-items {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .qb-sdrop-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 15px;
+    border: 1.5px solid transparent;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .15s, border-color .15s;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+  }
+  .qb-sdrop-item:active,
+  .qb-sdrop-item:hover {
+    background: rgba(244,180,0,0.07);
+    border-color: rgba(244,180,0,0.22);
+  }
+  [data-theme="dark"] .qb-sdrop-item:active,
+  [data-theme="dark"] .qb-sdrop-item:hover {
+    background: rgba(244,180,0,0.09);
+    border-color: rgba(244,180,0,0.3);
+  }
+
+  /* Trend item: icon pill */
+  .qb-sdrop-ico {
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    flex-shrink: 0;
+    background: rgba(244,180,0,0.10);
+  }
+  [data-theme="dark"] .qb-sdrop-ico {
+    background: rgba(244,180,0,0.12);
+  }
+
+  /* Product image pill */
+  .qb-sdrop-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    object-fit: contain;
+    background: #fff;
+    flex-shrink: 0;
+    border: 1px solid rgba(0,0,0,0.07);
+  }
+  [data-theme="dark"] .qb-sdrop-img {
+    background: #222;
+    border-color: rgba(255,255,255,0.08);
+  }
+  .qb-sdrop-img-placeholder {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: rgba(244,180,0,0.10);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .qb-sdrop-body { flex: 1; min-width: 0; }
+  .qb-sdrop-name {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #0f172a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-bottom: 2px;
+  }
+  [data-theme="dark"] .qb-sdrop-name { color: #f0f0f0; }
+  .qb-sdrop-sub {
+    font-size: 11.5px;
+    color: #64748b;
+  }
+  [data-theme="dark"] .qb-sdrop-sub { color: #666; }
+
+  .qb-sdrop-price {
+    font-size: 13px;
+    font-weight: 900;
+    color: #F4B400;
+    background: rgba(244,180,0,0.10);
+    padding: 4px 9px;
+    border-radius: 9px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  [data-theme="dark"] .qb-sdrop-price {
+    background: rgba(244,180,0,0.13);
+  }
+
+  /* Recent searches */
+  .qb-sdrop-recent-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background .14s;
+  }
+  .qb-sdrop-recent-row:hover { background: rgba(0,0,0,0.03); }
+  [data-theme="dark"] .qb-sdrop-recent-row:hover { background: rgba(255,255,255,0.04); }
+  .qb-sdrop-recent-ico { font-size: 14px; color: #94a3b8; flex-shrink:0; }
+  .qb-sdrop-recent-txt { flex:1; font-size:13px; font-weight:600; color:#334155; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  [data-theme="dark"] .qb-sdrop-recent-txt { color:#bbb; }
+  .qb-sdrop-recent-del { font-size:16px; color:#94a3b8; padding: 2px 4px; }
+
+  /* See all row */
+  .qb-sdrop-seeall {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 15px;
+    border: 1.5px dashed rgba(244,180,0,0.3);
+    background: rgba(244,180,0,0.04);
+    color: #F4B400;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    margin-top: 4px;
+    width: 100%;
+    font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+    transition: background .15s, border-color .15s;
+  }
+  .qb-sdrop-seeall:hover { background: rgba(244,180,0,0.10); border-color: rgba(244,180,0,0.5); }
+
+  /* Loading skeletons */
+  .qb-sdrop-skeleton {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 14px;
+  }
+  .qb-sdrop-sk-ico { width:40px; height:40px; border-radius:13px; flex-shrink:0; }
+  .qb-sdrop-sk-body { flex:1; display:flex; flex-direction:column; gap:7px; }
+  .qb-sdrop-sk-line { height:11px; border-radius:6px; }
+  .qb-sdrop-sk-line.w80 { width:80%; }
+  .qb-sdrop-sk-line.w50 { width:50%; }
+  @keyframes qbSkPulse {
+    0%,100%{ opacity:.35 } 50%{ opacity:.65 }
+  }
+  .qb-sdrop-sk-ico,
+  .qb-sdrop-sk-line {
+    background: #e2e8f0;
+    animation: qbSkPulse 1.4s ease infinite;
+  }
+  [data-theme="dark"] .qb-sdrop-sk-ico,
+  [data-theme="dark"] .qb-sdrop-sk-line {
+    background: #2a2a2a;
+  }
+
+  /* No results */
+  .qb-sdrop-empty {
+    text-align: center; padding: 28px 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .qb-sdrop-empty-ico { font-size: 36px; }
+  .qb-sdrop-empty-txt { font-size: 14px; font-weight: 700; color: #334155; }
+  [data-theme="dark"] .qb-sdrop-empty-txt { color: #aaa; }
+  .qb-sdrop-empty-sub { font-size: 12px; color: #64748b; }
+  [data-theme="dark"] .qb-sdrop-empty-sub { color: #555; }
+
+  /* Divider */
+  .qb-sdrop-divider {
+    height: 1px;
+    background: rgba(0,0,0,0.06);
+    margin: 4px 0;
+  }
+  [data-theme="dark"] .qb-sdrop-divider {
+    background: rgba(255,255,255,0.06);
   }
 
   /* ── Location Button ── */
@@ -737,52 +934,18 @@
       height: 18px;
     }
 
-    /* Mobile dropdown */
+    /* Mobile: full-width flush panel */
     .qb-search-dropdown {
-      border-radius: 16px;
-      padding: 10px;
-      /* position/width now set by JS */
-      z-index: 99999;
-      max-height: 75vh;
-      overflow-y: auto;
+      border-radius: 0 0 24px 24px;
+      left: 0 !important;
+      width: 100% !important;
     }
-
-    .qb-dropdown-header {
-      padding: 0 4px 8px;
+    .qb-sdrop-inner {
+      max-height: 70vh;
+      padding: 4px 10px 20px;
     }
-
-    #qbDropdownItems {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding: 0;
-    }
-
-    .qb-dropdown-item {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 12px;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .qb-dropdown-item-icon {
-      width: 30px;
-      height: 30px;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    .qb-dropdown-item-label {
-      font-size: 13px;
-      white-space: normal;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex: 1;
-      min-width: 0;
+    .qb-sdrop-ico, .qb-sdrop-img, .qb-sdrop-img-placeholder {
+      width: 38px; height: 38px;
     }
   }
 </style>
@@ -826,12 +989,14 @@
           <input type="text" inputmode="search" name="q" class="qb-search-input" id="qbSearchInput" placeholder="Search groceries, drinks, snacks" autocomplete="off" aria-label="Search products">
         </form>
 
-        <!-- Dropdown -->
+        <!-- Search Backdrop -->
+        <div id="qbSearchBackdrop" class="qb-search-backdrop"></div>
+
+        <!-- Dropdown Panel -->
         <div id="qbSearchDropdown" class="qb-search-dropdown">
-          <div class="qb-dropdown-header">
-            <span class="qb-dropdown-title">Popular Right Now</span>
+          <div class="qb-sdrop-inner" id="qbDropdownInner">
+            <!-- content injected by JS -->
           </div>
-          <div id="qbDropdownItems"></div>
         </div>
       </div>
 
@@ -1185,107 +1350,226 @@
 </script>
 
 <script>
-  // Dropdown Logic — Shopify Predictive Search
+  // Search Dropdown — Premium Redesign
   (function() {
     var form     = document.querySelector('.qb-search-bar-wrap');
     var input    = document.getElementById('qbSearchInput');
     var dropdown = document.getElementById('qbSearchDropdown');
-    var items    = document.getElementById('qbDropdownItems');
-    var titleEl  = document.querySelector('.qb-dropdown-title');
+    var inner    = document.getElementById('qbDropdownInner');
+    var backdrop = document.getElementById('qbSearchBackdrop');
 
-    var TRENDS = [
-      { label: 'Cold Drinks',     icon: '🥤' },
-      { label: 'Instant Noodles', icon: '🍜' },
-      { label: 'Chips & Snacks',  icon: '🛒' },
-      { label: 'Fresh Fruits',    icon: '🍎' },
-      { label: 'Domestic Beer',   icon: '🍺' },
-      { label: 'Baby Care',       icon: '🍼' }
+    var CATEGORIES = [
+      { label: '🥤 Drinks',    q: 'Cold Drinks'     },
+      { label: '🍜 Noodles',   q: 'Instant Noodles' },
+      { label: '🍎 Fruits',    q: 'Fresh Fruits'    },
+      { label: '🛒 Snacks',    q: 'Chips & Snacks'  },
+      { label: '🍺 Beer',      q: 'Domestic Beer'   },
+      { label: '🍼 Baby',      q: 'Baby Care'       },
+      { label: '🥚 Eggs',      q: 'Eggs'            },
+      { label: '🥛 Dairy',     q: 'Milk Dairy'      },
     ];
 
-    if (!form || !input || !dropdown || !items) return;
+    var TRENDS = [
+      { label: 'Cold Drinks',     icon: '🥤', sub: 'Trending now'       },
+      { label: 'Instant Noodles', icon: '🍜', sub: 'Quick meals'        },
+      { label: 'Chips & Snacks',  icon: '🍟', sub: 'Late night cravings' },
+      { label: 'Fresh Fruits',    icon: '🍎', sub: 'Seasonal picks'      },
+      { label: 'Domestic Beer',   icon: '🍺', sub: 'Evening favourites'  },
+      { label: 'Baby Care',       icon: '🍼', sub: 'Essential needs'     },
+    ];
+
+    var RECENT_KEY  = 'qb_recent_searches';
+    var FREQ_KEY    = 'qb_frequent_searches';
+
+    if (!form || !input || !dropdown || !inner) return;
 
     var debounce = null;
-    var lastQuery = '';
+    var isOpen   = false;
 
-    /* ── helpers ─────────────────────────────── */
-    function setTitle(t) { if (titleEl) titleEl.textContent = t; }
+    /* ── localStorage helpers ──── */
+    function getRecent() {
+      try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch(e) { return []; }
+    }
+    function getFrequent() {
+      try { return JSON.parse(localStorage.getItem(FREQ_KEY) || '{}'); } catch(e) { return {}; }
+    }
+    function getTopFrequent(n) {
+      var freq = getFrequent();
+      return Object.keys(freq).sort(function(a,b){ return freq[b]-freq[a]; }).slice(0, n||4);
+    }
+    function addRecent(q) {
+      if (!q || q.length < 2) return;
+      try {
+        /* Recent list */
+        var list = getRecent().filter(function(x){ return x.toLowerCase() !== q.toLowerCase(); });
+        list.unshift(q);
+        localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, 8)));
+        /* Frequency map */
+        var freq = getFrequent();
+        freq[q] = (freq[q] || 0) + 1;
+        localStorage.setItem(FREQ_KEY, JSON.stringify(freq));
+        /* Push into cart note */
+        syncSearchNote();
+      } catch(e) {}
+    }
+    function removeRecent(q) {
+      try {
+        var list = getRecent().filter(function(x){ return x !== q; });
+        localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+      } catch(e) {}
+    }
+    /* ── push search data into cart note ──── */
+    function syncSearchNote() {
+      try {
+        var recent = getRecent().slice(0,5).join(', ') || 'None';
+        var top    = getTopFrequent(3).join(', ') || 'None';
+        /* Read existing note then append search block */
+        fetch('/cart.js').then(function(r){ return r.json(); }).then(function(cart){
+          var base = (cart.note || '').replace(/\n🔍[\s\S]*$/, '');
+          var note = base + '\n🔍 Recent Searches: ' + recent + '\n📊 Top Searches: ' + top;
+          fetch('/cart/update.js',{method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({note:note.trim()})}).catch(function(){});
+        }).catch(function(){});
+      } catch(e) {}
+    }
+
+    /* ── escape ──── */
+    function esc(s) {
+      return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    /* ── show / hide ──── */
     function show() {
       var rect = form.getBoundingClientRect();
+      dropdown.style.top   = rect.bottom + 'px';
+      dropdown.style.left  = '0';
+      dropdown.style.width = '100%';
       dropdown.style.display = 'block';
-      dropdown.style.top  = (rect.bottom + 6) + 'px';
-      dropdown.style.left = rect.left + 'px';
-      dropdown.style.width = rect.width + 'px';
+      if (backdrop) backdrop.classList.add('open');
+      isOpen = true;
     }
-    function hide()  { dropdown.style.display = 'none'; }
-
-    function chip(icon, label, query, full) {
-      var style = full ? 'grid-column:1/-1;' : '';
-      return '<button type="button" class="qb-dropdown-item" data-query="' + query + '" style="' + style + '">'
-        + '<span class="qb-dropdown-item-icon">' + icon + '</span>'
-        + '<span class="qb-dropdown-item-label">' + label + '</span>'
-        + '</button>';
+    function hide() {
+      dropdown.style.display = 'none';
+      if (backdrop) backdrop.classList.remove('open');
+      isOpen = false;
     }
 
-    /* ── render trends (no query) ─────────────── */
-    function renderTrends() {
-      setTitle('Popular Right Now');
-      items.innerHTML = TRENDS.map(function(t) {
-        return chip(t.icon, t.label, t.label, false);
-      }).join('');
+    /* ── render helpers ──── */
+    function catChips() {
+      return '<div class="qb-sdrop-chips">'
+        + CATEGORIES.map(function(c){
+            return '<button type="button" class="qb-sdrop-chip" data-query="' + esc(c.q) + '">' + c.label + '</button>';
+          }).join('')
+        + '</div>';
     }
 
-    /* ── render live results ──────────────────── */
+    function recentBlock() {
+      var list = getRecent();
+      if (!list.length) return '';
+      return '<div class="qb-sdrop-label">Recent</div>'
+        + '<div class="qb-sdrop-items" id="qbRecentList">'
+        + list.map(function(q){
+            return '<div class="qb-sdrop-recent-row" data-recent="' + esc(q) + '">'
+              + '<span class="qb-sdrop-recent-ico">🕐</span>'
+              + '<span class="qb-sdrop-recent-txt">' + esc(q) + '</span>'
+              + '<button type="button" class="qb-sdrop-recent-del" data-del="' + esc(q) + '" aria-label="Remove">✕</button>'
+              + '</div>';
+          }).join('')
+        + '</div><div class="qb-sdrop-divider"></div>';
+    }
+
+    /* ── render states ──── */
+    function renderHome() {
+      var topFreq = getTopFrequent(4);
+      var freqBlock = '';
+      if (topFreq.length) {
+        freqBlock = '<div class="qb-sdrop-label">⚡ You Often Search</div>'
+          + '<div class="qb-sdrop-chips" style="margin-bottom:6px;">'
+          + topFreq.map(function(q){
+              return '<button type="button" class="qb-sdrop-chip" style="border-color:rgba(244,180,0,0.3);background:rgba(244,180,0,0.07);color:#c98a00;" data-query="' + esc(q) + '">🔁 ' + esc(q) + '</button>';
+            }).join('')
+          + '</div>';
+      }
+      inner.innerHTML = catChips()
+        + recentBlock()
+        + freqBlock
+        + '<div class="qb-sdrop-label">🔥 Popular Right Now</div>'
+        + '<div class="qb-sdrop-items">'
+        + TRENDS.map(function(t){
+            return '<button type="button" class="qb-sdrop-item" data-query="' + esc(t.label) + '">'
+              + '<div class="qb-sdrop-ico">' + t.icon + '</div>'
+              + '<div class="qb-sdrop-body">'
+                + '<div class="qb-sdrop-name">' + esc(t.label) + '</div>'
+                + '<div class="qb-sdrop-sub">' + esc(t.sub) + '</div>'
+              + '</div>'
+              + '</button>';
+          }).join('')
+        + '</div>';
+    }
+
+    function renderLoading() {
+      var skels = '';
+      for (var i = 0; i < 4; i++) {
+        skels += '<div class="qb-sdrop-skeleton">'
+          + '<div class="qb-sdrop-sk-ico"></div>'
+          + '<div class="qb-sdrop-sk-body">'
+            + '<div class="qb-sdrop-sk-line w80"></div>'
+            + '<div class="qb-sdrop-sk-line w50"></div>'
+          + '</div></div>';
+      }
+      inner.innerHTML = catChips() + '<div class="qb-sdrop-label">Searching…</div>' + skels;
+    }
+
     function renderResults(query, products) {
-      setTitle('Results for "' + query + '"');
-      var html = '';
+      var html = catChips();
+      html += '<div class="qb-sdrop-label">Results for "' + esc(query) + '"</div>';
+      html += '<div class="qb-sdrop-items">';
 
-      products.slice(0, 5).forEach(function(p) {
-        var imgHtml = p.featured_image
-          ? '<img src="' + p.featured_image + '" style="width:28px;height:28px;object-fit:contain;border-radius:6px;background:#fff;" loading="lazy">'
-          : '🛍️';
-        var priceHtml = p.price
-          ? '<span style="font-size:11px;font-weight:800;color:#F4B400;white-space:nowrap;flex-shrink:0;">Rs&nbsp;' + Math.round(p.price / 100) + '</span>'
+      products.slice(0, 6).forEach(function(p) {
+        var imgEl = p.featured_image
+          ? '<img class="qb-sdrop-img" src="' + esc(p.featured_image) + '" loading="lazy" alt="">'
+          : '<div class="qb-sdrop-img-placeholder">🛍️</div>';
+        var priceEl = p.price
+          ? '<span class="qb-sdrop-price">Rs ' + Math.round(p.price / 100) + '</span>'
           : '';
-        html += '<a href="' + p.url + '" class="qb-dropdown-item" style="text-decoration:none;display:flex;align-items:center;gap:10px;">'
-          + '<span class="qb-dropdown-item-icon" style="font-size:0;">' + imgHtml + '</span>'
-          + '<span class="qb-dropdown-item-label" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escHtml(p.title) + '</span>'
-          + priceHtml
+        html += '<a href="' + esc(p.url) + '" class="qb-sdrop-item" data-product-query="' + esc(query) + '">'
+          + imgEl
+          + '<div class="qb-sdrop-body"><div class="qb-sdrop-name">' + esc(p.title) + '</div></div>'
+          + priceEl
           + '</a>';
       });
 
-      /* always append "search all" row */
-      html += chip('🔍',
-        'See all results for <strong>' + escHtml(query) + '</strong> &nbsp;→',
-        query, true);
-      items.innerHTML = html;
+      html += '<button type="button" class="qb-sdrop-seeall" data-query="' + esc(query) + '">'
+        + '<span style="font-size:18px;">🔍</span>'
+        + '<span>See all results for <strong>' + esc(query) + '</strong></span>'
+        + '</button>';
+      html += '</div>';
+      inner.innerHTML = html;
     }
 
-    /* ── render no-results ────────────────────── */
     function renderNoResults(query) {
-      setTitle('No matches found');
-      items.innerHTML = chip('🔍',
-        'Search for <strong>' + escHtml(query) + '</strong> &nbsp;→',
-        query, true);
+      inner.innerHTML = catChips()
+        + '<div class="qb-sdrop-empty">'
+        + '<div class="qb-sdrop-empty-ico">🔍</div>'
+        + '<div class="qb-sdrop-empty-txt">No results for "' + esc(query) + '"</div>'
+        + '<div class="qb-sdrop-empty-sub">Try a different keyword or browse categories</div>'
+        + '</div>'
+        + '<div class="qb-sdrop-label">🔥 Popular</div>'
+        + '<div class="qb-sdrop-items">'
+        + TRENDS.slice(0,3).map(function(t){
+            return '<button type="button" class="qb-sdrop-item" data-query="' + esc(t.label) + '">'
+              + '<div class="qb-sdrop-ico">' + t.icon + '</div>'
+              + '<div class="qb-sdrop-body"><div class="qb-sdrop-name">' + esc(t.label) + '</div></div>'
+              + '</button>';
+          }).join('')
+        + '</div>';
     }
 
-    /* ── render loading ───────────────────────── */
-    function renderLoading() {
-      setTitle('Searching…');
-      items.innerHTML = '<div style="padding:10px 4px;color:var(--qb-text-muted,#888);font-size:13px;">Loading…</div>';
-    }
-
-    /* ── escape HTML ──────────────────────────── */
-    function escHtml(s) {
-      return String(s)
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-
-    /* ── fetch Shopify predictive search ─────── */
+    /* ── fetch Shopify predictive search ──── */
     async function fetchProducts(query) {
       try {
         var url = '/search/suggest.json?q=' + encodeURIComponent(query)
-          + '&resources[type]=product&resources[limit]=5'
+          + '&resources[type]=product&resources[limit]=6'
           + '&resources[fields]=title,url,price,featured_image';
         var res  = await fetch(url);
         var data = await res.json();
@@ -1293,56 +1577,90 @@
       } catch(e) { return []; }
     }
 
-    /* ── on input ─────────────────────────────── */
+    /* ── on input ──── */
     function handleInput() {
       var query = input.value.trim();
-      if (!query) { renderTrends(); show(); return; }
-
-      renderLoading();
-      show();
+      if (!query) { renderHome(); show(); return; }
+      renderLoading(); show();
       clearTimeout(debounce);
       debounce = setTimeout(async function() {
         if (input.value.trim() !== query) return;
-        lastQuery = query;
         var products = await fetchProducts(query);
         if (input.value.trim() !== query) return;
-        if (products.length > 0) {
-          renderResults(query, products);
-        } else {
-          renderNoResults(query);
-        }
-      }, 280);
+        if (products.length > 0) { renderResults(query, products); }
+        else { renderNoResults(query); }
+      }, 260);
     }
 
-    /* ── events ───────────────────────────────── */
+    /* ── delegate clicks inside dropdown ──── */
+    inner.addEventListener('click', function(e) {
+      /* Category chip */
+      var chip = e.target.closest('[data-query].qb-sdrop-chip');
+      if (chip) { input.value = chip.getAttribute('data-query'); hide(); form.submit(); return; }
+
+      /* Trend / result item */
+      var item = e.target.closest('[data-query].qb-sdrop-item, [data-query].qb-sdrop-seeall');
+      if (item) {
+        var q = item.getAttribute('data-query');
+        if (q) { addRecent(q); input.value = q; hide(); form.submit(); }
+        return;
+      }
+
+      /* Product result link */
+      var pLink = e.target.closest('a.qb-sdrop-item[data-product-query]');
+      if (pLink) {
+        var pq = pLink.getAttribute('data-product-query');
+        if (pq) addRecent(pq);
+        hide();
+        return;
+      }
+
+      /* Recent row click */
+      var recentRow = e.target.closest('[data-recent]');
+      if (recentRow && !e.target.closest('[data-del]')) {
+        var rq = recentRow.getAttribute('data-recent');
+        if (rq) { input.value = rq; hide(); form.submit(); }
+        return;
+      }
+
+      /* Delete recent */
+      var delBtn = e.target.closest('[data-del]');
+      if (delBtn) {
+        e.stopPropagation();
+        var dq = delBtn.getAttribute('data-del');
+        removeRecent(dq);
+        var row = inner.querySelector('[data-recent="' + CSS.escape(dq) + '"]');
+        if (row) row.remove();
+        return;
+      }
+    });
+
+    /* ── form submit: save recent ──── */
+    form.addEventListener('submit', function() {
+      var q = input.value.trim();
+      if (q) addRecent(q);
+    });
+
+    /* ── focus / input events ──── */
     input.addEventListener('focus', function() {
-      if (input.value.trim()) { handleInput(); } else { renderTrends(); show(); }
+      if (input.value.trim()) { handleInput(); } else { renderHome(); show(); }
     });
     input.addEventListener('input', handleInput);
     input.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') { hide(); input.blur(); }
     });
 
-    items.addEventListener('click', function(e) {
-      var item = e.target.closest('[data-query]');
-      if (!item) return;
-      e.preventDefault();
-      input.value = item.getAttribute('data-query') || '';
-      hide();
-      form.submit();
-    });
-
+    /* ── close on outside click / backdrop tap ──── */
     document.addEventListener('click', function(e) {
       if (!form.contains(e.target) && !dropdown.contains(e.target)) hide();
     });
+    if (backdrop) backdrop.addEventListener('click', function() { hide(); input.blur(); });
 
-    /* reposition on scroll/resize so fixed dropdown stays under bar */
+    /* ── reposition on scroll / resize ──── */
     function reposition() {
-      if (dropdown.style.display === 'block') {
+      if (isOpen) {
         var rect = form.getBoundingClientRect();
-        dropdown.style.top  = (rect.bottom + 6) + 'px';
-        dropdown.style.left = rect.left + 'px';
-        dropdown.style.width = rect.width + 'px';
+        dropdown.style.top = rect.bottom + 'px';
       }
     }
     window.addEventListener('scroll', reposition, { passive: true });
