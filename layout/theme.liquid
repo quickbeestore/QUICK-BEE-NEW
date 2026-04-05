@@ -246,6 +246,20 @@
         transition: border-color var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast);
       }
 
+      /* ── Universal Sticky Cart: suppress ALL add-to-cart toasts ── */
+      /* These are replaced by qb-sticky-cart — kills every section's toast */
+      .qb-toast, #qb-toast,
+      .flash-deals-toast,
+      .dg-toast, #dgToast,
+      #ttToast, .tt-toast,
+      [class$="-toast"][class*="cart"],
+      [id$="-toast"][id*="cart"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+
       /* ── QuickBee Overrides for Global Broad Rules ── */
       /* These prevent global theme CSS from breaking QB components */
       .qb-qty-act, .qb-qty-btn, .qb-item-remove, .qb-mini-guide-btn,
@@ -894,14 +908,12 @@
   {%- render 'qb-sticky-cart' -%}
 
   <script>
-  /* Cart count live update — no drawer */
-  document.addEventListener('cart:updated', function () {
-    fetch('/cart.js', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-      .then(function (r) { return r.json(); })
-      .then(function (cart) {
-        var el = document.getElementById('cart-count');
-        if (el) el.textContent = cart.item_count;
-      });
+  /* Refresh QuickPay wallet badge after a completed order */
+  document.addEventListener('quickbee:order-complete', function () {
+    var badge = document.getElementById('qb-quickpay-badge');
+    if (!badge) return;
+    try { sessionStorage.removeItem('qb-wallet-balance'); } catch(e) {}
+    // Re-fetch is handled by wallet-balance.liquid's event listener
   });
   </script>
 

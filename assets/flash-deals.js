@@ -379,26 +379,7 @@ class FlashDealsPage {
    * Show success notification toast
    */
   showSuccessMessage(message) {
-    const toast = document.createElement('div');
-    toast.className = 'flash-deals-toast flash-deals-toast-success';
-    toast.setAttribute('aria-live', 'polite');
-    toast.setAttribute('aria-atomic', 'true');
-    toast.textContent = message;
-
-    document.body.appendChild(toast);
-
-    // Trigger animation
-    requestAnimationFrame(() => {
-      toast.classList.add('show');
-    });
-
-    // Remove after 3 seconds
-    setTimeout(() => {
-      toast.classList.remove('show');
-      setTimeout(() => {
-        toast.remove();
-      }, 300);
-    }, 3000);
+    // Suppressed — universal sticky cart handles add-to-cart feedback
   }
 
   /**
