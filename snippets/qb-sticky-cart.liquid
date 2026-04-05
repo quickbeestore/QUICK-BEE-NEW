@@ -57,7 +57,7 @@
   </div>
 
   <!-- Mini cart bar (always visible when cart has items) -->
-  <div id="qbsc-bar" class="qbsc-bar" role="button" tabindex="0" aria-label="Open cart" aria-expanded="false">
+  <div id="qbsc-bar" class="qbsc-bar" role="button" tabindex="0" aria-label="Open cart" aria-expanded="false" style="opacity:0;transform:translateY(calc(100% + 12px));pointer-events:none">
     <div class="qbsc-bar-l">
       <div class="qbsc-bar-bag">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" aria-hidden="true">
@@ -821,9 +821,14 @@ html:not([data-theme]) #qbsc-root {
   }
 
   /* ── Update UI from cart data ── */
-  function applyCart(cart, isNewAdd) {
+  var LS_KEY = 'qbsc_count';
+
+  function applyCart(cart, isNewAdd, isInit) {
     var count = cart.item_count || 0;
     var total = cart.total_price || 0;
+
+    /* Persist count so next page load can skip animation */
+    try { localStorage.setItem(LS_KEY, count); } catch(e) {}
 
     var countChanged = (prevCount !== -1 && count !== prevCount);
 
@@ -848,18 +853,37 @@ html:not([data-theme]) #qbsc-root {
 
     /* Show / hide */
     if (count === 0) {
+      /* Remove inline hide style in case it's still there, then apply hidden class */
+      BAR.style.opacity = '';
+      BAR.style.transform = '';
+      BAR.style.pointerEvents = '';
       ROOT.classList.add('qbsc-hidden');
       if (isOpen) closePanel();
     } else {
       var wasHidden = ROOT.classList.contains('qbsc-hidden');
       ROOT.classList.remove('qbsc-hidden');
 
-      if (wasHidden || (isNewAdd && count > prevCount && prevCount >= 0)) {
-        /* Bounce-in or bump animation */
-        BAR.classList.remove('qbsc-enter', 'qbsc-pulse');
-        void BAR.offsetWidth;
-        BAR.classList.add(wasHidden ? 'qbsc-enter' : 'qbsc-pulse');
-        setTimeout(function () { BAR.classList.remove('qbsc-enter', 'qbsc-pulse'); }, 700);
+      if (isInit) {
+        /* Page load / refresh: show instantly, no slide-in flash */
+        BAR.style.transition = 'none';
+        BAR.style.opacity = '1';
+        BAR.style.transform = '';
+        BAR.style.pointerEvents = '';
+        void BAR.offsetWidth;        /* flush */
+        BAR.style.transition = '';   /* restore transition for future interactions */
+      } else {
+        /* Clear inline style that was hiding the bar initially */
+        BAR.style.opacity = '';
+        BAR.style.transform = '';
+        BAR.style.pointerEvents = '';
+
+        if (wasHidden || (isNewAdd && count > prevCount && prevCount >= 0)) {
+          /* Bounce-in or bump animation — only for genuine new-add / first show */
+          BAR.classList.remove('qbsc-enter', 'qbsc-pulse');
+          void BAR.offsetWidth;
+          BAR.classList.add(wasHidden ? 'qbsc-enter' : 'qbsc-pulse');
+          setTimeout(function () { BAR.classList.remove('qbsc-enter', 'qbsc-pulse'); }, 700);
+        }
       }
     }
 
@@ -867,11 +891,11 @@ html:not([data-theme]) #qbsc-root {
   }
 
   /* ── Load cart ── */
-  function loadCart(isNewAdd) {
+  function loadCart(isNewAdd, isInit) {
     if (isFetching) return;
     isFetching = true;
     fetchCart()
-      .then(function (cart) { applyCart(cart, !!isNewAdd); })
+      .then(function (cart) { applyCart(cart, !!isNewAdd, !!isInit); })
       .catch(function () {})
       .then(function () { isFetching = false; });
   }
@@ -963,9 +987,9 @@ html:not([data-theme]) #qbsc-root {
   });
 
   /* ── Listen to cart events ── */
-  document.addEventListener('cart:updated', function () { loadCart(true); });
-  document.addEventListener('CartAddEvent',  function () { loadCart(true); });
-  document.addEventListener('cart:add',      function () { loadCart(true); });
+  document.addEventListener('cart:updated', function () { loadCart(true, false); });
+  document.addEventListener('CartAddEvent',  function () { loadCart(true, false); });
+  document.addEventListener('cart:add',      function () { loadCart(true, false); });
 
   /* Intercept fetch to /cart/add.js to catch native add-to-cart calls */
   var _fetch = window.fetch;
@@ -978,14 +1002,28 @@ html:not([data-theme]) #qbsc-root {
 
     if (/\/cart\/add(\.js)?(\?|$)/.test(url)) {
       p.then(function (r) {
-        if (r && r.ok) setTimeout(function () { loadCart(true); }, 150);
+        if (r && r.ok) setTimeout(function () { loadCart(true, false); }, 150);
       }).catch(function () {});
     }
     return p;
   };
 
   /* ── Init ── */
-  function init() { loadCart(false); }
+  function init() {
+    /* Fast-path: if we previously stored that cart was empty, skip the fetch
+       animation entirely — bar stays hidden with no flash until fetch confirms */
+    var cached = 0;
+    try { cached = parseInt(localStorage.getItem(LS_KEY) || '0', 10) || 0; } catch(e) {}
+
+    /* If we know cart is empty from last page, pre-hide so even a slow CSS
+       parse doesn't cause a flash (the inline style on #qbsc-bar already does
+       this, but belt-and-suspenders) */
+    if (cached === 0) {
+      ROOT.classList.add('qbsc-hidden');
+    }
+
+    loadCart(false, true);
+  }
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
