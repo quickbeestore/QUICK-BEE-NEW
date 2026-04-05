@@ -1077,8 +1077,7 @@
     </div>
   </div>
 
-  <!-- Overlay -->
-  <div class="tt-overlay" id="ttOverlay"></div>
+  <!-- Overlay removed — using global cart drawer -->
 
   <!-- ── Sticky Top Bar ───────────────────────────── -->
   <div class="tt-topbar">
@@ -1531,44 +1530,7 @@
     {%- endif -%}
   </div>
 
-  <!-- ── Cart Drawer ───────────────────────────────── -->
-  <div class="tt-drawer" id="ttDrawer" role="dialog" aria-label="Your cart">
-    <div class="tt-drawer-head">
-      <span class="tt-drawer-title">🛒 Your Order</span>
-      <button class="tt-drawer-close" id="ttDrawerClose" aria-label="Close cart">✕</button>
-    </div>
-
-    <div class="tt-drawer-body" id="ttDrawerBody">
-      <div class="tt-drawer-empty" id="ttDrawerEmpty">
-        <div class="tt-drawer-empty-icon">🥘</div>
-        <p class="tt-drawer-empty-msg">Your cart is empty</p>
-        <p class="tt-drawer-empty-sub">Start adding delicious food!</p>
-      </div>
-      <div id="ttDrawerItems"></div>
-    </div>
-
-    <!-- Combos -->
-    <div class="tt-combos-wrap" id="ttCombosWrap" style="display:none">
-      <div class="tt-combos-title">🔥 Add On</div>
-      <div class="tt-combos-list" id="ttCombosList"></div>
-    </div>
-
-    <!-- Upsell -->
-    <div class="tt-upsell-wrap" id="ttUpsellWrap" style="display:none">
-      <div class="tt-upsell-title">👥 People Also Ordered</div>
-      <div class="tt-upsell-list" id="ttUpsellList"></div>
-    </div>
-
-    <div class="tt-drawer-footer" id="ttDrawerFooter" style="display:none">
-      <div class="tt-drawer-total-row">
-        <span class="tt-drawer-total-label">Total</span>
-        <span class="tt-drawer-total-val" id="ttDrawerTotal">Rs 0</span>
-      </div>
-      <button class="tt-checkout-btn" onclick="window.location.href='/pages/payment'">
-        Proceed to Checkout 🚀
-      </button>
-    </div>
-  </div>
+  <!-- Cart drawer removed — global cart drawer handles this -->
 
   <!-- ── Mobile Bottom Bar ─────────────────────────── -->
   <div class="tt-mobile-bar" id="ttMobileBar">
@@ -1624,6 +1586,18 @@
     });
   } catch(e) {}
 
+  /* ── Open global cart drawer ────────────────────── */
+  function ttOpenGlobalCart() {
+    var drawer = document.querySelector('cart-drawer-component');
+    if (drawer && typeof drawer.open === 'function') { drawer.open(); }
+    else { window.location.href = '/cart'; }
+  }
+
+  /* ── Notify global cart to refresh + open ────────── */
+  function ttNotifyGlobal() {
+    document.dispatchEvent(new Event('cart:update', { bubbles: true }));
+  }
+
   /* ── Restore cart from Shopify ──────────────────── */
   fetch('/cart.js', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
     .then(function (r) { return r.json(); })
@@ -1642,7 +1616,6 @@
   function renderAll() {
     Object.keys(ttPrices).forEach(function (vid) { renderVid(parseInt(vid, 10)); });
     updateBar();
-    renderDrawerItems();
   }
 
   /* ── Render single vid ──────────────────────────── */
@@ -1680,15 +1653,15 @@
     .then(function (r) { return r.json(); })
     .then(function () {
       ttCart[vid] = (ttCart[vid] || 0) + qty;
+      ttNotifyGlobal();
       if (btn) {
         btn.classList.remove('loading');
         btn.classList.add('success');
         btn.textContent = '✓';
-        setTimeout(function () { renderVid(vid); updateBar(); renderDrawerItems(); showToast('Added to cart ✓'); }, 300);
+        setTimeout(function () { renderVid(vid); updateBar(); showToast('Added to cart ✓'); }, 300);
       } else {
         renderVid(vid);
         updateBar();
-        renderDrawerItems();
         showToast('Added ✓');
       }
     })
@@ -1711,7 +1684,7 @@
       if (btn) btn.classList.remove('busy');
       renderVid(vid);
       updateBar();
-      renderDrawerItems();
+      ttNotifyGlobal();
     })
     .catch(function () { if (btn) btn.classList.remove('busy'); });
   }
@@ -1738,121 +1711,6 @@
     if (barTot) barTot.textContent = 'Rs ' + Math.round(totalPrice / 100);
   }
 
-  /* ── Drawer items ────────────────────────────────── */
-  function renderDrawerItems() {
-    var container = document.getElementById('ttDrawerItems');
-    var empty     = document.getElementById('ttDrawerEmpty');
-    var footer    = document.getElementById('ttDrawerFooter');
-    var totalEl   = document.getElementById('ttDrawerTotal');
-    var combosWrap= document.getElementById('ttCombosWrap');
-    var upsellWrap= document.getElementById('ttUpsellWrap');
-    if (!container) return;
-
-    var vids = Object.keys(ttCart).filter(function (v) { return ttCart[v] > 0; });
-
-    if (vids.length === 0) {
-      container.innerHTML = '';
-      if (empty)  empty.style.display  = '';
-      if (footer) footer.style.display = 'none';
-      if (combosWrap) combosWrap.style.display = 'none';
-      if (upsellWrap) upsellWrap.style.display = 'none';
-      return;
-    }
-
-    if (empty)  empty.style.display  = 'none';
-    if (footer) footer.style.display = '';
-    if (combosWrap) combosWrap.style.display = '';
-    if (upsellWrap) upsellWrap.style.display = '';
-
-    var html = '';
-    var total = 0;
-    vids.forEach(function (v) {
-      var qty   = ttCart[v];
-      var price = (ttPrices[v] || 0) * qty;
-      total += price;
-      var img   = ttImgs[v] || '';
-      var title = ttTitles[v] || 'Item';
-      html += '<div class="tt-drawer-item">';
-      if (img) {
-        html += '<img class="tt-ditem-img" src="' + img + '" alt="' + title + '" loading="lazy">';
-      } else {
-        html += '<div class="tt-ditem-img" style="display:flex;align-items:center;justify-content:center;font-size:24px;">🍽️</div>';
-      }
-      html += '<div class="tt-ditem-info"><div class="tt-ditem-name">' + title + '</div><div class="tt-ditem-price">Rs ' + Math.round((ttPrices[v] || 0) / 100) + '</div></div>';
-      html += '<div class="tt-ditem-stepper">';
-      html += '<button class="tt-ditem-btn" data-vid="' + v + '" data-action="minus">−</button>';
-      html += '<span class="tt-ditem-qty">' + qty + '</span>';
-      html += '<button class="tt-ditem-btn" data-vid="' + v + '" data-action="plus">+</button>';
-      html += '</div></div>';
-    });
-    container.innerHTML = html;
-
-    if (totalEl) totalEl.textContent = 'Rs ' + Math.round(total / 100);
-
-    renderCombos(vids);
-    renderUpsell(vids);
-  }
-
-  /* ── Combo deals ─────────────────────────────────── */
-  function renderCombos(cartVids) {
-    var list = document.getElementById('ttCombosList');
-    if (!list) return;
-    var notInCart = allProducts.filter(function (p) {
-      return !cartVids.includes(String(p.id)) && p.price < 20000;
-    }).slice(0, 4);
-    if (notInCart.length === 0) { if (list.parentElement) list.parentElement.style.display = 'none'; return; }
-    var html = '';
-    notInCart.forEach(function (p) {
-      html += '<div class="tt-combo-pill" data-vid="' + p.id + '">';
-      html += '<span class="tt-combo-text">+ ' + p.title.split(' ').slice(0,3).join(' ') + '</span>';
-      html += '<span class="tt-combo-price">Rs ' + Math.round(p.price / 100) + '</span>';
-      html += '<span class="tt-combo-add">＋</span>';
-      html += '</div>';
-    });
-    list.innerHTML = html;
-    list.querySelectorAll('.tt-combo-pill').forEach(function (pill) {
-      pill.addEventListener('click', function () {
-        var vid = parseInt(pill.getAttribute('data-vid'), 10);
-        ttAdd(vid, 1, null);
-        pill.style.opacity = '0.5';
-        pill.style.pointerEvents = 'none';
-      });
-    });
-  }
-
-  /* ── Upsell ──────────────────────────────────────── */
-  function renderUpsell(cartVids) {
-    var list = document.getElementById('ttUpsellList');
-    if (!list) return;
-    var suggestions = allProducts.filter(function (p) {
-      return !cartVids.includes(String(p.id));
-    });
-    // Shuffle
-    for (var i = suggestions.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var tmp = suggestions[i]; suggestions[i] = suggestions[j]; suggestions[j] = tmp;
-    }
-    suggestions = suggestions.slice(0, 5);
-    if (suggestions.length === 0) { if (list.parentElement) list.parentElement.style.display = 'none'; return; }
-    var html = '';
-    suggestions.forEach(function (p) {
-      html += '<div class="tt-upsell-card" data-vid="' + p.id + '">';
-      html += '<div class="tt-upsell-img">';
-      if (p.img) { html += '<img src="' + p.img + '" alt="' + p.title + '" loading="lazy">'; }
-      else        { html += '🍽️'; }
-      html += '</div>';
-      html += '<div class="tt-upsell-info"><div class="tt-upsell-name">' + p.title.slice(0, 20) + '</div><div class="tt-upsell-price">Rs ' + Math.round(p.price/100) + '</div></div>';
-      html += '</div>';
-    });
-    list.innerHTML = html;
-    list.querySelectorAll('.tt-upsell-card').forEach(function (card) {
-      card.addEventListener('click', function () {
-        var vid = parseInt(card.getAttribute('data-vid'), 10);
-        ttAdd(vid, 1, null);
-      });
-    });
-  }
-
   /* ── Toast ───────────────────────────────────────── */
   function showToast(msg) {
     var t = document.getElementById('ttToast');
@@ -1863,33 +1721,11 @@
     toastTimer = setTimeout(function () { t.classList.remove('show'); }, 1800);
   }
 
-  /* ── Drawer open/close ───────────────────────────── */
-  function openDrawer() {
-    document.getElementById('ttDrawer').classList.add('open');
-    document.getElementById('ttOverlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeDrawer() {
-    document.getElementById('ttDrawer').classList.remove('open');
-    document.getElementById('ttOverlay').classList.remove('open');
-    document.body.style.overflow = '';
-  }
-
-  document.getElementById('ttDrawerClose').addEventListener('click', closeDrawer);
-  document.getElementById('ttOverlay').addEventListener('click', closeDrawer);
-  document.getElementById('ttCartIconBtn').addEventListener('click', openDrawer);
-  document.getElementById('ttMobileBar').addEventListener('click', openDrawer);
-
-  /* ── Drawer item buttons (event delegation) ─────── */
-  document.getElementById('ttDrawerItems').addEventListener('click', function (e) {
-    var btn = e.target.closest('.tt-ditem-btn');
-    if (!btn) return;
-    var vid = parseInt(btn.getAttribute('data-vid'), 10);
-    var action = btn.getAttribute('data-action');
-    var cur = ttCart[vid] || 0;
-    if (action === 'plus') { ttChange(vid, cur + 1, btn); }
-    else if (action === 'minus') { ttChange(vid, Math.max(0, cur - 1), btn); }
-  });
+  /* ── Cart icon + mobile bar → open global cart ───── */
+  var cartIconBtn = document.getElementById('ttCartIconBtn');
+  var mobileBar   = document.getElementById('ttMobileBar');
+  if (cartIconBtn) cartIconBtn.addEventListener('click', ttOpenGlobalCart);
+  if (mobileBar)   mobileBar.addEventListener('click', ttOpenGlobalCart);
 
   /* ── Card ADD / Stepper (event delegation) ──────── */
   document.getElementById('ttContent').addEventListener('click', function (e) {
