@@ -1,0 +1,723 @@
+{%- comment -%}
+  sections/qb-product-subscription.liquid
+  Universal Subscription Product Page
+  — No product image
+  — Price, title, variants pulled live from Shopify
+  — Auto-theming based on product.type
+  — Dark / Light aware
+{%- endcomment -%}
+
+{%- liquid
+  assign p = product
+
+  comment — icon + accent colour based on product type
+  endcomment
+  assign p_type = p.type | downcase
+
+  if p_type == 'dairy'
+    assign p_icon    = '🥛'
+    assign p_color   = '#3b82f6'
+    assign p_color_d = 'rgba(59,130,246,0.15)'
+    assign p_color_l = 'rgba(59,130,246,0.10)'
+  elsif p_type == 'vegetables'
+    assign p_icon    = '🥦'
+    assign p_color   = '#22c55e'
+    assign p_color_d = 'rgba(34,197,94,0.15)'
+    assign p_color_l = 'rgba(34,197,94,0.10)'
+  elsif p_type == 'fruits'
+    assign p_icon    = '🍎'
+    assign p_color   = '#ec4899'
+    assign p_color_d = 'rgba(236,72,153,0.15)'
+    assign p_color_l = 'rgba(236,72,153,0.10)'
+  elsif p_type == 'bakery'
+    assign p_icon    = '🍞'
+    assign p_color   = '#f97316'
+    assign p_color_d = 'rgba(249,115,22,0.15)'
+    assign p_color_l = 'rgba(249,115,22,0.10)'
+  elsif p_type == 'extras'
+    assign p_icon    = '📦'
+    assign p_color   = '#8b5cf6'
+    assign p_color_d = 'rgba(139,92,246,0.15)'
+    assign p_color_l = 'rgba(139,92,246,0.10)'
+  else
+    assign p_icon    = '⭐'
+    assign p_color   = '#F4B400'
+    assign p_color_d = 'rgba(244,180,0,0.15)'
+    assign p_color_l = 'rgba(244,180,0,0.10)'
+  endif
+
+  comment — badge from tags
+  endcomment
+  assign badge_txt = ''
+  if p.tags contains 'popular'
+    assign badge_txt = '🔥 Popular'
+  elsif p.tags contains 'best-value'
+    assign badge_txt = '⭐ Best Value'
+  elsif p.tags contains 'new'
+    assign badge_txt = '✨ New'
+  elsif p.tags contains 'top-pick'
+    assign badge_txt = '🌟 Top Pick'
+  elsif p.tags contains 'fresh'
+    assign badge_txt = '🌿 Fresh'
+  endif
+
+  comment — first variant default
+  endcomment
+  assign first_variant = p.variants.first
+-%}
+
+<style>
+/* ══════════════════════════════════════
+   TOKENS
+══════════════════════════════════════ */
+[data-theme="dark"] {
+  --sp-bg:        #090909; --sp-bg2: #111; --sp-bg3: #1a1a1a;
+  --sp-card:      #111; --sp-card2: #181818;
+  --sp-border:    rgba(255,255,255,0.07); --sp-border2: rgba(255,255,255,0.12);
+  --sp-text:      #f0f0f0; --sp-text2: #888; --sp-text3: #444;
+  --sp-gold:      #F4B400; --sp-gold2: #FFD700;
+  --sp-gold-dim:  rgba(244,180,0,0.12); --sp-gold-glow: 0 0 0 3px rgba(244,180,0,0.25);
+  --sp-green:     #22c55e; --sp-green-dim: rgba(34,197,94,0.12);
+  --sp-shadow:    0 4px 24px rgba(0,0,0,0.6); --sp-shadow-lg: 0 20px 60px rgba(0,0,0,0.85);
+  --sp-accent:    {{ p_color }}; --sp-accent-dim: {{ p_color_d }};
+}
+[data-theme="light"], html:not([data-theme]) {
+  --sp-bg:        #f4f5f8; --sp-bg2: #fff; --sp-bg3: #eef0f4;
+  --sp-card:      #fff; --sp-card2: #f8f9fb;
+  --sp-border:    rgba(15,23,42,0.08); --sp-border2: rgba(15,23,42,0.14);
+  --sp-text:      #0f172a; --sp-text2: #64748b; --sp-text3: #94a3b8;
+  --sp-gold:      #F4B400; --sp-gold2: #FFD700;
+  --sp-gold-dim:  rgba(244,180,0,0.10); --sp-gold-glow: 0 0 0 3px rgba(244,180,0,0.2);
+  --sp-green:     #16a34a; --sp-green-dim: rgba(22,163,74,0.08);
+  --sp-shadow:    0 4px 24px rgba(15,23,42,0.08); --sp-shadow-lg: 0 20px 60px rgba(15,23,42,0.12);
+  --sp-accent:    {{ p_color }}; --sp-accent-dim: {{ p_color_l }};
+}
+
+/* ══════════════════════════════════════
+   ROOT
+══════════════════════════════════════ */
+.sp-root {
+  background: var(--sp-bg);
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  padding-bottom: 100px;
+}
+
+/* ══════════════════════════════════════
+   HERO BANNER
+══════════════════════════════════════ */
+.sp-hero {
+  position: relative; overflow: hidden;
+  padding: 36px 20px 32px;
+  text-align: center;
+}
+[data-theme="dark"] .sp-hero {
+  background: linear-gradient(160deg, #0a0a0a 0%, #0d0d0d 60%, #0a0a0a 100%);
+  border-bottom: 1px solid var(--sp-border);
+}
+html:not([data-theme="dark"]) .sp-hero {
+  background: linear-gradient(160deg, #fff 0%, #f8f9ff 60%, #fff 100%);
+  border-bottom: 1px solid var(--sp-border);
+}
+/* Soft accent glow behind icon */
+.sp-hero::before {
+  content: '';
+  position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+  width: 320px; height: 320px;
+  background: radial-gradient(ellipse, var(--sp-accent-dim) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── Icon ── */
+.sp-hero-icon {
+  width: 80px; height: 80px; border-radius: 24px;
+  background: var(--sp-accent-dim);
+  border: 1.5px solid var(--sp-border2);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 38px; margin-bottom: 14px;
+  box-shadow: 0 8px 32px var(--sp-accent-dim);
+  position: relative; z-index: 1;
+}
+
+/* ── Badge ── */
+.sp-hero-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--sp-gold-dim); border: 1px solid rgba(244,180,0,0.3);
+  color: var(--sp-gold); font-size: 10.5px; font-weight: 800;
+  padding: 5px 12px; border-radius: 50px; text-transform: uppercase;
+  letter-spacing: .05em; margin-bottom: 12px;
+  position: relative; z-index: 1;
+}
+
+/* ── Title ── */
+.sp-hero-title {
+  font-size: 26px; font-weight: 900; color: var(--sp-text);
+  margin-bottom: 8px; line-height: 1.2;
+  position: relative; z-index: 1;
+}
+.sp-hero-desc {
+  font-size: 14px; color: var(--sp-text2); line-height: 1.55;
+  max-width: 320px; margin: 0 auto 18px;
+  position: relative; z-index: 1;
+}
+
+/* ── Type pill ── */
+.sp-hero-type {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--sp-accent-dim); border: 1px solid var(--sp-border2);
+  color: var(--sp-accent); font-size: 11px; font-weight: 700;
+  padding: 5px 13px; border-radius: 50px;
+  position: relative; z-index: 1;
+}
+
+/* ══════════════════════════════════════
+   PERKS STRIP
+══════════════════════════════════════ */
+.sp-perks {
+  display: flex; gap: 8px; overflow-x: auto; padding: 14px 20px;
+  scrollbar-width: none; border-bottom: 1px solid var(--sp-border);
+}
+.sp-perks::-webkit-scrollbar { display: none; }
+.sp-perk {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--sp-card); border: 1px solid var(--sp-border);
+  border-radius: 50px; padding: 7px 13px; white-space: nowrap;
+  font-size: 12px; font-weight: 700; color: var(--sp-text2);
+  flex-shrink: 0;
+}
+.sp-perk-icon { font-size: 14px; }
+
+/* ══════════════════════════════════════
+   BODY
+══════════════════════════════════════ */
+.sp-body {
+  max-width: 560px; margin: 0 auto;
+  padding: 16px 16px 0; display: flex; flex-direction: column; gap: 12px;
+}
+
+/* ── Card ── */
+.sp-card {
+  background: var(--sp-card); border: 1px solid var(--sp-border);
+  border-radius: 20px; overflow: hidden; box-shadow: var(--sp-shadow);
+}
+.sp-card-hdr {
+  padding: 15px 18px 13px; border-bottom: 1px solid var(--sp-border);
+  font-size: 13.5px; font-weight: 800; color: var(--sp-text);
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* ── Variants (option pills) ── */
+.sp-variants-wrap { padding: 16px 18px 18px; }
+.sp-var-label {
+  font-size: 10.5px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--sp-text2); margin-bottom: 10px;
+}
+.sp-var-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.sp-var-pill {
+  padding: 10px 16px; border-radius: 13px;
+  border: 1.5px solid var(--sp-border); background: var(--sp-bg3);
+  color: var(--sp-text2); font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all .18s; -webkit-tap-highlight-color: transparent;
+  font-family: inherit; position: relative;
+}
+.sp-var-pill:active { transform: scale(.96); }
+.sp-var-pill.sel {
+  border-color: var(--sp-gold); background: var(--sp-gold-dim);
+  color: var(--sp-gold); box-shadow: var(--sp-gold-glow);
+}
+.sp-var-pill .sp-var-price {
+  display: block; font-size: 10px; font-weight: 600;
+  color: var(--sp-text3); margin-top: 2px;
+}
+.sp-var-pill.sel .sp-var-price { color: rgba(244,180,0,0.7); }
+
+/* ── Quantity ── */
+.sp-qty-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; border-top: 1px solid var(--sp-border);
+}
+.sp-qty-lbl { font-size: 13.5px; font-weight: 700; color: var(--sp-text); }
+.sp-qty-sub { font-size: 11.5px; color: var(--sp-text2); margin-top: 2px; }
+.sp-qty-ctrl { display: flex; align-items: center; gap: 0; }
+.sp-qty-btn {
+  width: 36px; height: 36px; border-radius: 11px;
+  border: 1.5px solid var(--sp-border); background: var(--sp-bg3);
+  color: var(--sp-text); font-size: 18px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent; transition: all .15s; font-family: inherit;
+}
+.sp-qty-btn:active { background: var(--sp-gold-dim); border-color: var(--sp-gold); color: var(--sp-gold); }
+.sp-qty-val {
+  min-width: 40px; text-align: center;
+  font-size: 16px; font-weight: 900; color: var(--sp-text);
+}
+
+/* ── Start Date ── */
+.sp-date-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px; border-top: 1px solid var(--sp-border);
+}
+.sp-date-icon { font-size: 20px; flex-shrink: 0; }
+.sp-date-body { flex: 1; min-width: 0; }
+.sp-date-lbl { font-size: 13.5px; font-weight: 700; color: var(--sp-text); }
+.sp-date-sub { font-size: 11.5px; color: var(--sp-text2); margin-top: 2px; }
+.sp-date-input {
+  flex-shrink: 0;
+  background: var(--sp-bg3); border: 1.5px solid var(--sp-border);
+  border-radius: 11px; padding: 8px 12px;
+  font-size: 12.5px; font-weight: 700; color: var(--sp-text);
+  font-family: inherit; outline: none; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.sp-date-input:focus { border-color: rgba(244,180,0,.5); background: var(--sp-bg2); }
+
+/* ── Price & CTA ── */
+.sp-cta-card { overflow: visible; }
+.sp-price-row {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 18px 18px 14px;
+}
+.sp-price-lbl { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--sp-text2); margin-bottom: 4px; }
+.sp-price-main { font-size: 32px; font-weight: 900; color: var(--sp-text); line-height: 1; }
+.sp-price-main span { font-size: 14px; font-weight: 600; color: var(--sp-text2); }
+.sp-price-save {
+  display: inline-block; font-size: 11px; font-weight: 800;
+  background: var(--sp-green-dim); color: var(--sp-green);
+  padding: 3px 9px; border-radius: 8px; margin-top: 6px;
+}
+.sp-compare-price {
+  font-size: 13px; text-decoration: line-through; color: var(--sp-text3); margin-top: 2px;
+}
+.sp-subscribe-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: calc(100% - 36px); margin: 0 18px 18px;
+  padding: 17px; border-radius: 16px; border: none;
+  background: var(--sp-gold); color: #000;
+  font-size: 16px; font-weight: 900; cursor: pointer;
+  font-family: inherit; -webkit-tap-highlight-color: transparent;
+  transition: all .2s; box-shadow: 0 6px 24px rgba(244,180,0,.35);
+  letter-spacing: .01em;
+}
+.sp-subscribe-btn:active { transform: scale(.97); box-shadow: none; }
+.sp-subscribe-btn.loading { opacity: .7; pointer-events: none; }
+@keyframes spBtnSuccess {
+  0%  { background: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,.3); }
+  100%{ background: var(--sp-gold); box-shadow: 0 6px 24px rgba(244,180,0,.35); }
+}
+.sp-subscribe-btn.success { animation: spBtnSuccess .5s ease-out forwards; }
+
+/* ── How it works ── */
+.sp-steps { padding: 6px 18px 18px; display: flex; flex-direction: column; gap: 0; }
+.sp-step {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 12px 0; border-bottom: 1px solid var(--sp-border); position: relative;
+}
+.sp-step:last-child { border-bottom: none; }
+.sp-step-num {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  background: var(--sp-gold-dim); border: 1.5px solid rgba(244,180,0,.3);
+  color: var(--sp-gold); font-size: 13px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+}
+.sp-step-body { flex: 1; padding-top: 4px; }
+.sp-step-title { font-size: 13.5px; font-weight: 800; color: var(--sp-text); margin-bottom: 2px; }
+.sp-step-desc  { font-size: 12px; color: var(--sp-text2); line-height: 1.5; }
+
+/* ── Trust badges ── */
+.sp-trust {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; padding: 14px;
+}
+.sp-trust-item {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--sp-card2); border: 1px solid var(--sp-border);
+  border-radius: 14px; padding: 12px;
+}
+.sp-trust-ico { font-size: 22px; flex-shrink: 0; }
+.sp-trust-txt { font-size: 12px; font-weight: 700; color: var(--sp-text); }
+.sp-trust-sub { font-size: 10.5px; color: var(--sp-text2); margin-top: 1px; }
+
+/* ── Toast ── */
+.sp-toast {
+  position: fixed; bottom: calc(80px + env(safe-area-inset-bottom));
+  left: 50%; transform: translateX(-50%) translateY(20px);
+  background: #111; color: #fff; border: 1px solid rgba(255,255,255,.1);
+  border-radius: 50px; padding: 11px 22px;
+  font-size: 13.5px; font-weight: 700;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  z-index: 99999; opacity: 0; transition: all .3s cubic-bezier(.175,.885,.32,1.275);
+  white-space: nowrap; pointer-events: none;
+}
+.sp-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+html:not([data-theme="dark"]) .sp-toast { background: #1e293b; border-color: rgba(255,255,255,.06); }
+
+/* ── FAQ accordion ── */
+.sp-faq-item { border-bottom: 1px solid var(--sp-border); }
+.sp-faq-item:last-child { border-bottom: none; }
+.sp-faq-q {
+  width: 100%; text-align: left; background: none; border: none;
+  font-family: inherit; padding: 14px 18px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  font-size: 13.5px; font-weight: 700; color: var(--sp-text);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.sp-faq-chevron { font-size: 18px; color: var(--sp-text3); transition: transform .2s; flex-shrink: 0; }
+.sp-faq-item.open .sp-faq-chevron { transform: rotate(180deg); color: var(--sp-gold); }
+.sp-faq-a {
+  max-height: 0; overflow: hidden; transition: max-height .28s ease;
+  font-size: 13px; color: var(--sp-text2); line-height: 1.6;
+}
+.sp-faq-item.open .sp-faq-a { max-height: 200px; }
+.sp-faq-a-inner { padding: 0 18px 14px; }
+</style>
+
+<!-- ════════════════════════════════════════
+     HTML
+════════════════════════════════════════ -->
+<div class="sp-root">
+
+  <!-- ── HERO ── -->
+  <div class="sp-hero">
+    <div class="sp-hero-icon">{{ p_icon }}</div><br>
+    {%- if badge_txt != '' -%}
+      <span class="sp-hero-badge">{{ badge_txt }}</span><br>
+    {%- endif -%}
+    <div class="sp-hero-title">{{ p.title }}</div>
+    {%- if p.description != blank -%}
+      <div class="sp-hero-desc">{{ p.description | strip_html | truncate: 140 }}</div>
+    {%- endif -%}
+    <span class="sp-hero-type">{{ p_icon }} {{ p.type }}</span>
+  </div>
+
+  <!-- ── PERKS STRIP ── -->
+  <div class="sp-perks">
+    <div class="sp-perk"><span class="sp-perk-icon">🚚</span> Free Delivery</div>
+    <div class="sp-perk"><span class="sp-perk-icon">💰</span> Up to 20% Off</div>
+    <div class="sp-perk"><span class="sp-perk-icon">⏸️</span> Pause Anytime</div>
+    <div class="sp-perk"><span class="sp-perk-icon">🔄</span> Easy Cancel</div>
+    <div class="sp-perk"><span class="sp-perk-icon">⏰</span> Morning Delivery</div>
+  </div>
+
+  <div class="sp-body">
+
+    <!-- ── VARIANTS + QTY + DATE ── -->
+    <div class="sp-card">
+      <div class="sp-card-hdr">📋 Choose Your Plan</div>
+
+      {%- if p.variants.size > 1 -%}
+      <div class="sp-variants-wrap">
+        <div class="sp-var-label">Select Option</div>
+        <div class="sp-var-pills" id="spVarPills">
+          {%- for v in p.variants -%}
+            <button type="button"
+              class="sp-var-pill{% if forloop.first %} sel{% endif %}"
+              data-variant-id="{{ v.id }}"
+              data-price="{{ v.price | divided_by: 100 | floor }}"
+              data-compare="{{ v.compare_at_price | divided_by: 100 | floor }}"
+              data-available="{{ v.available }}">
+              {{ v.title }}
+              <span class="sp-var-price">Rs {{ v.price | divided_by: 100 | floor }}</span>
+            </button>
+          {%- endfor -%}
+        </div>
+      </div>
+      {%- endif -%}
+
+      <div class="sp-qty-row">
+        <div>
+          <div class="sp-qty-lbl">Weeks to Subscribe</div>
+          <div class="sp-qty-sub">Minimum 4 weeks recommended</div>
+        </div>
+        <div class="sp-qty-ctrl">
+          <button type="button" class="sp-qty-btn" id="spQtyMinus">−</button>
+          <span class="sp-qty-val" id="spQtyVal">4</span>
+          <button type="button" class="sp-qty-btn" id="spQtyPlus">+</button>
+        </div>
+      </div>
+
+      <div class="sp-date-row">
+        <span class="sp-date-icon">📅</span>
+        <div class="sp-date-body">
+          <div class="sp-date-lbl">Start Date</div>
+          <div class="sp-date-sub">Delivery begins from this date</div>
+        </div>
+        <input type="date" class="sp-date-input" id="spStartDate">
+      </div>
+    </div>
+
+    <!-- ── PRICE + CTA ── -->
+    <div class="sp-card sp-cta-card">
+      <div class="sp-price-row">
+        <div>
+          <div class="sp-price-lbl">Your Plan Price</div>
+          <div class="sp-price-main" id="spPriceDisplay">
+            Rs <span id="spPriceVal">{{ first_variant.price | divided_by: 100 | floor }}</span><span id="spPriceUnit">/delivery</span>
+          </div>
+          <div class="sp-compare-price" id="spComparePrice" style="display:none;"></div>
+          <div class="sp-price-save" id="spSaveTag" style="display:none;"></div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:10.5px;color:var(--sp-text2);font-weight:700;margin-bottom:3px;">AUTO-RENEWS</div>
+          <div style="font-size:12px;font-weight:800;color:var(--sp-text);">Cancel anytime</div>
+        </div>
+      </div>
+
+      <form id="spForm">
+        <input type="hidden" name="id" id="spVariantId" value="{{ first_variant.id }}">
+        <input type="hidden" name="quantity" id="spFormQty" value="4">
+        <input type="hidden" name="properties[Start Date]" id="spFormDate" value="">
+        <input type="hidden" name="properties[Subscription]" value="{{ p.title }}">
+        <button type="submit" class="sp-subscribe-btn" id="spSubBtn">
+          <span>🛒</span>
+          <span id="spBtnTxt">Subscribe Now</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- ── HOW IT WORKS ── -->
+    <div class="sp-card">
+      <div class="sp-card-hdr">📖 How It Works</div>
+      <div class="sp-steps">
+        <div class="sp-step">
+          <div class="sp-step-num">1</div>
+          <div class="sp-step-body">
+            <div class="sp-step-title">Choose your plan</div>
+            <div class="sp-step-desc">Select the size or quantity option that fits your household's needs.</div>
+          </div>
+        </div>
+        <div class="sp-step">
+          <div class="sp-step-num">2</div>
+          <div class="sp-step-body">
+            <div class="sp-step-title">We deliver daily</div>
+            <div class="sp-step-desc">Fresh products delivered to your doorstep every morning before 8 AM.</div>
+          </div>
+        </div>
+        <div class="sp-step">
+          <div class="sp-step-num">3</div>
+          <div class="sp-step-body">
+            <div class="sp-step-title">Pause or cancel anytime</div>
+            <div class="sp-step-desc">Going on vacation? Pause your subscription with zero hassle.</div>
+          </div>
+        </div>
+        <div class="sp-step">
+          <div class="sp-step-num">4</div>
+          <div class="sp-step-body">
+            <div class="sp-step-title">Save more every month</div>
+            <div class="sp-step-desc">Subscribers get exclusive discounts — up to 20% off regular price.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TRUST BADGES ── -->
+    <div class="sp-card">
+      <div class="sp-trust">
+        <div class="sp-trust-item">
+          <span class="sp-trust-ico">✅</span>
+          <div><div class="sp-trust-txt">100% Fresh</div><div class="sp-trust-sub">Quality guaranteed</div></div>
+        </div>
+        <div class="sp-trust-item">
+          <span class="sp-trust-ico">🚀</span>
+          <div><div class="sp-trust-txt">Express Delivery</div><div class="sp-trust-sub">Before 8 AM daily</div></div>
+        </div>
+        <div class="sp-trust-item">
+          <span class="sp-trust-ico">💬</span>
+          <div><div class="sp-trust-txt">24/7 Support</div><div class="sp-trust-sub">Always here for you</div></div>
+        </div>
+        <div class="sp-trust-item">
+          <span class="sp-trust-ico">🔒</span>
+          <div><div class="sp-trust-txt">Secure Pay</div><div class="sp-trust-sub">Encrypted checkout</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FAQ ── -->
+    <div class="sp-card">
+      <div class="sp-card-hdr">❓ FAQs</div>
+      <div id="spFaq">
+        <div class="sp-faq-item">
+          <button class="sp-faq-q" type="button">How do I pause my subscription? <span class="sp-faq-chevron">⌄</span></button>
+          <div class="sp-faq-a"><div class="sp-faq-a-inner">Contact us on WhatsApp or call our support line. We can pause your subscription for up to 30 days at no extra charge.</div></div>
+        </div>
+        <div class="sp-faq-item">
+          <button class="sp-faq-q" type="button">Can I change my quantity later? <span class="sp-faq-chevron">⌄</span></button>
+          <div class="sp-faq-a"><div class="sp-faq-a-inner">Yes! You can upgrade or downgrade your plan at any time by contacting support. Changes take effect the next delivery day.</div></div>
+        </div>
+        <div class="sp-faq-item">
+          <button class="sp-faq-q" type="button">What if I'm not home for delivery? <span class="sp-faq-chevron">⌄</span></button>
+          <div class="sp-faq-a"><div class="sp-faq-a-inner">Our rider will follow your delivery instructions (ring bell, leave at door, or call you). Set your preference in your account profile.</div></div>
+        </div>
+        <div class="sp-faq-item">
+          <button class="sp-faq-q" type="button">Is there a minimum subscription period? <span class="sp-faq-chevron">⌄</span></button>
+          <div class="sp-faq-a"><div class="sp-faq-a-inner">No lock-in period. However, subscribing for 4+ weeks gives you the best savings and ensures product availability.</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /sp-body -->
+</div><!-- /sp-root -->
+
+<!-- Toast -->
+<div class="sp-toast" id="spToast"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  /* ── Elements ── */
+  var form      = document.getElementById('spForm');
+  var varPills  = document.querySelectorAll('.sp-var-pill');
+  var varIdInp  = document.getElementById('spVariantId');
+  var priceVal  = document.getElementById('spPriceVal');
+  var compareEl = document.getElementById('spComparePrice');
+  var saveTag   = document.getElementById('spSaveTag');
+  var qtyMinus  = document.getElementById('spQtyMinus');
+  var qtyPlus   = document.getElementById('spQtyPlus');
+  var qtyVal    = document.getElementById('spQtyVal');
+  var formQty   = document.getElementById('spFormQty');
+  var dateInp   = document.getElementById('spStartDate');
+  var formDate  = document.getElementById('spFormDate');
+  var subBtn    = document.getElementById('spSubBtn');
+  var btnTxt    = document.getElementById('spBtnTxt');
+  var toast     = document.getElementById('spToast');
+
+  /* ── Default start date = tomorrow ── */
+  var tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+  var yyyy = tomorrow.getFullYear();
+  var mm   = String(tomorrow.getMonth()+1).padStart(2,'0');
+  var dd   = String(tomorrow.getDate()).padStart(2,'0');
+  if(dateInp) { dateInp.value = yyyy+'-'+mm+'-'+dd; dateInp.min = yyyy+'-'+mm+'-'+dd; }
+  if(formDate) formDate.value = yyyy+'-'+mm+'-'+dd;
+  if(dateInp) dateInp.addEventListener('change', function(){ if(formDate) formDate.value = dateInp.value; });
+
+  /* ── date color-scheme sync ── */
+  function syncDateScheme() {
+    var dark = (document.documentElement.getAttribute('data-theme')||'dark') === 'dark';
+    if(dateInp) dateInp.style.colorScheme = dark ? 'dark' : 'light';
+  }
+  syncDateScheme();
+  document.documentElement.addEventListener && document.documentElement.addEventListener('themechange', syncDateScheme);
+
+  /* ── Variant pills ── */
+  varPills.forEach(function(pill) {
+    pill.addEventListener('click', function() {
+      varPills.forEach(function(p){ p.classList.remove('sel'); });
+      pill.classList.add('sel');
+
+      var vid   = pill.getAttribute('data-variant-id');
+      var price = pill.getAttribute('data-price');
+      var cmp   = pill.getAttribute('data-compare');
+
+      if(varIdInp) varIdInp.value = vid;
+      if(priceVal) priceVal.textContent = price;
+
+      if(cmp && parseInt(cmp) > parseInt(price)) {
+        if(compareEl){ compareEl.textContent = 'Was Rs '+cmp; compareEl.style.display='block'; }
+        var saving = Math.round((1 - parseInt(price)/parseInt(cmp))*100);
+        if(saveTag){ saveTag.textContent = 'Save '+saving+'%'; saveTag.style.display='inline-block'; }
+      } else {
+        if(compareEl) compareEl.style.display='none';
+        if(saveTag)   saveTag.style.display='none';
+      }
+    });
+  });
+
+  /* ── Quantity stepper ── */
+  var qty = 4;
+  function setQty(n) {
+    qty = Math.max(1, Math.min(52, n));
+    if(qtyVal)  qtyVal.textContent = qty;
+    if(formQty) formQty.value      = qty;
+  }
+  if(qtyMinus) qtyMinus.addEventListener('click', function(){ setQty(qty - 1); });
+  if(qtyPlus)  qtyPlus.addEventListener('click',  function(){ setQty(qty + 1); });
+
+  /* ── Toast ── */
+  var toastTimer;
+  function showToast(msg) {
+    if(!toast) return;
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 2800);
+  }
+
+  /* ── Add to Cart ── */
+  if(form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      if(!varIdInp || !varIdInp.value) { showToast('Please select an option first'); return; }
+
+      subBtn.classList.add('loading');
+      btnTxt.textContent = 'Adding…';
+
+      var payload = {
+        id:         parseInt(varIdInp.value),
+        quantity:   qty,
+        properties: {
+          'Subscription':  '{{ p.title | escape }}',
+          'Start Date':    dateInp ? dateInp.value : '',
+          'Plan Weeks':    qty + ' weeks',
+          'Product Type':  '{{ p.type | escape }}'
+        }
+      };
+
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if(data.status) {
+          showToast('⚠️ ' + (data.description || 'Could not add to cart'));
+          subBtn.classList.remove('loading');
+          btnTxt.textContent = 'Subscribe Now';
+        } else {
+          subBtn.classList.remove('loading');
+          subBtn.classList.add('success');
+          btnTxt.textContent = '✓ Added to Cart!';
+          showToast('✅ Subscription added to cart!');
+          window.dispatchEvent(new CustomEvent('cart:updated'));
+          setTimeout(function(){
+            subBtn.classList.remove('success');
+            btnTxt.textContent = 'Subscribe Now';
+          }, 2000);
+        }
+      })
+      .catch(function() {
+        showToast('⚠️ Something went wrong. Try again.');
+        subBtn.classList.remove('loading');
+        btnTxt.textContent = 'Subscribe Now';
+      });
+    });
+  }
+
+  /* ── FAQ accordion ── */
+  document.querySelectorAll('.sp-faq-q').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var item = btn.closest('.sp-faq-item');
+      var isOpen = item.classList.contains('open');
+      document.querySelectorAll('.sp-faq-item').forEach(function(i){ i.classList.remove('open'); });
+      if(!isOpen) item.classList.add('open');
+    });
+  });
+
+  /* ── Set compare price on page load from first variant ── */
+  var firstCmp   = {{ first_variant.compare_at_price | divided_by: 100 | floor | json }};
+  var firstPrice = {{ first_variant.price | divided_by: 100 | floor | json }};
+  if(firstCmp && firstCmp > firstPrice) {
+    if(compareEl){ compareEl.textContent = 'Was Rs '+firstCmp; compareEl.style.display='block'; }
+    var initSaving = Math.round((1 - firstPrice/firstCmp)*100);
+    if(saveTag){ saveTag.textContent = 'Save '+initSaving+'%'; saveTag.style.display='inline-block'; }
+  }
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Subscription Product",
+  "settings": []
+}
+{% endschema %}

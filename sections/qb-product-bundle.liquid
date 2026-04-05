@@ -1,0 +1,787 @@
+{% comment %} QuickBee Bundle Product Page — qb-product-bundle.liquid {% endcomment %}
+
+<style>
+  /* ── Design Tokens ── */
+  [data-theme="dark"] {
+    --bg: #090909;
+    --card: #111111;
+    --bg3: #1a1a1a;
+    --border: rgba(255,255,255,0.07);
+    --text: #f0f0f0;
+    --text2: #888888;
+    --shadow: 0 4px 24px rgba(0,0,0,0.6);
+    --green: #22c55e;
+    --red: #FF4444;
+    --gold: #F4B400;
+  }
+  html:not([data-theme]),
+  [data-theme="light"] {
+    --bg: #f4f5f8;
+    --card: #ffffff;
+    --bg3: #eef0f4;
+    --border: rgba(15,23,42,0.08);
+    --text: #0f172a;
+    --text2: #64748b;
+    --shadow: 0 4px 24px rgba(15,23,42,0.08);
+    --green: #16a34a;
+    --red: #FF4444;
+    --gold: #F4B400;
+  }
+
+  /* ── Base ── */
+  .qb-bundle {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* ── Urgency Strip ── */
+  .qb-bundle__urgency {
+    background: linear-gradient(90deg, #FF4444, #F97316);
+    color: #fff;
+    text-align: center;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .qb-bundle__urgency::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    animation: qb-shine 2.5s linear infinite;
+  }
+
+  @keyframes qb-shine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* ── Hero ── */
+  .qb-bundle__hero {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 20px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+
+  .qb-bundle__main-icon {
+    font-size: 60px;
+    line-height: 1;
+    filter: drop-shadow(0 0 18px rgba(244,180,0,0.5));
+    animation: qb-float 3s ease-in-out infinite;
+  }
+
+  @keyframes qb-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .qb-bundle__hero-label {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--gold);
+    background: rgba(244,180,0,0.12);
+    border: 1px solid rgba(244,180,0,0.3);
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  .qb-bundle__save-badge {
+    background: #FF4444;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+    padding: 6px 16px;
+    border-radius: 20px;
+    letter-spacing: 0.02em;
+  }
+
+  .qb-bundle__title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.25;
+    margin: 0;
+    max-width: 420px;
+  }
+
+  .qb-bundle__price-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .qb-bundle__price {
+    font-size: 42px;
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+    text-shadow: 0 2px 12px rgba(244,180,0,0.3);
+  }
+
+  .qb-bundle__compare-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .qb-bundle__compare {
+    font-size: 18px;
+    color: var(--text2);
+    text-decoration: line-through;
+  }
+
+  .qb-bundle__savings-pill {
+    background: rgba(34,197,94,0.15);
+    color: var(--green);
+    border: 1px solid rgba(34,197,94,0.3);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  /* ── Body ── */
+  .qb-bundle__body {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 20px 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ── Card Section ── */
+  .qb-bundle__section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 18px 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .qb-bundle__section-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text2);
+    margin-bottom: 12px;
+  }
+
+  /* ── Bundle includes ── */
+  .qb-bundle__includes-label {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .qb-bundle__includes-body {
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--text2);
+  }
+
+  .qb-bundle__includes-body ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .qb-bundle__includes-body li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .qb-bundle__includes-body li::before {
+    content: '✅';
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .qb-bundle__includes-body p,
+  .qb-bundle__includes-body ol {
+    margin: 0 0 8px;
+    padding-left: 16px;
+  }
+
+  /* ── Variants ── */
+  .qb-bundle__variants {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .qb-bundle__variant-pill {
+    border: 2px solid var(--border);
+    background: var(--bg3);
+    color: var(--text);
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    text-align: left;
+  }
+
+  .qb-bundle__variant-pill .vname { flex: 1; }
+  .qb-bundle__variant-pill .vprice {
+    font-size: 14px;
+    color: var(--text2);
+    font-weight: 700;
+  }
+
+  .qb-bundle__variant-pill.active,
+  .qb-bundle__variant-pill:hover {
+    border-color: var(--gold);
+    background: rgba(244,180,0,0.10);
+    color: var(--gold);
+  }
+
+  .qb-bundle__variant-pill.active .vprice { color: var(--gold); }
+
+  /* ── Quantity ── */
+  .qb-bundle__qty-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .qb-bundle__qty-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .qb-bundle__qty-ctrl {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--bg3);
+  }
+
+  .qb-bundle__qty-btn {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 22px;
+    font-weight: 700;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+
+  .qb-bundle__qty-btn:hover {
+    background: rgba(244,180,0,0.13);
+    color: var(--gold);
+  }
+
+  .qb-bundle__qty-num {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    min-width: 36px;
+    text-align: center;
+    user-select: none;
+  }
+
+  /* ── Get Bundle Button ── */
+  .qb-bundle__cta {
+    width: 100%;
+    height: 58px;
+    border-radius: 16px;
+    border: none;
+    background: var(--gold);
+    color: #000;
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    box-shadow: 0 4px 20px rgba(244,180,0,0.35);
+  }
+
+  .qb-bundle__cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 28px rgba(244,180,0,0.5);
+  }
+
+  .qb-bundle__cta:active { transform: translateY(0); }
+
+  .qb-bundle__cta.added {
+    background: var(--green);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(34,197,94,0.35);
+  }
+
+  /* ── Why Bundle Grid ── */
+  .qb-bundle__why-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .qb-bundle__why-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .qb-bundle__why-icon { font-size: 24px; flex-shrink: 0; }
+  .qb-bundle__why-text { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
+
+  /* ── Countdown Timer ── */
+  .qb-bundle__countdown-wrap {
+    text-align: center;
+  }
+
+  .qb-bundle__countdown-label {
+    font-size: 13px;
+    color: var(--text2);
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  .qb-bundle__timer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .qb-bundle__timer-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    min-width: 56px;
+    padding: 10px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .qb-bundle__timer-num {
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .qb-bundle__timer-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text2);
+  }
+
+  .qb-bundle__timer-sep {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+
+  /* ── Toast ── */
+  .qb-bundle-toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--gold);
+    color: #000;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 22px;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.28s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .qb-bundle-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .qb-bundle-toast.error { background: #FF4444; color: #fff; }
+
+  @media (min-width: 600px) {
+    .qb-bundle__hero { padding: 40px 32px 36px; }
+    .qb-bundle__title { font-size: 26px; }
+    .qb-bundle__body { padding: 24px 20px 0; }
+  }
+</style>
+
+{% comment %} Calculate savings percentage {% endcomment %}
+{% assign has_compare = false %}
+{% assign savings_pct = 0 %}
+{% assign savings_amount = 0 %}
+{% if product.compare_at_price > product.price %}
+  {% assign has_compare = true %}
+  {% assign savings_pct = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price %}
+  {% assign savings_amount = product.compare_at_price | minus: product.price | divided_by: 100.0 | floor %}
+{% endif %}
+
+<div class="qb-bundle" id="qb-bundle-root">
+
+  <!-- Urgency Strip -->
+  <div class="qb-bundle__urgency" id="qbb-urgency">
+    🔥 <span id="qbb-bundles-left">5</span> bundles left today!
+  </div>
+
+  <!-- Hero -->
+  <div class="qb-bundle__hero">
+    <span class="qb-bundle__hero-label">📦 Bundle Deal</span>
+    <div class="qb-bundle__main-icon">📦</div>
+    {% if has_compare %}
+      <div class="qb-bundle__save-badge">SAVE UP TO {{ savings_pct }}%</div>
+    {% endif %}
+    <h1 class="qb-bundle__title">{{ product.title }}</h1>
+
+    <div class="qb-bundle__price-wrap">
+      <span class="qb-bundle__price" id="qbb-price">
+        Rs {{ product.selected_or_first_available_variant.price | divided_by: 100.0 | floor }}
+      </span>
+      {% if has_compare %}
+        <div class="qb-bundle__compare-row">
+          <span class="qb-bundle__compare">
+            Rs {{ product.compare_at_price | divided_by: 100.0 | floor }}
+          </span>
+          <span class="qb-bundle__savings-pill">
+            You save Rs {{ savings_amount }}
+          </span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="qb-bundle__body">
+
+    <!-- Bundle Includes -->
+    {% if product.description != blank %}
+      <div class="qb-bundle__section">
+        <div class="qb-bundle__includes-label">
+          <span>📋</span> Bundle Includes
+        </div>
+        <div class="qb-bundle__includes-body">{{ product.description }}</div>
+      </div>
+    {% endif %}
+
+    <!-- Variants -->
+    {% if product.variants.size > 1 %}
+      <div class="qb-bundle__section">
+        <div class="qb-bundle__section-label">Choose Bundle Size</div>
+        <div class="qb-bundle__variants" id="qbb-variants">
+          {% for variant in product.variants %}
+            <button
+              class="qb-bundle__variant-pill{% if forloop.first %} active{% endif %}"
+              data-variant-id="{{ variant.id }}"
+              data-variant-price="{{ variant.price | divided_by: 100.0 | floor }}"
+              aria-label="{{ variant.title }}"
+            >
+              <span class="vname">{{ variant.title }}</span>
+              <span class="vprice">Rs {{ variant.price | divided_by: 100.0 | floor }}</span>
+            </button>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Quantity -->
+    <div class="qb-bundle__section">
+      <div class="qb-bundle__qty-row">
+        <span class="qb-bundle__qty-label">Quantity</span>
+        <div class="qb-bundle__qty-ctrl">
+          <button class="qb-bundle__qty-btn" id="qbb-minus" aria-label="Decrease">−</button>
+          <span class="qb-bundle__qty-num" id="qbb-qty">1</span>
+          <button class="qb-bundle__qty-btn" id="qbb-plus" aria-label="Increase">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA Button -->
+    <button
+      class="qb-bundle__cta"
+      id="qbb-atc"
+      {% unless product.available %}disabled{% endunless %}
+      data-product-title="{{ product.title | escape }}"
+      data-default-variant="{{ product.selected_or_first_available_variant.id }}"
+    >
+      {% if product.available %}
+        🎁 GET THIS BUNDLE
+      {% else %}
+        Out of Stock
+      {% endif %}
+    </button>
+
+    <!-- Countdown Timer -->
+    <div class="qb-bundle__section">
+      <div class="qb-bundle__countdown-wrap">
+        <div class="qb-bundle__countdown-label">⏳ Offer valid for:</div>
+        <div class="qb-bundle__timer">
+          <div class="qb-bundle__timer-box">
+            <span class="qb-bundle__timer-num" id="qbb-hh">00</span>
+            <span class="qb-bundle__timer-label">Hours</span>
+          </div>
+          <span class="qb-bundle__timer-sep">:</span>
+          <div class="qb-bundle__timer-box">
+            <span class="qb-bundle__timer-num" id="qbb-mm">00</span>
+            <span class="qb-bundle__timer-label">Mins</span>
+          </div>
+          <span class="qb-bundle__timer-sep">:</span>
+          <div class="qb-bundle__timer-box">
+            <span class="qb-bundle__timer-num" id="qbb-ss">00</span>
+            <span class="qb-bundle__timer-label">Secs</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Why Bundle -->
+    <div class="qb-bundle__section">
+      <div class="qb-bundle__section-label">Why This Bundle?</div>
+      <div class="qb-bundle__why-grid">
+        <div class="qb-bundle__why-card">
+          <span class="qb-bundle__why-icon">💰</span>
+          <span class="qb-bundle__why-text">Best Price</span>
+        </div>
+        <div class="qb-bundle__why-card">
+          <span class="qb-bundle__why-icon">🚀</span>
+          <span class="qb-bundle__why-text">Fast Delivery</span>
+        </div>
+        <div class="qb-bundle__why-card">
+          <span class="qb-bundle__why-icon">✅</span>
+          <span class="qb-bundle__why-text">All Included</span>
+        </div>
+        <div class="qb-bundle__why-card">
+          <span class="qb-bundle__why-icon">🎁</span>
+          <span class="qb-bundle__why-text">Gift Ready</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="qb-bundle-toast" id="qb-toast-bundle" role="alert" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── State ── */
+  var qty = 1;
+  var maxQty = 20;
+  var selectedVariantId = null;
+  var productTitle = '';
+
+  /* ── DOM refs ── */
+  var qtyEl        = document.getElementById('qbb-qty');
+  var plusBtn       = document.getElementById('qbb-plus');
+  var minusBtn      = document.getElementById('qbb-minus');
+  var atcBtn        = document.getElementById('qbb-atc');
+  var priceEl       = document.getElementById('qbb-price');
+  var variantsWrap  = document.getElementById('qbb-variants');
+  var toast         = document.getElementById('qb-toast-bundle');
+  var bundlesLeftEl = document.getElementById('qbb-bundles-left');
+
+  if (atcBtn) {
+    selectedVariantId = atcBtn.dataset.defaultVariant;
+    productTitle = atcBtn.dataset.productTitle || '';
+  }
+
+  /* ── Random bundles left (3-8) ── */
+  if (bundlesLeftEl) {
+    bundlesLeftEl.textContent = Math.floor(Math.random() * 6) + 3;
+  }
+
+  /* ── Quantity stepper ── */
+  if (plusBtn) {
+    plusBtn.addEventListener('click', function () {
+      if (qty < maxQty) { qty++; qtyEl.textContent = qty; }
+    });
+  }
+
+  if (minusBtn) {
+    minusBtn.addEventListener('click', function () {
+      if (qty > 1) { qty--; qtyEl.textContent = qty; }
+    });
+  }
+
+  /* ── Variant pills ── */
+  if (variantsWrap) {
+    variantsWrap.addEventListener('click', function (e) {
+      var pill = e.target.closest('.qb-bundle__variant-pill');
+      if (!pill) return;
+      variantsWrap.querySelectorAll('.qb-bundle__variant-pill').forEach(function (p) {
+        p.classList.remove('active');
+      });
+      pill.classList.add('active');
+      selectedVariantId = pill.dataset.variantId;
+      if (priceEl) priceEl.textContent = 'Rs ' + pill.dataset.variantPrice;
+    });
+  }
+
+  /* ── Toast helper ── */
+  var toastTimer = null;
+  function showToast(msg, isError) {
+    if (!toast) return;
+    clearTimeout(toastTimer);
+    toast.textContent = msg;
+    toast.classList.toggle('error', !!isError);
+    toast.classList.add('show');
+    toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 3000);
+  }
+
+  /* ── Countdown Timer ── */
+  (function initCountdown() {
+    var STORAGE_KEY = 'qb_bundle_offer_end';
+    var endTime = null;
+
+    try {
+      var saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        endTime = parseInt(saved, 10);
+        /* If it's in the past, reset for next 24h */
+        if (Date.now() >= endTime) {
+          endTime = Date.now() + 24 * 60 * 60 * 1000;
+          localStorage.setItem(STORAGE_KEY, endTime);
+        }
+      } else {
+        endTime = Date.now() + 24 * 60 * 60 * 1000;
+        localStorage.setItem(STORAGE_KEY, endTime);
+      }
+    } catch (e) {
+      endTime = Date.now() + 24 * 60 * 60 * 1000;
+    }
+
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+    function tick() {
+      var diff = endTime - Date.now();
+      if (diff <= 0) {
+        document.getElementById('qbb-hh').textContent = '00';
+        document.getElementById('qbb-mm').textContent = '00';
+        document.getElementById('qbb-ss').textContent = '00';
+        return;
+      }
+      var h = Math.floor(diff / 3600000);
+      var m = Math.floor((diff % 3600000) / 60000);
+      var s = Math.floor((diff % 60000) / 1000);
+      var hhEl = document.getElementById('qbb-hh');
+      var mmEl = document.getElementById('qbb-mm');
+      var ssEl = document.getElementById('qbb-ss');
+      if (hhEl) hhEl.textContent = pad(h);
+      if (mmEl) mmEl.textContent = pad(m);
+      if (ssEl) ssEl.textContent = pad(s);
+    }
+
+    tick();
+    setInterval(tick, 1000);
+  })();
+
+  /* ── Add to cart ── */
+  if (atcBtn && atcBtn.dataset.defaultVariant) {
+    atcBtn.addEventListener('click', function () {
+      if (atcBtn.disabled) return;
+      var varId = selectedVariantId || atcBtn.dataset.defaultVariant;
+      if (!varId) { showToast('Please select an option', true); return; }
+
+      atcBtn.disabled = true;
+      atcBtn.textContent = 'Adding…';
+
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: parseInt(varId, 10),
+          quantity: qty,
+          properties: {
+            'Bundle': productTitle,
+            'Type': 'Bundle Deal'
+          }
+        })
+      })
+      .then(function (res) {
+        if (!res.ok) return res.json().then(function (d) { throw new Error(d.description || 'Error'); });
+        return res.json();
+      })
+      .then(function () {
+        atcBtn.classList.add('added');
+        atcBtn.textContent = '✓ Bundle Added!';
+        showToast('Bundle added to cart! 🎁');
+        window.dispatchEvent(new CustomEvent('cart:updated'));
+        setTimeout(function () {
+          atcBtn.classList.remove('added');
+          atcBtn.disabled = false;
+          atcBtn.textContent = '🎁 GET THIS BUNDLE';
+        }, 1500);
+      })
+      .catch(function (err) {
+        atcBtn.disabled = false;
+        atcBtn.textContent = '🎁 GET THIS BUNDLE';
+        showToast(err.message || 'Could not add to cart', true);
+      });
+    });
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Bundle Product",
+  "settings": []
+}
+{% endschema %}

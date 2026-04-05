@@ -1,0 +1,927 @@
+{% comment %}
+  QB Frozen Product Section
+  Section: qb-product-frozen.liquid
+  Purpose: Full product page for frozen food items
+  Theme: Dark/Light with gold accent #F4B400 and blue/cyan frozen tones
+  Mobile-first responsive layout
+{% endcomment %}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign product_type = product.type | downcase | strip
+
+  assign type_emoji = '❄️'
+  assign type_color = 'frz-type--blue'
+  if product_type contains 'vegetable'
+    assign type_emoji = '🥦'
+    assign type_color = 'frz-type--teal'
+  elsif product_type contains 'meat'
+    assign type_emoji = '🥩'
+    assign type_color = 'frz-type--red'
+  elsif product_type contains 'seafood'
+    assign type_emoji = '🦐'
+    assign type_color = 'frz-type--coral'
+  elsif product_type contains 'snack'
+    assign type_emoji = '🥟'
+    assign type_color = 'frz-type--amber'
+  elsif product_type contains 'dessert'
+    assign type_emoji = '🍨'
+    assign type_color = 'frz-type--pink'
+  elsif product_type contains 'ready'
+    assign type_emoji = '🍱'
+    assign type_color = 'frz-type--purple'
+  endif
+
+  assign best_before_value = nil
+  for tag in product.tags
+    if tag contains 'bestbefore:'
+      assign best_before_value = tag | remove: 'bestbefore:' | strip
+    endif
+  endfor
+-%}
+
+<style>
+  /* ============================================================
+     CSS CUSTOM PROPERTIES — FROZEN SECTION
+     Prefix: --frz-*
+     ============================================================ */
+
+  :root,
+  [data-theme="light"] {
+    --frz-bg-page:          #f0f6ff;
+    --frz-bg-card:          #ffffff;
+    --frz-bg-card-alt:      #eaf4ff;
+    --frz-bg-strip:         #dbeafe;
+    --frz-bg-badge:         #e0f2fe;
+    --frz-bg-trust:         #f0fdf4;
+    --frz-bg-btn:           #F4B400;
+    --frz-bg-btn-hover:     #d4a000;
+    --frz-text-primary:     #0f172a;
+    --frz-text-secondary:   #475569;
+    --frz-text-muted:       #94a3b8;
+    --frz-text-on-btn:      #0f172a;
+    --frz-text-badge:       #0369a1;
+    --frz-accent-cold:      #0ea5e9;
+    --frz-accent-cold-dark: #0284c7;
+    --frz-border:           #bfdbfe;
+    --frz-border-card:      #e2e8f0;
+    --frz-border-storage:   #3b82f6;
+    --frz-shadow:           0 2px 12px rgba(14, 165, 233, 0.10);
+    --frz-shadow-hover:     0 6px 24px rgba(14, 165, 233, 0.20);
+    --frz-radius:           12px;
+    --frz-radius-sm:        8px;
+    --frz-radius-pill:      999px;
+    --frz-font-base:        system-ui, -apple-system, sans-serif;
+
+    /* Type colors */
+    --frz-teal:   #0d9488;
+    --frz-red:    #dc2626;
+    --frz-coral:  #f97316;
+    --frz-amber:  #f59e0b;
+    --frz-pink:   #ec4899;
+    --frz-purple: #7c3aed;
+    --frz-blue:   #0ea5e9;
+  }
+
+  [data-theme="dark"],
+  .shopify-section--dark {
+    --frz-bg-page:          #0a0f1e;
+    --frz-bg-card:          #0f172a;
+    --frz-bg-card-alt:      #1e293b;
+    --frz-bg-strip:         #1e3a5f;
+    --frz-bg-badge:         #0c2340;
+    --frz-bg-trust:         #0d2b1a;
+    --frz-bg-btn:           #F4B400;
+    --frz-bg-btn-hover:     #fbbf24;
+    --frz-text-primary:     #f1f5f9;
+    --frz-text-secondary:   #94a3b8;
+    --frz-text-muted:       #64748b;
+    --frz-text-on-btn:      #0a0f1e;
+    --frz-text-badge:       #7dd3fc;
+    --frz-accent-cold:      #38bdf8;
+    --frz-accent-cold-dark: #0ea5e9;
+    --frz-border:           #1e3a5f;
+    --frz-border-card:      #1e293b;
+    --frz-border-storage:   #3b82f6;
+    --frz-shadow:           0 2px 20px rgba(0, 0, 0, 0.40);
+    --frz-shadow-hover:     0 6px 32px rgba(56, 189, 248, 0.18);
+  }
+
+  /* ============================================================
+     LAYOUT & WRAPPER
+     ============================================================ */
+  .frz-section {
+    background: var(--frz-bg-page);
+    font-family: var(--frz-font-base);
+    color: var(--frz-text-primary);
+    min-height: 100vh;
+    padding: 16px 0 48px;
+  }
+
+  .frz-container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* ============================================================
+     FROZEN BADGE (always visible, top of page)
+     ============================================================ */
+  .frz-frozen-badge-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .frz-badge--frozen {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--frz-bg-badge);
+    color: var(--frz-text-badge);
+    border: 1.5px solid var(--frz-accent-cold);
+    padding: 5px 14px;
+    border-radius: var(--frz-radius-pill);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .frz-badge--type {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 14px;
+    border-radius: var(--frz-radius-pill);
+    font-size: 0.78rem;
+    font-weight: 600;
+    border: 1.5px solid currentColor;
+  }
+
+  .frz-type--teal   { color: var(--frz-teal);   background: #f0fdfa; border-color: var(--frz-teal); }
+  .frz-type--red    { color: var(--frz-red);    background: #fef2f2; border-color: var(--frz-red); }
+  .frz-type--coral  { color: var(--frz-coral);  background: #fff7ed; border-color: var(--frz-coral); }
+  .frz-type--amber  { color: var(--frz-amber);  background: #fffbeb; border-color: var(--frz-amber); }
+  .frz-type--pink   { color: var(--frz-pink);   background: #fdf2f8; border-color: var(--frz-pink); }
+  .frz-type--purple { color: var(--frz-purple); background: #f5f3ff; border-color: var(--frz-purple); }
+  .frz-type--blue   { color: var(--frz-blue);   background: #f0f9ff; border-color: var(--frz-blue); }
+
+  [data-theme="dark"] .frz-type--teal   { background: rgba(13,148,136,0.12); }
+  [data-theme="dark"] .frz-type--red    { background: rgba(220,38,38,0.12); }
+  [data-theme="dark"] .frz-type--coral  { background: rgba(249,115,22,0.12); }
+  [data-theme="dark"] .frz-type--amber  { background: rgba(245,158,11,0.12); }
+  [data-theme="dark"] .frz-type--pink   { background: rgba(236,72,153,0.12); }
+  [data-theme="dark"] .frz-type--purple { background: rgba(124,58,237,0.12); }
+  [data-theme="dark"] .frz-type--blue   { background: rgba(14,165,233,0.12); }
+
+  /* ============================================================
+     PRODUCT TITLE & VENDOR
+     ============================================================ */
+  .frz-title {
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--frz-text-primary);
+    margin: 0 0 6px;
+  }
+
+  .frz-vendor {
+    font-size: 0.82rem;
+    color: var(--frz-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+  }
+
+  /* ============================================================
+     COLD CHAIN STRIP
+     ============================================================ */
+  .frz-cold-chain {
+    background: var(--frz-bg-strip);
+    border: 1px solid var(--frz-border);
+    border-radius: var(--frz-radius-sm);
+    padding: 10px 14px;
+    font-size: 0.78rem;
+    color: var(--frz-accent-cold);
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  /* ============================================================
+     PRICE DISPLAY
+     ============================================================ */
+  .frz-price-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .frz-price-current {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--frz-accent-cold);
+    line-height: 1;
+  }
+
+  .frz-price-compare {
+    font-size: 1rem;
+    color: var(--frz-text-muted);
+    text-decoration: line-through;
+  }
+
+  .frz-price-save {
+    font-size: 0.78rem;
+    background: #dcfce7;
+    color: #15803d;
+    border-radius: var(--frz-radius-pill);
+    padding: 3px 10px;
+    font-weight: 700;
+  }
+
+  [data-theme="dark"] .frz-price-save { background: rgba(21,128,61,0.20); color: #4ade80; }
+
+  /* ============================================================
+     VARIANT PILLS
+     ============================================================ */
+  .frz-variants-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--frz-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+
+  .frz-variants-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .frz-variant-pill {
+    display: inline-block;
+    padding: 8px 18px;
+    border-radius: var(--frz-radius-pill);
+    border: 2px solid var(--frz-border);
+    background: var(--frz-bg-card);
+    color: var(--frz-text-primary);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .frz-variant-pill:hover {
+    border-color: var(--frz-accent-cold);
+    color: var(--frz-accent-cold);
+  }
+
+  .frz-variant-pill.is-active {
+    background: var(--frz-accent-cold);
+    border-color: var(--frz-accent-cold);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(14, 165, 233, 0.30);
+  }
+
+  .frz-variant-pill.is-unavailable {
+    opacity: 0.4;
+    cursor: not-allowed;
+    text-decoration: line-through;
+  }
+
+  /* ============================================================
+     QUANTITY STEPPER
+     ============================================================ */
+  .frz-qty-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--frz-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+
+  .frz-qty-stepper {
+    display: inline-flex;
+    align-items: center;
+    border: 2px solid var(--frz-border);
+    border-radius: var(--frz-radius-sm);
+    overflow: hidden;
+    margin-bottom: 24px;
+    background: var(--frz-bg-card);
+  }
+
+  .frz-qty-btn {
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: var(--frz-bg-card-alt);
+    color: var(--frz-text-primary);
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .frz-qty-btn:hover { background: var(--frz-border); }
+  .frz-qty-btn:active { background: var(--frz-accent-cold); color: #fff; }
+
+  .frz-qty-input {
+    width: 52px;
+    height: 44px;
+    border: none;
+    text-align: center;
+    background: var(--frz-bg-card);
+    color: var(--frz-text-primary);
+    font-size: 1.05rem;
+    font-weight: 700;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+
+  .frz-qty-input::-webkit-outer-spin-button,
+  .frz-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  /* ============================================================
+     ADD TO CART BUTTON
+     ============================================================ */
+  .frz-atc-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px 24px;
+    background: var(--frz-bg-btn);
+    color: var(--frz-text-on-btn);
+    border: none;
+    border-radius: var(--frz-radius);
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
+    box-shadow: 0 4px 16px rgba(244, 180, 0, 0.30);
+    margin-bottom: 12px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .frz-atc-btn:hover:not(:disabled) {
+    background: var(--frz-bg-btn-hover);
+    box-shadow: 0 6px 24px rgba(244, 180, 0, 0.45);
+    transform: translateY(-1px);
+  }
+
+  .frz-atc-btn:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .frz-atc-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .frz-atc-btn--loading { pointer-events: none; }
+
+  /* ============================================================
+     COLD DELIVERY INFO BAR
+     ============================================================ */
+  .frz-cold-delivery {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--frz-bg-badge);
+    border: 1px solid var(--frz-accent-cold);
+    border-radius: var(--frz-radius-sm);
+    padding: 12px 16px;
+    font-size: 0.84rem;
+    color: var(--frz-accent-cold);
+    font-weight: 600;
+    margin-bottom: 24px;
+  }
+
+  .frz-cold-delivery-icon { font-size: 1.3rem; flex-shrink: 0; }
+
+  /* ============================================================
+     BEST BEFORE INFO
+     ============================================================ */
+  .frz-best-before {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--frz-bg-card);
+    border: 1.5px solid var(--frz-border-card);
+    border-radius: var(--frz-radius-sm);
+    padding: 12px 16px;
+    font-size: 0.88rem;
+    color: var(--frz-text-secondary);
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  .frz-best-before strong { color: var(--frz-text-primary); }
+
+  /* ============================================================
+     STORAGE INSTRUCTIONS CARD (blue border)
+     ============================================================ */
+  .frz-storage-card {
+    background: var(--frz-bg-card);
+    border: 2px solid var(--frz-border-storage);
+    border-radius: var(--frz-radius);
+    padding: 18px 20px;
+    margin-bottom: 20px;
+  }
+
+  .frz-card-title {
+    font-size: 0.88rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--frz-accent-cold);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .frz-storage-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .frz-storage-list li {
+    font-size: 0.84rem;
+    color: var(--frz-text-secondary);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.45;
+  }
+
+  .frz-storage-list li::before {
+    content: '•';
+    color: var(--frz-accent-cold);
+    font-weight: 900;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ============================================================
+     COOKING INSTRUCTIONS CARD
+     ============================================================ */
+  .frz-cooking-card {
+    background: var(--frz-bg-card-alt);
+    border: 1.5px solid var(--frz-border-card);
+    border-radius: var(--frz-radius);
+    padding: 18px 20px;
+    margin-bottom: 20px;
+  }
+
+  .frz-cooking-content {
+    font-size: 0.88rem;
+    color: var(--frz-text-secondary);
+    line-height: 1.65;
+  }
+
+  .frz-cooking-content * { max-width: 100%; }
+
+  /* ============================================================
+     TRUST GRID (2x2)
+     ============================================================ */
+  .frz-trust-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .frz-trust-item {
+    background: var(--frz-bg-trust);
+    border: 1px solid var(--frz-border-card);
+    border-radius: var(--frz-radius-sm);
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+  }
+
+  .frz-trust-icon { font-size: 1.5rem; }
+
+  .frz-trust-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--frz-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1.3;
+  }
+
+  /* ============================================================
+     SECTION DIVIDER
+     ============================================================ */
+  .frz-divider {
+    border: none;
+    border-top: 1px solid var(--frz-border-card);
+    margin: 20px 0;
+  }
+
+  /* ============================================================
+     TOAST NOTIFICATION
+     ============================================================ */
+  .frz-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #0f172a;
+    color: #f1f5f9;
+    padding: 12px 24px;
+    border-radius: var(--frz-radius-pill);
+    font-size: 0.9rem;
+    font-weight: 600;
+    z-index: 9999;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+    opacity: 0;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    max-width: calc(100vw - 32px);
+  }
+
+  .frz-toast.is-visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (min-width: 640px) {
+    .frz-container { padding: 0 24px; }
+    .frz-atc-btn { max-width: 420px; }
+    .frz-trust-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  @media (max-width: 380px) {
+    .frz-title { font-size: 1.25rem; }
+    .frz-price-current { font-size: 1.6rem; }
+    .frz-variant-pill { font-size: 0.8rem; padding: 7px 14px; }
+  }
+</style>
+
+<section class="frz-section" id="frz-main-{{ section.id }}">
+  <div class="frz-container">
+
+    {%- comment %} ── BADGES (Frozen + Type) ── {%- endcomment %}
+    <div class="frz-frozen-badge-wrap">
+      <span class="frz-badge--frozen">❄️ FROZEN</span>
+      <span class="frz-badge--type {{ type_color }}">{{ type_emoji }} {{ product.type | default: 'Frozen' }}</span>
+    </div>
+
+    {%- comment %} ── PRODUCT TITLE & VENDOR ── {%- endcomment %}
+    <h1 class="frz-title">{{ product.title }}</h1>
+    {%- if product.vendor != blank -%}
+      <p class="frz-vendor">By {{ product.vendor }}</p>
+    {%- endif -%}
+
+    {%- comment %} ── COLD CHAIN STRIP ── {%- endcomment %}
+    <div class="frz-cold-chain">
+      ❄️ Frozen at –18°C &nbsp;·&nbsp; Vacuum Sealed &nbsp;·&nbsp; No Preservatives &nbsp;·&nbsp; Long Shelf Life
+    </div>
+
+    {%- comment %} ── PRICE ── {%- endcomment %}
+    <div class="frz-price-wrap" id="frz-price-wrap">
+      <span class="frz-price-current" id="frz-price-current">
+        {{ current_variant.price | money }}
+      </span>
+      {%- if current_variant.compare_at_price > current_variant.price -%}
+        <span class="frz-price-compare" id="frz-price-compare">
+          {{ current_variant.compare_at_price | money }}
+        </span>
+        {%- assign save_pct = current_variant.compare_at_price | minus: current_variant.price | times: 100 | divided_by: current_variant.compare_at_price -%}
+        <span class="frz-price-save" id="frz-price-save">SAVE {{ save_pct }}%</span>
+      {%- else -%}
+        <span class="frz-price-compare" id="frz-price-compare" style="display:none"></span>
+        <span class="frz-price-save" id="frz-price-save" style="display:none"></span>
+      {%- endif -%}
+    </div>
+
+    {%- comment %} ── VARIANT PILLS ── {%- endcomment %}
+    {%- if product.variants.size > 1 -%}
+      <div class="frz-variants-label">Select Pack Size</div>
+      <div class="frz-variants-wrap" id="frz-variants-wrap">
+        {%- for variant in product.variants -%}
+          <button
+            class="frz-variant-pill{% if variant.id == current_variant.id %} is-active{% endif %}{% unless variant.available %} is-unavailable{% endunless %}"
+            data-variant-id="{{ variant.id }}"
+            data-price="{{ variant.price }}"
+            data-compare="{{ variant.compare_at_price | default: 0 }}"
+            data-available="{{ variant.available }}"
+            {% unless variant.available %}disabled{% endunless %}
+            aria-label="Select {{ variant.title }}"
+          >
+            {{ variant.title }}
+          </button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    {%- comment %} ── QUANTITY STEPPER ── {%- endcomment %}
+    <div class="frz-qty-label">Quantity</div>
+    <div class="frz-qty-stepper" role="group" aria-label="Quantity">
+      <button class="frz-qty-btn" id="frz-qty-minus" aria-label="Decrease quantity">−</button>
+      <input
+        class="frz-qty-input"
+        type="number"
+        id="frz-qty-input"
+        min="1"
+        max="20"
+        value="1"
+        aria-label="Quantity"
+      >
+      <button class="frz-qty-btn" id="frz-qty-plus" aria-label="Increase quantity">+</button>
+    </div>
+
+    {%- comment %} ── ADD TO CART BUTTON ── {%- endcomment %}
+    <button
+      class="frz-atc-btn"
+      id="frz-atc-btn"
+      data-product-id="{{ product.id }}"
+    >
+      ❄️ ADD TO CART
+    </button>
+
+    {%- comment %} ── COLD DELIVERY INFO BAR ── {%- endcomment %}
+    <div class="frz-cold-delivery">
+      <span class="frz-cold-delivery-icon">🧊</span>
+      <span>❄️ Cold Delivery — Delivered in insulated cold packaging to maintain frozen state</span>
+    </div>
+
+    <hr class="frz-divider">
+
+    {%- comment %} ── BEST BEFORE ── {%- endcomment %}
+    <div class="frz-best-before">
+      📅&nbsp;
+      <span>
+        <strong>Best Before:</strong>&nbsp;
+        {%- if best_before_value -%}
+          {{ best_before_value }}
+        {%- else -%}
+          6 Months from manufacture
+        {%- endif -%}
+      </span>
+    </div>
+
+    {%- comment %} ── STORAGE INSTRUCTIONS ── {%- endcomment %}
+    <div class="frz-storage-card">
+      <div class="frz-card-title">🧊 Storage Instructions</div>
+      <ul class="frz-storage-list">
+        <li>Store in freezer at –18°C or below</li>
+        <li>Do not refreeze after thawing</li>
+        <li>Once opened, use within 24 hours</li>
+        <li>Keep away from raw meat to avoid cross-contamination</li>
+      </ul>
+    </div>
+
+    {%- comment %} ── COOKING / HEATING INSTRUCTIONS ── {%- endcomment %}
+    {%- if product.description != blank -%}
+      <div class="frz-cooking-card">
+        <div class="frz-card-title">🍳 How to Cook</div>
+        <div class="frz-cooking-content">
+          {{ product.description }}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- comment %} ── TRUST GRID 2x2 ── {%- endcomment %}
+    <div class="frz-trust-grid">
+      <div class="frz-trust-item">
+        <span class="frz-trust-icon">🚫</span>
+        <span class="frz-trust-label">No Preservatives</span>
+      </div>
+      <div class="frz-trust-item">
+        <span class="frz-trust-icon">🔒</span>
+        <span class="frz-trust-label">Vacuum Packed</span>
+      </div>
+      <div class="frz-trust-item">
+        <span class="frz-trust-icon">⚡</span>
+        <span class="frz-trust-label">Flash Frozen</span>
+      </div>
+      <div class="frz-trust-item">
+        <span class="frz-trust-icon">🛡️</span>
+        <span class="frz-trust-label">Safe Cold Chain</span>
+      </div>
+    </div>
+
+  </div>{%- comment %} /.frz-container {%- endcomment %}
+</section>
+
+{%- comment %} ── TOAST ── {%- endcomment %}
+<div class="frz-toast" id="frz-toast" role="status" aria-live="polite"></div>
+
+{%- comment %}
+  ── HIDDEN DATA FOR JS ──
+  Serialize variant data to JSON for client-side price switching
+{%- endcomment %}
+<script id="frz-variant-data" type="application/json">
+  {
+    "variants": [
+      {%- for variant in product.variants -%}
+        {
+          "id": {{ variant.id }},
+          "title": {{ variant.title | json }},
+          "price": {{ variant.price }},
+          "compare_at_price": {{ variant.compare_at_price | default: 0 }},
+          "available": {{ variant.available }}
+        }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ],
+    "money_format": {{ shop.money_format | json }},
+    "current_variant_id": {{ current_variant.id }}
+  }
+</script>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── Helpers ── */
+  function formatMoney(cents, format) {
+    var value = (cents / 100).toFixed(2);
+    var formatted = format
+      .replace('{{amount}}', value)
+      .replace('{{amount_no_decimals}}', Math.floor(cents / 100))
+      .replace('{{amount_with_comma_separator}}', value.replace('.', ','));
+    return formatted;
+  }
+
+  /* ── Data ── */
+  var dataEl = document.getElementById('frz-variant-data');
+  if (!dataEl) return;
+  var data;
+  try { data = JSON.parse(dataEl.textContent); } catch (e) { return; }
+  var variants = data.variants;
+  var moneyFormat = data.money_format || '${{amount}}';
+  var selectedVariantId = data.current_variant_id;
+
+  /* ── DOM refs ── */
+  var section      = document.getElementById('frz-main-{{ section.id }}');
+  var priceEl      = document.getElementById('frz-price-current');
+  var compareEl    = document.getElementById('frz-price-compare');
+  var saveEl       = document.getElementById('frz-price-save');
+  var variantWrap  = document.getElementById('frz-variants-wrap');
+  var qtyInput     = document.getElementById('frz-qty-input');
+  var qtyMinus     = document.getElementById('frz-qty-minus');
+  var qtyPlus      = document.getElementById('frz-qty-plus');
+  var atcBtn       = document.getElementById('frz-atc-btn');
+  var toast        = document.getElementById('frz-toast');
+
+  /* ── Variant switching ── */
+  function updatePrice(variant) {
+    if (!variant) return;
+    priceEl.textContent = formatMoney(variant.price, moneyFormat);
+    if (variant.compare_at_price && variant.compare_at_price > variant.price) {
+      var savePct = Math.round((variant.compare_at_price - variant.price) * 100 / variant.compare_at_price);
+      compareEl.textContent = formatMoney(variant.compare_at_price, moneyFormat);
+      saveEl.textContent = 'SAVE ' + savePct + '%';
+      compareEl.style.display = '';
+      saveEl.style.display = '';
+    } else {
+      compareEl.style.display = 'none';
+      saveEl.style.display = 'none';
+    }
+    atcBtn.disabled = !variant.available;
+    atcBtn.textContent = variant.available ? '❄️ ADD TO CART' : '❄️ Out of Stock';
+  }
+
+  if (variantWrap) {
+    variantWrap.addEventListener('click', function (e) {
+      var pill = e.target.closest('.frz-variant-pill');
+      if (!pill || pill.classList.contains('is-unavailable')) return;
+
+      variantWrap.querySelectorAll('.frz-variant-pill').forEach(function (p) {
+        p.classList.remove('is-active');
+      });
+      pill.classList.add('is-active');
+
+      selectedVariantId = parseInt(pill.dataset.variantId, 10);
+      var variant = variants.find(function (v) { return v.id === selectedVariantId; });
+      updatePrice(variant);
+    });
+  }
+
+  /* ── Quantity stepper ── */
+  function getQty() {
+    var v = parseInt(qtyInput.value, 10);
+    return isNaN(v) ? 1 : Math.min(20, Math.max(1, v));
+  }
+
+  qtyMinus && qtyMinus.addEventListener('click', function () {
+    var q = getQty();
+    if (q > 1) { qtyInput.value = q - 1; }
+  });
+
+  qtyPlus && qtyPlus.addEventListener('click', function () {
+    var q = getQty();
+    if (q < 20) { qtyInput.value = q + 1; }
+  });
+
+  qtyInput && qtyInput.addEventListener('change', function () {
+    qtyInput.value = getQty();
+  });
+
+  /* ── Toast ── */
+  var toastTimer;
+  function showToast(msg) {
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.classList.add('is-visible');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      toast.classList.remove('is-visible');
+    }, 3000);
+  }
+
+  /* ── Add to cart ── */
+  atcBtn && atcBtn.addEventListener('click', function () {
+    if (atcBtn.disabled) return;
+    var qty = getQty();
+    var payload = {
+      id: selectedVariantId,
+      quantity: qty,
+      properties: {
+        'Storage': 'Keep Frozen',
+        'Type': 'Frozen'
+      }
+    };
+
+    atcBtn.classList.add('frz-atc-btn--loading');
+    atcBtn.textContent = '⏳ Adding...';
+    atcBtn.disabled = true;
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function (res) {
+      if (!res.ok) throw new Error('Cart error');
+      return res.json();
+    })
+    .then(function () {
+      showToast('✅ Added to cart!');
+      // Refresh cart count if theme supports it
+      document.dispatchEvent(new CustomEvent('cart:refresh'));
+    })
+    .catch(function () {
+      showToast('❌ Could not add to cart. Try again.');
+    })
+    .finally(function () {
+      atcBtn.classList.remove('frz-atc-btn--loading');
+      atcBtn.textContent = '❄️ ADD TO CART';
+      atcBtn.disabled = false;
+    });
+  });
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Frozen",
+  "tag": "section",
+  "class": "qb-frozen-section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "QB Frozen Product"
+    }
+  ]
+}
+{% endschema %}

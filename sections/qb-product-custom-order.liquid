@@ -1,0 +1,971 @@
+{% comment %}
+  QB Custom Order Section
+  For: Custom Cakes, Catering, Special Orders, Custom Hampers, Personalized Bakery
+  Theme: Dark/Light | Accent: #F4B400 (Gold)
+  CSS prefix: --cus-*
+{% endcomment %}
+
+{%- liquid
+  assign lead_days = 3
+  assign serves_count = ''
+  assign category_emoji = '✨'
+  assign category_label = 'Custom Order'
+
+  for tag in product.tags
+    if tag contains 'leadtime:'
+      assign lead_parts = tag | split: ':'
+      assign lead_days = lead_parts[1] | remove: 'days' | strip | plus: 0
+    endif
+    if tag contains 'serves:'
+      assign serves_parts = tag | split: ':'
+      assign serves_count = serves_parts[1] | strip
+    endif
+  endfor
+
+  case product.type
+    when 'Custom Cake'
+      assign category_emoji = '🎂'
+      assign category_label = 'Custom Cake'
+    when 'Catering'
+      assign category_emoji = '🍽️'
+      assign category_label = 'Catering'
+    when 'Custom Hamper'
+      assign category_emoji = '🎁'
+      assign category_label = 'Custom Hamper'
+    when 'Personalized Bakery'
+      assign category_emoji = '🎊'
+      assign category_label = 'Personalized Bakery'
+    else
+      assign category_emoji = '✨'
+      assign category_label = 'Custom Order'
+  endcase
+
+  assign first_variant = product.variants | first
+  assign current_price = first_variant.price
+-%}
+
+<style>
+  /* ─── CSS Custom Properties ─── */
+  :root {
+    --cus-gold:          #F4B400;
+    --cus-gold-dark:     #c49100;
+    --cus-gold-light:    #fff8e1;
+    --cus-gold-glow:     rgba(244, 180, 0, 0.25);
+    --cus-radius-sm:     6px;
+    --cus-radius-md:     12px;
+    --cus-radius-lg:     20px;
+    --cus-radius-pill:   999px;
+    --cus-shadow:        0 4px 24px rgba(0,0,0,0.18);
+    --cus-shadow-gold:   0 4px 20px rgba(244, 180, 0, 0.35);
+    --cus-transition:    all 0.22s cubic-bezier(.4,0,.2,1);
+    --cus-font-sans:     'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Dark theme tokens (default) */
+  [data-cus-theme="dark"],
+  .shopify-section {
+    --cus-bg:            #0f0f0f;
+    --cus-bg-card:       #1a1a1a;
+    --cus-bg-card2:      #222222;
+    --cus-bg-input:      #2a2a2a;
+    --cus-border:        #333333;
+    --cus-border-focus:  var(--cus-gold);
+    --cus-text-primary:  #f5f5f5;
+    --cus-text-secondary:#a0a0a0;
+    --cus-text-muted:    #666666;
+    --cus-badge-bg:      rgba(244,180,0,0.15);
+    --cus-trust-bg:      #1e1e1e;
+    --cus-step-bg:       #1e1e1e;
+  }
+
+  /* Light theme tokens */
+  @media (prefers-color-scheme: light) {
+    .shopify-section {
+      --cus-bg:            #fafafa;
+      --cus-bg-card:       #ffffff;
+      --cus-bg-card2:      #f5f5f5;
+      --cus-bg-input:      #ffffff;
+      --cus-border:        #e0e0e0;
+      --cus-border-focus:  var(--cus-gold);
+      --cus-text-primary:  #111111;
+      --cus-text-secondary:#555555;
+      --cus-text-muted:    #888888;
+      --cus-badge-bg:      rgba(244,180,0,0.12);
+      --cus-trust-bg:      #f9f9f9;
+      --cus-step-bg:       #f9f9f9;
+    }
+  }
+
+  .cus-wrapper {
+    font-family: var(--cus-font-sans);
+    background: var(--cus-bg);
+    color: var(--cus-text-primary);
+    min-height: 100vh;
+    padding: 16px 0 48px;
+  }
+
+  .cus-container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* ─── Badges ─── */
+  .cus-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .cus-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 14px;
+    border-radius: var(--cus-radius-pill);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .cus-badge--primary {
+    background: var(--cus-gold);
+    color: #000;
+    box-shadow: var(--cus-shadow-gold);
+  }
+
+  .cus-badge--sub {
+    background: var(--cus-badge-bg);
+    color: var(--cus-gold);
+    border: 1px solid rgba(244,180,0,0.4);
+  }
+
+  /* ─── Product Header ─── */
+  .cus-header {
+    margin-bottom: 24px;
+  }
+
+  .cus-category {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cus-gold);
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .cus-title {
+    font-size: clamp(22px, 5vw, 32px);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--cus-text-primary);
+    margin: 0 0 10px;
+  }
+
+  .cus-description {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--cus-text-secondary);
+    margin: 0 0 16px;
+  }
+
+  /* ─── Meta Chips ─── */
+  .cus-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .cus-meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    background: var(--cus-bg-card2);
+    border: 1px solid var(--cus-border);
+    border-radius: var(--cus-radius-pill);
+    font-size: 13px;
+    color: var(--cus-text-secondary);
+  }
+
+  .cus-meta-chip .chip-icon {
+    font-size: 14px;
+  }
+
+  /* ─── Price Block ─── */
+  .cus-price-block {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .cus-price {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--cus-gold);
+  }
+
+  .cus-price-note {
+    font-size: 13px;
+    color: var(--cus-text-muted);
+  }
+
+  /* ─── Variant Pills ─── */
+  .cus-section-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--cus-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 10px;
+  }
+
+  .cus-variants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .cus-variant-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 18px;
+    border: 2px solid var(--cus-border);
+    border-radius: var(--cus-radius-md);
+    background: var(--cus-bg-card);
+    cursor: pointer;
+    transition: var(--cus-transition);
+    min-width: 80px;
+    gap: 2px;
+  }
+
+  .cus-variant-pill:hover {
+    border-color: var(--cus-gold);
+    background: var(--cus-badge-bg);
+  }
+
+  .cus-variant-pill.active {
+    border-color: var(--cus-gold);
+    background: var(--cus-badge-bg);
+    box-shadow: var(--cus-shadow-gold);
+  }
+
+  .cus-variant-pill .vp-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cus-text-primary);
+  }
+
+  .cus-variant-pill .vp-price {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--cus-gold);
+  }
+
+  /* ─── Form Card ─── */
+  .cus-form-card {
+    background: var(--cus-bg-card);
+    border: 1px solid var(--cus-border);
+    border-radius: var(--cus-radius-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .cus-form-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--cus-text-primary);
+    margin: 0 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cus-form-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--cus-border);
+    margin-left: 8px;
+  }
+
+  .cus-field {
+    margin-bottom: 18px;
+  }
+
+  .cus-field:last-child {
+    margin-bottom: 0;
+  }
+
+  .cus-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cus-text-secondary);
+    margin-bottom: 6px;
+    letter-spacing: 0.03em;
+  }
+
+  .cus-label .required {
+    color: var(--cus-gold);
+    margin-left: 2px;
+  }
+
+  .cus-input,
+  .cus-select,
+  .cus-textarea {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--cus-bg-input);
+    border: 1.5px solid var(--cus-border);
+    border-radius: var(--cus-radius-sm);
+    color: var(--cus-text-primary);
+    font-size: 14px;
+    font-family: var(--cus-font-sans);
+    transition: var(--cus-transition);
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .cus-input:focus,
+  .cus-select:focus,
+  .cus-textarea:focus {
+    outline: none;
+    border-color: var(--cus-border-focus);
+    box-shadow: 0 0 0 3px var(--cus-gold-glow);
+  }
+
+  .cus-input::placeholder,
+  .cus-textarea::placeholder {
+    color: var(--cus-text-muted);
+  }
+
+  .cus-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+
+  .cus-textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .cus-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  @media (max-width: 480px) {
+    .cus-field-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ─── CTA Button ─── */
+  .cus-cta {
+    width: 100%;
+    padding: 16px 24px;
+    background: var(--cus-gold);
+    color: #000;
+    border: none;
+    border-radius: var(--cus-radius-md);
+    font-size: 16px;
+    font-weight: 800;
+    font-family: var(--cus-font-sans);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: var(--cus-transition);
+    box-shadow: var(--cus-shadow-gold);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .cus-cta:hover:not(:disabled) {
+    background: var(--cus-gold-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(244,180,0,0.45);
+  }
+
+  .cus-cta:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .cus-cta:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .cus-cta .spinner {
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(0,0,0,0.3);
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: cus-spin 0.7s linear infinite;
+    display: none;
+  }
+
+  .cus-cta.loading .spinner {
+    display: block;
+  }
+
+  .cus-cta.loading .cta-text {
+    display: none;
+  }
+
+  @keyframes cus-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ─── Success Message ─── */
+  .cus-success {
+    display: none;
+    background: linear-gradient(135deg, #1a2a0a, #0f1f0a);
+    border: 1.5px solid #4caf50;
+    border-radius: var(--cus-radius-md);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .cus-success.visible {
+    display: block;
+  }
+
+  .cus-success .success-emoji {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+
+  .cus-success .success-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #66bb6a;
+    margin-bottom: 4px;
+  }
+
+  .cus-success .success-sub {
+    font-size: 13px;
+    color: #a5d6a7;
+  }
+
+  /* ─── How It Works ─── */
+  .cus-how-it-works {
+    background: var(--cus-bg-card);
+    border: 1px solid var(--cus-border);
+    border-radius: var(--cus-radius-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .cus-section-heading {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--cus-text-primary);
+    margin: 0 0 20px;
+  }
+
+  .cus-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .cus-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    position: relative;
+  }
+
+  .cus-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 40px;
+    width: 2px;
+    height: calc(100% - 16px);
+    background: var(--cus-border);
+  }
+
+  .cus-step-num {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    background: var(--cus-badge-bg);
+    border: 2px solid var(--cus-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--cus-gold);
+    z-index: 1;
+    position: relative;
+  }
+
+  .cus-step-content {
+    padding: 8px 0 24px;
+  }
+
+  .cus-step-content .step-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--cus-text-primary);
+    margin-bottom: 2px;
+  }
+
+  .cus-step-content .step-desc {
+    font-size: 13px;
+    color: var(--cus-text-secondary);
+  }
+
+  /* ─── Trust Grid ─── */
+  .cus-trust-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .cus-trust-item {
+    background: var(--cus-trust-bg);
+    border: 1px solid var(--cus-border);
+    border-radius: var(--cus-radius-md);
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .cus-trust-icon {
+    font-size: 22px;
+    line-height: 1;
+    margin-top: 1px;
+  }
+
+  .cus-trust-text .trust-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--cus-text-primary);
+    margin-bottom: 2px;
+  }
+
+  .cus-trust-text .trust-desc {
+    font-size: 12px;
+    color: var(--cus-text-muted);
+  }
+
+  /* ─── Error state ─── */
+  .cus-error-msg {
+    display: none;
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid rgba(244, 67, 54, 0.4);
+    border-radius: var(--cus-radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #ef9a9a;
+    margin-bottom: 14px;
+  }
+
+  .cus-error-msg.visible {
+    display: block;
+  }
+
+  .cus-fine-print {
+    font-size: 12px;
+    color: var(--cus-text-muted);
+    text-align: center;
+    line-height: 1.6;
+  }
+</style>
+
+<section class="cus-wrapper" id="cus-section-{{ section.id }}">
+  <div class="cus-container">
+
+    <!-- Badges -->
+    <div class="cus-badge-row">
+      <span class="cus-badge cus-badge--primary">✨ CUSTOM ORDER</span>
+      <span class="cus-badge cus-badge--sub">{{ category_emoji }} MADE TO ORDER</span>
+    </div>
+
+    <!-- Header -->
+    <div class="cus-header">
+      <div class="cus-category">{{ category_emoji }} {{ category_label }}</div>
+      <h1 class="cus-title">{{ product.title }}</h1>
+      {%- if product.description != blank -%}
+        <div class="cus-description">{{ product.description | strip_html | truncatewords: 40 }}</div>
+      {%- endif -%}
+    </div>
+
+    <!-- Meta chips -->
+    <div class="cus-meta-row">
+      <span class="cus-meta-chip">
+        <span class="chip-icon">📅</span>
+        {%- if lead_days and lead_days > 0 -%}
+          Requires {{ lead_days }} days advance order
+        {%- else -%}
+          3 days advance order required
+        {%- endif -%}
+      </span>
+      {%- if serves_count != blank -%}
+        <span class="cus-meta-chip">
+          <span class="chip-icon">👥</span>
+          Feeds up to {{ serves_count }} people
+        </span>
+      {%- endif -%}
+    </div>
+
+    <!-- Price block -->
+    <div class="cus-price-block">
+      <span class="cus-price" id="cus-price-display">
+        {{ current_price | money }}
+      </span>
+      <span class="cus-price-note">Starting price · Final quote on confirmation</span>
+    </div>
+
+    <!-- Variant Pills -->
+    {%- if product.variants.size > 1 -%}
+      <div class="cus-section-label">Select Size / Option</div>
+      <div class="cus-variants" id="cus-variants">
+        {%- for variant in product.variants -%}
+          <button
+            type="button"
+            class="cus-variant-pill {% if forloop.first %}active{% endif %}"
+            data-variant-id="{{ variant.id }}"
+            data-price="{{ variant.price | money }}"
+            data-available="{{ variant.available }}"
+            onclick="cusSelectVariant(this)"
+          >
+            <span class="vp-label">{{ variant.title }}</span>
+            <span class="vp-price">{{ variant.price | money }}</span>
+          </button>
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      <input type="hidden" id="cus-single-variant" value="{{ first_variant.id }}">
+    {%- endif -%}
+
+    <!-- Customization Form Card -->
+    <div class="cus-form-card">
+      <div class="cus-form-title">🎨 Customization Details</div>
+
+      <form id="cus-order-form" novalidate>
+        <input type="hidden" id="cus-variant-id" value="{{ first_variant.id }}">
+        <input type="hidden" id="cus-product-handle" value="{{ product.handle }}">
+
+        <!-- Occasion -->
+        <div class="cus-field">
+          <label class="cus-label" for="cus-occasion">
+            Occasion <span class="required">*</span>
+          </label>
+          <select class="cus-select" id="cus-occasion" required>
+            <option value="" disabled selected>Select an occasion</option>
+            <option value="Birthday">🎂 Birthday</option>
+            <option value="Anniversary">💑 Anniversary</option>
+            <option value="Wedding">💍 Wedding</option>
+            <option value="Baby Shower">🍼 Baby Shower</option>
+            <option value="Corporate">🏢 Corporate</option>
+            <option value="Other">✨ Other</option>
+          </select>
+        </div>
+
+        <!-- Design Notes -->
+        <div class="cus-field">
+          <label class="cus-label" for="cus-design-notes">
+            Design Notes <span class="required">*</span>
+          </label>
+          <textarea
+            class="cus-textarea"
+            id="cus-design-notes"
+            rows="3"
+            placeholder="Describe your design, colours, theme, number of tiers, any references..."
+            required
+          ></textarea>
+        </div>
+
+        <!-- Name on Item -->
+        <div class="cus-field">
+          <label class="cus-label" for="cus-name-on-item">Name on Item</label>
+          <input
+            type="text"
+            class="cus-input"
+            id="cus-name-on-item"
+            placeholder="Name to write on cake/item (leave blank if not needed)"
+          >
+        </div>
+
+        <!-- Delivery Date + Time Slot -->
+        <div class="cus-field-row">
+          <div class="cus-field">
+            <label class="cus-label" for="cus-delivery-date">
+              Preferred Delivery Date <span class="required">*</span>
+            </label>
+            <input
+              type="date"
+              class="cus-input"
+              id="cus-delivery-date"
+              required
+            >
+          </div>
+          <div class="cus-field">
+            <label class="cus-label" for="cus-time-slot">
+              Preferred Time Slot <span class="required">*</span>
+            </label>
+            <select class="cus-select" id="cus-time-slot" required>
+              <option value="" disabled selected>Select slot</option>
+              <option value="Morning 9–12">🌅 Morning 9–12</option>
+              <option value="Afternoon 12–4">☀️ Afternoon 12–4</option>
+              <option value="Evening 4–8">🌆 Evening 4–8</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Allergies -->
+        <div class="cus-field">
+          <label class="cus-label" for="cus-allergies">Allergies / Dietary Requirements</label>
+          <input
+            type="text"
+            class="cus-input"
+            id="cus-allergies"
+            placeholder="Any allergens to avoid? (e.g. nuts, gluten, dairy)"
+          >
+        </div>
+
+        <!-- Error -->
+        <div class="cus-error-msg" id="cus-error"></div>
+
+        <!-- Success -->
+        <div class="cus-success" id="cus-success">
+          <div class="success-emoji">🎉</div>
+          <div class="success-title">Custom order placed!</div>
+          <div class="success-sub">We'll call within 2 hours to confirm details.</div>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="cus-cta" id="cus-submit-btn">
+          <span class="spinner"></span>
+          <span class="cta-text">PLACE CUSTOM ORDER</span>
+        </button>
+
+        <p class="cus-fine-print">
+          By placing this order you agree to our customisation policy.<br>
+          Pricing is indicative — our team will confirm the final quote on your call.
+        </p>
+      </form>
+    </div>
+
+    <!-- How It Works -->
+    <div class="cus-how-it-works">
+      <div class="cus-section-heading">How It Works</div>
+      <div class="cus-steps">
+        <div class="cus-step">
+          <div class="cus-step-num">1</div>
+          <div class="cus-step-content">
+            <div class="step-title">Place Your Order</div>
+            <div class="step-desc">Fill in the customisation form with your requirements and preferred delivery date.</div>
+          </div>
+        </div>
+        <div class="cus-step">
+          <div class="cus-step-num">2</div>
+          <div class="cus-step-content">
+            <div class="step-title">Confirmation Call</div>
+            <div class="step-desc">Our team calls within 2 hours to finalise design, pricing, and delivery details.</div>
+          </div>
+        </div>
+        <div class="cus-step">
+          <div class="cus-step-num">3</div>
+          <div class="cus-step-content">
+            <div class="step-title">We Create It</div>
+            <div class="step-desc">Our artisans craft your custom order with fresh, premium ingredients.</div>
+          </div>
+        </div>
+        <div class="cus-step">
+          <div class="cus-step-num">4</div>
+          <div class="cus-step-content">
+            <div class="step-title">Delivered Fresh</div>
+            <div class="step-desc">Your order is delivered at your preferred time slot, fresh and beautifully packaged.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trust Grid -->
+    <div class="cus-trust-grid">
+      <div class="cus-trust-item">
+        <span class="cus-trust-icon">🎨</span>
+        <div class="cus-trust-text">
+          <div class="trust-title">100% Customizable</div>
+          <div class="trust-desc">Every detail tailored to your vision</div>
+        </div>
+      </div>
+      <div class="cus-trust-item">
+        <span class="cus-trust-icon">🌿</span>
+        <div class="cus-trust-text">
+          <div class="trust-title">Fresh Ingredients</div>
+          <div class="trust-desc">Made fresh on your delivery day</div>
+        </div>
+      </div>
+      <div class="cus-trust-item">
+        <span class="cus-trust-icon">🚚</span>
+        <div class="cus-trust-text">
+          <div class="trust-title">Timely Delivery</div>
+          <div class="trust-desc">On-time, every time — guaranteed</div>
+        </div>
+      </div>
+      <div class="cus-trust-item">
+        <span class="cus-trust-icon">⭐</span>
+        <div class="cus-trust-text">
+          <div class="trust-title">Satisfaction Guaranteed</div>
+          <div class="trust-desc">Not happy? We'll make it right</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+
+  var leadDays = {{ lead_days | default: 3 }};
+
+  /* ─── Set minimum delivery date ─── */
+  (function setMinDate() {
+    var dateInput = document.getElementById('cus-delivery-date');
+    if (!dateInput) return;
+    var minDate = new Date();
+    minDate.setDate(minDate.getDate() + leadDays);
+    var yyyy = minDate.getFullYear();
+    var mm   = String(minDate.getMonth() + 1).padStart(2, '0');
+    var dd   = String(minDate.getDate()).padStart(2, '0');
+    dateInput.min = yyyy + '-' + mm + '-' + dd;
+  })();
+
+  /* ─── Variant selection ─── */
+  window.cusSelectVariant = function (btn) {
+    document.querySelectorAll('.cus-variant-pill').forEach(function (p) {
+      p.classList.remove('active');
+    });
+    btn.classList.add('active');
+    document.getElementById('cus-variant-id').value = btn.dataset.variantId;
+    var priceEl = document.getElementById('cus-price-display');
+    if (priceEl) priceEl.textContent = btn.dataset.price;
+  };
+
+  /* ─── Single variant fallback ─── */
+  var singleVariant = document.getElementById('cus-single-variant');
+  if (singleVariant) {
+    document.getElementById('cus-variant-id').value = singleVariant.value;
+  }
+
+  /* ─── Form submit ─── */
+  var form    = document.getElementById('cus-order-form');
+  var submitBtn = document.getElementById('cus-submit-btn');
+  var errorEl = document.getElementById('cus-error');
+  var successEl = document.getElementById('cus-success');
+
+  function showError(msg) {
+    errorEl.textContent = msg;
+    errorEl.classList.add('visible');
+  }
+
+  function hideError() {
+    errorEl.classList.remove('visible');
+  }
+
+  function setLoading(loading) {
+    submitBtn.disabled = loading;
+    submitBtn.classList.toggle('loading', loading);
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    hideError();
+
+    var variantId   = document.getElementById('cus-variant-id').value;
+    var occasion    = document.getElementById('cus-occasion').value;
+    var designNotes = document.getElementById('cus-design-notes').value.trim();
+    var nameOnItem  = document.getElementById('cus-name-on-item').value.trim();
+    var delivDate   = document.getElementById('cus-delivery-date').value;
+    var timeSlot    = document.getElementById('cus-time-slot').value;
+    var allergies   = document.getElementById('cus-allergies').value.trim();
+
+    if (!occasion)    { showError('Please select an occasion.'); return; }
+    if (!designNotes) { showError('Please describe your design requirements.'); return; }
+    if (!delivDate)   { showError('Please select a preferred delivery date.'); return; }
+    if (!timeSlot)    { showError('Please select a preferred time slot.'); return; }
+
+    setLoading(true);
+
+    var payload = {
+      id: parseInt(variantId, 10),
+      quantity: 1,
+      properties: {
+        'Occasion':         occasion,
+        'Design Notes':     designNotes,
+        'Name on Item':     nameOnItem || 'N/A',
+        'Delivery Date':    delivDate,
+        'Time Slot':        timeSlot,
+        'Allergies/Dietary': allergies || 'None'
+      }
+    };
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function (res) {
+      if (!res.ok) return res.json().then(function (d) { throw new Error(d.description || 'Could not add to cart.'); });
+      return res.json();
+    })
+    .then(function () {
+      form.style.display = 'none';
+      successEl.classList.add('visible');
+      window.scrollTo({ top: successEl.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' });
+    })
+    .catch(function (err) {
+      showError(err.message || 'Something went wrong. Please try again.');
+    })
+    .finally(function () {
+      setLoading(false);
+    });
+  });
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Custom Order",
+  "tag": "section",
+  "class": "qb-custom-order-section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "QB Custom Order"
+    }
+  ]
+}
+{% endschema %}

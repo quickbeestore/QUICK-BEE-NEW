@@ -1,0 +1,901 @@
+{% comment %}
+  QB Meat & Fish Product Section
+  Template: product.meat-fish
+  Accent: #F4B400 (Gold)
+  Theme: Dark / Light via [data-theme]
+{% endcomment %}
+
+{% liquid
+  assign product_type = product.type | downcase
+
+  case product_type
+    when 'chicken'
+      assign type_icon  = '🍗'
+      assign type_label = 'Chicken'
+      assign type_class = 'mf-type--amber'
+    when 'mutton'
+      assign type_icon  = '🥩'
+      assign type_label = 'Mutton'
+      assign type_class = 'mf-type--red'
+    when 'fish'
+      assign type_icon  = '🐟'
+      assign type_label = 'Fish'
+      assign type_class = 'mf-type--blue'
+    when 'prawns'
+      assign type_icon  = '🦐'
+      assign type_label = 'Prawns'
+      assign type_class = 'mf-type--coral'
+    when 'crab'
+      assign type_icon  = '🦀'
+      assign type_label = 'Crab'
+      assign type_class = 'mf-type--orange'
+    when 'eggs'
+      assign type_icon  = '🥚'
+      assign type_label = 'Eggs'
+      assign type_class = 'mf-type--yellow'
+    else
+      assign type_icon  = '🍖'
+      assign type_label = product.type
+      assign type_class = 'mf-type--gray'
+  endcase
+
+  assign is_premium = false
+  for tag in product.tags
+    assign tag_lower = tag | downcase
+    if tag_lower == 'premium'
+      assign is_premium = true
+    endif
+  endfor
+
+  assign first_variant = product.variants.first
+%}
+
+<style>
+  /* ── CSS Tokens ────────────────────────────────────────── */
+  :root,
+  [data-theme="light"] {
+    --mf-bg:            #ffffff;
+    --mf-bg-card:       #f8f8f6;
+    --mf-bg-strip:      #fdf4e3;
+    --mf-border:        #e5e5e5;
+    --mf-text-primary:  #1a1a1a;
+    --mf-text-secondary:#555555;
+    --mf-text-muted:    #888888;
+    --mf-gold:          #F4B400;
+    --mf-gold-dark:     #c79200;
+    --mf-gold-bg:       #fff8e1;
+    --mf-green:         #2e7d32;
+    --mf-green-bg:      #e8f5e9;
+    --mf-pill-bg:       #f0f0f0;
+    --mf-pill-active-bg:#fff8e1;
+    --mf-pill-active-border: #F4B400;
+    --mf-shadow:        0 2px 12px rgba(0,0,0,0.07);
+    --mf-radius:        12px;
+    --mf-radius-sm:     8px;
+    --mf-btn-text:      #1a1a1a;
+
+    /* type accents */
+    --mf-amber:  #ff8f00;
+    --mf-red:    #c62828;
+    --mf-blue:   #1565c0;
+    --mf-coral:  #e64a19;
+    --mf-orange: #e65100;
+    --mf-yellow: #f9a825;
+    --mf-gray:   #616161;
+  }
+
+  [data-theme="dark"] {
+    --mf-bg:            #121212;
+    --mf-bg-card:       #1e1e1e;
+    --mf-bg-strip:      #2a2200;
+    --mf-border:        #2e2e2e;
+    --mf-text-primary:  #f0f0f0;
+    --mf-text-secondary:#b0b0b0;
+    --mf-text-muted:    #707070;
+    --mf-gold:          #F4B400;
+    --mf-gold-dark:     #ffca28;
+    --mf-gold-bg:       #1f1800;
+    --mf-green:         #66bb6a;
+    --mf-green-bg:      #0d2e0f;
+    --mf-pill-bg:       #2a2a2a;
+    --mf-pill-active-bg:#2a2000;
+    --mf-pill-active-border: #F4B400;
+    --mf-shadow:        0 2px 16px rgba(0,0,0,0.4);
+    --mf-radius:        12px;
+    --mf-radius-sm:     8px;
+    --mf-btn-text:      #1a1a1a;
+
+    --mf-amber:  #ffb300;
+    --mf-red:    #ef5350;
+    --mf-blue:   #42a5f5;
+    --mf-coral:  #ff7043;
+    --mf-orange: #ffa726;
+    --mf-yellow: #ffee58;
+    --mf-gray:   #9e9e9e;
+  }
+
+  /* ── Reset / Base ──────────────────────────────────────── */
+  .mf-section * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  .mf-section {
+    background: var(--mf-bg);
+    color: var(--mf-text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    padding: 16px 0 48px;
+  }
+
+  .mf-container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* ── Badges ─────────────────────────────────────────────── */
+  .mf-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .mf-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .mf-badge--fresh {
+    background: var(--mf-green-bg);
+    color: var(--mf-green);
+    border: 1.5px solid var(--mf-green);
+  }
+
+  .mf-badge--fresh .mf-pulse {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--mf-green);
+    animation: mfPulse 1.4s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  .mf-badge--premium {
+    background: var(--mf-gold-bg);
+    color: var(--mf-gold);
+    border: 1.5px solid var(--mf-gold);
+  }
+
+  @keyframes mfPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(1.4); }
+  }
+
+  /* ── Type chip ─────────────────────────────────────────── */
+  .mf-type-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--mf-bg-card);
+    border: 1.5px solid var(--mf-border);
+    margin-bottom: 14px;
+  }
+
+  .mf-type--amber  { color: var(--mf-amber);  border-color: var(--mf-amber); }
+  .mf-type--red    { color: var(--mf-red);    border-color: var(--mf-red); }
+  .mf-type--blue   { color: var(--mf-blue);   border-color: var(--mf-blue); }
+  .mf-type--coral  { color: var(--mf-coral);  border-color: var(--mf-coral); }
+  .mf-type--orange { color: var(--mf-orange); border-color: var(--mf-orange); }
+  .mf-type--yellow { color: var(--mf-yellow); border-color: var(--mf-yellow); }
+  .mf-type--gray   { color: var(--mf-gray);   border-color: var(--mf-gray); }
+
+  /* ── Product title ─────────────────────────────────────── */
+  .mf-title {
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--mf-text-primary);
+    margin-bottom: 6px;
+  }
+
+  .mf-subtitle {
+    font-size: 14px;
+    color: var(--mf-text-secondary);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  /* ── Freshness strip ───────────────────────────────────── */
+  .mf-freshness-strip {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--mf-bg-strip);
+    border: 1px solid var(--mf-gold);
+    border-radius: var(--mf-radius-sm);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .mf-freshness-item {
+    flex: 1;
+    text-align: center;
+    padding: 10px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--mf-text-secondary);
+    border-right: 1px solid var(--mf-border);
+    line-height: 1.4;
+  }
+
+  .mf-freshness-item:last-child {
+    border-right: none;
+  }
+
+  .mf-freshness-item .mf-fi-icon {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 3px;
+  }
+
+  /* ── Section headings ──────────────────────────────────── */
+  .mf-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mf-text-muted);
+    margin-bottom: 10px;
+  }
+
+  /* ── Variant pills ─────────────────────────────────────── */
+  .mf-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .mf-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 16px;
+    border-radius: var(--mf-radius-sm);
+    background: var(--mf-pill-bg);
+    border: 1.5px solid var(--mf-border);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    min-width: 80px;
+    user-select: none;
+  }
+
+  .mf-pill:hover {
+    border-color: var(--mf-gold);
+  }
+
+  .mf-pill.is-active {
+    background: var(--mf-pill-active-bg);
+    border-color: var(--mf-pill-active-border);
+  }
+
+  .mf-pill__weight {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--mf-text-primary);
+  }
+
+  .mf-pill__price {
+    font-size: 12px;
+    color: var(--mf-gold);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  /* ── Price display ─────────────────────────────────────── */
+  .mf-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .mf-price-main {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--mf-gold);
+  }
+
+  .mf-price-compare {
+    font-size: 16px;
+    color: var(--mf-text-muted);
+    text-decoration: line-through;
+  }
+
+  .mf-price-tag {
+    font-size: 12px;
+    color: var(--mf-text-secondary);
+  }
+
+  /* ── Quantity stepper ──────────────────────────────────── */
+  .mf-qty-block {
+    margin-bottom: 20px;
+  }
+
+  .mf-qty-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mf-text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .mf-qty-stepper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: fit-content;
+    border: 1.5px solid var(--mf-border);
+    border-radius: var(--mf-radius-sm);
+    overflow: hidden;
+    background: var(--mf-bg-card);
+  }
+
+  .mf-qty-btn {
+    width: 44px;
+    height: 44px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--mf-text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mf-qty-btn:hover {
+    background: var(--mf-gold-bg);
+  }
+
+  .mf-qty-value {
+    width: 48px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--mf-text-primary);
+    border-left: 1px solid var(--mf-border);
+    border-right: 1px solid var(--mf-border);
+    height: 44px;
+    line-height: 44px;
+    user-select: none;
+  }
+
+  /* ── Preparation selector ──────────────────────────────── */
+  .mf-prep-block {
+    margin-bottom: 24px;
+  }
+
+  .mf-prep-select {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: var(--mf-radius-sm);
+    border: 1.5px solid var(--mf-border);
+    background: var(--mf-bg-card);
+    color: var(--mf-text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%23888' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    cursor: pointer;
+  }
+
+  .mf-prep-select:focus {
+    outline: none;
+    border-color: var(--mf-gold);
+  }
+
+  /* ── Delivery note ─────────────────────────────────────── */
+  .mf-delivery-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--mf-bg-card);
+    border: 1px solid var(--mf-border);
+    border-radius: var(--mf-radius-sm);
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--mf-text-secondary);
+    margin-bottom: 20px;
+  }
+
+  /* ── Add to Cart button ────────────────────────────────── */
+  .mf-atc-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 17px 24px;
+    background: var(--mf-gold);
+    color: var(--mf-btn-text);
+    border: none;
+    border-radius: var(--mf-radius);
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.12s;
+    margin-bottom: 24px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mf-atc-btn:hover  { background: var(--mf-gold-dark); }
+  .mf-atc-btn:active { transform: scale(0.98); }
+  .mf-atc-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* ── Storage card ──────────────────────────────────────── */
+  .mf-storage-card {
+    background: var(--mf-bg-card);
+    border: 1px solid var(--mf-border);
+    border-left: 4px solid var(--mf-blue);
+    border-radius: var(--mf-radius-sm);
+    padding: 14px 16px;
+    margin-bottom: 24px;
+  }
+
+  .mf-storage-card__title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--mf-text-primary);
+    margin-bottom: 6px;
+  }
+
+  .mf-storage-card__text {
+    font-size: 13px;
+    color: var(--mf-text-secondary);
+    line-height: 1.6;
+  }
+
+  /* ── Trust row ─────────────────────────────────────────── */
+  .mf-trust-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .mf-trust-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background: var(--mf-bg-card);
+    border: 1px solid var(--mf-border);
+    border-radius: var(--mf-radius-sm);
+    padding: 16px 10px;
+    gap: 6px;
+  }
+
+  .mf-trust-icon {
+    font-size: 22px;
+  }
+
+  .mf-trust-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--mf-text-primary);
+  }
+
+  .mf-trust-sub {
+    font-size: 11px;
+    color: var(--mf-text-muted);
+    line-height: 1.4;
+  }
+
+  /* ── FAQ ───────────────────────────────────────────────── */
+  .mf-faq {
+    margin-bottom: 16px;
+  }
+
+  .mf-faq__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--mf-text-primary);
+    margin-bottom: 12px;
+  }
+
+  .mf-faq-item {
+    border: 1px solid var(--mf-border);
+    border-radius: var(--mf-radius-sm);
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+
+  .mf-faq-q {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: var(--mf-bg-card);
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--mf-text-primary);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mf-faq-arrow {
+    flex-shrink: 0;
+    font-style: normal;
+    transition: transform 0.2s;
+    color: var(--mf-gold);
+  }
+
+  .mf-faq-a {
+    display: none;
+    padding: 0 16px 14px;
+    font-size: 13px;
+    color: var(--mf-text-secondary);
+    line-height: 1.6;
+    background: var(--mf-bg);
+  }
+
+  .mf-faq-item.is-open .mf-faq-a {
+    display: block;
+  }
+
+  .mf-faq-item.is-open .mf-faq-arrow {
+    transform: rotate(180deg);
+  }
+
+  /* ── Toast ─────────────────────────────────────────────── */
+  .mf-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #1a1a1a;
+    color: #fff;
+    padding: 13px 24px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+    z-index: 9999;
+    transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+  }
+
+  .mf-toast.is-visible {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── Responsive ────────────────────────────────────────── */
+  @media (max-width: 420px) {
+    .mf-trust-row { flex-direction: column; }
+    .mf-freshness-item { padding: 8px 2px; font-size: 10px; }
+    .mf-freshness-item .mf-fi-icon { font-size: 14px; }
+  }
+</style>
+
+<section class="mf-section" id="qb-mf-section">
+  <div class="mf-container">
+
+    <!-- Badge row -->
+    <div class="mf-badge-row">
+      {% if is_premium %}
+        <span class="mf-badge mf-badge--premium">✦ PREMIUM CUT</span>
+      {% else %}
+        <span class="mf-badge mf-badge--fresh">
+          <span class="mf-pulse"></span>
+          FRESH TODAY
+        </span>
+      {% endif %}
+    </div>
+
+    <!-- Type chip -->
+    <div class="mf-type-chip {{ type_class }}">
+      <span>{{ type_icon }}</span>
+      <span>{{ type_label }}</span>
+    </div>
+
+    <!-- Title -->
+    <h1 class="mf-title">{{ product.title }}</h1>
+    {% if product.description != blank %}
+      <p class="mf-subtitle">{{ product.description | strip_html | truncate: 140 }}</p>
+    {% endif %}
+
+    <!-- Freshness strip -->
+    <div class="mf-freshness-strip">
+      <div class="mf-freshness-item">
+        <span class="mf-fi-icon">🚚</span>Delivered Fresh
+      </div>
+      <div class="mf-freshness-item">
+        <span class="mf-fi-icon">🧹</span>Cleaned &amp; Packed
+      </div>
+      <div class="mf-freshness-item">
+        <span class="mf-fi-icon">🧊</span>Cold Chain
+      </div>
+      <div class="mf-freshness-item">
+        <span class="mf-fi-icon">⚡</span>Same Day
+      </div>
+    </div>
+
+    <!-- Cut / Weight variant pills -->
+    <p class="mf-section-label">Select Cut / Weight</p>
+    <div class="mf-pills" id="mf-pills">
+      {% for variant in product.variants %}
+        <div
+          class="mf-pill{% if forloop.first %} is-active{% endif %}"
+          data-variant-id="{{ variant.id }}"
+          data-variant-title="{{ variant.title | escape }}"
+          data-variant-price="{{ variant.price | money }}"
+          data-variant-price-raw="{{ variant.price }}"
+          {% if variant.compare_at_price > variant.price %}
+            data-variant-compare="{{ variant.compare_at_price | money }}"
+          {% endif %}
+          role="button"
+          tabindex="0"
+          aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+        >
+          <span class="mf-pill__weight">{{ variant.title }}</span>
+          <span class="mf-pill__price">{{ variant.price | money }}</span>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Price -->
+    <div class="mf-price-row">
+      <span class="mf-price-main" id="mf-price">{{ first_variant.price | money }}</span>
+      {% if first_variant.compare_at_price > first_variant.price %}
+        <span class="mf-price-compare" id="mf-compare">{{ first_variant.compare_at_price | money }}</span>
+      {% else %}
+        <span class="mf-price-compare" id="mf-compare" style="display:none;"></span>
+      {% endif %}
+      <span class="mf-price-tag">per pack</span>
+    </div>
+
+    <!-- Quantity stepper -->
+    <div class="mf-qty-block">
+      <p class="mf-qty-label">Qty (packs)</p>
+      <div class="mf-qty-stepper">
+        <button class="mf-qty-btn" id="mf-qty-minus" aria-label="Decrease quantity">−</button>
+        <span class="mf-qty-value" id="mf-qty-val">1</span>
+        <button class="mf-qty-btn" id="mf-qty-plus" aria-label="Increase quantity">+</button>
+      </div>
+    </div>
+
+    <!-- Preparation selector -->
+    <div class="mf-prep-block">
+      <p class="mf-section-label">Preparation Preference</p>
+      <select class="mf-prep-select" id="mf-prep-select" aria-label="Choose preparation style">
+        <option value="As Is">As Is (No Preparation)</option>
+        <option value="Cleaned">Cleaned</option>
+        <option value="Marinated – Tandoori">Marinated – Tandoori</option>
+        <option value="Marinated – Lemon Herb">Marinated – Lemon Herb</option>
+        <option value="Curry Cut">Curry Cut</option>
+        <option value="Boneless">Boneless</option>
+      </select>
+    </div>
+
+    <!-- Delivery note -->
+    <div class="mf-delivery-note">
+      🧊&nbsp;<span>Packed in insulated cold bag · arrives fresh at your door</span>
+    </div>
+
+    <!-- Add to Cart -->
+    <button class="mf-atc-btn" id="mf-atc-btn" aria-label="Add to cart">
+      🛒 ADD TO CART
+    </button>
+
+    <!-- Storage instructions -->
+    <div class="mf-storage-card">
+      <p class="mf-storage-card__title">🧊 Storage Instructions</p>
+      <p class="mf-storage-card__text">
+        Refrigerate at 0–4°C &nbsp;·&nbsp; Use within 24 hours of delivery &nbsp;·&nbsp; Do not refreeze once thawed
+      </p>
+    </div>
+
+    <!-- Trust row -->
+    <div class="mf-trust-row">
+      <div class="mf-trust-item">
+        <span class="mf-trust-icon">🌾</span>
+        <span class="mf-trust-title">Farm Sourced</span>
+        <span class="mf-trust-sub">Direct from trusted farms</span>
+      </div>
+      <div class="mf-trust-item">
+        <span class="mf-trust-icon">✅</span>
+        <span class="mf-trust-title">FSSAI Certified</span>
+        <span class="mf-trust-sub">Safe &amp; quality-checked</span>
+      </div>
+      <div class="mf-trust-item">
+        <span class="mf-trust-icon">🚫</span>
+        <span class="mf-trust-title">No Preservatives</span>
+        <span class="mf-trust-sub">100% natural, nothing added</span>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="mf-faq">
+      <p class="mf-faq__title">Frequently Asked Questions</p>
+
+      <div class="mf-faq-item">
+        <button class="mf-faq-q" aria-expanded="false">
+          Is this meat really fresh?
+          <i class="mf-faq-arrow">▾</i>
+        </button>
+        <div class="mf-faq-a">
+          Yes — all QuickBee meat &amp; seafood is procured daily from local farms and markets.
+          It is cleaned, packed, and dispatched on the same day. The freshness badge on this page
+          is updated each morning.
+        </div>
+      </div>
+
+      <div class="mf-faq-item">
+        <button class="mf-faq-q" aria-expanded="false">
+          Can I choose how the meat is cut or prepared?
+          <i class="mf-faq-arrow">▾</i>
+        </button>
+        <div class="mf-faq-a">
+          Absolutely. Use the "Preparation Preference" dropdown above to select your preferred
+          style — Curry Cut, Boneless, Marinated, and more. Your instructions go directly to
+          our prep team.
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+</section>
+
+<!-- Toast notification -->
+<div class="mf-toast" id="mf-toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── State ──────────────────────────────────────────── */
+  var activeVariantId    = {{ first_variant.id }};
+  var activeVariantTitle = {{ first_variant.title | json }};
+  var qty                = 1;
+  var MIN_QTY            = 1;
+  var MAX_QTY            = 10;
+
+  /* ── Pill selection ─────────────────────────────────── */
+  var pills = document.querySelectorAll('#mf-pills .mf-pill');
+
+  pills.forEach(function (pill) {
+    pill.addEventListener('click', function () {
+      selectPill(this);
+    });
+    pill.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectPill(this); }
+    });
+  });
+
+  function selectPill(pill) {
+    pills.forEach(function (p) {
+      p.classList.remove('is-active');
+      p.setAttribute('aria-pressed', 'false');
+    });
+    pill.classList.add('is-active');
+    pill.setAttribute('aria-pressed', 'true');
+
+    activeVariantId    = pill.dataset.variantId;
+    activeVariantTitle = pill.dataset.variantTitle;
+
+    document.getElementById('mf-price').textContent = pill.dataset.variantPrice;
+
+    var compareEl = document.getElementById('mf-compare');
+    if (pill.dataset.variantCompare) {
+      compareEl.textContent = pill.dataset.variantCompare;
+      compareEl.style.display = '';
+    } else {
+      compareEl.style.display = 'none';
+    }
+  }
+
+  /* ── Quantity stepper ───────────────────────────────── */
+  document.getElementById('mf-qty-minus').addEventListener('click', function () {
+    if (qty > MIN_QTY) { qty--; updateQty(); }
+  });
+  document.getElementById('mf-qty-plus').addEventListener('click', function () {
+    if (qty < MAX_QTY) { qty++; updateQty(); }
+  });
+
+  function updateQty() {
+    document.getElementById('mf-qty-val').textContent = qty;
+    document.getElementById('mf-qty-minus').disabled = qty <= MIN_QTY;
+    document.getElementById('mf-qty-plus').disabled  = qty >= MAX_QTY;
+  }
+
+  /* ── Add to Cart ────────────────────────────────────── */
+  document.getElementById('mf-atc-btn').addEventListener('click', function () {
+    var btn  = this;
+    var prep = document.getElementById('mf-prep-select').value;
+
+    btn.disabled = true;
+    btn.textContent = 'Adding…';
+
+    var payload = {
+      items: [{
+        id:         parseInt(activeVariantId, 10),
+        quantity:   qty,
+        properties: {
+          'Preparation':  prep,
+          'Cut':          activeVariantTitle,
+          'Pack Qty':     qty
+        }
+      }]
+    };
+
+    fetch('/cart/add.js', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body:    JSON.stringify(payload)
+    })
+    .then(function (res) {
+      if (!res.ok) throw new Error('Cart error ' + res.status);
+      return res.json();
+    })
+    .then(function () {
+      showToast('🛒 Added to cart!');
+      document.dispatchEvent(new CustomEvent('cart:refresh'));
+    })
+    .catch(function (err) {
+      console.error('[QB MeatFish] ATC error:', err);
+      showToast('⚠️ Could not add to cart. Try again.');
+    })
+    .finally(function () {
+      btn.disabled = false;
+      btn.textContent = '🛒 ADD TO CART';
+    });
+  });
+
+  /* ── FAQ accordion ──────────────────────────────────── */
+  document.querySelectorAll('.mf-faq-q').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = this.closest('.mf-faq-item');
+      var open = item.classList.toggle('is-open');
+      this.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  });
+
+  /* ── Toast helper ───────────────────────────────────── */
+  function showToast(msg) {
+    var t = document.getElementById('mf-toast');
+    t.textContent = msg;
+    t.classList.add('is-visible');
+    setTimeout(function () { t.classList.remove('is-visible'); }, 3000);
+  }
+})();
+</script>
+
+{% schema %}
+{"name":"QB Meat & Fish"}
+{% endschema %}

@@ -1,0 +1,1059 @@
+{% comment %}
+  QB Medicine / Pharmacy Product Section
+  Section: qb-product-medicine.liquid
+  Purpose: Full product page for pharmacy, health & wellness products
+  Theme: Dark/Light with green accent #22c55e and gold CTA #F4B400
+  Mobile-first responsive layout
+{% endcomment %}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign product_type = product.type | downcase | strip
+
+  assign cat_emoji = '⚕️'
+  assign cat_color = 'med-type--gray'
+  if product_type contains 'medicine'
+    assign cat_emoji = '💊'
+    assign cat_color = 'med-type--green'
+  elsif product_type contains 'vitamin'
+    assign cat_emoji = '🌿'
+    assign cat_color = 'med-type--teal'
+  elsif product_type contains 'first aid'
+    assign cat_emoji = '🩺'
+    assign cat_color = 'med-type--red'
+  elsif product_type contains 'personal care'
+    assign cat_emoji = '🧴'
+    assign cat_color = 'med-type--blue'
+  elsif product_type contains 'ayurvedic'
+    assign cat_emoji = '🌱'
+    assign cat_color = 'med-type--emerald'
+  endif
+
+  assign prescription_required = false
+  assign contains_value = nil
+  assign age_chip = nil
+  assign dosage_chip = nil
+  assign form_chip = nil
+
+  for tag in product.tags
+    if tag == 'prescription'
+      assign prescription_required = true
+    endif
+    if tag contains 'contains:'
+      assign contains_value = tag | remove: 'contains:' | strip
+    endif
+    if tag contains 'age:'
+      assign age_chip = tag | remove: 'age:' | strip
+    endif
+    if tag contains 'dosage:'
+      assign dosage_chip = tag | remove: 'dosage:' | strip | replace: '-', ' '
+    endif
+    if tag contains 'form:'
+      assign form_chip = tag | remove: 'form:' | strip | capitalize
+    endif
+  endfor
+-%}
+
+<style>
+  /* ============================================================
+     CSS CUSTOM PROPERTIES — MEDICINE SECTION
+     Prefix: --med-*
+     ============================================================ */
+
+  :root,
+  [data-theme="light"] {
+    --med-bg-page:          #f0fdf4;
+    --med-bg-card:          #ffffff;
+    --med-bg-card-alt:      #f0fdf4;
+    --med-bg-badge:         #dcfce7;
+    --med-bg-rx-badge:      #fee2e2;
+    --med-bg-disclaimer:    #fff1f2;
+    --med-bg-strip:         #d1fae5;
+    --med-bg-btn:           #F4B400;
+    --med-bg-btn-hover:     #d4a000;
+    --med-bg-chip:          #f1f5f9;
+    --med-text-primary:     #0f172a;
+    --med-text-secondary:   #475569;
+    --med-text-muted:       #94a3b8;
+    --med-text-on-btn:      #0f172a;
+    --med-text-badge:       #15803d;
+    --med-text-rx:          #dc2626;
+    --med-accent-health:    #22c55e;
+    --med-accent-dark:      #16a34a;
+    --med-border:           #bbf7d0;
+    --med-border-card:      #e2e8f0;
+    --med-border-disclaimer:#fca5a5;
+    --med-shadow:           0 2px 12px rgba(34, 197, 94, 0.10);
+    --med-shadow-hover:     0 6px 24px rgba(34, 197, 94, 0.20);
+    --med-radius:           12px;
+    --med-radius-sm:        8px;
+    --med-radius-pill:      999px;
+    --med-font-base:        system-ui, -apple-system, sans-serif;
+
+    /* Type colors */
+    --med-green:   #22c55e;
+    --med-teal:    #0d9488;
+    --med-red:     #dc2626;
+    --med-blue:    #3b82f6;
+    --med-emerald: #10b981;
+    --med-gray:    #64748b;
+  }
+
+  [data-theme="dark"],
+  .shopify-section--dark {
+    --med-bg-page:          #030d07;
+    --med-bg-card:          #0a1a10;
+    --med-bg-card-alt:      #0f2419;
+    --med-bg-badge:         #052e16;
+    --med-bg-rx-badge:      #2d0a0a;
+    --med-bg-disclaimer:    #2d0a0a;
+    --med-bg-strip:         #052e16;
+    --med-bg-btn:           #F4B400;
+    --med-bg-btn-hover:     #fbbf24;
+    --med-bg-chip:          #1e293b;
+    --med-text-primary:     #f0fdf4;
+    --med-text-secondary:   #86efac;
+    --med-text-muted:       #4ade80;
+    --med-text-on-btn:      #030d07;
+    --med-text-badge:       #4ade80;
+    --med-text-rx:          #f87171;
+    --med-accent-health:    #4ade80;
+    --med-accent-dark:      #22c55e;
+    --med-border:           #052e16;
+    --med-border-card:      #0f2419;
+    --med-border-disclaimer:#7f1d1d;
+    --med-shadow:           0 2px 20px rgba(0, 0, 0, 0.50);
+    --med-shadow-hover:     0 6px 32px rgba(74, 222, 128, 0.15);
+  }
+
+  /* ============================================================
+     LAYOUT & WRAPPER
+     ============================================================ */
+  .med-section {
+    background: var(--med-bg-page);
+    font-family: var(--med-font-base);
+    color: var(--med-text-primary);
+    min-height: 100vh;
+    padding: 16px 0 48px;
+  }
+
+  .med-container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* ============================================================
+     DISCLAIMER BANNER (prominent, red-bordered)
+     ============================================================ */
+  .med-disclaimer {
+    background: var(--med-bg-disclaimer);
+    border: 2px solid var(--med-border-disclaimer);
+    border-radius: var(--med-radius-sm);
+    padding: 14px 16px;
+    font-size: 0.82rem;
+    color: var(--med-text-rx);
+    font-weight: 600;
+    line-height: 1.55;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .med-disclaimer-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+
+  /* ============================================================
+     PRESCRIPTION BADGE
+     ============================================================ */
+  .med-rx-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--med-bg-rx-badge);
+    color: var(--med-text-rx);
+    border: 2px solid var(--med-text-rx);
+    padding: 6px 16px;
+    border-radius: var(--med-radius-pill);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    animation: med-pulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes med-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.25); }
+    50%       { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); }
+  }
+
+  /* ============================================================
+     CATEGORY BADGE + TYPE BADGE
+     ============================================================ */
+  .med-badges-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .med-badge--health {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--med-bg-badge);
+    color: var(--med-text-badge);
+    border: 1.5px solid var(--med-accent-health);
+    padding: 5px 14px;
+    border-radius: var(--med-radius-pill);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .med-badge--type {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 14px;
+    border-radius: var(--med-radius-pill);
+    font-size: 0.78rem;
+    font-weight: 600;
+    border: 1.5px solid currentColor;
+  }
+
+  .med-type--green   { color: var(--med-green);   background: #f0fdf4; border-color: var(--med-green); }
+  .med-type--teal    { color: var(--med-teal);    background: #f0fdfa; border-color: var(--med-teal); }
+  .med-type--red     { color: var(--med-red);     background: #fef2f2; border-color: var(--med-red); }
+  .med-type--blue    { color: var(--med-blue);    background: #eff6ff; border-color: var(--med-blue); }
+  .med-type--emerald { color: var(--med-emerald); background: #ecfdf5; border-color: var(--med-emerald); }
+  .med-type--gray    { color: var(--med-gray);    background: #f8fafc; border-color: var(--med-gray); }
+
+  [data-theme="dark"] .med-type--green   { background: rgba(34,197,94,0.12); }
+  [data-theme="dark"] .med-type--teal    { background: rgba(13,148,136,0.12); }
+  [data-theme="dark"] .med-type--red     { background: rgba(220,38,38,0.12); }
+  [data-theme="dark"] .med-type--blue    { background: rgba(59,130,246,0.12); }
+  [data-theme="dark"] .med-type--emerald { background: rgba(16,185,129,0.12); }
+  [data-theme="dark"] .med-type--gray    { background: rgba(100,116,139,0.12); }
+
+  /* ============================================================
+     PRODUCT TITLE & VENDOR
+     ============================================================ */
+  .med-title {
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--med-text-primary);
+    margin: 0 0 6px;
+  }
+
+  .med-vendor {
+    font-size: 0.82rem;
+    color: var(--med-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+  }
+
+  /* ============================================================
+     INFO CHIPS (age, dosage, form from tags)
+     ============================================================ */
+  .med-chips-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .med-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--med-bg-chip);
+    color: var(--med-text-secondary);
+    border: 1px solid var(--med-border-card);
+    border-radius: var(--med-radius-pill);
+    padding: 5px 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .med-chip-label {
+    color: var(--med-text-muted);
+    font-weight: 500;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* ============================================================
+     PRICE DISPLAY
+     ============================================================ */
+  .med-price-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .med-price-current {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--med-accent-health);
+    line-height: 1;
+  }
+
+  .med-price-compare {
+    font-size: 1rem;
+    color: var(--med-text-muted);
+    text-decoration: line-through;
+  }
+
+  .med-price-save {
+    font-size: 0.78rem;
+    background: #dcfce7;
+    color: #15803d;
+    border-radius: var(--med-radius-pill);
+    padding: 3px 10px;
+    font-weight: 700;
+  }
+
+  [data-theme="dark"] .med-price-save { background: rgba(21,128,61,0.20); color: #4ade80; }
+
+  /* ============================================================
+     VARIANT PILLS
+     ============================================================ */
+  .med-variants-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--med-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+
+  .med-variants-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .med-variant-pill {
+    display: inline-block;
+    padding: 8px 18px;
+    border-radius: var(--med-radius-pill);
+    border: 2px solid var(--med-border);
+    background: var(--med-bg-card);
+    color: var(--med-text-primary);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .med-variant-pill:hover {
+    border-color: var(--med-accent-health);
+    color: var(--med-accent-health);
+  }
+
+  .med-variant-pill.is-active {
+    background: var(--med-accent-health);
+    border-color: var(--med-accent-health);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(34, 197, 94, 0.30);
+  }
+
+  .med-variant-pill.is-unavailable {
+    opacity: 0.4;
+    cursor: not-allowed;
+    text-decoration: line-through;
+  }
+
+  /* ============================================================
+     QUANTITY STEPPER
+     ============================================================ */
+  .med-qty-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--med-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+
+  .med-qty-stepper {
+    display: inline-flex;
+    align-items: center;
+    border: 2px solid var(--med-border);
+    border-radius: var(--med-radius-sm);
+    overflow: hidden;
+    margin-bottom: 24px;
+    background: var(--med-bg-card);
+  }
+
+  .med-qty-btn {
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: var(--med-bg-card-alt);
+    color: var(--med-text-primary);
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .med-qty-btn:hover { background: var(--med-border); }
+  .med-qty-btn:active { background: var(--med-accent-health); color: #fff; }
+
+  .med-qty-input {
+    width: 52px;
+    height: 44px;
+    border: none;
+    text-align: center;
+    background: var(--med-bg-card);
+    color: var(--med-text-primary);
+    font-size: 1.05rem;
+    font-weight: 700;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+
+  .med-qty-input::-webkit-outer-spin-button,
+  .med-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  /* ============================================================
+     ADD TO CART BUTTON
+     ============================================================ */
+  .med-atc-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px 24px;
+    background: var(--med-bg-btn);
+    color: var(--med-text-on-btn);
+    border: none;
+    border-radius: var(--med-radius);
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
+    box-shadow: 0 4px 16px rgba(244, 180, 0, 0.30);
+    margin-bottom: 12px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .med-atc-btn:hover:not(:disabled) {
+    background: var(--med-bg-btn-hover);
+    box-shadow: 0 6px 24px rgba(244, 180, 0, 0.45);
+    transform: translateY(-1px);
+  }
+
+  .med-atc-btn:active:not(:disabled) { transform: translateY(0); }
+  .med-atc-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .med-atc-btn--loading { pointer-events: none; }
+
+  /* ============================================================
+     INFO CARDS (How to Use, Ingredients)
+     ============================================================ */
+  .med-card {
+    background: var(--med-bg-card);
+    border: 1.5px solid var(--med-border-card);
+    border-radius: var(--med-radius);
+    padding: 18px 20px;
+    margin-bottom: 20px;
+  }
+
+  .med-card--alt {
+    background: var(--med-bg-card-alt);
+    border-color: var(--med-border);
+  }
+
+  .med-card-title {
+    font-size: 0.88rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--med-accent-health);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .med-card-body {
+    font-size: 0.88rem;
+    color: var(--med-text-secondary);
+    line-height: 1.65;
+  }
+
+  .med-card-body * { max-width: 100%; }
+
+  .med-ingredients-text {
+    font-size: 0.88rem;
+    color: var(--med-text-secondary);
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  /* ============================================================
+     TRUST GRID (2x2 → 4-col on desktop)
+     ============================================================ */
+  .med-trust-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .med-trust-item {
+    background: var(--med-bg-card);
+    border: 1px solid var(--med-border-card);
+    border-radius: var(--med-radius-sm);
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+  }
+
+  .med-trust-icon { font-size: 1.5rem; }
+
+  .med-trust-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--med-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1.3;
+  }
+
+  /* ============================================================
+     FAQ ACCORDION
+     ============================================================ */
+  .med-faq-wrap {
+    margin-bottom: 24px;
+  }
+
+  .med-faq-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--med-text-primary);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .med-faq-item {
+    border: 1px solid var(--med-border-card);
+    border-radius: var(--med-radius-sm);
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+
+  .med-faq-question {
+    width: 100%;
+    background: var(--med-bg-card);
+    border: none;
+    text-align: left;
+    padding: 14px 16px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--med-text-primary);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.15s;
+    font-family: var(--med-font-base);
+  }
+
+  .med-faq-question:hover { background: var(--med-bg-card-alt); }
+
+  .med-faq-chevron {
+    font-size: 0.7rem;
+    transition: transform 0.25s;
+    flex-shrink: 0;
+    color: var(--med-text-muted);
+  }
+
+  .med-faq-item.is-open .med-faq-chevron { transform: rotate(180deg); }
+
+  .med-faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.2s;
+    background: var(--med-bg-card-alt);
+    font-size: 0.85rem;
+    color: var(--med-text-secondary);
+    line-height: 1.65;
+    padding: 0 16px;
+  }
+
+  .med-faq-item.is-open .med-faq-answer {
+    max-height: 240px;
+    padding: 12px 16px 14px;
+  }
+
+  /* ============================================================
+     DIVIDER
+     ============================================================ */
+  .med-divider {
+    border: none;
+    border-top: 1px solid var(--med-border-card);
+    margin: 20px 0;
+  }
+
+  /* ============================================================
+     TOAST
+     ============================================================ */
+  .med-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #0f172a;
+    color: #f1f5f9;
+    padding: 12px 24px;
+    border-radius: var(--med-radius-pill);
+    font-size: 0.9rem;
+    font-weight: 600;
+    z-index: 9999;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+    opacity: 0;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    max-width: calc(100vw - 32px);
+  }
+
+  .med-toast.is-visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (min-width: 640px) {
+    .med-container { padding: 0 24px; }
+    .med-atc-btn { max-width: 420px; }
+    .med-trust-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  @media (max-width: 380px) {
+    .med-title { font-size: 1.25rem; }
+    .med-price-current { font-size: 1.6rem; }
+    .med-variant-pill { font-size: 0.8rem; padding: 7px 14px; }
+  }
+</style>
+
+<section class="med-section" id="med-main-{{ section.id }}">
+  <div class="med-container">
+
+    {%- comment %} ── DISCLAIMER BANNER (always shown) ── {%- endcomment %}
+    <div class="med-disclaimer" role="alert">
+      <span class="med-disclaimer-icon">⚠️</span>
+      <span>For general wellness only. Always consult a qualified healthcare professional before use. Not a substitute for medical advice.</span>
+    </div>
+
+    {%- comment %} ── PRESCRIPTION BADGE (conditional) ── {%- endcomment %}
+    {%- if prescription_required -%}
+      <div>
+        <span class="med-rx-badge">📋 PRESCRIPTION REQUIRED</span>
+      </div>
+    {%- endif -%}
+
+    {%- comment %} ── CATEGORY + TYPE BADGES ── {%- endcomment %}
+    <div class="med-badges-wrap">
+      <span class="med-badge--health">⚕️ HEALTH</span>
+      <span class="med-badge--type {{ cat_color }}">{{ cat_emoji }} {{ product.type | default: 'Health & Wellness' }}</span>
+    </div>
+
+    {%- comment %} ── PRODUCT TITLE & VENDOR ── {%- endcomment %}
+    <h1 class="med-title">{{ product.title }}</h1>
+    {%- if product.vendor != blank -%}
+      <p class="med-vendor">By {{ product.vendor }}</p>
+    {%- endif -%}
+
+    {%- comment %} ── INFO CHIPS (from tags: age:, dosage:, form:) ── {%- endcomment %}
+    {%- if age_chip or dosage_chip or form_chip -%}
+      <div class="med-chips-wrap">
+        {%- if form_chip -%}
+          <span class="med-chip">
+            💊 <span class="med-chip-label">Form:</span> {{ form_chip }}
+          </span>
+        {%- endif -%}
+        {%- if dosage_chip -%}
+          <span class="med-chip">
+            🕒 <span class="med-chip-label">Dosage:</span> {{ dosage_chip }}
+          </span>
+        {%- endif -%}
+        {%- if age_chip -%}
+          <span class="med-chip">
+            👤 <span class="med-chip-label">Age:</span> {{ age_chip }}
+          </span>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- comment %} ── PRICE ── {%- endcomment %}
+    <div class="med-price-wrap" id="med-price-wrap">
+      <span class="med-price-current" id="med-price-current">
+        {{ current_variant.price | money }}
+      </span>
+      {%- if current_variant.compare_at_price > current_variant.price -%}
+        <span class="med-price-compare" id="med-price-compare">
+          {{ current_variant.compare_at_price | money }}
+        </span>
+        {%- assign save_pct = current_variant.compare_at_price | minus: current_variant.price | times: 100 | divided_by: current_variant.compare_at_price -%}
+        <span class="med-price-save" id="med-price-save">SAVE {{ save_pct }}%</span>
+      {%- else -%}
+        <span class="med-price-compare" id="med-price-compare" style="display:none"></span>
+        <span class="med-price-save" id="med-price-save" style="display:none"></span>
+      {%- endif -%}
+    </div>
+
+    {%- comment %} ── VARIANT PILLS ── {%- endcomment %}
+    {%- if product.variants.size > 1 -%}
+      <div class="med-variants-label">Select Option</div>
+      <div class="med-variants-wrap" id="med-variants-wrap">
+        {%- for variant in product.variants -%}
+          <button
+            class="med-variant-pill{% if variant.id == current_variant.id %} is-active{% endif %}{% unless variant.available %} is-unavailable{% endunless %}"
+            data-variant-id="{{ variant.id }}"
+            data-price="{{ variant.price }}"
+            data-compare="{{ variant.compare_at_price | default: 0 }}"
+            data-available="{{ variant.available }}"
+            {% unless variant.available %}disabled{% endunless %}
+            aria-label="Select {{ variant.title }}"
+          >
+            {{ variant.title }}
+          </button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    {%- comment %} ── QUANTITY STEPPER ── {%- endcomment %}
+    <div class="med-qty-label">Quantity</div>
+    <div class="med-qty-stepper" role="group" aria-label="Quantity">
+      <button class="med-qty-btn" id="med-qty-minus" aria-label="Decrease quantity">−</button>
+      <input
+        class="med-qty-input"
+        type="number"
+        id="med-qty-input"
+        min="1"
+        max="10"
+        value="1"
+        aria-label="Quantity"
+      >
+      <button class="med-qty-btn" id="med-qty-plus" aria-label="Increase quantity">+</button>
+    </div>
+
+    {%- comment %} ── ADD TO CART BUTTON ── {%- endcomment %}
+    <button
+      class="med-atc-btn"
+      id="med-atc-btn"
+      data-product-type="{{ product.type | escape }}"
+      data-prescription="{{ prescription_required }}"
+    >
+      💊 ADD TO CART
+    </button>
+
+    <hr class="med-divider">
+
+    {%- comment %} ── HOW TO USE CARD ── {%- endcomment %}
+    {%- if product.description != blank -%}
+      <div class="med-card med-card--alt">
+        <div class="med-card-title">📖 How to Use</div>
+        <div class="med-card-body">
+          {{ product.description }}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- comment %} ── INGREDIENTS / ACTIVE COMPONENTS ── {%- endcomment %}
+    <div class="med-card">
+      <div class="med-card-title">🧪 Ingredients / Active Components</div>
+      <p class="med-ingredients-text">
+        {%- if contains_value -%}
+          {{ contains_value }}
+        {%- else -%}
+          See product label for full ingredient list.
+        {%- endif -%}
+      </p>
+    </div>
+
+    {%- comment %} ── TRUST GRID 2x2 ── {%- endcomment %}
+    <div class="med-trust-grid">
+      <div class="med-trust-item">
+        <span class="med-trust-icon">✅</span>
+        <span class="med-trust-label">FSSAI Licensed</span>
+      </div>
+      <div class="med-trust-item">
+        <span class="med-trust-icon">🛡️</span>
+        <span class="med-trust-label">Genuine Products</span>
+      </div>
+      <div class="med-trust-item">
+        <span class="med-trust-icon">❄️</span>
+        <span class="med-trust-label">Cold-Stored</span>
+      </div>
+      <div class="med-trust-item">
+        <span class="med-trust-icon">📦</span>
+        <span class="med-trust-label">Discreet Packaging</span>
+      </div>
+    </div>
+
+    {%- comment %} ── FAQ ── {%- endcomment %}
+    <div class="med-faq-wrap">
+      <div class="med-faq-title">FAQs</div>
+
+      <div class="med-faq-item">
+        <button class="med-faq-question" aria-expanded="false">
+          <span>Is this a genuine product?</span>
+          <span class="med-faq-chevron">▼</span>
+        </button>
+        <div class="med-faq-answer">
+          Yes. All products on QuickBee are sourced directly from licensed distributors and authorised brand channels. Each item is quality-checked before dispatch. If you have any concerns, please contact our support team with your order number.
+        </div>
+      </div>
+
+      <div class="med-faq-item">
+        <button class="med-faq-question" aria-expanded="false">
+          <span>What if I experience a reaction or side effect?</span>
+          <span class="med-faq-chevron">▼</span>
+        </button>
+        <div class="med-faq-answer">
+          Discontinue use immediately and consult a qualified healthcare professional or visit your nearest clinic. If serious, contact emergency services. QuickBee is a retail platform and cannot provide medical advice. Always read the product label and consult your doctor before use.
+        </div>
+      </div>
+    </div>
+
+  </div>{%- comment %} /.med-container {%- endcomment %}
+</section>
+
+{%- comment %} ── TOAST ── {%- endcomment %}
+<div class="med-toast" id="med-toast" role="status" aria-live="polite"></div>
+
+{%- comment %}
+  ── HIDDEN DATA FOR JS ──
+{%- endcomment %}
+<script id="med-variant-data" type="application/json">
+  {
+    "variants": [
+      {%- for variant in product.variants -%}
+        {
+          "id": {{ variant.id }},
+          "title": {{ variant.title | json }},
+          "price": {{ variant.price }},
+          "compare_at_price": {{ variant.compare_at_price | default: 0 }},
+          "available": {{ variant.available }}
+        }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ],
+    "money_format": {{ shop.money_format | json }},
+    "current_variant_id": {{ current_variant.id }},
+    "prescription_required": {{ prescription_required }},
+    "product_type": {{ product.type | json }}
+  }
+</script>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── Helpers ── */
+  function formatMoney(cents, format) {
+    var value = (cents / 100).toFixed(2);
+    var formatted = format
+      .replace('{{amount}}', value)
+      .replace('{{amount_no_decimals}}', Math.floor(cents / 100))
+      .replace('{{amount_with_comma_separator}}', value.replace('.', ','));
+    return formatted;
+  }
+
+  /* ── Data ── */
+  var dataEl = document.getElementById('med-variant-data');
+  if (!dataEl) return;
+  var data;
+  try { data = JSON.parse(dataEl.textContent); } catch (e) { return; }
+
+  var variants           = data.variants;
+  var moneyFormat        = data.money_format || '${{amount}}';
+  var selectedVariantId  = data.current_variant_id;
+  var prescriptionReq    = data.prescription_required;
+  var productType        = data.product_type || 'Health';
+
+  /* ── DOM refs ── */
+  var priceEl     = document.getElementById('med-price-current');
+  var compareEl   = document.getElementById('med-price-compare');
+  var saveEl      = document.getElementById('med-price-save');
+  var variantWrap = document.getElementById('med-variants-wrap');
+  var qtyInput    = document.getElementById('med-qty-input');
+  var qtyMinus    = document.getElementById('med-qty-minus');
+  var qtyPlus     = document.getElementById('med-qty-plus');
+  var atcBtn      = document.getElementById('med-atc-btn');
+  var toast       = document.getElementById('med-toast');
+
+  /* ── Variant switching ── */
+  function updatePrice(variant) {
+    if (!variant) return;
+    priceEl.textContent = formatMoney(variant.price, moneyFormat);
+    if (variant.compare_at_price && variant.compare_at_price > variant.price) {
+      var savePct = Math.round((variant.compare_at_price - variant.price) * 100 / variant.compare_at_price);
+      compareEl.textContent = formatMoney(variant.compare_at_price, moneyFormat);
+      saveEl.textContent = 'SAVE ' + savePct + '%';
+      compareEl.style.display = '';
+      saveEl.style.display = '';
+    } else {
+      compareEl.style.display = 'none';
+      saveEl.style.display = 'none';
+    }
+    atcBtn.disabled = !variant.available;
+    atcBtn.textContent = variant.available ? '💊 ADD TO CART' : '💊 Out of Stock';
+  }
+
+  if (variantWrap) {
+    variantWrap.addEventListener('click', function (e) {
+      var pill = e.target.closest('.med-variant-pill');
+      if (!pill || pill.classList.contains('is-unavailable')) return;
+      variantWrap.querySelectorAll('.med-variant-pill').forEach(function (p) {
+        p.classList.remove('is-active');
+      });
+      pill.classList.add('is-active');
+      selectedVariantId = parseInt(pill.dataset.variantId, 10);
+      var variant = variants.find(function (v) { return v.id === selectedVariantId; });
+      updatePrice(variant);
+    });
+  }
+
+  /* ── Quantity stepper ── */
+  function getQty() {
+    var v = parseInt(qtyInput.value, 10);
+    return isNaN(v) ? 1 : Math.min(10, Math.max(1, v));
+  }
+
+  qtyMinus && qtyMinus.addEventListener('click', function () {
+    var q = getQty();
+    if (q > 1) { qtyInput.value = q - 1; }
+  });
+
+  qtyPlus && qtyPlus.addEventListener('click', function () {
+    var q = getQty();
+    if (q < 10) { qtyInput.value = q + 1; }
+  });
+
+  qtyInput && qtyInput.addEventListener('change', function () {
+    qtyInput.value = getQty();
+  });
+
+  /* ── Toast ── */
+  var toastTimer;
+  function showToast(msg) {
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.classList.add('is-visible');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      toast.classList.remove('is-visible');
+    }, 3500);
+  }
+
+  /* ── Add to cart ── */
+  atcBtn && atcBtn.addEventListener('click', function () {
+    if (atcBtn.disabled) return;
+    var qty = getQty();
+    var properties = {
+      'Category': productType
+    };
+    if (prescriptionReq) {
+      properties['Prescription Required'] = 'Yes';
+      properties['Note'] = 'Customer confirms they have a valid prescription';
+    } else {
+      properties['Prescription Required'] = 'No';
+    }
+
+    var payload = {
+      id: selectedVariantId,
+      quantity: qty,
+      properties: properties
+    };
+
+    atcBtn.classList.add('med-atc-btn--loading');
+    atcBtn.textContent = '⏳ Adding...';
+    atcBtn.disabled = true;
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function (res) {
+      if (!res.ok) throw new Error('Cart error');
+      return res.json();
+    })
+    .then(function () {
+      showToast('✅ Added to cart!');
+      document.dispatchEvent(new CustomEvent('cart:refresh'));
+    })
+    .catch(function () {
+      showToast('❌ Could not add to cart. Please try again.');
+    })
+    .finally(function () {
+      atcBtn.classList.remove('med-atc-btn--loading');
+      atcBtn.textContent = '💊 ADD TO CART';
+      atcBtn.disabled = false;
+    });
+  });
+
+  /* ── FAQ accordion ── */
+  document.querySelectorAll('.med-faq-question').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = btn.closest('.med-faq-item');
+      var isOpen = item.classList.contains('is-open');
+      // Close all
+      document.querySelectorAll('.med-faq-item').forEach(function (i) {
+        i.classList.remove('is-open');
+        i.querySelector('.med-faq-question').setAttribute('aria-expanded', 'false');
+      });
+      // Toggle clicked
+      if (!isOpen) {
+        item.classList.add('is-open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Medicine",
+  "tag": "section",
+  "class": "qb-medicine-section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "QB Medicine Product"
+    }
+  ]
+}
+{% endschema %}

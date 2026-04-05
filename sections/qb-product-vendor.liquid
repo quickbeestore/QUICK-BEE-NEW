@@ -1,0 +1,956 @@
+{% comment %}
+  QB Vendor Registration — qb-product-vendor.liquid
+  QuickBee · Dark/light theme · Gold accent #F4B400 · Mobile-first · No product images
+  Buying / adding to cart = submitting vendor registration. Price is ₹0 (free).
+{% endcomment %}
+
+<style>
+  /* ── CSS custom properties ──────────────────────────────────────── */
+  :root {
+    --vnd-gold:          #F4B400;
+    --vnd-gold-dark:     #c99200;
+    --vnd-gold-light:    #fff8e1;
+    --vnd-green:         #2ecc71;
+    --vnd-green-bg:      #d4edda;
+    --vnd-green-dark:    #155724;
+    --vnd-red:           #e74c3c;
+    --vnd-radius:        12px;
+    --vnd-radius-sm:     8px;
+    --vnd-radius-pill:   999px;
+    --vnd-shadow:        0 4px 20px rgba(0,0,0,0.08);
+    --vnd-shadow-hover:  0 8px 32px rgba(244,180,0,0.22);
+    --vnd-transition:    0.22s ease;
+    --vnd-font:          -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    /* Light theme */
+    --vnd-bg:            #ffffff;
+    --vnd-surface:       #f9f7f2;
+    --vnd-surface2:      #f2ede2;
+    --vnd-border:        #e8e0cc;
+    --vnd-text:          #1a1a1a;
+    --vnd-text-muted:    #6b6b6b;
+    --vnd-text-light:    #999999;
+    --vnd-card-bg:       #ffffff;
+    --vnd-input-bg:      #ffffff;
+    --vnd-input-border:  #d0c8b4;
+    --vnd-input-focus:   #F4B400;
+  }
+
+  [data-theme="dark"] .qb-vnd,
+  .shopify-section--dark .qb-vnd {
+    --vnd-bg:            #111111;
+    --vnd-surface:       #1a1a1a;
+    --vnd-surface2:      #222222;
+    --vnd-border:        #2e2e2e;
+    --vnd-text:          #f0f0f0;
+    --vnd-text-muted:    #aaaaaa;
+    --vnd-text-light:    #666666;
+    --vnd-card-bg:       #1e1e1e;
+    --vnd-input-bg:      #1e1e1e;
+    --vnd-input-border:  #3a3a3a;
+  }
+
+  /* ── Base ────────────────────────────────────────────────────────── */
+  .qb-vnd {
+    background: var(--vnd-bg);
+    color: var(--vnd-text);
+    font-family: var(--vnd-font);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .qb-vnd__inner {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 32px 16px 52px;
+  }
+
+  /* ── Hero ─────────────────────────────────────────────────────────── */
+  .qb-vnd__hero {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .qb-vnd__hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    background: var(--vnd-gold-light);
+    border: 1px solid var(--vnd-gold);
+    border-radius: var(--vnd-radius-pill);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #7a5800;
+    margin-bottom: 14px;
+  }
+
+  .qb-vnd__hero-title {
+    font-size: clamp(1.6rem, 5.5vw, 2.4rem);
+    font-weight: 800;
+    line-height: 1.15;
+    color: var(--vnd-text);
+    margin: 0 0 10px;
+  }
+
+  .qb-vnd__hero-title span {
+    color: var(--vnd-gold);
+  }
+
+  .qb-vnd__hero-subtitle {
+    font-size: 1rem;
+    color: var(--vnd-text-muted);
+    line-height: 1.55;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* ── Stat pills ───────────────────────────────────────────────────── */
+  .qb-vnd__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+
+  .qb-vnd__stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    background: var(--vnd-surface);
+    border: 1px solid var(--vnd-border);
+    border-radius: var(--vnd-radius-pill);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--vnd-text);
+  }
+
+  .qb-vnd__stat-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--vnd-gold);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── Benefits strip ───────────────────────────────────────────────── */
+  .qb-vnd__benefits {
+    background: var(--vnd-gold);
+    border-radius: var(--vnd-radius);
+    padding: 13px 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+
+  .qb-vnd__benefit-item {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #1a1a00;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .qb-vnd__benefit-sep {
+    color: rgba(26,26,0,0.35);
+    font-size: 0.75rem;
+  }
+
+  .qb-vnd__benefit-footnote {
+    width: 100%;
+    text-align: center;
+    font-size: 0.65rem;
+    color: rgba(26,26,0,0.5);
+    margin-top: 2px;
+  }
+
+  /* ── Divider ─────────────────────────────────────────────────────── */
+  .qb-vnd__divider {
+    border: none;
+    border-top: 1px solid var(--vnd-border);
+    margin: 28px 0;
+  }
+
+  /* ── Section title ───────────────────────────────────────────────── */
+  .qb-vnd__section-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--vnd-text);
+    margin: 0 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  /* ── Form ─────────────────────────────────────────────────────────── */
+  .qb-vnd__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .qb-vnd__form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  @media (max-width: 520px) {
+    .qb-vnd__form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .qb-vnd__field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .qb-vnd__label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--vnd-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .qb-vnd__label-req {
+    color: var(--vnd-gold);
+    margin-left: 2px;
+  }
+
+  .qb-vnd__input,
+  .qb-vnd__select,
+  .qb-vnd__textarea {
+    padding: 12px 14px;
+    border: 1.5px solid var(--vnd-input-border);
+    border-radius: var(--vnd-radius-sm);
+    background: var(--vnd-input-bg);
+    color: var(--vnd-text);
+    font-size: 0.92rem;
+    font-family: var(--vnd-font);
+    transition: border-color var(--vnd-transition), box-shadow var(--vnd-transition);
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .qb-vnd__input::placeholder,
+  .qb-vnd__textarea::placeholder {
+    color: var(--vnd-text-light);
+  }
+
+  .qb-vnd__input:focus,
+  .qb-vnd__select:focus,
+  .qb-vnd__textarea:focus {
+    border-color: var(--vnd-input-focus);
+    box-shadow: 0 0 0 3px rgba(244,180,0,0.16);
+  }
+
+  .qb-vnd__input.has-error,
+  .qb-vnd__select.has-error,
+  .qb-vnd__textarea.has-error {
+    border-color: var(--vnd-red);
+    box-shadow: 0 0 0 3px rgba(231,76,60,0.12);
+  }
+
+  .qb-vnd__select-wrap {
+    position: relative;
+  }
+
+  .qb-vnd__select-wrap::after {
+    content: '▾';
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--vnd-text-muted);
+    font-size: 0.85rem;
+  }
+
+  .qb-vnd__textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .qb-vnd__field-error {
+    font-size: 0.72rem;
+    color: var(--vnd-red);
+    min-height: 16px;
+    font-weight: 500;
+  }
+
+  /* ── Submit button ────────────────────────────────────────────────── */
+  .qb-vnd__submit-btn {
+    display: block;
+    width: 100%;
+    padding: 17px 24px;
+    border-radius: var(--vnd-radius);
+    background: var(--vnd-gold);
+    color: #1a1a00;
+    border: none;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all var(--vnd-transition);
+    box-shadow: var(--vnd-shadow);
+    margin-top: 6px;
+  }
+
+  .qb-vnd__submit-btn:hover {
+    background: var(--vnd-gold-dark);
+    box-shadow: var(--vnd-shadow-hover);
+    transform: translateY(-1px);
+  }
+
+  .qb-vnd__submit-btn:active {
+    transform: translateY(0);
+    box-shadow: var(--vnd-shadow);
+  }
+
+  .qb-vnd__submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* ── Success card ─────────────────────────────────────────────────── */
+  .qb-vnd__success-card {
+    display: none;
+    background: var(--vnd-green-bg);
+    border: 1.5px solid var(--vnd-green);
+    border-radius: var(--vnd-radius);
+    padding: 28px 24px;
+    text-align: center;
+  }
+
+  .qb-vnd__success-card.is-visible {
+    display: block;
+  }
+
+  .qb-vnd__success-icon {
+    font-size: 2.4rem;
+    margin-bottom: 10px;
+  }
+
+  .qb-vnd__success-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--vnd-green-dark);
+    margin-bottom: 6px;
+  }
+
+  .qb-vnd__success-desc {
+    font-size: 0.88rem;
+    color: #2d6a4f;
+    line-height: 1.55;
+  }
+
+  /* ── What Happens Next timeline ───────────────────────────────────── */
+  .qb-vnd__timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+  }
+
+  .qb-vnd__timeline::before {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 24px;
+    bottom: 24px;
+    width: 2px;
+    background: var(--vnd-border);
+    z-index: 0;
+  }
+
+  .qb-vnd__tl-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .qb-vnd__tl-dot {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--vnd-gold);
+    color: #1a1a00;
+    font-size: 0.82rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 3px solid var(--vnd-bg);
+    box-shadow: 0 0 0 2px var(--vnd-gold);
+    z-index: 1;
+  }
+
+  .qb-vnd__tl-content {
+    padding-top: 6px;
+  }
+
+  .qb-vnd__tl-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--vnd-text);
+    margin-bottom: 2px;
+  }
+
+  .qb-vnd__tl-desc {
+    font-size: 0.8rem;
+    color: var(--vnd-text-muted);
+    line-height: 1.45;
+  }
+
+  /* ── FAQ accordion ────────────────────────────────────────────────── */
+  .qb-vnd__faq {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .qb-vnd__faq-item {
+    border: 1.5px solid var(--vnd-border);
+    border-radius: var(--vnd-radius);
+    overflow: hidden;
+    transition: border-color var(--vnd-transition);
+  }
+
+  .qb-vnd__faq-item.is-open {
+    border-color: var(--vnd-gold);
+  }
+
+  .qb-vnd__faq-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 15px 16px;
+    background: var(--vnd-surface);
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--vnd-text);
+    font-family: var(--vnd-font);
+    transition: background var(--vnd-transition);
+  }
+
+  .qb-vnd__faq-item.is-open .qb-vnd__faq-btn {
+    background: var(--vnd-gold-light);
+  }
+
+  .qb-vnd__faq-chevron {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: var(--vnd-gold);
+    transition: transform var(--vnd-transition);
+    display: inline-block;
+  }
+
+  .qb-vnd__faq-item.is-open .qb-vnd__faq-chevron {
+    transform: rotate(180deg);
+  }
+
+  .qb-vnd__faq-body {
+    display: none;
+    padding: 0 16px 14px;
+    font-size: 0.85rem;
+    color: var(--vnd-text-muted);
+    line-height: 1.6;
+    background: var(--vnd-card-bg);
+  }
+
+  .qb-vnd__faq-item.is-open .qb-vnd__faq-body {
+    display: block;
+  }
+
+  /* ── Responsive ────────────────────────────────────────────────────── */
+  @media (max-width: 400px) {
+    .qb-vnd__hero-title {
+      font-size: 1.5rem;
+    }
+    .qb-vnd__stat {
+      font-size: 0.78rem;
+      padding: 7px 12px;
+    }
+  }
+</style>
+
+<section class="qb-vnd shopify-section--qb-vendor" id="qb-vnd-{{ section.id }}">
+  <div class="qb-vnd__inner">
+
+    {%- comment -%} ── Hero ── {%- endcomment -%}
+    <div class="qb-vnd__hero">
+      <span class="qb-vnd__hero-eyebrow">🤝 Partner Programme</span>
+      <h1 class="qb-vnd__hero-title">
+        Become a <span>QuickBee</span> Partner
+      </h1>
+      <p class="qb-vnd__hero-subtitle">
+        Grow your business with 10,000+ customers already shopping on QuickBee. Register today — it's completely free.
+      </p>
+    </div>
+
+    {%- comment -%} ── Stat pills ── {%- endcomment -%}
+    <div class="qb-vnd__stats">
+      <span class="qb-vnd__stat">
+        <span class="qb-vnd__stat-dot"></span>10,000+ Customers
+      </span>
+      <span class="qb-vnd__stat">
+        <span class="qb-vnd__stat-dot"></span>50+ Partner Vendors
+      </span>
+      <span class="qb-vnd__stat">
+        <span class="qb-vnd__stat-dot"></span>₹0 Setup Fee
+      </span>
+    </div>
+
+    {%- comment -%} ── Benefits strip ── {%- endcomment -%}
+    <div class="qb-vnd__benefits">
+      <span class="qb-vnd__benefit-item">⚡ Instant Payout</span>
+      <span class="qb-vnd__benefit-sep">·</span>
+      <span class="qb-vnd__benefit-item">🏪 Your Own Storefront</span>
+      <span class="qb-vnd__benefit-sep">·</span>
+      <span class="qb-vnd__benefit-item">🎧 Dedicated Support</span>
+      <span class="qb-vnd__benefit-sep">·</span>
+      <span class="qb-vnd__benefit-item">🎯 Zero Commission*</span>
+      <span class="qb-vnd__benefit-footnote">* Zero commission during the first 3 months. Standard rate applies thereafter.</span>
+    </div>
+
+    <hr class="qb-vnd__divider">
+
+    {%- comment -%} ── Registration form ── {%- endcomment -%}
+    <p class="qb-vnd__section-title">📋 Vendor Registration</p>
+
+    <div id="qb-vnd-form-wrap-{{ section.id }}">
+      <form class="qb-vnd__form" id="qb-vnd-form-{{ section.id }}" novalidate>
+
+        {%- comment -%} Row 1: Business Name + Business Type {%- endcomment -%}
+        <div class="qb-vnd__form-row">
+          <div class="qb-vnd__field" id="qb-vnd-f-bizname-{{ section.id }}">
+            <label class="qb-vnd__label" for="vnd-bizname-{{ section.id }}">
+              Business Name<span class="qb-vnd__label-req">*</span>
+            </label>
+            <input
+              class="qb-vnd__input"
+              type="text"
+              id="vnd-bizname-{{ section.id }}"
+              name="business_name"
+              placeholder="e.g. Fresh Farms Co."
+              required
+              autocomplete="organization"
+            >
+            <span class="qb-vnd__field-error" id="qb-vnd-e-bizname-{{ section.id }}"></span>
+          </div>
+
+          <div class="qb-vnd__field" id="qb-vnd-f-biztype-{{ section.id }}">
+            <label class="qb-vnd__label" for="vnd-biztype-{{ section.id }}">
+              Business Type<span class="qb-vnd__label-req">*</span>
+            </label>
+            <div class="qb-vnd__select-wrap">
+              <select
+                class="qb-vnd__select"
+                id="vnd-biztype-{{ section.id }}"
+                name="business_type"
+                required
+              >
+                <option value="" disabled selected>Select type…</option>
+                <option value="Grocery">Grocery</option>
+                <option value="Restaurant">Restaurant</option>
+                <option value="Farm">Farm</option>
+                <option value="Pharmacy">Pharmacy</option>
+                <option value="Service Provider">Service Provider</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <span class="qb-vnd__field-error" id="qb-vnd-e-biztype-{{ section.id }}"></span>
+          </div>
+        </div>
+
+        {%- comment -%} Row 2: Owner Name + Phone {%- endcomment -%}
+        <div class="qb-vnd__form-row">
+          <div class="qb-vnd__field" id="qb-vnd-f-owner-{{ section.id }}">
+            <label class="qb-vnd__label" for="vnd-owner-{{ section.id }}">
+              Owner Name<span class="qb-vnd__label-req">*</span>
+            </label>
+            <input
+              class="qb-vnd__input"
+              type="text"
+              id="vnd-owner-{{ section.id }}"
+              name="owner_name"
+              placeholder="Full name"
+              required
+              autocomplete="name"
+            >
+            <span class="qb-vnd__field-error" id="qb-vnd-e-owner-{{ section.id }}"></span>
+          </div>
+
+          <div class="qb-vnd__field" id="qb-vnd-f-phone-{{ section.id }}">
+            <label class="qb-vnd__label" for="vnd-phone-{{ section.id }}">
+              Phone Number<span class="qb-vnd__label-req">*</span>
+            </label>
+            <input
+              class="qb-vnd__input"
+              type="tel"
+              id="vnd-phone-{{ section.id }}"
+              name="phone_number"
+              placeholder="+91 98765 43210"
+              required
+              autocomplete="tel"
+            >
+            <span class="qb-vnd__field-error" id="qb-vnd-e-phone-{{ section.id }}"></span>
+          </div>
+        </div>
+
+        {%- comment -%} Row 3: City + FSSAI {%- endcomment -%}
+        <div class="qb-vnd__form-row">
+          <div class="qb-vnd__field" id="qb-vnd-f-city-{{ section.id }}">
+            <label class="qb-vnd__label" for="vnd-city-{{ section.id }}">
+              City / Area<span class="qb-vnd__label-req">*</span>
+            </label>
+            <input
+              class="qb-vnd__input"
+              type="text"
+              id="vnd-city-{{ section.id }}"
+              name="city_area"
+              placeholder="e.g. Kathmandu, Patan"
+              required
+              autocomplete="address-level2"
+            >
+            <span class="qb-vnd__field-error" id="qb-vnd-e-city-{{ section.id }}"></span>
+          </div>
+
+          <div class="qb-vnd__field">
+            <label class="qb-vnd__label" for="vnd-fssai-{{ section.id }}">
+              FSSAI / License No.
+            </label>
+            <input
+              class="qb-vnd__input"
+              type="text"
+              id="vnd-fssai-{{ section.id }}"
+              name="fssai_license"
+              placeholder="If applicable"
+            >
+            <span class="qb-vnd__field-error"></span>
+          </div>
+        </div>
+
+        {%- comment -%} Description textarea {%- endcomment -%}
+        <div class="qb-vnd__field">
+          <label class="qb-vnd__label" for="vnd-desc-{{ section.id }}">
+            Brief Description
+          </label>
+          <textarea
+            class="qb-vnd__textarea"
+            id="vnd-desc-{{ section.id }}"
+            name="business_description"
+            rows="3"
+            placeholder="Tell us about your business — what you sell, how long you've been operating, etc."
+          ></textarea>
+          <span class="qb-vnd__field-error"></span>
+        </div>
+
+        {%- comment -%} Hidden variant id {%- endcomment -%}
+        <input type="hidden" id="qb-vnd-variant-{{ section.id }}" value="{{ product.variants.first.id }}">
+
+        <button
+          class="qb-vnd__submit-btn"
+          type="button"
+          id="qb-vnd-submit-{{ section.id }}"
+          onclick="qbVndSubmit('{{ section.id }}')"
+        >
+          SUBMIT APPLICATION →
+        </button>
+
+      </form>
+    </div>
+
+    {%- comment -%} ── Success card ── {%- endcomment -%}
+    <div class="qb-vnd__success-card" id="qb-vnd-success-{{ section.id }}">
+      <div class="qb-vnd__success-icon">✅</div>
+      <p class="qb-vnd__success-title">Application Submitted!</p>
+      <p class="qb-vnd__success-desc">
+        Thank you for registering as a QuickBee partner.<br>
+        Our team will review your application and contact you within <strong>24 hours</strong>.
+      </p>
+    </div>
+
+    <hr class="qb-vnd__divider">
+
+    {%- comment -%} ── What Happens Next ── {%- endcomment -%}
+    <p class="qb-vnd__section-title">🗓️ What Happens Next</p>
+    <div class="qb-vnd__timeline">
+      <div class="qb-vnd__tl-step">
+        <div class="qb-vnd__tl-dot">1</div>
+        <div class="qb-vnd__tl-content">
+          <p class="qb-vnd__tl-title">Submit Your Application</p>
+          <p class="qb-vnd__tl-desc">Fill in the form above and hit Submit. Takes less than 2 minutes.</p>
+        </div>
+      </div>
+      <div class="qb-vnd__tl-step">
+        <div class="qb-vnd__tl-dot">2</div>
+        <div class="qb-vnd__tl-content">
+          <p class="qb-vnd__tl-title">Review within 24 Hours</p>
+          <p class="qb-vnd__tl-desc">Our partnerships team reviews every application within one business day.</p>
+        </div>
+      </div>
+      <div class="qb-vnd__tl-step">
+        <div class="qb-vnd__tl-dot">3</div>
+        <div class="qb-vnd__tl-content">
+          <p class="qb-vnd__tl-title">Onboarding Call</p>
+          <p class="qb-vnd__tl-desc">A QuickBee team member calls you to complete setup and go live on the platform.</p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="qb-vnd__divider">
+
+    {%- comment -%} ── FAQ accordion ── {%- endcomment -%}
+    <p class="qb-vnd__section-title">❓ Frequently Asked Questions</p>
+    <div class="qb-vnd__faq">
+
+      <div class="qb-vnd__faq-item" id="qb-vnd-faq-1-{{ section.id }}">
+        <button
+          class="qb-vnd__faq-btn"
+          type="button"
+          onclick="qbVndFaqToggle('qb-vnd-faq-1-{{ section.id }}')"
+          aria-expanded="false"
+        >
+          <span>Is it really free to join?</span>
+          <span class="qb-vnd__faq-chevron">▾</span>
+        </button>
+        <div class="qb-vnd__faq-body">
+          Yes — there is absolutely no setup fee or monthly charge to register as a QuickBee partner.
+          We offer zero commission for your first 3 months. A small standard rate applies thereafter,
+          only on completed orders.
+        </div>
+      </div>
+
+      <div class="qb-vnd__faq-item" id="qb-vnd-faq-2-{{ section.id }}">
+        <button
+          class="qb-vnd__faq-btn"
+          type="button"
+          onclick="qbVndFaqToggle('qb-vnd-faq-2-{{ section.id }}')"
+          aria-expanded="false"
+        >
+          <span>What do I need to register?</span>
+          <span class="qb-vnd__faq-chevron">▾</span>
+        </button>
+        <div class="qb-vnd__faq-body">
+          All you need is your business name, type, owner details, and a working phone number.
+          A valid FSSAI or trade licence is helpful but not mandatory at the application stage —
+          we'll guide you through compliance during onboarding.
+        </div>
+      </div>
+
+      <div class="qb-vnd__faq-item" id="qb-vnd-faq-3-{{ section.id }}">
+        <button
+          class="qb-vnd__faq-btn"
+          type="button"
+          onclick="qbVndFaqToggle('qb-vnd-faq-3-{{ section.id }}')"
+          aria-expanded="false"
+        >
+          <span>How long does approval take?</span>
+          <span class="qb-vnd__faq-chevron">▾</span>
+        </button>
+        <div class="qb-vnd__faq-body">
+          Applications are reviewed within 24 hours on business days. Once approved, we schedule
+          an onboarding call to get your storefront live — typically within 2–3 business days of submission.
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /.qb-vnd__inner -->
+</section>
+
+<script>
+(function () {
+  /* ─── FAQ toggle ─────────────────────────────────────────────── */
+  window.qbVndFaqToggle = function (itemId) {
+    var item = document.getElementById(itemId);
+    if (!item) return;
+    var isOpen = item.classList.contains('is-open');
+    item.classList.toggle('is-open', !isOpen);
+    var btn = item.querySelector('.qb-vnd__faq-btn');
+    if (btn) btn.setAttribute('aria-expanded', String(!isOpen));
+  };
+
+  /* ─── Form validation ────────────────────────────────────────── */
+  function qbVndValidate(sid) {
+    var valid = true;
+
+    function check(fieldId, errorId, inputId, msg) {
+      var input = document.getElementById(inputId);
+      var errEl = document.getElementById(errorId);
+      if (!input) return;
+      var val = input.value.trim();
+      var empty = val === '' || (input.tagName === 'SELECT' && val === '');
+      if (empty) {
+        input.classList.add('has-error');
+        if (errEl) errEl.textContent = msg;
+        valid = false;
+      } else {
+        input.classList.remove('has-error');
+        if (errEl) errEl.textContent = '';
+      }
+    }
+
+    check(
+      'qb-vnd-f-bizname-' + sid,
+      'qb-vnd-e-bizname-' + sid,
+      'vnd-bizname-' + sid,
+      'Business name is required.'
+    );
+    check(
+      'qb-vnd-f-biztype-' + sid,
+      'qb-vnd-e-biztype-' + sid,
+      'vnd-biztype-' + sid,
+      'Please select a business type.'
+    );
+    check(
+      'qb-vnd-f-owner-' + sid,
+      'qb-vnd-e-owner-' + sid,
+      'vnd-owner-' + sid,
+      'Owner name is required.'
+    );
+
+    /* Phone validation */
+    var phoneInput = document.getElementById('vnd-phone-' + sid);
+    var phoneErr   = document.getElementById('qb-vnd-e-phone-' + sid);
+    if (phoneInput) {
+      var phoneVal = phoneInput.value.trim().replace(/\s+/g, '');
+      if (!phoneVal) {
+        phoneInput.classList.add('has-error');
+        if (phoneErr) phoneErr.textContent = 'Phone number is required.';
+        valid = false;
+      } else if (!/^[+\d]{7,15}$/.test(phoneVal)) {
+        phoneInput.classList.add('has-error');
+        if (phoneErr) phoneErr.textContent = 'Enter a valid phone number.';
+        valid = false;
+      } else {
+        phoneInput.classList.remove('has-error');
+        if (phoneErr) phoneErr.textContent = '';
+      }
+    }
+
+    check(
+      'qb-vnd-f-city-' + sid,
+      'qb-vnd-e-city-' + sid,
+      'vnd-city-' + sid,
+      'City / Area is required.'
+    );
+
+    return valid;
+  }
+
+  /* ─── Submit ─────────────────────────────────────────────────── */
+  window.qbVndSubmit = function (sid) {
+    if (!qbVndValidate(sid)) return;
+
+    var btn       = document.getElementById('qb-vnd-submit-' + sid);
+    var variantEl = document.getElementById('qb-vnd-variant-' + sid);
+    if (!btn || !variantEl) return;
+
+    var variantId = parseInt(variantEl.value, 10);
+    if (!variantId) {
+      alert('Product variant not found. Please refresh the page.');
+      return;
+    }
+
+    function fieldVal(inputId) {
+      var el = document.getElementById(inputId);
+      return el ? el.value.trim() : '';
+    }
+
+    var props = {
+      'Business Name':    fieldVal('vnd-bizname-' + sid),
+      'Business Type':    fieldVal('vnd-biztype-' + sid),
+      'Owner Name':       fieldVal('vnd-owner-' + sid),
+      'Phone Number':     fieldVal('vnd-phone-' + sid),
+      'City / Area':      fieldVal('vnd-city-' + sid),
+      'FSSAI / License':  fieldVal('vnd-fssai-' + sid),
+      'Description':      fieldVal('vnd-desc-' + sid)
+    };
+
+    /* Remove empty optional fields */
+    Object.keys(props).forEach(function (k) {
+      if (!props[k]) delete props[k];
+    });
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        id: variantId,
+        quantity: 1,
+        properties: props
+      })
+    })
+    .then(function (res) {
+      if (!res.ok) return res.json().then(function (d) { throw new Error(d.description || 'Submission error'); });
+      return res.json();
+    })
+    .then(function () {
+      /* Hide form, show success */
+      var formWrap = document.getElementById('qb-vnd-form-wrap-' + sid);
+      var successCard = document.getElementById('qb-vnd-success-' + sid);
+      if (formWrap) formWrap.style.display = 'none';
+      if (successCard) successCard.classList.add('is-visible');
+      successCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    })
+    .catch(function (err) {
+      btn.disabled = false;
+      btn.textContent = 'SUBMIT APPLICATION →';
+      alert('Could not submit application: ' + (err.message || 'Please try again.'));
+    });
+  };
+
+  /* ─── Live clear errors on input ─────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', function () {
+    var inputs = document.querySelectorAll('.qb-vnd__input, .qb-vnd__select, .qb-vnd__textarea');
+    inputs.forEach(function (el) {
+      el.addEventListener('input', function () {
+        el.classList.remove('has-error');
+        var errSib = el.closest('.qb-vnd__field') && el.closest('.qb-vnd__field').querySelector('.qb-vnd__field-error');
+        if (errSib) errSib.textContent = '';
+      });
+    });
+  });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Vendor Registration",
+  "tag": "section",
+  "class": "qb-product-vendor",
+  "settings": [],
+  "presets": [
+    {
+      "name": "QB Vendor Registration"
+    }
+  ]
+}
+{% endschema %}

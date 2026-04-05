@@ -1,0 +1,964 @@
+{% comment %}
+  QB Stationery Product Section
+  QuickBee — Stationery / School / Office Supply product pages
+  CSS prefix: --stn-*  |  Gold accent: #F4B400
+  Mobile-first, dark/light theme
+{% endcomment %}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+
+  comment
+    ── Type map ──
+  endcomment
+  assign type_emoji = '📝'
+  assign type_color = 'var(--stn-accent)'
+  case product.type
+    when 'Pens'
+      assign type_emoji = '✏️'
+      assign type_color = '#3B82F6'
+    when 'Notebooks'
+      assign type_emoji = '📓'
+      assign type_color = '#14B8A6'
+    when 'Art Supplies'
+      assign type_emoji = '🎨'
+      assign type_color = '#EC4899'
+    when 'Office'
+      assign type_emoji = '🗂️'
+      assign type_color = '#6B7280'
+    when 'School'
+      assign type_emoji = '🎒'
+      assign type_color = '#22C55E'
+    when 'Craft'
+      assign type_emoji = '✂️'
+      assign type_color = '#F97316'
+  endcase
+
+  comment
+    ── Badge detection ──
+  endcomment
+  assign show_school_badge  = false
+  assign show_office_badge  = false
+  assign school_board_approved = false
+
+  comment
+    ── Brand from tag brand:X ──
+  endcomment
+  assign brand_name = product.vendor
+
+  comment
+    ── Bulk minimum from tag bulk:X ──
+  endcomment
+  assign bulk_minimum = nil
+
+  comment
+    ── Color tags ──
+  endcomment
+  assign color_tags = '' | split: ','
+
+  for tag in product.tags
+    if tag == 'school-essentials'
+      assign show_school_badge = true
+    endif
+    if tag == 'office-bundle'
+      assign show_office_badge = true
+    endif
+    if tag == 'school-board-approved'
+      assign school_board_approved = true
+    endif
+    if tag contains 'brand:'
+      assign brand_name = tag | remove: 'brand:'
+    endif
+    if tag contains 'bulk:'
+      assign bulk_minimum = tag | remove: 'bulk:'
+    endif
+    if tag contains 'color:'
+      assign color_value = tag | remove: 'color:'
+      assign color_tags = color_tags | push: color_value
+    endif
+  endfor
+-%}
+
+<style>
+  /* ── CSS Tokens ── */
+  :root {
+    --stn-accent:       #F4B400;
+    --stn-accent-dark:  #C9940A;
+    --stn-accent-text:  #1A1500;
+    --stn-radius:       10px;
+    --stn-radius-sm:    6px;
+    --stn-transition:   0.2s ease;
+    --stn-font-sans:    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --stn-shadow:       0 2px 12px rgba(0,0,0,0.12);
+    --stn-shadow-lg:    0 6px 24px rgba(0,0,0,0.18);
+  }
+
+  /* Dark theme (default) */
+  [data-stn-theme="dark"],
+  .shopify-section-qb-product-stationery {
+    --stn-bg:           #121212;
+    --stn-bg-card:      #1E1E1E;
+    --stn-bg-surface:   #2A2A2A;
+    --stn-border:       #333333;
+    --stn-text-primary: #F0F0F0;
+    --stn-text-secondary:#A0A0A0;
+    --stn-text-muted:   #666666;
+    --stn-pill-bg:      #2A2A2A;
+    --stn-pill-hover:   #333333;
+    --stn-pill-active:  #F4B400;
+    --stn-pill-active-text: #1A1500;
+  }
+
+  /* Light theme */
+  @media (prefers-color-scheme: light) {
+    .shopify-section-qb-product-stationery {
+      --stn-bg:           #FAFAFA;
+      --stn-bg-card:      #FFFFFF;
+      --stn-bg-surface:   #F3F4F6;
+      --stn-border:       #E5E7EB;
+      --stn-text-primary: #111111;
+      --stn-text-secondary:#555555;
+      --stn-text-muted:   #999999;
+      --stn-pill-bg:      #F3F4F6;
+      --stn-pill-hover:   #E5E7EB;
+      --stn-pill-active:  #F4B400;
+      --stn-pill-active-text: #1A1500;
+    }
+  }
+
+  /* ── Layout ── */
+  .stn-product-wrap {
+    background: var(--stn-bg);
+    color: var(--stn-text-primary);
+    font-family: var(--stn-font-sans);
+    min-height: 100vh;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  .stn-inner {
+    max-width: 680px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ── Header ── */
+  .stn-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .stn-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .stn-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .stn-badge--school {
+    background: #22C55E;
+    color: #052E16;
+  }
+
+  .stn-badge--office {
+    background: #6B7280;
+    color: #F9FAFB;
+  }
+
+  .stn-type-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1.5px solid;
+  }
+
+  .stn-product-title {
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 800;
+    line-height: 1.25;
+    color: var(--stn-text-primary);
+    margin: 0;
+  }
+
+  .stn-brand-line {
+    font-size: 13px;
+    color: var(--stn-text-secondary);
+  }
+
+  .stn-brand-line span {
+    color: var(--stn-accent);
+    font-weight: 600;
+  }
+
+  /* ── Price block ── */
+  .stn-price-block {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .stn-price {
+    font-size: clamp(26px, 6vw, 34px);
+    font-weight: 800;
+    color: var(--stn-accent);
+    line-height: 1;
+  }
+
+  .stn-price-compare {
+    font-size: 16px;
+    color: var(--stn-text-muted);
+    text-decoration: line-through;
+  }
+
+  .stn-price-save {
+    font-size: 13px;
+    background: #22C55E22;
+    color: #22C55E;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  /* ── Variants ── */
+  .stn-section-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--stn-text-muted);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .stn-section-label span {
+    color: var(--stn-text-secondary);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .stn-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .stn-pill {
+    padding: 7px 16px;
+    border-radius: var(--stn-radius-sm);
+    background: var(--stn-pill-bg);
+    border: 1.5px solid var(--stn-border);
+    color: var(--stn-text-primary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--stn-transition);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 60px;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .stn-pill:hover {
+    background: var(--stn-pill-hover);
+    border-color: var(--stn-accent);
+  }
+
+  .stn-pill.is-active {
+    background: var(--stn-pill-active);
+    border-color: var(--stn-accent);
+    color: var(--stn-pill-active-text);
+    font-weight: 700;
+  }
+
+  .stn-pill.is-sold-out {
+    opacity: 0.35;
+    cursor: not-allowed;
+    text-decoration: line-through;
+  }
+
+  .stn-pill-price {
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0.75;
+  }
+
+  /* ── Color chips ── */
+  .stn-colors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .stn-color-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+
+  .stn-color-circle {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2.5px solid var(--stn-border);
+    transition: all var(--stn-transition);
+    box-shadow: var(--stn-shadow);
+  }
+
+  .stn-color-chip:hover .stn-color-circle,
+  .stn-color-chip.is-active .stn-color-circle {
+    border-color: var(--stn-accent);
+    transform: scale(1.12);
+  }
+
+  .stn-color-name {
+    font-size: 10px;
+    color: var(--stn-text-secondary);
+    text-transform: capitalize;
+    font-weight: 500;
+  }
+
+  /* ── Quantity stepper ── */
+  .stn-quantity-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .stn-qty-stepper {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid var(--stn-border);
+    border-radius: var(--stn-radius-sm);
+    overflow: hidden;
+    background: var(--stn-bg-surface);
+  }
+
+  .stn-qty-btn {
+    background: none;
+    border: none;
+    width: 42px;
+    height: 42px;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--stn-text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--stn-transition);
+    user-select: none;
+  }
+
+  .stn-qty-btn:hover {
+    background: var(--stn-pill-hover);
+  }
+
+  .stn-qty-input {
+    width: 52px;
+    text-align: center;
+    background: none;
+    border: none;
+    border-left: 1.5px solid var(--stn-border);
+    border-right: 1.5px solid var(--stn-border);
+    color: var(--stn-text-primary);
+    font-size: 15px;
+    font-weight: 700;
+    height: 42px;
+    outline: none;
+    font-family: var(--stn-font-sans);
+    -moz-appearance: textfield;
+  }
+
+  .stn-qty-input::-webkit-outer-spin-button,
+  .stn-qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .stn-bulk-note {
+    font-size: 12px;
+    color: var(--stn-accent);
+    background: rgba(244,180,0,0.08);
+    border: 1px solid rgba(244,180,0,0.25);
+    border-radius: var(--stn-radius-sm);
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ── Add to cart ── */
+  .stn-atc-btn {
+    width: 100%;
+    padding: 16px 24px;
+    background: var(--stn-accent);
+    color: var(--stn-accent-text);
+    border: none;
+    border-radius: var(--stn-radius);
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all var(--stn-transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 18px rgba(244,180,0,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stn-atc-btn:hover {
+    background: var(--stn-accent-dark);
+    box-shadow: 0 6px 24px rgba(244,180,0,0.45);
+    transform: translateY(-1px);
+  }
+
+  .stn-atc-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(244,180,0,0.2);
+  }
+
+  .stn-atc-btn:disabled {
+    background: var(--stn-text-muted);
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+    color: #888;
+  }
+
+  .stn-atc-feedback {
+    font-size: 13px;
+    text-align: center;
+    min-height: 18px;
+    color: var(--stn-text-secondary);
+    transition: color var(--stn-transition);
+  }
+
+  .stn-atc-feedback.is-success { color: #22C55E; }
+  .stn-atc-feedback.is-error   { color: #EF4444; }
+
+  /* ── Pack size info ── */
+  .stn-pack-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--stn-bg-surface);
+    border-radius: var(--stn-radius-sm);
+    border-left: 3px solid var(--stn-accent);
+    font-size: 13px;
+    color: var(--stn-text-secondary);
+  }
+
+  .stn-pack-info strong {
+    color: var(--stn-text-primary);
+  }
+
+  /* ── Trust grid ── */
+  .stn-trust-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .stn-trust-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--stn-bg-card);
+    border-radius: var(--stn-radius-sm);
+    border: 1px solid var(--stn-border);
+  }
+
+  .stn-trust-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .stn-trust-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .stn-trust-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--stn-text-primary);
+    line-height: 1.2;
+  }
+
+  .stn-trust-sub {
+    font-size: 11px;
+    color: var(--stn-text-muted);
+    line-height: 1.3;
+  }
+
+  /* ── Description ── */
+  .stn-description {
+    font-size: 14px;
+    color: var(--stn-text-secondary);
+    line-height: 1.7;
+    padding: 16px;
+    background: var(--stn-bg-card);
+    border-radius: var(--stn-radius);
+    border: 1px solid var(--stn-border);
+  }
+
+  .stn-description h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--stn-text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 10px;
+  }
+
+  /* ── Footer CTA ── */
+  .stn-footer-cta {
+    text-align: center;
+    padding: 16px;
+    background: rgba(244,180,0,0.06);
+    border-radius: var(--stn-radius);
+    border: 1px dashed rgba(244,180,0,0.3);
+  }
+
+  .stn-footer-cta a {
+    color: var(--stn-accent);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: color var(--stn-transition);
+  }
+
+  .stn-footer-cta a:hover {
+    color: var(--stn-accent-dark);
+    text-decoration: underline;
+  }
+
+  /* ── Divider ── */
+  .stn-divider {
+    height: 1px;
+    background: var(--stn-border);
+    border: none;
+    margin: 0;
+  }
+
+  /* ── Responsive tweaks ── */
+  @media (min-width: 480px) {
+    .stn-product-wrap { padding: 24px; }
+    .stn-trust-item { padding: 14px 16px; }
+  }
+
+  @media (min-width: 768px) {
+    .stn-product-wrap { padding: 32px 24px; }
+    .stn-inner { max-width: 720px; gap: 24px; }
+  }
+</style>
+
+<div class="stn-product-wrap shopify-section-qb-product-stationery" id="stn-product-{{ product.id }}">
+  <div class="stn-inner">
+
+    {%- comment -%} ── HEADER ── {%- endcomment -%}
+    <div class="stn-header">
+      <div class="stn-badges">
+        {%- if show_school_badge -%}
+          <span class="stn-badge stn-badge--school">🎒 Back to School</span>
+        {%- endif -%}
+        {%- if show_office_badge -%}
+          <span class="stn-badge stn-badge--office">🗂️ Office Pack</span>
+        {%- endif -%}
+        <span class="stn-type-chip" style="color:{{ type_color }};border-color:{{ type_color }}22;background:{{ type_color }}14;">
+          {{ type_emoji }} {{ product.type | default: 'Stationery' }}
+        </span>
+      </div>
+
+      <h1 class="stn-product-title">{{ product.title }}</h1>
+
+      <p class="stn-brand-line">
+        Brand: <span>{{ brand_name }}</span>
+        {%- if product.vendor and brand_name != product.vendor -%}
+          &nbsp;·&nbsp;{{ product.vendor }}
+        {%- endif -%}
+      </p>
+    </div>
+
+    {%- comment -%} ── PRICE BLOCK ── {%- endcomment -%}
+    <div class="stn-price-block" id="stn-price-block">
+      <span class="stn-price" id="stn-price">
+        {{ current_variant.price | money }}
+      </span>
+      {%- if current_variant.compare_at_price > current_variant.price -%}
+        <span class="stn-price-compare">{{ current_variant.compare_at_price | money }}</span>
+        <span class="stn-price-save">
+          Save {{ current_variant.compare_at_price | minus: current_variant.price | money }}
+        </span>
+      {%- endif -%}
+    </div>
+
+    <hr class="stn-divider">
+
+    {%- comment -%} ── PACK SIZE ── {%- endcomment -%}
+    {%- if current_variant.title != 'Default Title' -%}
+      {%- assign title_lower = current_variant.title | downcase -%}
+      {%- if title_lower contains 'pack' or title_lower contains 'piece' or title_lower contains 'set' -%}
+        <div class="stn-pack-info">
+          📦 <strong>Pack Size:</strong>&nbsp;{{ current_variant.title }}
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- comment -%} ── VARIANT PILLS ── {%- endcomment -%}
+    {%- if product.variants.size > 1 -%}
+      <div class="stn-section-block">
+        <div class="stn-section-label">
+          Options
+          <span id="stn-selected-variant-label">— {{ current_variant.title }}</span>
+        </div>
+        <div class="stn-pills" id="stn-variant-pills">
+          {%- for variant in product.variants -%}
+            <button
+              class="stn-pill{% if variant.id == current_variant.id %} is-active{% endif %}{% unless variant.available %} is-sold-out{% endunless %}"
+              data-variant-id="{{ variant.id }}"
+              data-variant-price="{{ variant.price | money }}"
+              data-variant-title="{{ variant.title }}"
+              data-variant-compare="{{ variant.compare_at_price | money }}"
+              {% unless variant.available %}disabled aria-label="{{ variant.title }} — Sold out"{% endunless %}
+              type="button"
+            >
+              {{ variant.title }}
+              <span class="stn-pill-price">{{ variant.price | money }}</span>
+            </button>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} ── COLOR / STYLE CHIPS ── {%- endcomment -%}
+    {%- if color_tags.size > 0 -%}
+      <div class="stn-section-block">
+        <div class="stn-section-label">Color / Style</div>
+        <div class="stn-colors" id="stn-color-chips">
+          {%- for color_item in color_tags -%}
+            {%- comment -%} Attempt a basic CSS color mapping for common names {%- endcomment -%}
+            <div class="stn-color-chip" data-color="{{ color_item }}" tabindex="0" role="button" aria-label="{{ color_item }}">
+              <div class="stn-color-circle" style="background:{{ color_item }};"></div>
+              <span class="stn-color-name">{{ color_item }}</span>
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} ── QUANTITY + BULK NOTE ── {%- endcomment -%}
+    <div class="stn-section-block">
+      <div class="stn-section-label">Quantity</div>
+      <div class="stn-quantity-wrap">
+        <div class="stn-qty-stepper">
+          <button class="stn-qty-btn" id="stn-qty-minus" type="button" aria-label="Decrease quantity">−</button>
+          <input
+            class="stn-qty-input"
+            type="number"
+            id="stn-qty-input"
+            name="quantity"
+            value="1"
+            min="1"
+            max="50"
+            aria-label="Product quantity"
+          >
+          <button class="stn-qty-btn" id="stn-qty-plus" type="button" aria-label="Increase quantity">+</button>
+        </div>
+        {%- if bulk_minimum != blank -%}
+          <div class="stn-bulk-note">
+            💰 Order {{ bulk_minimum }}+ for bulk pricing — <a href="/pages/contact" style="color:var(--stn-accent);font-weight:700;">Contact us</a>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- comment -%} ── ADD TO CART ── {%- endcomment -%}
+    <div class="stn-section-block">
+      {%- if current_variant.available -%}
+        <button class="stn-atc-btn" id="stn-atc-btn" type="button"
+          data-variant-id="{{ current_variant.id }}"
+          data-product-type="{{ product.type }}"
+          data-brand="{{ brand_name }}">
+          🛒 ADD TO CART
+        </button>
+      {%- else -%}
+        <button class="stn-atc-btn" disabled type="button">
+          ✕ Out of Stock
+        </button>
+      {%- endif -%}
+      <p class="stn-atc-feedback" id="stn-atc-feedback" aria-live="polite"></p>
+    </div>
+
+    <hr class="stn-divider">
+
+    {%- comment -%} ── TRUST GRID ── {%- endcomment -%}
+    <div class="stn-trust-grid">
+      <div class="stn-trust-item">
+        <div class="stn-trust-icon">✅</div>
+        <div class="stn-trust-text">
+          <div class="stn-trust-title">Genuine Brand</div>
+          <div class="stn-trust-sub">100% authentic, sourced direct</div>
+        </div>
+      </div>
+
+      {%- if school_board_approved -%}
+        <div class="stn-trust-item">
+          <div class="stn-trust-icon">🏫</div>
+          <div class="stn-trust-text">
+            <div class="stn-trust-title">School Board Approved</div>
+            <div class="stn-trust-sub">Meets curriculum standards</div>
+          </div>
+        </div>
+      {%- else -%}
+        <div class="stn-trust-item">
+          <div class="stn-trust-icon">⭐</div>
+          <div class="stn-trust-text">
+            <div class="stn-trust-title">Quality Assured</div>
+            <div class="stn-trust-sub">Every item quality-checked</div>
+          </div>
+        </div>
+      {%- endif -%}
+
+      <div class="stn-trust-item">
+        <div class="stn-trust-icon">🚚</div>
+        <div class="stn-trust-text">
+          <div class="stn-trust-title">Fast Delivery</div>
+          <div class="stn-trust-sub">Ships within 1–2 business days</div>
+        </div>
+      </div>
+
+      <div class="stn-trust-item">
+        <div class="stn-trust-icon">↩️</div>
+        <div class="stn-trust-text">
+          <div class="stn-trust-title">Easy Returns</div>
+          <div class="stn-trust-sub">Hassle-free 7-day returns</div>
+        </div>
+      </div>
+    </div>
+
+    {%- comment -%} ── DESCRIPTION ── {%- endcomment -%}
+    {%- if product.description != blank -%}
+      <hr class="stn-divider">
+      <div class="stn-description">
+        <h3>About this product</h3>
+        {{ product.description }}
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} ── FOOTER CTA ── {%- endcomment -%}
+    <div class="stn-footer-cta">
+      <a href="/collections/stationery">
+        🎒 Building your school kit? Browse all stationery →
+      </a>
+    </div>
+
+  </div><!-- /.stn-inner -->
+</div><!-- /.stn-product-wrap -->
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── Helpers ── */
+  var wrap      = document.getElementById('stn-product-{{ product.id }}');
+  if (!wrap) return;
+
+  var atcBtn    = wrap.querySelector('#stn-atc-btn');
+  var feedback  = wrap.querySelector('#stn-atc-feedback');
+  var qtyInput  = wrap.querySelector('#stn-qty-input');
+  var qtyMinus  = wrap.querySelector('#stn-qty-minus');
+  var qtyPlus   = wrap.querySelector('#stn-qty-plus');
+  var priceEl   = wrap.querySelector('#stn-price');
+  var varLabel  = wrap.querySelector('#stn-selected-variant-label');
+
+  /* ── Quantity stepper ── */
+  if (qtyMinus) {
+    qtyMinus.addEventListener('click', function () {
+      var v = parseInt(qtyInput.value, 10) || 1;
+      if (v > 1) qtyInput.value = v - 1;
+    });
+  }
+
+  if (qtyPlus) {
+    qtyPlus.addEventListener('click', function () {
+      var v = parseInt(qtyInput.value, 10) || 1;
+      if (v < 50) qtyInput.value = v + 1;
+    });
+  }
+
+  if (qtyInput) {
+    qtyInput.addEventListener('change', function () {
+      var v = parseInt(this.value, 10);
+      if (isNaN(v) || v < 1)  this.value = 1;
+      if (v > 50)              this.value = 50;
+    });
+  }
+
+  /* ── Variant pills ── */
+  var pills = wrap.querySelectorAll('.stn-pill[data-variant-id]');
+  pills.forEach(function (pill) {
+    pill.addEventListener('click', function () {
+      if (pill.classList.contains('is-sold-out')) return;
+      pills.forEach(function (p) { p.classList.remove('is-active'); });
+      pill.classList.add('is-active');
+
+      var newPrice   = pill.getAttribute('data-variant-price');
+      var newTitle   = pill.getAttribute('data-variant-title');
+      var newId      = pill.getAttribute('data-variant-id');
+
+      if (priceEl)  priceEl.textContent = newPrice;
+      if (varLabel) varLabel.textContent = '— ' + newTitle;
+      if (atcBtn)   atcBtn.setAttribute('data-variant-id', newId);
+
+      /* Update pack size note */
+      var packEl = wrap.querySelector('.stn-pack-info');
+      if (packEl) {
+        var tl = newTitle.toLowerCase();
+        if (tl.indexOf('pack') > -1 || tl.indexOf('piece') > -1 || tl.indexOf('set') > -1) {
+          packEl.innerHTML = '📦 <strong>Pack Size:</strong>&nbsp;' + newTitle;
+          packEl.style.display = '';
+        } else {
+          packEl.style.display = 'none';
+        }
+      }
+
+      /* Update URL without reload */
+      if (window.history && window.history.replaceState) {
+        var url = new URL(window.location.href);
+        url.searchParams.set('variant', newId);
+        window.history.replaceState({}, '', url.toString());
+      }
+    });
+  });
+
+  /* ── Color chips ── */
+  var colorChips = wrap.querySelectorAll('.stn-color-chip');
+  colorChips.forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      colorChips.forEach(function (c) { c.classList.remove('is-active'); });
+      chip.classList.add('is-active');
+    });
+    chip.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); chip.click(); }
+    });
+  });
+
+  /* ── Add to cart ── */
+  if (atcBtn) {
+    atcBtn.addEventListener('click', function () {
+      var variantId  = parseInt(atcBtn.getAttribute('data-variant-id'), 10);
+      var productType = atcBtn.getAttribute('data-product-type') || '';
+      var brand       = atcBtn.getAttribute('data-brand') || '';
+      var quantity    = parseInt(qtyInput ? qtyInput.value : '1', 10) || 1;
+
+      /* Active color selection */
+      var activeColor = wrap.querySelector('.stn-color-chip.is-active');
+      var selectedColor = activeColor ? activeColor.getAttribute('data-color') : '';
+
+      atcBtn.disabled = true;
+      atcBtn.textContent = 'Adding…';
+      if (feedback) { feedback.textContent = ''; feedback.className = 'stn-atc-feedback'; }
+
+      var properties = { 'Type': productType, 'Brand': brand };
+      if (selectedColor) properties['Color'] = selectedColor;
+
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ id: variantId, quantity: quantity, properties: properties })
+      })
+      .then(function (res) {
+        if (!res.ok) return res.json().then(function (d) { throw new Error(d.description || 'Error adding to cart'); });
+        return res.json();
+      })
+      .then(function () {
+        atcBtn.textContent = '✓ Added to Cart!';
+        if (feedback) {
+          feedback.textContent = 'Item added successfully.';
+          feedback.className = 'stn-atc-feedback is-success';
+        }
+        document.dispatchEvent(new CustomEvent('cart:updated'));
+        setTimeout(function () {
+          atcBtn.disabled = false;
+          atcBtn.innerHTML = '🛒 ADD TO CART';
+          if (feedback) { feedback.textContent = ''; feedback.className = 'stn-atc-feedback'; }
+        }, 2400);
+      })
+      .catch(function (err) {
+        atcBtn.disabled = false;
+        atcBtn.innerHTML = '🛒 ADD TO CART';
+        if (feedback) {
+          feedback.textContent = err.message || 'Could not add item. Please try again.';
+          feedback.className = 'stn-atc-feedback is-error';
+        }
+      });
+    });
+  }
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Stationery",
+  "tag": "section",
+  "class": "shopify-section-qb-product-stationery",
+  "settings": [
+    {
+      "type": "text",
+      "id": "stationery_collection_url",
+      "label": "Stationery collection URL",
+      "default": "/collections/stationery",
+      "info": "URL used in the 'Browse all stationery' footer link."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show product description",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "QB Stationery"
+    }
+  ]
+}
+{% endschema %}

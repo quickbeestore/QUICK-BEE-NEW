@@ -1,0 +1,869 @@
+{% comment %} QB Household Product Section — QuickBee Store {% endcomment %}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+
+  assign hh_type_emoji  = '🏠'
+  assign hh_type_color  = '#F4B400'
+  assign hh_type_label  = product.type | default: 'Household'
+
+  case product.type
+    when 'Cleaning'
+      assign hh_type_emoji = '🧹'
+      assign hh_type_color = '#22c55e'
+    when 'Laundry'
+      assign hh_type_emoji = '🧺'
+      assign hh_type_color = '#3b82f6'
+    when 'Kitchen'
+      assign hh_type_emoji = '🍳'
+      assign hh_type_color = '#f97316'
+    when 'Bathroom'
+      assign hh_type_emoji = '🚿'
+      assign hh_type_color = '#14b8a6'
+    when 'Freshener'
+      assign hh_type_emoji = '🌸'
+      assign hh_type_color = '#ec4899'
+    when 'Pest Control'
+      assign hh_type_emoji = '🐜'
+      assign hh_type_color = '#ef4444'
+  endcase
+
+  assign is_eco = false
+  assign brand_tag_value = nil
+  assign caution_tag_value = nil
+
+  for tag in product.tags
+    if tag == 'eco-friendly'
+      assign is_eco = true
+    endif
+    if tag contains 'brand:'
+      assign brand_tag_value = tag | remove_first: 'brand:'
+    endif
+    if tag contains 'caution:'
+      assign caution_tag_value = tag | remove_first: 'caution:'
+    endif
+  endfor
+
+  assign display_brand = brand_tag_value | default: product.vendor
+-%}
+
+<style>
+  :root {
+    --hh-bg:            #111827;
+    --hh-surface:       #1f2937;
+    --hh-surface-2:     #374151;
+    --hh-border:        #374151;
+    --hh-text-primary:  #f9fafb;
+    --hh-text-secondary:#9ca3af;
+    --hh-text-muted:    #6b7280;
+    --hh-gold:          #F4B400;
+    --hh-gold-dark:     #d4a000;
+    --hh-gold-bg:       rgba(244,180,0,0.08);
+    --hh-radius:        12px;
+    --hh-radius-sm:     8px;
+    --hh-radius-pill:   999px;
+    --hh-shadow:        0 4px 24px rgba(0,0,0,0.35);
+    --hh-shadow-sm:     0 2px 8px rgba(0,0,0,0.2);
+    --hh-font:          -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --hh-transition:    0.18s ease;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --hh-bg:            #f8f9fb;
+      --hh-surface:       #ffffff;
+      --hh-surface-2:     #f1f3f6;
+      --hh-border:        #e5e7eb;
+      --hh-text-primary:  #111827;
+      --hh-text-secondary:#4b5563;
+      --hh-text-muted:    #9ca3af;
+      --hh-shadow:        0 4px 24px rgba(0,0,0,0.08);
+      --hh-shadow-sm:     0 2px 8px rgba(0,0,0,0.06);
+    }
+  }
+
+  .hh-wrap {
+    background: var(--hh-bg);
+    font-family: var(--hh-font);
+    color: var(--hh-text-primary);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .hh-container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 16px 16px 48px;
+  }
+
+  /* ── Breadcrumb ── */
+  .hh-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--hh-text-muted);
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .hh-breadcrumb a {
+    color: var(--hh-text-muted);
+    text-decoration: none;
+  }
+  .hh-breadcrumb a:hover { color: var(--hh-gold); }
+  .hh-breadcrumb span { color: var(--hh-text-muted); }
+
+  /* ── Tag row ── */
+  .hh-tag-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .hh-essential-tag {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--hh-text-muted);
+    border: 1px solid var(--hh-border);
+    border-radius: var(--hh-radius-pill);
+    padding: 3px 10px;
+  }
+
+  .hh-eco-badge {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #22c55e;
+    background: rgba(34,197,94,0.12);
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: var(--hh-radius-pill);
+    padding: 3px 10px;
+  }
+
+  /* ── Type chip ── */
+  .hh-type-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: var(--hh-radius-pill);
+    padding: 4px 12px;
+    margin-bottom: 14px;
+  }
+
+  /* ── Title ── */
+  .hh-title {
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--hh-text-primary);
+    margin: 0 0 10px;
+  }
+
+  /* ── Price ── */
+  .hh-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .hh-price {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--hh-gold);
+    line-height: 1;
+  }
+  .hh-price-compare {
+    font-size: 18px;
+    color: var(--hh-text-muted);
+    text-decoration: line-through;
+  }
+  .hh-price-save {
+    font-size: 13px;
+    font-weight: 700;
+    color: #22c55e;
+    background: rgba(34,197,94,0.12);
+    border-radius: var(--hh-radius-pill);
+    padding: 2px 8px;
+  }
+
+  .hh-tax-note {
+    font-size: 11px;
+    color: var(--hh-text-muted);
+    margin-bottom: 16px;
+  }
+
+  /* ── Quick Facts strip ── */
+  .hh-facts-strip {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--hh-gold-bg);
+    border: 1px solid rgba(244,180,0,0.2);
+    border-radius: var(--hh-radius-sm);
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+  .hh-fact {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--hh-gold);
+    white-space: nowrap;
+  }
+  .hh-fact-sep {
+    margin: 0 8px;
+    color: rgba(244,180,0,0.35);
+    font-size: 12px;
+  }
+
+  /* ── Info card ── */
+  .hh-card {
+    background: var(--hh-surface);
+    border: 1px solid var(--hh-border);
+    border-radius: var(--hh-radius);
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: var(--hh-shadow-sm);
+  }
+  .hh-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--hh-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+  }
+
+  /* ── Meta rows ── */
+  .hh-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--hh-border);
+    font-size: 14px;
+  }
+  .hh-meta-row:last-child { border-bottom: none; }
+  .hh-meta-label { color: var(--hh-text-secondary); }
+  .hh-meta-value { font-weight: 600; color: var(--hh-text-primary); }
+
+  /* ── Variant pills ── */
+  .hh-variant-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--hh-text-secondary);
+    margin-bottom: 10px;
+  }
+  .hh-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .hh-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 14px;
+    background: var(--hh-surface-2);
+    border: 2px solid var(--hh-border);
+    border-radius: var(--hh-radius-sm);
+    cursor: pointer;
+    transition: border-color var(--hh-transition), background var(--hh-transition);
+    min-width: 72px;
+  }
+  .hh-pill:hover {
+    border-color: var(--hh-gold);
+    background: var(--hh-gold-bg);
+  }
+  .hh-pill.active {
+    border-color: var(--hh-gold);
+    background: var(--hh-gold-bg);
+  }
+  .hh-pill-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--hh-text-primary);
+  }
+  .hh-pill-price {
+    font-size: 11px;
+    color: var(--hh-gold);
+    font-weight: 700;
+  }
+  .hh-pill.soldout { opacity: 0.45; cursor: not-allowed; }
+  .hh-pill.soldout:hover { border-color: var(--hh-border); background: var(--hh-surface-2); }
+
+  /* ── Quantity stepper ── */
+  .hh-qty-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--hh-text-secondary);
+    margin-bottom: 10px;
+  }
+  .hh-qty-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: fit-content;
+    border: 2px solid var(--hh-border);
+    border-radius: var(--hh-radius-sm);
+    overflow: hidden;
+  }
+  .hh-qty-btn {
+    width: 44px;
+    height: 44px;
+    background: var(--hh-surface-2);
+    border: none;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--hh-text-primary);
+    cursor: pointer;
+    transition: background var(--hh-transition), color var(--hh-transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hh-qty-btn:hover { background: var(--hh-gold); color: #000; }
+  .hh-qty-input {
+    width: 60px;
+    height: 44px;
+    background: var(--hh-surface);
+    border: none;
+    border-left: 2px solid var(--hh-border);
+    border-right: 2px solid var(--hh-border);
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--hh-text-primary);
+    outline: none;
+  }
+
+  /* ── How to Use card ── */
+  .hh-howto-body {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--hh-text-secondary);
+  }
+  .hh-howto-body p { margin: 0 0 10px; }
+  .hh-howto-body p:last-child { margin-bottom: 0; }
+  .hh-howto-body ul, .hh-howto-body ol {
+    padding-left: 20px;
+    margin: 0 0 10px;
+  }
+  .hh-howto-body li { margin-bottom: 4px; }
+
+  /* ── Caution card ── */
+  .hh-caution-card {
+    background: rgba(234,179,8,0.08);
+    border: 1.5px solid rgba(234,179,8,0.45);
+    border-radius: var(--hh-radius);
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .hh-caution-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #ca8a04;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .hh-caution-body {
+    font-size: 13px;
+    color: #a16207;
+    line-height: 1.6;
+  }
+
+  /* ── ATC button ── */
+  .hh-atc-wrap {
+    margin-bottom: 14px;
+  }
+  .hh-atc-btn {
+    width: 100%;
+    padding: 17px 24px;
+    background: var(--hh-gold);
+    color: #000;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    border: none;
+    border-radius: var(--hh-radius);
+    cursor: pointer;
+    transition: background var(--hh-transition), transform 0.12s;
+    box-shadow: 0 4px 16px rgba(244,180,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .hh-atc-btn:hover  { background: var(--hh-gold-dark); }
+  .hh-atc-btn:active { transform: scale(0.985); }
+  .hh-atc-btn:disabled {
+    background: var(--hh-border);
+    color: var(--hh-text-muted);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .hh-atc-status {
+    font-size: 12px;
+    text-align: center;
+    min-height: 20px;
+    margin-top: 6px;
+    color: var(--hh-text-secondary);
+  }
+  .hh-atc-status.success { color: #22c55e; }
+  .hh-atc-status.error   { color: #ef4444; }
+
+  /* ── Trust grid ── */
+  .hh-trust-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .hh-trust-cell {
+    background: var(--hh-surface);
+    border: 1px solid var(--hh-border);
+    border-radius: var(--hh-radius-sm);
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .hh-trust-icon { font-size: 22px; }
+  .hh-trust-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--hh-text-primary);
+    margin: 0;
+  }
+  .hh-trust-desc {
+    font-size: 11px;
+    color: var(--hh-text-muted);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  /* ── Subscribe note ── */
+  .hh-subscribe-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--hh-surface);
+    border: 1px dashed var(--hh-border);
+    border-radius: var(--hh-radius-sm);
+    padding: 14px;
+    font-size: 13px;
+    color: var(--hh-text-secondary);
+  }
+  .hh-subscribe-note a {
+    color: var(--hh-gold);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .hh-subscribe-note a:hover { text-decoration: underline; }
+
+  /* ── Availability badge ── */
+  .hh-avail {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: var(--hh-radius-pill);
+    margin-bottom: 16px;
+  }
+  .hh-avail.in  { background: rgba(34,197,94,0.12); color: #22c55e; }
+  .hh-avail.out { background: rgba(239,68,68,0.12);  color: #ef4444; }
+  .hh-avail-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  @media (min-width: 480px) {
+    .hh-container { padding: 24px 24px 64px; }
+    .hh-title { font-size: 28px; }
+    .hh-qty-input { width: 72px; }
+  }
+</style>
+
+<div class="hh-wrap" id="hh-wrap-{{ product.id }}">
+  <div class="hh-container">
+
+    {%- comment -%} Breadcrumb {%- endcomment -%}
+    <nav class="hh-breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span>›</span>
+      <a href="/collections/household">Household</a>
+      <span>›</span>
+      <span>{{ product.title | truncate: 40 }}</span>
+    </nav>
+
+    {%- comment -%} Tag row {%- endcomment -%}
+    <div class="hh-tag-row">
+      <span class="hh-essential-tag">HOUSEHOLD ESSENTIAL</span>
+      {%- if is_eco -%}
+        <span class="hh-eco-badge">🌿 ECO FRIENDLY</span>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Type chip {%- endcomment -%}
+    <div class="hh-type-chip" style="background: {{ hh_type_color }}1a; color: {{ hh_type_color }}; border: 1px solid {{ hh_type_color }}40;">
+      <span>{{ hh_type_emoji }}</span>
+      <span>{{ hh_type_label }}</span>
+    </div>
+
+    {%- comment -%} Product title {%- endcomment -%}
+    <h1 class="hh-title">{{ product.title }}</h1>
+
+    {%- comment -%} Price {%- endcomment -%}
+    <div class="hh-price-row" id="hh-price-row">
+      <span class="hh-price" id="hh-price">
+        {{ current_variant.price | money }}
+      </span>
+      {%- if current_variant.compare_at_price > current_variant.price -%}
+        <span class="hh-price-compare" id="hh-compare-price">
+          {{ current_variant.compare_at_price | money }}
+        </span>
+        {%- assign savings = current_variant.compare_at_price | minus: current_variant.price -%}
+        <span class="hh-price-save" id="hh-price-save">
+          Save {{ savings | money }}
+        </span>
+      {%- endif -%}
+    </div>
+    <p class="hh-tax-note">Inclusive of all taxes</p>
+
+    {%- comment -%} Availability {%- endcomment -%}
+    {%- if current_variant.available -%}
+      <div class="hh-avail in" id="hh-avail"><div class="hh-avail-dot"></div>In Stock</div>
+    {%- else -%}
+      <div class="hh-avail out" id="hh-avail"><div class="hh-avail-dot"></div>Out of Stock</div>
+    {%- endif -%}
+
+    {%- comment -%} Quick Facts {%- endcomment -%}
+    <div class="hh-facts-strip">
+      <span class="hh-fact">⚡ Fast Delivery</span>
+      <span class="hh-fact-sep">·</span>
+      <span class="hh-fact">✅ Genuine Brand</span>
+      <span class="hh-fact-sep">·</span>
+      <span class="hh-fact">📦 Bulk Available</span>
+      <span class="hh-fact-sep">·</span>
+      <span class="hh-fact">↩ Easy Returns</span>
+    </div>
+
+    {%- comment -%} Product info card {%- endcomment -%}
+    <div class="hh-card">
+      <div class="hh-card-title">Product Details</div>
+      {%- if display_brand != blank -%}
+        <div class="hh-meta-row">
+          <span class="hh-meta-label">Brand</span>
+          <span class="hh-meta-value">{{ display_brand }}</span>
+        </div>
+      {%- endif -%}
+      {%- if product.type != blank -%}
+        <div class="hh-meta-row">
+          <span class="hh-meta-label">Category</span>
+          <span class="hh-meta-value">{{ hh_type_emoji }} {{ product.type }}</span>
+        </div>
+      {%- endif -%}
+      {%- if current_variant.title != 'Default Title' -%}
+        <div class="hh-meta-row">
+          <span class="hh-meta-label">Net Weight / Volume</span>
+          <span class="hh-meta-value" id="hh-variant-detail">{{ current_variant.title }}</span>
+        </div>
+      {%- endif -%}
+      {%- if product.variants.size > 0 -%}
+        <div class="hh-meta-row">
+          <span class="hh-meta-label">SKU</span>
+          <span class="hh-meta-value" id="hh-sku">{{ current_variant.sku | default: 'N/A' }}</span>
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Variant selector {%- endcomment -%}
+    {%- if product.variants.size > 1 -%}
+      <div class="hh-card">
+        <div class="hh-variant-label">Select Size / Pack</div>
+        <div class="hh-pills" id="hh-variant-pills">
+          {%- for variant in product.variants -%}
+            <button
+              class="hh-pill {% if variant.id == current_variant.id %}active{% endif %} {% unless variant.available %}soldout{% endunless %}"
+              data-variant-id="{{ variant.id }}"
+              data-price="{{ variant.price | money }}"
+              data-compare="{{ variant.compare_at_price | money }}"
+              data-title="{{ variant.title }}"
+              data-sku="{{ variant.sku }}"
+              data-available="{{ variant.available }}"
+              {% unless variant.available %}disabled{% endunless %}
+              aria-label="{{ variant.title }} — {{ variant.price | money }}"
+            >
+              <span class="hh-pill-title">{{ variant.title }}</span>
+              <span class="hh-pill-price">{{ variant.price | money }}</span>
+            </button>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} Quantity {%- endcomment -%}
+    <div class="hh-card">
+      <div class="hh-qty-label">Units</div>
+      <div class="hh-qty-row">
+        <button class="hh-qty-btn" id="hh-qty-minus" aria-label="Decrease quantity">−</button>
+        <input
+          class="hh-qty-input"
+          type="number"
+          id="hh-qty"
+          name="quantity"
+          value="1"
+          min="1"
+          max="24"
+          aria-label="Quantity"
+        >
+        <button class="hh-qty-btn" id="hh-qty-plus" aria-label="Increase quantity">+</button>
+      </div>
+    </div>
+
+    {%- comment -%} How to Use {%- endcomment -%}
+    {%- if product.description != blank -%}
+      <div class="hh-card">
+        <div class="hh-card-title">📋 How to Use</div>
+        <div class="hh-howto-body">
+          {{ product.description }}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} Caution / Warning — only if caution tag present {%- endcomment -%}
+    {%- if caution_tag_value != blank -%}
+      <div class="hh-caution-card">
+        <div class="hh-caution-title">⚠️ Caution</div>
+        <div class="hh-caution-body">{{ caution_tag_value | replace: '_', ' ' }}</div>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} Add to Cart {%- endcomment -%}
+    <div class="hh-atc-wrap">
+      <button
+        class="hh-atc-btn"
+        id="hh-atc-btn"
+        data-product-id="{{ product.id }}"
+        data-product-type="{{ product.type | escape }}"
+        {% unless current_variant.available %}disabled{% endunless %}
+      >
+        🛒 ADD TO CART
+      </button>
+      <div class="hh-atc-status" id="hh-atc-status" aria-live="polite"></div>
+    </div>
+
+    {%- comment -%} Trust grid {%- endcomment -%}
+    <div class="hh-trust-grid">
+      <div class="hh-trust-cell">
+        <div class="hh-trust-icon">✅</div>
+        <p class="hh-trust-title">Genuine Brand</p>
+        <p class="hh-trust-desc">Sourced directly from verified distributors</p>
+      </div>
+      <div class="hh-trust-cell">
+        <div class="hh-trust-icon">🔬</div>
+        <p class="hh-trust-title">Quality Tested</p>
+        <p class="hh-trust-desc">Every product checked before dispatch</p>
+      </div>
+      <div class="hh-trust-cell">
+        <div class="hh-trust-icon">⚡</div>
+        <p class="hh-trust-title">Fast Delivery</p>
+        <p class="hh-trust-desc">Same or next-day delivery available</p>
+      </div>
+      <div class="hh-trust-cell">
+        <div class="hh-trust-icon">↩</div>
+        <p class="hh-trust-title">Easy Returns</p>
+        <p class="hh-trust-desc">Hassle-free returns & replacements</p>
+      </div>
+    </div>
+
+    {%- comment -%} Subscribe & Save {%- endcomment -%}
+    <div class="hh-subscribe-note">
+      <span>🔁</span>
+      <span>
+        Subscribe &amp; Save <strong>15%</strong> on this item —
+        <a href="/collections/subscriptions">View Subscriptions</a>
+      </span>
+    </div>
+
+  </div><!-- .hh-container -->
+</div><!-- .hh-wrap -->
+
+{%- comment -%} Variant data for JS {%- endcomment -%}
+<script type="application/json" id="hh-variants-json-{{ product.id }}">
+  [
+    {%- for variant in product.variants -%}
+      {
+        "id": {{ variant.id }},
+        "title": {{ variant.title | json }},
+        "price": {{ variant.price }},
+        "priceFormatted": {{ variant.price | money | json }},
+        "compareAtPrice": {{ variant.compare_at_price | default: 0 }},
+        "compareAtPriceFormatted": {{ variant.compare_at_price | money | json }},
+        "available": {{ variant.available }},
+        "sku": {{ variant.sku | json }}
+      }{% unless forloop.last %},{% endunless %}
+    {%- endfor -%}
+  ]
+</script>
+
+<script>
+(function () {
+  var wrap       = document.getElementById('hh-wrap-{{ product.id }}');
+  if (!wrap) return;
+
+  var variantsRaw  = document.getElementById('hh-variants-json-{{ product.id }}');
+  var variants     = variantsRaw ? JSON.parse(variantsRaw.textContent) : [];
+  var selectedId   = {{ current_variant.id }};
+  var productType  = {{ product.type | json }};
+
+  // ── Qty stepper ──────────────────────────────────────────────
+  var qtyInput = wrap.querySelector('#hh-qty');
+  wrap.querySelector('#hh-qty-minus').addEventListener('click', function () {
+    var v = parseInt(qtyInput.value, 10) || 1;
+    if (v > 1) qtyInput.value = v - 1;
+  });
+  wrap.querySelector('#hh-qty-plus').addEventListener('click', function () {
+    var v = parseInt(qtyInput.value, 10) || 1;
+    if (v < 24) qtyInput.value = v + 1;
+  });
+  qtyInput.addEventListener('change', function () {
+    var v = parseInt(qtyInput.value, 10) || 1;
+    if (v < 1)  qtyInput.value = 1;
+    if (v > 24) qtyInput.value = 24;
+  });
+
+  // ── Variant pills ─────────────────────────────────────────────
+  var pillsContainer = wrap.querySelector('#hh-variant-pills');
+  if (pillsContainer) {
+    pillsContainer.addEventListener('click', function (e) {
+      var pill = e.target.closest('.hh-pill');
+      if (!pill || pill.disabled) return;
+
+      pillsContainer.querySelectorAll('.hh-pill').forEach(function (p) {
+        p.classList.remove('active');
+      });
+      pill.classList.add('active');
+
+      var vid  = parseInt(pill.dataset.variantId, 10);
+      var vrnt = variants.find(function (v) { return v.id === vid; });
+      if (!vrnt) return;
+      selectedId = vid;
+
+      // Update price
+      wrap.querySelector('#hh-price').textContent = vrnt.priceFormatted;
+
+      var cmp = wrap.querySelector('#hh-compare-price');
+      var sav = wrap.querySelector('#hh-price-save');
+      if (vrnt.compareAtPrice > vrnt.price) {
+        if (cmp) cmp.textContent = vrnt.compareAtPriceFormatted;
+        if (sav) {
+          var savedCents = vrnt.compareAtPrice - vrnt.price;
+          // Format savings: reuse Shopify money format approximation
+          sav.textContent = 'Save ' + vrnt.compareAtPriceFormatted.replace(/[\d,.]+/, function() {
+            return (savedCents / 100).toFixed(2);
+          });
+        }
+      } else {
+        if (cmp) cmp.textContent = '';
+        if (sav) sav.textContent = '';
+      }
+
+      // Update meta detail
+      var detail = wrap.querySelector('#hh-variant-detail');
+      if (detail) detail.textContent = vrnt.title !== 'Default Title' ? vrnt.title : '';
+
+      var skuEl = wrap.querySelector('#hh-sku');
+      if (skuEl) skuEl.textContent = vrnt.sku || 'N/A';
+
+      // Update availability
+      var availEl = wrap.querySelector('#hh-avail');
+      if (availEl) {
+        availEl.className = 'hh-avail ' + (vrnt.available ? 'in' : 'out');
+        availEl.innerHTML = '<div class="hh-avail-dot"></div>' + (vrnt.available ? 'In Stock' : 'Out of Stock');
+      }
+
+      // Update ATC
+      var btn = wrap.querySelector('#hh-atc-btn');
+      if (btn) btn.disabled = !vrnt.available;
+    });
+  }
+
+  // ── Add to Cart ───────────────────────────────────────────────
+  var atcBtn    = wrap.querySelector('#hh-atc-btn');
+  var atcStatus = wrap.querySelector('#hh-atc-status');
+
+  if (atcBtn) {
+    atcBtn.addEventListener('click', function () {
+      var qty = parseInt(qtyInput.value, 10) || 1;
+      atcBtn.disabled = true;
+      atcBtn.textContent = 'Adding…';
+      if (atcStatus) { atcStatus.textContent = ''; atcStatus.className = 'hh-atc-status'; }
+
+      fetch('/cart/add.js', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({
+          id:         selectedId,
+          quantity:   qty,
+          properties: {
+            'Category': 'Household',
+            'Type':     productType
+          }
+        })
+      })
+      .then(function (res) {
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.json();
+      })
+      .then(function () {
+        atcBtn.textContent = '✅ Added to Cart!';
+        if (atcStatus) { atcStatus.textContent = 'Item added successfully.'; atcStatus.className = 'hh-atc-status success'; }
+        document.dispatchEvent(new CustomEvent('cart:updated'));
+        setTimeout(function () {
+          atcBtn.disabled = false;
+          atcBtn.innerHTML = '🛒 ADD TO CART';
+          if (atcStatus) atcStatus.textContent = '';
+        }, 2200);
+      })
+      .catch(function (err) {
+        console.error('[QB Household] cart/add error:', err);
+        atcBtn.disabled = false;
+        atcBtn.innerHTML = '🛒 ADD TO CART';
+        if (atcStatus) { atcStatus.textContent = 'Something went wrong. Please try again.'; atcStatus.className = 'hh-atc-status error'; }
+      });
+    });
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Household",
+  "tag": "section",
+  "class": "qb-household-section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "QB Household"
+    }
+  ]
+}
+{% endschema %}

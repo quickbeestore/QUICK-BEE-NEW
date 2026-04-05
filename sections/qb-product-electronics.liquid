@@ -1,0 +1,902 @@
+{% comment %} QB Electronics Product Section — QuickBee Store {% endcomment %}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+
+  assign elec_type_emoji = '🔌'
+  assign elec_type_color = '#F4B400'
+  assign elec_type_label = product.type | default: 'Electronics'
+
+  case product.type
+    when 'Phone Accessories'
+      assign elec_type_emoji = '📱'
+      assign elec_type_color = '#3b82f6'
+    when 'Laptop Accessories'
+      assign elec_type_emoji = '💻'
+      assign elec_type_color = '#a855f7'
+    when 'Cables'
+      assign elec_type_emoji = '🔌'
+      assign elec_type_color = '#6b7280'
+    when 'Audio'
+      assign elec_type_emoji = '🎧'
+      assign elec_type_color = '#14b8a6'
+    when 'Chargers'
+      assign elec_type_emoji = '⚡'
+      assign elec_type_color = '#f59e0b'
+    when 'Smart Home'
+      assign elec_type_emoji = '🏠'
+      assign elec_type_color = '#22c55e'
+  endcase
+
+  assign is_genuine   = false
+  assign is_compatible_part = false
+  assign warranty_months = '1'
+  assign warranty_text   = '1 Month Warranty'
+  assign compatibility_tags = ''
+  assign compat_count = 0
+
+  for tag in product.tags
+    if tag == 'genuine'
+      assign is_genuine = true
+    endif
+    if tag == 'compatible'
+      assign is_compatible_part = true
+    endif
+    if tag contains 'warranty:'
+      assign warranty_raw    = tag | remove_first: 'warranty:'
+      assign warranty_months = warranty_raw | remove: 'months' | remove: 'month' | strip
+      assign warranty_text   = warranty_months | append: ' Month Warranty'
+    endif
+    if tag contains 'compatible:'
+      assign compat_val = tag | remove_first: 'compatible:'
+      if compat_count == 0
+        assign compatibility_tags = compat_val
+      else
+        assign compatibility_tags = compatibility_tags | append: ',' | append: compat_val
+      endif
+      assign compat_count = compat_count | plus: 1
+    endif
+  endfor
+
+  if compat_count == 0
+    assign compatibility_text = 'Check description for compatibility'
+  else
+    assign compatibility_text = compatibility_tags
+  endif
+-%}
+
+<style>
+  :root {
+    --elec-bg:             #0f172a;
+    --elec-surface:        #1e293b;
+    --elec-surface-2:      #334155;
+    --elec-border:         #334155;
+    --elec-text-primary:   #f1f5f9;
+    --elec-text-secondary: #94a3b8;
+    --elec-text-muted:     #64748b;
+    --elec-gold:           #F4B400;
+    --elec-gold-dark:      #d4a000;
+    --elec-gold-bg:        rgba(244,180,0,0.08);
+    --elec-radius:         12px;
+    --elec-radius-sm:      8px;
+    --elec-radius-pill:    999px;
+    --elec-shadow:         0 4px 24px rgba(0,0,0,0.45);
+    --elec-shadow-sm:      0 2px 8px rgba(0,0,0,0.25);
+    --elec-font:           -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --elec-transition:     0.18s ease;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --elec-bg:             #f1f5f9;
+      --elec-surface:        #ffffff;
+      --elec-surface-2:      #f8fafc;
+      --elec-border:         #e2e8f0;
+      --elec-text-primary:   #0f172a;
+      --elec-text-secondary: #475569;
+      --elec-text-muted:     #94a3b8;
+      --elec-shadow:         0 4px 24px rgba(0,0,0,0.08);
+      --elec-shadow-sm:      0 2px 8px rgba(0,0,0,0.05);
+    }
+  }
+
+  .elec-wrap {
+    background: var(--elec-bg);
+    font-family: var(--elec-font);
+    color: var(--elec-text-primary);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .elec-container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 16px 16px 56px;
+  }
+
+  /* ── Breadcrumb ── */
+  .elec-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--elec-text-muted);
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .elec-breadcrumb a { color: var(--elec-text-muted); text-decoration: none; }
+  .elec-breadcrumb a:hover { color: var(--elec-gold); }
+  .elec-breadcrumb span { color: var(--elec-text-muted); }
+
+  /* ── Badge row ── */
+  .elec-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .elec-genuine-badge {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #22c55e;
+    background: rgba(34,197,94,0.12);
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: var(--elec-radius-pill);
+    padding: 3px 10px;
+  }
+  .elec-compat-badge {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #f59e0b;
+    background: rgba(245,158,11,0.12);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: var(--elec-radius-pill);
+    padding: 3px 10px;
+  }
+
+  /* ── Type chip ── */
+  .elec-type-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: var(--elec-radius-pill);
+    padding: 4px 12px;
+    margin-bottom: 14px;
+  }
+
+  /* ── Title ── */
+  .elec-title {
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--elec-text-primary);
+    margin: 0 0 10px;
+  }
+
+  /* ── Price ── */
+  .elec-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .elec-price {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--elec-gold);
+    line-height: 1;
+  }
+  .elec-price-compare {
+    font-size: 18px;
+    color: var(--elec-text-muted);
+    text-decoration: line-through;
+  }
+  .elec-price-save {
+    font-size: 13px;
+    font-weight: 700;
+    color: #22c55e;
+    background: rgba(34,197,94,0.12);
+    border-radius: var(--elec-radius-pill);
+    padding: 2px 8px;
+  }
+  .elec-tax-note {
+    font-size: 11px;
+    color: var(--elec-text-muted);
+    margin-bottom: 16px;
+  }
+
+  /* ── Availability ── */
+  .elec-avail {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: var(--elec-radius-pill);
+    margin-bottom: 16px;
+  }
+  .elec-avail.in  { background: rgba(34,197,94,0.12); color: #22c55e; }
+  .elec-avail.out { background: rgba(239,68,68,0.12);  color: #ef4444; }
+  .elec-avail-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* ── Info card ── */
+  .elec-card {
+    background: var(--elec-surface);
+    border: 1px solid var(--elec-border);
+    border-radius: var(--elec-radius);
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: var(--elec-shadow-sm);
+  }
+  .elec-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--elec-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+  }
+
+  /* ── Warranty strip ── */
+  .elec-warranty-strip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(99,102,241,0.08);
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: var(--elec-radius-sm);
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #818cf8;
+  }
+
+  /* ── Compatibility chips ── */
+  .elec-compat-label {
+    font-size: 12px;
+    color: var(--elec-text-muted);
+    margin-bottom: 8px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .elec-compat-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .elec-compat-chip {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    background: var(--elec-surface-2);
+    border: 1px solid var(--elec-border);
+    border-radius: var(--elec-radius-pill);
+    color: var(--elec-text-secondary);
+  }
+  .elec-compat-fallback {
+    font-size: 12px;
+    color: var(--elec-text-muted);
+    font-style: italic;
+  }
+
+  /* ── Meta rows ── */
+  .elec-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--elec-border);
+    font-size: 14px;
+  }
+  .elec-meta-row:last-child { border-bottom: none; }
+  .elec-meta-label { color: var(--elec-text-secondary); }
+  .elec-meta-value { font-weight: 600; color: var(--elec-text-primary); max-width: 60%; text-align: right; }
+
+  /* ── Specs table ── */
+  .elec-specs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .elec-specs-table tr {
+    border-bottom: 1px solid var(--elec-border);
+  }
+  .elec-specs-table tr:last-child { border-bottom: none; }
+  .elec-specs-table td {
+    padding: 8px 4px;
+    vertical-align: top;
+  }
+  .elec-specs-table td:first-child {
+    color: var(--elec-text-secondary);
+    width: 42%;
+    padding-right: 12px;
+    font-weight: 500;
+  }
+  .elec-specs-table td:last-child {
+    color: var(--elec-text-primary);
+    font-weight: 600;
+  }
+  .elec-specs-raw {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--elec-text-secondary);
+  }
+  .elec-specs-raw p  { margin: 0 0 8px; }
+  .elec-specs-raw ul, .elec-specs-raw ol { padding-left: 18px; margin: 0 0 8px; }
+  .elec-specs-raw li { margin-bottom: 4px; }
+
+  /* ── Variant pills ── */
+  .elec-variant-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--elec-text-secondary);
+    margin-bottom: 10px;
+  }
+  .elec-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .elec-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 14px;
+    background: var(--elec-surface-2);
+    border: 2px solid var(--elec-border);
+    border-radius: var(--elec-radius-sm);
+    cursor: pointer;
+    transition: border-color var(--elec-transition), background var(--elec-transition);
+    min-width: 72px;
+  }
+  .elec-pill:hover {
+    border-color: var(--elec-gold);
+    background: var(--elec-gold-bg);
+  }
+  .elec-pill.active {
+    border-color: var(--elec-gold);
+    background: var(--elec-gold-bg);
+  }
+  .elec-pill-title  { font-size: 13px; font-weight: 600; color: var(--elec-text-primary); }
+  .elec-pill-price  { font-size: 11px; color: var(--elec-gold); font-weight: 700; }
+  .elec-pill.soldout { opacity: 0.45; cursor: not-allowed; }
+  .elec-pill.soldout:hover { border-color: var(--elec-border); background: var(--elec-surface-2); }
+
+  /* ── Qty stepper ── */
+  .elec-qty-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--elec-text-secondary);
+    margin-bottom: 10px;
+  }
+  .elec-qty-row {
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    border: 2px solid var(--elec-border);
+    border-radius: var(--elec-radius-sm);
+    overflow: hidden;
+  }
+  .elec-qty-btn {
+    width: 44px;
+    height: 44px;
+    background: var(--elec-surface-2);
+    border: none;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--elec-text-primary);
+    cursor: pointer;
+    transition: background var(--elec-transition), color var(--elec-transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .elec-qty-btn:hover { background: var(--elec-gold); color: #000; }
+  .elec-qty-input {
+    width: 60px;
+    height: 44px;
+    background: var(--elec-surface);
+    border: none;
+    border-left: 2px solid var(--elec-border);
+    border-right: 2px solid var(--elec-border);
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--elec-text-primary);
+    outline: none;
+  }
+
+  /* ── ATC button ── */
+  .elec-atc-wrap { margin-bottom: 14px; }
+  .elec-atc-btn {
+    width: 100%;
+    padding: 17px 24px;
+    background: var(--elec-gold);
+    color: #000;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    border: none;
+    border-radius: var(--elec-radius);
+    cursor: pointer;
+    transition: background var(--elec-transition), transform 0.12s;
+    box-shadow: 0 4px 16px rgba(244,180,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .elec-atc-btn:hover  { background: var(--elec-gold-dark); }
+  .elec-atc-btn:active { transform: scale(0.985); }
+  .elec-atc-btn:disabled {
+    background: var(--elec-border);
+    color: var(--elec-text-muted);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .elec-atc-status {
+    font-size: 12px;
+    text-align: center;
+    min-height: 20px;
+    margin-top: 6px;
+    color: var(--elec-text-secondary);
+  }
+  .elec-atc-status.success { color: #22c55e; }
+  .elec-atc-status.error   { color: #ef4444; }
+
+  /* ── Returns note ── */
+  .elec-returns-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(59,130,246,0.07);
+    border: 1px solid rgba(59,130,246,0.2);
+    border-radius: var(--elec-radius-sm);
+    padding: 11px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #60a5fa;
+    margin-bottom: 14px;
+  }
+
+  /* ── Trust grid ── */
+  .elec-trust-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .elec-trust-cell {
+    background: var(--elec-surface);
+    border: 1px solid var(--elec-border);
+    border-radius: var(--elec-radius-sm);
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .elec-trust-icon  { font-size: 22px; }
+  .elec-trust-title { font-size: 13px; font-weight: 700; color: var(--elec-text-primary); margin: 0; }
+  .elec-trust-desc  { font-size: 11px; color: var(--elec-text-muted); margin: 0; line-height: 1.4; }
+
+  @media (min-width: 480px) {
+    .elec-container { padding: 24px 24px 64px; }
+    .elec-title { font-size: 28px; }
+    .elec-qty-input { width: 72px; }
+  }
+</style>
+
+<div class="elec-wrap" id="elec-wrap-{{ product.id }}">
+  <div class="elec-container">
+
+    {%- comment -%} Breadcrumb {%- endcomment -%}
+    <nav class="elec-breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span>›</span>
+      <a href="/collections/electronics">Electronics</a>
+      <span>›</span>
+      <span>{{ product.title | truncate: 40 }}</span>
+    </nav>
+
+    {%- comment -%} Authenticity badges {%- endcomment -%}
+    <div class="elec-badge-row">
+      {%- if is_genuine -%}
+        <span class="elec-genuine-badge">✅ 100% Genuine</span>
+      {%- elsif is_compatible_part -%}
+        <span class="elec-compat-badge">🔧 Compatible Part</span>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Type chip {%- endcomment -%}
+    <div class="elec-type-chip" style="background: {{ elec_type_color }}1a; color: {{ elec_type_color }}; border: 1px solid {{ elec_type_color }}40;">
+      <span>{{ elec_type_emoji }}</span>
+      <span>{{ elec_type_label }}</span>
+    </div>
+
+    {%- comment -%} Product title {%- endcomment -%}
+    <h1 class="elec-title">{{ product.title }}</h1>
+
+    {%- comment -%} Price {%- endcomment -%}
+    <div class="elec-price-row" id="elec-price-row">
+      <span class="elec-price" id="elec-price">{{ current_variant.price | money }}</span>
+      {%- if current_variant.compare_at_price > current_variant.price -%}
+        <span class="elec-price-compare" id="elec-compare-price">{{ current_variant.compare_at_price | money }}</span>
+        {%- assign elec_savings = current_variant.compare_at_price | minus: current_variant.price -%}
+        <span class="elec-price-save" id="elec-price-save">Save {{ elec_savings | money }}</span>
+      {%- endif -%}
+    </div>
+    <p class="elec-tax-note">Inclusive of all taxes</p>
+
+    {%- comment -%} Availability {%- endcomment -%}
+    {%- if current_variant.available -%}
+      <div class="elec-avail in" id="elec-avail"><div class="elec-avail-dot"></div>In Stock</div>
+    {%- else -%}
+      <div class="elec-avail out" id="elec-avail"><div class="elec-avail-dot"></div>Out of Stock</div>
+    {%- endif -%}
+
+    {%- comment -%} Warranty strip {%- endcomment -%}
+    <div class="elec-warranty-strip">
+      🛡️ {{ warranty_text }}
+    </div>
+
+    {%- comment -%} Compatibility {%- endcomment -%}
+    <div class="elec-card">
+      <div class="elec-card-title">Compatibility</div>
+      {%- if compat_count > 0 -%}
+        <div class="elec-compat-chips" id="elec-compat-chips">
+          {%- assign compat_arr = compatibility_tags | split: ',' -%}
+          {%- for item in compat_arr -%}
+            <span class="elec-compat-chip">{{ item | strip | replace: '_', ' ' }}</span>
+          {%- endfor -%}
+        </div>
+      {%- else -%}
+        <p class="elec-compat-fallback">{{ compatibility_text }}</p>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Product details meta {%- endcomment -%}
+    <div class="elec-card">
+      <div class="elec-card-title">Product Details</div>
+      {%- if product.vendor != blank -%}
+        <div class="elec-meta-row">
+          <span class="elec-meta-label">Brand</span>
+          <span class="elec-meta-value">{{ product.vendor }}</span>
+        </div>
+      {%- endif -%}
+      {%- if product.type != blank -%}
+        <div class="elec-meta-row">
+          <span class="elec-meta-label">Category</span>
+          <span class="elec-meta-value">{{ elec_type_emoji }} {{ product.type }}</span>
+        </div>
+      {%- endif -%}
+      {%- if current_variant.title != 'Default Title' -%}
+        <div class="elec-meta-row">
+          <span class="elec-meta-label">Variant</span>
+          <span class="elec-meta-value" id="elec-variant-detail">{{ current_variant.title }}</span>
+        </div>
+      {%- endif -%}
+      <div class="elec-meta-row">
+        <span class="elec-meta-label">SKU</span>
+        <span class="elec-meta-value" id="elec-sku">{{ current_variant.sku | default: 'N/A' }}</span>
+      </div>
+      <div class="elec-meta-row">
+        <span class="elec-meta-label">Warranty</span>
+        <span class="elec-meta-value">{{ warranty_text }}</span>
+      </div>
+    </div>
+
+    {%- comment -%} Specifications — parse product.description {%- endcomment -%}
+    {%- if product.description != blank -%}
+      <div class="elec-card">
+        <div class="elec-card-title">📋 Specifications</div>
+        <div id="elec-specs-container">
+          {%- comment -%}
+            Attempt to parse key:value lines from description.
+            If the description contains "key: value" or bullet "- key: value" patterns
+            the JS will render a clean table. Otherwise raw HTML is shown.
+          {%- endcomment -%}
+          <div class="elec-specs-raw" id="elec-specs-raw">
+            {{ product.description }}
+          </div>
+          <table class="elec-specs-table" id="elec-specs-table" style="display:none;"></table>
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} Variant selector {%- endcomment -%}
+    {%- if product.variants.size > 1 -%}
+      <div class="elec-card">
+        <div class="elec-variant-label">Select Variant / Colour</div>
+        <div class="elec-pills" id="elec-variant-pills">
+          {%- for variant in product.variants -%}
+            <button
+              class="elec-pill {% if variant.id == current_variant.id %}active{% endif %} {% unless variant.available %}soldout{% endunless %}"
+              data-variant-id="{{ variant.id }}"
+              data-price="{{ variant.price | money }}"
+              data-compare="{{ variant.compare_at_price | money }}"
+              data-title="{{ variant.title }}"
+              data-sku="{{ variant.sku }}"
+              data-available="{{ variant.available }}"
+              {% unless variant.available %}disabled{% endunless %}
+              aria-label="{{ variant.title }} — {{ variant.price | money }}"
+            >
+              <span class="elec-pill-title">{{ variant.title }}</span>
+              <span class="elec-pill-price">{{ variant.price | money }}</span>
+            </button>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} Quantity stepper {%- endcomment -%}
+    <div class="elec-card">
+      <div class="elec-qty-label">Quantity</div>
+      <div class="elec-qty-row">
+        <button class="elec-qty-btn" id="elec-qty-minus" aria-label="Decrease quantity">−</button>
+        <input
+          class="elec-qty-input"
+          type="number"
+          id="elec-qty"
+          name="quantity"
+          value="1"
+          min="1"
+          max="10"
+          aria-label="Quantity"
+        >
+        <button class="elec-qty-btn" id="elec-qty-plus" aria-label="Increase quantity">+</button>
+      </div>
+    </div>
+
+    {%- comment -%} Add to Cart {%- endcomment -%}
+    <div class="elec-atc-wrap">
+      <button
+        class="elec-atc-btn"
+        id="elec-atc-btn"
+        data-product-id="{{ product.id }}"
+        data-product-type="{{ product.type | escape }}"
+        data-warranty="{{ warranty_text | escape }}"
+        data-compatibility="{{ compatibility_text | escape }}"
+        {% unless current_variant.available %}disabled{% endunless %}
+      >
+        🛒 ADD TO CART
+      </button>
+      <div class="elec-atc-status" id="elec-atc-status" aria-live="polite"></div>
+    </div>
+
+    {%- comment -%} Returns note {%- endcomment -%}
+    <div class="elec-returns-note">
+      📦 Returns within 7 days if defective
+    </div>
+
+    {%- comment -%} Trust grid {%- endcomment -%}
+    <div class="elec-trust-grid">
+      <div class="elec-trust-cell">
+        <div class="elec-trust-icon">✅</div>
+        <p class="elec-trust-title">Genuine Products</p>
+        <p class="elec-trust-desc">Sourced from authorised distributors</p>
+      </div>
+      <div class="elec-trust-cell">
+        <div class="elec-trust-icon">↩</div>
+        <p class="elec-trust-title">7-Day Returns</p>
+        <p class="elec-trust-desc">Return if defective within 7 days</p>
+      </div>
+      <div class="elec-trust-cell">
+        <div class="elec-trust-icon">⚡</div>
+        <p class="elec-trust-title">Fast Delivery</p>
+        <p class="elec-trust-desc">Same or next-day dispatch</p>
+      </div>
+      <div class="elec-trust-cell">
+        <div class="elec-trust-icon">🛡️</div>
+        <p class="elec-trust-title">Warranty Included</p>
+        <p class="elec-trust-desc">{{ warranty_text }} on this product</p>
+      </div>
+    </div>
+
+  </div><!-- .elec-container -->
+</div><!-- .elec-wrap -->
+
+{%- comment -%} Variant data for JS {%- endcomment -%}
+<script type="application/json" id="elec-variants-json-{{ product.id }}">
+  [
+    {%- for variant in product.variants -%}
+      {
+        "id": {{ variant.id }},
+        "title": {{ variant.title | json }},
+        "price": {{ variant.price }},
+        "priceFormatted": {{ variant.price | money | json }},
+        "compareAtPrice": {{ variant.compare_at_price | default: 0 }},
+        "compareAtPriceFormatted": {{ variant.compare_at_price | money | json }},
+        "available": {{ variant.available }},
+        "sku": {{ variant.sku | json }}
+      }{% unless forloop.last %},{% endunless %}
+    {%- endfor -%}
+  ]
+</script>
+
+<script>
+(function () {
+  var wrap = document.getElementById('elec-wrap-{{ product.id }}');
+  if (!wrap) return;
+
+  var variantsRaw  = document.getElementById('elec-variants-json-{{ product.id }}');
+  var variants     = variantsRaw ? JSON.parse(variantsRaw.textContent) : [];
+  var selectedId   = {{ current_variant.id }};
+  var productType  = {{ product.type | json }};
+  var warrantyText = {{ warranty_text | json }};
+  var compatText   = {{ compatibility_text | json }};
+
+  // ── Specs parser ───────────────────────────────────────────────
+  // Tries to detect "Key: Value" lines in the description and render a table.
+  (function parseSpecs() {
+    var rawEl   = wrap.querySelector('#elec-specs-raw');
+    var tableEl = wrap.querySelector('#elec-specs-table');
+    if (!rawEl || !tableEl) return;
+
+    var text  = rawEl.innerText || rawEl.textContent || '';
+    var lines = text.split(/\n/).map(function (l) { return l.replace(/^[\s\-\•\*]+/, '').trim(); }).filter(Boolean);
+    var rows  = [];
+
+    lines.forEach(function (line) {
+      // Match "Key: Value" or "Key - Value"
+      var m = line.match(/^([^:\-]{2,40})\s*[:\-]\s*(.+)$/);
+      if (m) rows.push([m[1].trim(), m[2].trim()]);
+    });
+
+    if (rows.length >= 2) {
+      var tbody = document.createElement('tbody');
+      rows.forEach(function (row) {
+        var tr = document.createElement('tr');
+        var td1 = document.createElement('td'); td1.textContent = row[0];
+        var td2 = document.createElement('td'); td2.textContent = row[1];
+        tr.appendChild(td1); tr.appendChild(td2);
+        tbody.appendChild(tr);
+      });
+      tableEl.appendChild(tbody);
+      rawEl.style.display   = 'none';
+      tableEl.style.display = 'table';
+    }
+  })();
+
+  // ── Qty stepper ───────────────────────────────────────────────
+  var qtyInput = wrap.querySelector('#elec-qty');
+  wrap.querySelector('#elec-qty-minus').addEventListener('click', function () {
+    var v = parseInt(qtyInput.value, 10) || 1;
+    if (v > 1) qtyInput.value = v - 1;
+  });
+  wrap.querySelector('#elec-qty-plus').addEventListener('click', function () {
+    var v = parseInt(qtyInput.value, 10) || 1;
+    if (v < 10) qtyInput.value = v + 1;
+  });
+  qtyInput.addEventListener('change', function () {
+    var v = parseInt(qtyInput.value, 10) || 1;
+    if (v < 1)  qtyInput.value = 1;
+    if (v > 10) qtyInput.value = 10;
+  });
+
+  // ── Variant pills ─────────────────────────────────────────────
+  var pillsContainer = wrap.querySelector('#elec-variant-pills');
+  if (pillsContainer) {
+    pillsContainer.addEventListener('click', function (e) {
+      var pill = e.target.closest('.elec-pill');
+      if (!pill || pill.disabled) return;
+
+      pillsContainer.querySelectorAll('.elec-pill').forEach(function (p) { p.classList.remove('active'); });
+      pill.classList.add('active');
+
+      var vid  = parseInt(pill.dataset.variantId, 10);
+      var vrnt = variants.find(function (v) { return v.id === vid; });
+      if (!vrnt) return;
+      selectedId = vid;
+
+      wrap.querySelector('#elec-price').textContent = vrnt.priceFormatted;
+
+      var cmp = wrap.querySelector('#elec-compare-price');
+      var sav = wrap.querySelector('#elec-price-save');
+      if (vrnt.compareAtPrice > vrnt.price) {
+        if (cmp) cmp.textContent = vrnt.compareAtPriceFormatted;
+        if (sav) {
+          var savedCents = vrnt.compareAtPrice - vrnt.price;
+          sav.textContent = 'Save ' + vrnt.compareAtPriceFormatted.replace(/[\d,.]+/, function() {
+            return (savedCents / 100).toFixed(2);
+          });
+        }
+      } else {
+        if (cmp) cmp.textContent = '';
+        if (sav) sav.textContent = '';
+      }
+
+      var detail = wrap.querySelector('#elec-variant-detail');
+      if (detail) detail.textContent = vrnt.title !== 'Default Title' ? vrnt.title : '';
+
+      var skuEl = wrap.querySelector('#elec-sku');
+      if (skuEl) skuEl.textContent = vrnt.sku || 'N/A';
+
+      var availEl = wrap.querySelector('#elec-avail');
+      if (availEl) {
+        availEl.className = 'elec-avail ' + (vrnt.available ? 'in' : 'out');
+        availEl.innerHTML = '<div class="elec-avail-dot"></div>' + (vrnt.available ? 'In Stock' : 'Out of Stock');
+      }
+
+      var btn = wrap.querySelector('#elec-atc-btn');
+      if (btn) btn.disabled = !vrnt.available;
+    });
+  }
+
+  // ── Add to Cart ───────────────────────────────────────────────
+  var atcBtn    = wrap.querySelector('#elec-atc-btn');
+  var atcStatus = wrap.querySelector('#elec-atc-status');
+
+  if (atcBtn) {
+    atcBtn.addEventListener('click', function () {
+      var qty = parseInt(qtyInput.value, 10) || 1;
+      atcBtn.disabled = true;
+      atcBtn.textContent = 'Adding…';
+      if (atcStatus) { atcStatus.textContent = ''; atcStatus.className = 'elec-atc-status'; }
+
+      fetch('/cart/add.js', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({
+          id:         selectedId,
+          quantity:   qty,
+          properties: {
+            'Type':          productType,
+            'Warranty':      warrantyText,
+            'Compatibility': compatText
+          }
+        })
+      })
+      .then(function (res) {
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.json();
+      })
+      .then(function () {
+        atcBtn.textContent = '✅ Added to Cart!';
+        if (atcStatus) { atcStatus.textContent = 'Item added successfully.'; atcStatus.className = 'elec-atc-status success'; }
+        document.dispatchEvent(new CustomEvent('cart:updated'));
+        setTimeout(function () {
+          atcBtn.disabled = false;
+          atcBtn.innerHTML = '🛒 ADD TO CART';
+          if (atcStatus) atcStatus.textContent = '';
+        }, 2200);
+      })
+      .catch(function (err) {
+        console.error('[QB Electronics] cart/add error:', err);
+        atcBtn.disabled = false;
+        atcBtn.innerHTML = '🛒 ADD TO CART';
+        if (atcStatus) { atcStatus.textContent = 'Something went wrong. Please try again.'; atcStatus.className = 'elec-atc-status error'; }
+      });
+    });
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Electronics",
+  "tag": "section",
+  "class": "qb-electronics-section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "QB Electronics"
+    }
+  ]
+}
+{% endschema %}

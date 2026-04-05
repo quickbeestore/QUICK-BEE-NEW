@@ -1,0 +1,766 @@
+<style>
+  .qb-gift-page * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  .qb-gift-page {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f4f5f8;
+    color: #0f172a;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  [data-theme="dark"] .qb-gift-page,
+  html:not([data-theme]) .qb-gift-page {
+    background: #090909;
+    color: #f0f0f0;
+  }
+
+  .qb-gift-inner {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* ── Hero ── */
+  .qb-gift-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 36px 0 28px;
+    gap: 14px;
+  }
+
+  .qb-gift-icon-wrap {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #F4B400, #e6a200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    box-shadow: 0 8px 32px rgba(244,180,0,0.35);
+  }
+
+  .qb-gift-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #F4B400, #e6a200);
+    color: #090909;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+
+  .qb-gift-title {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #0f172a;
+  }
+
+  [data-theme="dark"] .qb-gift-title,
+  html:not([data-theme]) .qb-gift-title {
+    color: #f0f0f0;
+  }
+
+  .qb-gift-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #64748b;
+    max-width: 480px;
+  }
+
+  [data-theme="dark"] .qb-gift-desc,
+  html:not([data-theme]) .qb-gift-desc {
+    color: #888;
+  }
+
+  /* ── Perfect For Chips ── */
+  .qb-gift-section-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 10px;
+  }
+
+  [data-theme="dark"] .qb-gift-section-label,
+  html:not([data-theme]) .qb-gift-section-label {
+    color: #888;
+  }
+
+  .qb-gift-chips-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+    margin-bottom: 28px;
+  }
+
+  .qb-gift-chips-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .qb-gift-chips-row {
+    display: flex;
+    gap: 8px;
+    width: max-content;
+  }
+
+  .qb-gift-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 14px;
+    border-radius: 40px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    background: #fff;
+    color: #0f172a;
+    border: 1px solid rgba(15,23,42,0.08);
+  }
+
+  [data-theme="dark"] .qb-gift-chip,
+  html:not([data-theme]) .qb-gift-chip {
+    background: #111;
+    color: #f0f0f0;
+    border-color: rgba(255,255,255,0.07);
+  }
+
+  /* ── Card ── */
+  .qb-gift-card {
+    background: #fff;
+    border: 1px solid rgba(15,23,42,0.08);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  [data-theme="dark"] .qb-gift-card,
+  html:not([data-theme]) .qb-gift-card {
+    background: #111;
+    border-color: rgba(255,255,255,0.07);
+  }
+
+  .qb-gift-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: #0f172a;
+  }
+
+  [data-theme="dark"] .qb-gift-card-title,
+  html:not([data-theme]) .qb-gift-card-title {
+    color: #f0f0f0;
+  }
+
+  /* ── Denomination Selector ── */
+  .qb-gift-denom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  @media (max-width: 400px) {
+    .qb-gift-denom-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .qb-gift-denom-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 18px 12px;
+    border-radius: 12px;
+    border: 2px solid rgba(15,23,42,0.08);
+    background: #f4f5f8;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    font-family: inherit;
+  }
+
+  [data-theme="dark"] .qb-gift-denom-btn,
+  html:not([data-theme]) .qb-gift-denom-btn {
+    background: #1a1a1a;
+    border-color: rgba(255,255,255,0.07);
+  }
+
+  .qb-gift-denom-btn.selected {
+    border-color: #F4B400;
+    background: rgba(244,180,0,0.08);
+  }
+
+  .qb-gift-denom-amount {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  [data-theme="dark"] .qb-gift-denom-amount,
+  html:not([data-theme]) .qb-gift-denom-amount {
+    color: #f0f0f0;
+  }
+
+  .qb-gift-denom-btn.selected .qb-gift-denom-amount {
+    color: #F4B400;
+  }
+
+  .qb-gift-denom-label {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  [data-theme="dark"] .qb-gift-denom-label,
+  html:not([data-theme]) .qb-gift-denom-label {
+    color: #888;
+  }
+
+  /* ── Recipient Card ── */
+  .qb-gift-recipient-card {
+    background: #fff;
+    border: 1.5px solid #F4B400;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  [data-theme="dark"] .qb-gift-recipient-card,
+  html:not([data-theme]) .qb-gift-recipient-card {
+    background: #111;
+  }
+
+  .qb-gift-form-group {
+    margin-bottom: 14px;
+  }
+
+  .qb-gift-form-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .qb-gift-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #64748b;
+    margin-bottom: 6px;
+  }
+
+  [data-theme="dark"] .qb-gift-label,
+  html:not([data-theme]) .qb-gift-label {
+    color: #888;
+  }
+
+  .qb-gift-input,
+  .qb-gift-textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(15,23,42,0.08);
+    background: #f4f5f8;
+    color: #0f172a;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  [data-theme="dark"] .qb-gift-input,
+  [data-theme="dark"] .qb-gift-textarea,
+  html:not([data-theme]) .qb-gift-input,
+  html:not([data-theme]) .qb-gift-textarea {
+    background: #1a1a1a;
+    border-color: rgba(255,255,255,0.07);
+    color: #f0f0f0;
+  }
+
+  .qb-gift-input:focus,
+  .qb-gift-textarea:focus {
+    border-color: #F4B400;
+  }
+
+  .qb-gift-textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  /* ── Delivery Toggle ── */
+  .qb-gift-delivery-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .qb-gift-delivery-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 14px 10px;
+    border-radius: 12px;
+    border: 2px solid rgba(15,23,42,0.08);
+    background: #f4f5f8;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.18s ease;
+  }
+
+  [data-theme="dark"] .qb-gift-delivery-btn,
+  html:not([data-theme]) .qb-gift-delivery-btn {
+    background: #1a1a1a;
+    border-color: rgba(255,255,255,0.07);
+  }
+
+  .qb-gift-delivery-btn.selected {
+    border-color: #F4B400;
+    background: rgba(244,180,0,0.08);
+  }
+
+  .qb-gift-delivery-icon {
+    font-size: 22px;
+  }
+
+  .qb-gift-delivery-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  [data-theme="dark"] .qb-gift-delivery-label,
+  html:not([data-theme]) .qb-gift-delivery-label {
+    color: #f0f0f0;
+  }
+
+  .qb-gift-delivery-btn.selected .qb-gift-delivery-label {
+    color: #F4B400;
+  }
+
+  /* ── Price ── */
+  .qb-gift-price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding: 16px 20px;
+    background: #fff;
+    border: 1px solid rgba(15,23,42,0.08);
+    border-radius: 14px;
+  }
+
+  [data-theme="dark"] .qb-gift-price-row,
+  html:not([data-theme]) .qb-gift-price-row {
+    background: #111;
+    border-color: rgba(255,255,255,0.07);
+  }
+
+  .qb-gift-price-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  [data-theme="dark"] .qb-gift-price-label,
+  html:not([data-theme]) .qb-gift-price-label {
+    color: #888;
+  }
+
+  .qb-gift-price-value {
+    font-size: 32px;
+    font-weight: 900;
+    color: #F4B400;
+    line-height: 1;
+  }
+
+  /* ── CTA Button ── */
+  .qb-gift-cta {
+    width: 100%;
+    height: 56px;
+    background: linear-gradient(135deg, #F4B400, #e6a200);
+    color: #090909;
+    border: none;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    margin-bottom: 28px;
+  }
+
+  .qb-gift-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(244,180,0,0.4);
+  }
+
+  .qb-gift-cta:active {
+    transform: translateY(0);
+  }
+
+  .qb-gift-cta:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* ── How it works ── */
+  .qb-gift-hiw {
+    background: #fff;
+    border: 1px solid rgba(15,23,42,0.08);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  [data-theme="dark"] .qb-gift-hiw,
+  html:not([data-theme]) .qb-gift-hiw {
+    background: #111;
+    border-color: rgba(255,255,255,0.07);
+  }
+
+  .qb-gift-hiw-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #0f172a;
+  }
+
+  [data-theme="dark"] .qb-gift-hiw-title,
+  html:not([data-theme]) .qb-gift-hiw-title {
+    color: #f0f0f0;
+  }
+
+  .qb-gift-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .qb-gift-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .qb-gift-step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #F4B400, #e6a200);
+    color: #090909;
+    font-size: 13px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .qb-gift-step-text {
+    flex: 1;
+  }
+
+  .qb-gift-step-text strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 2px;
+  }
+
+  [data-theme="dark"] .qb-gift-step-text strong,
+  html:not([data-theme]) .qb-gift-step-text strong {
+    color: #f0f0f0;
+  }
+
+  .qb-gift-step-text span {
+    font-size: 13px;
+    color: #64748b;
+  }
+
+  [data-theme="dark"] .qb-gift-step-text span,
+  html:not([data-theme]) .qb-gift-step-text span {
+    color: #888;
+  }
+
+  /* ── Terms ── */
+  .qb-gift-terms {
+    font-size: 12px;
+    color: #64748b;
+    text-align: center;
+    line-height: 1.6;
+    padding: 0 8px;
+  }
+
+  [data-theme="dark"] .qb-gift-terms,
+  html:not([data-theme]) .qb-gift-terms {
+    color: #888;
+  }
+
+  .qb-gift-error {
+    font-size: 12px;
+    color: #ef4444;
+    margin-top: 8px;
+    display: none;
+  }
+</style>
+
+<div class="qb-gift-page">
+  <div class="qb-gift-inner">
+
+    {%- assign first_variant = product.variants.first -%}
+
+    <!-- Hero -->
+    <div class="qb-gift-hero">
+      <div class="qb-gift-icon-wrap">🎁</div>
+      <div class="qb-gift-badge">🎁 Gift Card</div>
+      <h1 class="qb-gift-title">{{ product.title }}</h1>
+      {%- assign raw_desc = product.description | strip_html | truncate: 120 -%}
+      {%- if raw_desc != blank -%}
+        <p class="qb-gift-desc">{{ raw_desc }}</p>
+      {%- endif -%}
+    </div>
+
+    <!-- Perfect For Chips -->
+    <div class="qb-gift-section-label">Perfect for</div>
+    <div class="qb-gift-chips-scroll">
+      <div class="qb-gift-chips-row">
+        <span class="qb-gift-chip">🎂 Birthdays</span>
+        <span class="qb-gift-chip">💍 Anniversaries</span>
+        <span class="qb-gift-chip">🏠 Housewarming</span>
+        <span class="qb-gift-chip">💼 Corporate</span>
+        <span class="qb-gift-chip">🎓 Graduation</span>
+        <span class="qb-gift-chip">❤️ Just Because</span>
+      </div>
+    </div>
+
+    <!-- Denomination Selector -->
+    <div class="qb-gift-card">
+      <div class="qb-gift-card-title">Choose an amount</div>
+      <div class="qb-gift-denom-grid" id="qb-denom-grid">
+        {%- for variant in product.variants -%}
+          <button
+            class="qb-gift-denom-btn{% if forloop.first %} selected{% endif %}"
+            data-variant-id="{{ variant.id }}"
+            data-price="{{ variant.price }}"
+            onclick="qbGiftSelectVariant(this)"
+            type="button"
+            aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+          >
+            <span class="qb-gift-denom-amount">Rs {{ variant.price | money_without_currency | remove: '.00' }}</span>
+            <span class="qb-gift-denom-label">{{ variant.title }}</span>
+          </button>
+        {%- endfor -%}
+      </div>
+    </div>
+
+    <!-- Recipient Details -->
+    <div class="qb-gift-recipient-card">
+      <div class="qb-gift-card-title">🎀 Recipient details</div>
+
+      <div class="qb-gift-form-group">
+        <label class="qb-gift-label" for="qb-gift-recipient-name">Recipient Name</label>
+        <input
+          id="qb-gift-recipient-name"
+          class="qb-gift-input"
+          type="text"
+          placeholder="Who is this gift for?"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="qb-gift-form-group">
+        <label class="qb-gift-label" for="qb-gift-sender-name">Your Name</label>
+        <input
+          id="qb-gift-sender-name"
+          class="qb-gift-input"
+          type="text"
+          placeholder="From whom?"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="qb-gift-form-group">
+        <label class="qb-gift-label" for="qb-gift-message">Personal Message</label>
+        <textarea
+          id="qb-gift-message"
+          class="qb-gift-textarea"
+          rows="3"
+          placeholder="Write a heartfelt message..."
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Delivery Method -->
+    <div class="qb-gift-card">
+      <div class="qb-gift-card-title">Delivery method</div>
+      <div class="qb-gift-delivery-row">
+        <button class="qb-gift-delivery-btn selected" id="qb-delivery-whatsapp" onclick="qbGiftSelectDelivery('whatsapp')" type="button">
+          <span class="qb-gift-delivery-icon">📱</span>
+          <span class="qb-gift-delivery-label">Digital (WhatsApp)</span>
+        </button>
+        <button class="qb-gift-delivery-btn" id="qb-delivery-print" onclick="qbGiftSelectDelivery('print')" type="button">
+          <span class="qb-gift-delivery-icon">🖨️</span>
+          <span class="qb-gift-delivery-label">Print at Home</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Price Display -->
+    <div class="qb-gift-price-row">
+      <span class="qb-gift-price-label">You pay</span>
+      <span class="qb-gift-price-value" id="qb-gift-price">
+        Rs {{ first_variant.price | money_without_currency | remove: '.00' }}
+      </span>
+    </div>
+
+    <!-- CTA -->
+    <button class="qb-gift-cta" id="qb-gift-add-btn" onclick="qbGiftAddToCart()" type="button">
+      SEND GIFT CARD
+    </button>
+    <div class="qb-gift-error" id="qb-gift-error"></div>
+
+    <!-- How it Works -->
+    <div class="qb-gift-hiw">
+      <div class="qb-gift-hiw-title">How it works</div>
+      <div class="qb-gift-steps">
+        <div class="qb-gift-step">
+          <div class="qb-gift-step-num">1</div>
+          <div class="qb-gift-step-text">
+            <strong>Choose amount</strong>
+            <span>Pick the perfect denomination for your recipient.</span>
+          </div>
+        </div>
+        <div class="qb-gift-step">
+          <div class="qb-gift-step-num">2</div>
+          <div class="qb-gift-step-text">
+            <strong>Enter recipient details</strong>
+            <span>Add their name and a personal message.</span>
+          </div>
+        </div>
+        <div class="qb-gift-step">
+          <div class="qb-gift-step-num">3</div>
+          <div class="qb-gift-step-text">
+            <strong>We send via WhatsApp / email</strong>
+            <span>Your recipient gets the gift card instantly.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Terms -->
+    <p class="qb-gift-terms">
+      Gift cards are valid for 1 year from the date of purchase. Non-refundable and non-transferable. Can be used on all QuickBee services and products.
+    </p>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  var qbGiftSelectedVariantId = {{ product.variants.first.id | json }};
+  var qbGiftSelectedDelivery = 'whatsapp';
+
+  window.qbGiftSelectVariant = function(btn) {
+    document.querySelectorAll('.qb-gift-denom-btn').forEach(function(b) {
+      b.classList.remove('selected');
+      b.setAttribute('aria-pressed', 'false');
+    });
+    btn.classList.add('selected');
+    btn.setAttribute('aria-pressed', 'true');
+    qbGiftSelectedVariantId = btn.dataset.variantId;
+    var rawPrice = parseInt(btn.dataset.price, 10);
+    var display = 'Rs ' + (rawPrice / 100).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    document.getElementById('qb-gift-price').textContent = display;
+  };
+
+  window.qbGiftSelectDelivery = function(method) {
+    qbGiftSelectedDelivery = method;
+    document.getElementById('qb-delivery-whatsapp').classList.toggle('selected', method === 'whatsapp');
+    document.getElementById('qb-delivery-print').classList.toggle('selected', method === 'print');
+  };
+
+  window.qbGiftAddToCart = function() {
+    var btn = document.getElementById('qb-gift-add-btn');
+    var errEl = document.getElementById('qb-gift-error');
+    var recipientName = document.getElementById('qb-gift-recipient-name').value.trim();
+    var senderName = document.getElementById('qb-gift-sender-name').value.trim();
+    var message = document.getElementById('qb-gift-message').value.trim();
+
+    errEl.style.display = 'none';
+    if (!recipientName) {
+      errEl.textContent = 'Please enter the recipient name.';
+      errEl.style.display = 'block';
+      document.getElementById('qb-gift-recipient-name').focus();
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Adding...';
+
+    var deliveryLabel = qbGiftSelectedDelivery === 'whatsapp' ? 'Digital (WhatsApp)' : 'Print at Home';
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: parseInt(qbGiftSelectedVariantId, 10),
+        quantity: 1,
+        properties: {
+          'Recipient Name': recipientName,
+          'Sender Name': senderName || 'Anonymous',
+          'Personal Message': message || '',
+          'Delivery Method': deliveryLabel
+        }
+      })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status) {
+        errEl.textContent = data.description || 'Could not add to cart.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'SEND GIFT CARD';
+      } else {
+        btn.textContent = '✓ Added!';
+        document.dispatchEvent(new CustomEvent('cart:updated', { bubbles: true }));
+        setTimeout(function() {
+          btn.disabled = false;
+          btn.textContent = 'SEND GIFT CARD';
+        }, 2200);
+      }
+    })
+    .catch(function() {
+      errEl.textContent = 'Something went wrong. Please try again.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'SEND GIFT CARD';
+    });
+  };
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Gift Card Product",
+  "settings": []
+}
+{% endschema %}

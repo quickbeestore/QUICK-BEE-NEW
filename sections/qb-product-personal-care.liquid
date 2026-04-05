@@ -1,0 +1,943 @@
+{% comment %}
+  QB Personal Care Section
+  For: Skincare, Haircare, Oral Care, Body Care, Fragrance, Men's Grooming, Feminine Care
+  Theme: Dark/Light | Accent: #F4B400 (Gold)
+  CSS prefix: --pc-*
+{% endcomment %}
+
+{%- liquid
+  assign pc_emoji        = '🧴'
+  assign pc_accent       = '#F4B400'
+  assign pc_accent_var   = '--pc-gold'
+  assign pc_category_cls = 'cat-default'
+
+  case product.type
+    when 'Skincare'
+      assign pc_emoji        = '✨'
+      assign pc_accent       = '#f48fb1'
+      assign pc_accent_var   = '--pc-pink'
+      assign pc_category_cls = 'cat-skincare'
+    when 'Haircare'
+      assign pc_emoji        = '💆'
+      assign pc_accent       = '#ce93d8'
+      assign pc_accent_var   = '--pc-purple'
+      assign pc_category_cls = 'cat-haircare'
+    when 'Oral Care'
+      assign pc_emoji        = '🪥'
+      assign pc_accent       = '#80cbc4'
+      assign pc_accent_var   = '--pc-teal'
+      assign pc_category_cls = 'cat-oral'
+    when 'Body Care'
+      assign pc_emoji        = '🧴'
+      assign pc_accent       = '#90caf9'
+      assign pc_accent_var   = '--pc-blue'
+      assign pc_category_cls = 'cat-body'
+    when 'Fragrance'
+      assign pc_emoji        = '🌸'
+      assign pc_accent       = '#f48fb1'
+      assign pc_accent_var   = '--pc-rose'
+      assign pc_category_cls = 'cat-fragrance'
+    when "Men's Grooming"
+      assign pc_emoji        = '🪒'
+      assign pc_accent       = '#90a4ae'
+      assign pc_accent_var   = '--pc-slate'
+      assign pc_category_cls = 'cat-mens'
+    when 'Feminine Care'
+      assign pc_emoji        = '💜'
+      assign pc_accent       = '#ce93d8'
+      assign pc_accent_var   = '--pc-lavender'
+      assign pc_category_cls = 'cat-feminine'
+    else
+      assign pc_emoji        = '🧴'
+      assign pc_accent       = '#F4B400'
+      assign pc_accent_var   = '--pc-gold'
+      assign pc_category_cls = 'cat-default'
+  endcase
+
+  assign has_derm_tested   = false
+  assign has_cruelty_free  = false
+  assign has_natural       = false
+  assign skin_type         = ''
+  assign hair_type         = ''
+  assign shelf_months      = ''
+  assign ingredients       = ''
+
+  for tag in product.tags
+    if tag == 'derm-tested'
+      assign has_derm_tested = true
+    endif
+    if tag == 'cruelty-free'
+      assign has_cruelty_free = true
+    endif
+    if tag == 'natural'
+      assign has_natural = true
+    endif
+    if tag contains 'skintype:'
+      assign st_parts = tag | split: ':'
+      assign skin_type = st_parts[1] | strip
+    endif
+    if tag contains 'hairtype:'
+      assign ht_parts = tag | split: ':'
+      assign hair_type = ht_parts[1] | strip
+    endif
+    if tag contains 'shelf:'
+      assign sh_parts = tag | split: ':'
+      assign shelf_months = sh_parts[1] | remove: 'months' | strip
+    endif
+  endfor
+
+  assign ingredient_tags = ''
+  for tag in product.tags
+    if tag contains 'ingredient:'
+      assign ing_parts = tag | split: ':'
+      assign ing_name  = ing_parts[1] | strip
+      if ingredient_tags == ''
+        assign ingredient_tags = ing_name
+      else
+        assign ingredient_tags = ingredient_tags | append: ',' | append: ing_name
+      endif
+    endif
+  endfor
+
+  assign first_variant   = product.variants | first
+  assign current_price   = first_variant.price
+-%}
+
+<style>
+  /* ─── CSS Custom Properties ─── */
+  :root {
+    --pc-gold:        #F4B400;
+    --pc-pink:        #f48fb1;
+    --pc-purple:      #ce93d8;
+    --pc-teal:        #80cbc4;
+    --pc-blue:        #90caf9;
+    --pc-rose:        #f48fb1;
+    --pc-slate:       #90a4ae;
+    --pc-lavender:    #ce93d8;
+    --pc-green:       #a5d6a7;
+
+    --pc-radius-sm:   6px;
+    --pc-radius-md:   12px;
+    --pc-radius-lg:   20px;
+    --pc-radius-pill: 999px;
+    --pc-shadow:      0 4px 24px rgba(0,0,0,0.15);
+    --pc-transition:  all 0.22s cubic-bezier(.4,0,.2,1);
+    --pc-font-sans:   'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Dark theme (default) */
+  [data-pc-theme="dark"],
+  .shopify-section {
+    --pc-bg:             #0f0f0f;
+    --pc-bg-card:        #1a1a1a;
+    --pc-bg-card2:       #222222;
+    --pc-bg-input:       #2a2a2a;
+    --pc-border:         #333333;
+    --pc-border-focus:   var(--pc-gold);
+    --pc-text-primary:   #f5f5f5;
+    --pc-text-secondary: #a0a0a0;
+    --pc-text-muted:     #666666;
+    --pc-badge-bg:       rgba(244,180,0,0.12);
+    --pc-badge-bg-green: rgba(165,214,167,0.12);
+    --pc-trust-bg:       #1e1e1e;
+  }
+
+  /* Light theme */
+  @media (prefers-color-scheme: light) {
+    .shopify-section {
+      --pc-bg:             #fafafa;
+      --pc-bg-card:        #ffffff;
+      --pc-bg-card2:       #f5f5f5;
+      --pc-bg-input:       #ffffff;
+      --pc-border:         #e0e0e0;
+      --pc-border-focus:   var(--pc-gold);
+      --pc-text-primary:   #111111;
+      --pc-text-secondary: #555555;
+      --pc-text-muted:     #888888;
+      --pc-badge-bg:       rgba(244,180,0,0.10);
+      --pc-badge-bg-green: rgba(76,175,80,0.10);
+      --pc-trust-bg:       #f9f9f9;
+    }
+  }
+
+  .pc-wrapper {
+    font-family: var(--pc-font-sans);
+    background: var(--pc-bg);
+    color: var(--pc-text-primary);
+    min-height: 100vh;
+    padding: 16px 0 48px;
+  }
+
+  .pc-container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* ─── Certification Badges ─── */
+  .pc-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .pc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: var(--pc-radius-pill);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  .pc-badge--derm {
+    background: rgba(144,202,249,0.15);
+    color: #90caf9;
+    border: 1px solid rgba(144,202,249,0.35);
+  }
+
+  .pc-badge--cruelty {
+    background: rgba(165,214,167,0.15);
+    color: #a5d6a7;
+    border: 1px solid rgba(165,214,167,0.35);
+  }
+
+  .pc-badge--natural {
+    background: rgba(165,214,167,0.12);
+    color: #81c784;
+    border: 1px solid rgba(165,214,167,0.3);
+  }
+
+  /* ─── Category & Header ─── */
+  .pc-category {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .pc-category.cat-skincare   { color: var(--pc-pink); }
+  .pc-category.cat-haircare   { color: var(--pc-purple); }
+  .pc-category.cat-oral       { color: var(--pc-teal); }
+  .pc-category.cat-body       { color: var(--pc-blue); }
+  .pc-category.cat-fragrance  { color: var(--pc-rose); }
+  .pc-category.cat-mens       { color: var(--pc-slate); }
+  .pc-category.cat-feminine   { color: var(--pc-lavender); }
+  .pc-category.cat-default    { color: var(--pc-gold); }
+
+  .pc-title {
+    font-size: clamp(22px, 5vw, 32px);
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0 0 10px;
+    color: var(--pc-text-primary);
+  }
+
+  /* ─── Type Chips ─── */
+  .pc-type-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 18px;
+  }
+
+  .pc-type-label {
+    font-size: 13px;
+    color: var(--pc-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+
+  .pc-type-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    border-radius: var(--pc-radius-pill);
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--pc-bg-card2);
+    border: 1px solid var(--pc-border);
+    color: var(--pc-text-secondary);
+  }
+
+  /* ─── Ingredient Chips ─── */
+  .pc-ingredients-block {
+    margin-bottom: 20px;
+  }
+
+  .pc-block-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--pc-text-muted);
+    margin-bottom: 8px;
+  }
+
+  .pc-ingredient-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .pc-ingredient-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    background: var(--pc-badge-bg-green);
+    border: 1px solid rgba(165,214,167,0.3);
+    border-radius: var(--pc-radius-pill);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--pc-green);
+  }
+
+  .pc-ingredient-chip .ing-check {
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  /* ─── Price Block ─── */
+  .pc-price-block {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .pc-price {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--pc-gold);
+  }
+
+  .pc-price-compare {
+    font-size: 16px;
+    color: var(--pc-text-muted);
+    text-decoration: line-through;
+  }
+
+  /* ─── Variant Pills ─── */
+  .pc-section-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--pc-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 10px;
+  }
+
+  .pc-variants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+
+  .pc-variant-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 18px;
+    border: 2px solid var(--pc-border);
+    border-radius: var(--pc-radius-md);
+    background: var(--pc-bg-card);
+    cursor: pointer;
+    transition: var(--pc-transition);
+    gap: 2px;
+    min-width: 76px;
+  }
+
+  .pc-variant-pill:hover {
+    border-color: var(--pc-gold);
+    background: var(--pc-badge-bg);
+  }
+
+  .pc-variant-pill.active {
+    border-color: var(--pc-gold);
+    background: var(--pc-badge-bg);
+    box-shadow: 0 4px 16px rgba(244,180,0,0.3);
+  }
+
+  .pc-variant-pill .vp-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pc-text-primary);
+  }
+
+  .pc-variant-pill .vp-price {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--pc-gold);
+  }
+
+  /* ─── Quantity Stepper ─── */
+  .pc-qty-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .pc-qty-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pc-text-secondary);
+  }
+
+  .pc-stepper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: 1.5px solid var(--pc-border);
+    border-radius: var(--pc-radius-md);
+    overflow: hidden;
+    background: var(--pc-bg-card);
+  }
+
+  .pc-stepper button {
+    width: 38px;
+    height: 38px;
+    background: transparent;
+    border: none;
+    color: var(--pc-text-primary);
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--pc-transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--pc-font-sans);
+  }
+
+  .pc-stepper button:hover {
+    background: var(--pc-badge-bg);
+    color: var(--pc-gold);
+  }
+
+  .pc-stepper button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .pc-stepper .qty-val {
+    width: 44px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--pc-text-primary);
+    border-left: 1.5px solid var(--pc-border);
+    border-right: 1.5px solid var(--pc-border);
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    background: var(--pc-bg-input);
+  }
+
+  /* ─── How To Use Card ─── */
+  .pc-how-to-use {
+    background: var(--pc-bg-card);
+    border: 1px solid var(--pc-border);
+    border-radius: var(--pc-radius-lg);
+    padding: 22px;
+    margin-bottom: 22px;
+  }
+
+  .pc-card-heading {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--pc-text-primary);
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .pc-use-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .pc-use-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .pc-use-num {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 50%;
+    background: var(--pc-badge-bg);
+    border: 1.5px solid var(--pc-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--pc-gold);
+  }
+
+  .pc-use-text {
+    font-size: 14px;
+    color: var(--pc-text-secondary);
+    padding-top: 4px;
+    line-height: 1.6;
+  }
+
+  /* ─── Expiry Info ─── */
+  .pc-expiry-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: var(--pc-bg-card2);
+    border: 1px solid var(--pc-border);
+    border-radius: var(--pc-radius-pill);
+    font-size: 13px;
+    color: var(--pc-text-secondary);
+    margin-bottom: 20px;
+  }
+
+  /* ─── Add to Cart Button ─── */
+  .pc-cta {
+    width: 100%;
+    padding: 16px 24px;
+    background: var(--pc-gold);
+    color: #000;
+    border: none;
+    border-radius: var(--pc-radius-md);
+    font-size: 16px;
+    font-weight: 800;
+    font-family: var(--pc-font-sans);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: var(--pc-transition);
+    box-shadow: 0 4px 20px rgba(244,180,0,0.35);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+  }
+
+  .pc-cta:hover:not(:disabled) {
+    background: #c49100;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(244,180,0,0.45);
+  }
+
+  .pc-cta:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .pc-cta:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .pc-cta .spinner {
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(0,0,0,0.3);
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: pc-spin 0.7s linear infinite;
+    display: none;
+  }
+
+  .pc-cta.loading .spinner { display: block; }
+  .pc-cta.loading .cta-text { display: none; }
+
+  @keyframes pc-spin { to { transform: rotate(360deg); } }
+
+  /* ─── Success / Error Messages ─── */
+  .pc-success {
+    display: none;
+    background: linear-gradient(135deg, #1a2a0a, #0f1f0a);
+    border: 1.5px solid #4caf50;
+    border-radius: var(--pc-radius-md);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .pc-success.visible { display: block; }
+
+  .pc-success .suc-emoji { font-size: 28px; margin-bottom: 6px; }
+  .pc-success .suc-title { font-size: 15px; font-weight: 700; color: #66bb6a; margin-bottom: 3px; }
+  .pc-success .suc-sub   { font-size: 13px; color: #a5d6a7; }
+
+  .pc-error-msg {
+    display: none;
+    background: rgba(244,67,54,0.1);
+    border: 1px solid rgba(244,67,54,0.4);
+    border-radius: var(--pc-radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #ef9a9a;
+    margin-bottom: 14px;
+  }
+
+  .pc-error-msg.visible { display: block; }
+
+  /* ─── Trust Grid ─── */
+  .pc-trust-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .pc-trust-item {
+    background: var(--pc-trust-bg);
+    border: 1px solid var(--pc-border);
+    border-radius: var(--pc-radius-md);
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .pc-trust-icon { font-size: 22px; line-height: 1; margin-top: 1px; }
+
+  .pc-trust-text .trust-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--pc-text-primary);
+    margin-bottom: 2px;
+  }
+
+  .pc-trust-text .trust-desc {
+    font-size: 12px;
+    color: var(--pc-text-muted);
+  }
+
+  .pc-fine-print {
+    font-size: 12px;
+    color: var(--pc-text-muted);
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 380px) {
+    .pc-trust-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<section class="pc-wrapper" id="pc-section-{{ section.id }}">
+  <div class="pc-container">
+
+    <!-- Certification Badges -->
+    {%- if has_derm_tested or has_cruelty_free or has_natural -%}
+      <div class="pc-badge-row">
+        {%- if has_derm_tested -%}
+          <span class="pc-badge pc-badge--derm">🔬 DERMATOLOGIST TESTED</span>
+        {%- endif -%}
+        {%- if has_cruelty_free -%}
+          <span class="pc-badge pc-badge--cruelty">🐰 CRUELTY FREE</span>
+        {%- endif -%}
+        {%- if has_natural -%}
+          <span class="pc-badge pc-badge--natural">🌿 NATURAL</span>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <!-- Category & Title -->
+    <div class="pc-category {{ pc_category_cls }}">{{ pc_emoji }} {{ product.type | default: 'Personal Care' }}</div>
+    <h1 class="pc-title">{{ product.title }}</h1>
+
+    <!-- Skin / Hair Type Chips -->
+    {%- if skin_type != '' or hair_type != '' -%}
+      <div class="pc-type-row">
+        <span class="pc-type-label">Best for:</span>
+        {%- if skin_type != '' -%}
+          {%- assign st_list = skin_type | split: ',' -%}
+          {%- for st in st_list -%}
+            <span class="pc-type-chip">{{ st | strip }} Skin</span>
+          {%- endfor -%}
+        {%- endif -%}
+        {%- if hair_type != '' -%}
+          {%- assign ht_list = hair_type | split: ',' -%}
+          {%- for ht in ht_list -%}
+            <span class="pc-type-chip">{{ ht | strip }} Hair</span>
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <!-- Key Ingredients -->
+    {%- if ingredient_tags != '' -%}
+      {%- assign ing_list = ingredient_tags | split: ',' -%}
+      <div class="pc-ingredients-block">
+        <div class="pc-block-label">Key Ingredients</div>
+        <div class="pc-ingredient-chips">
+          {%- for ing in ing_list -%}
+            {%- if ing != blank -%}
+              <span class="pc-ingredient-chip">
+                <span class="ing-check">✓</span>
+                {{ ing | strip }}
+              </span>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    <!-- Price Block -->
+    <div class="pc-price-block">
+      <span class="pc-price" id="pc-price-display">{{ current_price | money }}</span>
+      {%- if first_variant.compare_at_price > first_variant.price -%}
+        <span class="pc-price-compare">{{ first_variant.compare_at_price | money }}</span>
+      {%- endif -%}
+    </div>
+
+    <!-- Variant Pills -->
+    {%- if product.variants.size > 1 -%}
+      <div class="pc-section-label">Select Volume / Size</div>
+      <div class="pc-variants" id="pc-variants">
+        {%- for variant in product.variants -%}
+          <button
+            type="button"
+            class="pc-variant-pill {% if forloop.first %}active{% endif %}"
+            data-variant-id="{{ variant.id }}"
+            data-price="{{ variant.price | money }}"
+            data-available="{{ variant.available }}"
+            onclick="pcSelectVariant(this)"
+          >
+            <span class="vp-label">{{ variant.title }}</span>
+            <span class="vp-price">{{ variant.price | money }}</span>
+          </button>
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      <input type="hidden" id="pc-single-variant" value="{{ first_variant.id }}">
+    {%- endif -%}
+
+    <input type="hidden" id="pc-variant-id" value="{{ first_variant.id }}">
+    <input type="hidden" id="pc-product-type" value="{{ product.type | escape }}">
+    <input type="hidden" id="pc-skin-type-val" value="{{ skin_type | escape }}">
+
+    <!-- Quantity Stepper -->
+    <div class="pc-qty-row">
+      <span class="pc-qty-label">Quantity</span>
+      <div class="pc-stepper">
+        <button type="button" id="pc-qty-minus" onclick="pcQtyChange(-1)" disabled>−</button>
+        <div class="qty-val" id="pc-qty-display">1</div>
+        <button type="button" id="pc-qty-plus" onclick="pcQtyChange(1)">+</button>
+      </div>
+    </div>
+
+    <!-- Expiry / Shelf Life Info -->
+    <div>
+      <span class="pc-expiry-chip">
+        📅
+        {%- if shelf_months != '' -%}
+          Use within {{ shelf_months }} months of opening
+        {%- else -%}
+          See product packaging for expiry details
+        {%- endif -%}
+      </span>
+    </div>
+
+    <!-- Error -->
+    <div class="pc-error-msg" id="pc-error"></div>
+
+    <!-- Success -->
+    <div class="pc-success" id="pc-success">
+      <div class="suc-emoji">🛒</div>
+      <div class="suc-title">Added to cart!</div>
+      <div class="suc-sub">Your item has been added. Continue shopping or <a href="/cart" style="color:inherit;text-decoration:underline;">view cart</a>.</div>
+    </div>
+
+    <!-- Add to Cart CTA -->
+    <button type="button" class="pc-cta" id="pc-atc-btn" onclick="pcAddToCart()">
+      <span class="spinner"></span>
+      <span class="cta-text">🛒 ADD TO CART</span>
+    </button>
+
+    <p class="pc-fine-print">Free delivery on orders above ₹499 · Secure checkout</p>
+
+    <!-- How to Use -->
+    {%- if product.description != blank -%}
+      {%- assign desc_text = product.description | strip_html -%}
+      {%- assign use_lines = desc_text | split: '.' -%}
+      <div class="pc-how-to-use">
+        <div class="pc-card-heading">📖 How to Use</div>
+        <div class="pc-use-steps">
+          {%- assign step_count = 0 -%}
+          {%- for line in use_lines -%}
+            {%- assign trimmed = line | strip -%}
+            {%- if trimmed != blank and step_count < 3 -%}
+              <div class="pc-use-step">
+                <div class="pc-use-num">{{ forloop.index }}</div>
+                <div class="pc-use-text">{{ trimmed }}.</div>
+              </div>
+              {%- assign step_count = step_count | plus: 1 -%}
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    <!-- Trust Grid -->
+    <div class="pc-trust-grid">
+      <div class="pc-trust-item">
+        <span class="pc-trust-icon">🔬</span>
+        <div class="pc-trust-text">
+          <div class="trust-title">Dermatologist Tested</div>
+          <div class="trust-desc">Clinically verified and safe for skin</div>
+        </div>
+      </div>
+      <div class="pc-trust-item">
+        <span class="pc-trust-icon">🐰</span>
+        <div class="pc-trust-text">
+          <div class="trust-title">Cruelty Free</div>
+          <div class="trust-desc">Never tested on animals</div>
+        </div>
+      </div>
+      <div class="pc-trust-item">
+        <span class="pc-trust-icon">🌿</span>
+        <div class="pc-trust-text">
+          <div class="trust-title">No Parabens</div>
+          <div class="trust-desc">Free from harsh chemicals</div>
+        </div>
+      </div>
+      <div class="pc-trust-item">
+        <span class="pc-trust-icon">✅</span>
+        <div class="pc-trust-text">
+          <div class="trust-title">FSSAI / ISO Certified</div>
+          <div class="trust-desc">Meets quality & safety standards</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+
+  var pcQty = 1;
+  var pcMaxQty = 12;
+
+  /* ─── Variant selection ─── */
+  window.pcSelectVariant = function (btn) {
+    document.querySelectorAll('.pc-variant-pill').forEach(function (p) {
+      p.classList.remove('active');
+    });
+    btn.classList.add('active');
+    document.getElementById('pc-variant-id').value = btn.dataset.variantId;
+    var priceEl = document.getElementById('pc-price-display');
+    if (priceEl) priceEl.textContent = btn.dataset.price;
+  };
+
+  /* ─── Single variant fallback ─── */
+  var singleVariant = document.getElementById('pc-single-variant');
+  if (singleVariant) {
+    document.getElementById('pc-variant-id').value = singleVariant.value;
+  }
+
+  /* ─── Quantity stepper ─── */
+  window.pcQtyChange = function (delta) {
+    pcQty = Math.min(pcMaxQty, Math.max(1, pcQty + delta));
+    document.getElementById('pc-qty-display').textContent = pcQty;
+    document.getElementById('pc-qty-minus').disabled = (pcQty <= 1);
+    document.getElementById('pc-qty-plus').disabled  = (pcQty >= pcMaxQty);
+  };
+
+  /* ─── Add to Cart ─── */
+  window.pcAddToCart = function () {
+    var variantId  = document.getElementById('pc-variant-id').value;
+    var productType = document.getElementById('pc-product-type').value;
+    var skinType   = document.getElementById('pc-skin-type-val').value;
+    var errorEl    = document.getElementById('pc-error');
+    var successEl  = document.getElementById('pc-success');
+    var btn        = document.getElementById('pc-atc-btn');
+
+    errorEl.classList.remove('visible');
+
+    if (!variantId) {
+      errorEl.textContent = 'Please select a variant.';
+      errorEl.classList.add('visible');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.classList.add('loading');
+
+    var properties = { 'Type': productType };
+    if (skinType) properties['Skin Type'] = skinType;
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        id: parseInt(variantId, 10),
+        quantity: pcQty,
+        properties: properties
+      })
+    })
+    .then(function (res) {
+      if (!res.ok) return res.json().then(function (d) { throw new Error(d.description || 'Could not add to cart.'); });
+      return res.json();
+    })
+    .then(function () {
+      successEl.classList.add('visible');
+      successEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      setTimeout(function () { successEl.classList.remove('visible'); }, 5000);
+
+      /* Update cart count in header if Shopify exposes it */
+      fetch('/cart.js')
+        .then(function (r) { return r.json(); })
+        .then(function (cart) {
+          var countEls = document.querySelectorAll('[data-cart-count], .cart-count, #CartCount');
+          countEls.forEach(function (el) { el.textContent = cart.item_count; });
+        })
+        .catch(function () {});
+    })
+    .catch(function (err) {
+      errorEl.textContent = err.message || 'Something went wrong. Please try again.';
+      errorEl.classList.add('visible');
+    })
+    .finally(function () {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    });
+  };
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Personal Care",
+  "tag": "section",
+  "class": "qb-personal-care-section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "QB Personal Care"
+    }
+  ]
+}
+{% endschema %}

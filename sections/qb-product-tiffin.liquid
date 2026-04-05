@@ -1,0 +1,961 @@
+{% comment %}
+  QB Tiffin Service — qb-product-tiffin.liquid
+  Full-featured tiffin / meal-delivery subscription section.
+  Gold accent #F4B400  |  Mobile-first  |  Dark + Light theme
+{% endcomment %}
+
+{%- liquid
+  assign product_tags = product.tags | join: ',' | downcase
+  assign is_veg    = false
+  assign is_nonveg = false
+  if product_tags contains 'veg'
+    assign is_veg = true
+  endif
+  if product_tags contains 'nonveg'
+    assign is_nonveg = true
+  endif
+
+  assign cuisine_emoji = '🍱'
+  assign ptype = product.type | downcase
+  if ptype contains 'north indian'
+    assign cuisine_emoji = '🍛'
+  elsif ptype contains 'south indian'
+    assign cuisine_emoji = '🥘'
+  elsif ptype contains 'chinese'
+    assign cuisine_emoji = '🥡'
+  elsif ptype contains 'continental'
+    assign cuisine_emoji = '🍝'
+  elsif ptype contains 'jain'
+    assign cuisine_emoji = '🌱'
+  endif
+
+  assign first_variant = product.variants | first
+-%}
+
+<div class="qb-tiffin" id="qb-tiffin-{{ product.id }}" data-product-id="{{ product.id }}">
+
+  {%- comment %} ── BADGES ── {% endcomment %}
+  <div class="qb-tiffin__badges">
+    <span class="qb-tiffin__badge qb-tiffin__badge--gold">🍱 DAILY TIFFIN</span>
+    {%- if is_veg -%}
+      <span class="qb-tiffin__badge qb-tiffin__badge--veg">🌿 VEG ONLY</span>
+    {%- endif -%}
+    {%- if is_nonveg -%}
+      <span class="qb-tiffin__badge qb-tiffin__badge--nonveg">🥩 NON-VEG</span>
+    {%- endif -%}
+  </div>
+
+  {%- comment %} ── HEADING ── {% endcomment %}
+  <div class="qb-tiffin__header">
+    <span class="qb-tiffin__cuisine-icon" aria-hidden="true">{{ cuisine_emoji }}</span>
+    <div class="qb-tiffin__title-block">
+      <h1 class="qb-tiffin__title">{{ product.title }}</h1>
+      {%- if product.vendor != blank -%}
+        <p class="qb-tiffin__vendor">By {{ product.vendor }}</p>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- comment %} ── TODAY'S MENU TEASER ── {% endcomment %}
+  {%- assign desc_content = product.description | strip_html | truncatewords: 60 -%}
+  {%- if desc_content != blank -%}
+  <div class="qb-tiffin__menu-card">
+    <div class="qb-tiffin__menu-card-header">🍽️ Today's Menu</div>
+    <p class="qb-tiffin__menu-text">{{ desc_content }}</p>
+  </div>
+  {%- endif -%}
+
+  {%- comment %} ── PRICE DISPLAY ── {% endcomment %}
+  <div class="qb-tiffin__price-block">
+    <span class="qb-tiffin__price" id="tif-display-price">
+      {{ first_variant.price | money }}
+    </span>
+    <span class="qb-tiffin__price-label">/day</span>
+    <span class="qb-tiffin__price-estimate" id="tif-total-estimate"></span>
+  </div>
+
+  {%- comment %} ── FORM ── {% endcomment %}
+  <form class="qb-tiffin__form" id="qb-tiffin-form" novalidate>
+    <input type="hidden" name="id" id="tif-variant-id" value="{{ first_variant.id }}">
+    <input type="hidden" name="quantity" value="1">
+
+    {%- comment %} Meal Plan Selector {% endcomment %}
+    <fieldset class="qb-tiffin__fieldset">
+      <legend class="qb-tiffin__legend">Meal Plan</legend>
+      <div class="qb-tiffin__pills" id="tif-plan-pills" role="radiogroup" aria-label="Meal Plan">
+        {%- for variant in product.variants -%}
+          <button
+            type="button"
+            class="qb-tiffin__pill{% if forloop.first %} qb-tiffin__pill--active{% endif %}"
+            data-variant-id="{{ variant.id }}"
+            data-variant-price="{{ variant.price }}"
+            data-variant-title="{{ variant.title }}"
+            data-variant-available="{{ variant.available }}"
+            aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+          >
+            {{ variant.title }}
+            <span class="qb-tiffin__pill-price">{{ variant.price | money }}</span>
+          </button>
+        {%- endfor -%}
+      </div>
+    </fieldset>
+
+    {%- comment %} Duration Selector {% endcomment %}
+    <fieldset class="qb-tiffin__fieldset">
+      <legend class="qb-tiffin__legend">Plan Duration</legend>
+      <div class="qb-tiffin__pills" id="tif-duration-pills" role="radiogroup" aria-label="Plan Duration">
+        <button type="button" class="qb-tiffin__pill qb-tiffin__pill--active" data-days="7"  data-multiplier="1"   aria-pressed="true">7 Days</button>
+        <button type="button" class="qb-tiffin__pill"                         data-days="15" data-multiplier="2.8" aria-pressed="false">15 Days</button>
+        <button type="button" class="qb-tiffin__pill"                         data-days="30" data-multiplier="5.5" aria-pressed="false">30 Days</button>
+      </div>
+    </fieldset>
+
+    {%- comment %} Delivery Slot {% endcomment %}
+    <fieldset class="qb-tiffin__fieldset">
+      <legend class="qb-tiffin__legend">Delivery Slot</legend>
+      <div class="qb-tiffin__radios" id="tif-slot-radios">
+        <label class="qb-tiffin__radio-label">
+          <input type="radio" name="tif_slot" value="Lunch (12–1 PM)" checked>
+          <span class="qb-tiffin__radio-custom"></span>
+          🌞 Lunch (12–1 PM)
+        </label>
+        <label class="qb-tiffin__radio-label">
+          <input type="radio" name="tif_slot" value="Dinner (7–8 PM)">
+          <span class="qb-tiffin__radio-custom"></span>
+          🌙 Dinner (7–8 PM)
+        </label>
+        <label class="qb-tiffin__radio-label">
+          <input type="radio" name="tif_slot" value="Both">
+          <span class="qb-tiffin__radio-custom"></span>
+          ☀️🌙 Both
+        </label>
+      </div>
+    </fieldset>
+
+    {%- comment %} Special Diet {% endcomment %}
+    <fieldset class="qb-tiffin__fieldset">
+      <legend class="qb-tiffin__legend">Special Diet Preferences <span class="qb-tiffin__optional">(optional)</span></legend>
+      <div class="qb-tiffin__chips" id="tif-diet-chips">
+        <button type="button" class="qb-tiffin__chip" data-diet="No Onion-Garlic" aria-pressed="false">🧄 No Onion-Garlic</button>
+        <button type="button" class="qb-tiffin__chip" data-diet="Low Spice"       aria-pressed="false">🌶️ Low Spice</button>
+        <button type="button" class="qb-tiffin__chip" data-diet="Diabetic Friendly" aria-pressed="false">💊 Diabetic Friendly</button>
+        <button type="button" class="qb-tiffin__chip" data-diet="High Protein"    aria-pressed="false">💪 High Protein</button>
+      </div>
+    </fieldset>
+
+    {%- comment %} Delivery Address {% endcomment %}
+    <div class="qb-tiffin__field">
+      <label class="qb-tiffin__field-label" for="tif-address">
+        📍 Delivery Address
+      </label>
+      <textarea
+        id="tif-address"
+        name="tif_address"
+        class="qb-tiffin__textarea"
+        placeholder="Your delivery address (flat, building, area, city)"
+        rows="3"
+        required
+      ></textarea>
+    </div>
+
+    {%- comment %} Submit CTA {% endcomment %}
+    <button type="submit" class="qb-tiffin__cta" id="tif-add-btn">
+      START MY TIFFIN →
+    </button>
+
+    <p class="qb-tiffin__cancel-note">🚫 Easy pause or cancel anytime</p>
+
+    {%- comment %} Error / Success messages {% endcomment %}
+    <div class="qb-tiffin__msg qb-tiffin__msg--error" id="tif-error-msg" role="alert" aria-live="polite" hidden></div>
+    <div class="qb-tiffin__msg qb-tiffin__msg--success" id="tif-success-msg" role="status" aria-live="polite" hidden>
+      🎉 Tiffin subscription added! Head to cart to complete your order.
+    </div>
+
+  </form>
+
+  {%- comment %} ── HOW IT WORKS ── {% endcomment %}
+  <section class="qb-tiffin__hiw">
+    <h2 class="qb-tiffin__section-title">How It Works</h2>
+    <div class="qb-tiffin__hiw-steps">
+      <div class="qb-tiffin__hiw-step">
+        <span class="qb-tiffin__hiw-icon">📋</span>
+        <span class="qb-tiffin__hiw-num">1</span>
+        <p class="qb-tiffin__hiw-label">Choose Plan</p>
+      </div>
+      <div class="qb-tiffin__hiw-arrow" aria-hidden="true">→</div>
+      <div class="qb-tiffin__hiw-step">
+        <span class="qb-tiffin__hiw-icon">👨‍🍳</span>
+        <span class="qb-tiffin__hiw-num">2</span>
+        <p class="qb-tiffin__hiw-label">We Cook Fresh</p>
+      </div>
+      <div class="qb-tiffin__hiw-arrow" aria-hidden="true">→</div>
+      <div class="qb-tiffin__hiw-step">
+        <span class="qb-tiffin__hiw-icon">🛵</span>
+        <span class="qb-tiffin__hiw-num">3</span>
+        <p class="qb-tiffin__hiw-label">Deliver Hot</p>
+      </div>
+      <div class="qb-tiffin__hiw-arrow" aria-hidden="true">→</div>
+      <div class="qb-tiffin__hiw-step">
+        <span class="qb-tiffin__hiw-icon">😋</span>
+        <span class="qb-tiffin__hiw-num">4</span>
+        <p class="qb-tiffin__hiw-label">Enjoy Daily</p>
+      </div>
+    </div>
+  </section>
+
+  {%- comment %} ── TRUST GRID ── {% endcomment %}
+  <section class="qb-tiffin__trust">
+    <h2 class="qb-tiffin__section-title">Why QuickBee Tiffin?</h2>
+    <div class="qb-tiffin__trust-grid">
+      <div class="qb-tiffin__trust-card">
+        <span class="qb-tiffin__trust-icon">🔥</span>
+        <p class="qb-tiffin__trust-title">Cooked Fresh Daily</p>
+        <p class="qb-tiffin__trust-desc">Every meal prepared the same morning — never pre-cooked or frozen.</p>
+      </div>
+      <div class="qb-tiffin__trust-card">
+        <span class="qb-tiffin__trust-icon">🏠</span>
+        <p class="qb-tiffin__trust-title">Home-Style Recipes</p>
+        <p class="qb-tiffin__trust-desc">Authentic family recipes that taste like mom's kitchen.</p>
+      </div>
+      <div class="qb-tiffin__trust-card">
+        <span class="qb-tiffin__trust-icon">🌿</span>
+        <p class="qb-tiffin__trust-title">No Preservatives</p>
+        <p class="qb-tiffin__trust-desc">100% natural ingredients — no artificial colors or preservatives.</p>
+      </div>
+      <div class="qb-tiffin__trust-card">
+        <span class="qb-tiffin__trust-icon">⏰</span>
+        <p class="qb-tiffin__trust-title">On-Time Delivery</p>
+        <p class="qb-tiffin__trust-desc">Your tiffin arrives hot within the promised delivery window.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+{%- comment %} ── STYLES ── {% endcomment %}
+<style>
+/* ── CSS Custom Properties ── */
+:root {
+  --tif-gold:        #F4B400;
+  --tif-gold-dark:   #c99200;
+  --tif-gold-light:  #fff8e1;
+  --tif-green:       #2e7d32;
+  --tif-green-bg:    #e8f5e9;
+  --tif-red:         #c62828;
+  --tif-red-bg:      #ffebee;
+  --tif-warm-bg:     #fff8f0;
+  --tif-warm-border: #f9d99a;
+  --tif-text:        #1a1a1a;
+  --tif-text-muted:  #666;
+  --tif-radius:      12px;
+  --tif-radius-sm:   8px;
+  --tif-shadow:      0 2px 12px rgba(0,0,0,.08);
+  --tif-shadow-lg:   0 6px 24px rgba(0,0,0,.14);
+  --tif-trans:       .2s ease;
+  --tif-font:        inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tif-warm-bg:     #1e1710;
+    --tif-warm-border: #5a4010;
+    --tif-gold-light:  #2a1f00;
+    --tif-text:        #f5f0e8;
+    --tif-text-muted:  #b0a898;
+    --tif-green-bg:    #0d2b0e;
+    --tif-red-bg:      #2a0808;
+    --tif-shadow:      0 2px 12px rgba(0,0,0,.3);
+    --tif-shadow-lg:   0 6px 24px rgba(0,0,0,.5);
+  }
+}
+
+/* ── Base ── */
+.qb-tiffin *,
+.qb-tiffin *::before,
+.qb-tiffin *::after { box-sizing: border-box; }
+
+.qb-tiffin {
+  font-family: var(--tif-font);
+  color: var(--tif-text);
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ── Badges ── */
+.qb-tiffin__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.qb-tiffin__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.qb-tiffin__badge--gold {
+  background: var(--tif-gold);
+  color: #1a1400;
+}
+
+.qb-tiffin__badge--veg {
+  background: var(--tif-green-bg);
+  color: var(--tif-green);
+  border: 1px solid var(--tif-green);
+}
+
+.qb-tiffin__badge--nonveg {
+  background: var(--tif-red-bg);
+  color: var(--tif-red);
+  border: 1px solid var(--tif-red);
+}
+
+/* ── Header ── */
+.qb-tiffin__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.qb-tiffin__cuisine-icon {
+  font-size: 2.8rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.qb-tiffin__title {
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  font-weight: 800;
+  margin: 0 0 4px;
+  line-height: 1.2;
+  color: var(--tif-text);
+}
+
+.qb-tiffin__vendor {
+  margin: 0;
+  font-size: .85rem;
+  color: var(--tif-text-muted);
+}
+
+/* ── Menu Card ── */
+.qb-tiffin__menu-card {
+  background: var(--tif-warm-bg);
+  border: 2px solid var(--tif-warm-border);
+  border-left: 4px solid var(--tif-gold);
+  border-radius: var(--tif-radius);
+  padding: 16px 18px;
+}
+
+.qb-tiffin__menu-card-header {
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--tif-gold-dark);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 8px;
+}
+
+.qb-tiffin__menu-text {
+  margin: 0;
+  font-size: .95rem;
+  line-height: 1.65;
+  color: var(--tif-text);
+}
+
+/* ── Price Block ── */
+.qb-tiffin__price-block {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.qb-tiffin__price {
+  font-size: clamp(1.8rem, 6vw, 2.4rem);
+  font-weight: 900;
+  color: var(--tif-gold);
+}
+
+.qb-tiffin__price-label {
+  font-size: .9rem;
+  color: var(--tif-text-muted);
+}
+
+.qb-tiffin__price-estimate {
+  font-size: .85rem;
+  color: var(--tif-text-muted);
+  padding: 2px 10px;
+  background: var(--tif-gold-light);
+  border-radius: 100px;
+  border: 1px solid var(--tif-warm-border);
+  transition: opacity var(--tif-trans);
+}
+
+/* ── Form ── */
+.qb-tiffin__form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.qb-tiffin__fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qb-tiffin__legend {
+  font-size: .8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--tif-text-muted);
+  margin-bottom: 4px;
+}
+
+.qb-tiffin__optional {
+  font-weight: 400;
+  text-transform: none;
+  font-size: .75rem;
+  letter-spacing: 0;
+}
+
+/* ── Pills ── */
+.qb-tiffin__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.qb-tiffin__pill {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 14px;
+  border-radius: var(--tif-radius-sm);
+  border: 2px solid var(--tif-warm-border);
+  background: transparent;
+  color: var(--tif-text);
+  font-size: .88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--tif-trans), background var(--tif-trans), color var(--tif-trans), transform .1s;
+  line-height: 1.3;
+}
+
+.qb-tiffin__pill:hover {
+  border-color: var(--tif-gold);
+  transform: translateY(-1px);
+}
+
+.qb-tiffin__pill--active,
+.qb-tiffin__pill[aria-pressed="true"] {
+  border-color: var(--tif-gold);
+  background: var(--tif-gold);
+  color: #1a1400;
+}
+
+.qb-tiffin__pill-price {
+  font-size: .72rem;
+  font-weight: 400;
+  opacity: .8;
+}
+
+.qb-tiffin__pill--active .qb-tiffin__pill-price,
+.qb-tiffin__pill[aria-pressed="true"] .qb-tiffin__pill-price {
+  opacity: 1;
+}
+
+/* ── Radio Buttons ── */
+.qb-tiffin__radios {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qb-tiffin__radio-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: .93rem;
+  font-weight: 500;
+  padding: 10px 14px;
+  border: 2px solid var(--tif-warm-border);
+  border-radius: var(--tif-radius-sm);
+  transition: border-color var(--tif-trans), background var(--tif-trans);
+  position: relative;
+}
+
+.qb-tiffin__radio-label input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.qb-tiffin__radio-custom {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--tif-warm-border);
+  flex-shrink: 0;
+  position: relative;
+  transition: border-color var(--tif-trans);
+}
+
+.qb-tiffin__radio-label:has(input:checked) {
+  border-color: var(--tif-gold);
+  background: var(--tif-gold-light);
+}
+
+.qb-tiffin__radio-label:has(input:checked) .qb-tiffin__radio-custom {
+  border-color: var(--tif-gold);
+  background: var(--tif-gold);
+}
+
+.qb-tiffin__radio-label:has(input:checked) .qb-tiffin__radio-custom::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  background: #1a1400;
+  border-radius: 50%;
+}
+
+/* ── Diet Chips ── */
+.qb-tiffin__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.qb-tiffin__chip {
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 2px solid var(--tif-warm-border);
+  background: transparent;
+  color: var(--tif-text);
+  font-size: .84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--tif-trans), background var(--tif-trans), color var(--tif-trans);
+}
+
+.qb-tiffin__chip:hover { border-color: var(--tif-gold); }
+
+.qb-tiffin__chip--selected,
+.qb-tiffin__chip[aria-pressed="true"] {
+  border-color: var(--tif-gold);
+  background: var(--tif-gold);
+  color: #1a1400;
+}
+
+/* ── Address Field ── */
+.qb-tiffin__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.qb-tiffin__field-label {
+  font-size: .82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--tif-text-muted);
+}
+
+.qb-tiffin__textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid var(--tif-warm-border);
+  border-radius: var(--tif-radius-sm);
+  background: transparent;
+  color: var(--tif-text);
+  font-size: .93rem;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color var(--tif-trans);
+  line-height: 1.5;
+}
+
+.qb-tiffin__textarea:focus {
+  outline: none;
+  border-color: var(--tif-gold);
+}
+
+.qb-tiffin__textarea::placeholder { color: var(--tif-text-muted); }
+
+/* ── CTA ── */
+.qb-tiffin__cta {
+  width: 100%;
+  padding: 16px 24px;
+  background: var(--tif-gold);
+  color: #1a1400;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: .05em;
+  border: none;
+  border-radius: var(--tif-radius);
+  cursor: pointer;
+  transition: background var(--tif-trans), transform .1s, box-shadow var(--tif-trans);
+  box-shadow: var(--tif-shadow-lg);
+}
+
+.qb-tiffin__cta:hover {
+  background: var(--tif-gold-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(244,180,0,.35);
+}
+
+.qb-tiffin__cta:active { transform: translateY(0); }
+.qb-tiffin__cta:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+.qb-tiffin__cancel-note {
+  text-align: center;
+  font-size: .8rem;
+  color: var(--tif-text-muted);
+  margin: -8px 0 0;
+}
+
+/* ── Messages ── */
+.qb-tiffin__msg {
+  padding: 12px 16px;
+  border-radius: var(--tif-radius-sm);
+  font-size: .9rem;
+  font-weight: 500;
+}
+
+.qb-tiffin__msg--error {
+  background: var(--tif-red-bg);
+  color: var(--tif-red);
+  border: 1px solid var(--tif-red);
+}
+
+.qb-tiffin__msg--success {
+  background: var(--tif-green-bg);
+  color: var(--tif-green);
+  border: 1px solid var(--tif-green);
+}
+
+/* ── Section Titles ── */
+.qb-tiffin__section-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin: 0 0 20px;
+  text-align: center;
+  color: var(--tif-text);
+}
+
+.qb-tiffin__section-title::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 3px;
+  background: var(--tif-gold);
+  margin: 8px auto 0;
+  border-radius: 2px;
+}
+
+/* ── How It Works ── */
+.qb-tiffin__hiw {
+  padding: 28px 0 0;
+  border-top: 1px solid var(--tif-warm-border);
+}
+
+.qb-tiffin__hiw-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.qb-tiffin__hiw-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 72px;
+  text-align: center;
+}
+
+.qb-tiffin__hiw-icon {
+  font-size: 2rem;
+  display: block;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.qb-tiffin__hiw-num {
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--tif-gold);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+
+.qb-tiffin__hiw-label {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--tif-text);
+  margin: 0;
+}
+
+.qb-tiffin__hiw-arrow {
+  font-size: 1.2rem;
+  color: var(--tif-gold);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+@media (max-width: 380px) {
+  .qb-tiffin__hiw-arrow { display: none; }
+  .qb-tiffin__hiw-steps { gap: 14px; }
+}
+
+/* ── Trust Grid ── */
+.qb-tiffin__trust {
+  padding: 28px 0 0;
+  border-top: 1px solid var(--tif-warm-border);
+}
+
+.qb-tiffin__trust-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.qb-tiffin__trust-card {
+  background: var(--tif-warm-bg);
+  border: 1px solid var(--tif-warm-border);
+  border-radius: var(--tif-radius);
+  padding: 16px 14px;
+  text-align: center;
+  box-shadow: var(--tif-shadow);
+}
+
+.qb-tiffin__trust-icon {
+  font-size: 1.8rem;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.qb-tiffin__trust-title {
+  font-size: .88rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: var(--tif-text);
+}
+
+.qb-tiffin__trust-desc {
+  font-size: .78rem;
+  color: var(--tif-text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 360px) {
+  .qb-tiffin__trust-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+{%- comment %} ── JAVASCRIPT ── {% endcomment %}
+<script>
+(function () {
+  'use strict';
+
+  /* ── Helpers ── */
+  function qs(sel, ctx) { return (ctx || document).querySelector(sel); }
+  function qsa(sel, ctx) { return Array.from((ctx || document).querySelectorAll(sel)); }
+
+  var root = document.getElementById('qb-tiffin-{{ product.id }}');
+  if (!root) return;
+
+  /* ── State ── */
+  var state = {
+    variantId: {{ first_variant.id }},
+    variantPrice: {{ first_variant.price }},   /* in cents */
+    durationDays: 7,
+    durationMultiplier: 1,
+    slot: 'Lunch (12\u20131 PM)',
+    dietPrefs: [],
+    planName: {{ first_variant.title | json }}
+  };
+
+  /* ── Price display ── */
+  function updatePriceDisplay() {
+    var display = qs('#tif-display-price', root);
+    var estimate = qs('#tif-total-estimate', root);
+    if (!display) return;
+
+    var dayPrice = state.variantPrice / 100;   /* convert cents → major unit */
+    var total = (dayPrice * state.durationMultiplier).toFixed(2);
+
+    /* Format with store currency symbol */
+    var fmt = new Intl.NumberFormat('en-IN', { style: 'currency', currency: '{{ shop.currency }}', maximumFractionDigits: 0 });
+    display.textContent = fmt.format(dayPrice);
+    if (estimate) {
+      estimate.textContent = 'Total ~' + fmt.format(total) + ' for ' + state.durationDays + ' days';
+    }
+  }
+
+  /* ── Plan Pills ── */
+  qsa('#tif-plan-pills .qb-tiffin__pill', root).forEach(function (pill) {
+    pill.addEventListener('click', function () {
+      qsa('#tif-plan-pills .qb-tiffin__pill', root).forEach(function (p) {
+        p.classList.remove('qb-tiffin__pill--active');
+        p.setAttribute('aria-pressed', 'false');
+      });
+      pill.classList.add('qb-tiffin__pill--active');
+      pill.setAttribute('aria-pressed', 'true');
+      state.variantId = parseInt(pill.dataset.variantId, 10);
+      state.variantPrice = parseInt(pill.dataset.variantPrice, 10);
+      state.planName = pill.dataset.variantTitle;
+      qs('#tif-variant-id', root).value = state.variantId;
+      updatePriceDisplay();
+    });
+  });
+
+  /* ── Duration Pills ── */
+  qsa('#tif-duration-pills .qb-tiffin__pill', root).forEach(function (pill) {
+    pill.addEventListener('click', function () {
+      qsa('#tif-duration-pills .qb-tiffin__pill', root).forEach(function (p) {
+        p.classList.remove('qb-tiffin__pill--active');
+        p.setAttribute('aria-pressed', 'false');
+      });
+      pill.classList.add('qb-tiffin__pill--active');
+      pill.setAttribute('aria-pressed', 'true');
+      state.durationDays = parseInt(pill.dataset.days, 10);
+      state.durationMultiplier = parseFloat(pill.dataset.multiplier);
+      updatePriceDisplay();
+    });
+  });
+
+  /* ── Slot Radio ── */
+  qsa('input[name="tif_slot"]', root).forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      if (radio.checked) state.slot = radio.value;
+    });
+  });
+
+  /* ── Diet Chips (multi-select) ── */
+  qsa('.qb-tiffin__chip', root).forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      var diet = chip.dataset.diet;
+      var idx = state.dietPrefs.indexOf(diet);
+      if (idx === -1) {
+        state.dietPrefs.push(diet);
+        chip.classList.add('qb-tiffin__chip--selected');
+        chip.setAttribute('aria-pressed', 'true');
+      } else {
+        state.dietPrefs.splice(idx, 1);
+        chip.classList.remove('qb-tiffin__chip--selected');
+        chip.setAttribute('aria-pressed', 'false');
+      }
+    });
+  });
+
+  /* ── Form Submit → /cart/add.js ── */
+  var form = qs('#qb-tiffin-form', root);
+  var btn = qs('#tif-add-btn', root);
+  var errMsg = qs('#tif-error-msg', root);
+  var sucMsg = qs('#tif-success-msg', root);
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    var address = qs('#tif-address', root).value.trim();
+    if (!address) {
+      showError('Please enter your delivery address.');
+      qs('#tif-address', root).focus();
+      return;
+    }
+
+    var checkedSlot = qs('input[name="tif_slot"]:checked', root);
+    state.slot = checkedSlot ? checkedSlot.value : state.slot;
+
+    var payload = {
+      id: state.variantId,
+      quantity: 1,
+      properties: {
+        'Plan': state.planName,
+        'Duration': state.durationDays + ' Days',
+        'Diet': state.dietPrefs.length ? state.dietPrefs.join(', ') : 'Standard',
+        'Address': address,
+        'Slot': state.slot
+      }
+    };
+
+    btn.disabled = true;
+    btn.textContent = 'Adding…';
+    hideMessages();
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify(payload)
+    })
+    .then(function (res) {
+      if (!res.ok) return res.json().then(function (d) { throw new Error(d.description || 'Unable to add to cart.'); });
+      return res.json();
+    })
+    .then(function () {
+      showSuccess();
+      btn.textContent = '✓ ADDED — VIEW CART';
+      btn.disabled = false;
+      btn.onclick = function () { window.location.href = '/cart'; };
+    })
+    .catch(function (err) {
+      showError(err.message);
+      btn.disabled = false;
+      btn.textContent = 'START MY TIFFIN →';
+    });
+  });
+
+  function showError(msg) {
+    if (errMsg) { errMsg.textContent = msg; errMsg.hidden = false; }
+    if (sucMsg) sucMsg.hidden = true;
+  }
+  function showSuccess() {
+    if (sucMsg) sucMsg.hidden = false;
+    if (errMsg) errMsg.hidden = true;
+  }
+  function hideMessages() {
+    if (errMsg) errMsg.hidden = true;
+    if (sucMsg) sucMsg.hidden = true;
+  }
+
+  /* ── Init ── */
+  updatePriceDisplay();
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Tiffin Service",
+  "tag": "section",
+  "class": "qb-tiffin-section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "QB Tiffin Service"
+    }
+  ]
+}
+{% endschema %}

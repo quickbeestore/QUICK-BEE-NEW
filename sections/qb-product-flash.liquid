@@ -1,0 +1,1049 @@
+{% comment %} QuickBee Flash Deal Product Page — qb-product-flash.liquid {% endcomment %}
+
+<style>
+  /* ── Design Tokens ── */
+  [data-theme="dark"] {
+    --bg: #090909;
+    --card: #111111;
+    --bg3: #1a1a1a;
+    --border: rgba(255,255,255,0.07);
+    --text: #f0f0f0;
+    --text2: #888888;
+    --shadow: 0 4px 24px rgba(0,0,0,0.6);
+    --green: #22c55e;
+    --red: #FF4444;
+    --gold: #F4B400;
+  }
+  html:not([data-theme]),
+  [data-theme="light"] {
+    --bg: #f4f5f8;
+    --card: #ffffff;
+    --bg3: #eef0f4;
+    --border: rgba(15,23,42,0.08);
+    --text: #0f172a;
+    --text2: #64748b;
+    --shadow: 0 4px 24px rgba(15,23,42,0.08);
+    --green: #16a34a;
+    --red: #FF4444;
+    --gold: #F4B400;
+  }
+
+  /* ── Base ── */
+  .qb-flash {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* ── Hero ── */
+  .qb-flash__hero {
+    background: linear-gradient(135deg, #1a0a00 0%, #2d1500 40%, #1a0800 70%, #0a0000 100%);
+    padding: 32px 20px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(244,180,0,0.2);
+  }
+
+  [data-theme="light"] .qb-flash__hero,
+  html:not([data-theme]) .qb-flash__hero {
+    background: linear-gradient(135deg, #fff8e7 0%, #fef3c7 40%, #fff8e7 70%, #fffbf0 100%);
+    border-bottom: 1px solid rgba(244,180,0,0.3);
+  }
+
+  /* Animated glow background blob */
+  .qb-flash__hero::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle, rgba(244,180,0,0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: qbf-glow-pulse 2.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes qbf-glow-pulse {
+    0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+    50% { opacity: 1; transform: translateX(-50%) scale(1.15); }
+  }
+
+  /* Lightning bolt icon */
+  .qb-flash__lightning {
+    font-size: 52px;
+    line-height: 1;
+    animation: qbf-bolt 0.8s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 16px rgba(244,180,0,0.8));
+    position: relative;
+    z-index: 1;
+  }
+
+  @keyframes qbf-bolt {
+    0% { transform: scale(1) rotate(-3deg); filter: drop-shadow(0 0 16px rgba(244,180,0,0.8)); }
+    100% { transform: scale(1.08) rotate(3deg); filter: drop-shadow(0 0 28px rgba(244,180,0,1)); }
+  }
+
+  /* Flash deal badge - pulsing */
+  .qb-flash__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(90deg, #FF4444, #F97316);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 6px 16px;
+    border-radius: 20px;
+    position: relative;
+    z-index: 1;
+    animation: qbf-pulse-badge 1.5s ease-in-out infinite;
+    box-shadow: 0 4px 16px rgba(255,68,68,0.5);
+  }
+
+  @keyframes qbf-pulse-badge {
+    0%, 100% { box-shadow: 0 4px 16px rgba(255,68,68,0.5); transform: scale(1); }
+    50% { box-shadow: 0 4px 28px rgba(255,68,68,0.8); transform: scale(1.04); }
+  }
+
+  .qb-flash__title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #f0f0f0;
+    line-height: 1.25;
+    margin: 0;
+    max-width: 420px;
+    position: relative;
+    z-index: 1;
+  }
+
+  [data-theme="light"] .qb-flash__title,
+  html:not([data-theme]) .qb-flash__title {
+    color: #0f172a;
+  }
+
+  .qb-flash__price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .qb-flash__price {
+    font-size: 50px;
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+    text-shadow: 0 2px 16px rgba(244,180,0,0.5);
+  }
+
+  .qb-flash__compare {
+    font-size: 22px;
+    color: var(--text2);
+    text-decoration: line-through;
+  }
+
+  .qb-flash__off-badge {
+    background: #FF4444;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    padding: 5px 12px;
+    border-radius: 12px;
+    align-self: center;
+  }
+
+  /* ── Body ── */
+  .qb-flash__body {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 20px 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ── Section Card ── */
+  .qb-flash__section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 18px 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .qb-flash__section-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text2);
+    margin-bottom: 12px;
+  }
+
+  /* ── Countdown Timer ── */
+  .qb-flash__countdown-head {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    margin-bottom: 14px;
+  }
+
+  .qb-flash__timer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .qb-flash__timer-box {
+    background: var(--bg3);
+    border: 1px solid rgba(244,180,0,0.25);
+    border-radius: 14px;
+    padding: 12px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .qb-flash__timer-box::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(244,180,0,0.06) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .qb-flash__timer-num {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .qb-flash__timer-lbl {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text2);
+  }
+
+  /* ── Progress Bar ── */
+  .qb-flash__progress-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .qb-flash__progress-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .qb-flash__progress-pct {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+
+  .qb-flash__progress-track {
+    width: 100%;
+    height: 10px;
+    background: var(--bg3);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .qb-flash__progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), #F97316);
+    border-radius: 20px;
+    transition: width 1.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .qb-flash__progress-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+    animation: qbf-progress-shine 2s linear infinite;
+  }
+
+  @keyframes qbf-progress-shine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* ── Stock urgency ── */
+  .qb-flash__stock-urgency {
+    background: rgba(255,68,68,0.1);
+    border: 1px solid rgba(255,68,68,0.25);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--red);
+  }
+
+  /* ── Variants ── */
+  .qb-flash__variants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .qb-flash__variant-pill {
+    border: 2px solid var(--border);
+    background: var(--bg3);
+    color: var(--text);
+    border-radius: 14px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 72px;
+    text-align: center;
+  }
+
+  .qb-flash__variant-pill span.vprice {
+    font-size: 11px;
+    color: var(--text2);
+    font-weight: 500;
+  }
+
+  .qb-flash__variant-pill.active,
+  .qb-flash__variant-pill:hover {
+    border-color: var(--gold);
+    background: rgba(244,180,0,0.10);
+    color: var(--gold);
+  }
+
+  .qb-flash__variant-pill.active span.vprice { color: var(--gold); }
+
+  /* ── Quantity ── */
+  .qb-flash__qty-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .qb-flash__qty-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .qb-flash__qty-sublabel {
+    font-size: 11px;
+    color: var(--red);
+    font-weight: 500;
+    margin-top: 1px;
+  }
+
+  .qb-flash__qty-ctrl {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--bg3);
+  }
+
+  .qb-flash__qty-btn {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 22px;
+    font-weight: 700;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+
+  .qb-flash__qty-btn:hover {
+    background: rgba(244,180,0,0.13);
+    color: var(--gold);
+  }
+
+  .qb-flash__qty-num {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    min-width: 36px;
+    text-align: center;
+    user-select: none;
+  }
+
+  /* ── CTA Button ── */
+  .qb-flash__cta {
+    width: 100%;
+    height: 58px;
+    border-radius: 16px;
+    border: none;
+    background: linear-gradient(90deg, #FF4444 0%, #F97316 50%, var(--gold) 100%);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    box-shadow: 0 4px 24px rgba(255,68,68,0.4);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .qb-flash__cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+  }
+
+  .qb-flash__cta:hover::before { transform: translateX(100%); }
+
+  .qb-flash__cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(255,68,68,0.55);
+  }
+
+  .qb-flash__cta:active { transform: translateY(0); }
+
+  .qb-flash__cta.added {
+    background: var(--green);
+    box-shadow: 0 4px 16px rgba(34,197,94,0.35);
+  }
+
+  .qb-flash__cta.expired {
+    background: var(--text2);
+    cursor: not-allowed;
+    box-shadow: none;
+    color: var(--bg);
+    transform: none;
+  }
+
+  .qb-flash__cta:disabled {
+    background: var(--text2);
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+    color: var(--bg);
+  }
+
+  /* ── Expired state ── */
+  .qb-flash__expired-notice {
+    display: none;
+    background: rgba(136,136,136,0.1);
+    border: 1px solid rgba(136,136,136,0.25);
+    border-radius: 14px;
+    padding: 14px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text2);
+    font-weight: 600;
+  }
+
+  .qb-flash__expired-notice.visible { display: block; }
+
+  /* ── Also Grabbed ── */
+  .qb-flash__also-head {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .qb-flash__also-scroll {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .qb-flash__also-scroll::-webkit-scrollbar { display: none; }
+
+  .qb-flash__also-card {
+    flex-shrink: 0;
+    width: 120px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+  }
+
+  .qb-flash__also-card:hover {
+    border-color: var(--gold);
+    background: rgba(244,180,0,0.07);
+    transform: translateY(-2px);
+  }
+
+  .qb-flash__also-emoji { font-size: 28px; }
+  .qb-flash__also-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .qb-flash__also-badge {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--red);
+    background: rgba(255,68,68,0.1);
+    border-radius: 20px;
+    padding: 2px 7px;
+  }
+
+  /* ── Share Buttons ── */
+  .qb-flash__share-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .qb-flash__share-btn {
+    flex: 1;
+    height: 44px;
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    background: var(--bg3);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: all 0.15s;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    text-decoration: none;
+  }
+
+  .qb-flash__share-btn.whatsapp:hover {
+    background: rgba(37,211,102,0.12);
+    border-color: #25D366;
+    color: #25D366;
+  }
+
+  .qb-flash__share-btn.copy:hover {
+    background: rgba(244,180,0,0.10);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* ── Terms ── */
+  .qb-flash__terms {
+    font-size: 11px;
+    color: var(--text2);
+    text-align: center;
+    line-height: 1.6;
+    padding: 0 4px;
+  }
+
+  /* ── Toast ── */
+  .qb-flash-toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--gold);
+    color: #000;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 22px;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.28s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .qb-flash-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .qb-flash-toast.error { background: #FF4444; color: #fff; }
+
+  @media (min-width: 600px) {
+    .qb-flash__hero { padding: 44px 32px 36px; }
+    .qb-flash__title { font-size: 26px; }
+    .qb-flash__body { padding: 24px 20px 0; }
+  }
+</style>
+
+{% comment %} Savings percentage {% endcomment %}
+{% assign savings_pct = 0 %}
+{% if product.compare_at_price > product.price %}
+  {% assign savings_pct = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price %}
+{% endif %}
+
+<div class="qb-flash" id="qb-flash-root">
+
+  <!-- Hero -->
+  <div class="qb-flash__hero">
+    <div class="qb-flash__lightning">⚡</div>
+    <div class="qb-flash__badge">⚡ FLASH DEAL</div>
+    <h1 class="qb-flash__title">{{ product.title }}</h1>
+
+    <div class="qb-flash__price-row">
+      <span class="qb-flash__price" id="qbf-price">
+        Rs {{ product.selected_or_first_available_variant.price | divided_by: 100.0 | floor }}
+      </span>
+      {% if product.compare_at_price > product.price %}
+        <span class="qb-flash__compare">
+          Rs {{ product.compare_at_price | divided_by: 100.0 | floor }}
+        </span>
+        <span class="qb-flash__off-badge">{{ savings_pct }}% OFF</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="qb-flash__body">
+
+    <!-- Countdown Timer -->
+    <div class="qb-flash__section">
+      <div class="qb-flash__countdown-head">⏱ Deal ends in:</div>
+      <div class="qb-flash__timer-grid">
+        <div class="qb-flash__timer-box">
+          <span class="qb-flash__timer-num" id="qbf-dd">00</span>
+          <span class="qb-flash__timer-lbl">Days</span>
+        </div>
+        <div class="qb-flash__timer-box">
+          <span class="qb-flash__timer-num" id="qbf-hh">00</span>
+          <span class="qb-flash__timer-lbl">Hours</span>
+        </div>
+        <div class="qb-flash__timer-box">
+          <span class="qb-flash__timer-num" id="qbf-mm">00</span>
+          <span class="qb-flash__timer-lbl">Mins</span>
+        </div>
+        <div class="qb-flash__timer-box">
+          <span class="qb-flash__timer-num" id="qbf-ss">00</span>
+          <span class="qb-flash__timer-lbl">Secs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Bar + Stock -->
+    <div class="qb-flash__section">
+      <div class="qb-flash__progress-row">
+        <span class="qb-flash__progress-label">🔥 Demand</span>
+        <span class="qb-flash__progress-pct" id="qbf-pct">0%</span>
+      </div>
+      <div class="qb-flash__progress-track">
+        <div class="qb-flash__progress-fill" id="qbf-fill" style="width:0%"></div>
+      </div>
+      <div style="margin-top:10px;">
+        <div class="qb-flash__stock-urgency">
+          <span>⚠️</span>
+          <span>Only <strong id="qbf-stock">5</strong> left in stock!</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Variants -->
+    {% if product.variants.size > 1 %}
+      <div class="qb-flash__section">
+        <div class="qb-flash__section-label">Choose Option</div>
+        <div class="qb-flash__variants" id="qbf-variants">
+          {% for variant in product.variants %}
+            <button
+              class="qb-flash__variant-pill{% if forloop.first %} active{% endif %}"
+              data-variant-id="{{ variant.id }}"
+              data-variant-price="{{ variant.price | divided_by: 100.0 | floor }}"
+              aria-label="{{ variant.title }}"
+            >
+              {{ variant.title }}
+              <span class="vprice">Rs {{ variant.price | divided_by: 100.0 | floor }}</span>
+            </button>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Quantity (max 3) -->
+    <div class="qb-flash__section">
+      <div class="qb-flash__qty-row">
+        <div>
+          <div class="qb-flash__qty-label">Quantity</div>
+          <div class="qb-flash__qty-sublabel">Max 3 per customer</div>
+        </div>
+        <div class="qb-flash__qty-ctrl">
+          <button class="qb-flash__qty-btn" id="qbf-minus" aria-label="Decrease">−</button>
+          <span class="qb-flash__qty-num" id="qbf-qty">1</span>
+          <button class="qb-flash__qty-btn" id="qbf-plus" aria-label="Increase">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grab Deal Button -->
+    <button
+      class="qb-flash__cta"
+      id="qbf-atc"
+      {% unless product.available %}disabled{% endunless %}
+      data-product-id="{{ product.id }}"
+      data-default-variant="{{ product.selected_or_first_available_variant.id }}"
+    >
+      {% if product.available %}
+        GRAB DEAL NOW ⚡
+      {% else %}
+        Out of Stock
+      {% endif %}
+    </button>
+
+    <!-- Expired notice (hidden until timer hits 0) -->
+    <div class="qb-flash__expired-notice" id="qbf-expired">
+      ⏰ This flash deal has expired. Check back soon for new deals!
+    </div>
+
+    <!-- Customers Also Grabbed -->
+    <div class="qb-flash__section">
+      <div class="qb-flash__also-head">⚡ Customers also grabbed</div>
+      <div class="qb-flash__also-scroll">
+        <a class="qb-flash__also-card" href="/products/maggi-instant-noodles">
+          <span class="qb-flash__also-emoji">🍜</span>
+          <span class="qb-flash__also-name">Maggi Noodles</span>
+          <span class="qb-flash__also-badge">HOT</span>
+        </a>
+        <a class="qb-flash__also-card" href="/products/coca-cola-330ml">
+          <span class="qb-flash__also-emoji">🥤</span>
+          <span class="qb-flash__also-name">Coca Cola 330ml</span>
+          <span class="qb-flash__also-badge">DEAL</span>
+        </a>
+        <a class="qb-flash__also-card" href="/products/lays-classic-chips">
+          <span class="qb-flash__also-emoji">🍟</span>
+          <span class="qb-flash__also-name">Lays Classic</span>
+          <span class="qb-flash__also-badge">FLASH</span>
+        </a>
+        <a class="qb-flash__also-card" href="/products/dairy-milk-chocolate">
+          <span class="qb-flash__also-emoji">🍫</span>
+          <span class="qb-flash__also-name">Dairy Milk Choc</span>
+          <span class="qb-flash__also-badge">OFFER</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Share Buttons -->
+    <div class="qb-flash__section">
+      <div class="qb-flash__section-label">Share This Deal</div>
+      <div class="qb-flash__share-row">
+        <a
+          class="qb-flash__share-btn whatsapp"
+          id="qbf-share-wa"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          WhatsApp
+        </a>
+        <button class="qb-flash__share-btn copy" id="qbf-copy-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+          </svg>
+          Copy Link
+        </button>
+      </div>
+    </div>
+
+    <!-- Terms -->
+    <p class="qb-flash__terms">
+      Flash deal price valid for limited time only. Maximum 3 units per customer per order. QuickBee reserves the right to end the deal at any time. Subject to availability.
+    </p>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="qb-flash-toast" id="qb-toast-flash" role="alert" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── State ── */
+  var qty = 1;
+  var maxQty = 3;
+  var selectedVariantId = null;
+  var isExpired = false;
+  var PRODUCT_ID = '{{ product.id }}';
+
+  /* ── DOM refs ── */
+  var qtyEl        = document.getElementById('qbf-qty');
+  var plusBtn       = document.getElementById('qbf-plus');
+  var minusBtn      = document.getElementById('qbf-minus');
+  var atcBtn        = document.getElementById('qbf-atc');
+  var priceEl       = document.getElementById('qbf-price');
+  var variantsWrap  = document.getElementById('qbf-variants');
+  var toast         = document.getElementById('qb-toast-flash');
+  var fillEl        = document.getElementById('qbf-fill');
+  var pctEl         = document.getElementById('qbf-pct');
+  var stockEl       = document.getElementById('qbf-stock');
+  var expiredEl     = document.getElementById('qbf-expired');
+  var ddEl          = document.getElementById('qbf-dd');
+  var hhEl          = document.getElementById('qbf-hh');
+  var mmEl          = document.getElementById('qbf-mm');
+  var ssEl          = document.getElementById('qbf-ss');
+  var waBtn         = document.getElementById('qbf-share-wa');
+  var copyBtn       = document.getElementById('qbf-copy-link');
+
+  if (atcBtn) {
+    selectedVariantId = atcBtn.dataset.defaultVariant;
+  }
+
+  /* ── Random progress bar (60–90%) ── */
+  (function initProgress() {
+    var pct = Math.floor(Math.random() * 31) + 60;
+    setTimeout(function () {
+      if (fillEl) fillEl.style.width = pct + '%';
+      if (pctEl) pctEl.textContent = pct + '% claimed';
+    }, 300);
+  })();
+
+  /* ── Random stock (3–12) ── */
+  if (stockEl) {
+    stockEl.textContent = Math.floor(Math.random() * 10) + 3;
+  }
+
+  /* ── Countdown Timer ── */
+  (function initTimer() {
+    var storageKey = 'qb_flash_deal_end_' + PRODUCT_ID;
+    var endTime = null;
+
+    try {
+      var saved = localStorage.getItem(storageKey);
+      if (saved) {
+        endTime = parseInt(saved, 10);
+        if (isNaN(endTime) || endTime <= Date.now()) {
+          /* Deal was expired — set new 23:59:59 window */
+          endTime = Date.now() + (23 * 3600 + 59 * 60 + 59) * 1000;
+          localStorage.setItem(storageKey, endTime);
+        }
+      } else {
+        endTime = Date.now() + (23 * 3600 + 59 * 60 + 59) * 1000;
+        localStorage.setItem(storageKey, endTime);
+      }
+    } catch (e) {
+      endTime = Date.now() + (23 * 3600 + 59 * 60 + 59) * 1000;
+    }
+
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+    function handleExpiry() {
+      if (isExpired) return;
+      isExpired = true;
+      if (ddEl) ddEl.textContent = '00';
+      if (hhEl) hhEl.textContent = '00';
+      if (mmEl) mmEl.textContent = '00';
+      if (ssEl) ssEl.textContent = '00';
+      if (atcBtn) {
+        atcBtn.disabled = true;
+        atcBtn.classList.add('expired');
+        atcBtn.textContent = 'Deal Expired';
+      }
+      if (expiredEl) expiredEl.classList.add('visible');
+    }
+
+    function tick() {
+      var diff = endTime - Date.now();
+      if (diff <= 0) {
+        handleExpiry();
+        return;
+      }
+      var days = Math.floor(diff / 86400000);
+      var hours = Math.floor((diff % 86400000) / 3600000);
+      var mins  = Math.floor((diff % 3600000) / 60000);
+      var secs  = Math.floor((diff % 60000) / 1000);
+      if (ddEl) ddEl.textContent = pad(days);
+      if (hhEl) hhEl.textContent = pad(hours);
+      if (mmEl) mmEl.textContent = pad(mins);
+      if (ssEl) ssEl.textContent = pad(secs);
+    }
+
+    tick();
+    setInterval(tick, 1000);
+  })();
+
+  /* ── Quantity stepper ── */
+  if (plusBtn) {
+    plusBtn.addEventListener('click', function () {
+      if (qty < maxQty) { qty++; qtyEl.textContent = qty; }
+    });
+  }
+
+  if (minusBtn) {
+    minusBtn.addEventListener('click', function () {
+      if (qty > 1) { qty--; qtyEl.textContent = qty; }
+    });
+  }
+
+  /* ── Variant pills ── */
+  if (variantsWrap) {
+    variantsWrap.addEventListener('click', function (e) {
+      var pill = e.target.closest('.qb-flash__variant-pill');
+      if (!pill) return;
+      variantsWrap.querySelectorAll('.qb-flash__variant-pill').forEach(function (p) {
+        p.classList.remove('active');
+      });
+      pill.classList.add('active');
+      selectedVariantId = pill.dataset.variantId;
+      if (priceEl) priceEl.textContent = 'Rs ' + pill.dataset.variantPrice;
+    });
+  }
+
+  /* ── Toast helper ── */
+  var toastTimer = null;
+  function showToast(msg, isError) {
+    if (!toast) return;
+    clearTimeout(toastTimer);
+    toast.textContent = msg;
+    toast.classList.toggle('error', !!isError);
+    toast.classList.add('show');
+    toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 3000);
+  }
+
+  /* ── Add to cart ── */
+  if (atcBtn && atcBtn.dataset.defaultVariant) {
+    atcBtn.addEventListener('click', function () {
+      if (atcBtn.disabled || isExpired) return;
+      var varId = selectedVariantId || atcBtn.dataset.defaultVariant;
+      if (!varId) { showToast('Please select an option', true); return; }
+
+      atcBtn.disabled = true;
+      atcBtn.textContent = 'Adding…';
+
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: parseInt(varId, 10),
+          quantity: qty,
+          properties: { 'Deal Type': 'Flash Deal', 'Max Per Customer': '3' }
+        })
+      })
+      .then(function (res) {
+        if (!res.ok) return res.json().then(function (d) { throw new Error(d.description || 'Error'); });
+        return res.json();
+      })
+      .then(function () {
+        atcBtn.classList.add('added');
+        atcBtn.textContent = '✓ Grabbed!';
+        showToast('Flash deal grabbed! ⚡');
+        window.dispatchEvent(new CustomEvent('cart:updated'));
+        setTimeout(function () {
+          atcBtn.classList.remove('added');
+          atcBtn.disabled = false;
+          atcBtn.textContent = 'GRAB DEAL NOW ⚡';
+        }, 1500);
+      })
+      .catch(function (err) {
+        atcBtn.disabled = false;
+        atcBtn.textContent = 'GRAB DEAL NOW ⚡';
+        showToast(err.message || 'Could not add to cart', true);
+      });
+    });
+  }
+
+  /* ── WhatsApp share ── */
+  if (waBtn) {
+    waBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      var url = window.location.href;
+      var text = encodeURIComponent('⚡ Flash Deal! Check this out: ' + url);
+      window.open('https://wa.me/?text=' + text, '_blank', 'noopener,noreferrer');
+    });
+  }
+
+  /* ── Copy link ── */
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function () {
+      var url = window.location.href;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function () {
+          showToast('Link copied! 📋');
+        }).catch(function () {
+          fallbackCopy(url);
+        });
+      } else {
+        fallbackCopy(url);
+      }
+    });
+  }
+
+  function fallbackCopy(text) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('Link copied! 📋');
+    } catch (e) {
+      showToast('Could not copy link', true);
+    }
+  }
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Flash Deal Product",
+  "settings": []
+}
+{% endschema %}

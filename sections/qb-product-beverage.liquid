@@ -1,0 +1,1100 @@
+{% comment %}
+  QB Beverage Product Section
+  QuickBee Store — Beverages & Drinks Product Pages
+  Theme: Dark/Light · Gold accent #F4B400
+  Mobile-first · No product images
+{% endcomment %}
+
+{% liquid
+  assign is_chilled  = false
+  assign is_hot      = false
+  assign shelf_days  = ''
+  assign cal_val     = ''
+  assign sugar_val   = ''
+  assign protein_val = ''
+  assign carbs_val   = ''
+
+  for tag in product.tags
+    if tag == 'chilled'
+      assign is_chilled = true
+    endif
+    if tag == 'hot'
+      assign is_hot = true
+    endif
+    if tag contains 'shelflife:'
+      assign shelf_days = tag | remove: 'shelflife:'
+    endif
+    if tag contains 'cal:'
+      assign cal_val = tag | remove: 'cal:'
+    endif
+    if tag contains 'sugar:'
+      assign sugar_val = tag | remove: 'sugar:'
+    endif
+    if tag contains 'protein:'
+      assign protein_val = tag | remove: 'protein:'
+    endif
+    if tag contains 'carbs:'
+      assign carbs_val = tag | remove: 'carbs:'
+    endif
+  endfor
+
+  assign type_emoji = '🧃'
+  assign type_color = 'var(--bev-gold)'
+  case product.type
+    when 'Cold Press Juice'
+      assign type_emoji = '🥤'
+      assign type_color = 'var(--bev-green)'
+    when 'Energy Drink'
+      assign type_emoji = '⚡'
+      assign type_color = 'var(--bev-red)'
+    when 'Smoothie'
+      assign type_emoji = '🍓'
+      assign type_color = 'var(--bev-pink)'
+    when 'Tea'
+      assign type_emoji = '🍵'
+      assign type_color = 'var(--bev-teal)'
+    when 'Coffee'
+      assign type_emoji = '☕'
+      assign type_color = 'var(--bev-brown)'
+    when 'Soda'
+      assign type_emoji = '🫧'
+      assign type_color = 'var(--bev-blue)'
+    when 'Water'
+      assign type_emoji = '💧'
+      assign type_color = 'var(--bev-cyan)'
+    when 'Milkshake'
+      assign type_emoji = '🥛'
+      assign type_color = 'var(--bev-cream)'
+  endcase
+
+  assign first_variant_title = product.selected_or_first_available_variant.title
+%}
+
+<style>
+  /* ── CSS Custom Properties ─────────────────────────────────────────── */
+  :root {
+    --bev-gold:        #F4B400;
+    --bev-gold-hover:  #d9a000;
+    --bev-green:       #22C55E;
+    --bev-red:         #EF4444;
+    --bev-pink:        #EC4899;
+    --bev-teal:        #14B8A6;
+    --bev-brown:       #92400E;
+    --bev-blue:        #3B82F6;
+    --bev-cyan:        #06B6D4;
+    --bev-cream:       #FEF3C7;
+
+    /* Dark theme (default) */
+    --bev-bg:           #0A0E14;
+    --bev-surface:      #141820;
+    --bev-surface-2:    #1C2230;
+    --bev-border:       #252D3E;
+    --bev-text-primary: #E8F0F8;
+    --bev-text-muted:   #7A8FA8;
+    --bev-text-dim:     #4A5A70;
+    --bev-pill-bg:      #1A2030;
+    --bev-pill-active:  #F4B400;
+    --bev-pill-active-text: #0A0E14;
+    --bev-trust-bg:     #10161E;
+    --bev-badge-chilled-bg:   #0A1F30;
+    --bev-badge-chilled-text: #38BDF8;
+    --bev-badge-hot-bg:       #2D0A0A;
+    --bev-badge-hot-text:     #FCA5A5;
+    --bev-strip-bg:     #080C12;
+    --bev-note-bg:      #0F1620;
+    --bev-note-border:  #F4B40033;
+    --bev-qty-bg:       #1C2230;
+    --bev-qty-border:   #2E3A50;
+    --bev-nutr-bg:      #111825;
+    --bev-nutr-border:  #252D3E;
+    --bev-temp-bg:      #141820;
+    --bev-temp-border:  #252D3E;
+    --bev-shelf-bg:     #0D1520;
+    --bev-btn-text:     #0A0E14;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bev-bg:           #F4F7FC;
+      --bev-surface:      #FFFFFF;
+      --bev-surface-2:    #EBF1F8;
+      --bev-border:       #D4DCE8;
+      --bev-text-primary: #0A1628;
+      --bev-text-muted:   #4A6080;
+      --bev-text-dim:     #7A90A8;
+      --bev-pill-bg:      #E8EFF8;
+      --bev-pill-active:  #F4B400;
+      --bev-pill-active-text: #0A0E14;
+      --bev-trust-bg:     #EEF4FB;
+      --bev-badge-chilled-bg:   #E0F2FE;
+      --bev-badge-chilled-text: #0369A1;
+      --bev-badge-hot-bg:       #FEE2E2;
+      --bev-badge-hot-text:     #991B1B;
+      --bev-strip-bg:     #E8EFF8;
+      --bev-note-bg:      #FFFBEB;
+      --bev-note-border:  #F4B400;
+      --bev-qty-bg:       #EBF1F8;
+      --bev-qty-border:   #C8D4E4;
+      --bev-nutr-bg:      #F0F5FB;
+      --bev-nutr-border:  #D4DCE8;
+      --bev-temp-bg:      #FFFFFF;
+      --bev-temp-border:  #D4DCE8;
+      --bev-shelf-bg:     #EBF8FF;
+      --bev-btn-text:     #0A0E14;
+    }
+  }
+
+  /* ── Layout ─────────────────────────────────────────────────────────── */
+  .qb-bev {
+    background: var(--bev-bg);
+    color: var(--bev-text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    padding: 0 0 4rem;
+  }
+
+  .qb-bev__inner {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  /* ── Freshness Strip ─────────────────────────────────────────────────── */
+  .qb-bev__strip {
+    background: var(--bev-strip-bg);
+    border-bottom: 1px solid var(--bev-gold);
+    overflow: hidden;
+    padding: 0.55rem 0;
+  }
+
+  .qb-bev__strip-track {
+    display: flex;
+    gap: 2.5rem;
+    animation: bev-scroll 24s linear infinite;
+    white-space: nowrap;
+    width: max-content;
+  }
+
+  .qb-bev__strip-item {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--bev-gold);
+  }
+
+  .qb-bev__strip-dot {
+    color: var(--bev-teal);
+    margin-left: 2.5rem;
+  }
+
+  @keyframes bev-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ── Header Block ────────────────────────────────────────────────────── */
+  .qb-bev__header {
+    padding: 1.5rem 0 0.5rem;
+  }
+
+  .qb-bev__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.9rem;
+    align-items: center;
+  }
+
+  .qb-bev__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .qb-bev__badge--type {
+    background: var(--bev-surface-2);
+    border: 1px solid var(--bev-border);
+    color: var(--bev-text-muted);
+  }
+
+  .qb-bev__badge--chilled {
+    background: var(--bev-badge-chilled-bg);
+    color: var(--bev-badge-chilled-text);
+    border: 1px solid var(--bev-badge-chilled-text);
+    animation: bev-pulse-blue 2.5s ease-in-out infinite;
+  }
+
+  .qb-bev__badge--hot {
+    background: var(--bev-badge-hot-bg);
+    color: var(--bev-badge-hot-text);
+    border: 1px solid var(--bev-badge-hot-text);
+    animation: bev-pulse-red 2.5s ease-in-out infinite;
+  }
+
+  @keyframes bev-pulse-blue {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(56,189,248,0); }
+    50%       { box-shadow: 0 0 0 4px rgba(56,189,248,0.2); }
+  }
+
+  @keyframes bev-pulse-red {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(252,165,165,0); }
+    50%       { box-shadow: 0 0 0 4px rgba(252,165,165,0.2); }
+  }
+
+  .qb-bev__title {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--bev-text-primary);
+    margin: 0 0 0.4rem;
+  }
+
+  .qb-bev__vendor {
+    font-size: 0.8rem;
+    color: var(--bev-text-muted);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+
+  /* ── Shelf Life Strip ────────────────────────────────────────────────── */
+  .qb-bev__shelf {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    color: var(--bev-teal);
+    background: var(--bev-shelf-bg);
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    border: 1px solid var(--bev-teal);
+    margin-bottom: 0.9rem;
+    font-weight: 600;
+  }
+
+  /* ── Price Block ─────────────────────────────────────────────────────── */
+  .qb-bev__price-block {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: var(--bev-surface);
+    border-radius: 12px;
+    border: 1px solid var(--bev-border);
+  }
+
+  .qb-bev__price {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--bev-gold);
+    line-height: 1;
+  }
+
+  .qb-bev__price-compare {
+    font-size: 1rem;
+    color: var(--bev-text-dim);
+    text-decoration: line-through;
+  }
+
+  .qb-bev__price-saving {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #4ADE80;
+    background: rgba(74,222,128,0.12);
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+  }
+
+  /* Volume info */
+  .qb-bev__volume {
+    margin-left: auto;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--bev-text-muted);
+    background: var(--bev-surface-2);
+    padding: 0.2rem 0.6rem;
+    border-radius: 8px;
+    border: 1px solid var(--bev-border);
+    align-self: center;
+  }
+
+  /* ── Variant Pills ───────────────────────────────────────────────────── */
+  .qb-bev__options {
+    margin: 1.2rem 0;
+  }
+
+  .qb-bev__option-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--bev-text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .qb-bev__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .qb-bev__pill {
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--bev-border);
+    background: var(--bev-pill-bg);
+    color: var(--bev-text-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .qb-bev__pill:hover {
+    border-color: var(--bev-gold);
+    color: var(--bev-gold);
+  }
+
+  .qb-bev__pill.is-active {
+    background: var(--bev-pill-active);
+    color: var(--bev-pill-active-text);
+    border-color: var(--bev-pill-active);
+    font-weight: 700;
+  }
+
+  .qb-bev__pill.is-unavailable {
+    opacity: 0.4;
+    cursor: not-allowed;
+    text-decoration: line-through;
+  }
+
+  /* ── Temperature Preference ──────────────────────────────────────────── */
+  .qb-bev__temp {
+    background: var(--bev-temp-bg);
+    border: 1.5px solid var(--bev-temp-border);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    margin: 1.2rem 0;
+  }
+
+  .qb-bev__temp-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--bev-text-muted);
+    margin-bottom: 0.6rem;
+  }
+
+  .qb-bev__temp-options {
+    display: flex;
+    gap: 0.6rem;
+  }
+
+  .qb-bev__temp-option {
+    flex: 1;
+    position: relative;
+  }
+
+  .qb-bev__temp-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .qb-bev__temp-option label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.6rem 0.5rem;
+    border-radius: 10px;
+    border: 1.5px solid var(--bev-border);
+    background: var(--bev-surface-2);
+    color: var(--bev-text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    text-align: center;
+  }
+
+  .qb-bev__temp-option input[type="radio"]:checked + label {
+    background: rgba(56,189,248,0.12);
+    border-color: #38BDF8;
+    color: #38BDF8;
+  }
+
+  .qb-bev__temp-option label:hover {
+    border-color: var(--bev-gold);
+    color: var(--bev-gold);
+  }
+
+  /* ── Quantity Stepper ────────────────────────────────────────────────── */
+  .qb-bev__qty-block {
+    margin: 1.2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .qb-bev__qty-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--bev-text-muted);
+    min-width: 100px;
+  }
+
+  .qb-bev__stepper {
+    display: flex;
+    align-items: center;
+    background: var(--bev-qty-bg);
+    border: 1.5px solid var(--bev-qty-border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .qb-bev__stepper-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--bev-text-primary);
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .qb-bev__stepper-btn:hover {
+    background: var(--bev-surface-2);
+    color: var(--bev-gold);
+  }
+
+  .qb-bev__stepper-input {
+    width: 44px;
+    text-align: center;
+    background: transparent;
+    border: none;
+    border-left: 1px solid var(--bev-qty-border);
+    border-right: 1px solid var(--bev-qty-border);
+    color: var(--bev-text-primary);
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.5rem 0;
+    -moz-appearance: textfield;
+  }
+
+  .qb-bev__stepper-input::-webkit-inner-spin-button,
+  .qb-bev__stepper-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+  }
+
+  /* ── Nutrition Card ──────────────────────────────────────────────────── */
+  .qb-bev__nutrition {
+    background: var(--bev-nutr-bg);
+    border: 1.5px solid var(--bev-nutr-border);
+    border-radius: 14px;
+    padding: 1rem;
+    margin: 1.2rem 0;
+  }
+
+  .qb-bev__nutrition-title {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bev-gold);
+    margin-bottom: 0.8rem;
+  }
+
+  .qb-bev__nutrition-desc {
+    font-size: 0.82rem;
+    color: var(--bev-text-muted);
+    line-height: 1.5;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid var(--bev-border);
+  }
+
+  .qb-bev__nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+
+  .qb-bev__nutr-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.5rem 0.25rem;
+    background: var(--bev-surface-2);
+    border-radius: 8px;
+    border: 1px solid var(--bev-border);
+  }
+
+  .qb-bev__nutr-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--bev-text-dim);
+  }
+
+  .qb-bev__nutr-value {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--bev-text-primary);
+  }
+
+  /* ── Add to Cart ─────────────────────────────────────────────────────── */
+  .qb-bev__atc-wrap {
+    margin: 1.5rem 0 0.6rem;
+  }
+
+  .qb-bev__atc-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--bev-gold);
+    color: var(--bev-btn-text);
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .qb-bev__atc-btn:hover:not(:disabled) {
+    background: var(--bev-gold-hover);
+  }
+
+  .qb-bev__atc-btn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .qb-bev__atc-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .qb-bev__atc-msg {
+    min-height: 1.4rem;
+    text-align: center;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+
+  .qb-bev__atc-msg.success { color: #4ADE80; }
+  .qb-bev__atc-msg.error   { color: #F87171; }
+
+  /* ── Order Note ──────────────────────────────────────────────────────── */
+  .qb-bev__order-note {
+    background: var(--bev-note-bg);
+    border: 1px solid var(--bev-note-border);
+    border-radius: 10px;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.78rem;
+    color: var(--bev-text-muted);
+    text-align: center;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+
+  /* ── Trust Grid ──────────────────────────────────────────────────────── */
+  .qb-bev__trust {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    margin: 1.8rem 0 0;
+  }
+
+  .qb-bev__trust-card {
+    background: var(--bev-trust-bg);
+    border: 1px solid var(--bev-border);
+    border-radius: 12px;
+    padding: 0.8rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .qb-bev__trust-icon {
+    font-size: 1.3rem;
+    line-height: 1;
+  }
+
+  .qb-bev__trust-title {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--bev-text-primary);
+    line-height: 1.2;
+  }
+
+  .qb-bev__trust-sub {
+    font-size: 0.7rem;
+    color: var(--bev-text-muted);
+    line-height: 1.3;
+  }
+
+  /* ── Divider ─────────────────────────────────────────────────────────── */
+  .qb-bev__divider {
+    height: 1px;
+    background: var(--bev-border);
+    margin: 1.5rem 0;
+  }
+</style>
+
+{%- comment -%} ── Freshness Strip ─────────────────────────────────────── {%- endcomment -%}
+<div class="qb-bev__strip">
+  <div class="qb-bev__strip-track">
+    {%- for i in (1..2) -%}
+      <span class="qb-bev__strip-item">No Artificial Colours</span>
+      <span class="qb-bev__strip-dot">✦</span>
+      <span class="qb-bev__strip-item">Cold Pressed & Fresh</span>
+      <span class="qb-bev__strip-dot">✦</span>
+      <span class="qb-bev__strip-item">No Added Preservatives</span>
+      <span class="qb-bev__strip-dot">✦</span>
+      <span class="qb-bev__strip-item">FSSAI Certified</span>
+      <span class="qb-bev__strip-dot">✦</span>
+    {%- endfor -%}
+  </div>
+</div>
+
+<section class="qb-bev" data-section-id="{{ section.id }}" data-product-id="{{ product.id }}">
+  <div class="qb-bev__inner">
+
+    {%- comment -%} ── Header ───────────────────────────────────────────── {%- endcomment -%}
+    <header class="qb-bev__header">
+      <div class="qb-bev__badges">
+        <span class="qb-bev__badge qb-bev__badge--type" style="color:{{ type_color }}">
+          {{ type_emoji }} {{ product.type }}
+        </span>
+        {%- if is_chilled -%}
+          <span class="qb-bev__badge qb-bev__badge--chilled">🧊 Chilled &amp; Fresh</span>
+        {%- endif -%}
+        {%- if is_hot -%}
+          <span class="qb-bev__badge qb-bev__badge--hot">🔥 Hot Beverage</span>
+        {%- endif -%}
+      </div>
+
+      {% if product.vendor != blank %}
+        <p class="qb-bev__vendor">{{ product.vendor }}</p>
+      {% endif %}
+
+      <h1 class="qb-bev__title">{{ product.title }}</h1>
+
+      <div class="qb-bev__shelf">
+        📅
+        {%- if shelf_days != '' -%}
+          Best within {{ shelf_days }} days of delivery
+        {%- else -%}
+          Consume within 3 days
+        {%- endif -%}
+      </div>
+    </header>
+
+    {%- comment -%} ── Price ────────────────────────────────────────────── {%- endcomment -%}
+    <div class="qb-bev__price-block">
+      <span class="qb-bev__price" id="bev-price">
+        {{ product.selected_or_first_available_variant.price | money }}
+      </span>
+      {%- if product.compare_at_price > product.price -%}
+        <span class="qb-bev__price-compare">
+          {{ product.compare_at_price | money }}
+        </span>
+        {%- assign saving = product.compare_at_price | minus: product.price -%}
+        {%- assign saving_pct = saving | times: 100 | divided_by: product.compare_at_price -%}
+        <span class="qb-bev__price-saving">Save {{ saving_pct }}%</span>
+      {%- endif -%}
+      <span class="qb-bev__volume" id="bev-volume-display">
+        {%- assign volume_match = first_variant_title | downcase -%}
+        {%- if volume_match contains 'ml' or volume_match contains 'l' -%}
+          {{ first_variant_title }}
+        {%- elsif volume_match != 'default title' -%}
+          {{ first_variant_title }}
+        {%- endif -%}
+      </span>
+    </div>
+
+    {%- comment -%} ── Variants ─────────────────────────────────────────── {%- endcomment -%}
+    {%- unless product.has_only_default_variant -%}
+      {%- for option in product.options_with_values -%}
+        <div class="qb-bev__options">
+          <p class="qb-bev__option-label">
+            {{ option.name }}:
+            <span id="bev-opt-val-{{ forloop.index0 }}" style="color:var(--bev-gold);font-weight:800;">
+              {{ option.selected_value }}
+            </span>
+          </p>
+          <div class="qb-bev__pills" data-option-index="{{ forloop.index0 }}">
+            {%- for value in option.values -%}
+              {%- assign is_active = false -%}
+              {%- if value == option.selected_value -%}
+                {%- assign is_active = true -%}
+              {%- endif -%}
+              <button
+                class="qb-bev__pill{% if is_active %} is-active{% endif %}"
+                data-value="{{ value }}"
+                data-option-index="{{ forloop.parentloop.index0 }}"
+                type="button"
+              >{{ value }}</button>
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endfor -%}
+    {%- endunless -%}
+
+    <div class="qb-bev__divider"></div>
+
+    {%- comment -%} ── Temperature Preference (chilled only) ─────────────── {%- endcomment -%}
+    {%- if is_chilled -%}
+      <div class="qb-bev__temp">
+        <p class="qb-bev__temp-label">Temperature Preference</p>
+        <div class="qb-bev__temp-options" role="radiogroup" aria-label="Temperature preference">
+          <div class="qb-bev__temp-option">
+            <input type="radio" name="bev-temp" id="bev-temp-chilled" value="Chilled" checked />
+            <label for="bev-temp-chilled">Chilled 🧊</label>
+          </div>
+          <div class="qb-bev__temp-option">
+            <input type="radio" name="bev-temp" id="bev-temp-room" value="Room Temperature" />
+            <label for="bev-temp-room">Room Temp 🌡️</label>
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} ── Quantity Stepper ──────────────────────────────────── {%- endcomment -%}
+    <div class="qb-bev__qty-block">
+      <span class="qb-bev__qty-label">Bottles / Packs</span>
+      <div class="qb-bev__stepper" role="group" aria-label="Quantity">
+        <button class="qb-bev__stepper-btn" id="bev-qty-dec" type="button" aria-label="Decrease quantity">−</button>
+        <input
+          class="qb-bev__stepper-input"
+          id="bev-qty"
+          type="number"
+          value="1"
+          min="1"
+          max="24"
+          aria-label="Quantity"
+        />
+        <button class="qb-bev__stepper-btn" id="bev-qty-inc" type="button" aria-label="Increase quantity">+</button>
+      </div>
+    </div>
+
+    {%- comment -%} ── Nutrition Info Card ───────────────────────────────── {%- endcomment -%}
+    <div class="qb-bev__nutrition">
+      <p class="qb-bev__nutrition-title">Nutrition Info</p>
+
+      {%- assign nutr_desc = product.description | strip_html | split: '.' | first -%}
+      {%- if nutr_desc != blank -%}
+        <p class="qb-bev__nutrition-desc">{{ nutr_desc }}.</p>
+      {%- endif -%}
+
+      <div class="qb-bev__nutrition-grid">
+        <div class="qb-bev__nutr-cell">
+          <span class="qb-bev__nutr-label">Calories</span>
+          <span class="qb-bev__nutr-value" id="bev-nutr-cal">
+            {%- if cal_val != '' -%}{{ cal_val }}{%- else -%}See label{%- endif -%}
+          </span>
+        </div>
+        <div class="qb-bev__nutr-cell">
+          <span class="qb-bev__nutr-label">Sugar</span>
+          <span class="qb-bev__nutr-value" id="bev-nutr-sugar">
+            {%- if sugar_val != '' -%}{{ sugar_val }}{%- else -%}See label{%- endif -%}
+          </span>
+        </div>
+        <div class="qb-bev__nutr-cell">
+          <span class="qb-bev__nutr-label">Protein</span>
+          <span class="qb-bev__nutr-value" id="bev-nutr-protein">
+            {%- if protein_val != '' -%}{{ protein_val }}{%- else -%}See label{%- endif -%}
+          </span>
+        </div>
+        <div class="qb-bev__nutr-cell">
+          <span class="qb-bev__nutr-label">Carbs</span>
+          <span class="qb-bev__nutr-value" id="bev-nutr-carbs">
+            {%- if carbs_val != '' -%}{{ carbs_val }}{%- else -%}See label{%- endif -%}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    {%- comment -%} ── Add to Cart ──────────────────────────────────────── {%- endcomment -%}
+    <div class="qb-bev__atc-wrap">
+      <button
+        class="qb-bev__atc-btn"
+        id="bev-atc-btn"
+        type="button"
+        data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+        data-product-type="{{ product.type | escape }}"
+        {%- unless product.available -%}disabled aria-disabled="true"{%- endunless -%}
+      >
+        {%- if product.available -%}
+          🛒 Add to Cart
+        {%- else -%}
+          Out of Stock
+        {%- endif -%}
+      </button>
+      <div class="qb-bev__atc-msg" id="bev-atc-msg" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="qb-bev__order-note">
+      🚚 Free delivery on orders above ₹299 · Same-day dispatch
+    </div>
+
+    <div class="qb-bev__divider"></div>
+
+    {%- comment -%} ── Trust Grid ───────────────────────────────────────── {%- endcomment -%}
+    <div class="qb-bev__trust">
+      <div class="qb-bev__trust-card">
+        <span class="qb-bev__trust-icon">🎨</span>
+        <span class="qb-bev__trust-title">No Artificial Colours</span>
+        <span class="qb-bev__trust-sub">100% natural colour from real ingredients</span>
+      </div>
+
+      <div class="qb-bev__trust-card">
+        <span class="qb-bev__trust-icon">🥤</span>
+        <span class="qb-bev__trust-title">Cold Pressed / Brewed Fresh</span>
+        <span class="qb-bev__trust-sub">Maximum nutrients, minimal processing</span>
+      </div>
+
+      <div class="qb-bev__trust-card">
+        <span class="qb-bev__trust-icon">🚫</span>
+        <span class="qb-bev__trust-title">No Added Preservatives</span>
+        <span class="qb-bev__trust-sub">Naturally fresh — no shelf-life chemicals</span>
+      </div>
+
+      <div class="qb-bev__trust-card">
+        <span class="qb-bev__trust-icon">✅</span>
+        <span class="qb-bev__trust-title">FSSAI Certified</span>
+        <span class="qb-bev__trust-sub">Tested, licensed & hygiene-approved facility</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+(function() {
+  'use strict';
+
+  /* ── State ─────────────────────────────────────────────────────────── */
+  var atcBtn          = document.getElementById('bev-atc-btn');
+  var atcMsg          = document.getElementById('bev-atc-msg');
+  var qtyInput        = document.getElementById('bev-qty');
+  var qtyDec          = document.getElementById('bev-qty-dec');
+  var qtyInc          = document.getElementById('bev-qty-inc');
+  var priceEl         = document.getElementById('bev-price');
+  var volumeDisplay   = document.getElementById('bev-volume-display');
+  var selectedVariantId = atcBtn ? atcBtn.dataset.variantId : null;
+  var productType       = atcBtn ? atcBtn.dataset.productType : '{{ product.type | escape }}';
+
+  var productVariants = {{ product.variants | json }};
+
+  /* ── Helpers ───────────────────────────────────────────────────────── */
+  function formatMoney(cents) {
+    var amount = (cents / 100).toFixed(2);
+    return '₹' + amount.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function setMsg(text, type, duration) {
+    if (!atcMsg) return;
+    atcMsg.textContent = text;
+    atcMsg.className = 'qb-bev__atc-msg ' + (type || '');
+    if (duration) {
+      setTimeout(function() {
+        atcMsg.textContent = '';
+        atcMsg.className = 'qb-bev__atc-msg';
+      }, duration);
+    }
+  }
+
+  function getSelectedTemp() {
+    var tempEl = document.querySelector('input[name="bev-temp"]:checked');
+    return tempEl ? tempEl.value : 'N/A';
+  }
+
+  function getSelectedVariantTitle() {
+    var variant = productVariants.find(function(v) {
+      return v.id.toString() === selectedVariantId;
+    });
+    return variant ? variant.title : '';
+  }
+
+  /* ── Quantity Stepper ──────────────────────────────────────────────── */
+  function getQty() {
+    var v = parseInt(qtyInput.value, 10);
+    if (isNaN(v) || v < 1) return 1;
+    if (v > 24) return 24;
+    return v;
+  }
+
+  if (qtyDec) {
+    qtyDec.addEventListener('click', function() {
+      qtyInput.value = Math.max(1, getQty() - 1);
+    });
+  }
+
+  if (qtyInc) {
+    qtyInc.addEventListener('click', function() {
+      qtyInput.value = Math.min(24, getQty() + 1);
+    });
+  }
+
+  if (qtyInput) {
+    qtyInput.addEventListener('change', function() {
+      qtyInput.value = getQty();
+    });
+  }
+
+  /* ── Variant Pills ─────────────────────────────────────────────────── */
+  var selectedOptions = [];
+
+  (function initOptions() {
+    if (!productVariants || !productVariants.length) return;
+    var first = productVariants.find(function(v) { return v.available; }) || productVariants[0];
+    selectedOptions = first.options.slice();
+  })();
+
+  function findVariant(opts) {
+    return productVariants.find(function(v) {
+      return v.options.every(function(o, i) { return o === opts[i]; });
+    });
+  }
+
+  function extractVolume(title) {
+    if (!title) return '';
+    var m = title.match(/\d+(\.\d+)?\s*(ml|ML|l|L|litre|liter)/i);
+    return m ? m[0] : title !== 'Default Title' ? title : '';
+  }
+
+  function updateVariantUI(variant) {
+    if (!variant) return;
+    selectedVariantId = variant.id.toString();
+    if (atcBtn) {
+      atcBtn.dataset.variantId = selectedVariantId;
+      if (variant.available) {
+        atcBtn.disabled = false;
+        atcBtn.textContent = '🛒 Add to Cart';
+      } else {
+        atcBtn.disabled = true;
+        atcBtn.textContent = 'Out of Stock';
+      }
+    }
+    if (priceEl) {
+      priceEl.textContent = formatMoney(variant.price);
+    }
+    if (volumeDisplay) {
+      var vol = extractVolume(variant.title);
+      volumeDisplay.textContent = vol;
+      volumeDisplay.style.display = vol ? '' : 'none';
+    }
+  }
+
+  document.querySelectorAll('.qb-bev__pill').forEach(function(pill) {
+    pill.addEventListener('click', function() {
+      var optIdx = parseInt(pill.dataset.optionIndex, 10);
+      var val    = pill.dataset.value;
+
+      selectedOptions[optIdx] = val;
+
+      document.querySelectorAll(
+        '.qb-bev__pills[data-option-index="' + optIdx + '"] .qb-bev__pill'
+      ).forEach(function(p) {
+        p.classList.toggle('is-active', p.dataset.value === val);
+      });
+
+      var labelSpan = document.getElementById('bev-opt-val-' + optIdx);
+      if (labelSpan) labelSpan.textContent = val;
+
+      var matched = findVariant(selectedOptions);
+      if (matched) updateVariantUI(matched);
+    });
+  });
+
+  /* ── Add to Cart ───────────────────────────────────────────────────── */
+  if (atcBtn) {
+    atcBtn.addEventListener('click', function() {
+      if (atcBtn.disabled) return;
+      var qty        = getQty();
+      var temp       = getSelectedTemp();
+      var varTitle   = getSelectedVariantTitle();
+
+      atcBtn.disabled = true;
+      atcBtn.textContent = '🛒 Adding…';
+      setMsg('', '');
+
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({
+          id: parseInt(selectedVariantId, 10),
+          quantity: qty,
+          properties: {
+            'Beverage Type': productType,
+            'Temperature':   temp,
+            'Volume':        varTitle
+          }
+        })
+      })
+      .then(function(res) {
+        if (!res.ok) return res.json().then(function(e) { throw new Error(e.description || 'Error'); });
+        return res.json();
+      })
+      .then(function() {
+        atcBtn.disabled = false;
+        atcBtn.textContent = '✅ Added!';
+        setMsg('Successfully added to cart!', 'success', 3000);
+        document.dispatchEvent(new CustomEvent('cart:updated', { bubbles: true }));
+        setTimeout(function() { atcBtn.textContent = '🛒 Add to Cart'; }, 2500);
+      })
+      .catch(function(err) {
+        atcBtn.disabled = false;
+        atcBtn.textContent = '🛒 Add to Cart';
+        setMsg(err.message || 'Could not add to cart. Please try again.', 'error', 4000);
+      });
+    });
+  }
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Beverage",
+  "tag": "div",
+  "class": "qb-beverage-section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "QB Beverage Product"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,854 @@
+{% comment %}
+  QB Seasonal Product Section
+  For: Seasonal / Festival / Limited-Edition product pages
+  Theme: Dark/Light with Gold accent #F4B400
+  CSS prefix: --ses-*
+{% endcomment %}
+
+<style>
+  /* ── Token blocks ── */
+  :root {
+    --ses-gold:          #F4B400;
+    --ses-gold-dark:     #C9920A;
+    --ses-gold-light:    #FFD966;
+    --ses-bg:            #1A1208;
+    --ses-bg-card:       #241A0C;
+    --ses-bg-surface:    #2E2010;
+    --ses-text:          #F5E9CC;
+    --ses-text-muted:    #A8916A;
+    --ses-text-sub:      #7A6040;
+    --ses-border:        rgba(244,180,0,0.20);
+    --ses-border-strong: rgba(244,180,0,0.50);
+    --ses-radius:        12px;
+    --ses-radius-sm:     8px;
+    --ses-shadow:        0 4px 24px rgba(0,0,0,0.5);
+    --ses-badge-pill:    6px;
+    --ses-transition:    0.22s ease;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ses-bg:          #FFFBF2;
+      --ses-bg-card:     #FFF8E7;
+      --ses-bg-surface:  #FFF3D0;
+      --ses-text:        #2C1A00;
+      --ses-text-muted:  #7A5500;
+      --ses-text-sub:    #B08030;
+      --ses-border:      rgba(244,180,0,0.25);
+      --ses-border-strong: rgba(200,140,0,0.60);
+      --ses-shadow:      0 4px 24px rgba(180,120,0,0.12);
+    }
+  }
+
+  /* ── Layout ── */
+  .ses-wrap {
+    background: var(--ses-bg);
+    color: var(--ses-text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  .ses-container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* ── Hero band ── */
+  .ses-hero {
+    background: linear-gradient(135deg, var(--ses-bg-card) 0%, var(--ses-bg-surface) 100%);
+    border-bottom: 1px solid var(--ses-border);
+    padding: 32px 16px 28px;
+    text-align: center;
+  }
+
+  .ses-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+
+  .ses-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .ses-badge--primary {
+    background: var(--ses-gold);
+    color: #1A1208;
+    animation: ses-pulse 2s ease-in-out infinite;
+  }
+
+  .ses-badge--festival {
+    background: transparent;
+    border: 2px solid var(--ses-gold);
+    color: var(--ses-gold);
+  }
+
+  @keyframes ses-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(244,180,0,0.55); }
+    50%       { box-shadow: 0 0 0 8px rgba(244,180,0,0); }
+  }
+
+  .ses-season-icon {
+    font-size: 48px;
+    line-height: 1;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .ses-title {
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 800;
+    color: var(--ses-text);
+    margin: 0 0 8px;
+    line-height: 1.25;
+  }
+
+  .ses-vendor {
+    font-size: 13px;
+    color: var(--ses-text-muted);
+    margin: 0 0 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .ses-greeting {
+    font-style: italic;
+    color: var(--ses-gold-light);
+    font-size: 15px;
+    margin: 10px 0 0;
+    padding: 10px 18px;
+    border-left: 3px solid var(--ses-gold);
+    text-align: left;
+    background: rgba(244,180,0,0.06);
+    border-radius: 0 var(--ses-radius-sm) var(--ses-radius-sm) 0;
+  }
+
+  /* ── Urgency strip ── */
+  .ses-urgency {
+    background: rgba(244,180,0,0.10);
+    border: 1px solid var(--ses-border-strong);
+    border-radius: var(--ses-radius);
+    padding: 14px 18px;
+    margin: 20px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .ses-urgency__icon { font-size: 20px; flex-shrink: 0; }
+
+  .ses-urgency__text {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ses-gold);
+    flex: 1;
+  }
+
+  /* ── Countdown ── */
+  .ses-countdown {
+    background: var(--ses-bg-card);
+    border: 1px solid var(--ses-border);
+    border-radius: var(--ses-radius);
+    padding: 18px;
+    margin: 16px 0 0;
+    text-align: center;
+  }
+
+  .ses-countdown__label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ses-text-muted);
+    margin-bottom: 10px;
+  }
+
+  .ses-countdown__digits {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .ses-cd-unit {
+    background: var(--ses-bg-surface);
+    border: 1px solid var(--ses-border);
+    border-radius: var(--ses-radius-sm);
+    padding: 8px 12px;
+    min-width: 58px;
+    text-align: center;
+  }
+
+  .ses-cd-unit__num {
+    display: block;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--ses-gold);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ses-cd-unit__lbl {
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ses-text-muted);
+    margin-top: 2px;
+  }
+
+  /* ── Card sections ── */
+  .ses-card {
+    background: var(--ses-bg-card);
+    border: 1px solid var(--ses-border);
+    border-radius: var(--ses-radius);
+    padding: 20px;
+    margin-top: 16px;
+  }
+
+  .ses-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ses-text-muted);
+    margin: 0 0 14px;
+  }
+
+  /* ── Variants ── */
+  .ses-variant-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .ses-variant-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 16px;
+    border: 2px solid var(--ses-border);
+    border-radius: var(--ses-radius-sm);
+    background: var(--ses-bg-surface);
+    cursor: pointer;
+    transition: border-color var(--ses-transition), background var(--ses-transition);
+    min-width: 90px;
+    text-align: center;
+  }
+
+  .ses-variant-pill:hover { border-color: var(--ses-gold); }
+
+  .ses-variant-pill.is-active {
+    border-color: var(--ses-gold);
+    background: rgba(244,180,0,0.10);
+  }
+
+  .ses-variant-pill__title { font-size: 13px; font-weight: 600; color: var(--ses-text); }
+  .ses-variant-pill__price { font-size: 12px; color: var(--ses-gold); margin-top: 3px; font-weight: 700; }
+
+  /* ── Price display ── */
+  .ses-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 16px 0 0;
+  }
+
+  .ses-price-current {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--ses-gold);
+  }
+
+  .ses-price-compare {
+    font-size: 17px;
+    text-decoration: line-through;
+    color: var(--ses-text-sub);
+  }
+
+  .ses-price-save {
+    font-size: 12px;
+    background: var(--ses-gold);
+    color: #1A1208;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-weight: 700;
+  }
+
+  /* ── Quantity stepper ── */
+  .ses-qty-row { display: flex; align-items: center; gap: 14px; }
+
+  .ses-qty-stepper {
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--ses-border);
+    border-radius: var(--ses-radius-sm);
+    overflow: hidden;
+  }
+
+  .ses-qty-btn {
+    background: var(--ses-bg-surface);
+    border: none;
+    color: var(--ses-gold);
+    font-size: 20px;
+    font-weight: 700;
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+    transition: background var(--ses-transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ses-qty-btn:hover { background: rgba(244,180,0,0.15); }
+  .ses-qty-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .ses-qty-input {
+    width: 52px;
+    text-align: center;
+    border: none;
+    background: var(--ses-bg-card);
+    color: var(--ses-text);
+    font-size: 16px;
+    font-weight: 700;
+    padding: 0;
+    height: 42px;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+
+  .ses-qty-input::-webkit-outer-spin-button,
+  .ses-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  .ses-qty-limit { font-size: 12px; color: var(--ses-text-muted); }
+
+  /* ── Gift wrap + message ── */
+  .ses-giftwrap-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--ses-bg-surface);
+    border: 1px solid var(--ses-border);
+    border-radius: var(--ses-radius-sm);
+    cursor: pointer;
+    transition: border-color var(--ses-transition);
+    user-select: none;
+  }
+
+  .ses-giftwrap-row:has(input:checked) { border-color: var(--ses-gold); background: rgba(244,180,0,0.08); }
+
+  .ses-giftwrap-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--ses-gold); cursor: pointer; }
+  .ses-giftwrap-label { font-size: 14px; font-weight: 600; color: var(--ses-text); flex: 1; }
+  .ses-giftwrap-badge { font-size: 11px; background: rgba(244,180,0,0.18); color: var(--ses-gold); padding: 2px 8px; border-radius: 99px; font-weight: 700; }
+
+  .ses-message-wrap { margin-top: 12px; }
+
+  .ses-message-label { display: block; font-size: 13px; color: var(--ses-text-muted); margin-bottom: 6px; font-weight: 600; }
+
+  .ses-message-input {
+    width: 100%;
+    min-height: 80px;
+    background: var(--ses-bg-surface);
+    border: 1px solid var(--ses-border);
+    border-radius: var(--ses-radius-sm);
+    color: var(--ses-text);
+    font-size: 14px;
+    padding: 10px 12px;
+    resize: vertical;
+    outline: none;
+    font-family: inherit;
+    transition: border-color var(--ses-transition);
+    box-sizing: border-box;
+  }
+
+  .ses-message-input:focus { border-color: var(--ses-gold); }
+  .ses-message-input::placeholder { color: var(--ses-text-sub); }
+
+  /* ── CTA ── */
+  .ses-cta-btn {
+    display: block;
+    width: 100%;
+    padding: 18px 24px;
+    background: var(--ses-gold);
+    color: #1A1208;
+    font-size: 17px;
+    font-weight: 800;
+    text-align: center;
+    border: none;
+    border-radius: var(--ses-radius);
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: background var(--ses-transition), transform 0.1s;
+    box-shadow: 0 4px 20px rgba(244,180,0,0.35);
+    margin-top: 4px;
+  }
+
+  .ses-cta-btn:hover { background: var(--ses-gold-dark); transform: translateY(-1px); }
+  .ses-cta-btn:active { transform: translateY(0); }
+  .ses-cta-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  .ses-cta-note {
+    text-align: center;
+    font-size: 12px;
+    color: var(--ses-text-muted);
+    margin-top: 8px;
+  }
+
+  /* ── Feedback ── */
+  .ses-feedback {
+    border-radius: var(--ses-radius-sm);
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 12px;
+    display: none;
+  }
+
+  .ses-feedback.is-success { background: rgba(0,200,80,0.12); border: 1px solid rgba(0,200,80,0.35); color: #00C850; display: block; }
+  .ses-feedback.is-error   { background: rgba(220,50,50,0.12); border: 1px solid rgba(220,50,50,0.35); color: #FF6B6B; display: block; }
+
+  /* ── Last order banner ── */
+  .ses-lastorder {
+    background: rgba(244,180,0,0.07);
+    border: 1px dashed var(--ses-gold);
+    border-radius: var(--ses-radius-sm);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--ses-gold-light);
+    text-align: center;
+    margin-top: 16px;
+    font-weight: 600;
+  }
+
+  /* ── Trust grid ── */
+  .ses-trust {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .ses-trust-item {
+    background: var(--ses-bg-card);
+    border: 1px solid var(--ses-border);
+    border-radius: var(--ses-radius-sm);
+    padding: 14px 12px;
+    text-align: center;
+  }
+
+  .ses-trust-item__icon { font-size: 22px; display: block; margin-bottom: 6px; }
+  .ses-trust-item__title { font-size: 13px; font-weight: 700; color: var(--ses-text); display: block; }
+  .ses-trust-item__sub   { font-size: 11px; color: var(--ses-text-muted); margin-top: 2px; display: block; }
+
+  /* ── Divider ── */
+  .ses-divider { border: none; border-top: 1px solid var(--ses-border); margin: 20px 0 0; }
+</style>
+
+{% comment %} ── Tag helpers ── {% endcomment %}
+{% assign _greeting    = '' %}
+{% assign _stock       = '' %}
+{% assign _enddate     = '' %}
+{% assign _lastorder   = '' %}
+{% assign _is_festival = false %}
+
+{% for tag in product.tags %}
+  {% if tag == 'festival' %}
+    {% assign _is_festival = true %}
+  {% endif %}
+  {% if tag contains 'greeting:' %}
+    {% assign _greeting = tag | remove: 'greeting:' %}
+  {% endif %}
+  {% if tag contains 'stock:' %}
+    {% assign _stock = tag | remove: 'stock:' %}
+  {% endif %}
+  {% if tag contains 'enddate:' %}
+    {% assign _enddate = tag | remove: 'enddate:' %}
+  {% endif %}
+  {% if tag contains 'lastorder:' %}
+    {% assign _lastorder = tag | remove: 'lastorder:' %}
+  {% endif %}
+{% endfor %}
+
+{% comment %} ── Season map ── {% endcomment %}
+{% assign _season_icon = '🎉' %}
+{% assign _season_name = product.type | default: 'Season' %}
+{% case product.type %}
+  {% when 'Diwali'    %}{% assign _season_icon = '🪔' %}
+  {% when 'Christmas' %}{% assign _season_icon = '🎄' %}
+  {% when 'Eid'       %}{% assign _season_icon = '🌙' %}
+  {% when 'Holi'      %}{% assign _season_icon = '🎨' %}
+  {% when 'Pongal'    %}{% assign _season_icon = '🌾' %}
+  {% when 'New Year'  %}{% assign _season_icon = '🎊' %}
+  {% when 'Monsoon'   %}{% assign _season_icon = '🌧️' %}
+  {% when 'Summer'    %}{% assign _season_icon = '☀️' %}
+  {% when 'Winter'    %}{% assign _season_icon = '❄️' %}
+{% endcase %}
+
+<div class="ses-wrap" id="ses-root">
+  <!-- ── Hero ── -->
+  <div class="ses-hero">
+    <div class="ses-container">
+
+      <div class="ses-badge-row">
+        <span class="ses-badge ses-badge--primary">🎉 LIMITED SEASON</span>
+        {% if _is_festival %}
+          <span class="ses-badge ses-badge--festival">🪔 FESTIVAL SPECIAL</span>
+        {% endif %}
+      </div>
+
+      <span class="ses-season-icon">{{ _season_icon }}</span>
+      <h1 class="ses-title">{{ product.title }}</h1>
+      <p class="ses-vendor">By {{ product.vendor | default: 'QuickBee' }} &middot; {{ _season_name }}</p>
+
+      {% if _greeting != '' %}
+        <blockquote class="ses-greeting">&ldquo;{{ _greeting }}&rdquo;</blockquote>
+      {% endif %}
+
+      <!-- Urgency -->
+      <div class="ses-urgency">
+        <span class="ses-urgency__icon">⏳</span>
+        <span class="ses-urgency__text">
+          LIMITED AVAILABILITY —
+          {% if _stock != '' %}
+            Only {{ _stock }} packs left this season!
+          {% else %}
+            Limited seasonal stock
+          {% endif %}
+        </span>
+      </div>
+
+      <!-- Countdown -->
+      {% if _enddate != '' %}
+        <div class="ses-countdown" id="ses-countdown-wrap">
+          <div class="ses-countdown__label">Season ends in</div>
+          <div class="ses-countdown__digits">
+            <div class="ses-cd-unit">
+              <span class="ses-cd-unit__num" id="ses-cd-d">--</span>
+              <span class="ses-cd-unit__lbl">Days</span>
+            </div>
+            <div class="ses-cd-unit">
+              <span class="ses-cd-unit__num" id="ses-cd-h">--</span>
+              <span class="ses-cd-unit__lbl">Hours</span>
+            </div>
+            <div class="ses-cd-unit">
+              <span class="ses-cd-unit__num" id="ses-cd-m">--</span>
+              <span class="ses-cd-unit__lbl">Mins</span>
+            </div>
+            <div class="ses-cd-unit">
+              <span class="ses-cd-unit__num" id="ses-cd-s">--</span>
+              <span class="ses-cd-unit__lbl">Secs</span>
+            </div>
+          </div>
+        </div>
+        <script>
+          (function(){
+            var end = new Date("{{ _enddate }}T23:59:59").getTime();
+            function tick(){
+              var now  = Date.now();
+              var diff = end - now;
+              if(diff <= 0){ document.getElementById('ses-countdown-wrap').style.display='none'; return; }
+              var d = Math.floor(diff/86400000);
+              var h = Math.floor((diff%86400000)/3600000);
+              var m = Math.floor((diff%3600000)/60000);
+              var s = Math.floor((diff%60000)/1000);
+              document.getElementById('ses-cd-d').textContent = String(d).padStart(2,'0');
+              document.getElementById('ses-cd-h').textContent = String(h).padStart(2,'0');
+              document.getElementById('ses-cd-m').textContent = String(m).padStart(2,'0');
+              document.getElementById('ses-cd-s').textContent = String(s).padStart(2,'0');
+            }
+            tick();
+            setInterval(tick, 1000);
+          })();
+        </script>
+      {% endif %}
+
+    </div>
+  </div><!-- /hero -->
+
+  <div class="ses-container">
+
+    <!-- ── Variants ── -->
+    {% if product.variants.size > 1 %}
+      <div class="ses-card">
+        <p class="ses-section-title">Choose Your Pack</p>
+        <div class="ses-variant-pills" id="ses-variants">
+          {% for variant in product.variants %}
+            <button
+              class="ses-variant-pill {% if forloop.first %}is-active{% endif %}"
+              data-variant-id="{{ variant.id }}"
+              data-price="{{ variant.price | money }}"
+              data-price-raw="{{ variant.price }}"
+              data-compare="{{ variant.compare_at_price | money }}"
+              data-compare-raw="{{ variant.compare_at_price }}"
+              aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+            >
+              <span class="ses-variant-pill__title">{{ variant.title }}</span>
+              <span class="ses-variant-pill__price">{{ variant.price | money }}</span>
+            </button>
+          {% endfor %}
+        </div>
+
+        <!-- Price -->
+        <div class="ses-price-row">
+          <span class="ses-price-current" id="ses-price-current">
+            {{ product.selected_or_first_available_variant.price | money }}
+          </span>
+          {% if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price %}
+            <span class="ses-price-compare" id="ses-price-compare">
+              {{ product.selected_or_first_available_variant.compare_at_price | money }}
+            </span>
+            <span class="ses-price-save" id="ses-price-save">
+              Save {{ product.selected_or_first_available_variant.compare_at_price | minus: product.selected_or_first_available_variant.price | money }}
+            </span>
+          {% else %}
+            <span class="ses-price-compare" id="ses-price-compare" style="display:none;"></span>
+            <span class="ses-price-save"    id="ses-price-save"    style="display:none;"></span>
+          {% endif %}
+        </div>
+      </div>
+    {% else %}
+      <div class="ses-card">
+        <div class="ses-price-row">
+          <span class="ses-price-current">{{ product.price | money }}</span>
+          {% if product.compare_at_price > product.price %}
+            <span class="ses-price-compare">{{ product.compare_at_price | money }}</span>
+            <span class="ses-price-save">Save {{ product.compare_at_price | minus: product.price | money }}</span>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- ── Quantity ── -->
+    <div class="ses-card">
+      <p class="ses-section-title">Quantity</p>
+      <div class="ses-qty-row">
+        <div class="ses-qty-stepper">
+          <button class="ses-qty-btn" id="ses-qty-minus" aria-label="Decrease quantity">−</button>
+          <input  class="ses-qty-input" type="number" id="ses-qty" value="1" min="1" max="10" readonly aria-label="Quantity">
+          <button class="ses-qty-btn" id="ses-qty-plus" aria-label="Increase quantity">+</button>
+        </div>
+        <span class="ses-qty-limit">Max 10 per order (seasonal limit)</span>
+      </div>
+    </div>
+
+    <!-- ── Gift wrap + message ── -->
+    <div class="ses-card">
+      <p class="ses-section-title">Festive Extras</p>
+
+      <label class="ses-giftwrap-row">
+        <input type="checkbox" id="ses-giftwrap" aria-label="Gift wrap included">
+        <span class="ses-giftwrap-label">🎁 Gift Wrap Included</span>
+        <span class="ses-giftwrap-badge">FREE</span>
+      </label>
+
+      <div class="ses-message-wrap">
+        <label class="ses-message-label" for="ses-message">Add a festive message (optional)</label>
+        <textarea
+          class="ses-message-input"
+          id="ses-message"
+          placeholder="E.g. Happy Diwali to our dear family! 🪔"
+          maxlength="200"
+          rows="3"
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- ── Last order notice ── -->
+    {% if _lastorder != '' %}
+      <div class="ses-lastorder">
+        🚀 Order before <strong>{{ _lastorder }}</strong> for guaranteed {{ _season_name }} delivery
+      </div>
+    {% endif %}
+
+    <!-- ── CTA ── -->
+    <div style="margin-top:20px;">
+      <button
+        class="ses-cta-btn"
+        id="ses-add-btn"
+        data-product-id="{{ product.id }}"
+        data-season="{{ product.type }}"
+      >
+        🛒 ADD TO CART
+      </button>
+      <p class="ses-cta-note">{{ _season_icon }} Seasonal item — order while stocks last</p>
+      <div class="ses-feedback" id="ses-feedback" role="alert"></div>
+    </div>
+
+    <hr class="ses-divider">
+
+    <!-- ── Trust grid ── -->
+    <div class="ses-trust">
+      <div class="ses-trust-item">
+        <span class="ses-trust-item__icon">🎁</span>
+        <span class="ses-trust-item__title">Festive Packaging</span>
+        <span class="ses-trust-item__sub">Gift-ready presentation</span>
+      </div>
+      <div class="ses-trust-item">
+        <span class="ses-trust-item__icon">🍯</span>
+        <span class="ses-trust-item__title">Fresh Made</span>
+        <span class="ses-trust-item__sub">Crafted for the season</span>
+      </div>
+      <div class="ses-trust-item">
+        <span class="ses-trust-item__icon">🚀</span>
+        <span class="ses-trust-item__title">Timely Delivery</span>
+        <span class="ses-trust-item__sub">Before the occasion</span>
+      </div>
+      <div class="ses-trust-item">
+        <span class="ses-trust-item__icon">✅</span>
+        <span class="ses-trust-item__title">Gift-Ready</span>
+        <span class="ses-trust-item__sub">Sealed &amp; premium finish</span>
+      </div>
+    </div>
+
+    <!-- ── Description ── -->
+    {% if product.description != blank %}
+      <div class="ses-card" style="margin-top:16px; line-height:1.7; font-size:15px; color:var(--ses-text-muted);">
+        {{ product.description }}
+      </div>
+    {% endif %}
+
+  </div><!-- /container -->
+</div><!-- /ses-wrap -->
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── Active variant tracking ── */
+  var activeVariantId = {{ product.selected_or_first_available_variant.id }};
+
+  /* ── Variant pills ── */
+  var pills = document.querySelectorAll('.ses-variant-pill');
+  var priceEl   = document.getElementById('ses-price-current');
+  var compareEl = document.getElementById('ses-price-compare');
+  var saveEl    = document.getElementById('ses-price-save');
+
+  pills.forEach(function(pill){
+    pill.addEventListener('click', function(){
+      pills.forEach(function(p){ p.classList.remove('is-active'); p.setAttribute('aria-pressed','false'); });
+      this.classList.add('is-active');
+      this.setAttribute('aria-pressed','true');
+      activeVariantId = parseInt(this.dataset.variantId, 10);
+      if(priceEl)   priceEl.textContent   = this.dataset.price;
+      var cRaw = parseInt(this.dataset.compareRaw || '0', 10);
+      var pRaw = parseInt(this.dataset.priceRaw   || '0', 10);
+      if(cRaw > pRaw){
+        if(compareEl){ compareEl.textContent = this.dataset.compare; compareEl.style.display = ''; }
+        if(saveEl){
+          var diff = ((cRaw - pRaw)/100).toFixed(2);
+          saveEl.textContent = 'Save ₹' + diff; saveEl.style.display = '';
+        }
+      } else {
+        if(compareEl) compareEl.style.display = 'none';
+        if(saveEl)    saveEl.style.display    = 'none';
+      }
+    }.bind(pill));
+  });
+
+  /* ── Quantity stepper ── */
+  var qtyInput = document.getElementById('ses-qty');
+  var minusBtn = document.getElementById('ses-qty-minus');
+  var plusBtn  = document.getElementById('ses-qty-plus');
+  var QTY_MAX  = 10;
+
+  function updateQtyBtns(){
+    var v = parseInt(qtyInput.value, 10);
+    minusBtn.disabled = v <= 1;
+    plusBtn.disabled  = v >= QTY_MAX;
+  }
+  updateQtyBtns();
+
+  minusBtn.addEventListener('click', function(){
+    var v = parseInt(qtyInput.value, 10);
+    if(v > 1){ qtyInput.value = v - 1; updateQtyBtns(); }
+  });
+  plusBtn.addEventListener('click', function(){
+    var v = parseInt(qtyInput.value, 10);
+    if(v < QTY_MAX){ qtyInput.value = v + 1; updateQtyBtns(); }
+  });
+
+  /* ── Add to cart ── */
+  var addBtn    = document.getElementById('ses-add-btn');
+  var feedback  = document.getElementById('ses-feedback');
+  var giftEl    = document.getElementById('ses-giftwrap');
+  var msgEl     = document.getElementById('ses-message');
+
+  addBtn.addEventListener('click', function(){
+    var qty      = parseInt(qtyInput.value, 10);
+    var giftWrap = giftEl && giftEl.checked ? 'Yes' : 'No';
+    var message  = msgEl ? msgEl.value.trim() : '';
+    var season   = addBtn.dataset.season || '';
+
+    var payload = {
+      id:         activeVariantId,
+      quantity:   qty,
+      properties: {
+        'Season':    season,
+        'Gift Wrap': giftWrap,
+        'Message':   message
+      }
+    };
+
+    addBtn.disabled    = true;
+    addBtn.textContent = 'Adding…';
+    feedback.className = 'ses-feedback';
+    feedback.textContent = '';
+
+    fetch('/cart/add.js', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body:    JSON.stringify(payload)
+    })
+    .then(function(r){
+      if(!r.ok) return r.json().then(function(d){ throw new Error(d.description || 'Error adding to cart'); });
+      return r.json();
+    })
+    .then(function(){
+      feedback.className   = 'ses-feedback is-success';
+      feedback.textContent = '🎉 Added to cart! Your festive treat is waiting.';
+      addBtn.textContent   = '✓ ADDED!';
+      setTimeout(function(){
+        addBtn.disabled    = false;
+        addBtn.textContent = '🛒 ADD TO CART';
+      }, 2400);
+      document.dispatchEvent(new CustomEvent('cart:updated'));
+    })
+    .catch(function(err){
+      feedback.className   = 'ses-feedback is-error';
+      feedback.textContent = '⚠ ' + err.message;
+      addBtn.disabled      = false;
+      addBtn.textContent   = '🛒 ADD TO CART';
+    });
+  });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Seasonal",
+  "tag": "section",
+  "class": "qb-seasonal-section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "QB Seasonal Product"
+    }
+  ]
+}
+{% endschema %}

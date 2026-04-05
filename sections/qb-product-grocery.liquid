@@ -1,0 +1,809 @@
+{% comment %} QuickBee Grocery Product Page — qb-product-grocery.liquid {% endcomment %}
+
+<style>
+  /* ── Design Tokens ── */
+  [data-theme="dark"] {
+    --bg: #090909;
+    --card: #111111;
+    --bg3: #1a1a1a;
+    --border: rgba(255,255,255,0.07);
+    --text: #f0f0f0;
+    --text2: #888888;
+    --shadow: 0 4px 24px rgba(0,0,0,0.6);
+    --green: #22c55e;
+    --red: #FF4444;
+    --gold: #F4B400;
+  }
+  html:not([data-theme]),
+  [data-theme="light"] {
+    --bg: #f4f5f8;
+    --card: #ffffff;
+    --bg3: #eef0f4;
+    --border: rgba(15,23,42,0.08);
+    --text: #0f172a;
+    --text2: #64748b;
+    --shadow: 0 4px 24px rgba(15,23,42,0.08);
+    --green: #16a34a;
+    --red: #FF4444;
+    --gold: #F4B400;
+  }
+
+  /* ── Base ── */
+  .qb-grocery {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* ── Hero ── */
+  .qb-grocery__hero {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 20px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .qb-grocery__icon-wrap {
+    width: 92px;
+    height: 92px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    flex-shrink: 0;
+  }
+
+  .qb-grocery__title {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.25;
+    margin: 0;
+    max-width: 420px;
+  }
+
+  .qb-grocery__price-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .qb-grocery__price {
+    font-size: 30px;
+    font-weight: 900;
+    color: var(--gold);
+  }
+
+  .qb-grocery__compare {
+    font-size: 18px;
+    color: var(--text2);
+    text-decoration: line-through;
+  }
+
+  .qb-grocery__badge-save {
+    background: #FF4444;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+
+  .qb-grocery__badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .qb-grocery__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text2);
+  }
+
+  .qb-grocery__badge--eta {
+    background: rgba(34,197,94,0.12);
+    color: var(--green);
+    border-color: rgba(34,197,94,0.25);
+  }
+
+  .qb-grocery__badge--in-stock {
+    background: rgba(34,197,94,0.12);
+    color: var(--green);
+    border-color: rgba(34,197,94,0.25);
+  }
+
+  .qb-grocery__badge--out-stock {
+    background: rgba(255,68,68,0.12);
+    color: var(--red);
+    border-color: rgba(255,68,68,0.25);
+  }
+
+  /* ── Main Content ── */
+  .qb-grocery__body {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 20px 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ── Variants ── */
+  .qb-grocery__section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 18px 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .qb-grocery__section-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text2);
+    margin-bottom: 12px;
+  }
+
+  .qb-grocery__variants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .qb-grocery__variant-pill {
+    border: 2px solid var(--border);
+    background: var(--bg3);
+    color: var(--text);
+    border-radius: 14px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 72px;
+    text-align: center;
+  }
+
+  .qb-grocery__variant-pill span.vprice {
+    font-size: 11px;
+    color: var(--text2);
+    font-weight: 500;
+  }
+
+  .qb-grocery__variant-pill.active,
+  .qb-grocery__variant-pill:hover {
+    border-color: var(--gold);
+    background: rgba(244,180,0,0.10);
+    color: var(--gold);
+  }
+
+  .qb-grocery__variant-pill.active span.vprice {
+    color: var(--gold);
+  }
+
+  /* ── Quantity ── */
+  .qb-grocery__qty-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .qb-grocery__qty-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .qb-grocery__qty-ctrl {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--bg3);
+  }
+
+  .qb-grocery__qty-btn {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 22px;
+    font-weight: 700;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+
+  .qb-grocery__qty-btn:hover {
+    background: rgba(244,180,0,0.13);
+    color: var(--gold);
+  }
+
+  .qb-grocery__qty-num {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    min-width: 36px;
+    text-align: center;
+    user-select: none;
+  }
+
+  /* ── Add to Cart ── */
+  .qb-grocery__atc {
+    width: 100%;
+    height: 56px;
+    border-radius: 16px;
+    border: none;
+    background: var(--gold);
+    color: #000;
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    box-shadow: 0 4px 16px rgba(244,180,0,0.3);
+  }
+
+  .qb-grocery__atc:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(244,180,0,0.45);
+  }
+
+  .qb-grocery__atc:active {
+    transform: translateY(0);
+  }
+
+  .qb-grocery__atc.added {
+    background: var(--green);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(34,197,94,0.35);
+  }
+
+  .qb-grocery__atc:disabled {
+    background: var(--text2);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    color: var(--bg);
+  }
+
+  /* ── Features Grid ── */
+  .qb-grocery__features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .qb-grocery__feature {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 13px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: var(--shadow);
+  }
+
+  .qb-grocery__feature-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .qb-grocery__feature-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  /* ── Description ── */
+  .qb-grocery__desc-header {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .qb-grocery__desc-body {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text2);
+  }
+
+  .qb-grocery__desc-body p,
+  .qb-grocery__desc-body ul,
+  .qb-grocery__desc-body ol {
+    margin: 0 0 10px;
+  }
+
+  .qb-grocery__desc-body ul,
+  .qb-grocery__desc-body ol {
+    padding-left: 20px;
+  }
+
+  /* ── Related Searches ── */
+  .qb-grocery__related-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text2);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .qb-grocery__chips-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .qb-grocery__chips-scroll::-webkit-scrollbar { display: none; }
+
+  .qb-grocery__chip {
+    flex-shrink: 0;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 20px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .qb-grocery__chip:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(244,180,0,0.08);
+  }
+
+  /* ── Footer Branding ── */
+  .qb-grocery__footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text2);
+    margin-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  /* ── Toast ── */
+  .qb-toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--gold);
+    color: #000;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 22px;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.28s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .qb-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .qb-toast.error {
+    background: #FF4444;
+    color: #fff;
+  }
+
+  /* ── Responsive ── */
+  @media (min-width: 600px) {
+    .qb-grocery__hero {
+      padding: 40px 32px 36px;
+    }
+    .qb-grocery__title {
+      font-size: 28px;
+    }
+    .qb-grocery__body {
+      padding: 24px 20px 0;
+    }
+  }
+</style>
+
+{% comment %} Determine icon + accent for product type {% endcomment %}
+{% assign ptype = product.type | downcase %}
+{% assign type_icon = '🛒' %}
+{% assign type_color = '#F4B400' %}
+{% assign type_bg = 'rgba(244,180,0,0.12)' %}
+
+{% if ptype contains 'beverage' or ptype contains 'drink' %}
+  {% assign type_icon = '🥤' %}
+  {% assign type_color = '#3B82F6' %}
+  {% assign type_bg = 'rgba(59,130,246,0.12)' %}
+{% elsif ptype contains 'noodle' or ptype contains 'pasta' %}
+  {% assign type_icon = '🍜' %}
+  {% assign type_color = '#F59E0B' %}
+  {% assign type_bg = 'rgba(245,158,11,0.12)' %}
+{% elsif ptype contains 'snack' %}
+  {% assign type_icon = '🍟' %}
+  {% assign type_color = '#F97316' %}
+  {% assign type_bg = 'rgba(249,115,22,0.12)' %}
+{% elsif ptype contains 'fruit' %}
+  {% assign type_icon = '🍎' %}
+  {% assign type_color = '#EF4444' %}
+  {% assign type_bg = 'rgba(239,68,68,0.12)' %}
+{% elsif ptype contains 'vegetable' or ptype contains 'veggie' %}
+  {% assign type_icon = '🥬' %}
+  {% assign type_color = '#22c55e' %}
+  {% assign type_bg = 'rgba(34,197,94,0.12)' %}
+{% elsif ptype contains 'dairy' or ptype contains 'milk' %}
+  {% assign type_icon = '🥛' %}
+  {% assign type_color = '#E0E7FF' %}
+  {% assign type_bg = 'rgba(224,231,255,0.12)' %}
+{% elsif ptype contains 'bakery' or ptype contains 'bread' %}
+  {% assign type_icon = '🍞' %}
+  {% assign type_color = '#D97706' %}
+  {% assign type_bg = 'rgba(217,119,6,0.12)' %}
+{% elsif ptype contains 'personal' or ptype contains 'care' %}
+  {% assign type_icon = '🧴' %}
+  {% assign type_color = '#A78BFA' %}
+  {% assign type_bg = 'rgba(167,139,250,0.12)' %}
+{% elsif ptype contains 'household' or ptype contains 'cleaning' %}
+  {% assign type_icon = '🧹' %}
+  {% assign type_color = '#67E8F9' %}
+  {% assign type_bg = 'rgba(103,232,249,0.12)' %}
+{% elsif ptype contains 'meat' or ptype contains 'fish' or ptype contains 'seafood' %}
+  {% assign type_icon = '🐟' %}
+  {% assign type_color = '#FB7185' %}
+  {% assign type_bg = 'rgba(251,113,133,0.12)' %}
+{% elsif ptype contains 'frozen' %}
+  {% assign type_icon = '❄️' %}
+  {% assign type_color = '#7DD3FC' %}
+  {% assign type_bg = 'rgba(125,211,252,0.12)' %}
+{% elsif ptype contains 'organic' %}
+  {% assign type_icon = '🌿' %}
+  {% assign type_color = '#4ADE80' %}
+  {% assign type_bg = 'rgba(74,222,128,0.12)' %}
+{% endif %}
+
+{% comment %} Related search chips by type {% endcomment %}
+{% assign related_chips = '' %}
+{% if ptype contains 'beverage' or ptype contains 'drink' %}
+  {% assign related_chips = 'Cold Drinks,Energy Drinks,Juice,Water,Soda,Sports Drinks' %}
+{% elsif ptype contains 'noodle' or ptype contains 'pasta' %}
+  {% assign related_chips = 'Instant Noodles,Pasta,Ramen,Cup Noodles,Spaghetti,Macaroni' %}
+{% elsif ptype contains 'snack' %}
+  {% assign related_chips = 'Chips,Biscuits,Crackers,Popcorn,Namkeen,Nuts' %}
+{% elsif ptype contains 'fruit' %}
+  {% assign related_chips = 'Fresh Fruits,Apples,Bananas,Oranges,Grapes,Mangoes' %}
+{% elsif ptype contains 'vegetable' or ptype contains 'veggie' %}
+  {% assign related_chips = 'Fresh Vegetables,Tomato,Onion,Potato,Spinach,Carrot' %}
+{% elsif ptype contains 'dairy' or ptype contains 'milk' %}
+  {% assign related_chips = 'Milk,Yogurt,Cheese,Butter,Paneer,Cream' %}
+{% elsif ptype contains 'bakery' or ptype contains 'bread' %}
+  {% assign related_chips = 'Bread,Bun,Cake,Muffin,Pastry,Cookies' %}
+{% elsif ptype contains 'personal' or ptype contains 'care' %}
+  {% assign related_chips = 'Shampoo,Soap,Face Wash,Lotion,Toothpaste,Deodorant' %}
+{% elsif ptype contains 'household' or ptype contains 'cleaning' %}
+  {% assign related_chips = 'Detergent,Dish Wash,Floor Cleaner,Toilet Cleaner,Mop,Broom' %}
+{% elsif ptype contains 'meat' or ptype contains 'fish' or ptype contains 'seafood' %}
+  {% assign related_chips = 'Chicken,Fish,Mutton,Eggs,Shrimp,Sausage' %}
+{% elsif ptype contains 'frozen' %}
+  {% assign related_chips = 'Frozen Peas,Ice Cream,Frozen Paratha,Frozen Chicken,Frozen Fish,Frozen Fries' %}
+{% elsif ptype contains 'organic' %}
+  {% assign related_chips = 'Organic Vegetables,Organic Fruit,Organic Rice,Organic Dal,Organic Honey,Organic Tea' %}
+{% else %}
+  {% assign related_chips = 'Grocery,Daily Essentials,Fresh Produce,Snacks,Beverages,Household' %}
+{% endif %}
+
+{% assign chip_array = related_chips | split: ',' %}
+
+<div class="qb-grocery" id="qb-grocery-root">
+
+  <!-- Hero -->
+  <div class="qb-grocery__hero">
+    <div class="qb-grocery__icon-wrap" style="background: {{ type_bg }};">
+      <span style="line-height:1;">{{ type_icon }}</span>
+    </div>
+
+    <h1 class="qb-grocery__title">{{ product.title }}</h1>
+
+    <div class="qb-grocery__price-row">
+      <span class="qb-grocery__price" id="qbg-price">
+        Rs {{ product.selected_or_first_available_variant.price | divided_by: 100.0 | floor }}
+      </span>
+      {% if product.compare_at_price > product.price %}
+        <span class="qb-grocery__compare">
+          Rs {{ product.compare_at_price | divided_by: 100.0 | floor }}
+        </span>
+        {% assign savings_pct = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price %}
+        <span class="qb-grocery__badge-save">{{ savings_pct }}% OFF</span>
+      {% endif %}
+    </div>
+
+    <div class="qb-grocery__badges">
+      <span class="qb-grocery__badge qb-grocery__badge--eta" id="qbg-eta">
+        ⚡ Delivery in 11–19 mins
+      </span>
+      {% if product.available %}
+        <span class="qb-grocery__badge qb-grocery__badge--in-stock">
+          ● In Stock
+        </span>
+      {% else %}
+        <span class="qb-grocery__badge qb-grocery__badge--out-stock">
+          ● Out of Stock
+        </span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="qb-grocery__body">
+
+    <!-- Variants -->
+    {% if product.variants.size > 1 %}
+      <div class="qb-grocery__section">
+        <div class="qb-grocery__section-label">Choose Option</div>
+        <div class="qb-grocery__variants" id="qbg-variants">
+          {% for variant in product.variants %}
+            <button
+              class="qb-grocery__variant-pill{% if forloop.first %} active{% endif %}"
+              data-variant-id="{{ variant.id }}"
+              data-variant-price="{{ variant.price | divided_by: 100.0 | floor }}"
+              aria-label="{{ variant.title }}"
+            >
+              {{ variant.title }}
+              <span class="vprice">Rs {{ variant.price | divided_by: 100.0 | floor }}</span>
+            </button>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Quantity + ATC -->
+    <div class="qb-grocery__section">
+      <div class="qb-grocery__qty-row">
+        <span class="qb-grocery__qty-label">Quantity</span>
+        <div class="qb-grocery__qty-ctrl">
+          <button class="qb-grocery__qty-btn" id="qbg-minus" aria-label="Decrease">−</button>
+          <span class="qb-grocery__qty-num" id="qbg-qty">1</span>
+          <button class="qb-grocery__qty-btn" id="qbg-plus" aria-label="Increase">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add to Cart Button -->
+    <button
+      class="qb-grocery__atc"
+      id="qbg-atc"
+      {% unless product.available %}disabled{% endunless %}
+      data-product-id="{{ product.id }}"
+      data-default-variant="{{ product.selected_or_first_available_variant.id }}"
+    >
+      {% if product.available %}
+        🛒 ADD TO CART
+      {% else %}
+        Out of Stock
+      {% endif %}
+    </button>
+
+    <!-- Features Strip -->
+    <div class="qb-grocery__features">
+      <div class="qb-grocery__feature">
+        <span class="qb-grocery__feature-icon">🚀</span>
+        <span class="qb-grocery__feature-text">Express Delivery</span>
+      </div>
+      <div class="qb-grocery__feature">
+        <span class="qb-grocery__feature-icon">✅</span>
+        <span class="qb-grocery__feature-text">100% Genuine</span>
+      </div>
+      <div class="qb-grocery__feature">
+        <span class="qb-grocery__feature-icon">🔒</span>
+        <span class="qb-grocery__feature-text">Secure Pay</span>
+      </div>
+      <div class="qb-grocery__feature">
+        <span class="qb-grocery__feature-icon">💬</span>
+        <span class="qb-grocery__feature-text">24/7 Support</span>
+      </div>
+    </div>
+
+    <!-- Description -->
+    {% if product.description != blank %}
+      <div class="qb-grocery__section">
+        <div class="qb-grocery__desc-header">About This Product</div>
+        <div class="qb-grocery__desc-body">{{ product.description }}</div>
+      </div>
+    {% endif %}
+
+    <!-- Related Searches -->
+    <div class="qb-grocery__section">
+      <div class="qb-grocery__related-label">Related Searches</div>
+      <div class="qb-grocery__chips-scroll">
+        {% for chip in chip_array %}
+          <a class="qb-grocery__chip" href="/search?q={{ chip | url_encode }}">{{ chip }}</a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="qb-grocery__footer">QuickBee · Kathmandu Valley 🐝</div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="qb-toast" id="qb-toast-grocery" role="alert" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── State ── */
+  var qty = 1;
+  var maxQty = 20;
+  var selectedVariantId = null;
+
+  /* ── DOM refs ── */
+  var qtyEl       = document.getElementById('qbg-qty');
+  var plusBtn      = document.getElementById('qbg-plus');
+  var minusBtn     = document.getElementById('qbg-minus');
+  var atcBtn       = document.getElementById('qbg-atc');
+  var priceEl      = document.getElementById('qbg-price');
+  var etaEl        = document.getElementById('qbg-eta');
+  var variantsWrap = document.getElementById('qbg-variants');
+  var toast        = document.getElementById('qb-toast-grocery');
+
+  /* ── Init variant ── */
+  if (atcBtn) {
+    selectedVariantId = atcBtn.dataset.defaultVariant;
+  }
+
+  /* ── ETA from localStorage ── */
+  (function loadETA() {
+    try {
+      var t = localStorage.getItem('qb_delivery_time');
+      if (t && etaEl) {
+        etaEl.textContent = '⚡ ' + t;
+      }
+    } catch (e) {}
+  })();
+
+  /* ── Quantity stepper ── */
+  if (plusBtn) {
+    plusBtn.addEventListener('click', function () {
+      if (qty < maxQty) {
+        qty++;
+        qtyEl.textContent = qty;
+      }
+    });
+  }
+
+  if (minusBtn) {
+    minusBtn.addEventListener('click', function () {
+      if (qty > 1) {
+        qty--;
+        qtyEl.textContent = qty;
+      }
+    });
+  }
+
+  /* ── Variant pills ── */
+  if (variantsWrap) {
+    variantsWrap.addEventListener('click', function (e) {
+      var pill = e.target.closest('.qb-grocery__variant-pill');
+      if (!pill) return;
+      variantsWrap.querySelectorAll('.qb-grocery__variant-pill').forEach(function (p) {
+        p.classList.remove('active');
+      });
+      pill.classList.add('active');
+      selectedVariantId = pill.dataset.variantId;
+      if (priceEl) {
+        priceEl.textContent = 'Rs ' + pill.dataset.variantPrice;
+      }
+    });
+  }
+
+  /* ── Toast helper ── */
+  var toastTimer = null;
+  function showToast(msg, isError) {
+    if (!toast) return;
+    clearTimeout(toastTimer);
+    toast.textContent = msg;
+    toast.classList.toggle('error', !!isError);
+    toast.classList.add('show');
+    toastTimer = setTimeout(function () {
+      toast.classList.remove('show');
+    }, 3000);
+  }
+
+  /* ── Add to cart ── */
+  if (atcBtn && atcBtn.dataset.productId) {
+    atcBtn.addEventListener('click', function () {
+      if (atcBtn.disabled) return;
+      var varId = selectedVariantId || atcBtn.dataset.defaultVariant;
+      if (!varId) { showToast('Please select an option', true); return; }
+
+      atcBtn.disabled = true;
+      atcBtn.textContent = 'Adding…';
+
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: parseInt(varId, 10),
+          quantity: qty,
+          properties: { 'Source': 'Product Page' }
+        })
+      })
+      .then(function (res) {
+        if (!res.ok) return res.json().then(function (d) { throw new Error(d.description || 'Error'); });
+        return res.json();
+      })
+      .then(function () {
+        atcBtn.classList.add('added');
+        atcBtn.textContent = '✓ Added!';
+        showToast('Added to cart!');
+        window.dispatchEvent(new CustomEvent('cart:updated'));
+        setTimeout(function () {
+          atcBtn.classList.remove('added');
+          atcBtn.disabled = false;
+          atcBtn.textContent = '🛒 ADD TO CART';
+        }, 1500);
+      })
+      .catch(function (err) {
+        atcBtn.disabled = false;
+        atcBtn.textContent = '🛒 ADD TO CART';
+        showToast(err.message || 'Could not add to cart', true);
+      });
+    });
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Grocery Product",
+  "settings": []
+}
+{% endschema %}

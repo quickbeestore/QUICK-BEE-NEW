@@ -1,0 +1,880 @@
+<style>
+  .qb-laundry-page * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  .qb-laundry-page {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f4f5f8;
+    color: #0f172a;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  [data-theme="dark"] .qb-laundry-page,
+  html:not([data-theme]) .qb-laundry-page {
+    background: #090909;
+    color: #f0f0f0;
+  }
+
+  .qb-laundry-inner {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* ── Hero ── */
+  .qb-laundry-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 36px 0 24px;
+    gap: 12px;
+  }
+
+  .qb-laundry-icon-wrap {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    box-shadow: 0 8px 32px rgba(59,130,246,0.35);
+  }
+
+  .qb-laundry-badges {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .qb-laundry-live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(34,197,94,0.12);
+    border: 1px solid #22c55e;
+    color: #16a34a;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  [data-theme="dark"] .qb-laundry-live-badge,
+  html:not([data-theme]) .qb-laundry-live-badge {
+    color: #22c55e;
+  }
+
+  .qb-laundry-pulse {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    display: inline-block;
+    animation: qbLaundryPulse 1.4s ease-in-out infinite;
+  }
+
+  @keyframes qbLaundryPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .qb-laundry-eta-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(244,180,0,0.12);
+    border: 1px solid rgba(244,180,0,0.4);
+    color: #F4B400;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .qb-laundry-title {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #0f172a;
+  }
+
+  [data-theme="dark"] .qb-laundry-title,
+  html:not([data-theme]) .qb-laundry-title {
+    color: #f0f0f0;
+  }
+
+  /* ── Card ── */
+  .qb-laundry-card {
+    background: #fff;
+    border: 1px solid rgba(15,23,42,0.08);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  [data-theme="dark"] .qb-laundry-card,
+  html:not([data-theme]) .qb-laundry-card {
+    background: #111;
+    border-color: rgba(255,255,255,0.07);
+  }
+
+  .qb-laundry-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: #0f172a;
+  }
+
+  [data-theme="dark"] .qb-laundry-card-title,
+  html:not([data-theme]) .qb-laundry-card-title {
+    color: #f0f0f0;
+  }
+
+  /* ── Service Variant Cards ── */
+  .qb-laundry-variant-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .qb-laundry-variant-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 2px solid rgba(15,23,42,0.08);
+    background: #f4f5f8;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+    width: 100%;
+    text-align: left;
+  }
+
+  [data-theme="dark"] .qb-laundry-variant-card,
+  html:not([data-theme]) .qb-laundry-variant-card {
+    background: #1a1a1a;
+    border-color: rgba(255,255,255,0.07);
+  }
+
+  .qb-laundry-variant-card.selected {
+    border-color: #F4B400;
+    background: rgba(244,180,0,0.07);
+  }
+
+  .qb-laundry-variant-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .qb-laundry-variant-icon {
+    font-size: 24px;
+  }
+
+  .qb-laundry-variant-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  [data-theme="dark"] .qb-laundry-variant-name,
+  html:not([data-theme]) .qb-laundry-variant-name {
+    color: #f0f0f0;
+  }
+
+  .qb-laundry-variant-card.selected .qb-laundry-variant-name {
+    color: #F4B400;
+  }
+
+  .qb-laundry-variant-price {
+    font-size: 14px;
+    font-weight: 700;
+    color: #64748b;
+  }
+
+  [data-theme="dark"] .qb-laundry-variant-price,
+  html:not([data-theme]) .qb-laundry-variant-price {
+    color: #888;
+  }
+
+  .qb-laundry-variant-card.selected .qb-laundry-variant-price {
+    color: #F4B400;
+  }
+
+  /* ── Stepper ── */
+  .qb-laundry-stepper-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .qb-laundry-stepper-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  [data-theme="dark"] .qb-laundry-stepper-label,
+  html:not([data-theme]) .qb-laundry-stepper-label {
+    color: #f0f0f0;
+  }
+
+  .qb-laundry-stepper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: 1.5px solid rgba(15,23,42,0.08);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  [data-theme="dark"] .qb-laundry-stepper,
+  html:not([data-theme]) .qb-laundry-stepper {
+    border-color: rgba(255,255,255,0.1);
+  }
+
+  .qb-laundry-stepper-btn {
+    width: 38px;
+    height: 38px;
+    background: #f4f5f8;
+    border: none;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s;
+    font-family: inherit;
+  }
+
+  [data-theme="dark"] .qb-laundry-stepper-btn,
+  html:not([data-theme]) .qb-laundry-stepper-btn {
+    background: #1a1a1a;
+    color: #f0f0f0;
+  }
+
+  .qb-laundry-stepper-btn:hover {
+    background: #eef0f4;
+  }
+
+  [data-theme="dark"] .qb-laundry-stepper-btn:hover,
+  html:not([data-theme]) .qb-laundry-stepper-btn:hover {
+    background: #222;
+  }
+
+  .qb-laundry-stepper-val {
+    width: 48px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    background: #fff;
+    padding: 0;
+    border: none;
+    border-left: 1.5px solid rgba(15,23,42,0.08);
+    border-right: 1.5px solid rgba(15,23,42,0.08);
+    height: 38px;
+    line-height: 38px;
+    font-family: inherit;
+    outline: none;
+  }
+
+  [data-theme="dark"] .qb-laundry-stepper-val,
+  html:not([data-theme]) .qb-laundry-stepper-val {
+    background: #111;
+    color: #f0f0f0;
+    border-color: rgba(255,255,255,0.07);
+  }
+
+  /* ── Service Type Pills ── */
+  .qb-laundry-pills-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .qb-laundry-pill {
+    padding: 8px 14px;
+    border-radius: 40px;
+    border: 1.5px solid rgba(15,23,42,0.08);
+    background: #f4f5f8;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  [data-theme="dark"] .qb-laundry-pill,
+  html:not([data-theme]) .qb-laundry-pill {
+    background: #1a1a1a;
+    border-color: rgba(255,255,255,0.07);
+    color: #f0f0f0;
+  }
+
+  .qb-laundry-pill.selected {
+    border-color: #F4B400;
+    background: rgba(244,180,0,0.1);
+    color: #F4B400;
+  }
+
+  /* ── Form Fields ── */
+  .qb-laundry-form-group {
+    margin-bottom: 14px;
+  }
+
+  .qb-laundry-form-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .qb-laundry-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #64748b;
+    margin-bottom: 6px;
+  }
+
+  [data-theme="dark"] .qb-laundry-label,
+  html:not([data-theme]) .qb-laundry-label {
+    color: #888;
+  }
+
+  .qb-laundry-input,
+  .qb-laundry-select,
+  .qb-laundry-textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(15,23,42,0.08);
+    background: #f4f5f8;
+    color: #0f172a;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s ease;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  [data-theme="dark"] .qb-laundry-input,
+  [data-theme="dark"] .qb-laundry-select,
+  [data-theme="dark"] .qb-laundry-textarea,
+  html:not([data-theme]) .qb-laundry-input,
+  html:not([data-theme]) .qb-laundry-select,
+  html:not([data-theme]) .qb-laundry-textarea {
+    background: #1a1a1a;
+    border-color: rgba(255,255,255,0.07);
+    color: #f0f0f0;
+  }
+
+  .qb-laundry-input:focus,
+  .qb-laundry-select:focus,
+  .qb-laundry-textarea:focus {
+    border-color: #F4B400;
+  }
+
+  .qb-laundry-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 38px;
+  }
+
+  .qb-laundry-textarea {
+    resize: vertical;
+    min-height: 72px;
+  }
+
+  /* ── Price Preview ── */
+  .qb-laundry-price-preview {
+    background: rgba(244,180,0,0.06);
+    border: 1.5px solid rgba(244,180,0,0.3);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .qb-laundry-price-left {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .qb-laundry-price-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+
+  [data-theme="dark"] .qb-laundry-price-label,
+  html:not([data-theme]) .qb-laundry-price-label {
+    color: #888;
+  }
+
+  .qb-laundry-price-calc {
+    font-size: 12px;
+    color: #64748b;
+  }
+
+  [data-theme="dark"] .qb-laundry-price-calc,
+  html:not([data-theme]) .qb-laundry-price-calc {
+    color: #888;
+  }
+
+  .qb-laundry-price-value {
+    font-size: 30px;
+    font-weight: 900;
+    color: #F4B400;
+    line-height: 1;
+  }
+
+  /* ── CTA ── */
+  .qb-laundry-cta {
+    width: 100%;
+    height: 56px;
+    background: linear-gradient(135deg, #F4B400, #e6a200);
+    color: #090909;
+    border: none;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    margin-bottom: 24px;
+  }
+
+  .qb-laundry-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(244,180,0,0.4);
+  }
+
+  .qb-laundry-cta:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .qb-laundry-error {
+    font-size: 12px;
+    color: #ef4444;
+    margin-bottom: 12px;
+    display: none;
+  }
+
+  /* ── How it works ── */
+  .qb-laundry-hiw-steps {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  @media (max-width: 400px) {
+    .qb-laundry-hiw-steps {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .qb-laundry-hiw-step {
+    background: #f4f5f8;
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  [data-theme="dark"] .qb-laundry-hiw-step,
+  html:not([data-theme]) .qb-laundry-hiw-step {
+    background: #1a1a1a;
+  }
+
+  .qb-laundry-hiw-step-num {
+    font-size: 22px;
+  }
+
+  .qb-laundry-hiw-step-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  [data-theme="dark"] .qb-laundry-hiw-step-title,
+  html:not([data-theme]) .qb-laundry-hiw-step-title {
+    color: #f0f0f0;
+  }
+
+  .qb-laundry-hiw-step-sub {
+    font-size: 12px;
+    color: #64748b;
+  }
+
+  [data-theme="dark"] .qb-laundry-hiw-step-sub,
+  html:not([data-theme]) .qb-laundry-hiw-step-sub {
+    color: #888;
+  }
+
+  /* ── Trust ── */
+  .qb-laundry-trust-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  @media (min-width: 480px) {
+    .qb-laundry-trust-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .qb-laundry-trust-item {
+    background: #f4f5f8;
+    border-radius: 12px;
+    padding: 14px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+  }
+
+  [data-theme="dark"] .qb-laundry-trust-item,
+  html:not([data-theme]) .qb-laundry-trust-item {
+    background: #1a1a1a;
+  }
+
+  .qb-laundry-trust-icon {
+    font-size: 22px;
+  }
+
+  .qb-laundry-trust-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.3;
+  }
+
+  [data-theme="dark"] .qb-laundry-trust-label,
+  html:not([data-theme]) .qb-laundry-trust-label {
+    color: #f0f0f0;
+  }
+</style>
+
+<div class="qb-laundry-page">
+  <div class="qb-laundry-inner">
+
+    {%- assign laundry_variant_icons = "👕,🧴,👔,🫧" | split: "," -%}
+    {%- assign first_variant = product.variants.first -%}
+
+    <!-- Hero -->
+    <div class="qb-laundry-hero">
+      <div class="qb-laundry-icon-wrap">👕</div>
+      <div class="qb-laundry-badges">
+        <span class="qb-laundry-live-badge">
+          <span class="qb-laundry-pulse"></span>
+          LIVE SERVICE
+        </span>
+        <span class="qb-laundry-eta-badge">⏱ 24-hr turnaround</span>
+      </div>
+      <h1 class="qb-laundry-title">{{ product.title }}</h1>
+    </div>
+
+    <!-- Service Type Variant Cards (only if > 1 variant) -->
+    {%- if product.variants.size > 1 -%}
+      <div class="qb-laundry-card">
+        <div class="qb-laundry-card-title">Select service type</div>
+        <div class="qb-laundry-variant-list" id="qb-laundry-variant-list">
+          {%- for variant in product.variants -%}
+            {%- assign icon_index = forloop.index0 | modulo: 4 -%}
+            <button
+              class="qb-laundry-variant-card{% if forloop.first %} selected{% endif %}"
+              data-variant-id="{{ variant.id }}"
+              data-price="{{ variant.price }}"
+              onclick="qbLaundrySelectVariant(this)"
+              type="button"
+            >
+              <div class="qb-laundry-variant-left">
+                <span class="qb-laundry-variant-icon">{{ laundry_variant_icons[icon_index] }}</span>
+                <span class="qb-laundry-variant-name">{{ variant.title }}</span>
+              </div>
+              <span class="qb-laundry-variant-price">Rs {{ variant.price | money_without_currency | remove: '.00' }}/item</span>
+            </button>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    <!-- Booking Form -->
+    <div class="qb-laundry-card">
+      <div class="qb-laundry-card-title">📋 Booking details</div>
+
+      <!-- Number of clothes stepper -->
+      <div class="qb-laundry-stepper-row">
+        <span class="qb-laundry-stepper-label">Number of clothes</span>
+        <div class="qb-laundry-stepper">
+          <button class="qb-laundry-stepper-btn" onclick="qbLaundryStep(-1)" type="button" aria-label="Decrease">−</button>
+          <span class="qb-laundry-stepper-val" id="qb-laundry-qty">5</span>
+          <button class="qb-laundry-stepper-btn" onclick="qbLaundryStep(1)" type="button" aria-label="Increase">+</button>
+        </div>
+      </div>
+
+      <!-- Service type pills -->
+      <div style="margin-bottom:6px;">
+        <div class="qb-laundry-label" style="margin-bottom:8px;">Service type</div>
+        <div class="qb-laundry-pills-row" id="qb-laundry-service-pills">
+          <button class="qb-laundry-pill selected" onclick="qbLaundrySelectPill(this, 'Regular Wash')" type="button">Regular Wash</button>
+          <button class="qb-laundry-pill" onclick="qbLaundrySelectPill(this, 'Dry Clean')" type="button">Dry Clean</button>
+          <button class="qb-laundry-pill" onclick="qbLaundrySelectPill(this, 'Iron Only')" type="button">Iron Only</button>
+          <button class="qb-laundry-pill" onclick="qbLaundrySelectPill(this, 'Wash + Iron')" type="button">Wash + Iron</button>
+        </div>
+      </div>
+
+      <!-- Pickup date -->
+      <div class="qb-laundry-form-group">
+        <label class="qb-laundry-label" for="qb-laundry-date">Pickup date</label>
+        <input
+          id="qb-laundry-date"
+          class="qb-laundry-input"
+          type="date"
+        />
+      </div>
+
+      <!-- Pickup time -->
+      <div class="qb-laundry-form-group">
+        <label class="qb-laundry-label" for="qb-laundry-time">Pickup time</label>
+        <select id="qb-laundry-time" class="qb-laundry-select">
+          <option value="Morning 7-11AM">🌅 Morning 7–11 AM</option>
+          <option value="Afternoon 11-3PM">☀️ Afternoon 11–3 PM</option>
+          <option value="Evening 3-7PM">🌆 Evening 3–7 PM</option>
+        </select>
+      </div>
+
+      <!-- Special instructions -->
+      <div class="qb-laundry-form-group">
+        <label class="qb-laundry-label" for="qb-laundry-notes">Special instructions (optional)</label>
+        <textarea
+          id="qb-laundry-notes"
+          class="qb-laundry-textarea"
+          rows="2"
+          placeholder="Any special care instructions..."
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Price Preview -->
+    <div class="qb-laundry-price-preview">
+      <div class="qb-laundry-price-left">
+        <span class="qb-laundry-price-label">Estimated total</span>
+        <span class="qb-laundry-price-calc" id="qb-laundry-calc">5 items × Rs {{ first_variant.price | money_without_currency | remove: '.00' }}/item</span>
+      </div>
+      <span class="qb-laundry-price-value" id="qb-laundry-price">
+        Rs <span id="qb-laundry-price-num">{{ first_variant.price | divided_by: 100 | times: 5 }}</span>
+      </span>
+    </div>
+
+    <!-- CTA -->
+    <button class="qb-laundry-cta" id="qb-laundry-add-btn" onclick="qbLaundryAddToCart()" type="button">
+      SCHEDULE PICKUP
+    </button>
+    <div class="qb-laundry-error" id="qb-laundry-error"></div>
+
+    <!-- How it works -->
+    <div class="qb-laundry-card">
+      <div class="qb-laundry-card-title">How it works</div>
+      <div class="qb-laundry-hiw-steps">
+        <div class="qb-laundry-hiw-step">
+          <span class="qb-laundry-hiw-step-num">📅</span>
+          <span class="qb-laundry-hiw-step-title">Schedule</span>
+          <span class="qb-laundry-hiw-step-sub">Book your pickup slot online</span>
+        </div>
+        <div class="qb-laundry-hiw-step">
+          <span class="qb-laundry-hiw-step-num">🚗</span>
+          <span class="qb-laundry-hiw-step-title">Pickup</span>
+          <span class="qb-laundry-hiw-step-sub">We collect from your door</span>
+        </div>
+        <div class="qb-laundry-hiw-step">
+          <span class="qb-laundry-hiw-step-num">✨</span>
+          <span class="qb-laundry-hiw-step-title">Clean</span>
+          <span class="qb-laundry-hiw-step-sub">Professional cleaning in 24h</span>
+        </div>
+        <div class="qb-laundry-hiw-step">
+          <span class="qb-laundry-hiw-step-num">🏠</span>
+          <span class="qb-laundry-hiw-step-title">Deliver</span>
+          <span class="qb-laundry-hiw-step-sub">Fresh clothes back at your door</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trust Signals -->
+    <div class="qb-laundry-card">
+      <div class="qb-laundry-card-title">Why QuickBee Laundry?</div>
+      <div class="qb-laundry-trust-grid">
+        <div class="qb-laundry-trust-item">
+          <span class="qb-laundry-trust-icon">✅</span>
+          <span class="qb-laundry-trust-label">Verified cleaners</span>
+        </div>
+        <div class="qb-laundry-trust-item">
+          <span class="qb-laundry-trust-icon">🌿</span>
+          <span class="qb-laundry-trust-label">Eco-friendly detergents</span>
+        </div>
+        <div class="qb-laundry-trust-item">
+          <span class="qb-laundry-trust-icon">🛡️</span>
+          <span class="qb-laundry-trust-label">Damage insurance</span>
+        </div>
+        <div class="qb-laundry-trust-item">
+          <span class="qb-laundry-trust-icon">⚡</span>
+          <span class="qb-laundry-trust-label">24-hr return</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  var qbLaundryQty = 5;
+  var qbLaundryVariantPrice = {{ product.variants.first.price | json }};
+  var qbLaundryVariantId = {{ product.variants.first.id | json }};
+  var qbLaundryServiceType = 'Regular Wash';
+
+  // Set tomorrow as default date
+  (function() {
+    try {
+      var tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      var y = tomorrow.getFullYear();
+      var m = String(tomorrow.getMonth() + 1).padStart(2, '0');
+      var d = String(tomorrow.getDate()).padStart(2, '0');
+      var dateEl = document.getElementById('qb-laundry-date');
+      if (dateEl) {
+        dateEl.value = y + '-' + m + '-' + d;
+        dateEl.min = y + '-' + m + '-' + d;
+      }
+    } catch (e) {}
+  })();
+
+  function qbLaundryUpdatePrice() {
+    var total = Math.round((qbLaundryVariantPrice / 100) * qbLaundryQty);
+    var perItem = Math.round(qbLaundryVariantPrice / 100);
+    document.getElementById('qb-laundry-price-num').textContent = total.toLocaleString('en-IN');
+    document.getElementById('qb-laundry-calc').textContent =
+      qbLaundryQty + ' items × Rs ' + perItem.toLocaleString('en-IN') + '/item';
+  }
+
+  window.qbLaundryStep = function(delta) {
+    qbLaundryQty = Math.min(50, Math.max(1, qbLaundryQty + delta));
+    document.getElementById('qb-laundry-qty').textContent = qbLaundryQty;
+    qbLaundryUpdatePrice();
+  };
+
+  window.qbLaundrySelectVariant = function(btn) {
+    document.querySelectorAll('.qb-laundry-variant-card').forEach(function(b) { b.classList.remove('selected'); });
+    btn.classList.add('selected');
+    qbLaundryVariantId = btn.dataset.variantId;
+    qbLaundryVariantPrice = parseInt(btn.dataset.price, 10);
+    qbLaundryUpdatePrice();
+  };
+
+  window.qbLaundrySelectPill = function(btn, type) {
+    document.querySelectorAll('#qb-laundry-service-pills .qb-laundry-pill').forEach(function(b) { b.classList.remove('selected'); });
+    btn.classList.add('selected');
+    qbLaundryServiceType = type;
+  };
+
+  window.qbLaundryAddToCart = function() {
+    var btn = document.getElementById('qb-laundry-add-btn');
+    var errEl = document.getElementById('qb-laundry-error');
+    var date = document.getElementById('qb-laundry-date').value;
+    var time = document.getElementById('qb-laundry-time').value;
+    var notes = document.getElementById('qb-laundry-notes').value.trim();
+
+    errEl.style.display = 'none';
+
+    if (!date) {
+      errEl.textContent = 'Please select a pickup date.';
+      errEl.style.display = 'block';
+      document.getElementById('qb-laundry-date').focus();
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Scheduling...';
+
+    var totalPrice = Math.round((qbLaundryVariantPrice / 100) * qbLaundryQty);
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: parseInt(qbLaundryVariantId, 10),
+        quantity: qbLaundryQty,
+        properties: {
+          'Service Type': qbLaundryServiceType,
+          'Number of Clothes': qbLaundryQty,
+          'Pickup Date': date,
+          'Pickup Time': time,
+          'Special Instructions': notes || 'None',
+          'Estimated Total': 'Rs ' + totalPrice.toLocaleString('en-IN')
+        }
+      })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status) {
+        errEl.textContent = data.description || 'Could not schedule. Please try again.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'SCHEDULE PICKUP';
+      } else {
+        btn.textContent = '✓ Pickup Scheduled!';
+        document.dispatchEvent(new CustomEvent('cart:updated', { bubbles: true }));
+        setTimeout(function() {
+          btn.disabled = false;
+          btn.textContent = 'SCHEDULE PICKUP';
+        }, 2400);
+      }
+    })
+    .catch(function() {
+      errEl.textContent = 'Something went wrong. Please try again.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'SCHEDULE PICKUP';
+    });
+  };
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Laundry Product",
+  "settings": []
+}
+{% endschema %}

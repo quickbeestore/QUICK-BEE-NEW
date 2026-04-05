@@ -1,0 +1,899 @@
+{% comment %}
+  QB Organic Product Section
+  Template: product.organic
+  Accent: #F4B400 (Gold) · Green: #2e7d32
+  Theme: Dark / Light via [data-theme]
+{% endcomment %}
+
+{% liquid
+  assign product_type = product.type | downcase
+
+  case product_type
+    when 'vegetables'
+      assign type_icon  = '🥦'
+      assign type_label = 'Vegetables'
+    when 'fruits'
+      assign type_icon  = '🍎'
+      assign type_label = 'Fruits'
+    when 'grains'
+      assign type_icon  = '🌾'
+      assign type_label = 'Grains'
+    when 'dairy'
+      assign type_icon  = '🥛'
+      assign type_label = 'Dairy'
+    when 'herbs'
+      assign type_icon  = '🌿'
+      assign type_label = 'Herbs'
+    else
+      assign type_icon  = '🍃'
+      assign type_label = product.type
+  endcase
+
+  assign is_biodynamic = false
+  assign farm_name     = nil
+  assign harvest_date  = nil
+
+  for tag in product.tags
+    assign tag_lower = tag | downcase
+
+    if tag_lower == 'biodynamic'
+      assign is_biodynamic = true
+    endif
+
+    if tag_lower contains 'farm:'
+      assign farm_name = tag | remove_first: 'farm:' | remove_first: 'Farm:' | strip
+    endif
+
+    if tag_lower contains 'harvested:'
+      assign harvest_date = tag | remove_first: 'harvested:' | remove_first: 'Harvested:' | strip
+    endif
+  endfor
+
+  if farm_name == blank or farm_name == nil
+    assign farm_name = 'Trusted Local Farms'
+    assign farm_is_fallback = true
+  else
+    assign farm_is_fallback = false
+  endif
+
+  if harvest_date == blank or harvest_date == nil
+    assign harvest_display = 'Harvested This Week'
+    assign harvest_is_fallback = true
+  else
+    assign harvest_display = harvest_date
+    assign harvest_is_fallback = false
+  endif
+
+  assign first_variant = product.variants.first
+%}
+
+<style>
+  /* ── CSS Tokens ────────────────────────────────────────── */
+  :root,
+  [data-theme="light"] {
+    --org-bg:             #ffffff;
+    --org-bg-card:        #f7faf7;
+    --org-bg-strip:       #f0f9f0;
+    --org-border:         #dce8dc;
+    --org-text-primary:   #1a1a1a;
+    --org-text-secondary: #4a5c4a;
+    --org-text-muted:     #7a8f7a;
+    --org-gold:           #F4B400;
+    --org-gold-dark:      #c79200;
+    --org-gold-bg:        #fff8e1;
+    --org-green:          #2e7d32;
+    --org-green-mid:      #388e3c;
+    --org-green-bg:       #e8f5e9;
+    --org-green-border:   #a5d6a7;
+    --org-pill-bg:        #eef5ee;
+    --org-pill-active-bg: #fff8e1;
+    --org-pill-active-border: #F4B400;
+    --org-shadow:         0 2px 12px rgba(0,0,0,0.06);
+    --org-radius:         12px;
+    --org-radius-sm:      8px;
+    --org-btn-text:       #1a1a1a;
+  }
+
+  [data-theme="dark"] {
+    --org-bg:             #111811;
+    --org-bg-card:        #1a2219;
+    --org-bg-strip:       #0d1f0d;
+    --org-border:         #2a3a2a;
+    --org-text-primary:   #eef4ee;
+    --org-text-secondary: #98b898;
+    --org-text-muted:     #5a7a5a;
+    --org-gold:           #F4B400;
+    --org-gold-dark:      #ffca28;
+    --org-gold-bg:        #1f1800;
+    --org-green:          #66bb6a;
+    --org-green-mid:      #81c784;
+    --org-green-bg:       #0a1f0a;
+    --org-green-border:   #2e5f2e;
+    --org-pill-bg:        #1a2a1a;
+    --org-pill-active-bg: #2a2000;
+    --org-pill-active-border: #F4B400;
+    --org-shadow:         0 2px 16px rgba(0,0,0,0.4);
+    --org-radius:         12px;
+    --org-radius-sm:      8px;
+    --org-btn-text:       #1a1a1a;
+  }
+
+  /* ── Reset / Base ──────────────────────────────────────── */
+  .org-section * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  .org-section {
+    background: var(--org-bg);
+    color: var(--org-text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    padding: 16px 0 48px;
+  }
+
+  .org-container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* ── Badges ─────────────────────────────────────────────── */
+  .org-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .org-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .org-badge--organic {
+    background: var(--org-green-bg);
+    color: var(--org-green);
+    border: 1.5px solid var(--org-green);
+  }
+
+  .org-badge--biodynamic {
+    background: var(--org-gold-bg);
+    color: var(--org-gold);
+    border: 1.5px solid var(--org-gold);
+  }
+
+  /* ── Type chip ─────────────────────────────────────────── */
+  .org-type-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--org-bg-card);
+    border: 1.5px solid var(--org-green);
+    color: var(--org-green);
+    margin-bottom: 14px;
+  }
+
+  /* ── Product title ─────────────────────────────────────── */
+  .org-title {
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--org-text-primary);
+    margin-bottom: 6px;
+  }
+
+  .org-subtitle {
+    font-size: 14px;
+    color: var(--org-text-secondary);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  /* ── Certification strip ───────────────────────────────── */
+  .org-cert-strip {
+    display: flex;
+    align-items: center;
+    background: var(--org-bg-strip);
+    border: 1px solid var(--org-green-border);
+    border-radius: var(--org-radius-sm);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .org-cert-item {
+    flex: 1;
+    text-align: center;
+    padding: 10px 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--org-text-secondary);
+    border-right: 1px solid var(--org-border);
+    line-height: 1.4;
+  }
+
+  .org-cert-item:last-child { border-right: none; }
+
+  .org-cert-item .org-ci-icon {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 3px;
+  }
+
+  /* ── Farm + Harvest info row ───────────────────────────── */
+  .org-meta-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+
+  .org-meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: var(--org-bg-card);
+    border: 1px solid var(--org-green-border);
+    border-radius: 20px;
+    font-size: 13px;
+    color: var(--org-green);
+    font-weight: 600;
+  }
+
+  /* ── Section labels ────────────────────────────────────── */
+  .org-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--org-text-muted);
+    margin-bottom: 10px;
+  }
+
+  /* ── Variant pills ─────────────────────────────────────── */
+  .org-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .org-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 16px;
+    border-radius: var(--org-radius-sm);
+    background: var(--org-pill-bg);
+    border: 1.5px solid var(--org-border);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    min-width: 80px;
+    user-select: none;
+  }
+
+  .org-pill:hover {
+    border-color: var(--org-gold);
+  }
+
+  .org-pill.is-active {
+    background: var(--org-pill-active-bg);
+    border-color: var(--org-pill-active-border);
+  }
+
+  .org-pill__weight {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--org-text-primary);
+  }
+
+  .org-pill__price {
+    font-size: 12px;
+    color: var(--org-gold);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  /* ── Price display ─────────────────────────────────────── */
+  .org-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .org-price-main {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--org-gold);
+  }
+
+  .org-price-compare {
+    font-size: 16px;
+    color: var(--org-text-muted);
+    text-decoration: line-through;
+  }
+
+  .org-price-tag {
+    font-size: 12px;
+    color: var(--org-text-secondary);
+  }
+
+  /* ── Quantity stepper ──────────────────────────────────── */
+  .org-qty-block {
+    margin-bottom: 24px;
+  }
+
+  .org-qty-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--org-text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .org-qty-stepper {
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    border: 1.5px solid var(--org-border);
+    border-radius: var(--org-radius-sm);
+    overflow: hidden;
+    background: var(--org-bg-card);
+  }
+
+  .org-qty-btn {
+    width: 44px;
+    height: 44px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--org-text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .org-qty-btn:hover {
+    background: var(--org-green-bg);
+  }
+
+  .org-qty-value {
+    width: 48px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--org-text-primary);
+    border-left: 1px solid var(--org-border);
+    border-right: 1px solid var(--org-border);
+    height: 44px;
+    line-height: 44px;
+    user-select: none;
+  }
+
+  /* ── Why Organic accordion ─────────────────────────────── */
+  .org-accordion {
+    margin-bottom: 28px;
+  }
+
+  .org-accordion__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--org-text-primary);
+    margin-bottom: 12px;
+  }
+
+  .org-acc-item {
+    border: 1px solid var(--org-border);
+    border-radius: var(--org-radius-sm);
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+
+  .org-acc-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: var(--org-bg-card);
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .org-acc-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .org-acc-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .org-acc-header-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--org-text-primary);
+  }
+
+  .org-acc-arrow {
+    flex-shrink: 0;
+    font-style: normal;
+    color: var(--org-green);
+    transition: transform 0.2s;
+  }
+
+  .org-acc-body {
+    display: none;
+    padding: 0 16px 16px 44px;
+    font-size: 13px;
+    color: var(--org-text-secondary);
+    line-height: 1.7;
+    background: var(--org-bg);
+  }
+
+  .org-acc-item.is-open .org-acc-body {
+    display: block;
+  }
+
+  .org-acc-item.is-open .org-acc-arrow {
+    transform: rotate(180deg);
+  }
+
+  /* ── Add to Cart button ────────────────────────────────── */
+  .org-atc-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 17px 24px;
+    background: var(--org-gold);
+    color: var(--org-btn-text);
+    border: none;
+    border-radius: var(--org-radius);
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.12s;
+    margin-bottom: 28px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .org-atc-btn:hover  { background: var(--org-gold-dark); }
+  .org-atc-btn:active { transform: scale(0.98); }
+  .org-atc-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* ── Trust 2×2 grid ────────────────────────────────────── */
+  .org-trust-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .org-trust-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--org-bg-card);
+    border: 1px solid var(--org-border);
+    border-radius: var(--org-radius-sm);
+    padding: 14px 12px;
+  }
+
+  .org-trust-cell-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .org-trust-cell-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .org-trust-cell-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--org-text-primary);
+  }
+
+  .org-trust-cell-sub {
+    font-size: 11px;
+    color: var(--org-text-muted);
+  }
+
+  /* ── Tree footer note ──────────────────────────────────── */
+  .org-tree-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--org-green-bg);
+    border: 1px solid var(--org-green-border);
+    border-radius: var(--org-radius-sm);
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--org-green);
+    text-align: center;
+  }
+
+  /* ── Toast ─────────────────────────────────────────────── */
+  .org-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #1a2a1a;
+    color: #eef4ee;
+    padding: 13px 24px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+    z-index: 9999;
+    transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+  }
+
+  .org-toast.is-visible {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── Responsive ────────────────────────────────────────── */
+  @media (max-width: 420px) {
+    .org-trust-grid { grid-template-columns: 1fr; }
+    .org-cert-item  { padding: 8px 2px; font-size: 10px; }
+    .org-cert-item .org-ci-icon { font-size: 13px; }
+    .org-meta-row   { gap: 8px; }
+  }
+</style>
+
+<section class="org-section" id="qb-org-section">
+  <div class="org-container">
+
+    <!-- Badge row -->
+    <div class="org-badge-row">
+      <span class="org-badge org-badge--organic">🌿 CERTIFIED ORGANIC</span>
+      {% if is_biodynamic %}
+        <span class="org-badge org-badge--biodynamic">✨ BIODYNAMIC</span>
+      {% endif %}
+    </div>
+
+    <!-- Type chip -->
+    <div class="org-type-chip">
+      <span>{{ type_icon }}</span>
+      <span>{{ type_label }}</span>
+    </div>
+
+    <!-- Title -->
+    <h1 class="org-title">{{ product.title }}</h1>
+    {% if product.description != blank %}
+      <p class="org-subtitle">{{ product.description | strip_html | truncate: 140 }}</p>
+    {% endif %}
+
+    <!-- Certification strip -->
+    <div class="org-cert-strip">
+      <div class="org-cert-item">
+        <span class="org-ci-icon">🏅</span>FSSAI Organic
+      </div>
+      <div class="org-cert-item">
+        <span class="org-ci-icon">🚫</span>No Pesticides
+      </div>
+      <div class="org-cert-item">
+        <span class="org-ci-icon">🧬</span>Non-GMO
+      </div>
+      <div class="org-cert-item">
+        <span class="org-ci-icon">♻️</span>Sustainably Farmed
+      </div>
+    </div>
+
+    <!-- Farm + Harvest meta row -->
+    <div class="org-meta-row">
+      <span class="org-meta-pill">
+        🏡
+        {% if farm_is_fallback %}
+          {{ farm_name }}
+        {% else %}
+          From {{ farm_name }} Farm
+        {% endif %}
+      </span>
+      <span class="org-meta-pill">
+        🌱
+        {% if harvest_is_fallback %}
+          {{ harvest_display }}
+        {% else %}
+          Harvested: {{ harvest_display }}
+        {% endif %}
+      </span>
+    </div>
+
+    <!-- Variant pills -->
+    <p class="org-section-label">Select Size / Weight</p>
+    <div class="org-pills" id="org-pills">
+      {% for variant in product.variants %}
+        <div
+          class="org-pill{% if forloop.first %} is-active{% endif %}"
+          data-variant-id="{{ variant.id }}"
+          data-variant-title="{{ variant.title | escape }}"
+          data-variant-price="{{ variant.price | money }}"
+          data-variant-price-raw="{{ variant.price }}"
+          {% if variant.compare_at_price > variant.price %}
+            data-variant-compare="{{ variant.compare_at_price | money }}"
+          {% endif %}
+          role="button"
+          tabindex="0"
+          aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+        >
+          <span class="org-pill__weight">{{ variant.title }}</span>
+          <span class="org-pill__price">{{ variant.price | money }}</span>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Price -->
+    <div class="org-price-row">
+      <span class="org-price-main" id="org-price">{{ first_variant.price | money }}</span>
+      {% if first_variant.compare_at_price > first_variant.price %}
+        <span class="org-price-compare" id="org-compare">{{ first_variant.compare_at_price | money }}</span>
+      {% else %}
+        <span class="org-price-compare" id="org-compare" style="display:none;"></span>
+      {% endif %}
+      <span class="org-price-tag">per unit</span>
+    </div>
+
+    <!-- Quantity stepper -->
+    <div class="org-qty-block">
+      <p class="org-qty-label">Quantity</p>
+      <div class="org-qty-stepper">
+        <button class="org-qty-btn" id="org-qty-minus" aria-label="Decrease quantity">−</button>
+        <span class="org-qty-value" id="org-qty-val">1</span>
+        <button class="org-qty-btn" id="org-qty-plus" aria-label="Increase quantity">+</button>
+      </div>
+    </div>
+
+    <!-- Why Organic? accordion -->
+    <div class="org-accordion">
+      <p class="org-accordion__title">Why Choose Organic?</p>
+
+      <div class="org-acc-item">
+        <button class="org-acc-header" aria-expanded="false">
+          <span class="org-acc-header-left">
+            <span class="org-acc-icon">💚</span>
+            <span class="org-acc-header-text">Health Benefits</span>
+          </span>
+          <i class="org-acc-arrow">▾</i>
+        </button>
+        <div class="org-acc-body">
+          Organic produce is grown without synthetic pesticides or fertilisers, reducing your
+          exposure to harmful chemicals. Studies show organic foods can have higher levels of
+          antioxidants, vitamins, and minerals — supporting immunity, energy, and long-term health.
+        </div>
+      </div>
+
+      <div class="org-acc-item">
+        <button class="org-acc-header" aria-expanded="false">
+          <span class="org-acc-header-left">
+            <span class="org-acc-icon">🌍</span>
+            <span class="org-acc-header-text">Better for the Environment</span>
+          </span>
+          <i class="org-acc-arrow">▾</i>
+        </button>
+        <div class="org-acc-body">
+          Organic farming practices maintain soil health, protect biodiversity, reduce water
+          pollution, and lower greenhouse gas emissions. Choosing organic means voting for a
+          farming system that works with nature, not against it.
+        </div>
+      </div>
+
+      <div class="org-acc-item">
+        <button class="org-acc-header" aria-expanded="false">
+          <span class="org-acc-header-left">
+            <span class="org-acc-icon">😋</span>
+            <span class="org-acc-header-text">Real Taste Difference</span>
+          </span>
+          <i class="org-acc-arrow">▾</i>
+        </button>
+        <div class="org-acc-body">
+          Slow-grown organic produce develops deeper flavour profiles. Without artificial
+          growth accelerators, plants mature fully — producing more complex sugars and aromas.
+          Most customers notice the difference with the very first bite.
+        </div>
+      </div>
+    </div>
+
+    <!-- Add to Cart -->
+    <button class="org-atc-btn" id="org-atc-btn" aria-label="Add to cart">
+      🛒 ADD TO CART
+    </button>
+
+    <!-- Trust 2×2 grid -->
+    <div class="org-trust-grid">
+      <div class="org-trust-cell">
+        <span class="org-trust-cell-icon">🚫</span>
+        <div class="org-trust-cell-text">
+          <span class="org-trust-cell-title">Zero Chemicals</span>
+          <span class="org-trust-cell-sub">No pesticides, no herbicides</span>
+        </div>
+      </div>
+      <div class="org-trust-cell">
+        <span class="org-trust-cell-icon">✋</span>
+        <div class="org-trust-cell-text">
+          <span class="org-trust-cell-title">Hand-Picked</span>
+          <span class="org-trust-cell-sub">Selected at peak ripeness</span>
+        </div>
+      </div>
+      <div class="org-trust-cell">
+        <span class="org-trust-cell-icon">🧊</span>
+        <div class="org-trust-cell-text">
+          <span class="org-trust-cell-title">Cold Chain</span>
+          <span class="org-trust-cell-sub">Freshness locked in transit</span>
+        </div>
+      </div>
+      <div class="org-trust-cell">
+        <span class="org-trust-cell-icon">🏅</span>
+        <div class="org-trust-cell-text">
+          <span class="org-trust-cell-title">Certified</span>
+          <span class="org-trust-cell-sub">FSSAI &amp; organic verified</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tree note -->
+    <div class="org-tree-note">
+      🌍 Every order you place plants 1 tree — together we're reforesting India
+    </div>
+
+  </div><!-- /container -->
+</section>
+
+<!-- Toast notification -->
+<div class="org-toast" id="org-toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── State ──────────────────────────────────────────── */
+  var activeVariantId    = {{ first_variant.id }};
+  var activeVariantTitle = {{ first_variant.title | json }};
+  var farmName           = {{ farm_name | json }};
+  var qty                = 1;
+  var MIN_QTY            = 1;
+  var MAX_QTY            = 20;
+
+  /* ── Pill selection ─────────────────────────────────── */
+  var pills = document.querySelectorAll('#org-pills .org-pill');
+
+  pills.forEach(function (pill) {
+    pill.addEventListener('click', function () { selectPill(this); });
+    pill.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectPill(this); }
+    });
+  });
+
+  function selectPill(pill) {
+    pills.forEach(function (p) {
+      p.classList.remove('is-active');
+      p.setAttribute('aria-pressed', 'false');
+    });
+    pill.classList.add('is-active');
+    pill.setAttribute('aria-pressed', 'true');
+
+    activeVariantId    = pill.dataset.variantId;
+    activeVariantTitle = pill.dataset.variantTitle;
+
+    document.getElementById('org-price').textContent = pill.dataset.variantPrice;
+
+    var compareEl = document.getElementById('org-compare');
+    if (pill.dataset.variantCompare) {
+      compareEl.textContent   = pill.dataset.variantCompare;
+      compareEl.style.display = '';
+    } else {
+      compareEl.style.display = 'none';
+    }
+  }
+
+  /* ── Quantity stepper ───────────────────────────────── */
+  document.getElementById('org-qty-minus').addEventListener('click', function () {
+    if (qty > MIN_QTY) { qty--; updateQty(); }
+  });
+  document.getElementById('org-qty-plus').addEventListener('click', function () {
+    if (qty < MAX_QTY) { qty++; updateQty(); }
+  });
+
+  function updateQty() {
+    document.getElementById('org-qty-val').textContent = qty;
+    document.getElementById('org-qty-minus').disabled = qty <= MIN_QTY;
+    document.getElementById('org-qty-plus').disabled  = qty >= MAX_QTY;
+  }
+
+  /* ── Accordion ──────────────────────────────────────── */
+  document.querySelectorAll('.org-acc-header').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = this.closest('.org-acc-item');
+      var open = item.classList.toggle('is-open');
+      this.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  });
+
+  /* ── Add to Cart ────────────────────────────────────── */
+  document.getElementById('org-atc-btn').addEventListener('click', function () {
+    var btn = this;
+
+    btn.disabled    = true;
+    btn.textContent = 'Adding…';
+
+    var payload = {
+      items: [{
+        id:         parseInt(activeVariantId, 10),
+        quantity:   qty,
+        properties: {
+          'Type': 'Organic',
+          'Farm': farmName
+        }
+      }]
+    };
+
+    fetch('/cart/add.js', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body:    JSON.stringify(payload)
+    })
+    .then(function (res) {
+      if (!res.ok) throw new Error('Cart error ' + res.status);
+      return res.json();
+    })
+    .then(function () {
+      showToast('🌿 Added to cart!');
+      document.dispatchEvent(new CustomEvent('cart:refresh'));
+    })
+    .catch(function (err) {
+      console.error('[QB Organic] ATC error:', err);
+      showToast('⚠️ Could not add to cart. Try again.');
+    })
+    .finally(function () {
+      btn.disabled    = false;
+      btn.textContent = '🛒 ADD TO CART';
+    });
+  });
+
+  /* ── Toast helper ───────────────────────────────────── */
+  function showToast(msg) {
+    var t = document.getElementById('org-toast');
+    t.textContent = msg;
+    t.classList.add('is-visible');
+    setTimeout(function () { t.classList.remove('is-visible'); }, 3000);
+  }
+})();
+</script>
+
+{% schema %}
+{"name":"QB Organic"}
+{% endschema %}

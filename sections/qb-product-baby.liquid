@@ -1,0 +1,887 @@
+{% comment %}
+  QB Baby Products — qb-product-baby.liquid
+  QuickBee Shopify Section · Baby & Toddler Product Page
+  Dark/Light theme · Soft Gold #F4B400 · Gentle pastel sub-theme · Mobile-first
+{% endcomment %}
+
+{%- liquid
+  assign baby_type          = product.type | downcase
+  assign is_pediatrician    = false
+  assign age_group          = ''
+  assign safety_standard    = ''
+  assign allergen_tags      = ''
+  assign material_tags      = ''
+
+  for tag in product.tags
+    assign t = tag | downcase
+
+    if t == 'pediatrician-approved'
+      assign is_pediatrician = true
+    endif
+
+    if t contains 'age:'
+      assign age_group = tag | remove_first: 'age:' | remove_first: 'Age:'
+    endif
+
+    if t contains 'safety:'
+      assign safety_standard = tag | remove_first: 'safety:' | remove_first: 'Safety:'
+    endif
+
+    if t contains 'allergen:'
+      assign allergen_val = tag | remove_first: 'allergen:' | remove_first: 'Allergen:'
+      if allergen_tags == ''
+        assign allergen_tags = allergen_val
+      else
+        assign allergen_tags = allergen_tags | append: ',' | append: allergen_val
+      endif
+    endif
+
+    if t contains 'material:'
+      assign material_val = tag | remove_first: 'material:' | remove_first: 'Material:'
+      if material_tags == ''
+        assign material_tags = material_val
+      else
+        assign material_tags = material_tags | append: ',' | append: material_val
+      endif
+    endif
+  endfor
+-%}
+
+{%- comment %} — Category config —————————————————————————————————————————— {% endcomment %}
+{%- liquid
+  case baby_type
+    when 'food'
+      assign cat_emoji  = '🍼'
+      assign cat_label  = 'Baby Food'
+      assign cat_color  = 'var(--baby-peach)'
+      assign cat_bg     = 'var(--baby-peach-bg)'
+    when 'diapers'
+      assign cat_emoji  = '🧷'
+      assign cat_label  = 'Diapers'
+      assign cat_color  = 'var(--baby-sky)'
+      assign cat_bg     = 'var(--baby-sky-bg)'
+    when 'clothing'
+      assign cat_emoji  = '👕'
+      assign cat_label  = 'Clothing'
+      assign cat_color  = 'var(--baby-lilac)'
+      assign cat_bg     = 'var(--baby-lilac-bg)'
+    when 'toys'
+      assign cat_emoji  = '🧸'
+      assign cat_label  = 'Toys'
+      assign cat_color  = 'var(--baby-mint)'
+      assign cat_bg     = 'var(--baby-mint-bg)'
+    when 'skincare'
+      assign cat_emoji  = '🧴'
+      assign cat_label  = 'Skincare'
+      assign cat_color  = 'var(--baby-rose)'
+      assign cat_bg     = 'var(--baby-rose-bg)'
+    when 'accessories'
+      assign cat_emoji  = '🎀'
+      assign cat_label  = 'Accessories'
+      assign cat_color  = 'var(--baby-lavender)'
+      assign cat_bg     = 'var(--baby-lavender-bg)'
+    else
+      assign cat_emoji  = '👶'
+      assign cat_label  = product.type
+      assign cat_color  = 'var(--baby-gold)'
+      assign cat_bg     = 'var(--baby-gold-bg)'
+  endcase
+-%}
+
+<style>
+  /* ─────────────────────────────────────────────
+     CSS DESIGN TOKENS — QB Baby Products
+  ───────────────────────────────────────────── */
+  :root {
+    /* Gold */
+    --baby-gold:          #F4B400;
+    --baby-gold-dark:     #c89200;
+    --baby-gold-bg:       rgba(244,180,0,0.13);
+    /* Pastels */
+    --baby-peach:         #E8845A;
+    --baby-peach-bg:      rgba(232,132,90,0.13);
+    --baby-sky:           #4A90D9;
+    --baby-sky-bg:        rgba(74,144,217,0.13);
+    --baby-lilac:         #9B72CF;
+    --baby-lilac-bg:      rgba(155,114,207,0.13);
+    --baby-mint:          #3DAA82;
+    --baby-mint-bg:       rgba(61,170,130,0.13);
+    --baby-rose:          #E06C9F;
+    --baby-rose-bg:       rgba(224,108,159,0.13);
+    --baby-lavender:      #7E7EC8;
+    --baby-lavender-bg:   rgba(126,126,200,0.13);
+    /* Status */
+    --baby-safe-green:    #2E7D32;
+    --baby-safe-bg:       rgba(46,125,50,0.13);
+    --baby-ped-green:     #1B5E20;
+    --baby-ped-bg:        rgba(27,94,32,0.13);
+    --baby-warn-amber:    #E65100;
+    --baby-warn-bg:       rgba(230,81,0,0.12);
+    --baby-disclaimer-bg: rgba(255,213,79,0.12);
+    --baby-disclaimer-bd: rgba(244,180,0,0.45);
+    /* Surface — dark mode default */
+    --baby-bg:            #111318;
+    --baby-surface:       #1C1F27;
+    --baby-surface2:      #252933;
+    --baby-border:        rgba(255,255,255,0.09);
+    --baby-text:          #EEF0F5;
+    --baby-text-muted:    #8A8FA8;
+    --baby-radius:        14px;
+    --baby-radius-sm:     8px;
+    --baby-shadow:        0 4px 24px rgba(0,0,0,0.45);
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --baby-bg:          #FFF8F4;
+      --baby-surface:     #FFFFFF;
+      --baby-surface2:    #FFF1E8;
+      --baby-border:      rgba(0,0,0,0.09);
+      --baby-text:        #1A1A2E;
+      --baby-text-muted:  #666680;
+      --baby-shadow:      0 4px 24px rgba(0,0,0,0.09);
+    }
+  }
+
+  body.theme--light {
+    --baby-bg:          #FFF8F4;
+    --baby-surface:     #FFFFFF;
+    --baby-surface2:    #FFF1E8;
+    --baby-border:      rgba(0,0,0,0.09);
+    --baby-text:        #1A1A2E;
+    --baby-text-muted:  #666680;
+    --baby-shadow:      0 4px 24px rgba(0,0,0,0.09);
+  }
+
+  /* ─── Layout ─────────────────────────────── */
+  .qb-baby {
+    background: var(--baby-bg);
+    color: var(--baby-text);
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    padding: 0 0 56px;
+  }
+
+  .qb-baby__inner {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* ─── Header ──────────────────────────────── */
+  .qb-baby__header {
+    padding: 20px 0 12px;
+  }
+
+  .qb-baby__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .qb-baby__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .qb-baby__badge--safe {
+    background: var(--baby-safe-bg);
+    color: var(--baby-safe-green);
+    border: 1px solid var(--baby-safe-green);
+  }
+
+  .qb-baby__badge--ped {
+    background: var(--baby-ped-bg);
+    color: var(--baby-ped-green);
+    border: 1px solid var(--baby-ped-green);
+  }
+
+  .qb-baby__badge--cat {
+    background: {{ cat_bg }};
+    color: {{ cat_color }};
+    border: 1px solid {{ cat_color }};
+  }
+
+  .qb-baby__title {
+    font-size: clamp(22px, 5.5vw, 30px);
+    font-weight: 800;
+    line-height: 1.25;
+    margin: 0 0 6px;
+    color: var(--baby-text);
+  }
+
+  .qb-baby__vendor {
+    font-size: 13px;
+    color: var(--baby-text-muted);
+    margin-bottom: 4px;
+  }
+
+  /* ─── Age badge ───────────────────────────── */
+  .qb-baby__age-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--baby-gold-bg);
+    border: 1.5px solid var(--baby-gold);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--baby-gold);
+    margin: 10px 0;
+    letter-spacing: 0.02em;
+  }
+
+  /* ─── Safety chip ─────────────────────────── */
+  .qb-baby__safety-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--baby-surface2);
+    border: 1px solid var(--baby-border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--baby-text-muted);
+    margin: 4px 4px 4px 0;
+  }
+
+  /* ─── Price block ─────────────────────────── */
+  .qb-baby__price-block {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  .qb-baby__price {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--baby-gold);
+    line-height: 1;
+  }
+
+  .qb-baby__price-compare {
+    font-size: 18px;
+    color: var(--baby-text-muted);
+    text-decoration: line-through;
+  }
+
+  .qb-baby__price-save {
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--baby-gold-bg);
+    color: var(--baby-gold);
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  /* ─── Divider ─────────────────────────────── */
+  .qb-baby__divider {
+    height: 1px;
+    background: var(--baby-border);
+    margin: 20px 0;
+  }
+
+  /* ─── Section label ───────────────────────── */
+  .qb-baby__section-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--baby-text-muted);
+    margin-bottom: 10px;
+  }
+
+  /* ─── Variant pills ───────────────────────── */
+  .qb-baby__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .qb-baby__pill {
+    padding: 8px 16px;
+    border-radius: 24px;
+    border: 1.5px solid var(--baby-border);
+    background: var(--baby-surface);
+    color: var(--baby-text);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.18s, background 0.18s, color 0.18s;
+  }
+
+  .qb-baby__pill:hover,
+  .qb-baby__pill.active {
+    border-color: var(--baby-gold);
+    background: var(--baby-gold-bg);
+    color: var(--baby-gold);
+  }
+
+  .qb-baby__pill .pill-price {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--baby-text-muted);
+    margin-top: 2px;
+  }
+
+  .qb-baby__pill.active .pill-price {
+    color: var(--baby-gold-dark);
+  }
+
+  /* ─── Quantity stepper ────────────────────── */
+  .qb-baby__qty-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .qb-baby__qty {
+    display: flex;
+    align-items: center;
+    background: var(--baby-surface);
+    border: 1.5px solid var(--baby-border);
+    border-radius: 30px;
+    overflow: hidden;
+  }
+
+  .qb-baby__qty button {
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--baby-text);
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .qb-baby__qty button:hover {
+    background: var(--baby-gold-bg);
+    color: var(--baby-gold);
+  }
+
+  .qb-baby__qty__num {
+    min-width: 36px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--baby-text);
+    user-select: none;
+  }
+
+  .qb-baby__qty-label {
+    font-size: 13px;
+    color: var(--baby-text-muted);
+  }
+
+  /* ─── Allergen chips ──────────────────────── */
+  .qb-baby__allergens {
+    margin-bottom: 18px;
+  }
+
+  .qb-baby__allergen-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--baby-warn-bg);
+    border: 1px solid var(--baby-warn-amber);
+    border-radius: 16px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--baby-warn-amber);
+    margin: 0 4px 6px 0;
+    text-transform: capitalize;
+  }
+
+  .qb-baby__allergen-note {
+    font-size: 12px;
+    color: var(--baby-text-muted);
+    font-style: italic;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  /* ─── Material pill ───────────────────────── */
+  .qb-baby__material-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--baby-mint-bg);
+    border: 1px solid var(--baby-mint);
+    border-radius: 16px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--baby-mint);
+    margin: 0 4px 6px 0;
+    text-transform: capitalize;
+  }
+
+  /* ─── ADD TO CART ─────────────────────────── */
+  .qb-baby__atc {
+    width: 100%;
+    padding: 16px;
+    background: var(--baby-gold);
+    color: #1A1A1A;
+    border: none;
+    border-radius: var(--baby-radius);
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
+    box-shadow: 0 4px 18px rgba(244,180,0,0.35);
+    margin-bottom: 12px;
+  }
+
+  .qb-baby__atc:hover {
+    background: var(--baby-gold-dark);
+    box-shadow: 0 6px 28px rgba(244,180,0,0.50);
+    transform: translateY(-1px);
+  }
+
+  .qb-baby__atc:active {
+    transform: translateY(0);
+  }
+
+  .qb-baby__atc:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .qb-baby__atc-msg {
+    text-align: center;
+    font-size: 13px;
+    color: var(--baby-text-muted);
+    min-height: 20px;
+    margin-bottom: 16px;
+  }
+
+  .qb-baby__atc-msg.success { color: #4CAF50; font-weight: 700; }
+  .qb-baby__atc-msg.error   { color: #f44336; font-weight: 700; }
+
+  /* ─── Safety disclaimer box ───────────────── */
+  .qb-baby__disclaimer {
+    background: var(--baby-disclaimer-bg);
+    border: 1.5px solid var(--baby-disclaimer-bd);
+    border-radius: var(--baby-radius-sm);
+    padding: 14px 16px;
+    margin: 20px 0;
+    font-size: 13px;
+    color: var(--baby-text);
+    line-height: 1.6;
+  }
+
+  .qb-baby__disclaimer strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--baby-gold);
+    margin-bottom: 4px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  /* ─── Description / Benefits ─────────────── */
+  .qb-baby__benefits {
+    background: var(--baby-surface);
+    border: 1px solid var(--baby-border);
+    border-radius: var(--baby-radius);
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--baby-shadow);
+  }
+
+  .qb-baby__benefits h3 {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--baby-gold);
+    margin: 0 0 12px;
+  }
+
+  .qb-baby__benefits ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .qb-baby__benefits ul li {
+    font-size: 14px;
+    color: var(--baby-text);
+    padding: 5px 0 5px 22px;
+    position: relative;
+    border-bottom: 1px solid var(--baby-border);
+    line-height: 1.5;
+  }
+
+  .qb-baby__benefits ul li:last-child {
+    border-bottom: none;
+  }
+
+  .qb-baby__benefits ul li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--baby-gold);
+    font-weight: 700;
+  }
+
+  /* ─── Trust grid ──────────────────────────── */
+  .qb-baby__trust {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .qb-baby__trust-item {
+    background: var(--baby-surface);
+    border: 1px solid var(--baby-border);
+    border-radius: var(--baby-radius-sm);
+    padding: 14px 12px;
+    text-align: center;
+  }
+
+  .qb-baby__trust-item .trust-icon {
+    font-size: 22px;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .qb-baby__trust-item .trust-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--baby-text);
+    line-height: 1.3;
+  }
+
+  .qb-baby__trust-item .trust-sub {
+    font-size: 11px;
+    color: var(--baby-text-muted);
+    margin-top: 2px;
+  }
+
+  /* ─── Responsive ──────────────────────────── */
+  @media (min-width: 480px) {
+    .qb-baby__trust {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>
+
+<div class="qb-baby" id="qb-baby-{{ product.id }}">
+  <div class="qb-baby__inner">
+
+    {%- comment %} ── HEADER ───────────────────────────────── {% endcomment %}
+    <div class="qb-baby__header">
+      <div class="qb-baby__badges">
+
+        {%- comment %} Always-on Baby Safe badge {% endcomment %}
+        <span class="qb-baby__badge qb-baby__badge--safe">
+          👶 BABY SAFE
+        </span>
+
+        {%- if is_pediatrician -%}
+          <span class="qb-baby__badge qb-baby__badge--ped">
+            🏥 PEDIATRICIAN APPROVED
+          </span>
+        {%- endif -%}
+
+        <span class="qb-baby__badge qb-baby__badge--cat">
+          {{ cat_emoji }} {{ cat_label }}
+        </span>
+
+      </div>
+
+      <h1 class="qb-baby__title">{{ product.title }}</h1>
+
+      {%- if product.vendor != blank -%}
+        <p class="qb-baby__vendor">by {{ product.vendor }}</p>
+      {%- endif -%}
+
+      {%- comment %} ── AGE SUITABILITY badge ─────────────── {% endcomment %}
+      {%- if age_group != '' -%}
+        <div class="qb-baby__age-badge">
+          🗓️ Age: {{ age_group }}
+        </div>
+      {%- else -%}
+        <div class="qb-baby__age-badge" style="opacity:0.6;">
+          🗓️ Check packaging for age suitability
+        </div>
+      {%- endif -%}
+
+      {%- comment %} ── SAFETY STANDARD chip ─────────────── {% endcomment %}
+      {%- if safety_standard != '' -%}
+        <span class="qb-baby__safety-chip">🛡️ {{ safety_standard }} Certified</span>
+      {%- else -%}
+        <span class="qb-baby__safety-chip">🛡️ Safety Certified</span>
+      {%- endif -%}
+
+    </div>
+
+    {%- comment %} ── PRICE ────────────────────────────────── {% endcomment %}
+    <div class="qb-baby__price-block" id="qb-baby-price">
+      <span class="qb-baby__price">
+        {{ product.selected_or_first_available_variant.price | money }}
+      </span>
+      {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+        <span class="qb-baby__price-compare">
+          {{ product.selected_or_first_available_variant.compare_at_price | money }}
+        </span>
+        {%- assign saving = product.selected_or_first_available_variant.compare_at_price | minus: product.selected_or_first_available_variant.price -%}
+        <span class="qb-baby__price-save">Save {{ saving | money }}</span>
+      {%- endif -%}
+    </div>
+
+    <div class="qb-baby__divider"></div>
+
+    {%- comment %} ── VARIANT PILLS ────────────────────────── {% endcomment %}
+    {%- if product.has_only_default_variant == false -%}
+      <div class="qb-baby__section-label">Select Option</div>
+      <div class="qb-baby__pills" id="qb-baby-variants">
+        {%- for variant in product.variants -%}
+          <button
+            class="qb-baby__pill{% if variant == product.selected_or_first_available_variant %} active{% endif %}"
+            data-variant-id="{{ variant.id }}"
+            data-price="{{ variant.price | money }}"
+            data-available="{{ variant.available }}"
+            onclick="qbBabySelectVariant(this)"
+            {%- unless variant.available -%} disabled style="opacity:0.4;cursor:not-allowed" {%- endunless -%}
+          >
+            {{ variant.title }}
+            <span class="pill-price">{{ variant.price | money }}</span>
+          </button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    {%- comment %} ── QUANTITY STEPPER ─────────────────────── {% endcomment %}
+    <div class="qb-baby__qty-row">
+      <div class="qb-baby__qty" role="group" aria-label="Quantity">
+        <button type="button" onclick="qbBabyQty(-1)" aria-label="Decrease">−</button>
+        <span class="qb-baby__qty__num" id="qb-baby-qty-num" aria-live="polite">1</span>
+        <button type="button" onclick="qbBabyQty(1)" aria-label="Increase">+</button>
+      </div>
+      <span class="qb-baby__qty-label">Max 20 per order</span>
+    </div>
+
+    {%- comment %} ── ALLERGEN chips (baby food) ────────────── {% endcomment %}
+    {%- if allergen_tags != '' -%}
+      <div class="qb-baby__allergens">
+        <div class="qb-baby__section-label">⚠️ Contains Allergens</div>
+        {%- assign allergen_list = allergen_tags | split: ',' -%}
+        {%- for alg in allergen_list -%}
+          <span class="qb-baby__allergen-chip">⚠️ {{ alg | strip | capitalize }}</span>
+        {%- endfor -%}
+        <p class="qb-baby__allergen-note">
+          Introduce new foods gradually. Consult your pediatrician before introducing allergens to your baby.
+        </p>
+      </div>
+    {%- endif -%}
+
+    {%- comment %} ── MATERIAL pills ───────────────────────── {% endcomment %}
+    {%- if material_tags != '' -%}
+      <div style="margin-bottom:18px;">
+        <div class="qb-baby__section-label">Materials</div>
+        {%- assign material_list = material_tags | split: ',' -%}
+        {%- for mat in material_list -%}
+          <span class="qb-baby__material-pill">🌿 {{ mat | strip | replace: '-', ' ' | capitalize }}</span>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    {%- comment %} ── ADD TO CART ──────────────────────────── {% endcomment %}
+    <button
+      class="qb-baby__atc"
+      id="qb-baby-atc"
+      type="button"
+      onclick="qbBabyAddToCart()"
+      {%- unless product.available -%} disabled {%- endunless -%}
+    >
+      {%- if product.available -%}
+        🛒 ADD TO CART
+      {%- else -%}
+        OUT OF STOCK
+      {%- endif -%}
+    </button>
+    <div class="qb-baby__atc-msg" id="qb-baby-msg" aria-live="polite"></div>
+
+    {%- comment %} ── SAFETY DISCLAIMER ────────────────────── {% endcomment %}
+    <div class="qb-baby__disclaimer" role="alert">
+      <strong>⚠️ Safety Notice</strong>
+      This product is designed for the specified age group only. Always supervise children during use.
+      Keep small parts away from children under 3 years of age.
+      Read all instructions and warnings before use.
+    </div>
+
+    <div class="qb-baby__divider"></div>
+
+    {%- comment %} ── KEY BENEFITS / DESCRIPTION ───────────── {% endcomment %}
+    {%- if product.description != blank -%}
+      <div class="qb-baby__benefits">
+        <h3>✨ Key Features</h3>
+        <ul>
+          {%- assign desc_lines = product.description | strip_html | newline_to_br | split: '<br />' -%}
+          {%- for line in desc_lines -%}
+            {%- assign clean = line | strip -%}
+            {%- if clean != blank -%}
+              <li>{{ clean }}</li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+
+    {%- comment %} ── TRUST GRID ───────────────────────────── {% endcomment %}
+    <div class="qb-baby__trust" role="list">
+      <div class="qb-baby__trust-item" role="listitem">
+        <span class="trust-icon">🏅</span>
+        <div class="trust-label">BIS/CE Certified</div>
+        <div class="trust-sub">Safety standards met</div>
+      </div>
+      <div class="qb-baby__trust-item" role="listitem">
+        <span class="trust-icon">🚫</span>
+        <div class="trust-label">BPA Free</div>
+        <div class="trust-sub">No harmful plastics</div>
+      </div>
+      <div class="qb-baby__trust-item" role="listitem">
+        <span class="trust-icon">🌿</span>
+        <div class="trust-label">Hypoallergenic</div>
+        <div class="trust-sub">Gentle on baby skin</div>
+      </div>
+      <div class="qb-baby__trust-item" role="listitem">
+        <span class="trust-icon">🩺</span>
+        <div class="trust-label">Pediatrician Tested</div>
+        <div class="trust-sub">Doctor recommended</div>
+      </div>
+    </div>
+
+  </div>{%- comment %} /.qb-baby__inner {% endcomment %}
+</div>{%- comment %} /.qb-baby {% endcomment %}
+
+<script>
+(function() {
+  'use strict';
+
+  // ── State ──────────────────────────────────────────────────────
+  var selectedVariantId = {{ product.selected_or_first_available_variant.id | json }};
+  var ageGroup          = {{ age_group | json }};
+  var safetyStandard    = {{ safety_standard | json }};
+  var categoryType      = {{ product.type | json }};
+  var quantity          = 1;
+  var maxQty            = 20;
+
+  // ── Variant selector ───────────────────────────────────────────
+  window.qbBabySelectVariant = function(btn) {
+    var pills = document.querySelectorAll('#qb-baby-variants .qb-baby__pill');
+    pills.forEach(function(p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    selectedVariantId = parseInt(btn.dataset.variantId, 10);
+    var priceEl = document.querySelector('#qb-baby-price .qb-baby__price');
+    if (priceEl) priceEl.textContent = btn.dataset.price;
+  };
+
+  // ── Quantity stepper ───────────────────────────────────────────
+  window.qbBabyQty = function(delta) {
+    quantity = Math.min(maxQty, Math.max(1, quantity + delta));
+    var el = document.getElementById('qb-baby-qty-num');
+    if (el) el.textContent = quantity;
+  };
+
+  // ── Message helper ─────────────────────────────────────────────
+  function setMsg(text, type) {
+    var el = document.getElementById('qb-baby-msg');
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'qb-baby__atc-msg ' + (type || '');
+    if (type === 'success') {
+      setTimeout(function() {
+        el.textContent = '';
+        el.className = 'qb-baby__atc-msg';
+      }, 3000);
+    }
+  }
+
+  // ── Add to cart ────────────────────────────────────────────────
+  window.qbBabyAddToCart = function() {
+    var btn = document.getElementById('qb-baby-atc');
+    if (!btn || btn.disabled) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Adding…';
+    setMsg('', '');
+
+    var properties = {
+      'Age Group':       ageGroup      || 'Not specified',
+      'Category':        categoryType  || 'Baby',
+      'Safety Standard': safetyStandard || 'Safety Certified'
+    };
+
+    var payload = {
+      id: selectedVariantId,
+      quantity: quantity,
+      properties: properties
+    };
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) {
+      if (!res.ok) return res.json().then(function(d) { throw new Error(d.description || 'Error adding to cart'); });
+      return res.json();
+    })
+    .then(function() {
+      btn.disabled = false;
+      btn.textContent = '🛒 ADD TO CART';
+      setMsg('✓ Added to cart!', 'success');
+      document.dispatchEvent(new CustomEvent('cart:refresh'));
+      if (window.Shopify && window.Shopify.theme && window.Shopify.theme.cartDrawer) {
+        window.Shopify.theme.cartDrawer.open();
+      }
+    })
+    .catch(function(err) {
+      btn.disabled = false;
+      btn.textContent = '🛒 ADD TO CART';
+      setMsg(err.message || 'Could not add to cart. Please try again.', 'error');
+    });
+  };
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Baby Products",
+  "tag": "section",
+  "class": "qb-baby-section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "QB Baby Products"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,816 @@
+{% comment %}
+  QB Pet Supplies — qb-product-pet.liquid
+  QuickBee Shopify Section · Pet Food & Supplies Product Page
+  Dark/Light theme · Gold accent #F4B400 · Mobile-first
+{% endcomment %}
+
+{%- liquid
+  assign pet_type    = product.type | downcase
+  assign is_vet      = false
+  assign has_size    = false
+  assign feed_guide  = ''
+  assign age_tag     = ''
+
+  for tag in product.tags
+    assign t = tag | downcase
+    if t == 'vet-approved'
+      assign is_vet = true
+    endif
+    if t == 'size-matters'
+      assign has_size = true
+    endif
+    if t contains 'feedguide:'
+      assign feed_guide = tag | remove_first: 'feedguide:' | remove_first: 'Feedguide:'
+    endif
+    if t contains 'age:'
+      assign age_tag = tag | remove_first: 'age:' | remove_first: 'Age:'
+    endif
+  endfor
+-%}
+
+{%- comment %} — Pet type config ——————————————————————————————————————————— {% endcomment %}
+{%- liquid
+  case pet_type
+    when 'dog'
+      assign pet_emoji  = '🐕'
+      assign pet_label  = 'Dog'
+      assign pet_color  = 'var(--pet-amber)'
+      assign pet_bg     = 'var(--pet-amber-bg)'
+    when 'cat'
+      assign pet_emoji  = '🐈'
+      assign pet_label  = 'Cat'
+      assign pet_color  = 'var(--pet-purple)'
+      assign pet_bg     = 'var(--pet-purple-bg)'
+    when 'bird'
+      assign pet_emoji  = '🐦'
+      assign pet_label  = 'Bird'
+      assign pet_color  = 'var(--pet-teal)'
+      assign pet_bg     = 'var(--pet-teal-bg)'
+    when 'fish'
+      assign pet_emoji  = '🐠'
+      assign pet_label  = 'Fish'
+      assign pet_color  = 'var(--pet-blue)'
+      assign pet_bg     = 'var(--pet-blue-bg)'
+    when 'rabbit'
+      assign pet_emoji  = '🐰'
+      assign pet_label  = 'Rabbit'
+      assign pet_color  = 'var(--pet-pink)'
+      assign pet_bg     = 'var(--pet-pink-bg)'
+    when 'hamster'
+      assign pet_emoji  = '🐹'
+      assign pet_label  = 'Hamster'
+      assign pet_color  = 'var(--pet-orange)'
+      assign pet_bg     = 'var(--pet-orange-bg)'
+    else
+      assign pet_emoji  = '🐾'
+      assign pet_label  = product.type
+      assign pet_color  = 'var(--pet-gold)'
+      assign pet_bg     = 'var(--pet-gold-bg)'
+  endcase
+-%}
+
+<style>
+  /* ─────────────────────────────────────────────
+     CSS DESIGN TOKENS — QB Pet Supplies
+  ───────────────────────────────────────────── */
+  :root {
+    /* Gold */
+    --pet-gold:        #F4B400;
+    --pet-gold-dark:   #c89200;
+    --pet-gold-bg:     rgba(244,180,0,0.12);
+    /* Amber (Dog) */
+    --pet-amber:       #FF8F00;
+    --pet-amber-bg:    rgba(255,143,0,0.12);
+    /* Purple (Cat) */
+    --pet-purple:      #7B1FA2;
+    --pet-purple-bg:   rgba(123,31,162,0.12);
+    /* Teal (Bird) */
+    --pet-teal:        #00796B;
+    --pet-teal-bg:     rgba(0,121,107,0.12);
+    /* Blue (Fish) */
+    --pet-blue:        #1565C0;
+    --pet-blue-bg:     rgba(21,101,192,0.12);
+    /* Pink (Rabbit) */
+    --pet-pink:        #C2185B;
+    --pet-pink-bg:     rgba(194,24,91,0.12);
+    /* Orange (Hamster) */
+    --pet-orange:      #E65100;
+    --pet-orange-bg:   rgba(230,81,0,0.12);
+    /* Greens */
+    --pet-vet-green:   #2E7D32;
+    --pet-vet-bg:      rgba(46,125,50,0.14);
+    /* Surface — dark mode default */
+    --pet-bg:          #121212;
+    --pet-surface:     #1E1E1E;
+    --pet-surface2:    #2A2A2A;
+    --pet-border:      rgba(255,255,255,0.10);
+    --pet-text:        #F0F0F0;
+    --pet-text-muted:  #9E9E9E;
+    --pet-radius:      14px;
+    --pet-radius-sm:   8px;
+    --pet-shadow:      0 4px 24px rgba(0,0,0,0.40);
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --pet-bg:         #F9F6F0;
+      --pet-surface:    #FFFFFF;
+      --pet-surface2:   #F3EFE7;
+      --pet-border:     rgba(0,0,0,0.10);
+      --pet-text:       #1A1A1A;
+      --pet-text-muted: #666666;
+      --pet-shadow:     0 4px 24px rgba(0,0,0,0.10);
+    }
+  }
+
+  /* Force dark/light via body class (Shopify theme preference) */
+  body.theme--light {
+    --pet-bg:         #F9F6F0;
+    --pet-surface:    #FFFFFF;
+    --pet-surface2:   #F3EFE7;
+    --pet-border:     rgba(0,0,0,0.10);
+    --pet-text:       #1A1A1A;
+    --pet-text-muted: #666666;
+    --pet-shadow:     0 4px 24px rgba(0,0,0,0.10);
+  }
+
+  /* ─── Layout ─────────────────────────────── */
+  .qb-pet {
+    background: var(--pet-bg);
+    color: var(--pet-text);
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    padding: 0 0 48px;
+  }
+
+  .qb-pet__inner {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* ─── Header strip ────────────────────────── */
+  .qb-pet__header {
+    padding: 20px 0 12px;
+  }
+
+  .qb-pet__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .qb-pet__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .qb-pet__badge--type {
+    background: {{ pet_bg }};
+    color: {{ pet_color }};
+    border: 1px solid {{ pet_color }};
+  }
+
+  .qb-pet__badge--vet {
+    background: var(--pet-vet-bg);
+    color: var(--pet-vet-green);
+    border: 1px solid var(--pet-vet-green);
+  }
+
+  .qb-pet__title {
+    font-size: clamp(22px, 5.5vw, 30px);
+    font-weight: 800;
+    line-height: 1.25;
+    margin: 0 0 6px;
+    color: var(--pet-text);
+  }
+
+  .qb-pet__vendor {
+    font-size: 13px;
+    color: var(--pet-text-muted);
+    margin-bottom: 4px;
+  }
+
+  /* ─── Suitable For strip ──────────────────── */
+  .qb-pet__suitable {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--pet-surface2);
+    border: 1px solid var(--pet-border);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pet-text);
+    margin: 10px 0;
+  }
+
+  /* ─── Price block ─────────────────────────── */
+  .qb-pet__price-block {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  .qb-pet__price {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--pet-gold);
+    line-height: 1;
+  }
+
+  .qb-pet__price-compare {
+    font-size: 18px;
+    color: var(--pet-text-muted);
+    text-decoration: line-through;
+  }
+
+  .qb-pet__price-save {
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--pet-gold-bg);
+    color: var(--pet-gold);
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  /* ─── Divider ─────────────────────────────── */
+  .qb-pet__divider {
+    height: 1px;
+    background: var(--pet-border);
+    margin: 20px 0;
+  }
+
+  /* ─── Variant pills ───────────────────────── */
+  .qb-pet__section-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--pet-text-muted);
+    margin-bottom: 10px;
+  }
+
+  .qb-pet__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .qb-pet__pill {
+    padding: 8px 16px;
+    border-radius: 24px;
+    border: 1.5px solid var(--pet-border);
+    background: var(--pet-surface);
+    color: var(--pet-text);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.18s, background 0.18s, color 0.18s;
+    position: relative;
+  }
+
+  .qb-pet__pill:hover,
+  .qb-pet__pill.active {
+    border-color: var(--pet-gold);
+    background: var(--pet-gold-bg);
+    color: var(--pet-gold);
+  }
+
+  .qb-pet__pill .pill-price {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--pet-text-muted);
+    margin-top: 2px;
+  }
+
+  .qb-pet__pill.active .pill-price {
+    color: var(--pet-gold-dark);
+  }
+
+  /* ─── Quantity stepper ────────────────────── */
+  .qb-pet__qty-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .qb-pet__qty {
+    display: flex;
+    align-items: center;
+    background: var(--pet-surface);
+    border: 1.5px solid var(--pet-border);
+    border-radius: 30px;
+    overflow: hidden;
+  }
+
+  .qb-pet__qty button {
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--pet-text);
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .qb-pet__qty button:hover {
+    background: var(--pet-gold-bg);
+    color: var(--pet-gold);
+  }
+
+  .qb-pet__qty__num {
+    min-width: 36px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--pet-text);
+    user-select: none;
+  }
+
+  .qb-pet__qty-label {
+    font-size: 13px;
+    color: var(--pet-text-muted);
+  }
+
+  /* ─── Pet size selector ───────────────────── */
+  .qb-pet__size-row {
+    margin-bottom: 20px;
+  }
+
+  .qb-pet__size-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .qb-pet__size-pill {
+    padding: 7px 18px;
+    border-radius: 20px;
+    border: 1.5px solid var(--pet-border);
+    background: var(--pet-surface);
+    color: var(--pet-text);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .qb-pet__size-pill:hover,
+  .qb-pet__size-pill.active {
+    border-color: {{ pet_color }};
+    background: {{ pet_bg }};
+    color: {{ pet_color }};
+  }
+
+  /* ─── Key benefits card ───────────────────── */
+  .qb-pet__benefits {
+    background: var(--pet-surface);
+    border: 1px solid var(--pet-border);
+    border-radius: var(--pet-radius);
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--pet-shadow);
+  }
+
+  .qb-pet__benefits h3 {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--pet-gold);
+    margin: 0 0 12px;
+  }
+
+  .qb-pet__benefits ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .qb-pet__benefits ul li {
+    font-size: 14px;
+    color: var(--pet-text);
+    padding: 5px 0 5px 22px;
+    position: relative;
+    border-bottom: 1px solid var(--pet-border);
+    line-height: 1.5;
+  }
+
+  .qb-pet__benefits ul li:last-child {
+    border-bottom: none;
+  }
+
+  .qb-pet__benefits ul li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--pet-gold);
+    font-weight: 700;
+  }
+
+  /* ─── Feeding guide ───────────────────────── */
+  .qb-pet__feedguide {
+    background: var(--pet-surface2);
+    border-left: 3px solid var(--pet-gold);
+    border-radius: 0 var(--pet-radius-sm) var(--pet-radius-sm) 0;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: var(--pet-text);
+  }
+
+  .qb-pet__feedguide strong {
+    color: var(--pet-gold);
+  }
+
+  /* ─── ADD TO CART ─────────────────────────── */
+  .qb-pet__atc {
+    width: 100%;
+    padding: 16px;
+    background: var(--pet-gold);
+    color: #1A1A1A;
+    border: none;
+    border-radius: var(--pet-radius);
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
+    box-shadow: 0 4px 18px rgba(244,180,0,0.35);
+    margin-bottom: 12px;
+  }
+
+  .qb-pet__atc:hover {
+    background: var(--pet-gold-dark);
+    box-shadow: 0 6px 28px rgba(244,180,0,0.50);
+    transform: translateY(-1px);
+  }
+
+  .qb-pet__atc:active {
+    transform: translateY(0);
+  }
+
+  .qb-pet__atc:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .qb-pet__atc-msg {
+    text-align: center;
+    font-size: 13px;
+    color: var(--pet-text-muted);
+    min-height: 20px;
+    margin-bottom: 16px;
+  }
+
+  .qb-pet__atc-msg.success { color: #4CAF50; font-weight: 700; }
+  .qb-pet__atc-msg.error   { color: #f44336; font-weight: 700; }
+
+  /* ─── Trust grid ──────────────────────────── */
+  .qb-pet__trust {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .qb-pet__trust-item {
+    background: var(--pet-surface);
+    border: 1px solid var(--pet-border);
+    border-radius: var(--pet-radius-sm);
+    padding: 14px 12px;
+    text-align: center;
+  }
+
+  .qb-pet__trust-item .trust-icon {
+    font-size: 22px;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .qb-pet__trust-item .trust-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--pet-text);
+    line-height: 1.3;
+  }
+
+  .qb-pet__trust-item .trust-sub {
+    font-size: 11px;
+    color: var(--pet-text-muted);
+    margin-top: 2px;
+  }
+
+  /* ─── Description rte ─────────────────────── */
+  .qb-pet__desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--pet-text-muted);
+    margin: 20px 0;
+  }
+
+  /* ─── Responsive ──────────────────────────── */
+  @media (min-width: 480px) {
+    .qb-pet__trust {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>
+
+<div class="qb-pet" id="qb-pet-{{ product.id }}">
+  <div class="qb-pet__inner">
+
+    {%- comment %} ── HEADER ───────────────────────────────── {% endcomment %}
+    <div class="qb-pet__header">
+      <div class="qb-pet__badges">
+        <span class="qb-pet__badge qb-pet__badge--type">
+          {{ pet_emoji }} {{ pet_label }}
+        </span>
+        {%- if is_vet -%}
+          <span class="qb-pet__badge qb-pet__badge--vet">
+            ✅ VET APPROVED
+          </span>
+        {%- endif -%}
+      </div>
+
+      <h1 class="qb-pet__title">{{ product.title }}</h1>
+
+      {%- if product.vendor != blank -%}
+        <p class="qb-pet__vendor">by {{ product.vendor }}</p>
+      {%- endif -%}
+
+      {%- if age_tag != '' -%}
+        <span class="qb-pet__suitable">
+          🐾 Suitable for {{ age_tag }} {{ pet_label | downcase }}
+        </span>
+      {%- endif -%}
+    </div>
+
+    {%- comment %} ── PRICE ────────────────────────────────── {% endcomment %}
+    <div class="qb-pet__price-block" id="qb-pet-price">
+      <span class="qb-pet__price">
+        {{ product.selected_or_first_available_variant.price | money }}
+      </span>
+      {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+        <span class="qb-pet__price-compare">
+          {{ product.selected_or_first_available_variant.compare_at_price | money }}
+        </span>
+        {%- assign saving = product.selected_or_first_available_variant.compare_at_price | minus: product.selected_or_first_available_variant.price -%}
+        <span class="qb-pet__price-save">Save {{ saving | money }}</span>
+      {%- endif -%}
+    </div>
+
+    <div class="qb-pet__divider"></div>
+
+    {%- comment %} ── VARIANT WEIGHT / SIZE PILLS ──────────── {% endcomment %}
+    {%- if product.has_only_default_variant == false -%}
+      <div class="qb-pet__section-label">Select Size / Weight</div>
+      <div class="qb-pet__pills" id="qb-pet-variants">
+        {%- for variant in product.variants -%}
+          <button
+            class="qb-pet__pill{% if variant == product.selected_or_first_available_variant %} active{% endif %}"
+            data-variant-id="{{ variant.id }}"
+            data-price="{{ variant.price | money }}"
+            data-available="{{ variant.available }}"
+            onclick="qbPetSelectVariant(this)"
+            {%- unless variant.available -%} disabled style="opacity:0.4;cursor:not-allowed" {%- endunless -%}
+          >
+            {{ variant.title }}
+            <span class="pill-price">{{ variant.price | money }}</span>
+          </button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    {%- comment %} ── PET SIZE SELECTOR (if tag size-matters) ─ {% endcomment %}
+    {%- if has_size -%}
+      <div class="qb-pet__size-row">
+        <div class="qb-pet__section-label">Pet Size</div>
+        <div class="qb-pet__size-pills" id="qb-pet-sizes">
+          {%- assign size_opts = 'Small,Medium,Large,Giant' | split: ',' -%}
+          {%- for sz in size_opts -%}
+            <button
+              class="qb-pet__size-pill{% if forloop.first %} active{% endif %}"
+              data-size="{{ sz }}"
+              onclick="qbPetSelectSize(this)"
+            >{{ sz }}</button>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- comment %} ── QUANTITY STEPPER ─────────────────────── {% endcomment %}
+    <div class="qb-pet__qty-row">
+      <div class="qb-pet__qty" role="group" aria-label="Quantity">
+        <button type="button" onclick="qbPetQty(-1)" aria-label="Decrease">−</button>
+        <span class="qb-pet__qty__num" id="qb-pet-qty-num" aria-live="polite">1</span>
+        <button type="button" onclick="qbPetQty(1)" aria-label="Increase">+</button>
+      </div>
+      <span class="qb-pet__qty-label">Max 12 per order</span>
+    </div>
+
+    {%- comment %} ── ADD TO CART ──────────────────────────── {% endcomment %}
+    <button
+      class="qb-pet__atc"
+      id="qb-pet-atc"
+      type="button"
+      onclick="qbPetAddToCart()"
+      {%- unless product.available -%} disabled {%- endunless -%}
+    >
+      {%- if product.available -%}
+        🛒 ADD TO CART
+      {%- else -%}
+        OUT OF STOCK
+      {%- endif -%}
+    </button>
+    <div class="qb-pet__atc-msg" id="qb-pet-msg" aria-live="polite"></div>
+
+    <div class="qb-pet__divider"></div>
+
+    {%- comment %} ── KEY BENEFITS ─────────────────────────── {% endcomment %}
+    {%- if product.description != blank -%}
+      <div class="qb-pet__benefits">
+        <h3>✨ Key Benefits</h3>
+        <ul>
+          {%- assign desc_lines = product.description | strip_html | newline_to_br | split: '<br />' -%}
+          {%- for line in desc_lines -%}
+            {%- assign clean = line | strip -%}
+            {%- if clean != blank -%}
+              <li>{{ clean }}</li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+
+    {%- comment %} ── FEEDING GUIDE ────────────────────────── {% endcomment %}
+    <div class="qb-pet__feedguide">
+      {%- if feed_guide != '' -%}
+        🥣 <strong>Recommended:</strong> {{ feed_guide }} cups/day per 10kg body weight
+      {%- else -%}
+        🥣 See packaging for feeding guide and recommended portions.
+      {%- endif -%}
+    </div>
+
+    {%- comment %} ── TRUST GRID ───────────────────────────── {% endcomment %}
+    <div class="qb-pet__trust" role="list">
+      <div class="qb-pet__trust-item" role="listitem">
+        <span class="trust-icon">🩺</span>
+        <div class="trust-label">Vet Recommended</div>
+        <div class="trust-sub">Trusted by vets</div>
+      </div>
+      <div class="qb-pet__trust-item" role="listitem">
+        <span class="trust-icon">🚫</span>
+        <div class="trust-label">No Artificial Flavours</div>
+        <div class="trust-sub">100% natural taste</div>
+      </div>
+      <div class="qb-pet__trust-item" role="listitem">
+        <span class="trust-icon">⭐</span>
+        <div class="trust-label">Human-Grade Ingredients</div>
+        <div class="trust-sub">Premium quality</div>
+      </div>
+      <div class="qb-pet__trust-item" role="listitem">
+        <span class="trust-icon">🔬</span>
+        <div class="trust-label">Lab Tested</div>
+        <div class="trust-sub">Quality assured</div>
+      </div>
+    </div>
+
+  </div>{%- comment %} /.qb-pet__inner {% endcomment %}
+</div>{%- comment %} /.qb-pet {% endcomment %}
+
+<script>
+(function() {
+  'use strict';
+
+  // ── State ──────────────────────────────────────────────────────
+  var selectedVariantId = {{ product.selected_or_first_available_variant.id | json }};
+  var selectedSize      = 'Medium';
+  var quantity          = 1;
+  var maxQty            = 12;
+  var petType           = {{ product.type | json }};
+
+  // ── Variant selector ───────────────────────────────────────────
+  window.qbPetSelectVariant = function(btn) {
+    var pills = document.querySelectorAll('#qb-pet-variants .qb-pet__pill');
+    pills.forEach(function(p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    selectedVariantId = parseInt(btn.dataset.variantId, 10);
+    // Update displayed price
+    var priceEl = document.querySelector('#qb-pet-price .qb-pet__price');
+    if (priceEl) priceEl.textContent = btn.dataset.price;
+  };
+
+  // ── Size selector ──────────────────────────────────────────────
+  window.qbPetSelectSize = function(btn) {
+    var pills = document.querySelectorAll('#qb-pet-sizes .qb-pet__size-pill');
+    pills.forEach(function(p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    selectedSize = btn.dataset.size;
+  };
+
+  // ── Quantity stepper ───────────────────────────────────────────
+  window.qbPetQty = function(delta) {
+    quantity = Math.min(maxQty, Math.max(1, quantity + delta));
+    var el = document.getElementById('qb-pet-qty-num');
+    if (el) el.textContent = quantity;
+  };
+
+  // ── Message helper ─────────────────────────────────────────────
+  function setMsg(text, type) {
+    var el = document.getElementById('qb-pet-msg');
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'qb-pet__atc-msg ' + (type || '');
+    if (type === 'success') {
+      setTimeout(function() {
+        el.textContent = '';
+        el.className = 'qb-pet__atc-msg';
+      }, 3000);
+    }
+  }
+
+  // ── Add to cart ────────────────────────────────────────────────
+  window.qbPetAddToCart = function() {
+    var btn = document.getElementById('qb-pet-atc');
+    if (!btn || btn.disabled) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Adding…';
+    setMsg('', '');
+
+    var properties = {
+      'Pet Type': petType
+    };
+
+    {% if has_size %}
+    properties['Pet Size'] = selectedSize;
+    {% endif %}
+
+    var payload = {
+      id: selectedVariantId,
+      quantity: quantity,
+      properties: properties
+    };
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) {
+      if (!res.ok) return res.json().then(function(d) { throw new Error(d.description || 'Error adding to cart'); });
+      return res.json();
+    })
+    .then(function() {
+      btn.disabled = false;
+      btn.textContent = '🛒 ADD TO CART';
+      setMsg('✓ Added to cart!', 'success');
+      // Attempt to open cart drawer / update count
+      document.dispatchEvent(new CustomEvent('cart:refresh'));
+      if (window.Shopify && window.Shopify.theme && window.Shopify.theme.cartDrawer) {
+        window.Shopify.theme.cartDrawer.open();
+      }
+    })
+    .catch(function(err) {
+      btn.disabled = false;
+      btn.textContent = '🛒 ADD TO CART';
+      setMsg(err.message || 'Could not add to cart. Please try again.', 'error');
+    });
+  };
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Pet Supplies",
+  "tag": "section",
+  "class": "qb-pet-section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "QB Pet Supplies"
+    }
+  ]
+}
+{% endschema %}

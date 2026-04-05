@@ -1,0 +1,512 @@
+{%- comment -%}
+  sections/qb-product-service.liquid
+  Universal Service Booking Product Page
+  — No product image
+  — Price, title, variants pulled live from Shopify
+  — Auto-theming based on product.type / tags
+  — Booking form with date/time/notes
+  — Add to Cart = Book Service
+{%- endcomment -%}
+
+{%- liquid
+  assign p = product
+  assign p_type = p.type | downcase
+
+  if p_type == 'plumbing'
+    assign p_icon  = '🔧' | append: ''
+    assign p_color = '#3b82f6'
+    assign p_cd    = 'rgba(59,130,246,0.15)'
+    assign p_cl    = 'rgba(59,130,246,0.10)'
+    assign p_eta   = '2–4 hours'
+  elsif p_type == 'electrical'
+    assign p_icon  = '💡'
+    assign p_color = '#f59e0b'
+    assign p_cd    = 'rgba(245,158,11,0.15)'
+    assign p_cl    = 'rgba(245,158,11,0.10)'
+    assign p_eta   = '1–3 hours'
+  elsif p_type == 'cleaning'
+    assign p_icon  = '🧹'
+    assign p_color = '#22c55e'
+    assign p_cd    = 'rgba(34,197,94,0.15)'
+    assign p_cl    = 'rgba(34,197,94,0.10)'
+    assign p_eta   = '3–5 hours'
+  elsif p_type == 'beauty'
+    assign p_icon  = '✂️'
+    assign p_color = '#ec4899'
+    assign p_cd    = 'rgba(236,72,153,0.15)'
+    assign p_cl    = 'rgba(236,72,153,0.10)'
+    assign p_eta   = '1–2 hours'
+  elsif p_type == 'repair'
+    assign p_icon  = '🔩'
+    assign p_color = '#8b5cf6'
+    assign p_cd    = 'rgba(139,92,246,0.15)'
+    assign p_cl    = 'rgba(139,92,246,0.10)'
+    assign p_eta   = '1–4 hours'
+  elsif p_type == 'painting'
+    assign p_icon  = '🎨'
+    assign p_color = '#f97316'
+    assign p_cd    = 'rgba(249,115,22,0.15)'
+    assign p_cl    = 'rgba(249,115,22,0.10)'
+    assign p_eta   = '1–3 days'
+  elsif p_type == 'tutoring'
+    assign p_icon  = '📚'
+    assign p_color = '#14b8a6'
+    assign p_cd    = 'rgba(20,184,166,0.15)'
+    assign p_cl    = 'rgba(20,184,166,0.10)'
+    assign p_eta   = '1–2 hours/session'
+  elsif p_type == 'carpentry'
+    assign p_icon  = '🪚'
+    assign p_color = '#a16207'
+    assign p_cd    = 'rgba(161,98,7,0.15)'
+    assign p_cl    = 'rgba(161,98,7,0.10)'
+    assign p_eta   = '2–6 hours'
+  else
+    assign p_icon  = '⚙️'
+    assign p_color = '#F4B400'
+    assign p_cd    = 'rgba(244,180,0,0.15)'
+    assign p_cl    = 'rgba(244,180,0,0.10)'
+    assign p_eta   = '1–3 hours'
+  endif
+
+  assign first_variant = p.variants.first
+-%}
+
+<style>
+[data-theme="dark"] {
+  --sv-bg:       #090909; --sv-bg2: #111; --sv-bg3: #1c1c1c;
+  --sv-card:     #131313; --sv-card2: #1a1a1a;
+  --sv-border:   rgba(255,255,255,0.07); --sv-border2: rgba(255,255,255,0.13);
+  --sv-text:     #f0f0f0; --sv-text2: #888; --sv-text3: #444;
+  --sv-gold:     #F4B400; --sv-gold-dim: rgba(244,180,0,0.12);
+  --sv-green:    #22c55e; --sv-green-dim: rgba(34,197,94,0.12);
+  --sv-shadow:   0 4px 24px rgba(0,0,0,0.6);
+  --sv-accent:   {{ p_color }}; --sv-accent-dim: {{ p_cd }};
+}
+[data-theme="light"], html:not([data-theme]) {
+  --sv-bg:       #f4f5f8; --sv-bg2: #fff; --sv-bg3: #eef0f4;
+  --sv-card:     #fff; --sv-card2: #f8f9fb;
+  --sv-border:   rgba(15,23,42,0.08); --sv-border2: rgba(15,23,42,0.14);
+  --sv-text:     #0f172a; --sv-text2: #64748b; --sv-text3: #94a3b8;
+  --sv-gold:     #F4B400; --sv-gold-dim: rgba(244,180,0,0.10);
+  --sv-green:    #16a34a; --sv-green-dim: rgba(22,163,74,0.08);
+  --sv-shadow:   0 4px 24px rgba(15,23,42,0.08);
+  --sv-accent:   {{ p_color }}; --sv-accent-dim: {{ p_cl }};
+}
+
+.sv-root {
+  background: var(--sv-bg); min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  padding-bottom: 100px;
+}
+
+/* Hero */
+.sv-hero {
+  position: relative; overflow: hidden;
+  padding: 36px 20px 30px; text-align: center;
+}
+[data-theme="dark"] .sv-hero { background: linear-gradient(155deg,#0a0a0a,#0d0d0d); border-bottom: 1px solid var(--sv-border); }
+html:not([data-theme="dark"]) .sv-hero { background: linear-gradient(155deg,#fff,#f8f9ff); border-bottom: 1px solid var(--sv-border); }
+.sv-hero::before {
+  content:''; position:absolute; top:-60px; left:50%; transform:translateX(-50%);
+  width:300px; height:300px;
+  background:radial-gradient(ellipse, var(--sv-accent-dim) 0%, transparent 70%);
+  pointer-events:none;
+}
+.sv-hero-icon {
+  width:80px; height:80px; border-radius:24px;
+  background:var(--sv-accent-dim); border:1.5px solid var(--sv-border2);
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:38px; margin-bottom:14px; position:relative; z-index:1;
+  box-shadow:0 8px 32px var(--sv-accent-dim);
+}
+.sv-live-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--sv-green-dim); border:1px solid rgba(34,197,94,0.3);
+  color:var(--sv-green); font-size:10.5px; font-weight:800;
+  padding:5px 13px; border-radius:50px; margin-bottom:12px;
+  position:relative; z-index:1;
+}
+.sv-live-dot { width:6px; height:6px; border-radius:50%; background:currentColor; animation:svDotPulse 1.4s ease infinite; }
+@keyframes svDotPulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+.sv-hero-title { font-size:26px; font-weight:900; color:var(--sv-text); margin-bottom:8px; position:relative; z-index:1; }
+.sv-hero-desc  { font-size:14px; color:var(--sv-text2); line-height:1.55; max-width:320px; margin:0 auto 16px; position:relative; z-index:1; }
+.sv-hero-eta   {
+  display:inline-flex; align-items:center; gap:7px;
+  background:var(--sv-accent-dim); border:1px solid var(--sv-border2);
+  color:var(--sv-accent); font-size:12px; font-weight:800;
+  padding:6px 14px; border-radius:50px; position:relative; z-index:1;
+}
+
+/* Perks */
+.sv-perks { display:flex; gap:8px; overflow-x:auto; padding:12px 20px; scrollbar-width:none; border-bottom:1px solid var(--sv-border); }
+.sv-perks::-webkit-scrollbar { display:none; }
+.sv-perk { display:inline-flex; align-items:center; gap:6px; background:var(--sv-card); border:1px solid var(--sv-border); border-radius:50px; padding:7px 13px; white-space:nowrap; font-size:12px; font-weight:700; color:var(--sv-text2); flex-shrink:0; }
+
+/* Body */
+.sv-body { max-width:560px; margin:0 auto; padding:16px 16px 0; display:flex; flex-direction:column; gap:12px; }
+.sv-card { background:var(--sv-card); border:1px solid var(--sv-border); border-radius:20px; overflow:hidden; box-shadow:var(--sv-shadow); }
+.sv-card-hdr { padding:15px 18px 13px; border-bottom:1px solid var(--sv-border); font-size:13.5px; font-weight:800; color:var(--sv-text); display:flex; align-items:center; gap:8px; }
+
+/* Variants */
+.sv-var-wrap { padding:16px 18px 18px; }
+.sv-var-lbl { font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:var(--sv-text2); margin-bottom:10px; }
+.sv-var-pills { display:flex; gap:8px; flex-wrap:wrap; }
+.sv-var-pill {
+  padding:10px 16px; border-radius:13px;
+  border:1.5px solid var(--sv-border); background:var(--sv-bg3);
+  color:var(--sv-text2); font-size:13px; font-weight:700;
+  cursor:pointer; transition:all .18s; -webkit-tap-highlight-color:transparent;
+  font-family:inherit;
+}
+.sv-var-pill.sel { border-color:var(--sv-gold); background:var(--sv-gold-dim); color:var(--sv-gold); box-shadow:0 0 0 3px rgba(244,180,0,.2); }
+.sv-var-pill:active { transform:scale(.96); }
+.sv-var-price { display:block; font-size:10px; font-weight:600; color:var(--sv-text3); margin-top:2px; }
+.sv-var-pill.sel .sv-var-price { color:rgba(244,180,0,.7); }
+
+/* Booking form rows */
+.sv-row { display:flex; align-items:center; gap:12px; padding:13px 18px; border-top:1px solid var(--sv-border); }
+.sv-row-ico { font-size:20px; flex-shrink:0; }
+.sv-row-body { flex:1; min-width:0; }
+.sv-row-lbl { font-size:13.5px; font-weight:700; color:var(--sv-text); }
+.sv-row-sub { font-size:11.5px; color:var(--sv-text2); margin-top:2px; }
+.sv-input {
+  flex-shrink:0;
+  background:var(--sv-bg3); border:1.5px solid var(--sv-border);
+  border-radius:11px; padding:8px 12px;
+  font-size:12.5px; font-weight:700; color:var(--sv-text);
+  font-family:inherit; outline:none; cursor:pointer;
+}
+.sv-input:focus { border-color:rgba(244,180,0,.5); }
+.sv-input-full {
+  width:100%; background:var(--sv-bg3); border:1.5px solid var(--sv-border);
+  border-radius:13px; padding:12px 15px;
+  font-size:14px; color:var(--sv-text); font-family:inherit; outline:none;
+  resize:none; line-height:1.5;
+  display:block; box-sizing:border-box;
+}
+.sv-input-full:focus { border-color:rgba(244,180,0,.5); background:var(--sv-bg2); }
+.sv-input-full::placeholder { color:var(--sv-text3); }
+.sv-notes-wrap { padding:14px 18px; border-top:1px solid var(--sv-border); }
+
+/* Price & CTA */
+.sv-price-row {
+  display:flex; align-items:flex-end; justify-content:space-between;
+  padding:18px 18px 14px;
+}
+.sv-price-lbl { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--sv-text2); margin-bottom:4px; }
+.sv-price-main { font-size:32px; font-weight:900; color:var(--sv-text); line-height:1; }
+.sv-price-main span { font-size:14px; font-weight:600; color:var(--sv-text2); }
+.sv-price-save { display:inline-block; font-size:11px; font-weight:800; background:var(--sv-green-dim); color:var(--sv-green); padding:3px 9px; border-radius:8px; margin-top:6px; }
+.sv-book-btn {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  width:calc(100% - 36px); margin:0 18px 18px;
+  padding:17px; border-radius:16px; border:none;
+  background:var(--sv-gold); color:#000;
+  font-size:16px; font-weight:900; cursor:pointer;
+  font-family:inherit; -webkit-tap-highlight-color:transparent;
+  transition:all .2s; box-shadow:0 6px 24px rgba(244,180,0,.35);
+}
+.sv-book-btn:active { transform:scale(.97); box-shadow:none; }
+
+/* Steps */
+.sv-steps { padding:6px 18px 18px; display:flex; flex-direction:column; }
+.sv-step { display:flex; align-items:flex-start; gap:14px; padding:12px 0; border-bottom:1px solid var(--sv-border); }
+.sv-step:last-child { border-bottom:none; }
+.sv-step-num { width:32px; height:32px; border-radius:50%; flex-shrink:0; background:var(--sv-gold-dim); border:1.5px solid rgba(244,180,0,.3); color:var(--sv-gold); font-size:13px; font-weight:900; display:flex; align-items:center; justify-content:center; }
+.sv-step-title { font-size:13.5px; font-weight:800; color:var(--sv-text); margin-bottom:2px; }
+.sv-step-desc  { font-size:12px; color:var(--sv-text2); line-height:1.5; }
+
+/* Trust */
+.sv-trust { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:14px; }
+.sv-trust-item { display:flex; align-items:center; gap:10px; background:var(--sv-card2); border:1px solid var(--sv-border); border-radius:14px; padding:12px; }
+.sv-trust-ico { font-size:22px; flex-shrink:0; }
+.sv-trust-txt { font-size:12px; font-weight:700; color:var(--sv-text); }
+.sv-trust-sub { font-size:10.5px; color:var(--sv-text2); margin-top:1px; }
+
+/* FAQ */
+.sv-faq-item { border-bottom:1px solid var(--sv-border); }
+.sv-faq-item:last-child { border-bottom:none; }
+.sv-faq-q { width:100%; text-align:left; background:none; border:none; font-family:inherit; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:13.5px; font-weight:700; color:var(--sv-text); cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.sv-faq-chevron { font-size:18px; color:var(--sv-text3); transition:transform .2s; flex-shrink:0; }
+.sv-faq-item.open .sv-faq-chevron { transform:rotate(180deg); color:var(--sv-gold); }
+.sv-faq-a { max-height:0; overflow:hidden; transition:max-height .28s ease; font-size:13px; color:var(--sv-text2); line-height:1.6; }
+.sv-faq-item.open .sv-faq-a { max-height:200px; }
+.sv-faq-a-inner { padding:0 18px 14px; }
+
+/* Toast */
+.sv-toast {
+  position:fixed; bottom:calc(80px + env(safe-area-inset-bottom));
+  left:50%; transform:translateX(-50%) translateY(20px);
+  background:#111; color:#fff; border:1px solid rgba(255,255,255,.1);
+  border-radius:50px; padding:11px 22px;
+  font-size:13.5px; font-weight:700; box-shadow:0 8px 32px rgba(0,0,0,.5);
+  z-index:99999; opacity:0; transition:all .3s cubic-bezier(.175,.885,.32,1.275);
+  white-space:nowrap; pointer-events:none;
+}
+.sv-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+
+<!-- ═══════════════════════
+     HTML
+═══════════════════════ -->
+<div class="sv-root">
+
+  <!-- HERO -->
+  <div class="sv-hero">
+    <div class="sv-hero-icon">{{ p_icon }}</div><br>
+    <span class="sv-live-badge"><span class="sv-live-dot"></span> Available Now</span><br>
+    <div class="sv-hero-title">{{ p.title }}</div>
+    {%- if p.description != blank -%}
+      <div class="sv-hero-desc">{{ p.description | strip_html | truncate: 140 }}</div>
+    {%- endif -%}
+    <span class="sv-hero-eta">⏱ Est. {{ p_eta }}</span>
+  </div>
+
+  <!-- PERKS -->
+  <div class="sv-perks">
+    <div class="sv-perk">✅ Verified Pro</div>
+    <div class="sv-perk">📍 At Your Location</div>
+    <div class="sv-perk">💬 Free Estimate</div>
+    <div class="sv-perk">🔒 Insured Work</div>
+    <div class="sv-perk">⭐ Rated 4.8+</div>
+  </div>
+
+  <div class="sv-body">
+
+    <!-- VARIANTS + BOOKING DETAILS -->
+    <div class="sv-card">
+      <div class="sv-card-hdr">📋 Service Options</div>
+
+      {%- if p.variants.size > 1 -%}
+      <div class="sv-var-wrap">
+        <div class="sv-var-lbl">Select Package</div>
+        <div class="sv-var-pills" id="svVarPills">
+          {%- for v in p.variants -%}
+            <button type="button"
+              class="sv-var-pill{% if forloop.first %} sel{% endif %}"
+              data-variant-id="{{ v.id }}"
+              data-price="{{ v.price | divided_by: 100 | floor }}"
+              data-compare="{{ v.compare_at_price | divided_by: 100 | floor }}">
+              {{ v.title }}
+              <span class="sv-var-price">Rs {{ v.price | divided_by: 100 | floor }}</span>
+            </button>
+          {%- endfor -%}
+        </div>
+      </div>
+      {%- endif -%}
+
+      <div class="sv-row">
+        <span class="sv-row-ico">📅</span>
+        <div class="sv-row-body">
+          <div class="sv-row-lbl">Preferred Date</div>
+          <div class="sv-row-sub">When would you like the service?</div>
+        </div>
+        <input type="date" class="sv-input" id="svDate">
+      </div>
+
+      <div class="sv-row">
+        <span class="sv-row-ico">🕐</span>
+        <div class="sv-row-body">
+          <div class="sv-row-lbl">Preferred Time</div>
+          <div class="sv-row-sub">Morning / Afternoon / Evening</div>
+        </div>
+        <select class="sv-input" id="svTime">
+          <option value="Morning (7–11 AM)">Morning</option>
+          <option value="Afternoon (11 AM–3 PM)">Afternoon</option>
+          <option value="Evening (3–7 PM)">Evening</option>
+        </select>
+      </div>
+
+      <div class="sv-notes-wrap">
+        <div class="sv-var-lbl" style="margin-bottom:8px;">Special Instructions (optional)</div>
+        <textarea class="sv-input-full" id="svNotes" rows="3" placeholder="Describe the issue, location in home, access details…"></textarea>
+      </div>
+    </div>
+
+    <!-- PRICE + CTA -->
+    <div class="sv-card">
+      <div class="sv-price-row">
+        <div>
+          <div class="sv-price-lbl">Service Starting From</div>
+          <div class="sv-price-main">Rs <span id="svPriceVal">{{ first_variant.price | divided_by: 100 | floor }}</span><span>/visit</span></div>
+          <div id="svCompare" style="font-size:13px;text-decoration:line-through;color:var(--sv-text3);margin-top:2px;display:none;"></div>
+          <div id="svSaveTag" class="sv-price-save" style="display:none;"></div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:10.5px;color:var(--sv-text2);font-weight:700;margin-bottom:3px;">FREE ESTIMATE</div>
+          <div style="font-size:12px;font-weight:800;color:var(--sv-text);">No hidden charges</div>
+        </div>
+      </div>
+
+      <form id="svForm">
+        <input type="hidden" name="id"                         id="svVariantId"  value="{{ first_variant.id }}">
+        <input type="hidden" name="quantity"                   value="1">
+        <input type="hidden" name="properties[Service]"        value="{{ p.title | escape }}">
+        <input type="hidden" name="properties[Preferred Date]" id="svFormDate"   value="">
+        <input type="hidden" name="properties[Preferred Time]" id="svFormTime"   value="Morning (7–11 AM)">
+        <input type="hidden" name="properties[Notes]"          id="svFormNotes"  value="">
+        <button type="submit" class="sv-book-btn" id="svBookBtn">
+          <span>⚡</span>
+          <span id="svBtnTxt">Book Now</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="sv-card">
+      <div class="sv-card-hdr">📖 How It Works</div>
+      <div class="sv-steps">
+        <div class="sv-step"><div class="sv-step-num">1</div><div><div class="sv-step-title">Choose your package</div><div class="sv-step-desc">Select the service option and set your preferred date &amp; time.</div></div></div>
+        <div class="sv-step"><div class="sv-step-num">2</div><div><div class="sv-step-title">We confirm within 1 hour</div><div class="sv-step-desc">Our team will call you to confirm the booking and send a verified pro.</div></div></div>
+        <div class="sv-step"><div class="sv-step-num">3</div><div><div class="sv-step-title">Pro arrives on time</div><div class="sv-step-desc">Your assigned professional arrives with all tools needed for the job.</div></div></div>
+        <div class="sv-step"><div class="sv-step-num">4</div><div><div class="sv-step-title">Pay after service</div><div class="sv-step-desc">You only pay once you're satisfied. Transparent pricing — no surprises.</div></div></div>
+      </div>
+    </div>
+
+    <!-- TRUST -->
+    <div class="sv-card">
+      <div class="sv-trust">
+        <div class="sv-trust-item"><span class="sv-trust-ico">🪪</span><div><div class="sv-trust-txt">ID Verified</div><div class="sv-trust-sub">Background checked</div></div></div>
+        <div class="sv-trust-item"><span class="sv-trust-ico">⭐</span><div><div class="sv-trust-txt">4.8+ Rated</div><div class="sv-trust-sub">By 500+ customers</div></div></div>
+        <div class="sv-trust-item"><span class="sv-trust-ico">🛡️</span><div><div class="sv-trust-txt">Work Insured</div><div class="sv-trust-sub">Damage protected</div></div></div>
+        <div class="sv-trust-item"><span class="sv-trust-ico">📞</span><div><div class="sv-trust-txt">24/7 Support</div><div class="sv-trust-sub">Always reachable</div></div></div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="sv-card">
+      <div class="sv-card-hdr">❓ FAQs</div>
+      <div id="svFaq">
+        <div class="sv-faq-item"><button class="sv-faq-q" type="button">How long will the service take? <span class="sv-faq-chevron">⌄</span></button><div class="sv-faq-a"><div class="sv-faq-a-inner">Estimated time is shown above. Complex jobs may take longer — our pro will inform you upfront.</div></div></div>
+        <div class="sv-faq-item"><button class="sv-faq-q" type="button">Do I need to provide tools/materials? <span class="sv-faq-chevron">⌄</span></button><div class="sv-faq-a"><div class="sv-faq-a-inner">Our professionals bring standard tools. If specific materials are needed (e.g., pipes, paint), we'll inform you beforehand.</div></div></div>
+        <div class="sv-faq-item"><button class="sv-faq-q" type="button">Can I reschedule my booking? <span class="sv-faq-chevron">⌄</span></button><div class="sv-faq-a"><div class="sv-faq-a-inner">Yes, reschedule up to 2 hours before the appointment. Contact support on WhatsApp or call us directly.</div></div></div>
+        <div class="sv-faq-item"><button class="sv-faq-q" type="button">What if I'm not satisfied? <span class="sv-faq-chevron">⌄</span></button><div class="sv-faq-a"><div class="sv-faq-a-inner">We offer a re-do guarantee. If the work doesn't meet your expectations, we'll send the pro back at no extra cost.</div></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="sv-toast" id="svToast"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  var form      = document.getElementById('svForm');
+  var varPills  = document.querySelectorAll('.sv-var-pill');
+  var varIdInp  = document.getElementById('svVariantId');
+  var priceVal  = document.getElementById('svPriceVal');
+  var compareEl = document.getElementById('svCompare');
+  var saveTag   = document.getElementById('svSaveTag');
+  var dateInp   = document.getElementById('svDate');
+  var timeInp   = document.getElementById('svTime');
+  var notesInp  = document.getElementById('svNotes');
+  var formDate  = document.getElementById('svFormDate');
+  var formTime  = document.getElementById('svFormTime');
+  var formNotes = document.getElementById('svFormNotes');
+  var bookBtn   = document.getElementById('svBookBtn');
+  var btnTxt    = document.getElementById('svBtnTxt');
+  var toast     = document.getElementById('svToast');
+
+  /* Default date = tomorrow */
+  var t = new Date(); t.setDate(t.getDate()+1);
+  var yy=t.getFullYear(), mm=String(t.getMonth()+1).padStart(2,'0'), dd=String(t.getDate()).padStart(2,'0');
+  if(dateInp){ dateInp.value=yy+'-'+mm+'-'+dd; dateInp.min=yy+'-'+mm+'-'+dd; }
+  if(formDate) formDate.value = yy+'-'+mm+'-'+dd;
+
+  /* Sync hidden inputs */
+  if(dateInp)  dateInp.addEventListener('change',  function(){ if(formDate)  formDate.value  = dateInp.value;  });
+  if(timeInp)  timeInp.addEventListener('change',  function(){ if(formTime)  formTime.value  = timeInp.value;  });
+  if(notesInp) notesInp.addEventListener('input',  function(){ if(formNotes) formNotes.value = notesInp.value; });
+
+  /* Date color-scheme */
+  function syncDate(){ if(dateInp) dateInp.style.colorScheme=(document.documentElement.getAttribute('data-theme')||'dark')==='dark'?'dark':'light'; }
+  syncDate();
+
+  /* Variant pills */
+  varPills.forEach(function(pill){
+    pill.addEventListener('click', function(){
+      varPills.forEach(function(p){ p.classList.remove('sel'); });
+      pill.classList.add('sel');
+      var vid=pill.getAttribute('data-variant-id'), pr=pill.getAttribute('data-price'), cmp=pill.getAttribute('data-compare');
+      if(varIdInp) varIdInp.value=vid;
+      if(priceVal) priceVal.textContent=pr;
+      if(cmp && parseInt(cmp)>parseInt(pr)){
+        if(compareEl){compareEl.textContent='Was Rs '+cmp; compareEl.style.display='block';}
+        var s=Math.round((1-parseInt(pr)/parseInt(cmp))*100);
+        if(saveTag){saveTag.textContent='Save '+s+'%'; saveTag.style.display='inline-block';}
+      } else {
+        if(compareEl) compareEl.style.display='none';
+        if(saveTag)   saveTag.style.display='none';
+      }
+    });
+  });
+
+  /* Toast */
+  var toastT;
+  function showToast(msg){ if(!toast)return; toast.textContent=msg; toast.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){ toast.classList.remove('show'); },2800); }
+
+  /* Submit */
+  if(form){
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      if(!varIdInp||!varIdInp.value){ showToast('Please select a package'); return; }
+      bookBtn.disabled=true; btnTxt.textContent='Booking…';
+
+      if(formNotes && notesInp) formNotes.value=notesInp.value;
+
+      fetch('/cart/add.js',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          id: parseInt(varIdInp.value), quantity:1,
+          properties:{
+            'Service':         '{{ p.title | escape }}',
+            'Preferred Date':  dateInp?dateInp.value:'',
+            'Preferred Time':  timeInp?timeInp.value:'',
+            'Notes':           notesInp?notesInp.value:'',
+            'Product Type':    '{{ p.type | escape }}'
+          }
+        })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        bookBtn.disabled=false;
+        if(data.status){ showToast('⚠️ '+(data.description||'Error')); btnTxt.textContent='Book Now'; }
+        else {
+          btnTxt.textContent='✓ Booked!';
+          showToast('✅ Service booked! Check your cart.');
+          window.dispatchEvent(new CustomEvent('cart:updated'));
+          setTimeout(function(){ btnTxt.textContent='Book Now'; },2500);
+        }
+      })
+      .catch(function(){ bookBtn.disabled=false; btnTxt.textContent='Book Now'; showToast('⚠️ Try again'); });
+    });
+  }
+
+  /* FAQ */
+  document.querySelectorAll('.sv-faq-q').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var item=btn.closest('.sv-faq-item'), wasOpen=item.classList.contains('open');
+      document.querySelectorAll('.sv-faq-item').forEach(function(i){ i.classList.remove('open'); });
+      if(!wasOpen) item.classList.add('open');
+    });
+  });
+
+  /* Initial compare price */
+  var fc={{ first_variant.compare_at_price | divided_by: 100 | floor | json }};
+  var fp={{ first_variant.price | divided_by: 100 | floor | json }};
+  if(fc&&fc>fp){
+    if(compareEl){compareEl.textContent='Was Rs '+fc; compareEl.style.display='block';}
+    var s=Math.round((1-fp/fc)*100);
+    if(saveTag){saveTag.textContent='Save '+s+'%'; saveTag.style.display='inline-block';}
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Service Product",
+  "settings": []
+}
+{% endschema %}

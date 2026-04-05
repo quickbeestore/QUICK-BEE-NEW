@@ -1,0 +1,1005 @@
+{% comment %}
+  QB Bakery Product Section
+  QuickBee Store — Fresh Bakery Product Pages
+  Theme: Dark/Light · Gold accent #F4B400 · Warm Amber/Brown sub-theme
+  Mobile-first · No product images
+{% endcomment %}
+
+{% liquid
+  assign is_preorder  = false
+  assign baked_at_tag = ''
+  assign allergens    = ''
+  assign is_wholewheat = false
+
+  for tag in product.tags
+    if tag == 'pre-order'
+      assign is_preorder = true
+    endif
+    if tag == 'wholewheat'
+      assign is_wholewheat = true
+    endif
+    if tag contains 'bakedat:'
+      assign baked_at_tag = tag | remove: 'bakedat:'
+    endif
+    if tag contains 'allergen:'
+      assign allergen_val = tag | remove: 'allergen:'
+      if allergens == ''
+        assign allergens = allergen_val
+      else
+        assign allergens = allergens | append: ',' | append: allergen_val
+      endif
+    endif
+  endfor
+
+  assign allergen_list = allergens | split: ','
+
+  assign type_emoji = '🥖'
+  assign type_color = 'var(--bky-amber)'
+  case product.type
+    when 'Bread'
+      assign type_emoji = '🍞'
+      assign type_color = 'var(--bky-warm-amber)'
+    when 'Cake'
+      assign type_emoji = '🎂'
+      assign type_color = 'var(--bky-pink)'
+    when 'Cookies'
+      assign type_emoji = '🍪'
+      assign type_color = 'var(--bky-brown)'
+    when 'Pastry'
+      assign type_emoji = '🥐'
+      assign type_color = 'var(--bky-gold)'
+    when 'Rusk'
+      assign type_emoji = '🫓'
+      assign type_color = 'var(--bky-tan)'
+  endcase
+
+  assign desc_short = product.description | strip_html | truncate: 80
+%}
+
+<style>
+  /* ── CSS Custom Properties ─────────────────────────────────────────── */
+  :root {
+    --bky-gold:        #F4B400;
+    --bky-gold-hover:  #d9a000;
+    --bky-amber:       #F59E0B;
+    --bky-warm-amber:  #D97706;
+    --bky-pink:        #EC4899;
+    --bky-brown:       #92400E;
+    --bky-tan:         #C8A97E;
+    --bky-cream:       #FEF3C7;
+
+    /* Dark theme (default) */
+    --bky-bg:          #0F0F0F;
+    --bky-surface:     #1A1A1A;
+    --bky-surface-2:   #242424;
+    --bky-border:      #2E2E2E;
+    --bky-text-primary:#F5F0E8;
+    --bky-text-muted:  #A0998F;
+    --bky-text-dim:    #6B6460;
+    --bky-pill-bg:     #2A2520;
+    --bky-pill-active: #F4B400;
+    --bky-pill-active-text: #0F0F0F;
+    --bky-trust-bg:    #1E1B16;
+    --bky-allergen-bg: #1F1C10;
+    --bky-allergen-border: #F4B400;
+    --bky-badge-fresh-bg:  #2D1F00;
+    --bky-badge-fresh-text:#F59E0B;
+    --bky-badge-pre-bg:    #1A1040;
+    --bky-badge-pre-text:  #818CF8;
+    --bky-strip-bg:    #161208;
+    --bky-note-bg:     #1C1810;
+    --bky-note-border: #F4B40033;
+    --bky-qty-bg:      #242424;
+    --bky-qty-border:  #3A3A3A;
+    --bky-btn-text:    #0F0F0F;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bky-bg:          #FAFAF7;
+      --bky-surface:     #FFFFFF;
+      --bky-surface-2:   #F5F0E8;
+      --bky-border:      #E5DDD0;
+      --bky-text-primary:#1A1208;
+      --bky-text-muted:  #6B5B4E;
+      --bky-text-dim:    #9C8878;
+      --bky-pill-bg:     #F0E8D8;
+      --bky-pill-active: #F4B400;
+      --bky-pill-active-text: #0F0F0F;
+      --bky-trust-bg:    #FEF9EC;
+      --bky-allergen-bg: #FFFBEB;
+      --bky-allergen-border: #F4B400;
+      --bky-badge-fresh-bg:  #FEF3C7;
+      --bky-badge-fresh-text:#92400E;
+      --bky-badge-pre-bg:    #EDE9FE;
+      --bky-badge-pre-text:  #4C1D95;
+      --bky-strip-bg:    #FEF9EC;
+      --bky-note-bg:     #FFFBEB;
+      --bky-note-border: #F4B400;
+      --bky-qty-bg:      #F5F0E8;
+      --bky-qty-border:  #E0D5C5;
+      --bky-btn-text:    #0F0F0F;
+    }
+  }
+
+  /* ── Layout ─────────────────────────────────────────────────────────── */
+  .qb-bky {
+    background: var(--bky-bg);
+    color: var(--bky-text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    padding: 0 0 4rem;
+  }
+
+  .qb-bky__inner {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  /* ── Freshness Strip ─────────────────────────────────────────────────── */
+  .qb-bky__strip {
+    background: var(--bky-strip-bg);
+    border-bottom: 1px solid var(--bky-gold);
+    overflow: hidden;
+    padding: 0.55rem 0;
+  }
+
+  .qb-bky__strip-track {
+    display: flex;
+    gap: 2.5rem;
+    animation: bky-scroll 22s linear infinite;
+    white-space: nowrap;
+    width: max-content;
+  }
+
+  .qb-bky__strip-item {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--bky-gold);
+  }
+
+  .qb-bky__strip-dot {
+    color: var(--bky-warm-amber);
+    margin-left: 2.5rem;
+  }
+
+  @keyframes bky-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ── Header Block ────────────────────────────────────────────────────── */
+  .qb-bky__header {
+    padding: 1.5rem 0 0.5rem;
+  }
+
+  .qb-bky__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.9rem;
+    align-items: center;
+  }
+
+  .qb-bky__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .qb-bky__badge--fresh {
+    background: var(--bky-badge-fresh-bg);
+    color: var(--bky-badge-fresh-text);
+    border: 1px solid var(--bky-warm-amber);
+    animation: bky-pulse 2s ease-in-out infinite;
+  }
+
+  .qb-bky__badge--preorder {
+    background: var(--bky-badge-pre-bg);
+    color: var(--bky-badge-pre-text);
+    border: 1px solid var(--bky-badge-pre-text);
+  }
+
+  .qb-bky__badge--type {
+    background: var(--bky-surface-2);
+    border: 1px solid var(--bky-border);
+    color: var(--bky-text-muted);
+  }
+
+  @keyframes bky-pulse {
+    0%, 100% { opacity: 1;   box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+    50%       { opacity: 0.85; box-shadow: 0 0 0 4px rgba(245,158,11,0.25); }
+  }
+
+  .qb-bky__title {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--bky-text-primary);
+    margin: 0 0 0.4rem;
+  }
+
+  .qb-bky__vendor {
+    font-size: 0.8rem;
+    color: var(--bky-text-muted);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+
+  /* Baked-at time tag */
+  .qb-bky__baked-at {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    color: var(--bky-tan);
+    background: var(--bky-surface-2);
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    border: 1px solid var(--bky-border);
+    margin-bottom: 0.9rem;
+  }
+
+  /* ── Price Block ─────────────────────────────────────────────────────── */
+  .qb-bky__price-block {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: var(--bky-surface);
+    border-radius: 12px;
+    border: 1px solid var(--bky-border);
+  }
+
+  .qb-bky__price {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--bky-gold);
+    line-height: 1;
+  }
+
+  .qb-bky__price-compare {
+    font-size: 1rem;
+    color: var(--bky-text-dim);
+    text-decoration: line-through;
+  }
+
+  .qb-bky__price-saving {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #4ADE80;
+    background: rgba(74,222,128,0.12);
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+  }
+
+  /* ── Variant Pills ───────────────────────────────────────────────────── */
+  .qb-bky__options {
+    margin: 1.2rem 0;
+  }
+
+  .qb-bky__option-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--bky-text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .qb-bky__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .qb-bky__pill {
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--bky-border);
+    background: var(--bky-pill-bg);
+    color: var(--bky-text-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .qb-bky__pill:hover {
+    border-color: var(--bky-gold);
+    color: var(--bky-gold);
+  }
+
+  .qb-bky__pill.is-active {
+    background: var(--bky-pill-active);
+    color: var(--bky-pill-active-text);
+    border-color: var(--bky-pill-active);
+    font-weight: 700;
+  }
+
+  .qb-bky__pill.is-unavailable {
+    opacity: 0.4;
+    cursor: not-allowed;
+    text-decoration: line-through;
+  }
+
+  /* ── Quantity Stepper ────────────────────────────────────────────────── */
+  .qb-bky__qty-block {
+    margin: 1.2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .qb-bky__qty-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--bky-text-muted);
+    min-width: 60px;
+  }
+
+  .qb-bky__stepper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--bky-qty-bg);
+    border: 1.5px solid var(--bky-qty-border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .qb-bky__stepper-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--bky-text-primary);
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .qb-bky__stepper-btn:hover {
+    background: var(--bky-surface-2);
+    color: var(--bky-gold);
+  }
+
+  .qb-bky__stepper-input {
+    width: 44px;
+    text-align: center;
+    background: transparent;
+    border: none;
+    border-left: 1px solid var(--bky-qty-border);
+    border-right: 1px solid var(--bky-qty-border);
+    color: var(--bky-text-primary);
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.5rem 0;
+    -moz-appearance: textfield;
+  }
+
+  .qb-bky__stepper-input::-webkit-inner-spin-button,
+  .qb-bky__stepper-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+  }
+
+  /* ── Allergen Card ───────────────────────────────────────────────────── */
+  .qb-bky__allergen {
+    background: var(--bky-allergen-bg);
+    border: 1.5px solid var(--bky-allergen-border);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    margin: 1.2rem 0;
+  }
+
+  .qb-bky__allergen-title {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bky-gold);
+    margin-bottom: 0.6rem;
+  }
+
+  .qb-bky__allergen-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .qb-bky__allergen-chip {
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(244,180,0,0.12);
+    color: var(--bky-gold);
+    font-size: 0.78rem;
+    font-weight: 700;
+    border: 1px solid rgba(244,180,0,0.3);
+  }
+
+  .qb-bky__allergen-fallback {
+    font-size: 0.8rem;
+    color: var(--bky-text-muted);
+  }
+
+  /* ── Ingredients Teaser ──────────────────────────────────────────────── */
+  .qb-bky__ingredients {
+    background: var(--bky-surface);
+    border: 1px solid var(--bky-border);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    margin: 1.2rem 0;
+  }
+
+  .qb-bky__ingredients-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--bky-text-muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .qb-bky__ingredients-text {
+    font-size: 0.88rem;
+    color: var(--bky-text-primary);
+    line-height: 1.5;
+  }
+
+  .qb-bky__ingredients-expand {
+    display: inline-block;
+    margin-top: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--bky-gold);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .qb-bky__ingredients-full {
+    display: none;
+    margin-top: 0.5rem;
+    font-size: 0.88rem;
+    color: var(--bky-text-primary);
+    line-height: 1.6;
+  }
+
+  .qb-bky__ingredients-full.is-visible {
+    display: block;
+  }
+
+  /* ── Add to Cart ─────────────────────────────────────────────────────── */
+  .qb-bky__atc-wrap {
+    margin: 1.5rem 0 0.6rem;
+  }
+
+  .qb-bky__atc-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--bky-gold);
+    color: var(--bky-btn-text);
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .qb-bky__atc-btn:hover:not(:disabled) {
+    background: var(--bky-gold-hover);
+  }
+
+  .qb-bky__atc-btn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .qb-bky__atc-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .qb-bky__atc-btn.is-loading::after {
+    content: ' ⏳';
+  }
+
+  .qb-bky__atc-msg {
+    min-height: 1.4rem;
+    text-align: center;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+
+  .qb-bky__atc-msg.success { color: #4ADE80; }
+  .qb-bky__atc-msg.error   { color: #F87171; }
+
+  /* ── Order Note ──────────────────────────────────────────────────────── */
+  .qb-bky__order-note {
+    background: var(--bky-note-bg);
+    border: 1px solid var(--bky-note-border);
+    border-radius: 10px;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.78rem;
+    color: var(--bky-text-muted);
+    text-align: center;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+
+  /* ── Trust Grid ──────────────────────────────────────────────────────── */
+  .qb-bky__trust {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    margin: 1.8rem 0 0;
+  }
+
+  .qb-bky__trust-card {
+    background: var(--bky-trust-bg);
+    border: 1px solid var(--bky-border);
+    border-radius: 12px;
+    padding: 0.8rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .qb-bky__trust-icon {
+    font-size: 1.3rem;
+    line-height: 1;
+  }
+
+  .qb-bky__trust-title {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--bky-text-primary);
+    line-height: 1.2;
+  }
+
+  .qb-bky__trust-sub {
+    font-size: 0.7rem;
+    color: var(--bky-text-muted);
+    line-height: 1.3;
+  }
+
+  /* ── Divider ─────────────────────────────────────────────────────────── */
+  .qb-bky__divider {
+    height: 1px;
+    background: var(--bky-border);
+    margin: 1.5rem 0;
+  }
+</style>
+
+{%- comment -%} ── Freshness Strip ─────────────────────────────────────── {%- endcomment -%}
+<div class="qb-bky__strip">
+  <div class="qb-bky__strip-track">
+    {%- for i in (1..2) -%}
+      <span class="qb-bky__strip-item">Baked Fresh Daily</span>
+      <span class="qb-bky__strip-dot">✦</span>
+      <span class="qb-bky__strip-item">No Preservatives</span>
+      <span class="qb-bky__strip-dot">✦</span>
+      <span class="qb-bky__strip-item">Delivered Same Day</span>
+      <span class="qb-bky__strip-dot">✦</span>
+      <span class="qb-bky__strip-item">Artisan Made</span>
+      <span class="qb-bky__strip-dot">✦</span>
+    {%- endfor -%}
+  </div>
+</div>
+
+<section class="qb-bky" data-section-id="{{ section.id }}" data-product-id="{{ product.id }}">
+  <div class="qb-bky__inner">
+
+    {%- comment -%} ── Header ───────────────────────────────────────────── {%- endcomment -%}
+    <header class="qb-bky__header">
+      <div class="qb-bky__badges">
+        {%- if is_preorder -%}
+          <span class="qb-bky__badge qb-bky__badge--preorder">📅 Pre-Order</span>
+        {%- else -%}
+          <span class="qb-bky__badge qb-bky__badge--fresh">🔥 Baked Today</span>
+        {%- endif -%}
+        <span class="qb-bky__badge qb-bky__badge--type" style="color:{{ type_color }}">
+          {{ type_emoji }} {{ product.type }}
+        </span>
+      </div>
+
+      {% if product.vendor != blank %}
+        <p class="qb-bky__vendor">{{ product.vendor }}</p>
+      {% endif %}
+
+      <h1 class="qb-bky__title">{{ product.title }}</h1>
+
+      <div class="qb-bky__baked-at">
+        🕐
+        {%- if baked_at_tag != '' -%}
+          Baked at {{ baked_at_tag }}am
+        {%- else -%}
+          Baked Fresh Each Morning
+        {%- endif -%}
+      </div>
+    </header>
+
+    {%- comment -%} ── Price ────────────────────────────────────────────── {%- endcomment -%}
+    <div class="qb-bky__price-block">
+      <span class="qb-bky__price" id="bky-price">
+        {{ product.selected_or_first_available_variant.price | money }}
+      </span>
+      {%- if product.compare_at_price > product.price -%}
+        <span class="qb-bky__price-compare">
+          {{ product.compare_at_price | money }}
+        </span>
+        {%- assign saving = product.compare_at_price | minus: product.price -%}
+        {%- assign saving_pct = saving | times: 100 | divided_by: product.compare_at_price -%}
+        <span class="qb-bky__price-saving">Save {{ saving_pct }}%</span>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} ── Variants ─────────────────────────────────────────── {%- endcomment -%}
+    {%- unless product.has_only_default_variant -%}
+      {%- for option in product.options_with_values -%}
+        <div class="qb-bky__options">
+          <p class="qb-bky__option-label">
+            {{ option.name }}:
+            <span id="bky-opt-val-{{ forloop.index0 }}" style="color:var(--bky-gold);font-weight:800;">
+              {{ option.selected_value }}
+            </span>
+          </p>
+          <div class="qb-bky__pills" data-option-index="{{ forloop.index0 }}">
+            {%- for value in option.values -%}
+              {%- assign is_active = false -%}
+              {%- if value == option.selected_value -%}
+                {%- assign is_active = true -%}
+              {%- endif -%}
+              <button
+                class="qb-bky__pill{% if is_active %} is-active{% endif %}"
+                data-value="{{ value }}"
+                data-option-index="{{ forloop.parentloop.index0 }}"
+                type="button"
+              >{{ value }}</button>
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endfor -%}
+    {%- endunless -%}
+
+    <div class="qb-bky__divider"></div>
+
+    {%- comment -%} ── Quantity ─────────────────────────────────────────── {%- endcomment -%}
+    <div class="qb-bky__qty-block">
+      <span class="qb-bky__qty-label">Qty</span>
+      <div class="qb-bky__stepper" role="group" aria-label="Quantity">
+        <button class="qb-bky__stepper-btn" id="bky-qty-dec" type="button" aria-label="Decrease quantity">−</button>
+        <input
+          class="qb-bky__stepper-input"
+          id="bky-qty"
+          type="number"
+          value="1"
+          min="1"
+          max="20"
+          aria-label="Quantity"
+        />
+        <button class="qb-bky__stepper-btn" id="bky-qty-inc" type="button" aria-label="Increase quantity">+</button>
+      </div>
+    </div>
+
+    {%- comment -%} ── Allergen Card ─────────────────────────────────────── {%- endcomment -%}
+    <div class="qb-bky__allergen" role="alert" aria-label="Allergen information">
+      <div class="qb-bky__allergen-title">⚠️ Allergen Info</div>
+      <div class="qb-bky__allergen-chips">
+        {%- if allergen_list.size > 0 -%}
+          {%- for item in allergen_list -%}
+            {%- if item != blank -%}
+              <span class="qb-bky__allergen-chip">{{ item | capitalize }}</span>
+            {%- endif -%}
+          {%- endfor -%}
+        {%- else -%}
+          <span class="qb-bky__allergen-fallback">See product label for allergens</span>
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- comment -%} ── Ingredients Teaser ────────────────────────────────── {%- endcomment -%}
+    {%- if product.description != blank -%}
+      <div class="qb-bky__ingredients">
+        <p class="qb-bky__ingredients-label">Ingredients</p>
+        <p class="qb-bky__ingredients-text" id="bky-ing-short">
+          {{ desc_short }}…
+          <button
+            class="qb-bky__ingredients-expand"
+            id="bky-ing-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="bky-ing-full"
+          >Read more</button>
+        </p>
+        <div class="qb-bky__ingredients-full" id="bky-ing-full" aria-live="polite">
+          {{ product.description | strip_html }}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} ── Add to Cart ──────────────────────────────────────── {%- endcomment -%}
+    <div class="qb-bky__atc-wrap">
+      <button
+        class="qb-bky__atc-btn"
+        id="bky-atc-btn"
+        type="button"
+        data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+        {%- unless product.available -%}disabled aria-disabled="true"{%- endunless -%}
+      >
+        {%- if product.available -%}
+          🛒 Add to Cart
+        {%- else -%}
+          Out of Stock
+        {%- endif -%}
+      </button>
+      <div class="qb-bky__atc-msg" id="bky-atc-msg" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="qb-bky__order-note">
+      🚚 Order by 8PM for next day delivery
+    </div>
+
+    <div class="qb-bky__divider"></div>
+
+    {%- comment -%} ── Trust Grid ───────────────────────────────────────── {%- endcomment -%}
+    <div class="qb-bky__trust">
+      <div class="qb-bky__trust-card">
+        <span class="qb-bky__trust-icon">🌅</span>
+        <span class="qb-bky__trust-title">Baked Daily</span>
+        <span class="qb-bky__trust-sub">Fresh batch every morning, never day-old</span>
+      </div>
+
+      {%- if is_wholewheat -%}
+        <div class="qb-bky__trust-card">
+          <span class="qb-bky__trust-icon">🌾</span>
+          <span class="qb-bky__trust-title">No Maida Alternatives</span>
+          <span class="qb-bky__trust-sub">100% whole wheat — no refined flour</span>
+        </div>
+      {%- else -%}
+        <div class="qb-bky__trust-card">
+          <span class="qb-bky__trust-icon">🚫</span>
+          <span class="qb-bky__trust-title">No Maida Alternatives</span>
+          <span class="qb-bky__trust-sub">Traditional recipes, quality grains only</span>
+        </div>
+      {%- endif -%}
+
+      <div class="qb-bky__trust-card">
+        <span class="qb-bky__trust-icon">✅</span>
+        <span class="qb-bky__trust-title">FSSAI Certified</span>
+        <span class="qb-bky__trust-sub">Licensed & regularly audited bakery</span>
+      </div>
+
+      <div class="qb-bky__trust-card">
+        <span class="qb-bky__trust-icon">🌿</span>
+        <span class="qb-bky__trust-title">Zero Artificial Flavours</span>
+        <span class="qb-bky__trust-sub">Real ingredients, nothing synthetic</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+(function() {
+  'use strict';
+
+  /* ── State ─────────────────────────────────────────────────────────── */
+  var section      = document.querySelector('[data-section-id="{{ section.id }}"]');
+  var atcBtn       = document.getElementById('bky-atc-btn');
+  var atcMsg       = document.getElementById('bky-atc-msg');
+  var qtyInput     = document.getElementById('bky-qty');
+  var qtyDec       = document.getElementById('bky-qty-dec');
+  var qtyInc       = document.getElementById('bky-qty-inc');
+  var ingToggle    = document.getElementById('bky-ing-toggle');
+  var ingFull      = document.getElementById('bky-ing-full');
+  var priceEl      = document.getElementById('bky-price');
+  var selectedVariantId = atcBtn ? atcBtn.dataset.variantId : null;
+
+  var productVariants = {{ product.variants | json }};
+
+  /* ── Helpers ───────────────────────────────────────────────────────── */
+  function formatMoney(cents) {
+    var amount = (cents / 100).toFixed(2);
+    return '₹' + amount.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function setMsg(text, type, duration) {
+    if (!atcMsg) return;
+    atcMsg.textContent = text;
+    atcMsg.className = 'qb-bky__atc-msg ' + (type || '');
+    if (duration) {
+      setTimeout(function() {
+        atcMsg.textContent = '';
+        atcMsg.className = 'qb-bky__atc-msg';
+      }, duration);
+    }
+  }
+
+  /* ── Quantity Stepper ──────────────────────────────────────────────── */
+  function getQty() {
+    var v = parseInt(qtyInput.value, 10);
+    if (isNaN(v) || v < 1) return 1;
+    if (v > 20) return 20;
+    return v;
+  }
+
+  if (qtyDec) {
+    qtyDec.addEventListener('click', function() {
+      var v = getQty();
+      qtyInput.value = Math.max(1, v - 1);
+    });
+  }
+
+  if (qtyInc) {
+    qtyInc.addEventListener('click', function() {
+      var v = getQty();
+      qtyInput.value = Math.min(20, v + 1);
+    });
+  }
+
+  if (qtyInput) {
+    qtyInput.addEventListener('change', function() {
+      qtyInput.value = getQty();
+    });
+  }
+
+  /* ── Variant Pills ─────────────────────────────────────────────────── */
+  var selectedOptions = [];
+
+  // Init selected options from first available variant
+  (function initOptions() {
+    if (!productVariants || !productVariants.length) return;
+    var first = productVariants.find(function(v) { return v.available; }) || productVariants[0];
+    selectedOptions = first.options.slice();
+  })();
+
+  function findVariant(opts) {
+    return productVariants.find(function(v) {
+      return v.options.every(function(o, i) { return o === opts[i]; });
+    });
+  }
+
+  function updateVariantUI(variant) {
+    if (!variant) return;
+    selectedVariantId = variant.id.toString();
+    if (atcBtn) {
+      atcBtn.dataset.variantId = selectedVariantId;
+      if (variant.available) {
+        atcBtn.disabled = false;
+        atcBtn.textContent = '🛒 Add to Cart';
+      } else {
+        atcBtn.disabled = true;
+        atcBtn.textContent = 'Out of Stock';
+      }
+    }
+    if (priceEl) {
+      priceEl.textContent = formatMoney(variant.price);
+    }
+  }
+
+  document.querySelectorAll('.qb-bky__pill').forEach(function(pill) {
+    pill.addEventListener('click', function() {
+      var optIdx = parseInt(pill.dataset.optionIndex, 10);
+      var val    = pill.dataset.value;
+
+      // Update option selection
+      selectedOptions[optIdx] = val;
+
+      // Update pill active states for this option group
+      document.querySelectorAll(
+        '.qb-bky__pills[data-option-index="' + optIdx + '"] .qb-bky__pill'
+      ).forEach(function(p) {
+        p.classList.toggle('is-active', p.dataset.value === val);
+      });
+
+      // Update label display
+      var labelSpan = document.getElementById('bky-opt-val-' + optIdx);
+      if (labelSpan) labelSpan.textContent = val;
+
+      // Find matching variant
+      var matched = findVariant(selectedOptions);
+      if (matched) updateVariantUI(matched);
+    });
+  });
+
+  /* ── Ingredients Expand ────────────────────────────────────────────── */
+  if (ingToggle && ingFull) {
+    ingToggle.addEventListener('click', function() {
+      var expanded = ingFull.classList.toggle('is-visible');
+      ingToggle.textContent = expanded ? 'Show less' : 'Read more';
+      ingToggle.setAttribute('aria-expanded', expanded.toString());
+    });
+  }
+
+  /* ── Add to Cart ───────────────────────────────────────────────────── */
+  if (atcBtn) {
+    atcBtn.addEventListener('click', function() {
+      if (atcBtn.disabled) return;
+      var qty = getQty();
+      atcBtn.disabled = true;
+      atcBtn.classList.add('is-loading');
+      atcBtn.textContent = '🛒 Adding…';
+      setMsg('', '');
+
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({
+          id: parseInt(selectedVariantId, 10),
+          quantity: qty,
+          properties: {
+            'Type': 'Bakery',
+            'Freshness': 'Baked Today'
+          }
+        })
+      })
+      .then(function(res) {
+        if (!res.ok) return res.json().then(function(e) { throw new Error(e.description || 'Error'); });
+        return res.json();
+      })
+      .then(function() {
+        atcBtn.classList.remove('is-loading');
+        atcBtn.disabled = false;
+        atcBtn.textContent = '✅ Added!';
+        setMsg('Successfully added to cart!', 'success', 3000);
+        document.dispatchEvent(new CustomEvent('cart:updated', { bubbles: true }));
+        setTimeout(function() { atcBtn.textContent = '🛒 Add to Cart'; }, 2500);
+      })
+      .catch(function(err) {
+        atcBtn.classList.remove('is-loading');
+        atcBtn.disabled = false;
+        atcBtn.textContent = '🛒 Add to Cart';
+        setMsg(err.message || 'Could not add to cart. Please try again.', 'error', 4000);
+      });
+    });
+  }
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Bakery",
+  "tag": "div",
+  "class": "qb-bakery-section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "QB Bakery Product"
+    }
+  ]
+}
+{% endschema %}

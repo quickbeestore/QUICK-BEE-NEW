@@ -1,0 +1,882 @@
+<style>
+  .qb-donate-page * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  .qb-donate-page {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f4f5f8;
+    color: #0f172a;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  [data-theme="dark"] .qb-donate-page,
+  html:not([data-theme]) .qb-donate-page {
+    background: #090909;
+    color: #f0f0f0;
+  }
+
+  .qb-donate-inner {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* ── Hero ── */
+  .qb-donate-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 36px 0 24px;
+    gap: 14px;
+  }
+
+  .qb-donate-icon-wrap {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    box-shadow: 0 8px 32px rgba(34,197,94,0.35);
+  }
+
+  .qb-donate-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+
+  .qb-donate-title {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #0f172a;
+  }
+
+  [data-theme="dark"] .qb-donate-title,
+  html:not([data-theme]) .qb-donate-title {
+    color: #f0f0f0;
+  }
+
+  .qb-donate-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #64748b;
+    max-width: 480px;
+  }
+
+  [data-theme="dark"] .qb-donate-desc,
+  html:not([data-theme]) .qb-donate-desc {
+    color: #888;
+  }
+
+  /* ── Impact Counter Strip ── */
+  .qb-donate-impact-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .qb-donate-impact-item {
+    background: #fff;
+    border: 1px solid rgba(15,23,42,0.08);
+    border-radius: 14px;
+    padding: 14px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 5px;
+  }
+
+  [data-theme="dark"] .qb-donate-impact-item,
+  html:not([data-theme]) .qb-donate-impact-item {
+    background: #111;
+    border-color: rgba(255,255,255,0.07);
+  }
+
+  .qb-donate-impact-icon {
+    font-size: 20px;
+  }
+
+  .qb-donate-impact-value {
+    font-size: 15px;
+    font-weight: 800;
+    color: #22c55e;
+    line-height: 1.2;
+  }
+
+  .qb-donate-impact-label {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  [data-theme="dark"] .qb-donate-impact-label,
+  html:not([data-theme]) .qb-donate-impact-label {
+    color: #888;
+  }
+
+  /* ── Card ── */
+  .qb-donate-card {
+    background: #fff;
+    border: 1px solid rgba(15,23,42,0.08);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  [data-theme="dark"] .qb-donate-card,
+  html:not([data-theme]) .qb-donate-card {
+    background: #111;
+    border-color: rgba(255,255,255,0.07);
+  }
+
+  .qb-donate-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: #0f172a;
+  }
+
+  [data-theme="dark"] .qb-donate-card-title,
+  html:not([data-theme]) .qb-donate-card-title {
+    color: #f0f0f0;
+  }
+
+  /* ── Donation Type Selector (Variants) ── */
+  .qb-donate-type-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .qb-donate-type-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 2px solid rgba(15,23,42,0.08);
+    background: #f4f5f8;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+    width: 100%;
+    text-align: left;
+  }
+
+  [data-theme="dark"] .qb-donate-type-card,
+  html:not([data-theme]) .qb-donate-type-card {
+    background: #1a1a1a;
+    border-color: rgba(255,255,255,0.07);
+  }
+
+  .qb-donate-type-card.selected {
+    border-color: #22c55e;
+    background: rgba(34,197,94,0.07);
+  }
+
+  .qb-donate-type-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .qb-donate-type-icon {
+    font-size: 24px;
+  }
+
+  .qb-donate-type-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  [data-theme="dark"] .qb-donate-type-name,
+  html:not([data-theme]) .qb-donate-type-name {
+    color: #f0f0f0;
+  }
+
+  .qb-donate-type-card.selected .qb-donate-type-name {
+    color: #22c55e;
+  }
+
+  .qb-donate-type-tag {
+    font-size: 12px;
+    font-weight: 600;
+    color: #22c55e;
+    background: rgba(34,197,94,0.1);
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  /* ── Stepper ── */
+  .qb-donate-stepper-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .qb-donate-stepper-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .qb-donate-stepper-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  [data-theme="dark"] .qb-donate-stepper-label,
+  html:not([data-theme]) .qb-donate-stepper-label {
+    color: #f0f0f0;
+  }
+
+  .qb-donate-stepper-hint {
+    font-size: 12px;
+    color: #64748b;
+  }
+
+  [data-theme="dark"] .qb-donate-stepper-hint,
+  html:not([data-theme]) .qb-donate-stepper-hint {
+    color: #888;
+  }
+
+  .qb-donate-stepper {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid rgba(15,23,42,0.08);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  [data-theme="dark"] .qb-donate-stepper,
+  html:not([data-theme]) .qb-donate-stepper {
+    border-color: rgba(255,255,255,0.1);
+  }
+
+  .qb-donate-stepper-btn {
+    width: 38px;
+    height: 38px;
+    background: #f4f5f8;
+    border: none;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    transition: background 0.12s;
+  }
+
+  [data-theme="dark"] .qb-donate-stepper-btn,
+  html:not([data-theme]) .qb-donate-stepper-btn {
+    background: #1a1a1a;
+    color: #f0f0f0;
+  }
+
+  .qb-donate-stepper-btn:hover {
+    background: #eef0f4;
+  }
+
+  [data-theme="dark"] .qb-donate-stepper-btn:hover,
+  html:not([data-theme]) .qb-donate-stepper-btn:hover {
+    background: #222;
+  }
+
+  .qb-donate-stepper-val {
+    width: 48px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    background: #fff;
+    border: none;
+    border-left: 1.5px solid rgba(15,23,42,0.08);
+    border-right: 1.5px solid rgba(15,23,42,0.08);
+    height: 38px;
+    line-height: 38px;
+    font-family: inherit;
+  }
+
+  [data-theme="dark"] .qb-donate-stepper-val,
+  html:not([data-theme]) .qb-donate-stepper-val {
+    background: #111;
+    color: #f0f0f0;
+    border-color: rgba(255,255,255,0.07);
+  }
+
+  /* ── Form Fields ── */
+  .qb-donate-form-group {
+    margin-bottom: 14px;
+  }
+
+  .qb-donate-form-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .qb-donate-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #64748b;
+    margin-bottom: 6px;
+  }
+
+  [data-theme="dark"] .qb-donate-label,
+  html:not([data-theme]) .qb-donate-label {
+    color: #888;
+  }
+
+  .qb-donate-input,
+  .qb-donate-select,
+  .qb-donate-textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(15,23,42,0.08);
+    background: #f4f5f8;
+    color: #0f172a;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s ease;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  [data-theme="dark"] .qb-donate-input,
+  [data-theme="dark"] .qb-donate-select,
+  [data-theme="dark"] .qb-donate-textarea,
+  html:not([data-theme]) .qb-donate-input,
+  html:not([data-theme]) .qb-donate-select,
+  html:not([data-theme]) .qb-donate-textarea {
+    background: #1a1a1a;
+    border-color: rgba(255,255,255,0.07);
+    color: #f0f0f0;
+  }
+
+  .qb-donate-input:focus,
+  .qb-donate-select:focus,
+  .qb-donate-textarea:focus {
+    border-color: #22c55e;
+  }
+
+  .qb-donate-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 38px;
+  }
+
+  .qb-donate-textarea {
+    resize: vertical;
+    min-height: 72px;
+  }
+
+  /* ── Impact Message ── */
+  .qb-donate-impact-msg {
+    background: rgba(34,197,94,0.07);
+    border: 1.5px solid rgba(34,197,94,0.3);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .qb-donate-impact-msg-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+
+  .qb-donate-impact-msg-text {
+    font-size: 14px;
+    color: #0f172a;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  [data-theme="dark"] .qb-donate-impact-msg-text,
+  html:not([data-theme]) .qb-donate-impact-msg-text {
+    color: #f0f0f0;
+  }
+
+  .qb-donate-impact-msg-text strong {
+    color: #16a34a;
+  }
+
+  [data-theme="dark"] .qb-donate-impact-msg-text strong,
+  html:not([data-theme]) .qb-donate-impact-msg-text strong {
+    color: #22c55e;
+  }
+
+  /* ── CTA ── */
+  .qb-donate-cta {
+    width: 100%;
+    height: 56px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    margin-bottom: 24px;
+  }
+
+  .qb-donate-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(34,197,94,0.4);
+  }
+
+  .qb-donate-cta:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .qb-donate-error {
+    font-size: 12px;
+    color: #ef4444;
+    margin-bottom: 12px;
+    display: none;
+  }
+
+  /* ── How it works ── */
+  .qb-donate-hiw-steps {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  @media (max-width: 400px) {
+    .qb-donate-hiw-steps {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .qb-donate-hiw-step {
+    background: #f4f5f8;
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  [data-theme="dark"] .qb-donate-hiw-step,
+  html:not([data-theme]) .qb-donate-hiw-step {
+    background: #1a1a1a;
+  }
+
+  .qb-donate-hiw-icon {
+    font-size: 22px;
+  }
+
+  .qb-donate-hiw-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  [data-theme="dark"] .qb-donate-hiw-title,
+  html:not([data-theme]) .qb-donate-hiw-title {
+    color: #f0f0f0;
+  }
+
+  .qb-donate-hiw-sub {
+    font-size: 12px;
+    color: #64748b;
+  }
+
+  [data-theme="dark"] .qb-donate-hiw-sub,
+  html:not([data-theme]) .qb-donate-hiw-sub {
+    color: #888;
+  }
+
+  /* ── Recent Donors ── */
+  .qb-donate-donors {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .qb-donate-donor-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #f4f5f8;
+    border-radius: 10px;
+  }
+
+  [data-theme="dark"] .qb-donate-donor-row,
+  html:not([data-theme]) .qb-donate-donor-row {
+    background: #1a1a1a;
+  }
+
+  .qb-donate-donor-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .qb-donate-donor-text {
+    flex: 1;
+    font-size: 13px;
+    color: #0f172a;
+  }
+
+  [data-theme="dark"] .qb-donate-donor-text,
+  html:not([data-theme]) .qb-donate-donor-text {
+    color: #f0f0f0;
+  }
+
+  .qb-donate-donor-time {
+    font-size: 11px;
+    color: #64748b;
+    white-space: nowrap;
+  }
+
+  [data-theme="dark"] .qb-donate-donor-time,
+  html:not([data-theme]) .qb-donate-donor-time {
+    color: #888;
+  }
+</style>
+
+<div class="qb-donate-page">
+  <div class="qb-donate-inner">
+
+    {%- assign donate_icons = "👕,🥫,📚" | split: "," -%}
+    {%- assign first_variant = product.variants.first -%}
+
+    <!-- Hero -->
+    <div class="qb-donate-hero">
+      <div class="qb-donate-icon-wrap">🤲</div>
+      <div class="qb-donate-badge">Make a Difference</div>
+      <h1 class="qb-donate-title">{{ product.title }}</h1>
+      {%- assign raw_desc = product.description | strip_html | truncate: 120 -%}
+      {%- if raw_desc != blank -%}
+        <p class="qb-donate-desc">{{ raw_desc }}</p>
+      {%- endif -%}
+    </div>
+
+    <!-- Impact Counter Strip -->
+    <div class="qb-donate-impact-strip">
+      <div class="qb-donate-impact-item">
+        <span class="qb-donate-impact-icon">👕</span>
+        <span class="qb-donate-impact-value">2,847</span>
+        <span class="qb-donate-impact-label">Clothes donated</span>
+      </div>
+      <div class="qb-donate-impact-item">
+        <span class="qb-donate-impact-icon">👨‍👩‍👧</span>
+        <span class="qb-donate-impact-value">547</span>
+        <span class="qb-donate-impact-label">Families helped</span>
+      </div>
+      <div class="qb-donate-impact-item">
+        <span class="qb-donate-impact-icon">🏙️</span>
+        <span class="qb-donate-impact-value">12</span>
+        <span class="qb-donate-impact-label">Communities</span>
+      </div>
+    </div>
+
+    <!-- Donation Type (Variants) -->
+    {%- if product.variants.size > 1 -%}
+      <div class="qb-donate-card">
+        <div class="qb-donate-card-title">What would you like to donate?</div>
+        <div class="qb-donate-type-list" id="qb-donate-type-list">
+          {%- for variant in product.variants -%}
+            {%- assign dicon_index = forloop.index0 | modulo: 3 -%}
+            <button
+              class="qb-donate-type-card{% if forloop.first %} selected{% endif %}"
+              data-variant-id="{{ variant.id }}"
+              onclick="qbDonateSelectVariant(this)"
+              type="button"
+            >
+              <div class="qb-donate-type-left">
+                <span class="qb-donate-type-icon">{{ donate_icons[dicon_index] }}</span>
+                <span class="qb-donate-type-name">{{ variant.title }}</span>
+              </div>
+              <span class="qb-donate-type-tag">Free pickup</span>
+            </button>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    <!-- Quantity + Pickup Form -->
+    <div class="qb-donate-card">
+      <div class="qb-donate-card-title">📦 Donation details</div>
+
+      <!-- Quantity stepper -->
+      <div class="qb-donate-stepper-row">
+        <div class="qb-donate-stepper-info">
+          <span class="qb-donate-stepper-label">How many items?</span>
+          <span class="qb-donate-stepper-hint" id="qb-donate-impact-hint">Will help ~1 family</span>
+        </div>
+        <div class="qb-donate-stepper">
+          <button class="qb-donate-stepper-btn" onclick="qbDonateStep(-1)" type="button" aria-label="Decrease">−</button>
+          <span class="qb-donate-stepper-val" id="qb-donate-qty">3</span>
+          <button class="qb-donate-stepper-btn" onclick="qbDonateStep(1)" type="button" aria-label="Increase">+</button>
+        </div>
+      </div>
+
+      <!-- Pickup date -->
+      <div class="qb-donate-form-group">
+        <label class="qb-donate-label" for="qb-donate-date">Pickup date</label>
+        <input
+          id="qb-donate-date"
+          class="qb-donate-input"
+          type="date"
+        />
+      </div>
+
+      <!-- Pickup time -->
+      <div class="qb-donate-form-group">
+        <label class="qb-donate-label" for="qb-donate-time">Pickup time</label>
+        <select id="qb-donate-time" class="qb-donate-select">
+          <option value="Morning 7-11AM">🌅 Morning 7–11 AM</option>
+          <option value="Afternoon 11-3PM">☀️ Afternoon 11–3 PM</option>
+          <option value="Evening 3-7PM">🌆 Evening 3–7 PM</option>
+        </select>
+      </div>
+
+      <!-- Donor name -->
+      <div class="qb-donate-form-group">
+        <label class="qb-donate-label" for="qb-donate-name">Your Name (optional)</label>
+        <input
+          id="qb-donate-name"
+          class="qb-donate-input"
+          type="text"
+          placeholder="Stay anonymous or leave your name"
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- Message -->
+      <div class="qb-donate-form-group">
+        <label class="qb-donate-label" for="qb-donate-message">Message (optional)</label>
+        <textarea
+          id="qb-donate-message"
+          class="qb-donate-textarea"
+          rows="2"
+          placeholder="Share your reason for donating..."
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Dynamic Impact Message -->
+    <div class="qb-donate-impact-msg">
+      <span class="qb-donate-impact-msg-icon">💚</span>
+      <span class="qb-donate-impact-msg-text" id="qb-donate-impact-text">
+        Your <strong>3 items</strong> will help approximately <strong>1 family</strong> in your community.
+      </span>
+    </div>
+
+    <!-- CTA -->
+    <button class="qb-donate-cta" id="qb-donate-add-btn" onclick="qbDonateAddToCart()" type="button">
+      SCHEDULE DONATION PICKUP
+    </button>
+    <div class="qb-donate-error" id="qb-donate-error"></div>
+
+    <!-- How it works -->
+    <div class="qb-donate-card">
+      <div class="qb-donate-card-title">How it works</div>
+      <div class="qb-donate-hiw-steps">
+        <div class="qb-donate-hiw-step">
+          <span class="qb-donate-hiw-icon">📦</span>
+          <span class="qb-donate-hiw-title">Pack items</span>
+          <span class="qb-donate-hiw-sub">Gather gently used items to donate</span>
+        </div>
+        <div class="qb-donate-hiw-step">
+          <span class="qb-donate-hiw-icon">📅</span>
+          <span class="qb-donate-hiw-title">Schedule pickup</span>
+          <span class="qb-donate-hiw-sub">Choose a convenient date and time</span>
+        </div>
+        <div class="qb-donate-hiw-step">
+          <span class="qb-donate-hiw-icon">🚗</span>
+          <span class="qb-donate-hiw-title">We collect</span>
+          <span class="qb-donate-hiw-sub">Our rider picks up from your door</span>
+        </div>
+        <div class="qb-donate-hiw-step">
+          <span class="qb-donate-hiw-icon">❤️</span>
+          <span class="qb-donate-hiw-title">Impact delivered</span>
+          <span class="qb-donate-hiw-sub">Items reach families who need them</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Donors -->
+    <div class="qb-donate-card">
+      <div class="qb-donate-card-title">Recent donors ❤️</div>
+      <div class="qb-donate-donors">
+        <div class="qb-donate-donor-row">
+          <div class="qb-donate-donor-avatar">🤲</div>
+          <span class="qb-donate-donor-text">Priya S. donated 5 clothes</span>
+          <span class="qb-donate-donor-time">2h ago</span>
+        </div>
+        <div class="qb-donate-donor-row">
+          <div class="qb-donate-donor-avatar">🤲</div>
+          <span class="qb-donate-donor-text">Rahul M. donated 3 books</span>
+          <span class="qb-donate-donor-time">5h ago</span>
+        </div>
+        <div class="qb-donate-donor-row">
+          <div class="qb-donate-donor-avatar">🤲</div>
+          <span class="qb-donate-donor-text">Anita K. donated 8 clothes</span>
+          <span class="qb-donate-donor-time">1d ago</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  var qbDonateQty = 3;
+  var qbDonateVariantId = {{ product.variants.first.id | json }};
+
+  // Set tomorrow as default date
+  (function() {
+    try {
+      var tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      var y = tomorrow.getFullYear();
+      var m = String(tomorrow.getMonth() + 1).padStart(2, '0');
+      var d = String(tomorrow.getDate()).padStart(2, '0');
+      var dateEl = document.getElementById('qb-donate-date');
+      if (dateEl) {
+        dateEl.value = y + '-' + m + '-' + d;
+        dateEl.min = y + '-' + m + '-' + d;
+      }
+    } catch (e) {}
+  })();
+
+  function qbDonateUpdateImpact() {
+    var families = Math.max(1, Math.floor(qbDonateQty / 3));
+    document.getElementById('qb-donate-qty').textContent = qbDonateQty;
+    document.getElementById('qb-donate-impact-text').innerHTML =
+      'Your <strong>' + qbDonateQty + ' item' + (qbDonateQty !== 1 ? 's' : '') + '</strong> will help approximately <strong>' + families + ' famil' + (families !== 1 ? 'ies' : 'y') + '</strong> in your community.';
+    document.getElementById('qb-donate-impact-hint').textContent =
+      'Will help ~' + families + ' famil' + (families !== 1 ? 'ies' : 'y');
+  }
+
+  window.qbDonateStep = function(delta) {
+    qbDonateQty = Math.max(1, qbDonateQty + delta);
+    qbDonateUpdateImpact();
+  };
+
+  window.qbDonateSelectVariant = function(btn) {
+    document.querySelectorAll('.qb-donate-type-card').forEach(function(b) { b.classList.remove('selected'); });
+    btn.classList.add('selected');
+    qbDonateVariantId = btn.dataset.variantId;
+  };
+
+  window.qbDonateAddToCart = function() {
+    var btn = document.getElementById('qb-donate-add-btn');
+    var errEl = document.getElementById('qb-donate-error');
+    var date = document.getElementById('qb-donate-date').value;
+    var time = document.getElementById('qb-donate-time').value;
+    var name = document.getElementById('qb-donate-name').value.trim();
+    var message = document.getElementById('qb-donate-message').value.trim();
+
+    errEl.style.display = 'none';
+
+    if (!date) {
+      errEl.textContent = 'Please select a pickup date.';
+      errEl.style.display = 'block';
+      document.getElementById('qb-donate-date').focus();
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Scheduling...';
+
+    var families = Math.max(1, Math.floor(qbDonateQty / 3));
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: parseInt(qbDonateVariantId, 10),
+        quantity: qbDonateQty,
+        properties: {
+          'Number of Items': qbDonateQty,
+          'Pickup Date': date,
+          'Pickup Time': time,
+          'Donor Name': name || 'Anonymous',
+          'Donor Message': message || '',
+          'Estimated Families Helped': families
+        }
+      })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status) {
+        errEl.textContent = data.description || 'Could not schedule. Please try again.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'SCHEDULE DONATION PICKUP';
+      } else {
+        btn.textContent = '✓ Pickup Scheduled! Thank you!';
+        document.dispatchEvent(new CustomEvent('cart:updated', { bubbles: true }));
+        setTimeout(function() {
+          btn.disabled = false;
+          btn.textContent = 'SCHEDULE DONATION PICKUP';
+        }, 2800);
+      }
+    })
+    .catch(function() {
+      errEl.textContent = 'Something went wrong. Please try again.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'SCHEDULE DONATION PICKUP';
+    });
+  };
+
+  // Init impact text on load
+  qbDonateUpdateImpact();
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Donate Product",
+  "settings": []
+}
+{% endschema %}
