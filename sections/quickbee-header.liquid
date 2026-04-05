@@ -243,10 +243,10 @@
   }
 
   .qb-search-dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
+    position: fixed;
+    top: 0;
     left: 0;
-    right: 0;
+    width: 100%;
     z-index: 99999;
     background: var(--qb-header-bg);
     border: 1px solid rgba(15, 23, 42, 0.08);
@@ -729,8 +729,7 @@
     .qb-search-dropdown {
       border-radius: 16px;
       padding: 10px;
-      left: 0;
-      right: 0;
+      /* position/width now set by JS */
       z-index: 99999;
       max-height: 75vh;
       overflow-y: auto;
@@ -1193,7 +1192,13 @@
 
     /* ── helpers ─────────────────────────────── */
     function setTitle(t) { if (titleEl) titleEl.textContent = t; }
-    function show()  { dropdown.style.display = 'block'; }
+    function show() {
+      var rect = form.getBoundingClientRect();
+      dropdown.style.display = 'block';
+      dropdown.style.top  = (rect.bottom + 6) + 'px';
+      dropdown.style.left = rect.left + 'px';
+      dropdown.style.width = rect.width + 'px';
+    }
     function hide()  { dropdown.style.display = 'none'; }
 
     function chip(icon, label, query, full) {
@@ -1313,5 +1318,17 @@
     document.addEventListener('click', function(e) {
       if (!form.contains(e.target) && !dropdown.contains(e.target)) hide();
     });
+
+    /* reposition on scroll/resize so fixed dropdown stays under bar */
+    function reposition() {
+      if (dropdown.style.display === 'block') {
+        var rect = form.getBoundingClientRect();
+        dropdown.style.top  = (rect.bottom + 6) + 'px';
+        dropdown.style.left = rect.left + 'px';
+        dropdown.style.width = rect.width + 'px';
+      }
+    }
+    window.addEventListener('scroll', reposition, { passive: true });
+    window.addEventListener('resize', reposition, { passive: true });
   })();
 </script>
