@@ -1,0 +1,852 @@
+{% comment %} QB Wellness Product Section — QuickBee Store {% endcomment %}
+
+{%- liquid
+  assign product_type = product.type | strip
+  assign product_tags  = product.tags
+
+  case product_type
+    when 'Protein'
+      assign type_emoji = '💪'
+      assign type_color = 'red'
+    when 'Vitamins'
+      assign type_emoji = '🌿'
+      assign type_color = 'green'
+    when 'Weight Loss'
+      assign type_emoji = '🔥'
+      assign type_color = 'orange'
+    when 'Immunity'
+      assign type_emoji = '🛡️'
+      assign type_color = 'teal'
+    when 'Probiotics'
+      assign type_emoji = '🦠'
+      assign type_color = 'purple'
+    when 'Omega'
+      assign type_emoji = '🐟'
+      assign type_color = 'blue'
+    when 'Ayurvedic'
+      assign type_emoji = '🌱'
+      assign type_color = 'green'
+    else
+      assign type_emoji = '⚕️'
+      assign type_color = 'gold'
+  endcase
+
+  assign is_lab_tested  = false
+  assign is_veg         = false
+  assign benefit_chips  = ''
+  assign ingredient_chips = ''
+  assign serving_size   = ''
+  assign protein_val    = ''
+  assign calories_val   = ''
+  assign carbs_val      = ''
+  assign fat_val        = ''
+
+  for tag in product_tags
+    assign tag_lower = tag | downcase | strip
+    if tag_lower == 'lab-tested'
+      assign is_lab_tested = true
+    endif
+    if tag_lower == 'veg'
+      assign is_veg = true
+    endif
+    if tag contains 'benefit:'
+      assign benefit_label = tag | remove_first: 'benefit:' | strip
+      assign benefit_chips  = benefit_chips | append: benefit_label | append: '||'
+    endif
+    if tag contains 'contains:'
+      assign ingredient_label = tag | remove_first: 'contains:' | strip
+      assign ingredient_chips = ingredient_chips | append: ingredient_label | append: '||'
+    endif
+    if tag contains 'serving:'
+      assign serving_size = tag | remove_first: 'serving:' | strip
+    endif
+    if tag contains 'protein:'
+      assign protein_val = tag | remove_first: 'protein:' | strip
+    endif
+    if tag contains 'calories:'
+      assign calories_val = tag | remove_first: 'calories:' | strip
+    endif
+    if tag contains 'carbs:'
+      assign carbs_val = tag | remove_first: 'carbs:' | strip
+    endif
+    if tag contains 'fat:'
+      assign fat_val = tag | remove_first: 'fat:' | strip
+    endif
+  endfor
+
+  assign benefit_list    = benefit_chips    | split: '||'
+  assign ingredient_list = ingredient_chips | split: '||'
+
+  assign has_nutrition = false
+  if protein_val != '' or calories_val != '' or carbs_val != '' or fat_val != ''
+    assign has_nutrition = true
+  endif
+
+  assign first_variant = product.variants | first
+-%}
+
+<style>
+  :root {
+    --wls-gold:          #F4B400;
+    --wls-gold-dark:     #C89400;
+    --wls-gold-light:    #FFF8E1;
+    --wls-green:         #22c55e;
+    --wls-green-bg:      #dcfce7;
+    --wls-teal:          #0d9488;
+    --wls-teal-bg:       #ccfbf1;
+    --wls-red:           #ef4444;
+    --wls-orange:        #f97316;
+    --wls-purple:        #a855f7;
+    --wls-blue:          #3b82f6;
+    --wls-radius:        12px;
+    --wls-radius-sm:     8px;
+    --wls-radius-pill:   50px;
+    --wls-shadow:        0 4px 24px rgba(0,0,0,0.12);
+    --wls-shadow-card:   0 2px 12px rgba(0,0,0,0.08);
+    --wls-transition:    0.2s ease;
+  }
+
+  /* ── LIGHT TOKENS ─────────────────────────────────── */
+  .qb-wls-wrap {
+    --wls-bg:            #ffffff;
+    --wls-bg-card:       #f8fafc;
+    --wls-bg-section:    #f1f5f9;
+    --wls-border:        #e2e8f0;
+    --wls-text-primary:  #0f172a;
+    --wls-text-secondary:#475569;
+    --wls-text-muted:    #94a3b8;
+    --wls-badge-bg:      #f1f5f9;
+  }
+
+  /* ── DARK TOKENS ──────────────────────────────────── */
+  @media (prefers-color-scheme: dark) {
+    .qb-wls-wrap {
+      --wls-bg:            #0f172a;
+      --wls-bg-card:       #1e293b;
+      --wls-bg-section:    #1e293b;
+      --wls-border:        #334155;
+      --wls-text-primary:  #f1f5f9;
+      --wls-text-secondary:#94a3b8;
+      --wls-text-muted:    #475569;
+      --wls-badge-bg:      #334155;
+      --wls-gold-light:    #1e1800;
+    }
+  }
+
+  .qb-wls-wrap {
+    background: var(--wls-bg);
+    color: var(--wls-text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 16px 16px 40px;
+  }
+
+  /* ── DISCLAIMER ───────────────────────────────────── */
+  .wls-disclaimer {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: var(--wls-radius-sm);
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #664d03;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  @media (prefers-color-scheme: dark) {
+    .wls-disclaimer { background: #1f1700; border-color: #92670a; color: #fde68a; }
+  }
+
+  /* ── TYPE BADGE ROW ───────────────────────────────── */
+  .wls-type-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .wls-type-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: var(--wls-radius-pill);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .wls-type-pill--red    { background:#fee2e2; color:#dc2626; }
+  .wls-type-pill--green  { background:#dcfce7; color:#16a34a; }
+  .wls-type-pill--orange { background:#ffedd5; color:#ea580c; }
+  .wls-type-pill--teal   { background:#ccfbf1; color:#0f766e; }
+  .wls-type-pill--purple { background:#f3e8ff; color:#9333ea; }
+  .wls-type-pill--blue   { background:#dbeafe; color:#2563eb; }
+  .wls-type-pill--gold   { background:var(--wls-gold-light); color:var(--wls-gold-dark); }
+  @media (prefers-color-scheme: dark) {
+    .wls-type-pill--red    { background:#450a0a; color:#fca5a5; }
+    .wls-type-pill--green  { background:#052e16; color:#86efac; }
+    .wls-type-pill--orange { background:#431407; color:#fdba74; }
+    .wls-type-pill--teal   { background:#042f2e; color:#5eead4; }
+    .wls-type-pill--purple { background:#3b0764; color:#d8b4fe; }
+    .wls-type-pill--blue   { background:#1e3a5f; color:#93c5fd; }
+    .wls-type-pill--gold   { background:#1e1800; color:var(--wls-gold); }
+  }
+
+  /* ── TRUST BADGES ─────────────────────────────────── */
+  .wls-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: var(--wls-radius-pill);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .wls-badge--fssai { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+  .wls-badge--lab   { background: #ccfbf1; color: #0f766e; border: 1px solid #5eead4; }
+  .wls-badge--veg   { background: #dcfce7; color: #15803d; border: 1px solid #4ade80; }
+  @media (prefers-color-scheme: dark) {
+    .wls-badge--fssai { background: #052e16; color: #86efac; border-color: #166534; }
+    .wls-badge--lab   { background: #042f2e; color: #5eead4; border-color: #0f766e; }
+    .wls-badge--veg   { background: #052e16; color: #86efac; border-color: #166534; }
+  }
+
+  /* ── TITLE ────────────────────────────────────────── */
+  .wls-title {
+    font-size: clamp(20px, 5vw, 26px);
+    font-weight: 800;
+    line-height: 1.25;
+    color: var(--wls-text-primary);
+    margin: 4px 0 6px;
+  }
+  .wls-vendor {
+    font-size: 13px;
+    color: var(--wls-text-muted);
+    margin-bottom: 14px;
+  }
+  .wls-vendor span { color: var(--wls-gold); font-weight: 600; }
+
+  /* ── PRICE ────────────────────────────────────────── */
+  .wls-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .wls-price-current {
+    font-size: clamp(26px, 6vw, 34px);
+    font-weight: 800;
+    color: var(--wls-gold);
+  }
+  .wls-price-compare {
+    font-size: 16px;
+    color: var(--wls-text-muted);
+    text-decoration: line-through;
+  }
+  .wls-price-save {
+    background: #dcfce7;
+    color: #15803d;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: var(--wls-radius-pill);
+  }
+  @media (prefers-color-scheme: dark) {
+    .wls-price-save { background: #052e16; color: #86efac; }
+  }
+
+  /* ── SECTION CARD ─────────────────────────────────── */
+  .wls-card {
+    background: var(--wls-bg-card);
+    border: 1px solid var(--wls-border);
+    border-radius: var(--wls-radius);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .wls-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--wls-text-muted);
+    margin-bottom: 10px;
+  }
+
+  /* ── SERVING ──────────────────────────────────────── */
+  .wls-serving {
+    font-size: 14px;
+    color: var(--wls-text-secondary);
+    margin-bottom: 16px;
+  }
+
+  /* ── BENEFIT CHIPS ────────────────────────────────── */
+  .wls-chip-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .wls-benefit-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #86efac;
+    padding: 5px 12px;
+    border-radius: var(--wls-radius-pill);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .wls-benefit-chip::before { content: '✓'; font-weight: 700; }
+  @media (prefers-color-scheme: dark) {
+    .wls-benefit-chip { background: #052e16; color: #86efac; border-color: #166534; }
+  }
+
+  /* ── INGREDIENT CHIPS ─────────────────────────────── */
+  .wls-ingredient-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--wls-gold-light);
+    color: var(--wls-gold-dark);
+    border: 1px solid var(--wls-gold);
+    padding: 5px 12px;
+    border-radius: var(--wls-radius-pill);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .wls-ingredient-chip::before { content: '◆'; font-size: 9px; }
+
+  /* ── NUTRITION GRID ───────────────────────────────── */
+  .wls-nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .wls-nutr-item {
+    background: var(--wls-bg-section);
+    border-radius: var(--wls-radius-sm);
+    padding: 10px 12px;
+    text-align: center;
+  }
+  .wls-nutr-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--wls-gold);
+    display: block;
+  }
+  .wls-nutr-label {
+    font-size: 11px;
+    color: var(--wls-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .wls-nutr-fallback {
+    font-size: 13px;
+    color: var(--wls-text-muted);
+    font-style: italic;
+  }
+
+  /* ── VARIANT PILLS ────────────────────────────────── */
+  .wls-variant-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .wls-variant-pill {
+    padding: 8px 14px;
+    border-radius: var(--wls-radius-sm);
+    border: 2px solid var(--wls-border);
+    background: var(--wls-bg);
+    color: var(--wls-text-primary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--wls-transition);
+    line-height: 1.3;
+  }
+  .wls-variant-pill:hover,
+  .wls-variant-pill--active {
+    border-color: var(--wls-gold);
+    background: var(--wls-gold-light);
+    color: var(--wls-gold-dark);
+    font-weight: 700;
+  }
+  .wls-variant-price {
+    display: block;
+    font-size: 12px;
+    color: var(--wls-gold);
+    font-weight: 700;
+  }
+
+  /* ── QUANTITY ─────────────────────────────────────── */
+  .wls-qty-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .wls-qty-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--wls-text-secondary);
+  }
+  .wls-qty-stepper {
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--wls-border);
+    border-radius: var(--wls-radius-sm);
+    overflow: hidden;
+  }
+  .wls-qty-btn {
+    width: 40px;
+    height: 40px;
+    background: var(--wls-bg-section);
+    border: none;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--wls-text-primary);
+    transition: background var(--wls-transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .wls-qty-btn:hover { background: var(--wls-gold); color: #000; }
+  .wls-qty-input {
+    width: 48px;
+    text-align: center;
+    border: none;
+    background: var(--wls-bg);
+    color: var(--wls-text-primary);
+    font-size: 16px;
+    font-weight: 700;
+    outline: none;
+  }
+
+  /* ── ADD TO CART ──────────────────────────────────── */
+  .wls-atc-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    margin-top: 20px;
+    background: var(--wls-gold);
+    color: #000;
+    font-size: 16px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: none;
+    border-radius: var(--wls-radius);
+    cursor: pointer;
+    transition: background var(--wls-transition), transform var(--wls-transition);
+    box-shadow: 0 4px 16px rgba(244,180,0,0.35);
+  }
+  .wls-atc-btn:hover { background: var(--wls-gold-dark); transform: translateY(-1px); }
+  .wls-atc-btn:active { transform: translateY(0); }
+  .wls-atc-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .wls-atc-feedback {
+    text-align: center;
+    font-size: 13px;
+    margin-top: 8px;
+    min-height: 20px;
+    color: var(--wls-green);
+    font-weight: 600;
+  }
+
+  /* ── SUBSCRIBE NOTE ───────────────────────────────── */
+  .wls-subscribe-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--wls-text-secondary);
+    margin-top: 12px;
+    background: var(--wls-bg-section);
+    border-radius: var(--wls-radius-sm);
+    padding: 8px 12px;
+    border: 1px solid var(--wls-border);
+  }
+  .wls-subscribe-note strong { color: var(--wls-green); }
+
+  /* ── TRUST GRID ───────────────────────────────────── */
+  .wls-trust-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .wls-trust-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--wls-bg-section);
+    border-radius: var(--wls-radius-sm);
+    padding: 12px;
+    border: 1px solid var(--wls-border);
+  }
+  .wls-trust-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .wls-trust-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--wls-text-primary);
+    line-height: 1.2;
+  }
+  .wls-trust-sub {
+    font-size: 11px;
+    color: var(--wls-text-muted);
+    margin-top: 2px;
+  }
+
+  /* ── DIVIDER ──────────────────────────────────────── */
+  .wls-divider {
+    border: none;
+    border-top: 1px solid var(--wls-border);
+    margin: 20px 0;
+  }
+
+  /* ── MOBILE TWEAKS ────────────────────────────────── */
+  @media (max-width: 400px) {
+    .wls-trust-grid { grid-template-columns: 1fr; }
+    .wls-nutrition-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+
+<div class="qb-wls-wrap" id="qb-wls-{{ product.id }}">
+
+  {%- comment %} ── DISCLAIMER ── {%- endcomment %}
+  <div class="wls-disclaimer">
+    ⚠️ Supplements are not a substitute for a balanced diet. Consult your healthcare provider before use.
+  </div>
+
+  {%- comment %} ── TYPE + BADGES ROW ── {%- endcomment %}
+  <div class="wls-type-row">
+    <span class="wls-type-pill wls-type-pill--{{ type_color }}">
+      {{ type_emoji }} {{ product.type }}
+    </span>
+    <span class="wls-badge wls-badge--fssai">✅ FSSAI APPROVED</span>
+    {%- if is_lab_tested %}
+      <span class="wls-badge wls-badge--lab">🔬 LAB TESTED</span>
+    {%- endif %}
+    {%- if is_veg %}
+      <span class="wls-badge wls-badge--veg">🟢 VEGETARIAN</span>
+    {%- endif %}
+  </div>
+
+  {%- comment %} ── TITLE ── {%- endcomment %}
+  <h1 class="wls-title">{{ product.title }}</h1>
+  <p class="wls-vendor">By <span>{{ product.vendor }}</span></p>
+
+  {%- comment %} ── PRICE ── {%- endcomment %}
+  <div class="wls-price-row" id="wls-price-row-{{ product.id }}">
+    <span class="wls-price-current" id="wls-price-{{ product.id }}">
+      {{ first_variant.price | money }}
+    </span>
+    {%- if first_variant.compare_at_price > first_variant.price %}
+      <span class="wls-price-compare" id="wls-compare-{{ product.id }}">
+        {{ first_variant.compare_at_price | money }}
+      </span>
+      {%- assign savings = first_variant.compare_at_price | minus: first_variant.price %}
+      {%- assign savings_pct = savings | times: 100 | divided_by: first_variant.compare_at_price %}
+      <span class="wls-price-save" id="wls-save-{{ product.id }}">{{ savings_pct }}% OFF</span>
+    {%- endif %}
+  </div>
+
+  {%- comment %} ── SERVING SIZE ── {%- endcomment %}
+  <p class="wls-serving">
+    {%- if serving_size != '' %}
+      🥄 Serving Size: <strong>{{ serving_size }} per serving</strong>
+    {%- else %}
+      🥄 As directed on label
+    {%- endif %}
+  </p>
+
+  {%- comment %} ── BENEFITS ── {%- endcomment %}
+  {%- if benefit_list.size > 0 %}
+    <div class="wls-card">
+      <div class="wls-section-label">Key Benefits</div>
+      <div class="wls-chip-list">
+        {%- for benefit in benefit_list %}
+          {%- if benefit != '' %}
+            <span class="wls-benefit-chip">{{ benefit | capitalize }}</span>
+          {%- endif %}
+        {%- endfor %}
+      </div>
+    </div>
+  {%- endif %}
+
+  {%- comment %} ── KEY INGREDIENTS ── {%- endcomment %}
+  {%- if ingredient_list.size > 0 %}
+    <div class="wls-card">
+      <div class="wls-section-label">Key Ingredients</div>
+      <div class="wls-chip-list">
+        {%- for ingredient in ingredient_list %}
+          {%- if ingredient != '' %}
+            <span class="wls-ingredient-chip">{{ ingredient | capitalize }}</span>
+          {%- endif %}
+        {%- endfor %}
+      </div>
+    </div>
+  {%- endif %}
+
+  {%- comment %} ── NUTRITIONAL HIGHLIGHT ── {%- endcomment %}
+  <div class="wls-card">
+    <div class="wls-section-label">Nutritional Highlight <small style="font-weight:400;text-transform:none;letter-spacing:0">(per serving)</small></div>
+    {%- if has_nutrition %}
+      <div class="wls-nutrition-grid">
+        {%- if protein_val != '' %}
+          <div class="wls-nutr-item">
+            <span class="wls-nutr-value">{{ protein_val }}</span>
+            <span class="wls-nutr-label">Protein</span>
+          </div>
+        {%- endif %}
+        {%- if calories_val != '' %}
+          <div class="wls-nutr-item">
+            <span class="wls-nutr-value">{{ calories_val }}</span>
+            <span class="wls-nutr-label">Calories</span>
+          </div>
+        {%- endif %}
+        {%- if carbs_val != '' %}
+          <div class="wls-nutr-item">
+            <span class="wls-nutr-value">{{ carbs_val }}</span>
+            <span class="wls-nutr-label">Carbs</span>
+          </div>
+        {%- endif %}
+        {%- if fat_val != '' %}
+          <div class="wls-nutr-item">
+            <span class="wls-nutr-value">{{ fat_val }}</span>
+            <span class="wls-nutr-label">Fat</span>
+          </div>
+        {%- endif %}
+      </div>
+    {%- else %}
+      <p class="wls-nutr-fallback">📋 See label for nutrition facts</p>
+    {%- endif %}
+  </div>
+
+  {%- comment %} ── VARIANT SELECTOR ── {%- endcomment %}
+  {%- if product.variants.size > 1 %}
+    <div class="wls-card">
+      <div class="wls-section-label">Choose Flavour / Size</div>
+      <div class="wls-variant-list" id="wls-variants-{{ product.id }}">
+        {%- for variant in product.variants %}
+          <button
+            class="wls-variant-pill{% if forloop.first %} wls-variant-pill--active{% endif %}"
+            data-variant-id="{{ variant.id }}"
+            data-variant-price="{{ variant.price }}"
+            data-variant-compare="{{ variant.compare_at_price }}"
+            data-variant-title="{{ variant.title }}"
+            data-variant-available="{{ variant.available }}"
+            onclick="wlsSelectVariant('{{ product.id }}', this)"
+            type="button"
+          >
+            {{ variant.title }}
+            <span class="wls-variant-price">{{ variant.price | money }}</span>
+          </button>
+        {%- endfor %}
+      </div>
+    </div>
+  {%- endif %}
+
+  {%- comment %} ── QUANTITY ── {%- endcomment %}
+  <div class="wls-qty-row">
+    <span class="wls-qty-label">Quantity:</span>
+    <div class="wls-qty-stepper">
+      <button class="wls-qty-btn" type="button"
+        onclick="wlsQtyChange('{{ product.id }}', -1)">−</button>
+      <input class="wls-qty-input" type="number"
+        id="wls-qty-{{ product.id }}"
+        value="1" min="1" max="6" readonly>
+      <button class="wls-qty-btn" type="button"
+        onclick="wlsQtyChange('{{ product.id }}', 1)">+</button>
+    </div>
+  </div>
+
+  {%- comment %} ── ADD TO CART ── {%- endcomment %}
+  <button
+    class="wls-atc-btn"
+    id="wls-atc-{{ product.id }}"
+    type="button"
+    data-variant-id="{{ first_variant.id }}"
+    data-product-type="{{ product.type }}"
+    data-variant-title="{{ first_variant.title }}"
+    onclick="wlsAddToCart('{{ product.id }}')"
+  >
+    🛒 ADD TO CART
+  </button>
+  <div class="wls-atc-feedback" id="wls-feedback-{{ product.id }}"></div>
+
+  <div class="wls-subscribe-note">
+    🔁 <strong>Subscribe and save 10%</strong> — set your delivery schedule
+  </div>
+
+  <hr class="wls-divider">
+
+  {%- comment %} ── TRUST GRID ── {%- endcomment %}
+  <div class="wls-section-label">Why QuickBee Wellness?</div>
+  <div class="wls-trust-grid">
+    <div class="wls-trust-item">
+      <span class="wls-trust-icon">🔬</span>
+      <div>
+        <div class="wls-trust-name">Lab Certified</div>
+        <div class="wls-trust-sub">Third-party tested for purity</div>
+      </div>
+    </div>
+    <div class="wls-trust-item">
+      <span class="wls-trust-icon">✅</span>
+      <div>
+        <div class="wls-trust-name">FSSAI Approved</div>
+        <div class="wls-trust-sub">Meets India's safety standards</div>
+      </div>
+    </div>
+    <div class="wls-trust-item">
+      <span class="wls-trust-icon">🚫</span>
+      <div>
+        <div class="wls-trust-name">No Banned Substances</div>
+        <div class="wls-trust-sub">Safe for competitive athletes</div>
+      </div>
+    </div>
+    <div class="wls-trust-item">
+      <span class="wls-trust-icon">🏷️</span>
+      <div>
+        <div class="wls-trust-name">Genuine Products</div>
+        <div class="wls-trust-sub">100% authentic, sealed packaging</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.qb-wls-wrap -->
+
+<script>
+(function() {
+  var wlsState = {};
+
+  // Initialise per product
+  wlsState['{{ product.id }}'] = {
+    variantId: {{ first_variant.id }},
+    variantTitle: {{ first_variant.title | json }},
+    productType: {{ product.type | json }},
+    quantity: 1
+  };
+
+  window.wlsSelectVariant = function(pid, el) {
+    var pills = document.querySelectorAll('#wls-variants-' + pid + ' .wls-variant-pill');
+    pills.forEach(function(p) { p.classList.remove('wls-variant-pill--active'); });
+    el.classList.add('wls-variant-pill--active');
+
+    var vid   = el.getAttribute('data-variant-id');
+    var price = parseInt(el.getAttribute('data-variant-price'));
+    var cmp   = parseInt(el.getAttribute('data-variant-compare'));
+    var title = el.getAttribute('data-variant-title');
+    var avail = el.getAttribute('data-variant-available') === 'true';
+
+    wlsState[pid].variantId    = parseInt(vid);
+    wlsState[pid].variantTitle = title;
+
+    // Update price display
+    var priceEl = document.getElementById('wls-price-' + pid);
+    if (priceEl) priceEl.textContent = wlsFormatMoney(price);
+
+    var compareEl = document.getElementById('wls-compare-' + pid);
+    var saveEl    = document.getElementById('wls-save-' + pid);
+    if (cmp && cmp > price) {
+      if (compareEl) { compareEl.textContent = wlsFormatMoney(cmp); compareEl.style.display = ''; }
+      if (saveEl) {
+        var pct = Math.round((cmp - price) / cmp * 100);
+        saveEl.textContent = pct + '% OFF';
+        saveEl.style.display = '';
+      }
+    } else {
+      if (compareEl) compareEl.style.display = 'none';
+      if (saveEl)    saveEl.style.display = 'none';
+    }
+
+    // Update ATC button data
+    var atcBtn = document.getElementById('wls-atc-' + pid);
+    if (atcBtn) {
+      atcBtn.setAttribute('data-variant-id', vid);
+      atcBtn.setAttribute('data-variant-title', title);
+      atcBtn.disabled = !avail;
+      atcBtn.textContent = avail ? '🛒 ADD TO CART' : '❌ Out of Stock';
+    }
+  };
+
+  window.wlsQtyChange = function(pid, delta) {
+    var inp = document.getElementById('wls-qty-' + pid);
+    if (!inp) return;
+    var val = parseInt(inp.value) + delta;
+    val = Math.max(1, Math.min(6, val));
+    inp.value = val;
+    wlsState[pid].quantity = val;
+  };
+
+  window.wlsAddToCart = function(pid) {
+    var state  = wlsState[pid];
+    var btn    = document.getElementById('wls-atc-' + pid);
+    var fb     = document.getElementById('wls-feedback-' + pid);
+    var qtyInp = document.getElementById('wls-qty-' + pid);
+    var qty    = qtyInp ? parseInt(qtyInp.value) : 1;
+
+    if (!state || !state.variantId) return;
+
+    btn.disabled    = true;
+    btn.textContent = '⏳ Adding…';
+    if (fb) { fb.textContent = ''; fb.style.color = '#22c55e'; }
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        id: state.variantId,
+        quantity: qty,
+        properties: {
+          'Type':    state.productType,
+          'Flavour': state.variantTitle
+        }
+      })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      btn.disabled    = false;
+      btn.textContent = '🛒 ADD TO CART';
+      if (data.id) {
+        if (fb) fb.textContent = '✓ Added to cart!';
+        // Trigger cart drawer / bubble update if theme supports it
+        document.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true }));
+      } else {
+        if (fb) { fb.textContent = data.description || 'Could not add item.'; fb.style.color = '#ef4444'; }
+      }
+    })
+    .catch(function() {
+      btn.disabled    = false;
+      btn.textContent = '🛒 ADD TO CART';
+      if (fb) { fb.textContent = 'Something went wrong. Try again.'; fb.style.color = '#ef4444'; }
+    });
+  };
+
+  // Helper: format Shopify cents to money string
+  function wlsFormatMoney(cents) {
+    if (!cents) return '₹0.00';
+    return '₹' + (cents / 100).toFixed(2);
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Wellness",
+  "tag": "section",
+  "class": "qb-wellness-section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "QB Wellness Product"
+    }
+  ]
+}
+{% endschema %}

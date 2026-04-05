@@ -861,24 +861,29 @@ html:not([data-theme]) #qbsc-root {
       if (isOpen) closePanel();
     } else {
       var wasHidden = ROOT.classList.contains('qbsc-hidden');
-      ROOT.classList.remove('qbsc-hidden');
 
       if (isInit) {
-        /* Page load / refresh: show instantly, no slide-in flash */
+        /* ── Page load / refresh: zero-flash instant show ──
+           MUST suppress transition BEFORE touching any class/style
+           that the CSS transition watches, otherwise the browser
+           fires the transition for one paint cycle = the flash.    */
         BAR.style.transition = 'none';
-        BAR.style.opacity = '1';
-        BAR.style.transform = '';
+        BAR.style.opacity    = '1';
+        BAR.style.transform  = '';
         BAR.style.pointerEvents = '';
-        void BAR.offsetWidth;        /* flush */
-        BAR.style.transition = '';   /* restore transition for future interactions */
+        ROOT.classList.remove('qbsc-hidden'); /* class change after transition disabled */
+        void BAR.offsetWidth;                 /* force synchronous layout flush */
+        BAR.style.transition = '';            /* restore for future interactions */
       } else {
-        /* Clear inline style that was hiding the bar initially */
+        /* ── Normal (user added item / cart event) ── */
+        ROOT.classList.remove('qbsc-hidden');
+        /* Clear inline hide style */
         BAR.style.opacity = '';
         BAR.style.transform = '';
         BAR.style.pointerEvents = '';
 
         if (wasHidden || (isNewAdd && count > prevCount && prevCount >= 0)) {
-          /* Bounce-in or bump animation — only for genuine new-add / first show */
+          /* Bounce-in or pulse — only on genuine new adds */
           BAR.classList.remove('qbsc-enter', 'qbsc-pulse');
           void BAR.offsetWidth;
           BAR.classList.add(wasHidden ? 'qbsc-enter' : 'qbsc-pulse');

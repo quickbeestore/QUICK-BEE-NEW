@@ -1,0 +1,944 @@
+{% comment %}
+  QB Combo Meal Kit — qb-product-combo.liquid
+  QuickBee · Dark/light theme · Gold accent #F4B400 · Mobile-first · No product images
+{% endcomment %}
+
+{%- liquid
+  assign product = product
+
+  # ---- Serves tag ----
+  assign serves_count = '2'
+  for tag in product.tags
+    if tag contains 'serves:'
+      assign serves_count = tag | remove: 'serves:'
+    endif
+  endfor
+
+  # ---- Prep time tag ----
+  assign prep_time = '20 mins'
+  for tag in product.tags
+    if tag contains 'preptime:'
+      assign prep_time = tag | remove: 'preptime:'
+    endif
+  endfor
+
+  # ---- Difficulty tag ----
+  assign difficulty_label = 'Easy'
+  assign difficulty_class  = 'easy'
+  for tag in product.tags
+    if tag contains 'difficulty:'
+      assign difficulty_raw = tag | remove: 'difficulty:'
+      assign difficulty_label = difficulty_raw | capitalize
+      assign difficulty_class  = difficulty_raw | downcase
+    endif
+  endfor
+
+  # ---- Vegetarian badge ----
+  assign is_veg = false
+  for tag in product.tags
+    if tag == 'vegetarian'
+      assign is_veg = true
+    endif
+  endfor
+
+  # ---- Category icon ----
+  assign cat_icon = '🍽️'
+  case product.type
+    when 'Breakfast'
+      assign cat_icon = '🌅'
+    when 'Lunch'
+      assign cat_icon = '☀️'
+    when 'Dinner'
+      assign cat_icon = '🌙'
+    when 'Snack'
+      assign cat_icon = '🕐'
+    when 'Dessert'
+      assign cat_icon = '🍮'
+    when 'Party Pack'
+      assign cat_icon = '🎉'
+  endcase
+
+  # ---- Recipe page handle ----
+  assign recipe_handle = product.handle | prepend: '/pages/recipe-'
+-%}
+
+<style>
+  /* ── CSS custom properties ──────────────────────────────────────── */
+  :root {
+    --cmb-gold:          #F4B400;
+    --cmb-gold-dark:     #c99200;
+    --cmb-gold-light:    #fff3cc;
+    --cmb-green:         #2ecc71;
+    --cmb-green-bg:      #d4edda;
+    --cmb-red:           #e74c3c;
+    --cmb-yellow:        #f39c12;
+    --cmb-radius:        12px;
+    --cmb-radius-sm:     8px;
+    --cmb-radius-pill:   999px;
+    --cmb-shadow:        0 4px 20px rgba(0,0,0,0.08);
+    --cmb-shadow-hover:  0 8px 32px rgba(244,180,0,0.22);
+    --cmb-transition:    0.22s ease;
+    --cmb-font:          -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    /* Light theme */
+    --cmb-bg:            #ffffff;
+    --cmb-surface:       #f9f7f2;
+    --cmb-surface2:      #f2ede2;
+    --cmb-border:        #e8e0cc;
+    --cmb-text:          #1a1a1a;
+    --cmb-text-muted:    #6b6b6b;
+    --cmb-text-light:    #999999;
+    --cmb-card-bg:       #ffffff;
+    --cmb-chip-bg:       #f5f0e8;
+    --cmb-chip-border:   #ddd5c0;
+  }
+
+  [data-theme="dark"] .qb-cmb,
+  .shopify-section--dark .qb-cmb {
+    --cmb-bg:            #111111;
+    --cmb-surface:       #1a1a1a;
+    --cmb-surface2:      #222222;
+    --cmb-border:        #2e2e2e;
+    --cmb-text:          #f0f0f0;
+    --cmb-text-muted:    #aaaaaa;
+    --cmb-text-light:    #666666;
+    --cmb-card-bg:       #1e1e1e;
+    --cmb-chip-bg:       #2a2a2a;
+    --cmb-chip-border:   #3a3a3a;
+  }
+
+  /* ── Base layout ────────────────────────────────────────────────── */
+  .qb-cmb {
+    background: var(--cmb-bg);
+    color: var(--cmb-text);
+    font-family: var(--cmb-font);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .qb-cmb__inner {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+  }
+
+  /* ── Badges ─────────────────────────────────────────────────────── */
+  .qb-cmb__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .qb-cmb__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 13px;
+    border-radius: var(--cmb-radius-pill);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .qb-cmb__badge--kit {
+    background: var(--cmb-gold);
+    color: #1a1a00;
+  }
+
+  .qb-cmb__badge--veg {
+    background: var(--cmb-green-bg);
+    color: #155724;
+  }
+
+  /* ── Category + title ───────────────────────────────────────────── */
+  .qb-cmb__category {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--cmb-gold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .qb-cmb__title {
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0 0 10px;
+    color: var(--cmb-text);
+  }
+
+  .qb-cmb__subtitle {
+    font-size: 0.95rem;
+    color: var(--cmb-text-muted);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  /* ── Meta pills row ─────────────────────────────────────────────── */
+  .qb-cmb__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .qb-cmb__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    border-radius: var(--cmb-radius-pill);
+    background: var(--cmb-surface);
+    border: 1px solid var(--cmb-border);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--cmb-text);
+  }
+
+  .qb-cmb__pill--gold {
+    background: var(--cmb-gold-light);
+    border-color: var(--cmb-gold);
+    color: #7a5800;
+  }
+
+  .qb-cmb__difficulty-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  .qb-cmb__difficulty-dot--easy   { background: var(--cmb-green); }
+  .qb-cmb__difficulty-dot--medium { background: var(--cmb-yellow); }
+  .qb-cmb__difficulty-dot--hard   { background: var(--cmb-red); }
+
+  /* ── Divider ─────────────────────────────────────────────────────── */
+  .qb-cmb__divider {
+    border: none;
+    border-top: 1px solid var(--cmb-border);
+    margin: 24px 0;
+  }
+
+  /* ── Section headings ────────────────────────────────────────────── */
+  .qb-cmb__section-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--cmb-text);
+    margin: 0 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  /* ── Ingredients chips ───────────────────────────────────────────── */
+  .qb-cmb__ingredients {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .qb-cmb__ingredient-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    background: var(--cmb-chip-bg);
+    border: 1px solid var(--cmb-chip-border);
+    border-radius: var(--cmb-radius-sm);
+    font-size: 0.83rem;
+    font-weight: 500;
+    color: var(--cmb-text);
+    cursor: default;
+    user-select: none;
+    transition: background var(--cmb-transition), border-color var(--cmb-transition);
+  }
+
+  .qb-cmb__ingredient-chip:hover {
+    background: var(--cmb-gold-light);
+    border-color: var(--cmb-gold);
+  }
+
+  .qb-cmb__ingredient-chip input[type="checkbox"] {
+    accent-color: var(--cmb-gold);
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .qb-cmb__no-ingredients {
+    font-size: 0.88rem;
+    color: var(--cmb-text-muted);
+    font-style: italic;
+  }
+
+  /* ── Variant pills ───────────────────────────────────────────────── */
+  .qb-cmb__variants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .qb-cmb__variant-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 18px;
+    border-radius: var(--cmb-radius);
+    border: 2px solid var(--cmb-border);
+    background: var(--cmb-surface);
+    cursor: pointer;
+    transition: all var(--cmb-transition);
+    min-width: 100px;
+    text-align: center;
+  }
+
+  .qb-cmb__variant-pill:hover {
+    border-color: var(--cmb-gold);
+    background: var(--cmb-gold-light);
+  }
+
+  .qb-cmb__variant-pill.is-active {
+    border-color: var(--cmb-gold);
+    background: var(--cmb-gold-light);
+    box-shadow: 0 0 0 3px rgba(244,180,0,0.18);
+  }
+
+  .qb-cmb__variant-pill.is-active .qb-cmb__variant-name {
+    color: #7a5800;
+  }
+
+  .qb-cmb__variant-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--cmb-text);
+    line-height: 1.2;
+  }
+
+  .qb-cmb__variant-price {
+    font-size: 0.78rem;
+    color: var(--cmb-gold-dark);
+    font-weight: 600;
+    margin-top: 3px;
+  }
+
+  /* ── Price display ───────────────────────────────────────────────── */
+  .qb-cmb__price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .qb-cmb__price {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: var(--cmb-gold);
+    line-height: 1;
+  }
+
+  .qb-cmb__price-compare {
+    font-size: 1rem;
+    color: var(--cmb-text-light);
+    text-decoration: line-through;
+  }
+
+  .qb-cmb__price-note {
+    font-size: 0.78rem;
+    color: var(--cmb-text-muted);
+  }
+
+  /* ── Quantity stepper ─────────────────────────────────────────────── */
+  .qb-cmb__qty-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .qb-cmb__qty-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--cmb-text-muted);
+  }
+
+  .qb-cmb__stepper {
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--cmb-border);
+    border-radius: var(--cmb-radius-pill);
+    overflow: hidden;
+    background: var(--cmb-surface);
+  }
+
+  .qb-cmb__stepper-btn {
+    width: 38px;
+    height: 38px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--cmb-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--cmb-transition);
+  }
+
+  .qb-cmb__stepper-btn:hover {
+    background: var(--cmb-gold-light);
+  }
+
+  .qb-cmb__stepper-btn:active {
+    background: var(--cmb-gold);
+    color: #1a1a00;
+  }
+
+  .qb-cmb__stepper-val {
+    width: 42px;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--cmb-text);
+    background: transparent;
+    border: none;
+    outline: none;
+    pointer-events: none;
+  }
+
+  /* ── Add to cart button ──────────────────────────────────────────── */
+  .qb-cmb__atc-btn {
+    display: block;
+    width: 100%;
+    padding: 17px 24px;
+    border-radius: var(--cmb-radius);
+    background: var(--cmb-gold);
+    color: #1a1a00;
+    border: none;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all var(--cmb-transition);
+    box-shadow: var(--cmb-shadow);
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .qb-cmb__atc-btn:hover {
+    background: var(--cmb-gold-dark);
+    box-shadow: var(--cmb-shadow-hover);
+    transform: translateY(-1px);
+  }
+
+  .qb-cmb__atc-btn:active {
+    transform: translateY(0);
+    box-shadow: var(--cmb-shadow);
+  }
+
+  .qb-cmb__atc-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .qb-cmb__atc-msg {
+    font-size: 0.82rem;
+    text-align: center;
+    min-height: 20px;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+
+  .qb-cmb__atc-msg--success { color: var(--cmb-green); }
+  .qb-cmb__atc-msg--error   { color: var(--cmb-red); }
+
+  /* ── Recipe teaser card ──────────────────────────────────────────── */
+  .qb-cmb__recipe-card {
+    background: linear-gradient(135deg, var(--cmb-surface) 0%, var(--cmb-surface2) 100%);
+    border: 1px solid var(--cmb-border);
+    border-left: 4px solid var(--cmb-gold);
+    border-radius: var(--cmb-radius);
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    text-decoration: none;
+    transition: box-shadow var(--cmb-transition), transform var(--cmb-transition);
+  }
+
+  .qb-cmb__recipe-card:hover {
+    box-shadow: var(--cmb-shadow-hover);
+    transform: translateY(-1px);
+  }
+
+  .qb-cmb__recipe-card-info {
+    flex: 1;
+  }
+
+  .qb-cmb__recipe-card-eyebrow {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cmb-gold);
+    margin-bottom: 3px;
+  }
+
+  .qb-cmb__recipe-card-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--cmb-text);
+    line-height: 1.3;
+  }
+
+  .qb-cmb__recipe-card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 15px;
+    background: var(--cmb-gold);
+    color: #1a1a00;
+    border-radius: var(--cmb-radius-pill);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background var(--cmb-transition);
+  }
+
+  .qb-cmb__recipe-card-cta:hover {
+    background: var(--cmb-gold-dark);
+  }
+
+  /* ── How it Works ────────────────────────────────────────────────── */
+  .qb-cmb__how-steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+
+  @media (max-width: 480px) {
+    .qb-cmb__how-steps {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .qb-cmb__step {
+    background: var(--cmb-surface);
+    border: 1px solid var(--cmb-border);
+    border-radius: var(--cmb-radius);
+    padding: 16px 14px;
+    text-align: center;
+  }
+
+  .qb-cmb__step-num {
+    width: 32px;
+    height: 32px;
+    background: var(--cmb-gold);
+    color: #1a1a00;
+    border-radius: 50%;
+    font-size: 0.82rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+  }
+
+  .qb-cmb__step-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--cmb-text);
+    margin-bottom: 4px;
+  }
+
+  .qb-cmb__step-desc {
+    font-size: 0.76rem;
+    color: var(--cmb-text-muted);
+    line-height: 1.4;
+  }
+
+  /* ── Trust grid ──────────────────────────────────────────────────── */
+  .qb-cmb__trust-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .qb-cmb__trust-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px;
+    background: var(--cmb-surface);
+    border: 1px solid var(--cmb-border);
+    border-radius: var(--cmb-radius);
+  }
+
+  .qb-cmb__trust-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .qb-cmb__trust-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--cmb-text);
+    line-height: 1.3;
+  }
+
+  .qb-cmb__trust-sub {
+    font-size: 0.72rem;
+    color: var(--cmb-text-muted);
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+
+  /* ── Responsive tweaks ───────────────────────────────────────────── */
+  @media (max-width: 420px) {
+    .qb-cmb__trust-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .qb-cmb__variant-pill {
+      min-width: 80px;
+      padding: 8px 12px;
+    }
+
+    .qb-cmb__price {
+      font-size: 1.6rem;
+    }
+  }
+</style>
+
+<section class="qb-cmb shopify-section--qb-combo" id="qb-cmb-{{ section.id }}">
+  <div class="qb-cmb__inner">
+
+    {%- comment -%} ── Badges ── {%- endcomment -%}
+    <div class="qb-cmb__badges">
+      <span class="qb-cmb__badge qb-cmb__badge--kit">🍽️ Meal Kit</span>
+      {%- if is_veg -%}
+        <span class="qb-cmb__badge qb-cmb__badge--veg">🌿 Veg</span>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} ── Category + Title ── {%- endcomment -%}
+    <p class="qb-cmb__category">{{ cat_icon }} {{ product.type | default: 'Meal Kit' }}</p>
+    <h1 class="qb-cmb__title">{{ product.title }}</h1>
+
+    {%- if product.description != blank -%}
+      {%- assign raw_desc = product.description | strip_html | truncatewords: 20 -%}
+      <p class="qb-cmb__subtitle">{{ raw_desc }}</p>
+    {%- endif -%}
+
+    {%- comment -%} ── Meta pills ── {%- endcomment -%}
+    <div class="qb-cmb__meta">
+      <span class="qb-cmb__pill qb-cmb__pill--gold">
+        👥 Serves {{ serves_count }} {{ serves_count | times: 1 | pluralize: 'person', 'people' }}
+      </span>
+      <span class="qb-cmb__pill">
+        ⏱️ {{ prep_time }} prep
+      </span>
+      <span class="qb-cmb__pill">
+        <span class="qb-cmb__difficulty-dot qb-cmb__difficulty-dot--{{ difficulty_class }}"></span>
+        {{ difficulty_label }}
+      </span>
+    </div>
+
+    <hr class="qb-cmb__divider">
+
+    {%- comment -%} ── Ingredients ── {%- endcomment -%}
+    <p class="qb-cmb__section-title">🧄 What's in the Kit</p>
+
+    {%- assign desc_html = product.description -%}
+    {%- assign has_list = false -%}
+    {%- if desc_html contains '<li>' -%}
+      {%- assign has_list = true -%}
+    {%- endif -%}
+
+    {%- if has_list -%}
+      <div class="qb-cmb__ingredients" id="qb-cmb-ingredients-{{ section.id }}">
+        {%- comment -%}
+          We extract list items via JS below for reliable parsing.
+          Liquid renders a placeholder; JS replaces it.
+        {%- endcomment -%}
+      </div>
+      <script>
+        (function(){
+          var raw = {{ product.description | json }};
+          var parser = new DOMParser();
+          var doc = parser.parseFromString(raw, 'text/html');
+          var items = doc.querySelectorAll('li');
+          var container = document.getElementById('qb-cmb-ingredients-{{ section.id }}');
+          if (!container) return;
+          if (items.length === 0) {
+            container.innerHTML = '<span class="qb-cmb__no-ingredients">See full description below.</span>';
+            return;
+          }
+          items.forEach(function(li) {
+            var text = li.textContent.trim();
+            if (!text) return;
+            var chip = document.createElement('label');
+            chip.className = 'qb-cmb__ingredient-chip';
+            chip.innerHTML = '<input type="checkbox"><span>' + text + '</span>';
+            container.appendChild(chip);
+          });
+        })();
+      </script>
+    {%- else -%}
+      <div class="qb-cmb__ingredients">
+        <span class="qb-cmb__no-ingredients">Ingredients listed in description below.</span>
+      </div>
+    {%- endif -%}
+
+    <hr class="qb-cmb__divider">
+
+    {%- comment -%} ── Variant pills ── {%- endcomment -%}
+    {%- if product.variants.size > 1 -%}
+      <p class="qb-cmb__section-title">🥡 Choose Your Size</p>
+      <div class="qb-cmb__variants" id="qb-cmb-variants-{{ section.id }}">
+        {%- for variant in product.variants -%}
+          <button
+            class="qb-cmb__variant-pill{% if forloop.first %} is-active{% endif %}"
+            data-variant-id="{{ variant.id }}"
+            data-variant-price="{{ variant.price | money }}"
+            onclick="qbCmbSelectVariant(this, '{{ section.id }}')"
+            type="button"
+          >
+            <span class="qb-cmb__variant-name">{{ variant.title }}</span>
+            <span class="qb-cmb__variant-price">{{ variant.price | money }}</span>
+          </button>
+        {%- endfor -%}
+      </div>
+      <br>
+    {%- endif -%}
+
+    {%- comment -%} ── Price ── {%- endcomment -%}
+    <div class="qb-cmb__price-row">
+      <span class="qb-cmb__price" id="qb-cmb-price-{{ section.id }}">
+        {{ product.selected_or_first_available_variant.price | money }}
+      </span>
+      {%- if product.compare_at_price_max > product.price_min -%}
+        <span class="qb-cmb__price-compare">
+          {{ product.compare_at_price_max | money }}
+        </span>
+      {%- endif -%}
+      <span class="qb-cmb__price-note">incl. all ingredients</span>
+    </div>
+
+    {%- comment -%} ── Quantity stepper ── {%- endcomment -%}
+    <div class="qb-cmb__qty-row">
+      <span class="qb-cmb__qty-label">Quantity</span>
+      <div class="qb-cmb__stepper">
+        <button class="qb-cmb__stepper-btn" type="button"
+          onclick="qbCmbQty('{{ section.id }}', -1)" aria-label="Decrease">−</button>
+        <span class="qb-cmb__stepper-val" id="qb-cmb-qty-{{ section.id }}">1</span>
+        <button class="qb-cmb__stepper-btn" type="button"
+          onclick="qbCmbQty('{{ section.id }}', 1)" aria-label="Increase">+</button>
+      </div>
+    </div>
+
+    {%- comment -%} ── Add to cart button ── {%- endcomment -%}
+    <button
+      class="qb-cmb__atc-btn"
+      id="qb-cmb-atc-{{ section.id }}"
+      type="button"
+      data-first-variant="{{ product.selected_or_first_available_variant.id }}"
+      data-product-title="{{ product.title | escape }}"
+      data-serves="{{ serves_count }}"
+      data-preptime="{{ prep_time }}"
+      onclick="qbCmbAddToCart('{{ section.id }}')"
+    >
+      🛒 Add to Cart
+    </button>
+    <p class="qb-cmb__atc-msg" id="qb-cmb-msg-{{ section.id }}"></p>
+
+    {%- comment -%} ── Recipe teaser ── {%- endcomment -%}
+    <hr class="qb-cmb__divider">
+
+    <p class="qb-cmb__section-title">📖 Tonight's Recipe</p>
+    <a class="qb-cmb__recipe-card" href="{{ recipe_handle }}">
+      <div class="qb-cmb__recipe-card-info">
+        <p class="qb-cmb__recipe-card-eyebrow">Step-by-step guide</p>
+        <p class="qb-cmb__recipe-card-name">{{ product.title }}</p>
+      </div>
+      <span class="qb-cmb__recipe-card-cta">View Recipe →</span>
+    </a>
+
+    <hr class="qb-cmb__divider">
+
+    {%- comment -%} ── How it Works ── {%- endcomment -%}
+    <p class="qb-cmb__section-title">⚡ How It Works</p>
+    <div class="qb-cmb__how-steps">
+      <div class="qb-cmb__step">
+        <div class="qb-cmb__step-num">1</div>
+        <p class="qb-cmb__step-title">Order by 6 PM</p>
+        <p class="qb-cmb__step-desc">Place your order before 6 PM for same-day delivery.</p>
+      </div>
+      <div class="qb-cmb__step">
+        <div class="qb-cmb__step-num">2</div>
+        <p class="qb-cmb__step-title">We Pack Fresh</p>
+        <p class="qb-cmb__step-desc">Ingredients are portioned and packed fresh by our kitchen team.</p>
+      </div>
+      <div class="qb-cmb__step">
+        <div class="qb-cmb__step-num">3</div>
+        <p class="qb-cmb__step-title">Cook in 20 Mins</p>
+        <p class="qb-cmb__step-desc">Follow the recipe card and have dinner on the table fast.</p>
+      </div>
+    </div>
+
+    <hr class="qb-cmb__divider">
+
+    {%- comment -%} ── Trust grid ── {%- endcomment -%}
+    <div class="qb-cmb__trust-grid">
+      <div class="qb-cmb__trust-item">
+        <span class="qb-cmb__trust-icon">⚖️</span>
+        <div>
+          <p class="qb-cmb__trust-label">Pre-Portioned Ingredients</p>
+          <p class="qb-cmb__trust-sub">Exact amounts, zero measuring needed.</p>
+        </div>
+      </div>
+      <div class="qb-cmb__trust-item">
+        <span class="qb-cmb__trust-icon">👨‍🍳</span>
+        <div>
+          <p class="qb-cmb__trust-label">Chef-Curated</p>
+          <p class="qb-cmb__trust-sub">Every recipe tested by our in-house chefs.</p>
+        </div>
+      </div>
+      <div class="qb-cmb__trust-item">
+        <span class="qb-cmb__trust-icon">♻️</span>
+        <div>
+          <p class="qb-cmb__trust-label">No Waste</p>
+          <p class="qb-cmb__trust-sub">Buy only what the recipe needs.</p>
+        </div>
+      </div>
+      <div class="qb-cmb__trust-item">
+        <span class="qb-cmb__trust-icon">🥗</span>
+        <div>
+          <p class="qb-cmb__trust-label">Nutritionist Approved</p>
+          <p class="qb-cmb__trust-sub">Balanced macros reviewed by a nutritionist.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.qb-cmb__inner -->
+</section>
+
+<script>
+(function () {
+  /* ─── Variant selection ─────────────────────────────────────── */
+  window.qbCmbSelectVariant = function (btn, sid) {
+    var container = document.getElementById('qb-cmb-variants-' + sid);
+    if (container) {
+      container.querySelectorAll('.qb-cmb__variant-pill').forEach(function (p) {
+        p.classList.remove('is-active');
+      });
+    }
+    btn.classList.add('is-active');
+
+    var priceEl = document.getElementById('qb-cmb-price-' + sid);
+    if (priceEl) priceEl.textContent = btn.dataset.variantPrice;
+
+    var atcBtn = document.getElementById('qb-cmb-atc-' + sid);
+    if (atcBtn) atcBtn.dataset.firstVariant = btn.dataset.variantId;
+  };
+
+  /* ─── Quantity stepper ──────────────────────────────────────── */
+  window.qbCmbQty = function (sid, delta) {
+    var el = document.getElementById('qb-cmb-qty-' + sid);
+    if (!el) return;
+    var current = parseInt(el.textContent, 10) || 1;
+    var next = Math.min(Math.max(current + delta, 1), 10);
+    el.textContent = next;
+  };
+
+  /* ─── Add to cart ───────────────────────────────────────────── */
+  window.qbCmbAddToCart = function (sid) {
+    var btn     = document.getElementById('qb-cmb-atc-' + sid);
+    var msgEl   = document.getElementById('qb-cmb-msg-' + sid);
+    var qtyEl   = document.getElementById('qb-cmb-qty-' + sid);
+    if (!btn) return;
+
+    var variantId = parseInt(btn.dataset.firstVariant, 10);
+    var qty       = parseInt(qtyEl ? qtyEl.textContent : '1', 10) || 1;
+    var title     = btn.dataset.productTitle || '';
+    var serves    = btn.dataset.serves || '2';
+    var prepTime  = btn.dataset.preptime || '20 mins';
+
+    if (!variantId) {
+      qbCmbShowMsg(msgEl, 'Please select a size.', 'error');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Adding…';
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        id: variantId,
+        quantity: qty,
+        properties: {
+          'Meal Kit': title,
+          'Serves': serves + ' people',
+          'Prep Time': prepTime
+        }
+      })
+    })
+    .then(function (res) {
+      if (!res.ok) return res.json().then(function (d) { throw new Error(d.description || 'Error'); });
+      return res.json();
+    })
+    .then(function () {
+      btn.textContent = '✓ Added to Cart!';
+      qbCmbShowMsg(msgEl, '🎉 Meal kit added! Check your cart.', 'success');
+      setTimeout(function () {
+        btn.disabled = false;
+        btn.textContent = '🛒 Add to Cart';
+        qbCmbShowMsg(msgEl, '', '');
+      }, 3000);
+    })
+    .catch(function (err) {
+      btn.disabled = false;
+      btn.textContent = '🛒 Add to Cart';
+      qbCmbShowMsg(msgEl, err.message || 'Could not add to cart. Try again.', 'error');
+    });
+  };
+
+  function qbCmbShowMsg(el, text, type) {
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'qb-cmb__atc-msg' + (type ? ' qb-cmb__atc-msg--' + type : '');
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Combo Meal Kit",
+  "tag": "section",
+  "class": "qb-product-combo",
+  "settings": [],
+  "presets": [
+    {
+      "name": "QB Combo Meal Kit"
+    }
+  ]
+}
+{% endschema %}
