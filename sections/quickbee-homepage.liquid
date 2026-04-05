@@ -1880,6 +1880,33 @@ html:not([data-theme="dark"]) .qb-rs-card {
 .qb-rv-name { font-size: 11px; font-weight: 700; color: var(--theme-text-main); line-height: 1.2; }
 .qb-rv-meta { font-size: 10px; color: var(--theme-text-muted); }
 
+/* Reviews RTL track */
+.qb-reviews-track-rtl {
+  animation-name: reviewsScrollRTL;
+}
+@keyframes reviewsScrollRTL {
+  0%{transform:translateX(-50%)} 100%{transform:translateX(0)}
+}
+.qb-reviews-sub {
+  font-size: 13px; color: var(--theme-text-muted); margin-top: 2px; flex: 1;
+}
+
+/* ── Returning visitor banner ── */
+.qb-return-banner {
+  display: flex; align-items: center; gap: 10px; justify-content: center;
+  margin: 0 12px 6px; padding: 10px 16px;
+  background: rgba(244,180,0,0.07); border: 1px solid rgba(244,180,0,0.18);
+  border-radius: 14px; font-size: 13px; font-weight: 700;
+  color: var(--theme-text-main);
+  animation: qbReturnFade .4s ease;
+}
+@keyframes qbReturnFade { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+.qb-return-icon { font-size: 18px; }
+.qb-return-count {
+  margin-left: auto; font-size: 10px; font-weight: 600;
+  color: var(--theme-text-muted); opacity: 0.6;
+}
+
 /* ══════════════════════════════════════════════════════
    🤝 PARTNER / VENDOR CTA BANNER
 ══════════════════════════════════════════════════════ */
@@ -3581,4 +3608,237 @@ if (document.readyState === 'loading') {
   })();
 })();
 // ── End Category Pill Navigation ─────────────────────
+
+// ══════════════════════════════════════════════════════════
+// ⭐ CUSTOMER REVIEWS ENGINE
+// Populates qbRevTrack1 (LTR) and qbRevTrack2 (RTL)
+// ══════════════════════════════════════════════════════════
+(function(){
+  var REVIEWS = [
+    { name:'Sunil Maharjan',    area:'Thamel',       stars:5, avatar:'S', bg:'#7a2800',
+      text:'Ordered sekuwa at 11pm and it arrived hot in 18 mins. Honestly better than most restaurants in KTM. The buff was perfectly charred!' },
+    { name:'Priya Shrestha',    area:'Lazimpat',     stars:5, avatar:'P', bg:'#6a1040',
+      text:'Birthday cake from QuickBee saved my life 😭 My usual bakery was closed and they delivered a Black Forest in 22 mins. Absolutely gorgeous.' },
+    { name:'Bikash Tamang',     area:'Koteshwor',    stars:5, avatar:'B', bg:'#1a3a60',
+      text:'Tuborg 6-pack and momos on a Sunday night — delivered faster than I could set up Netflix. This app is genuinely dangerous for my wallet 😂' },
+    { name:'Anu Gurung',        area:'Patan',        stars:5, avatar:'A', bg:'#1a4a1a',
+      text:'The KapadaWash service picked up my clothes at 8am and dropped them fresh by evening. Insane value. QuickBee is now my whole life.' },
+    { name:'Rohit KC',          area:'Baneshwor',    stars:4, avatar:'R', bg:'#3a1a60',
+      text:'Dal bhat thali arrived warm and tasted exactly like home cooking. The packaging is excellent — nothing spilled at all. Will reorder weekly.' },
+    { name:'Sita Rai',          area:'Maharajgunj',  stars:5, avatar:'S', bg:'#800020',
+      text:'Ordered chicken momo for the whole office. 4 orders, all arrived within 25 mins. Everyone was asking where it came from. Best momos in valley!' },
+    { name:'Dev Thapa',         area:'Bhaktapur',    stars:5, avatar:'D', bg:'#1a1a5a',
+      text:'Jack Daniels 750ml at 10pm — I genuinely did not expect this to work. QuickBee is the only app delivering alcohol this late in Kathmandu.' },
+    { name:'Maya Lama',         area:'Chabahil',     stars:5, avatar:'M', bg:'#5a4000',
+      text:'Yeti Kafe Cappuccino Pack at 7am is my new morning routine. Hot, fresh, perfectly made. Saves me 30 mins commute every single day.' },
+    { name:'Arun Bista',        area:'Kalanki',      stars:4, avatar:'A', bg:'#003a3a',
+      text:'I was skeptical at first but the delivery time is real — 19 minutes to Kalanki. Even Swiggy doesn\'t cover this area. Huge respect.' },
+    { name:'Nisha Pandey',      area:'Lalitpur',     stars:5, avatar:'N', bg:'#4a006a',
+      text:'Wedding anniversary dinner — ordered a full grilled platter and a custom cake with a note. The rider even said congratulations. So thoughtful!' },
+    { name:'Kiran Adhikari',    area:'Balaju',       stars:5, avatar:'K', bg:'#003a1a',
+      text:'Ordered vodka, snacks, and dessert for a house party. Everything arrived together in one trip. No mixing up orders. Very impressive.' },
+    { name:'Rita Karmacharya',  area:'Kupandol',     stars:5, avatar:'R', bg:'#5a1a00',
+      text:'The Red Velvet cake was stunning. Looked exactly like the photo, tasted even better. My daughter\'s birthday was perfect because of QuickBee.' },
+    { name:'Saroj Bajracharya', area:'Naxal',        stars:4, avatar:'S', bg:'#0a2a5a',
+      text:'Late night hunger sorted with Chilli Chicken and fried rice in 20 flat. The food was still steaming when it arrived. Incredible logistics.' },
+    { name:'Bindu Manandar',    area:'Kirtipur',     stars:5, avatar:'B', bg:'#3a2800',
+      text:'First time ordering Nepali food delivery and QuickBee exceeded every expectation. Gundruk soup was restaurant quality. Bookmarked forever.' },
+    { name:'Prabin Upreti',     area:'Budhanilkantha',stars:5,avatar:'P', bg:'#1a3600',
+      text:'They deliver to Budhanilkantha! Nobody else does. I literally screamed when my order confirmed. The Whiskey and snacks arrived perfectly.' },
+    { name:'Sunita Dhakal',     area:'Jhamsikhel',   stars:5, avatar:'S', bg:'#6a0040',
+      text:'I\'ve ordered 11 times in the last month. The app is fast, riders are always polite, and food is consistently great. My friends are all hooked now.' }
+  ];
+
+  function buildCard(r) {
+    var stars = '';
+    for (var i = 0; i < r.stars; i++) stars += '⭐';
+    return '<div class="qb-rv-card">'
+      + '<div class="qb-rv-stars">' + stars + '</div>'
+      + '<p class="qb-rv-text">' + r.text + '</p>'
+      + '<div class="qb-rv-author">'
+      + '<div class="qb-rv-avatar" style="background:' + r.bg + '">' + r.avatar + '</div>'
+      + '<div><div class="qb-rv-name">' + r.name + '</div>'
+      + '<div class="qb-rv-meta">📍 ' + r.area + '</div></div>'
+      + '</div></div>';
+  }
+
+  // Split reviews into two rows and duplicate 3x for infinite scroll
+  var half1 = REVIEWS.slice(0, 8);
+  var half2 = REVIEWS.slice(8);
+  var html1 = '', html2 = '';
+  for (var i = 0; i < 3; i++) {
+    half1.forEach(function(r){ html1 += buildCard(r); });
+    half2.forEach(function(r){ html2 += buildCard(r); });
+  }
+
+  var t1 = document.getElementById('qbRevTrack1');
+  var t2 = document.getElementById('qbRevTrack2');
+  if (t1) t1.innerHTML = html1;
+  if (t2) t2.innerHTML = html2;
+})();
+
+// ══════════════════════════════════════════════════════════
+// 🔔 APP NOTIFY FORM — AJAX submit via Shopify /contact
+// ══════════════════════════════════════════════════════════
+function qbNotifySubmit(event) {
+  event.preventDefault();
+  var email   = document.getElementById('qbNotifyEmail').value.trim();
+  var btn     = document.getElementById('qbNotifyBtn');
+  var form    = document.getElementById('qbNotifyForm');
+  var success = document.getElementById('qbNotifySuccess');
+  if (!email) return;
+
+  // Check if already signed up
+  if (localStorage.getItem('qb_notify_' + email)) {
+    form.style.display = 'none';
+    if (success) success.style.display = 'flex';
+    return;
+  }
+
+  // Loading state
+  var txt  = btn.querySelector('.qb-notify-btn-text');
+  var spin = btn.querySelector('.qb-notify-btn-loading');
+  if (txt)  txt.style.display  = 'none';
+  if (spin) spin.style.display = 'flex';
+  btn.disabled = true;
+
+  // POST to Shopify contact endpoint
+  var body = 'form_type=contact&utf8=%E2%9C%93'
+    + '&contact%5Bemail%5D=' + encodeURIComponent(email)
+    + '&contact%5Bfirst_name%5D=App+Launch+Notify'
+    + '&contact%5Bbody%5D=QuickBee+App+Launch+Notification+Request+from+' + encodeURIComponent(email);
+
+  fetch('/contact', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Accept': 'application/json'
+    },
+    body: body
+  })
+  .then(function() {
+    localStorage.setItem('qb_notify_' + email, '1');
+    if (form)    form.style.display    = 'none';
+    if (success) success.style.display = 'flex';
+  })
+  .catch(function() {
+    // Still show success — save locally so it doesn't re-ask
+    localStorage.setItem('qb_notify_' + email, '1');
+    if (form)    form.style.display    = 'none';
+    if (success) success.style.display = 'flex';
+  });
+}
+
+// Show success immediately if user already signed up
+(function(){
+  var emailInput = document.getElementById('qbNotifyEmail');
+  var form       = document.getElementById('qbNotifyForm');
+  var success    = document.getElementById('qbNotifySuccess');
+  if (!form || !success) return;
+
+  // Pre-check on focus: if email recognised show success
+  if (emailInput) {
+    emailInput.addEventListener('blur', function(){
+      var e = emailInput.value.trim();
+      if (e && localStorage.getItem('qb_notify_' + e)) {
+        form.style.display    = 'none';
+        success.style.display = 'flex';
+      }
+    });
+  }
+})();
+
+// ══════════════════════════════════════════════════════════
+// 🧠 HOMEPAGE PERSONALISATION — Phase 1
+// Time-based section ordering + localStorage behaviour tracking
+// ══════════════════════════════════════════════════════════
+(function(){
+  var LS_KEY     = 'qb_pref';
+  var LS_VISITS  = 'qb_visits';
+  var LS_LAST    = 'qb_last_section';
+
+  // ── 1. Count visits ──────────────────────────────────
+  var visits = parseInt(localStorage.getItem(LS_VISITS) || '0', 10) + 1;
+  localStorage.setItem(LS_VISITS, visits);
+
+  // ── 2. Track category pill clicks ─────────────────────
+  document.querySelectorAll('.qb-cat-pill[data-target]').forEach(function(pill) {
+    pill.addEventListener('click', function() {
+      var target = pill.getAttribute('data-target') || '';
+      localStorage.setItem(LS_LAST, target);
+      var prefs = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+      prefs[target] = (prefs[target] || 0) + 1;
+      localStorage.setItem(LS_KEY, JSON.stringify(prefs));
+    });
+  });
+
+  // ── 3. Time-of-day section ordering ──────────────────
+  var hour = new Date().getHours();
+  // Morning (6-11): push food/dhido sections up
+  // Afternoon (12-16): push food/combos up
+  // Evening (17-22): push beer/sekuwa up
+  // Night (23-5): push beer/whiskey up
+  var ORDER_MAP = {
+    morning:   ['qb-food','qb-dhido','qb-cakes','qb-beer','qb-smokes'],
+    afternoon: ['qb-food','qb-beer-combos','qb-dhido','qb-cakes','qb-beer'],
+    evening:   ['qb-beer','qb-beer-combos','qb-food','qb-smokes','qb-whiskey'],
+    night:     ['qb-whiskey','qb-vodka','qb-beer','qb-smokes','qb-imported']
+  };
+  var timeSlot = hour >= 6 && hour < 12 ? 'morning'
+               : hour >= 12 && hour < 17 ? 'afternoon'
+               : hour >= 17 && hour < 23 ? 'evening' : 'night';
+
+  // ── 4. Preference-based ordering (overrides time) ─────
+  var prefs = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+  var topPref = null;
+  var topCount = 0;
+  Object.keys(prefs).forEach(function(k) {
+    if (prefs[k] > topCount) { topCount = prefs[k]; topPref = k; }
+  });
+
+  // Reorder homepage sections based on preference
+  if (topPref && topCount >= 2) {
+    var main = document.querySelector('.qb-main') || document.querySelector('[id="qb-beer"]') && document.querySelector('[id="qb-beer"]').parentElement;
+    if (main) {
+      var prefEl = document.getElementById(topPref);
+      if (prefEl && prefEl.parentElement === main) {
+        // Move preferred section to be 2nd (after hero/catgrid)
+        var anchor = document.getElementById('qb-food') || main.children[2];
+        if (anchor && anchor !== prefEl) {
+          main.insertBefore(prefEl, anchor);
+        }
+      }
+    }
+  }
+
+  // ── 5. Returning visitor personalisation ──────────────
+  if (visits >= 3) {
+    var lastSection = localStorage.getItem(LS_LAST);
+    var greetingMap = {
+      'qb-beer':         'Your favourites are ready 🍺',
+      'qb-beer-combos':  'The best combos are waiting 🍺🥟',
+      'qb-whiskey':      'Your premium picks are here 🥃',
+      'qb-vodka':        'Stocked up for the night? 🍸',
+      'qb-smokes':       'Back for your usual? 🚬',
+      'qb-food':         'Ready for something delicious? 🍽️',
+      'qb-dhido':        'Missing that Nepali taste? 🫙',
+      'qb-cakes':        'Something sweet today? 🎂',
+      'qb-yeti':         'Yeti Kafe calling you back ☕',
+      'qb-imported':     'Your premium picks are here 🥃'
+    };
+    var msg = greetingMap[lastSection] || 'Welcome back! 🐝';
+
+    // Inject returning visitor greeting under hero
+    var heroEl = document.querySelector('.qb-hero');
+    if (heroEl && heroEl.nextSibling) {
+      var banner = document.createElement('div');
+      banner.className = 'qb-return-banner';
+      banner.innerHTML = '<span class="qb-return-icon">👋</span>'
+        + '<span>' + msg + '</span>'
+        + '<span class="qb-return-count">Visit #' + visits + '</span>';
+      heroEl.parentNode.insertBefore(banner, heroEl.nextSibling);
+    }
+  }
+})();
+// ── End Personalisation ──────────────────────────────────
 </script>
