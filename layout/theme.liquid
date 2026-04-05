@@ -796,17 +796,32 @@
         return false;
       }
 
-      /* ── Save location note to cart ── */
+      /* ── Save location + profile note to cart ── */
       function saveLocationNote() {
         try {
           var rawLocation = localStorage.getItem('qb_selected_location');
           var nickname    = localStorage.getItem('qb_active_nickname') || 'Unspecified';
           var mapsLink    = localStorage.getItem('qb_landmark_' + nickname) || localStorage.getItem('qb_landmark_Current') || '';
-          if (!rawLocation) return Promise.resolve();
-          var locData   = JSON.parse(rawLocation);
-          var streetName = locData.street || rawLocation;
+          var rawProfile  = localStorage.getItem('qb_user_profile');
+
+          var locData  = rawLocation ? JSON.parse(rawLocation) : {};
+          var profData = rawProfile  ? JSON.parse(rawProfile)  : {};
+
+          var streetName = locData.street || locData.location || locData.address || 'Not set';
+
+          /* ── Build order note ── */
           var note = '📍 Delivery Address: ' + streetName + '\n🏠 Type: ' + nickname;
           if (mapsLink) note += '\n🗺️ Maps Link: ' + mapsLink;
+
+          /* Recipient info from location modal */
+          if (locData.name)  note += '\n👤 Recipient: ' + locData.name;
+          if (locData.phone) note += '\n📞 Recipient Phone: ' + locData.phone;
+
+          /* Profile data */
+          if (profData.phone)   note += '\n📞 Customer Phone: '  + profData.phone;
+          if (profData.dob)     note += '\n🎂 Date of Birth: '   + profData.dob;
+          if (profData.gender)  note += '\n🙋 Gender: '          + profData.gender;
+          if (profData.citizen) note += '\n🪪 Citizenship No.: ' + profData.citizen;
           return fetch('/cart/update.js', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
