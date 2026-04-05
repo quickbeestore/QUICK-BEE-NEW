@@ -1,0 +1,997 @@
+{% comment %}
+  snippets/qb-sticky-cart.liquid
+  Universal sticky cart bar + expandable panel.
+  - Slides up above the mobile footer when cart has items
+  - Disappears when cart is empty
+  - Respects dark/light theme automatically
+  - Shows on all pages except /cart
+{% endcomment %}
+
+{% unless template.name == 'cart' %}
+<div id="qbsc-root" class="qbsc-hidden" aria-label="Quick cart">
+  <!-- Backdrop (shown when panel is open) -->
+  <div id="qbsc-backdrop" class="qbsc-backdrop" role="presentation"></div>
+
+  <!-- Expandable cart panel (bottom sheet) -->
+  <div id="qbsc-panel" class="qbsc-panel" role="dialog" aria-modal="true" aria-label="Cart items" aria-hidden="true">
+    <!-- Drag handle -->
+    <div class="qbsc-drag-handle" id="qbsc-drag-handle">
+      <div class="qbsc-handle-bar"></div>
+    </div>
+
+    <!-- Panel header -->
+    <div class="qbsc-panel-hdr">
+      <div class="qbsc-panel-title">
+        <span class="qbsc-title-icon">🛒</span>
+        <span>Your Cart</span>
+        <span class="qbsc-panel-badge" id="qbsc-panel-count">0</span>
+      </div>
+      <button class="qbsc-close-btn" id="qbsc-close" aria-label="Close cart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Items list -->
+    <div class="qbsc-items-wrap" id="qbsc-items">
+      <div class="qbsc-loading" id="qbsc-loading">
+        <div class="qbsc-spinner"></div>
+      </div>
+    </div>
+
+    <!-- Footer: subtotal + checkout -->
+    <div class="qbsc-panel-footer" id="qbsc-panel-footer">
+      <div class="qbsc-subtotal-row">
+        <span class="qbsc-subtotal-lbl">Subtotal</span>
+        <span class="qbsc-subtotal-val" id="qbsc-subtotal">Rs 0</span>
+      </div>
+      <a href="/pages/payment" class="qbsc-checkout-btn" id="qbsc-checkout-btn">
+        <span>Proceed to Checkout</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18" aria-hidden="true">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+      <a href="/cart" class="qbsc-view-cart-link">View full cart</a>
+    </div>
+  </div>
+
+  <!-- Mini cart bar (always visible when cart has items) -->
+  <div id="qbsc-bar" class="qbsc-bar" role="button" tabindex="0" aria-label="Open cart" aria-expanded="false">
+    <div class="qbsc-bar-l">
+      <div class="qbsc-bar-bag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" aria-hidden="true">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        <span class="qbsc-bar-dot" id="qbsc-bar-dot">0</span>
+      </div>
+      <div class="qbsc-bar-info">
+        <span class="qbsc-bar-items" id="qbsc-bar-items">0 items</span>
+        <span class="qbsc-bar-hint">Tap to view</span>
+      </div>
+    </div>
+    <div class="qbsc-bar-r">
+      <span class="qbsc-bar-price" id="qbsc-bar-price">Rs 0</span>
+      <div class="qbsc-bar-chevron-wrap" id="qbsc-chevron-wrap">
+        <svg class="qbsc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true">
+          <polyline points="18 15 12 9 6 15"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ══════════════════════════════════════════════════════
+   QB STICKY CART — Universal Bar + Bottom Sheet
+   ══════════════════════════════════════════════════════ */
+
+/* ── TOKENS ── */
+#qbsc-root {
+  --sc-gold:        #F4B400;
+  --sc-gold2:       #FFD700;
+  --sc-gold-dim:    rgba(244, 180, 0, 0.15);
+  --sc-gold-glow:   0 0 0 2px rgba(244, 180, 0, 0.35);
+  --sc-red:         #FF4444;
+  --sc-ease:        cubic-bezier(0.4, 0, 0.2, 1);
+  --sc-spring:      cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --sc-footer-h:    calc(65px + env(safe-area-inset-bottom));
+  --sc-bar-bottom:  calc(var(--sc-footer-h) + 10px);
+}
+
+/* Light mode tokens */
+[data-theme="light"] #qbsc-root,
+html:not([data-theme]) #qbsc-root {
+  --sc-bg:          #ffffff;
+  --sc-bg2:         #f5f6f8;
+  --sc-bg3:         #ececec;
+  --sc-border:      rgba(15, 23, 42, 0.08);
+  --sc-text:        #111827;
+  --sc-text2:       #6b7280;
+  --sc-text3:       #9ca3af;
+  --sc-bar-bg:      rgba(255,255,255,0.97);
+  --sc-shadow:      0 -12px 40px rgba(15,23,42,0.14), 0 0 0 1.5px rgba(244,180,0,0.28);
+  --sc-panel-shadow:0 -8px 60px rgba(15,23,42,0.20);
+  --sc-qty-bg:      #f0f1f3;
+  --sc-qty-text:    #111827;
+  --sc-item-sep:    rgba(15,23,42,0.06);
+}
+
+/* Dark mode tokens */
+[data-theme="dark"] #qbsc-root {
+  --sc-bg:          #111111;
+  --sc-bg2:         #1a1a1a;
+  --sc-bg3:         #252525;
+  --sc-border:      rgba(255,255,255,0.07);
+  --sc-text:        #f0f0f0;
+  --sc-text2:       #888888;
+  --sc-text3:       #555555;
+  --sc-bar-bg:      rgba(17,17,17,0.97);
+  --sc-shadow:      0 -12px 40px rgba(0,0,0,0.7), 0 0 0 1.5px rgba(244,180,0,0.2);
+  --sc-panel-shadow:0 -8px 60px rgba(0,0,0,0.8);
+  --sc-qty-bg:      #2a2a2a;
+  --sc-qty-text:    #f0f0f0;
+  --sc-item-sep:    rgba(255,255,255,0.05);
+}
+
+/* ── ROOT WRAPPER ── */
+#qbsc-root {
+  pointer-events: none;
+}
+
+/* ── HIDDEN STATE ── (no items in cart) */
+#qbsc-root.qbsc-hidden .qbsc-bar {
+  transform: translateY(calc(100% + 12px));
+  opacity: 0;
+  pointer-events: none !important;
+}
+
+/* ── BACKDROP ── */
+.qbsc-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 10001;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s var(--sc-ease);
+}
+
+#qbsc-root.qbsc-open .qbsc-backdrop {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── PANEL (bottom sheet) ── */
+.qbsc-panel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10002;
+  background: var(--sc-bg);
+  border-radius: 24px 24px 0 0;
+  box-shadow: var(--sc-panel-shadow);
+  border-top: 1.5px solid rgba(244, 180, 0, 0.3);
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.42s var(--sc-spring);
+  will-change: transform;
+  overflow: hidden;
+  pointer-events: none;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+#qbsc-root.qbsc-open .qbsc-panel {
+  transform: translateY(0);
+  pointer-events: all;
+}
+
+/* Drag handle */
+.qbsc-drag-handle {
+  padding: 10px 0 4px;
+  display: flex;
+  justify-content: center;
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.qbsc-handle-bar {
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--sc-bg3);
+}
+
+/* Panel header */
+.qbsc-panel-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 20px 14px;
+  border-bottom: 1px solid var(--sc-border);
+  flex-shrink: 0;
+}
+
+.qbsc-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--sc-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.qbsc-title-icon { font-size: 18px; line-height: 1; }
+
+.qbsc-panel-badge {
+  background: var(--sc-gold);
+  color: #000;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 2px 9px;
+  border-radius: 12px;
+  min-width: 24px;
+  text-align: center;
+}
+
+.qbsc-close-btn {
+  width: 34px !important;
+  height: 34px !important;
+  min-height: unset !important;
+  max-width: none !important;
+  border-radius: 50% !important;
+  border: none !important;
+  background: var(--sc-bg2) !important;
+  color: var(--sc-text2) !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  flex-shrink: 0 !important;
+  transition: all 0.18s !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.qbsc-close-btn svg { width: 16px; height: 16px; }
+.qbsc-close-btn:active { transform: scale(0.88) !important; background: var(--sc-bg3) !important; }
+
+/* Loading spinner */
+.qbsc-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.qbsc-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--sc-bg3);
+  border-top-color: var(--sc-gold);
+  border-radius: 50%;
+  animation: qbscSpin 0.7s linear infinite;
+}
+
+@keyframes qbscSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── ITEMS LIST ── */
+.qbsc-items-wrap {
+  overflow-y: auto;
+  flex: 1;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.qbsc-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--sc-item-sep);
+  animation: qbscItemIn 0.3s var(--sc-ease) both;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+@keyframes qbscItemIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.qbsc-item.qbsc-removing {
+  transition: opacity 0.25s var(--sc-ease), transform 0.25s var(--sc-ease), max-height 0.3s var(--sc-ease), padding 0.3s;
+  opacity: 0;
+  transform: translateX(-16px);
+  max-height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  overflow: hidden;
+}
+
+.qbsc-item-img {
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--sc-bg2);
+  border: 1px solid var(--sc-border);
+}
+
+.qbsc-item-img-ph {
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  background: var(--sc-bg2);
+  border: 1px solid var(--sc-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.qbsc-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.qbsc-item-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--sc-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.35;
+  margin-bottom: 2px;
+}
+
+.qbsc-item-variant {
+  font-size: 11.5px;
+  color: var(--sc-text2);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qbsc-item-price {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--sc-gold);
+}
+
+.qbsc-item-qty {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  background: var(--sc-bg2);
+  border-radius: 24px;
+  padding: 2px;
+  border: 1px solid var(--sc-border);
+}
+
+.qbsc-qty-btn {
+  width: 28px !important;
+  height: 28px !important;
+  min-height: unset !important;
+  max-width: none !important;
+  border-radius: 50% !important;
+  border: none !important;
+  background: transparent !important;
+  color: var(--sc-text) !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  transition: all 0.15s !important;
+  -webkit-tap-highlight-color: transparent !important;
+  flex-shrink: 0 !important;
+}
+
+.qbsc-qty-btn:active {
+  background: var(--sc-gold) !important;
+  color: #000 !important;
+  transform: scale(0.88) !important;
+}
+
+.qbsc-qty-num {
+  width: 28px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--sc-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: transform 0.15s var(--sc-spring);
+}
+
+.qbsc-qty-num.qbsc-bump {
+  animation: qbscBump 0.25s var(--sc-spring);
+}
+
+@keyframes qbscBump {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+/* Empty state */
+.qbsc-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  gap: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.qbsc-empty-icon { font-size: 52px; }
+
+.qbsc-empty-text {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--sc-text);
+}
+
+.qbsc-empty-sub {
+  font-size: 13px;
+  color: var(--sc-text2);
+}
+
+/* ── PANEL FOOTER ── */
+.qbsc-panel-footer {
+  padding: 14px 20px 16px;
+  border-top: 1px solid var(--sc-border);
+  background: var(--sc-bg);
+  flex-shrink: 0;
+}
+
+.qbsc-subtotal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.qbsc-subtotal-lbl {
+  font-size: 13px;
+  color: var(--sc-text2);
+}
+
+.qbsc-subtotal-val {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--sc-text);
+  transition: transform 0.2s var(--sc-spring);
+}
+
+.qbsc-subtotal-val.qbsc-price-bump {
+  animation: qbscBump 0.3s var(--sc-spring);
+}
+
+.qbsc-checkout-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  background: var(--sc-gold) !important;
+  color: #000 !important;
+  font-weight: 900 !important;
+  font-size: 15px !important;
+  padding: 15px 20px !important;
+  border-radius: 16px !important;
+  text-decoration: none !important;
+  transition: all 0.22s var(--sc-ease) !important;
+  -webkit-tap-highlight-color: transparent !important;
+  margin-bottom: 10px !important;
+  border: none !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(244, 180, 0, 0.35) !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+.qbsc-checkout-btn:hover { background: var(--sc-gold2) !important; }
+.qbsc-checkout-btn:active {
+  transform: scale(0.97) !important;
+  box-shadow: 0 2px 8px rgba(244,180,0,0.2) !important;
+}
+
+.qbsc-view-cart-link {
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  color: var(--sc-text2);
+  text-decoration: none;
+  padding: 4px 0;
+  transition: color 0.18s;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.qbsc-view-cart-link:hover { color: var(--sc-text); }
+
+/* ── MINI BAR ── */
+.qbsc-bar {
+  position: fixed;
+  bottom: var(--sc-bar-bottom, calc(75px + env(safe-area-inset-bottom)));
+  left: 12px;
+  right: 12px;
+  z-index: 10000;
+  background: var(--sc-bar-bg);
+  border: 1.5px solid rgba(244, 180, 0, 0.32);
+  border-radius: 20px;
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  pointer-events: all;
+  box-shadow: var(--sc-shadow);
+  transition: transform 0.45s var(--sc-spring), opacity 0.35s var(--sc-ease), box-shadow 0.22s;
+  will-change: transform, opacity;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.qbsc-bar:active { transform: scale(0.97) !important; }
+
+.qbsc-bar-l {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.qbsc-bar-bag {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  background: var(--sc-gold-dim);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--sc-gold);
+}
+
+.qbsc-bar-dot {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: var(--sc-gold);
+  color: #000;
+  font-size: 10px;
+  font-weight: 900;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid var(--sc-bg);
+  transition: transform 0.2s var(--sc-spring);
+}
+
+.qbsc-bar-dot.qbsc-dot-bump {
+  animation: qbscBump 0.3s var(--sc-spring);
+}
+
+.qbsc-bar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.qbsc-bar-items {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--sc-text);
+  line-height: 1.2;
+}
+
+.qbsc-bar-hint {
+  font-size: 11px;
+  color: var(--sc-text2);
+  line-height: 1.2;
+}
+
+.qbsc-bar-r {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.qbsc-bar-price {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--sc-gold);
+  transition: transform 0.2s var(--sc-spring);
+}
+
+.qbsc-bar-price.qbsc-price-bump {
+  animation: qbscBump 0.3s var(--sc-spring);
+}
+
+.qbsc-bar-chevron-wrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--sc-bg2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s var(--sc-ease), background 0.2s;
+  flex-shrink: 0;
+}
+
+#qbsc-root.qbsc-open .qbsc-bar-chevron-wrap {
+  transform: rotate(180deg);
+  background: var(--sc-gold-dim);
+}
+
+.qbsc-chevron {
+  color: var(--sc-text2);
+}
+
+/* ── BAR ENTRY ANIMATIONS ── */
+@keyframes qbscBarSlideIn {
+  0%   { transform: translateY(40px); opacity: 0; }
+  60%  { transform: translateY(-5px); opacity: 1; }
+  80%  { transform: translateY(2px); }
+  100% { transform: translateY(0); }
+}
+
+.qbsc-bar.qbsc-enter {
+  animation: qbscBarSlideIn 0.55s var(--sc-spring) both;
+}
+
+@keyframes qbscBarPulse {
+  0%   { box-shadow: var(--sc-shadow), 0 0 0 0 rgba(244,180,0,0.5); }
+  60%  { box-shadow: var(--sc-shadow), 0 0 0 10px rgba(244,180,0,0); }
+  100% { box-shadow: var(--sc-shadow); }
+}
+
+.qbsc-bar.qbsc-pulse {
+  animation: qbscBarPulse 0.65s ease-out forwards;
+}
+
+/* ── DESKTOP / TABLET ── */
+@media (min-width: 640px) {
+  .qbsc-bar {
+    max-width: 480px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+
+  #qbsc-root.qbsc-hidden .qbsc-bar {
+    transform: translateX(-50%) translateY(calc(100% + 12px));
+    opacity: 0;
+  }
+
+  .qbsc-bar.qbsc-enter {
+    animation: qbscBarSlideInDesktop 0.55s var(--sc-spring) both;
+  }
+
+  @keyframes qbscBarSlideInDesktop {
+    0%   { transform: translateX(-50%) translateY(40px); opacity: 0; }
+    60%  { transform: translateX(-50%) translateY(-5px); opacity: 1; }
+    80%  { transform: translateX(-50%) translateY(2px); }
+    100% { transform: translateX(-50%) translateY(0); }
+  }
+
+  .qbsc-panel {
+    max-width: 480px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%) translateY(100%);
+    border-radius: 24px 24px 0 0;
+  }
+
+  #qbsc-root.qbsc-open .qbsc-panel {
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* No mobile footer on desktop — adjust bar position */
+@media (min-width: 769px) {
+  #qbsc-root {
+    --sc-bar-bottom: 16px;
+  }
+}
+</style>
+
+<script>
+(function () {
+  'use strict';
+
+  var ROOT    = document.getElementById('qbsc-root');
+  var BAR     = document.getElementById('qbsc-bar');
+  var PANEL   = document.getElementById('qbsc-panel');
+  var BACKDROP= document.getElementById('qbsc-backdrop');
+  var CLOSE   = document.getElementById('qbsc-close');
+  var ITEMS   = document.getElementById('qbsc-items');
+
+  var EL_COUNT    = document.getElementById('qbsc-panel-count');
+  var EL_SUBTOTAL = document.getElementById('qbsc-subtotal');
+  var EL_BAR_DOT  = document.getElementById('qbsc-bar-dot');
+  var EL_BAR_ITEMS= document.getElementById('qbsc-bar-items');
+  var EL_BAR_PRICE= document.getElementById('qbsc-bar-price');
+
+  if (!ROOT || !BAR) return;
+
+  var isOpen      = false;
+  var prevCount   = -1;   // -1 = not yet initialised
+  var isFetching  = false;
+
+  /* ── Helpers ── */
+  function fmt(cents) {
+    var n = Math.round(cents / 100);
+    return 'Rs\u00a0' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function bump(el) {
+    if (!el) return;
+    el.classList.remove('qbsc-bump', 'qbsc-dot-bump', 'qbsc-price-bump');
+    void el.offsetWidth;
+    var cls = el.classList.contains('qbsc-bar-price') ? 'qbsc-price-bump'
+            : el.classList.contains('qbsc-bar-dot')   ? 'qbsc-dot-bump'
+            : 'qbsc-bump';
+    el.classList.add(cls);
+    setTimeout(function () { el.classList.remove(cls, 'qbsc-bump', 'qbsc-dot-bump', 'qbsc-price-bump'); }, 350);
+  }
+
+  /* ── Fetch cart ── */
+  function fetchCart() {
+    return fetch('/cart.js', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(function (r) { return r.json(); });
+  }
+
+  /* ── Render items ── */
+  function renderItems(items) {
+    if (!items || items.length === 0) {
+      ITEMS.innerHTML =
+        '<div class="qbsc-empty">' +
+          '<div class="qbsc-empty-icon">🛒</div>' +
+          '<div class="qbsc-empty-text">Cart is empty</div>' +
+          '<div class="qbsc-empty-sub">Add some items to get started</div>' +
+        '</div>';
+      return;
+    }
+
+    var html = '';
+    for (var i = 0; i < items.length; i++) {
+      var it  = items[i];
+      var img = it.featured_image && it.featured_image.url
+        ? '<img class="qbsc-item-img" src="' + it.featured_image.url.replace(/(\.\w+)(\?|$)/, '_100x100$1$2') + '" alt="" loading="lazy">'
+        : '<div class="qbsc-item-img-ph">🍽️</div>';
+
+      var variant = (it.variant_title && it.variant_title !== 'Default Title')
+        ? '<div class="qbsc-item-variant">' + escHtml(it.variant_title) + '</div>'
+        : '';
+
+      html +=
+        '<div class="qbsc-item" data-key="' + escAttr(it.key) + '" data-line="' + (i + 1) + '" style="animation-delay:' + (i * 0.04) + 's">' +
+          img +
+          '<div class="qbsc-item-body">' +
+            '<div class="qbsc-item-name">' + escHtml(it.product_title) + '</div>' +
+            variant +
+            '<div class="qbsc-item-price">' + fmt(it.final_line_price) + '</div>' +
+          '</div>' +
+          '<div class="qbsc-item-qty">' +
+            '<button class="qbsc-qty-btn" data-act="dec" data-key="' + escAttr(it.key) + '" data-qty="' + it.quantity + '" aria-label="Remove one">−</button>' +
+            '<span class="qbsc-qty-num">' + it.quantity + '</span>' +
+            '<button class="qbsc-qty-btn" data-act="inc" data-key="' + escAttr(it.key) + '" data-qty="' + it.quantity + '" aria-label="Add one">+</button>' +
+          '</div>' +
+        '</div>';
+    }
+    ITEMS.innerHTML = html;
+  }
+
+  /* ── Escape helpers ── */
+  function escHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function escAttr(s) {
+    return String(s).replace(/"/g, '&quot;');
+  }
+
+  /* ── Update UI from cart data ── */
+  function applyCart(cart, isNewAdd) {
+    var count = cart.item_count || 0;
+    var total = cart.total_price || 0;
+
+    var countChanged = (prevCount !== -1 && count !== prevCount);
+
+    /* Update bar */
+    if (EL_BAR_DOT)   { EL_BAR_DOT.textContent = count > 99 ? '99+' : count; if (countChanged) bump(EL_BAR_DOT); }
+    if (EL_BAR_ITEMS) { EL_BAR_ITEMS.textContent = count + (count === 1 ? ' item' : ' items'); }
+    if (EL_BAR_PRICE) { EL_BAR_PRICE.textContent = fmt(total); if (countChanged || isNewAdd) bump(EL_BAR_PRICE); }
+
+    /* Update panel */
+    if (EL_COUNT)    EL_COUNT.textContent = count;
+    if (EL_SUBTOTAL) {
+      EL_SUBTOTAL.textContent = fmt(total);
+      if (countChanged || isNewAdd) {
+        EL_SUBTOTAL.classList.remove('qbsc-price-bump');
+        void EL_SUBTOTAL.offsetWidth;
+        EL_SUBTOTAL.classList.add('qbsc-price-bump');
+        setTimeout(function () { EL_SUBTOTAL.classList.remove('qbsc-price-bump'); }, 350);
+      }
+    }
+
+    renderItems(cart.items || []);
+
+    /* Show / hide */
+    if (count === 0) {
+      ROOT.classList.add('qbsc-hidden');
+      if (isOpen) closePanel();
+    } else {
+      var wasHidden = ROOT.classList.contains('qbsc-hidden');
+      ROOT.classList.remove('qbsc-hidden');
+
+      if (wasHidden || (isNewAdd && count > prevCount && prevCount >= 0)) {
+        /* Bounce-in or bump animation */
+        BAR.classList.remove('qbsc-enter', 'qbsc-pulse');
+        void BAR.offsetWidth;
+        BAR.classList.add(wasHidden ? 'qbsc-enter' : 'qbsc-pulse');
+        setTimeout(function () { BAR.classList.remove('qbsc-enter', 'qbsc-pulse'); }, 700);
+      }
+    }
+
+    prevCount = count;
+  }
+
+  /* ── Load cart ── */
+  function loadCart(isNewAdd) {
+    if (isFetching) return;
+    isFetching = true;
+    fetchCart()
+      .then(function (cart) { applyCart(cart, !!isNewAdd); })
+      .catch(function () {})
+      .then(function () { isFetching = false; });
+  }
+
+  /* ── Panel open / close ── */
+  function openPanel() {
+    isOpen = true;
+    ROOT.classList.add('qbsc-open');
+    BAR.setAttribute('aria-expanded', 'true');
+    PANEL.setAttribute('aria-hidden', 'false');
+    /* Refresh items */
+    fetchCart().then(function (c) { applyCart(c, false); }).catch(function () {});
+  }
+
+  function closePanel() {
+    isOpen = false;
+    ROOT.classList.remove('qbsc-open');
+    BAR.setAttribute('aria-expanded', 'false');
+    PANEL.setAttribute('aria-hidden', 'true');
+  }
+
+  /* ── Qty change ── */
+  function changeQty(key, newQty) {
+    fetch('/cart/change.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: key, quantity: newQty })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (cart) {
+      applyCart(cart, false);
+      document.dispatchEvent(new CustomEvent('cart:updated', { bubbles: true }));
+    })
+    .catch(function () {});
+  }
+
+  /* ── Event listeners ── */
+  BAR.addEventListener('click', function () { isOpen ? closePanel() : openPanel(); });
+  BAR.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); isOpen ? closePanel() : openPanel(); } });
+
+  if (CLOSE)    CLOSE.addEventListener('click', closePanel);
+  if (BACKDROP) BACKDROP.addEventListener('click', closePanel);
+
+  /* Swipe-down to close (touch) */
+  var touchStartY = 0;
+  PANEL.addEventListener('touchstart', function (e) { touchStartY = e.touches[0].clientY; }, { passive: true });
+  PANEL.addEventListener('touchend', function (e) {
+    var delta = e.changedTouches[0].clientY - touchStartY;
+    if (delta > 70) closePanel();
+  }, { passive: true });
+
+  /* Keyboard close */
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && isOpen) closePanel(); });
+
+  /* Qty buttons (delegated) */
+  ITEMS.addEventListener('click', function (e) {
+    var btn = e.target.closest('.qbsc-qty-btn');
+    if (!btn) return;
+    e.preventDefault();
+
+    var key = btn.getAttribute('data-key');
+    var act = btn.getAttribute('data-act');
+    var qty = parseInt(btn.getAttribute('data-qty'), 10) || 0;
+    var newQty = act === 'inc' ? qty + 1 : qty - 1;
+
+    /* Optimistic update */
+    var controls = btn.closest('.qbsc-item-qty');
+    if (controls) {
+      var numEl = controls.querySelector('.qbsc-qty-num');
+      if (numEl) {
+        numEl.textContent = Math.max(0, newQty);
+        bump(numEl);
+      }
+      controls.querySelectorAll('.qbsc-qty-btn').forEach(function (b) { b.setAttribute('data-qty', newQty); });
+    }
+
+    if (newQty <= 0) {
+      var itemEl = btn.closest('.qbsc-item');
+      if (itemEl) {
+        itemEl.style.maxHeight = itemEl.offsetHeight + 'px';
+        requestAnimationFrame(function () { itemEl.classList.add('qbsc-removing'); });
+        setTimeout(function () { changeQty(key, 0); }, 280);
+      } else {
+        changeQty(key, 0);
+      }
+    } else {
+      changeQty(key, newQty);
+    }
+  });
+
+  /* ── Listen to cart events ── */
+  document.addEventListener('cart:updated', function () { loadCart(true); });
+  document.addEventListener('CartAddEvent',  function () { loadCart(true); });
+  document.addEventListener('cart:add',      function () { loadCart(true); });
+
+  /* Intercept fetch to /cart/add.js to catch native add-to-cart calls */
+  var _fetch = window.fetch;
+  window.fetch = function () {
+    var url = '';
+    if (typeof arguments[0] === 'string') url = arguments[0];
+    else if (arguments[0] && typeof arguments[0].url === 'string') url = arguments[0].url;
+
+    var p = _fetch.apply(this, arguments);
+
+    if (/\/cart\/add(\.js)?(\?|$)/.test(url)) {
+      p.then(function (r) {
+        if (r && r.ok) setTimeout(function () { loadCart(true); }, 150);
+      }).catch(function () {});
+    }
+    return p;
+  };
+
+  /* ── Init ── */
+  function init() { loadCart(false); }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+{% endunless %}
