@@ -1,0 +1,1044 @@
+{% comment %}
+  sections/qb-account-dashboard.liquid
+  Custom QuickBee Account Dashboard — reads all data from localStorage
+  Shows: profile, saved locations, recent orders, preferences, subscriptions
+{% endcomment %}
+
+<style>
+/* ══════════════════════════════════════════════════════
+   QB ACCOUNT DASHBOARD
+══════════════════════════════════════════════════════ */
+[data-theme="dark"] {
+  --ac-bg:          #090909;
+  --ac-bg2:         #111111;
+  --ac-bg3:         #1a1a1a;
+  --ac-card:        #111111;
+  --ac-card2:       #181818;
+  --ac-border:      rgba(255,255,255,0.07);
+  --ac-text:        #f0f0f0;
+  --ac-text2:       #888888;
+  --ac-text3:       #555555;
+  --ac-shadow:      0 4px 20px rgba(0,0,0,0.5);
+  --ac-shadow-lg:   0 16px 60px rgba(0,0,0,0.8);
+  --ac-gold:        #F4B400;
+  --ac-gold-dim:    rgba(244,180,0,0.12);
+  --ac-red:         #FF4444;
+  --ac-red-dim:     rgba(255,68,68,0.1);
+  --ac-green:       #22c55e;
+  --ac-green-dim:   rgba(34,197,94,0.1);
+}
+
+[data-theme="light"],
+html:not([data-theme]) {
+  --ac-bg:          #f5f6f8;
+  --ac-bg2:         #ffffff;
+  --ac-bg3:         #eef0f3;
+  --ac-card:        #ffffff;
+  --ac-card2:       #f8f9fb;
+  --ac-border:      rgba(15,23,42,0.07);
+  --ac-text:        #111827;
+  --ac-text2:       #6b7280;
+  --ac-text3:       #9ca3af;
+  --ac-shadow:      0 4px 20px rgba(15,23,42,0.07);
+  --ac-shadow-lg:   0 16px 60px rgba(15,23,42,0.12);
+  --ac-gold:        #F4B400;
+  --ac-gold-dim:    rgba(244,180,0,0.10);
+  --ac-red:         #EF4444;
+  --ac-red-dim:     rgba(239,68,68,0.08);
+  --ac-green:       #16a34a;
+  --ac-green-dim:   rgba(22,163,74,0.08);
+}
+
+.qb-ac-root {
+  background: var(--ac-bg);
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding-bottom: 50px;
+}
+
+/* ── PROFILE HEADER ── */
+.qb-ac-hero {
+  background: linear-gradient(160deg, #0d0d0d 0%, #1a1200 60%, #0d0d0d 100%);
+  padding: 32px 20px 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.qb-ac-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -40px; right: -40px;
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(244,180,0,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.qb-ac-hero-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.qb-ac-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #F4B400, #FFD700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 900;
+  color: #000;
+  flex-shrink: 0;
+  border: 3px solid rgba(244,180,0,0.3);
+  box-shadow: 0 0 20px rgba(244,180,0,0.25);
+}
+
+.qb-ac-hero-info {}
+
+.qb-ac-greeting {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 2px;
+}
+
+.qb-ac-name {
+  font-size: 20px;
+  font-weight: 900;
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.qb-ac-email {
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+}
+
+.qb-ac-hero-stats {
+  display: flex;
+  gap: 0;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.qb-ac-hero-stat {
+  flex: 1;
+  text-align: center;
+  padding: 12px 8px;
+  border-right: 1px solid rgba(255,255,255,0.07);
+}
+
+.qb-ac-hero-stat:last-child { border-right: none; }
+
+.qb-ac-stat-val {
+  font-size: 18px;
+  font-weight: 900;
+  color: #F4B400;
+  display: block;
+}
+
+.qb-ac-stat-lbl {
+  font-size: 10px;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* ── BODY ── */
+.qb-ac-body {
+  padding: 16px 16px 0;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── SECTION CARD ── */
+.qb-ac-card {
+  background: var(--ac-card);
+  border: 1px solid var(--ac-border);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--ac-shadow);
+}
+
+.qb-ac-card-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--ac-border);
+}
+
+.qb-ac-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ac-text);
+}
+
+.qb-ac-card-title-icon { font-size: 16px; }
+
+.qb-ac-card-action {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ac-gold);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
+}
+
+/* ── LOCATION ITEM ── */
+.qb-ac-loc-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--ac-border);
+  position: relative;
+}
+
+.qb-ac-loc-item:last-child { border-bottom: none; }
+
+.qb-ac-loc-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.qb-ac-loc-active-icon { background: var(--ac-gold-dim); }
+.qb-ac-loc-saved-icon  { background: var(--ac-bg3); }
+
+.qb-ac-loc-body { flex: 1; min-width: 0; }
+
+.qb-ac-loc-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+
+.qb-ac-loc-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ac-text);
+}
+
+.qb-ac-active-badge {
+  font-size: 9px;
+  font-weight: 800;
+  background: var(--ac-gold);
+  color: #000;
+  padding: 2px 7px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.qb-ac-loc-addr {
+  font-size: 12px;
+  color: var(--ac-text2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qb-ac-loc-sub {
+  font-size: 11px;
+  color: var(--ac-text3);
+  margin-top: 2px;
+}
+
+.qb-ac-loc-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.qb-ac-loc-btn {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--ac-border);
+  background: var(--ac-bg3);
+  color: var(--ac-text2);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.18s;
+  text-decoration: none;
+}
+
+.qb-ac-loc-btn.primary {
+  background: var(--ac-gold-dim);
+  border-color: rgba(244,180,0,0.3);
+  color: var(--ac-gold);
+}
+
+.qb-ac-no-data {
+  padding: 28px 20px;
+  text-align: center;
+  color: var(--ac-text3);
+  font-size: 13px;
+}
+
+.qb-ac-no-data-icon { font-size: 36px; margin-bottom: 8px; }
+
+/* ── DELIVERY PREFERENCES ── */
+.qb-ac-pref-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--ac-border);
+}
+
+.qb-ac-pref-row:last-child { border-bottom: none; }
+
+.qb-ac-pref-l {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.qb-ac-pref-icon { font-size: 18px; }
+
+.qb-ac-pref-label {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ac-text);
+}
+
+.qb-ac-pref-sublabel {
+  font-size: 11.5px;
+  color: var(--ac-text2);
+  margin-top: 1px;
+}
+
+.qb-ac-pref-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ac-gold);
+  background: var(--ac-gold-dim);
+  padding: 5px 12px;
+  border-radius: 10px;
+}
+
+/* ── QUICK LINKS ── */
+.qb-ac-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 14px 14px 16px;
+}
+
+.qb-ac-link-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 14px;
+  background: var(--ac-card2);
+  border: 1px solid var(--ac-border);
+  border-radius: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.18s;
+}
+
+.qb-ac-link-item:active { transform: scale(0.97); }
+
+.qb-ac-link-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.qb-ac-link-text {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ac-text);
+  line-height: 1.3;
+}
+
+.qb-ac-link-sub {
+  font-size: 10.5px;
+  color: var(--ac-text2);
+  margin-top: 1px;
+}
+
+/* ── TOGGLE SWITCH ── */
+.qb-ac-toggle {
+  width: 44px;
+  height: 26px;
+  background: var(--ac-bg3);
+  border-radius: 13px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+  border: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.qb-ac-toggle.on { background: var(--ac-gold); }
+
+.qb-ac-toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.qb-ac-toggle.on::after { transform: translateX(18px); }
+
+/* ── ORDER HISTORY ── */
+.qb-ac-order-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--ac-border);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+}
+
+.qb-ac-order-item:last-child { border-bottom: none; }
+.qb-ac-order-item:active { background: var(--ac-bg3); }
+
+.qb-ac-order-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--ac-bg3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.qb-ac-order-body { flex: 1; min-width: 0; }
+
+.qb-ac-order-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ac-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+
+.qb-ac-order-meta {
+  font-size: 11.5px;
+  color: var(--ac-text2);
+}
+
+.qb-ac-order-r {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.qb-ac-order-price {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--ac-text);
+}
+
+.qb-ac-order-status {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 8px;
+  margin-top: 3px;
+  display: inline-block;
+}
+
+.status-delivered { background: var(--ac-green-dim); color: var(--ac-green); }
+.status-processing { background: var(--ac-gold-dim); color: var(--ac-gold); }
+
+/* ── SETTINGS ROWS ── */
+.qb-ac-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--ac-border);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+}
+
+.qb-ac-setting-row:last-child { border-bottom: none; }
+.qb-ac-setting-row:active { background: var(--ac-bg3); }
+
+.qb-ac-setting-l {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.qb-ac-setting-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.qb-ac-setting-lbl {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ac-text);
+}
+
+.qb-ac-setting-sub {
+  font-size: 11.5px;
+  color: var(--ac-text2);
+  margin-top: 1px;
+}
+
+.qb-ac-chevron {
+  color: var(--ac-text3);
+}
+
+/* ── DANGER ZONE ── */
+.qb-ac-danger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: calc(100% - 32px);
+  margin: 0 16px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(255,68,68,0.25);
+  background: var(--ac-red-dim);
+  color: var(--ac-red);
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.qb-ac-danger-btn:active { transform: scale(0.98); opacity: 0.8; }
+
+/* ── VERSION TAG ── */
+.qb-ac-version {
+  text-align: center;
+  font-size: 11px;
+  color: var(--ac-text3);
+  padding: 12px 0 4px;
+}
+
+/* ── APP STORE BUTTONS ── */
+.qb-ac-app-row {
+  display: flex;
+  gap: 10px;
+  padding: 14px 18px;
+}
+
+.qb-ac-app-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px 14px;
+  background: var(--ac-bg3);
+  border: 1px solid var(--ac-border);
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ac-text);
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.18s;
+}
+
+.qb-ac-app-btn:active { transform: scale(0.97); }
+</style>
+
+<div class="qb-ac-root" id="qbAcRoot">
+
+  <!-- PROFILE HERO (populated by JS) -->
+  <div class="qb-ac-hero" id="qbAcHero">
+    <div class="qb-ac-hero-row">
+      <div class="qb-ac-avatar" id="qbAcAvatar">👤</div>
+      <div class="qb-ac-hero-info">
+        <div class="qb-ac-greeting">Welcome back</div>
+        <div class="qb-ac-name" id="qbAcName">
+          {% if customer %}{{ customer.first_name | default: 'QuickBee User' }}{% else %}QuickBee User{% endif %}
+        </div>
+        <div class="qb-ac-email" id="qbAcEmail">
+          {% if customer %}{{ customer.email }}{% else %}Not signed in{% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="qb-ac-hero-stats">
+      <div class="qb-ac-hero-stat">
+        <span class="qb-ac-stat-val" id="qbAcOrderCount">
+          {% if customer %}{{ customer.orders_count }}{% else %}0{% endif %}
+        </span>
+        <span class="qb-ac-stat-lbl">Orders</span>
+      </div>
+      <div class="qb-ac-hero-stat">
+        <span class="qb-ac-stat-val" id="qbAcSavedLocs">0</span>
+        <span class="qb-ac-stat-lbl">Saved Locations</span>
+      </div>
+      <div class="qb-ac-hero-stat">
+        <span class="qb-ac-stat-val" id="qbAcActiveSubs">0</span>
+        <span class="qb-ac-stat-lbl">Subscriptions</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="qb-ac-body" id="qbAcBody">
+
+    <!-- ── CURRENT DELIVERY LOCATION ── -->
+    <div class="qb-ac-card">
+      <div class="qb-ac-card-hdr">
+        <div class="qb-ac-card-title">
+          <span class="qb-ac-card-title-icon">📍</span> Delivery Locations
+        </div>
+        <span class="qb-ac-card-action" id="qbAcAddLocBtn">+ Add New</span>
+      </div>
+      <div id="qbAcLocations">
+        <div class="qb-ac-no-data">
+          <div class="qb-ac-no-data-icon">📍</div>
+          Loading locations…
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DELIVERY PREFERENCES ── -->
+    <div class="qb-ac-card">
+      <div class="qb-ac-card-hdr">
+        <div class="qb-ac-card-title">
+          <span class="qb-ac-card-title-icon">⚡</span> Delivery Info
+        </div>
+      </div>
+      <div class="qb-ac-pref-row">
+        <div class="qb-ac-pref-l">
+          <span class="qb-ac-pref-icon">🕐</span>
+          <div>
+            <div class="qb-ac-pref-label">Estimated Delivery</div>
+            <div class="qb-ac-pref-sublabel">Based on your location</div>
+          </div>
+        </div>
+        <span class="qb-ac-pref-val" id="qbAcDeliveryTime">18–22 mins</span>
+      </div>
+      <div class="qb-ac-pref-row">
+        <div class="qb-ac-pref-l">
+          <span class="qb-ac-pref-icon">🌍</span>
+          <div>
+            <div class="qb-ac-pref-label">Delivery Zone</div>
+            <div class="qb-ac-pref-sublabel">Kathmandu Valley</div>
+          </div>
+        </div>
+        <span class="qb-ac-pref-val" id="qbAcZone">Active</span>
+      </div>
+      <div class="qb-ac-pref-row">
+        <div class="qb-ac-pref-l">
+          <span class="qb-ac-pref-icon">📅</span>
+          <div>
+            <div class="qb-ac-pref-label">Location Set On</div>
+            <div class="qb-ac-pref-sublabel">Last saved timestamp</div>
+          </div>
+        </div>
+        <span class="qb-ac-pref-val" id="qbAcLocTimestamp">—</span>
+      </div>
+    </div>
+
+    <!-- ── QUICK LINKS ── -->
+    <div class="qb-ac-card" style="overflow:visible;">
+      <div class="qb-ac-links">
+        <a href="/collections" class="qb-ac-link-item">
+          <div class="qb-ac-link-icon" style="background: rgba(244,180,0,0.12);">🛍️</div>
+          <div><div class="qb-ac-link-text">Shop Now</div><div class="qb-ac-link-sub">Browse all items</div></div>
+        </a>
+        <a href="/pages/subscriptions" class="qb-ac-link-item">
+          <div class="qb-ac-link-icon" style="background: rgba(34,197,94,0.10);">🔔</div>
+          <div><div class="qb-ac-link-text">Subscriptions</div><div class="qb-ac-link-sub">Manage plans</div></div>
+        </a>
+        <a href="/cart" class="qb-ac-link-item">
+          <div class="qb-ac-link-icon" style="background: rgba(59,130,246,0.10);">🛒</div>
+          <div><div class="qb-ac-link-text">My Cart</div><div class="qb-ac-link-sub" id="qbAcCartCount">0 items</div></div>
+        </a>
+        <a href="/pages/faq-help" class="qb-ac-link-item">
+          <div class="qb-ac-link-icon" style="background: rgba(139,92,246,0.10);">💬</div>
+          <div><div class="qb-ac-link-text">Help & FAQ</div><div class="qb-ac-link-sub">Get support</div></div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ── RECENT ORDERS ── -->
+    <div class="qb-ac-card">
+      <div class="qb-ac-card-hdr">
+        <div class="qb-ac-card-title">
+          <span class="qb-ac-card-title-icon">📦</span> Recent Orders
+        </div>
+        {% if customer %}
+        <a href="/account/orders" class="qb-ac-card-action">View All</a>
+        {% endif %}
+      </div>
+      <div id="qbAcOrders">
+        {% if customer %}
+          {% assign recent_orders = customer.orders | slice: 0, 5 %}
+          {% if recent_orders.size > 0 %}
+            {% for order in recent_orders %}
+            <div class="qb-ac-order-item">
+              <div class="qb-ac-order-icon">
+                {% if order.line_items.first.product.type == 'Food' %}🍱{% else %}📦{% endif %}
+              </div>
+              <div class="qb-ac-order-body">
+                <div class="qb-ac-order-name">{{ order.line_items | map: 'title' | join: ', ' | truncate: 40 }}</div>
+                <div class="qb-ac-order-meta">{{ order.created_at | date: "%b %d, %Y" }} · {{ order.line_items_count }} item{% if order.line_items_count > 1 %}s{% endif %}</div>
+              </div>
+              <div class="qb-ac-order-r">
+                <div class="qb-ac-order-price">Rs {{ order.total_price | divided_by: 100 }}</div>
+                <div class="qb-ac-order-status {% if order.financial_status == 'paid' %}status-delivered{% else %}status-processing{% endif %}">
+                  {% if order.fulfillment_status == 'fulfilled' %}Delivered
+                  {% elsif order.financial_status == 'paid' %}Processing
+                  {% else %}Pending{% endif %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="qb-ac-no-data">
+              <div class="qb-ac-no-data-icon">📦</div>
+              No orders yet. <a href="/collections" style="color:var(--ac-gold);font-weight:700;">Start shopping</a>
+            </div>
+          {% endif %}
+        {% else %}
+          <div class="qb-ac-no-data">
+            <div class="qb-ac-no-data-icon">🔐</div>
+            <a href="/account/login" style="color:var(--ac-gold);font-weight:700;">Sign in</a> to see your order history
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ── SETTINGS ── -->
+    <div class="qb-ac-card">
+      <div class="qb-ac-card-hdr">
+        <div class="qb-ac-card-title">
+          <span class="qb-ac-card-title-icon">⚙️</span> Settings
+        </div>
+      </div>
+
+      <!-- Dark Mode Toggle -->
+      <div class="qb-ac-setting-row" id="qbAcThemeRow" style="cursor:default;">
+        <div class="qb-ac-setting-l">
+          <div class="qb-ac-setting-icon" style="background: rgba(244,180,0,0.12);">🌙</div>
+          <div>
+            <div class="qb-ac-setting-lbl">Dark Mode</div>
+            <div class="qb-ac-setting-sub">Change app appearance</div>
+          </div>
+        </div>
+        <button class="qb-ac-toggle" id="qbAcThemeToggle" aria-label="Toggle dark mode"></button>
+      </div>
+
+      <!-- Notifications -->
+      <div class="qb-ac-setting-row" id="qbAcNotifRow" style="cursor:default;">
+        <div class="qb-ac-setting-l">
+          <div class="qb-ac-setting-icon" style="background: rgba(59,130,246,0.10);">🔔</div>
+          <div>
+            <div class="qb-ac-setting-lbl">Order Notifications</div>
+            <div class="qb-ac-setting-sub">Get delivery updates</div>
+          </div>
+        </div>
+        <button class="qb-ac-toggle" id="qbAcNotifToggle" aria-label="Toggle notifications"></button>
+      </div>
+
+      <!-- Location Sharing -->
+      <div class="qb-ac-setting-row" onclick="window.location.href='/'">
+        <div class="qb-ac-setting-l">
+          <div class="qb-ac-setting-icon" style="background: rgba(34,197,94,0.10);">📍</div>
+          <div>
+            <div class="qb-ac-setting-lbl">Update Delivery Location</div>
+            <div class="qb-ac-setting-sub">Change where we deliver</div>
+          </div>
+        </div>
+        <svg class="qb-ac-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <!-- Subscriptions -->
+      <div class="qb-ac-setting-row" onclick="window.location.href='/pages/subscriptions'">
+        <div class="qb-ac-setting-l">
+          <div class="qb-ac-setting-icon" style="background: rgba(139,92,246,0.10);">🔄</div>
+          <div>
+            <div class="qb-ac-setting-lbl">My Subscriptions</div>
+            <div class="qb-ac-setting-sub">Manage recurring orders</div>
+          </div>
+        </div>
+        <svg class="qb-ac-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <!-- Privacy -->
+      <div class="qb-ac-setting-row" id="qbAcClearDataRow" style="cursor:pointer;">
+        <div class="qb-ac-setting-l">
+          <div class="qb-ac-setting-icon" style="background: rgba(255,68,68,0.08);">🗑️</div>
+          <div>
+            <div class="qb-ac-setting-lbl">Clear Saved Data</div>
+            <div class="qb-ac-setting-sub">Remove all local preferences</div>
+          </div>
+        </div>
+        <svg class="qb-ac-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+
+    <!-- ── APP DOWNLOAD ── -->
+    <div class="qb-ac-card">
+      <div class="qb-ac-card-hdr">
+        <div class="qb-ac-card-title">
+          <span class="qb-ac-card-title-icon">📱</span> Get the App
+        </div>
+      </div>
+      <div class="qb-ac-app-row">
+        <a href="/pages/mobile-app" class="qb-ac-app-btn">
+          🍎 App Store
+        </a>
+        <a href="/pages/mobile-app" class="qb-ac-app-btn">
+          🤖 Play Store
+        </a>
+      </div>
+    </div>
+
+    <!-- ── SIGN OUT / SIGN IN ── -->
+    {% if customer %}
+      <button class="qb-ac-danger-btn" id="qbAcSignOut">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
+    {% else %}
+      <a href="/account/login" style="display:flex;align-items:center;justify-content:center;gap:8px;margin:0 16px;padding:14px;border-radius:14px;background:var(--ac-gold);color:#000;font-size:14px;font-weight:900;text-decoration:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Sign In to Your Account
+      </a>
+    {% endif %}
+
+    <div class="qb-ac-version">QuickBee v2.5 · Kathmandu Valley 🐝</div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── Helpers ── */
+  function safeGet(key) {
+    try { return localStorage.getItem(key); } catch (e) { return null; }
+  }
+
+  function safeParse(str) {
+    try { return str ? JSON.parse(str) : null; } catch (e) { return null; }
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '—';
+    try {
+      var d = new Date(iso);
+      return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch (e) { return '—'; }
+  }
+
+  function esc(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  /* ── Load saved location ── */
+  function loadLocations() {
+    var container   = document.getElementById('qbAcLocations');
+    var statEl      = document.getElementById('qbAcSavedLocs');
+    var deliveryEl  = document.getElementById('qbAcDeliveryTime');
+    var timestampEl = document.getElementById('qbAcLocTimestamp');
+
+    var locStr  = safeGet('qb_selected_location');
+    var dtStr   = safeGet('qb_delivery_time');
+    var loc     = safeParse(locStr);
+    var dt      = safeParse(dtStr);
+
+    /* Update delivery time */
+    if (dt && dt.range)   deliveryEl.textContent = dt.range;
+    if (loc && loc.timestamp) timestampEl.textContent = formatDate(loc.timestamp);
+
+    if (!loc) {
+      container.innerHTML =
+        '<div class="qb-ac-no-data">' +
+          '<div class="qb-ac-no-data-icon">📍</div>' +
+          '<div>No delivery location saved yet.</div>' +
+          '<div style="margin-top:8px"><a href="/" style="color:var(--ac-gold);font-weight:700;">Set your location</a></div>' +
+        '</div>';
+      if (statEl) statEl.textContent = '0';
+      return;
+    }
+
+    var typeIcon  = loc.type === 'other' ? '👤' : '📡';
+    var typeName  = loc.type === 'other' ? 'Someone Else' : 'My Location';
+    var addrText  = loc.location || loc.address || loc.street || 'Location saved';
+    var nameText  = loc.name  || '';
+    var phoneText = loc.phone || '';
+
+    var hasCoords = loc.latitude && loc.longitude;
+    var mapsUrl   = loc.landmark_link
+      ? loc.landmark_link
+      : (hasCoords ? 'https://www.google.com/maps?q=' + loc.latitude + ',' + loc.longitude : '');
+
+    var html =
+      '<div class="qb-ac-loc-item">' +
+        '<div class="qb-ac-loc-icon qb-ac-loc-active-icon">' + typeIcon + '</div>' +
+        '<div class="qb-ac-loc-body">' +
+          '<div class="qb-ac-loc-label">' +
+            '<span class="qb-ac-loc-name">' + esc(typeName) + '</span>' +
+            '<span class="qb-ac-active-badge">Active</span>' +
+          '</div>' +
+          '<div class="qb-ac-loc-addr">' + esc(addrText) + '</div>' +
+          (nameText  ? '<div class="qb-ac-loc-sub">👤 ' + esc(nameText)  + '</div>' : '') +
+          (phoneText ? '<div class="qb-ac-loc-sub">📞 ' + esc(phoneText) + '</div>' : '') +
+          '<div class="qb-ac-loc-actions">' +
+            '<span class="qb-ac-loc-btn primary" id="qbAcChangeLocBtn">📍 Change</span>' +
+            (mapsUrl ? '<a href="' + esc(mapsUrl) + '" target="_blank" rel="noopener" class="qb-ac-loc-btn">🗺️ View Map</a>' : '') +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    container.innerHTML = html;
+    if (statEl) statEl.textContent = '1';
+
+    /* Change location → trigger modal */
+    var changeBtn = document.getElementById('qbAcChangeLocBtn');
+    if (changeBtn) {
+      changeBtn.addEventListener('click', function () {
+        if (window.QB_MODAL && typeof window.QB_MODAL.show === 'function') {
+          window.QB_MODAL.show(false);
+        } else {
+          window.location.href = '/';
+        }
+      });
+    }
+  }
+
+  /* ── Add new location btn ── */
+  var addBtn = document.getElementById('qbAcAddLocBtn');
+  if (addBtn) {
+    addBtn.addEventListener('click', function () {
+      if (window.QB_MODAL && typeof window.QB_MODAL.show === 'function') {
+        window.QB_MODAL.show(false);
+      } else {
+        window.location.href = '/';
+      }
+    });
+  }
+
+  /* ── Dark mode toggle ── */
+  var themeToggle = document.getElementById('qbAcThemeToggle');
+  if (themeToggle) {
+    var currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    themeToggle.classList.toggle('on', currentTheme === 'dark');
+    themeToggle.addEventListener('click', function () {
+      var cur = document.documentElement.getAttribute('data-theme') || 'dark';
+      var next = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('quickbee-theme', next);
+      themeToggle.classList.toggle('on', next === 'dark');
+    });
+  }
+
+  /* ── Notifications toggle (stored in localStorage) ── */
+  var notifToggle = document.getElementById('qbAcNotifToggle');
+  if (notifToggle) {
+    var notifOn = safeGet('qb_notifications') !== 'off';
+    notifToggle.classList.toggle('on', notifOn);
+    notifToggle.addEventListener('click', function () {
+      notifOn = !notifOn;
+      notifToggle.classList.toggle('on', notifOn);
+      try { localStorage.setItem('qb_notifications', notifOn ? 'on' : 'off'); } catch (e) {}
+    });
+  }
+
+  /* ── Cart count in quick links ── */
+  var cartCountEl = document.getElementById('qbAcCartCount');
+  if (cartCountEl) {
+    fetch('/cart.js', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(function (r) { return r.json(); })
+      .then(function (c) {
+        var n = c.item_count || 0;
+        cartCountEl.textContent = n + (n === 1 ? ' item' : ' items');
+      })
+      .catch(function () {});
+  }
+
+  /* ── Avatar initials from customer name ── */
+  var nameEl = document.getElementById('qbAcName');
+  var avatarEl = document.getElementById('qbAcAvatar');
+  if (nameEl && avatarEl) {
+    var fullName = nameEl.textContent.trim();
+    if (fullName && fullName !== 'QuickBee User') {
+      var parts = fullName.split(' ');
+      var initials = parts[0][0] + (parts[1] ? parts[1][0] : '');
+      avatarEl.textContent = initials.toUpperCase();
+    }
+  }
+
+  /* ── Clear local data ── */
+  var clearBtn = document.getElementById('qbAcClearDataRow');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', function () {
+      if (!confirm('Clear all saved QuickBee data (location, preferences)? This cannot be undone.')) return;
+      var keysToRemove = [
+        'qb_selected_location', 'qb_delivery_time', 'qb_notifications',
+        'qb_active_nickname', 'qb_wallet_balance', 'qbsc-cart-data'
+      ];
+      keysToRemove.forEach(function (k) {
+        try { localStorage.removeItem(k); } catch (e) {}
+      });
+      alert('✅ All saved data cleared.');
+      loadLocations();
+    });
+  }
+
+  /* ── Sign out ── */
+  var signOutBtn = document.getElementById('qbAcSignOut');
+  if (signOutBtn) {
+    signOutBtn.addEventListener('click', function () {
+      window.location.href = '/account/logout';
+    });
+  }
+
+  /* ── Init ── */
+  loadLocations();
+})();
+</script>

@@ -1,0 +1,1070 @@
+{% comment %}
+  sections/qb-subscriptions.liquid
+  QuickBee Smart Subscriptions Page
+  Beautiful subscription plans — user links each plan to a Shopify product later
+{% endcomment %}
+
+<style>
+/* ══════════════════════════════════════════════════════
+   QB SUBSCRIPTIONS — Theme-aware
+══════════════════════════════════════════════════════ */
+:root {
+  --sub-gold:       #F4B400;
+  --sub-gold2:      #FFD700;
+  --sub-gold-dim:   rgba(244,180,0,0.12);
+  --sub-gold-glow:  0 0 0 2px rgba(244,180,0,0.3);
+  --sub-green:      #22c55e;
+  --sub-blue:       #3b82f6;
+  --sub-purple:     #8b5cf6;
+  --sub-orange:     #f97316;
+  --sub-pink:       #ec4899;
+  --sub-teal:       #14b8a6;
+  --sub-ease:       cubic-bezier(0.4, 0, 0.2, 1);
+  --sub-spring:     cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+[data-theme="dark"] {
+  --sub-bg:         #090909;
+  --sub-bg2:        #111111;
+  --sub-bg3:        #1a1a1a;
+  --sub-card:       #111111;
+  --sub-card2:      #181818;
+  --sub-border:     rgba(255,255,255,0.07);
+  --sub-text:       #F0F0F0;
+  --sub-text2:      #888888;
+  --sub-text3:      #555555;
+  --sub-shadow:     0 20px 60px rgba(0,0,0,0.7);
+  --sub-shadow-sm:  0 4px 20px rgba(0,0,0,0.5);
+}
+
+[data-theme="light"],
+html:not([data-theme]) {
+  --sub-bg:         #f8f9fb;
+  --sub-bg2:        #ffffff;
+  --sub-bg3:        #f0f1f3;
+  --sub-card:       #ffffff;
+  --sub-card2:      #f5f6f8;
+  --sub-border:     rgba(15,23,42,0.07);
+  --sub-text:       #111827;
+  --sub-text2:      #6b7280;
+  --sub-text3:      #9ca3af;
+  --sub-shadow:     0 20px 60px rgba(15,23,42,0.10);
+  --sub-shadow-sm:  0 4px 20px rgba(15,23,42,0.07);
+}
+
+.qb-sub-root {
+  background: var(--sub-bg);
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding-bottom: 40px;
+}
+
+/* ── HERO ── */
+.qb-sub-hero {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1200 50%, #0a0a0a 100%);
+  padding: 48px 20px 52px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.qb-sub-hero::before {
+  content: '';
+  position: absolute;
+  top: -60px; left: 50%;
+  transform: translateX(-50%);
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(244,180,0,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.qb-sub-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(244,180,0,0.15);
+  border: 1px solid rgba(244,180,0,0.3);
+  color: #F4B400;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.qb-sub-hero h1 {
+  font-size: 32px;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0 0 10px;
+  line-height: 1.2;
+}
+
+.qb-sub-hero h1 span { color: #F4B400; }
+
+.qb-sub-hero p {
+  font-size: 15px;
+  color: rgba(255,255,255,0.6);
+  margin: 0 0 28px;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+.qb-sub-hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+}
+
+.qb-sub-stat {
+  text-align: center;
+}
+
+.qb-sub-stat-num {
+  font-size: 22px;
+  font-weight: 900;
+  color: #F4B400;
+  display: block;
+}
+
+.qb-sub-stat-lbl {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── HOW IT WORKS ── */
+.qb-sub-how {
+  padding: 32px 20px 8px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.qb-sub-section-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--sub-gold);
+  margin-bottom: 6px;
+}
+
+.qb-sub-section-title {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--sub-text);
+  margin: 0 0 20px;
+}
+
+.qb-sub-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.qb-sub-step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px 0;
+  position: relative;
+}
+
+.qb-sub-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 17px;
+  top: 44px;
+  width: 2px;
+  height: calc(100% - 20px);
+  background: linear-gradient(to bottom, rgba(244,180,0,0.4), transparent);
+}
+
+.qb-sub-step-num {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--sub-gold);
+  color: #000;
+  font-size: 14px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(244,180,0,0.3);
+}
+
+.qb-sub-step-body h4 {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--sub-text);
+  margin: 4px 0 3px;
+}
+
+.qb-sub-step-body p {
+  font-size: 13px;
+  color: var(--sub-text2);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── PERKS STRIP ── */
+.qb-sub-perks {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 16px 20px;
+  scrollbar-width: none;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.qb-sub-perks::-webkit-scrollbar { display: none; }
+
+.qb-sub-perk {
+  flex-shrink: 0;
+  background: var(--sub-card);
+  border: 1px solid var(--sub-border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.qb-sub-perk-icon { font-size: 18px; }
+
+.qb-sub-perk-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sub-text);
+}
+
+/* ── CATEGORY FILTERS ── */
+.qb-sub-filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 20px 20px 8px;
+  scrollbar-width: none;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.qb-sub-filters::-webkit-scrollbar { display: none; }
+
+.qb-sub-filter {
+  flex-shrink: 0;
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--sub-border);
+  background: var(--sub-card);
+  color: var(--sub-text2);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s var(--sub-ease);
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+
+.qb-sub-filter.active,
+.qb-sub-filter:active {
+  background: var(--sub-gold);
+  color: #000;
+  border-color: var(--sub-gold);
+}
+
+/* ── CARDS GRID ── */
+.qb-sub-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 12px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ── SUBSCRIPTION CARD ── */
+.qb-sub-card {
+  background: var(--sub-card);
+  border: 1.5px solid var(--sub-border);
+  border-radius: 22px;
+  overflow: hidden;
+  transition: transform 0.22s var(--sub-ease), box-shadow 0.22s;
+  box-shadow: var(--sub-shadow-sm);
+}
+
+.qb-sub-card:active { transform: scale(0.99); }
+
+.qb-sub-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 18px 0;
+}
+
+.qb-sub-card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.qb-sub-card-meta { flex: 1; min-width: 0; }
+
+.qb-sub-card-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--sub-text);
+  margin: 0 0 3px;
+}
+
+.qb-sub-card-tagline {
+  font-size: 12.5px;
+  color: var(--sub-text2);
+  line-height: 1.45;
+}
+
+.qb-sub-card-badge {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.badge-popular { background: rgba(244,180,0,0.15); color: #F4B400; border: 1px solid rgba(244,180,0,0.3); }
+.badge-new     { background: rgba(34,197,94,0.12); color: #22c55e; border: 1px solid rgba(34,197,94,0.25); }
+.badge-best    { background: rgba(139,92,246,0.12); color: #a78bfa; border: 1px solid rgba(139,92,246,0.25); }
+.badge-hot     { background: rgba(249,115,22,0.12); color: #fb923c; border: 1px solid rgba(249,115,22,0.25); }
+.badge-fresh   { background: rgba(20,184,166,0.12); color: #2dd4bf; border: 1px solid rgba(20,184,166,0.25); }
+
+/* Features list */
+.qb-sub-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px 18px 10px;
+}
+
+.qb-sub-feature-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sub-text2);
+  background: var(--sub-bg3);
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+/* Frequency + price row */
+.qb-sub-card-body {
+  padding: 4px 18px 16px;
+}
+
+.qb-sub-freq-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--sub-text3);
+  margin-bottom: 8px;
+}
+
+.qb-sub-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.qb-sub-option {
+  padding: 6px 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--sub-border);
+  background: var(--sub-bg3);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--sub-text2);
+  cursor: pointer;
+  transition: all 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.qb-sub-option.selected {
+  border-color: var(--sub-gold);
+  background: var(--sub-gold-dim);
+  color: var(--sub-gold);
+}
+
+.qb-sub-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.qb-sub-price-block {}
+
+.qb-sub-price-from {
+  font-size: 10px;
+  color: var(--sub-text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.qb-sub-price {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--sub-text);
+}
+
+.qb-sub-price span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sub-text2);
+}
+
+.qb-sub-save-tag {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--sub-green);
+  background: rgba(34,197,94,0.1);
+  padding: 2px 8px;
+  border-radius: 8px;
+  margin-left: 6px;
+}
+
+.qb-sub-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--sub-gold);
+  color: #000;
+  font-weight: 900;
+  font-size: 13.5px;
+  padding: 11px 20px;
+  border-radius: 14px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s var(--sub-ease);
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(244,180,0,0.3);
+}
+
+.qb-sub-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 6px rgba(244,180,0,0.2);
+}
+
+/* ── FAQ ── */
+.qb-sub-faq {
+  padding: 32px 20px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.qb-sub-faq-item {
+  background: var(--sub-card);
+  border: 1px solid var(--sub-border);
+  border-radius: 16px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.qb-sub-faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--sub-text);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.qb-sub-faq-chevron {
+  width: 20px;
+  height: 20px;
+  color: var(--sub-text2);
+  transition: transform 0.25s;
+  flex-shrink: 0;
+}
+
+.qb-sub-faq-item.open .qb-sub-faq-chevron { transform: rotate(180deg); }
+
+.qb-sub-faq-a {
+  font-size: 13.5px;
+  color: var(--sub-text2);
+  line-height: 1.6;
+  padding: 0 18px 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s var(--sub-ease), padding 0.3s;
+}
+
+.qb-sub-faq-item.open .qb-sub-faq-a {
+  max-height: 200px;
+  padding: 0 18px 16px;
+}
+
+/* ── CTA BANNER ── */
+.qb-sub-cta {
+  margin: 20px 20px 0;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+  background: linear-gradient(135deg, #1a1200, #0a0a0a);
+  border: 1.5px solid rgba(244,180,0,0.25);
+  border-radius: 22px;
+  padding: 28px 24px;
+  text-align: center;
+}
+
+.qb-sub-cta h3 {
+  font-size: 20px;
+  font-weight: 900;
+  color: #fff;
+  margin: 0 0 8px;
+}
+
+.qb-sub-cta h3 span { color: #F4B400; }
+
+.qb-sub-cta p {
+  font-size: 13.5px;
+  color: rgba(255,255,255,0.55);
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.qb-sub-cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #F4B400;
+  color: #000;
+  font-weight: 900;
+  font-size: 14px;
+  padding: 13px 28px;
+  border-radius: 14px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.qb-sub-cta-link:active { transform: scale(0.96); }
+</style>
+
+<div class="qb-sub-root">
+
+  <!-- HERO -->
+  <div class="qb-sub-hero">
+    <div class="qb-sub-hero-badge">⚡ Smart Subscriptions</div>
+    <h1>Never Run Out<br>of <span>Essentials</span></h1>
+    <p>Subscribe once, get delivered daily. Fresh, reliable, and always on time — right to your doorstep in Kathmandu.</p>
+    <div class="qb-sub-hero-stats">
+      <div class="qb-sub-stat">
+        <span class="qb-sub-stat-num">10+</span>
+        <span class="qb-sub-stat-lbl">Plans</span>
+      </div>
+      <div class="qb-sub-stat">
+        <span class="qb-sub-stat-num">20 min</span>
+        <span class="qb-sub-stat-lbl">Delivery</span>
+      </div>
+      <div class="qb-sub-stat">
+        <span class="qb-sub-stat-num">Up to 20%</span>
+        <span class="qb-sub-stat-lbl">Savings</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="qb-sub-how">
+    <div class="qb-sub-section-label">How it works</div>
+    <div class="qb-sub-section-title">3 Simple Steps</div>
+    <div class="qb-sub-steps">
+      <div class="qb-sub-step">
+        <div class="qb-sub-step-num">1</div>
+        <div class="qb-sub-step-body">
+          <h4>Choose Your Plan</h4>
+          <p>Pick any subscription below — select your quantity, frequency, and preferred time slot.</p>
+        </div>
+      </div>
+      <div class="qb-sub-step">
+        <div class="qb-sub-step-num">2</div>
+        <div class="qb-sub-step-body">
+          <h4>Confirm Your Order</h4>
+          <p>We confirm your subscription and set up automatic deliveries. No hassle, no repeat ordering.</p>
+        </div>
+      </div>
+      <div class="qb-sub-step">
+        <div class="qb-sub-step-num">3</div>
+        <div class="qb-sub-step-body">
+          <h4>Enjoy Daily Delivery</h4>
+          <p>Fresh items arrive at your door every morning. Pause or cancel anytime, no questions asked.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERKS -->
+  <div class="qb-sub-perks">
+    <div class="qb-sub-perk"><span class="qb-sub-perk-icon">🚴</span><span class="qb-sub-perk-text">Free Delivery</span></div>
+    <div class="qb-sub-perk"><span class="qb-sub-perk-icon">💰</span><span class="qb-sub-perk-text">Up to 20% Off</span></div>
+    <div class="qb-sub-perk"><span class="qb-sub-perk-icon">⏸️</span><span class="qb-sub-perk-text">Pause Anytime</span></div>
+    <div class="qb-sub-perk"><span class="qb-sub-perk-icon">🌅</span><span class="qb-sub-perk-text">Morning Delivery</span></div>
+    <div class="qb-sub-perk"><span class="qb-sub-perk-icon">🔄</span><span class="qb-sub-perk-text">Easy Swap</span></div>
+    <div class="qb-sub-perk"><span class="qb-sub-perk-icon">✅</span><span class="qb-sub-perk-text">No Hidden Fees</span></div>
+  </div>
+
+  <!-- CATEGORY FILTERS -->
+  <div class="qb-sub-filters" id="qbSubFilters">
+    <div class="qb-sub-filter active" data-filter="all">All Plans</div>
+    <div class="qb-sub-filter" data-filter="dairy">🥛 Dairy</div>
+    <div class="qb-sub-filter" data-filter="vegetables">🥦 Vegetables</div>
+    <div class="qb-sub-filter" data-filter="fruits">🍎 Fruits</div>
+    <div class="qb-sub-filter" data-filter="bakery">🍞 Bakery</div>
+    <div class="qb-sub-filter" data-filter="extras">🌿 Extras</div>
+  </div>
+
+  <!-- SUBSCRIPTION CARDS -->
+  <div class="qb-sub-grid" id="qbSubGrid">
+
+    <!-- 1. Daily Milk -->
+    <div class="qb-sub-card" data-category="dairy">
+      <div class="qb-sub-card-top">
+        <div class="qb-sub-card-icon" style="background: rgba(59,130,246,0.12);">🥛</div>
+        <div class="qb-sub-card-meta">
+          <div class="qb-sub-card-name">Fresh Daily Milk</div>
+          <div class="qb-sub-card-tagline">Farm-fresh cow & buffalo milk. Delivered every morning before 7 AM at your door.</div>
+        </div>
+        <span class="qb-sub-card-badge badge-popular">🔥 Popular</span>
+      </div>
+      <div class="qb-sub-features">
+        <span class="qb-sub-feature-tag">🐄 Farm Fresh</span>
+        <span class="qb-sub-feature-tag">🌡️ Pasteurized</span>
+        <span class="qb-sub-feature-tag">📦 Sealed Pack</span>
+        <span class="qb-sub-feature-tag">⏰ Before 7 AM</span>
+      </div>
+      <div class="qb-sub-card-body">
+        <div class="qb-sub-freq-label">Choose Quantity</div>
+        <div class="qb-sub-options">
+          <div class="qb-sub-option selected">500 ml</div>
+          <div class="qb-sub-option">1 Litre</div>
+          <div class="qb-sub-option">2 Litres</div>
+        </div>
+        <div class="qb-sub-card-footer">
+          <div class="qb-sub-price-block">
+            <div class="qb-sub-price-from">From</div>
+            <div class="qb-sub-price">Rs 35<span>/day</span> <span class="qb-sub-save-tag">Save 10%</span></div>
+          </div>
+          <a href="/products/daily-milk-subscription" class="qb-sub-btn">Subscribe ›</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Fresh Vegetable Box -->
+    <div class="qb-sub-card" data-category="vegetables">
+      <div class="qb-sub-card-top">
+        <div class="qb-sub-card-icon" style="background: rgba(34,197,94,0.12);">🥦</div>
+        <div class="qb-sub-card-meta">
+          <div class="qb-sub-card-name">Fresh Vegetable Box</div>
+          <div class="qb-sub-card-tagline">Handpicked seasonal vegetables sourced from local farms. Pre-washed and ready to cook.</div>
+        </div>
+        <span class="qb-sub-card-badge badge-best">⭐ Best Value</span>
+      </div>
+      <div class="qb-sub-features">
+        <span class="qb-sub-feature-tag">🌱 Locally Sourced</span>
+        <span class="qb-sub-feature-tag">🚿 Pre-washed</span>
+        <span class="qb-sub-feature-tag">📋 Seasonal Mix</span>
+        <span class="qb-sub-feature-tag">🌿 Pesticide-Free</span>
+      </div>
+      <div class="qb-sub-card-body">
+        <div class="qb-sub-freq-label">Choose Size</div>
+        <div class="qb-sub-options">
+          <div class="qb-sub-option selected">Small (500g)</div>
+          <div class="qb-sub-option">Medium (1 kg)</div>
+          <div class="qb-sub-option">Family (2 kg)</div>
+        </div>
+        <div class="qb-sub-card-footer">
+          <div class="qb-sub-price-block">
+            <div class="qb-sub-price-from">From</div>
+            <div class="qb-sub-price">Rs 80<span>/day</span> <span class="qb-sub-save-tag">Save 15%</span></div>
+          </div>
+          <a href="/products/fresh-vegetable-box-subscription" class="qb-sub-btn">Subscribe ›</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Egg Subscription -->
+    <div class="qb-sub-card" data-category="dairy">
+      <div class="qb-sub-card-top">
+        <div class="qb-sub-card-icon" style="background: rgba(249,115,22,0.12);">🥚</div>
+        <div class="qb-sub-card-meta">
+          <div class="qb-sub-card-name">Farm Fresh Eggs</div>
+          <div class="qb-sub-card-tagline">Free-range chicken eggs, collected fresh every morning. Rich in protein and nutrients.</div>
+        </div>
+        <span class="qb-sub-card-badge badge-hot">🌟 Top Pick</span>
+      </div>
+      <div class="qb-sub-features">
+        <span class="qb-sub-feature-tag">🐔 Free-Range</span>
+        <span class="qb-sub-feature-tag">🏡 Local Farm</span>
+        <span class="qb-sub-feature-tag">🔴 Desi Eggs</span>
+        <span class="qb-sub-feature-tag">📦 Bubble-Packed</span>
+      </div>
+      <div class="qb-sub-card-body">
+        <div class="qb-sub-freq-label">Choose Pack</div>
+        <div class="qb-sub-options">
+          <div class="qb-sub-option selected">6 Eggs/day</div>
+          <div class="qb-sub-option">12 Eggs/day</div>
+          <div class="qb-sub-option">30 Eggs/week</div>
+        </div>
+        <div class="qb-sub-card-footer">
+          <div class="qb-sub-price-block">
+            <div class="qb-sub-price-from">From</div>
+            <div class="qb-sub-price">Rs 75<span>/pack</span> <span class="qb-sub-save-tag">Save 12%</span></div>
+          </div>
+          <a href="/products/farm-fresh-eggs-subscription" class="qb-sub-btn">Subscribe ›</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Daily Bread & Bakery -->
+    <div class="qb-sub-card" data-category="bakery">
+      <div class="qb-sub-card-top">
+        <div class="qb-sub-card-icon" style="background: rgba(234,179,8,0.12);">🍞</div>
+        <div class="qb-sub-card-meta">
+          <div class="qb-sub-card-name">Daily Bread & Bakery</div>
+          <div class="qb-sub-card-tagline">Freshly baked bread, pav, and rotis every morning. Straight from the oven to your table.</div>
+        </div>
+        <span class="qb-sub-card-badge badge-new">✨ New</span>
+      </div>
+      <div class="qb-sub-features">
+        <span class="qb-sub-feature-tag">🔥 Oven Fresh</span>
+        <span class="qb-sub-feature-tag">🌾 Whole Wheat</span>
+        <span class="qb-sub-feature-tag">🧁 No Preservatives</span>
+        <span class="qb-sub-feature-tag">🫓 Choice of Type</span>
+      </div>
+      <div class="qb-sub-card-body">
+        <div class="qb-sub-freq-label">Choose Type</div>
+        <div class="qb-sub-options">
+          <div class="qb-sub-option selected">White Bread</div>
+          <div class="qb-sub-option">Whole Wheat</div>
+          <div class="qb-sub-option">Pav Buns (6)</div>
+        </div>
+        <div class="qb-sub-card-footer">
+          <div class="qb-sub-price-block">
+            <div class="qb-sub-price-from">From</div>
+            <div class="qb-sub-price">Rs 45<span>/day</span> <span class="qb-sub-save-tag">Save 8%</span></div>
+          </div>
+          <a href="/products/daily-bread-bakery-subscription" class="qb-sub-btn">Subscribe ›</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Seasonal Fruit Basket -->
+    <div class="qb-sub-card" data-category="fruits">
+      <div class="qb-sub-card-top">
+        <div class="qb-sub-card-icon" style="background: rgba(236,72,153,0.10);">🍎</div>
+        <div class="qb-sub-card-meta">
+          <div class="qb-sub-card-name">Seasonal Fruit Basket</div>
+          <div class="qb-sub-card-tagline">A curated mix of in-season fruits every week — apples, oranges, bananas, and more.</div>
+        </div>
+        <span class="qb-sub-card-badge badge-fresh">🌿 Fresh</span>
+      </div>
+      <div class="qb-sub-features">
+        <span class="qb-sub-feature-tag">🍌 5-6 Varieties</span>
+        <span class="qb-sub-feature-tag">📅 Weekly</span>
+        <span class="qb-sub-feature-tag">🌈 Seasonal Mix</span>
+        <span class="qb-sub-feature-tag">🧺 Gift-Ready</span>
+      </div>
+      <div class="qb-sub-card-body">
+        <div class="qb-sub-freq-label">Choose Size</div>
+        <div class="qb-sub-options">
+          <div class="qb-sub-option selected">Small (1 kg)</div>
+          <div class="qb-sub-option">Medium (2 kg)</div>
+          <div class="qb-sub-option">Large (4 kg)</div>
+        </div>
+        <div class="qb-sub-card-footer">
+          <div class="qb-sub-price-block">
+            <div class="qb-sub-price-from">From</div>
+            <div class="qb-sub-price">Rs 250<span>/week</span> <span class="qb-sub-save-tag">Save 18%</span></div>
+          </div>
+          <a href="/products/seasonal-fruit-basket-subscription" class="qb-sub-btn">Subscribe ›</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Daily Herbs & Greens -->
+    <div class="qb-sub-card" data-category="vegetables">
+      <div class="qb-sub-card-top">
+        <div class="qb-sub-card-icon" style="background: rgba(20,184,166,0.12);">🌿</div>
+        <div class="qb-sub-card-meta">
+          <div class="qb-sub-card-name">Herbs & Greens Daily</div>
+          <div class="qb-sub-card-tagline">Fresh coriander, spinach, fenugreek, and green onions delivered daily in small bundles.</div>
+        </div>
+        <span class="qb-sub-card-badge badge-fresh">🌿 Fresh</span>
+      </div>
+      <div class="qb-sub-features">
+        <span class="qb-sub-feature-tag">🌱 Garden Fresh</span>
+        <span class="qb-sub-feature-tag">🧺 Small Bundles</span>
+        <span class="qb-sub-feature-tag">💧 Washed & Clean</span>
+        <span class="qb-sub-feature-tag">🔀 Rotating Variety</span>
+      </div>
+      <div class="qb-sub-card-body">
+        <div class="qb-sub-freq-label">Choose Frequency</div>
+        <div class="qb-sub-options">
+          <div class="qb-sub-option selected">Daily</div>
+          <div class="qb-sub-option">Every 2 Days</div>
+          <div class="qb-sub-option">Twice a Week</div>
+        </div>
+        <div class="qb-sub-card-footer">
+          <div class="qb-sub-price-block">
+            <div class="qb-sub-price-from">From</div>
+            <div class="qb-sub-price">Rs 25<span>/day</span> <span class="qb-sub-save-tag">Save 10%</span></div>
+          </div>
+          <a href="/products/herbs-greens-subscription" class="qb-sub-btn">Subscribe ›</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Weekly Drinking Water -->
+    <div class="qb-sub-card" data-category="extras">
+      <div class="qb-sub-card-top">
+        <div class="qb-sub-card-icon" style="background: rgba(59,130,246,0.10);">💧</div>
+        <div class="qb-sub-card-meta">
+          <div class="qb-sub-card-name">Drinking Water Jug</div>
+          <div class="qb-sub-card-tagline">20-litre purified mineral water jugs delivered weekly. Clean, safe drinking water guaranteed.</div>
+        </div>
+        <span class="qb-sub-card-badge badge-popular">🔥 Popular</span>
+      </div>
+      <div class="qb-sub-features">
+        <span class="qb-sub-feature-tag">🧪 RO Purified</span>
+        <span class="qb-sub-feature-tag">🔵 20L Jug</span>
+        <span class="qb-sub-feature-tag">🔄 Jug Swap</span>
+        <span class="qb-sub-feature-tag">📅 Weekly</span>
+      </div>
+      <div class="qb-sub-card-body">
+        <div class="qb-sub-freq-label">Choose Frequency</div>
+        <div class="qb-sub-options">
+          <div class="qb-sub-option selected">1 Jug/week</div>
+          <div class="qb-sub-option">2 Jugs/week</div>
+          <div class="qb-sub-option">Daily Bottle</div>
+        </div>
+        <div class="qb-sub-card-footer">
+          <div class="qb-sub-price-block">
+            <div class="qb-sub-price-from">From</div>
+            <div class="qb-sub-price">Rs 120<span>/week</span> <span class="qb-sub-save-tag">Save 10%</span></div>
+          </div>
+          <a href="/products/drinking-water-subscription" class="qb-sub-btn">Subscribe ›</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Dairy Bundle -->
+    <div class="qb-sub-card" data-category="dairy">
+      <div class="qb-sub-card-top">
+        <div class="qb-sub-card-icon" style="background: rgba(234,179,8,0.10);">🧀</div>
+        <div class="qb-sub-card-meta">
+          <div class="qb-sub-card-name">Complete Dairy Bundle</div>
+          <div class="qb-sub-card-tagline">Curd, paneer, butter & cheese together. Everything your kitchen needs, delivered weekly.</div>
+        </div>
+        <span class="qb-sub-card-badge badge-best">⭐ Best Value</span>
+      </div>
+      <div class="qb-sub-features">
+        <span class="qb-sub-feature-tag">🥛 Curd 500g</span>
+        <span class="qb-sub-feature-tag">🧀 Paneer 200g</span>
+        <span class="qb-sub-feature-tag">🧈 Butter 100g</span>
+        <span class="qb-sub-feature-tag">📅 Weekly</span>
+      </div>
+      <div class="qb-sub-card-body">
+        <div class="qb-sub-freq-label">Choose Plan</div>
+        <div class="qb-sub-options">
+          <div class="qb-sub-option selected">Basic Bundle</div>
+          <div class="qb-sub-option">Full Bundle</div>
+          <div class="qb-sub-option">Premium Bundle</div>
+        </div>
+        <div class="qb-sub-card-footer">
+          <div class="qb-sub-price-block">
+            <div class="qb-sub-price-from">From</div>
+            <div class="qb-sub-price">Rs 280<span>/week</span> <span class="qb-sub-save-tag">Save 20%</span></div>
+          </div>
+          <a href="/products/dairy-bundle-subscription" class="qb-sub-btn">Subscribe ›</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. Fresh Juice Pack -->
+    <div class="qb-sub-card" data-category="fruits">
+      <div class="qb-sub-card-top">
+        <div class="qb-sub-card-icon" style="background: rgba(249,115,22,0.10);">🍋</div>
+        <div class="qb-sub-card-meta">
+          <div class="qb-sub-card-name">Cold-Pressed Juice Pack</div>
+          <div class="qb-sub-card-tagline">100% natural fruit juices, cold-pressed each morning. No sugar, no additives — just pure fruit.</div>
+        </div>
+        <span class="qb-sub-card-badge badge-new">✨ New</span>
+      </div>
+      <div class="qb-sub-features">
+        <span class="qb-sub-feature-tag">🍊 Cold Pressed</span>
+        <span class="qb-sub-feature-tag">🚫 No Sugar</span>
+        <span class="qb-sub-feature-tag">🧴 200ml Bottles</span>
+        <span class="qb-sub-feature-tag">💊 Vitamin Rich</span>
+      </div>
+      <div class="qb-sub-card-body">
+        <div class="qb-sub-freq-label">Choose Pack</div>
+        <div class="qb-sub-options">
+          <div class="qb-sub-option selected">1 Bottle/day</div>
+          <div class="qb-sub-option">2 Bottles/day</div>
+          <div class="qb-sub-option">Variety Pack</div>
+        </div>
+        <div class="qb-sub-card-footer">
+          <div class="qb-sub-price-block">
+            <div class="qb-sub-price-from">From</div>
+            <div class="qb-sub-price">Rs 90<span>/day</span> <span class="qb-sub-save-tag">Save 15%</span></div>
+          </div>
+          <a href="/products/cold-pressed-juice-subscription" class="qb-sub-btn">Subscribe ›</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10. Rice & Flour Monthly -->
+    <div class="qb-sub-card" data-category="extras">
+      <div class="qb-sub-card-top">
+        <div class="qb-sub-card-icon" style="background: rgba(161,140,100,0.15);">🌾</div>
+        <div class="qb-sub-card-meta">
+          <div class="qb-sub-card-name">Rice & Flour Monthly</div>
+          <div class="qb-sub-card-tagline">Never run out of staples. Premium Basmati rice and fresh-ground atta delivered monthly.</div>
+        </div>
+        <span class="qb-sub-card-badge badge-best">⭐ Best Value</span>
+      </div>
+      <div class="qb-sub-features">
+        <span class="qb-sub-feature-tag">🍚 Basmati Rice</span>
+        <span class="qb-sub-feature-tag">🌾 Fresh Atta</span>
+        <span class="qb-sub-feature-tag">📦 Bulk Pack</span>
+        <span class="qb-sub-feature-tag">📅 Monthly</span>
+      </div>
+      <div class="qb-sub-card-body">
+        <div class="qb-sub-freq-label">Choose Quantity</div>
+        <div class="qb-sub-options">
+          <div class="qb-sub-option selected">5 kg Rice</div>
+          <div class="qb-sub-option">10 kg Rice</div>
+          <div class="qb-sub-option">Rice + Atta</div>
+        </div>
+        <div class="qb-sub-card-footer">
+          <div class="qb-sub-price-block">
+            <div class="qb-sub-price-from">From</div>
+            <div class="qb-sub-price">Rs 650<span>/month</span> <span class="qb-sub-save-tag">Save 12%</span></div>
+          </div>
+          <a href="/products/rice-flour-monthly-subscription" class="qb-sub-btn">Subscribe ›</a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- FAQ -->
+  <div class="qb-sub-faq">
+    <div class="qb-sub-section-label">Questions</div>
+    <div class="qb-sub-section-title">Frequently Asked</div>
+
+    <div class="qb-sub-faq-item">
+      <div class="qb-sub-faq-q">
+        Can I pause or cancel my subscription?
+        <svg class="qb-sub-faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="qb-sub-faq-a">Yes! You can pause or cancel any subscription at any time directly from your QuickBee account. No questions asked, no cancellation fees.</div>
+    </div>
+    <div class="qb-sub-faq-item">
+      <div class="qb-sub-faq-q">
+        What time will my order be delivered?
+        <svg class="qb-sub-faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="qb-sub-faq-a">Daily subscriptions are delivered between 6 AM – 8 AM. Weekly subscriptions arrive on your chosen day before noon. You can set your preferred time in your account settings.</div>
+    </div>
+    <div class="qb-sub-faq-item">
+      <div class="qb-sub-faq-q">
+        How does the discount work?
+        <svg class="qb-sub-faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="qb-sub-faq-a">Subscription prices are already discounted from the regular per-item price. You save between 8–20% automatically. No coupon needed.</div>
+    </div>
+    <div class="qb-sub-faq-item">
+      <div class="qb-sub-faq-q">
+        Can I change my delivery address?
+        <svg class="qb-sub-faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="qb-sub-faq-a">Absolutely. Update your delivery address anytime from your QuickBee account. Changes take effect the next delivery day.</div>
+    </div>
+    <div class="qb-sub-faq-item">
+      <div class="qb-sub-faq-q">
+        Is there a minimum subscription period?
+        <svg class="qb-sub-faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="qb-sub-faq-a">No minimum period! Subscribe for as long as you like. However, to enjoy the maximum discount, we recommend at least a 7-day commitment.</div>
+    </div>
+  </div>
+
+  <!-- CTA BANNER -->
+  <div class="qb-sub-cta">
+    <h3>Start Your <span>Smart Subscription</span></h3>
+    <p>Join thousands of Kathmandu households who never run out of daily essentials.</p>
+    <a href="#qbSubGrid" class="qb-sub-cta-link">Browse All Plans ↑</a>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  /* ── Category filter ── */
+  var filters  = document.querySelectorAll('.qb-sub-filter');
+  var cards    = document.querySelectorAll('.qb-sub-card');
+
+  filters.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      filters.forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var cat = btn.getAttribute('data-filter');
+      cards.forEach(function (card) {
+        var match = cat === 'all' || card.getAttribute('data-category') === cat;
+        card.style.display = match ? '' : 'none';
+      });
+    });
+  });
+
+  /* ── Option pill selection ── */
+  document.querySelectorAll('.qb-sub-options').forEach(function (group) {
+    group.addEventListener('click', function (e) {
+      var opt = e.target.closest('.qb-sub-option');
+      if (!opt) return;
+      group.querySelectorAll('.qb-sub-option').forEach(function (o) { o.classList.remove('selected'); });
+      opt.classList.add('selected');
+    });
+  });
+
+  /* ── FAQ accordion ── */
+  document.querySelectorAll('.qb-sub-faq-q').forEach(function (q) {
+    q.addEventListener('click', function () {
+      var item = q.closest('.qb-sub-faq-item');
+      var wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.qb-sub-faq-item').forEach(function (i) { i.classList.remove('open'); });
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+})();
+</script>
