@@ -4,45 +4,43 @@
 {%- endcomment -%}
 
 {%- liquid
-  assign all_products   = collection.products
+  assign cnt_specials  = 0
+  assign cnt_dhido     = 0
+  assign cnt_grills    = 0
+  assign cnt_momo      = 0
+  assign cnt_noodles   = 0
+  assign cnt_burger    = 0
+  assign cnt_snacks    = 0
+  assign cnt_beverages = 0
+  assign cnt_lassi     = 0
+  assign cnt_icecream  = 0
+  assign cnt_other     = 0
 
-  assign cat_specials   = '' | split: ''
-  assign cat_dhido      = '' | split: ''
-  assign cat_grills     = '' | split: ''
-  assign cat_momo       = '' | split: ''
-  assign cat_noodles    = '' | split: ''
-  assign cat_burger     = '' | split: ''
-  assign cat_snacks     = '' | split: ''
-  assign cat_beverages  = '' | split: ''
-  assign cat_lassi      = '' | split: ''
-  assign cat_icecream   = '' | split: ''
-  assign cat_other      = '' | split: ''
-
-  for p in all_products
+  for p in collection.products
     assign pt  = p.type  | downcase | strip
     assign ptl = p.title | downcase | strip
     if pt contains 'special' or ptl contains 'special' or ptl contains 'combo' or ptl contains 'thali' or ptl contains 'set'
-      assign cat_specials = cat_specials | concat: p
+      assign cnt_specials = cnt_specials | plus: 1
     elsif pt contains 'dhido' or ptl contains 'dhido' or ptl contains 'dal bhat' or ptl contains 'dal-bhat' or ptl contains 'bhat' or ptl contains 'gundruk' or ptl contains 'tarkari'
-      assign cat_dhido = cat_dhido | concat: p
+      assign cnt_dhido = cnt_dhido | plus: 1
     elsif pt contains 'grill' or ptl contains 'grill' or ptl contains 'sekuwa' or ptl contains 'bbq' or ptl contains 'chop' or ptl contains 'buff' or ptl contains 'mutton' or ptl contains 'chicken sekuwa'
-      assign cat_grills = cat_grills | concat: p
+      assign cnt_grills = cnt_grills | plus: 1
     elsif pt contains 'momo' or ptl contains 'momo' or ptl contains 'dumpling' or ptl contains 'kothey'
-      assign cat_momo = cat_momo | concat: p
+      assign cnt_momo = cnt_momo | plus: 1
     elsif pt contains 'noodle' or ptl contains 'noodle' or ptl contains 'chow' or ptl contains 'thukpa' or ptl contains 'chowmein'
-      assign cat_noodles = cat_noodles | concat: p
+      assign cnt_noodles = cnt_noodles | plus: 1
     elsif pt contains 'burger' or pt contains 'sandwich' or ptl contains 'burger' or ptl contains 'sandwich' or ptl contains 'wrap' or ptl contains 'roll'
-      assign cat_burger = cat_burger | concat: p
+      assign cnt_burger = cnt_burger | plus: 1
     elsif pt contains 'snack' or ptl contains 'snack' or ptl contains 'fries' or ptl contains 'chips' or ptl contains 'samosa' or ptl contains 'pakoda' or ptl contains 'spring roll'
-      assign cat_snacks = cat_snacks | concat: p
+      assign cnt_snacks = cnt_snacks | plus: 1
     elsif pt contains 'beverage' or pt contains 'drink' or ptl contains 'juice' or ptl contains 'tea' or ptl contains 'coffee' or ptl contains 'shake' or ptl contains 'lemonade' or ptl contains 'soda'
-      assign cat_beverages = cat_beverages | concat: p
+      assign cnt_beverages = cnt_beverages | plus: 1
     elsif pt contains 'lassi' or ptl contains 'lassi'
-      assign cat_lassi = cat_lassi | concat: p
+      assign cnt_lassi = cnt_lassi | plus: 1
     elsif pt contains 'ice' or ptl contains 'ice cream' or ptl contains 'gelato' or ptl contains 'kulfi'
-      assign cat_icecream = cat_icecream | concat: p
+      assign cnt_icecream = cnt_icecream | plus: 1
     else
-      assign cat_other = cat_other | concat: p
+      assign cnt_other = cnt_other | plus: 1
     endif
   endfor
 -%}
@@ -406,17 +404,17 @@
   <!-- CATEGORY PILLS -->
   <nav class="dg-cat-outer" id="dgCatOuter">
     <div class="dg-cat-scroll" id="dgCats">
-      {%- if cat_specials.size > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-specials">🌟 Specials <span class="dg-cat-count">{{ cat_specials.size }}</span></button>{%- endif -%}
-      {%- if cat_dhido.size > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-dhido">🫙 Dhido <span class="dg-cat-count">{{ cat_dhido.size }}</span></button>{%- endif -%}
-      {%- if cat_grills.size > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-grills">🥩 Grills <span class="dg-cat-count">{{ cat_grills.size }}</span></button>{%- endif -%}
-      {%- if cat_momo.size > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-momo">🥟 Momo <span class="dg-cat-count">{{ cat_momo.size }}</span></button>{%- endif -%}
-      {%- if cat_noodles.size > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-noodles">🍜 Noodles <span class="dg-cat-count">{{ cat_noodles.size }}</span></button>{%- endif -%}
-      {%- if cat_burger.size > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-burger">🍔 Burgers <span class="dg-cat-count">{{ cat_burger.size }}</span></button>{%- endif -%}
-      {%- if cat_snacks.size > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-snacks">🍟 Snacks <span class="dg-cat-count">{{ cat_snacks.size }}</span></button>{%- endif -%}
-      {%- if cat_beverages.size > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-bev">🥤 Drinks <span class="dg-cat-count">{{ cat_beverages.size }}</span></button>{%- endif -%}
-      {%- if cat_lassi.size > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-lassi">🥛 Lassi <span class="dg-cat-count">{{ cat_lassi.size }}</span></button>{%- endif -%}
-      {%- if cat_icecream.size > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-ice">🍦 Desserts <span class="dg-cat-count">{{ cat_icecream.size }}</span></button>{%- endif -%}
-      {%- if cat_other.size > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-other">🍽️ More <span class="dg-cat-count">{{ cat_other.size }}</span></button>{%- endif -%}
+      {%- if cnt_specials > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-specials">🌟 Specials <span class="dg-cat-count">{{ cnt_specials }}</span></button>{%- endif -%}
+      {%- if cnt_dhido > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-dhido">🫙 Dhido <span class="dg-cat-count">{{ cnt_dhido }}</span></button>{%- endif -%}
+      {%- if cnt_grills > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-grills">🥩 Grills <span class="dg-cat-count">{{ cnt_grills }}</span></button>{%- endif -%}
+      {%- if cnt_momo > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-momo">🥟 Momo <span class="dg-cat-count">{{ cnt_momo }}</span></button>{%- endif -%}
+      {%- if cnt_noodles > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-noodles">🍜 Noodles <span class="dg-cat-count">{{ cnt_noodles }}</span></button>{%- endif -%}
+      {%- if cnt_burger > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-burger">🍔 Burgers <span class="dg-cat-count">{{ cnt_burger }}</span></button>{%- endif -%}
+      {%- if cnt_snacks > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-snacks">🍟 Snacks <span class="dg-cat-count">{{ cnt_snacks }}</span></button>{%- endif -%}
+      {%- if cnt_beverages > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-bev">🥤 Drinks <span class="dg-cat-count">{{ cnt_beverages }}</span></button>{%- endif -%}
+      {%- if cnt_lassi > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-lassi">🥛 Lassi <span class="dg-cat-count">{{ cnt_lassi }}</span></button>{%- endif -%}
+      {%- if cnt_icecream > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-ice">🍦 Desserts <span class="dg-cat-count">{{ cnt_icecream }}</span></button>{%- endif -%}
+      {%- if cnt_other > 0 -%}<button class="dg-cat-pill" data-target="dg-sec-other">🍽️ More <span class="dg-cat-count">{{ cnt_other }}</span></button>{%- endif -%}
     </div>
   </nav>
 
@@ -432,14 +430,14 @@
     {%- else -%}
 
     {%- comment -%}── SPECIALS ──{%- endcomment -%}
-    {%- if cat_specials.size > 0 -%}
+    {%- if cnt_specials > 0 -%}
     <section class="dg-section" id="dg-sec-specials">
       <div class="dg-sec-hdr">
         <div class="dg-sec-left">
           <div class="dg-sec-ico">🌟</div>
           <div class="dg-sec-name">Today's Specials</div>
         </div>
-        <div class="dg-sec-count">{{ cat_specials.size }} items</div>
+        <div class="dg-sec-count">{{ cnt_specials }} items</div>
       </div>
       <div class="dg-sec-divider"></div>
       <div class="dg-grid" id="dg-grid-specials">
@@ -450,14 +448,14 @@
     {%- endif -%}
 
     {%- comment -%}── DHIDO / DAL BHAT ──{%- endcomment -%}
-    {%- if cat_dhido.size > 0 -%}
+    {%- if cnt_dhido > 0 -%}
     <section class="dg-section" id="dg-sec-dhido">
       <div class="dg-sec-hdr">
         <div class="dg-sec-left">
           <div class="dg-sec-ico">🫙</div>
           <div class="dg-sec-name">Dhido & Dal Bhat</div>
         </div>
-        <div class="dg-sec-count">{{ cat_dhido.size }} items</div>
+        <div class="dg-sec-count">{{ cnt_dhido }} items</div>
       </div>
       <div class="dg-sec-divider"></div>
       <div class="dg-grid">
@@ -468,14 +466,14 @@
     {%- endif -%}
 
     {%- comment -%}── GRILLS ──{%- endcomment -%}
-    {%- if cat_grills.size > 0 -%}
+    {%- if cnt_grills > 0 -%}
     <section class="dg-section" id="dg-sec-grills">
       <div class="dg-sec-hdr">
         <div class="dg-sec-left">
           <div class="dg-sec-ico">🥩</div>
           <div class="dg-sec-name">Grills & Sekuwa</div>
         </div>
-        <div class="dg-sec-count">{{ cat_grills.size }} items</div>
+        <div class="dg-sec-count">{{ cnt_grills }} items</div>
       </div>
       <div class="dg-sec-divider"></div>
       <div class="dg-grid">
@@ -486,14 +484,14 @@
     {%- endif -%}
 
     {%- comment -%}── MOMO ──{%- endcomment -%}
-    {%- if cat_momo.size > 0 -%}
+    {%- if cnt_momo > 0 -%}
     <section class="dg-section" id="dg-sec-momo">
       <div class="dg-sec-hdr">
         <div class="dg-sec-left">
           <div class="dg-sec-ico">🥟</div>
           <div class="dg-sec-name">Momo</div>
         </div>
-        <div class="dg-sec-count">{{ cat_momo.size }} items</div>
+        <div class="dg-sec-count">{{ cnt_momo }} items</div>
       </div>
       <div class="dg-sec-divider"></div>
       <div class="dg-grid">
@@ -504,14 +502,14 @@
     {%- endif -%}
 
     {%- comment -%}── NOODLES ──{%- endcomment -%}
-    {%- if cat_noodles.size > 0 -%}
+    {%- if cnt_noodles > 0 -%}
     <section class="dg-section" id="dg-sec-noodles">
       <div class="dg-sec-hdr">
         <div class="dg-sec-left">
           <div class="dg-sec-ico">🍜</div>
           <div class="dg-sec-name">Noodles & Thukpa</div>
         </div>
-        <div class="dg-sec-count">{{ cat_noodles.size }} items</div>
+        <div class="dg-sec-count">{{ cnt_noodles }} items</div>
       </div>
       <div class="dg-sec-divider"></div>
       <div class="dg-grid">
@@ -522,14 +520,14 @@
     {%- endif -%}
 
     {%- comment -%}── BURGERS ──{%- endcomment -%}
-    {%- if cat_burger.size > 0 -%}
+    {%- if cnt_burger > 0 -%}
     <section class="dg-section" id="dg-sec-burger">
       <div class="dg-sec-hdr">
         <div class="dg-sec-left">
           <div class="dg-sec-ico">🍔</div>
           <div class="dg-sec-name">Burgers & Wraps</div>
         </div>
-        <div class="dg-sec-count">{{ cat_burger.size }} items</div>
+        <div class="dg-sec-count">{{ cnt_burger }} items</div>
       </div>
       <div class="dg-sec-divider"></div>
       <div class="dg-grid">
@@ -540,14 +538,14 @@
     {%- endif -%}
 
     {%- comment -%}── SNACKS ──{%- endcomment -%}
-    {%- if cat_snacks.size > 0 -%}
+    {%- if cnt_snacks > 0 -%}
     <section class="dg-section" id="dg-sec-snacks">
       <div class="dg-sec-hdr">
         <div class="dg-sec-left">
           <div class="dg-sec-ico">🍟</div>
           <div class="dg-sec-name">Snacks & Sides</div>
         </div>
-        <div class="dg-sec-count">{{ cat_snacks.size }} items</div>
+        <div class="dg-sec-count">{{ cnt_snacks }} items</div>
       </div>
       <div class="dg-sec-divider"></div>
       <div class="dg-grid">
@@ -558,14 +556,14 @@
     {%- endif -%}
 
     {%- comment -%}── BEVERAGES ──{%- endcomment -%}
-    {%- if cat_beverages.size > 0 -%}
+    {%- if cnt_beverages > 0 -%}
     <section class="dg-section" id="dg-sec-bev">
       <div class="dg-sec-hdr">
         <div class="dg-sec-left">
           <div class="dg-sec-ico">🥤</div>
           <div class="dg-sec-name">Drinks & Juices</div>
         </div>
-        <div class="dg-sec-count">{{ cat_beverages.size }} items</div>
+        <div class="dg-sec-count">{{ cnt_beverages }} items</div>
       </div>
       <div class="dg-sec-divider"></div>
       <div class="dg-grid">
@@ -576,14 +574,14 @@
     {%- endif -%}
 
     {%- comment -%}── LASSI ──{%- endcomment -%}
-    {%- if cat_lassi.size > 0 -%}
+    {%- if cnt_lassi > 0 -%}
     <section class="dg-section" id="dg-sec-lassi">
       <div class="dg-sec-hdr">
         <div class="dg-sec-left">
           <div class="dg-sec-ico">🥛</div>
           <div class="dg-sec-name">Lassi</div>
         </div>
-        <div class="dg-sec-count">{{ cat_lassi.size }} items</div>
+        <div class="dg-sec-count">{{ cnt_lassi }} items</div>
       </div>
       <div class="dg-sec-divider"></div>
       <div class="dg-grid">
@@ -594,14 +592,14 @@
     {%- endif -%}
 
     {%- comment -%}── ICE CREAM ──{%- endcomment -%}
-    {%- if cat_icecream.size > 0 -%}
+    {%- if cnt_icecream > 0 -%}
     <section class="dg-section" id="dg-sec-ice">
       <div class="dg-sec-hdr">
         <div class="dg-sec-left">
           <div class="dg-sec-ico">🍦</div>
           <div class="dg-sec-name">Desserts</div>
         </div>
-        <div class="dg-sec-count">{{ cat_icecream.size }} items</div>
+        <div class="dg-sec-count">{{ cnt_icecream }} items</div>
       </div>
       <div class="dg-sec-divider"></div>
       <div class="dg-grid">
@@ -612,14 +610,14 @@
     {%- endif -%}
 
     {%- comment -%}── OTHER ──{%- endcomment -%}
-    {%- if cat_other.size > 0 -%}
+    {%- if cnt_other > 0 -%}
     <section class="dg-section" id="dg-sec-other">
       <div class="dg-sec-hdr">
         <div class="dg-sec-left">
           <div class="dg-sec-ico">🍽️</div>
           <div class="dg-sec-name">More from the Kitchen</div>
         </div>
-        <div class="dg-sec-count">{{ cat_other.size }} items</div>
+        <div class="dg-sec-count">{{ cnt_other }} items</div>
       </div>
       <div class="dg-sec-divider"></div>
       <div class="dg-grid">
