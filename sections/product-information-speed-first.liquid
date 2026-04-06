@@ -1175,3 +1175,74 @@
     updateTotalPrice();
   })();
 </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const productForm = document.getElementById('product-form');
+    const addToCartButton = document.getElementById('add-to-cart-btn');
+    const productTitle = {{ product.title | json }};
+  
+    if (productForm && addToCartButton && productTitle && productTitle.toLowerCase().includes('biryani challenge')) {
+      productForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+  
+        // Change button state
+        addToCartButton.textContent = 'Going to checkout...';
+        addToCartButton.classList.add('loading');
+        addToCartButton.disabled = true;
+  
+        const formData = new FormData(productForm);
+  
+        fetch('/cart/add.js', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status) {
+            // Error handling
+            addToCartButton.textContent = 'Start Challenge'; // Reset button text
+            addToCartButton.classList.remove('loading');
+            addToCartButton.disabled = false;
+            
+            // Display error in a non-blocking way
+            const errorElement = document.createElement('div');
+            errorElement.style.color = 'red';
+            errorElement.style.marginTop = '10px';
+            errorElement.textContent = data.description || 'Could not add item to cart.';
+            productForm.appendChild(errorElement);
+
+            setTimeout(() => {
+              errorElement.remove();
+            }, 5000);
+
+          } else {
+            // Success, redirect to checkout
+            setTimeout(() => {
+              window.location.href = '/checkout';
+            }, 500);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          addToCartButton.textContent = 'Start Challenge';
+          addToCartButton.classList.remove('loading');
+          addToCartButton.disabled = false;
+
+          const errorElement = document.createElement('div');
+          errorElement.style.color = 'red';
+          errorElement.style.marginTop = '10px';
+          errorElement.textContent = 'An error occurred. Please try again.';
+          productForm.appendChild(errorElement);
+
+          setTimeout(() => {
+            errorElement.remove();
+          }, 5000);
+        });
+      });
+    }
+  });
+</script>
