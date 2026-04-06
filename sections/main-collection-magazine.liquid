@@ -1,0 +1,147 @@
+{%- comment -%}
+  This is the main section for the "Magazine" collection template.
+  It displays products in a custom grid with a "Personalize" call-to-action.
+{%- endcomment -%}
+
+<style>
+  .magazine-collection {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+  .magazine-collection__header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .magazine-collection__title {
+    font-size: 2.5em;
+    font-weight: 800;
+    color: #121212;
+    margin: 0 0 10px 0;
+  }
+  .magazine-collection__description {
+    font-size: 1.1em;
+    color: #555;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .magazine-collection__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+  }
+  .magazine-product-card {
+    background-color: #fff;
+    border-radius: 12px;
+    border: 1px solid #E0E0E0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .magazine-product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.07);
+  }
+  .magazine-product-card__image-wrapper {
+    display: block;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+  }
+  .magazine-product-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s;
+  }
+  .magazine-product-card:hover .magazine-product-card__image {
+    transform: scale(1.05);
+  }
+  .magazine-product-card__content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+  .magazine-product-card__title {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #222;
+    margin: 0 0 10px 0;
+    text-decoration: none;
+  }
+  .magazine-product-card__title:hover {
+    color: #C41E3A;
+  }
+  .magazine-product-card__price {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 20px;
+  }
+  .magazine-product-card__button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-top: auto;
+    background-color: #C41E3A;
+    color: #fff;
+    text-align: center;
+    text-decoration: none;
+    font-size: 1em;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+  }
+  .magazine-product-card__button:hover {
+    background-color: #A01830;
+  }
+</style>
+
+<div class="magazine-collection">
+  <div class="magazine-collection__header">
+    <h1 class="magazine-collection__title">{{ collection.title }}</h1>
+    {%- if collection.description != blank -%}
+      <div class="magazine-collection__description rte">
+        {{ collection.description }}
+      </div>
+    {%- endif -%}
+  </div>
+
+  <div class="magazine-collection__grid">
+    {%- for product in collection.products -%}
+      <div class="magazine-product-card">
+        <a href="{{ product.url }}" class="magazine-product-card__image-wrapper">
+          <img 
+            src="{{ product.featured_image | image_url: width: 400 }}" 
+            alt="{{ product.featured_image.alt | escape }}" 
+            class="magazine-product-card__image"
+            width="400"
+            height="400"
+            loading="lazy">
+        </a>
+        <div class="magazine-product-card__content">
+          <a href="{{ product.url }}" class="magazine-product-card__title">{{ product.title }}</a>
+          <p class="magazine-product-card__price">{{ product.price | money }}</p>
+          <a href="{{ product.url }}" class="magazine-product-card__button">
+            Personalize
+          </a>
+        </div>
+      </div>
+    {%- else -%}
+      <p>No products found in this collection.</p>
+    {%- endfor -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Magazine Collection",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Magazine Collection"
+    }
+  ]
+}
+{% endschema %}
