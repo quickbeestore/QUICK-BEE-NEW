@@ -141,6 +141,12 @@ html:not([data-theme]) #qbsc-root {
   pointer-events: none;
 }
 
+/* ── INVISIBLE UNTIL JS FIRST RENDER — zero flash guarantee ── */
+#qbsc-root:not([data-sc-ready]) {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 /* ── HIDDEN STATE ── (no items in cart) */
 #qbsc-root.qbsc-hidden .qbsc-bar {
   transform: translateY(calc(100% + 12px));
@@ -913,21 +919,18 @@ html:not([data-theme]) #qbsc-root {
       BAR.style.transform = '';
       BAR.style.pointerEvents = '';
       ROOT.classList.add('qbsc-hidden');
-      if (!BAR.dataset.scReady) BAR.dataset.scReady = '1';
       if (isOpen) closePanel();
     } else {
       var wasHidden = ROOT.classList.contains('qbsc-hidden');
 
       if (isInit) {
-        /* ── Page load / refresh: zero-flash instant show ──
-           data-sc-ready is NOT set yet, so CSS blocks all transitions.
-           We do the show, force a layout flush, THEN mark ready.    */
+        /* ── Page load / refresh ──
+           Root is visibility:hidden until requestAnimationFrame fires below.
+           Just set the correct state — no transition suppression needed.  */
         BAR.style.opacity    = '1';
         BAR.style.transform  = '';
         BAR.style.pointerEvents = '';
         ROOT.classList.remove('qbsc-hidden');
-        void BAR.offsetWidth;                 /* force synchronous layout flush */
-        BAR.dataset.scReady = '1';            /* now unlock transitions */
       } else {
         /* ── Normal (user added item / cart event) ── */
         ROOT.classList.remove('qbsc-hidden');
@@ -947,6 +950,17 @@ html:not([data-theme]) #qbsc-root {
     }
 
     prevCount = count;
+
+    /* ── Unhide root after first render ─────────────────
+       requestAnimationFrame fires AFTER the browser paints,
+       so visibility:hidden lifts only once the correct state
+       is already composited — zero flash regardless of cart state. */
+    if (!ROOT.dataset.scReady) {
+      requestAnimationFrame(function () {
+        ROOT.dataset.scReady = '1';
+        BAR.dataset.scReady  = '1';
+      });
+    }
   }
 
   /* ── Load cart ── */
@@ -955,7 +969,12 @@ html:not([data-theme]) #qbsc-root {
     isFetching = true;
     fetchCart()
       .then(function (cart) { applyCart(cart, !!isNewAdd, !!isInit); })
-      .catch(function () {})
+      .catch(function () {
+        /* Even on error, unhide root so UI isn't stuck invisible */
+        if (!ROOT.dataset.scReady) {
+          requestAnimationFrame(function () { ROOT.dataset.scReady = '1'; BAR.dataset.scReady = '1'; });
+        }
+      })
       .then(function () { isFetching = false; });
   }
 
