@@ -1,0 +1,678 @@
+{% comment %}
+  sections/biryani-challenge-product.liquid
+  7 Days Chicken Biryani Challenge — Gamified product + tracker page
+{% endcomment %}
+
+{%- assign vid = product.selected_or_first_available_variant.id -%}
+{%- assign price = product.price | money_without_currency -%}
+
+<div class="bcp-root" id="bcp-root">
+
+  <!-- ══ HERO ══ -->
+  <div class="bcp-hero">
+    <div class="bcp-hero-glow"></div>
+    <div class="bcp-hero-glow bcp-hero-glow--red"></div>
+
+    <div class="bcp-hero-inner">
+      <div class="bcp-hero-badge">
+        <span class="bcp-live-dot"></span>
+        CHALLENGE LIVE
+      </div>
+
+      <h1 class="bcp-hero-title">🍗 7 Days Biryani<br><span>Challenge</span></h1>
+      <p class="bcp-hero-sub">One Chicken Biryani. Every day. 7 days straight.<br>Can you do it? 😈</p>
+
+      <!-- Price -->
+      <div class="bcp-price-wrap">
+        <div class="bcp-price-label">ONLY</div>
+        <div class="bcp-price">Rs <b>1111</b></div>
+        <div class="bcp-price-compare">
+          <s>Rs 2000+</s>
+          <span class="bcp-save">Save 44%</span>
+        </div>
+      </div>
+
+      <!-- Progress Ring (tracks user's days) -->
+      <div class="bcp-ring-wrap">
+        <svg class="bcp-ring" viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="bcp-ring-track" cx="60" cy="60" r="52"/>
+          <circle class="bcp-ring-fill" id="bcpRingFill" cx="60" cy="60" r="52"/>
+        </svg>
+        <div class="bcp-ring-inner">
+          <span class="bcp-ring-num" id="bcpDayNum">0</span>
+          <span class="bcp-ring-of">of 7</span>
+          <span class="bcp-ring-lbl">days done</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DAY TRACKER ══ -->
+  <div class="bcp-tracker-section">
+    <div class="bcp-section-label">📅 YOUR PROGRESS</div>
+    <div class="bcp-days" id="bcpDays">
+      {% for i in (1..7) %}
+      <button class="bcp-day" data-day="{{ i }}" aria-label="Day {{ i }}" type="button">
+        <div class="bcp-day-ring">
+          <svg viewBox="0 0 44 44" aria-hidden="true">
+            <circle class="bcp-day-track" cx="22" cy="22" r="18"/>
+            <circle class="bcp-day-prog" cx="22" cy="22" r="18"/>
+          </svg>
+          <span class="bcp-day-ico">🍗</span>
+          <span class="bcp-day-check">✓</span>
+        </div>
+        <span class="bcp-day-lbl">Day {{ i }}</span>
+      </button>
+      {% endfor %}
+    </div>
+
+    <!-- Streak -->
+    <div class="bcp-streak" id="bcpStreak" style="display:none">
+      <span class="bcp-streak-fire">🔥</span>
+      <span class="bcp-streak-num" id="bcpStreakNum">0</span>
+      <span class="bcp-streak-lbl">day streak!</span>
+    </div>
+
+    <button class="bcp-mark-btn" id="bcpMarkBtn" type="button">
+      <span id="bcpMarkBtnTxt">✓ Mark Today's Biryani Done</span>
+    </button>
+    <p class="bcp-mark-hint" id="bcpMarkHint">Tap after you eat today's biryani 🍗</p>
+  </div>
+
+  <!-- ══ WHAT YOU GET ══ -->
+  <div class="bcp-what-section">
+    <div class="bcp-section-label">🎁 WHAT'S INCLUDED</div>
+    <div class="bcp-what-grid">
+      <div class="bcp-what-card">
+        <div class="bcp-what-ico">🍗</div>
+        <div class="bcp-what-body">
+          <div class="bcp-what-title">7 Chicken Biryanis</div>
+          <div class="bcp-what-sub">One fresh portion delivered daily</div>
+        </div>
+      </div>
+      <div class="bcp-what-card">
+        <div class="bcp-what-ico">⚡</div>
+        <div class="bcp-what-body">
+          <div class="bcp-what-title">Fast Delivery</div>
+          <div class="bcp-what-sub">Hot & fresh within 20 mins</div>
+        </div>
+      </div>
+      <div class="bcp-what-card">
+        <div class="bcp-what-ico">💰</div>
+        <div class="bcp-what-body">
+          <div class="bcp-what-title">Rs 1111 Total</div>
+          <div class="bcp-what-sub">Worth Rs 2000+ — you save 44%</div>
+        </div>
+      </div>
+      <div class="bcp-what-card">
+        <div class="bcp-what-ico">🏆</div>
+        <div class="bcp-what-body">
+          <div class="bcp-what-title">Challenge Badge</div>
+          <div class="bcp-what-sub">Complete all 7 and earn your title</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ COMPLETION BANNER (shown when done) ══ -->
+  <div class="bcp-complete" id="bcpComplete" style="display:none">
+    <div class="bcp-complete-glow"></div>
+    <div class="bcp-complete-inner">
+      <div class="bcp-trophy">🏆</div>
+      <h2 class="bcp-complete-title">Challenge Complete!</h2>
+      <p class="bcp-complete-sub">You ate Chicken Biryani for 7 days straight.<br>You're a legend 🐔</p>
+      <button class="bcp-restart-btn" id="bcpRestartBtn" type="button">🔄 Start Again</button>
+    </div>
+  </div>
+
+  <!-- ══ ADD TO CART ══ -->
+  <div class="bcp-atc-section" id="bcpAtcSection">
+    <div class="bcp-urgency-row">
+      <span class="bcp-u-dot"></span>
+      <span class="bcp-u-text">Limited slots · <b id="bcpCountdown">23:47:00</b> left at this price</span>
+    </div>
+
+    <form id="bcpForm">
+      <input type="hidden" name="id" value="{{ vid }}">
+      <input type="hidden" name="quantity" value="1">
+      <button type="submit" class="bcp-atc-btn" id="bcpAtcBtn">
+        <span class="bcp-atc-idle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          Start Challenge — Rs {{ price }}
+        </span>
+        <span class="bcp-atc-busy" hidden><span class="bcp-spin"></span> Adding...</span>
+        <span class="bcp-atc-ok" hidden>✓ Added! Going to checkout...</span>
+      </button>
+    </form>
+
+    <div class="bcp-trust-row">
+      <span>🔒 Secure</span>
+      <span>📍 Kathmandu only</span>
+      <span>💳 Pay on delivery</span>
+    </div>
+  </div>
+
+  <!-- ══ HOW IT WORKS ══ -->
+  <div class="bcp-how-section">
+    <div class="bcp-section-label">📋 HOW IT WORKS</div>
+    <div class="bcp-steps">
+      <div class="bcp-step">
+        <div class="bcp-step-num">1</div>
+        <div class="bcp-step-body">
+          <div class="bcp-step-title">Order the Challenge</div>
+          <div class="bcp-step-sub">Pay once for all 7 days upfront — Rs 1111 total.</div>
+        </div>
+      </div>
+      <div class="bcp-step">
+        <div class="bcp-step-num">2</div>
+        <div class="bcp-step-body">
+          <div class="bcp-step-title">Get Daily Biryani</div>
+          <div class="bcp-step-sub">We deliver one fresh Chicken Biryani to you every day for 7 days.</div>
+        </div>
+      </div>
+      <div class="bcp-step">
+        <div class="bcp-step-num">3</div>
+        <div class="bcp-step-body">
+          <div class="bcp-step-title">Track Your Progress</div>
+          <div class="bcp-step-sub">Mark each day done right here. Hit your 7-day streak.</div>
+        </div>
+      </div>
+      <div class="bcp-step">
+        <div class="bcp-step-num">4</div>
+        <div class="bcp-step-body">
+          <div class="bcp-step-title">Complete & Win</div>
+          <div class="bcp-step-sub">Finish all 7 days and earn the Biryani Legend badge 🏆</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SOCIAL PROOF ══ -->
+  <div class="bcp-proof-section">
+    <div class="bcp-section-label">⭐ CHALLENGERS</div>
+    <div class="bcp-proofs">
+      <div class="bcp-proof-card">
+        <div class="bcp-proof-top">
+          <span class="bcp-proof-avatar">🧑</span>
+          <div>
+            <div class="bcp-proof-name">Rohan K.</div>
+            <div class="bcp-proof-stars">★★★★★</div>
+          </div>
+          <span class="bcp-proof-badge">🏆 7/7</span>
+        </div>
+        <p class="bcp-proof-text">"Did all 7 days. Biryani was fire every single time. Worth every rupee!"</p>
+      </div>
+      <div class="bcp-proof-card">
+        <div class="bcp-proof-top">
+          <span class="bcp-proof-avatar">👩</span>
+          <div>
+            <div class="bcp-proof-name">Sita M.</div>
+            <div class="bcp-proof-stars">★★★★★</div>
+          </div>
+          <span class="bcp-proof-badge">🔥 5/7</span>
+        </div>
+        <p class="bcp-proof-text">"On Day 5, can't stop now. The portions are huge and arrives so fast!"</p>
+      </div>
+      <div class="bcp-proof-card">
+        <div class="bcp-proof-top">
+          <span class="bcp-proof-avatar">👨</span>
+          <div>
+            <div class="bcp-proof-name">Bikash T.</div>
+            <div class="bcp-proof-stars">★★★★★</div>
+          </div>
+          <span class="bcp-proof-badge">🏆 7/7</span>
+        </div>
+        <p class="bcp-proof-text">"Best deal in Kathmandu. Rs 1111 for 7 biryanis? Insane value."</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════ STYLES ══════════════════ -->
+<style>
+.bcp-root {
+  --gold: #F4B400;
+  --gold-dim: rgba(244,180,0,0.12);
+  --gold-glow: rgba(244,180,0,0.25);
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,0.12);
+  --green: #22c55e;
+  --bg: #0a0a0a;
+  --bg2: #111;
+  --card: #161616;
+  --card2: #1e1e1e;
+  --border: rgba(255,255,255,0.07);
+  --text: #f0f0f0;
+  --text2: #888;
+  --text3: #555;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100vh;
+  padding-bottom: 120px;
+}
+.bcp-root *, .bcp-root *::before, .bcp-root *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Section label ── */
+.bcp-section-label {
+  font-size: 11px; font-weight: 800; letter-spacing: 1.4px;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: 16px; text-align: center;
+}
+
+/* ══ HERO ══ */
+.bcp-hero {
+  position: relative; overflow: hidden;
+  background: linear-gradient(160deg, #0a0a0a 0%, #130f00 60%, #0a0a0a 100%);
+  padding: 52px 20px 48px; text-align: center;
+}
+.bcp-hero-glow {
+  position: absolute; border-radius: 50%; pointer-events: none;
+  width: 400px; height: 400px; filter: blur(90px); opacity: 0.2;
+  background: var(--gold); top: -120px; left: 50%; transform: translateX(-50%);
+}
+.bcp-hero-glow--red {
+  background: var(--red); width: 250px; height: 250px;
+  top: auto; bottom: -80px; left: auto; right: -60px; transform: none; opacity: 0.13;
+}
+.bcp-hero-inner { position: relative; z-index: 1; }
+.bcp-hero-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--red-dim); border: 1px solid rgba(239,68,68,0.3);
+  color: #ff6b6b; font-size: 11px; font-weight: 800;
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 5px 14px; border-radius: 20px; margin-bottom: 20px;
+}
+.bcp-live-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: #ef4444; flex-shrink: 0;
+  animation: bcpBlink 1.1s ease-in-out infinite;
+}
+@keyframes bcpBlink { 0%,100%{opacity:1}50%{opacity:0.3} }
+.bcp-hero-title {
+  font-size: clamp(30px, 8vw, 48px); font-weight: 900; color: #fff;
+  line-height: 1.15; margin-bottom: 12px; letter-spacing: -1px;
+}
+.bcp-hero-title span { color: var(--gold); }
+.bcp-hero-sub { font-size: 15px; color: rgba(255,255,255,0.5); line-height: 1.6; margin-bottom: 28px; }
+
+/* Price */
+.bcp-price-wrap { margin-bottom: 32px; }
+.bcp-price-label { font-size: 11px; font-weight: 800; letter-spacing: 2px; color: rgba(244,180,0,0.6); text-transform: uppercase; margin-bottom: 2px; }
+.bcp-price { font-size: clamp(44px, 12vw, 72px); font-weight: 900; color: var(--gold); line-height: 1; letter-spacing: -2px; text-shadow: 0 0 50px rgba(244,180,0,0.4); }
+.bcp-price b { font-size: inherit; font-weight: inherit; }
+.bcp-price-compare { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 6px; font-size: 13px; }
+.bcp-price-compare s { color: rgba(255,255,255,0.3); }
+.bcp-save { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: var(--green); font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 8px; }
+
+/* Progress Ring */
+.bcp-ring-wrap {
+  position: relative; width: 140px; height: 140px;
+  margin: 0 auto;
+}
+.bcp-ring { width: 140px; height: 140px; transform: rotate(-90deg); }
+.bcp-ring-track { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 8; }
+.bcp-ring-fill {
+  fill: none; stroke: var(--gold); stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 326.7;
+  stroke-dashoffset: 326.7;
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 0 6px rgba(244,180,0,0.5));
+}
+.bcp-ring-inner {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 0;
+}
+.bcp-ring-num { font-size: 38px; font-weight: 900; color: var(--gold); line-height: 1; }
+.bcp-ring-of  { font-size: 13px; color: rgba(255,255,255,0.4); font-weight: 500; }
+.bcp-ring-lbl { font-size: 10px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+/* ══ TRACKER ══ */
+.bcp-tracker-section { padding: 36px 20px 28px; max-width: 480px; margin: 0 auto; }
+.bcp-days {
+  display: flex; justify-content: center; gap: 8px; flex-wrap: nowrap;
+  margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px;
+}
+.bcp-day {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  background: none; border: none; cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.bcp-day-ring {
+  position: relative; width: 48px; height: 48px;
+}
+.bcp-day-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.bcp-day-track { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 3; }
+.bcp-day-prog {
+  fill: none; stroke: var(--gold); stroke-width: 3; stroke-linecap: round;
+  stroke-dasharray: 113.1; stroke-dashoffset: 113.1;
+  transition: stroke-dashoffset 0.5s ease;
+}
+.bcp-day-ico, .bcp-day-check {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 20px; line-height: 1;
+  transition: opacity 0.3s;
+}
+.bcp-day-check { opacity: 0; font-size: 18px; font-weight: 900; color: var(--gold); }
+.bcp-day.done .bcp-day-ico   { opacity: 0; }
+.bcp-day.done .bcp-day-check { opacity: 1; }
+.bcp-day.done .bcp-day-prog  { stroke-dashoffset: 0; }
+.bcp-day.today .bcp-day-ring { filter: drop-shadow(0 0 8px rgba(244,180,0,0.5)); }
+.bcp-day-lbl { font-size: 10px; font-weight: 700; color: var(--text2); letter-spacing: 0.3px; }
+.bcp-day.done .bcp-day-lbl  { color: var(--gold); }
+.bcp-day.today .bcp-day-lbl { color: #fff; }
+
+/* Streak */
+.bcp-streak {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  background: rgba(244,180,0,0.08); border: 1px solid rgba(244,180,0,0.2);
+  border-radius: 14px; padding: 10px 20px; margin-bottom: 16px;
+}
+.bcp-streak-fire { font-size: 22px; animation: bcpShake 0.5s ease-in-out infinite alternate; }
+@keyframes bcpShake { 0%{transform:rotate(-8deg)}100%{transform:rotate(8deg)} }
+.bcp-streak-num { font-size: 24px; font-weight: 900; color: var(--gold); }
+.bcp-streak-lbl { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.7); }
+
+/* Mark btn */
+.bcp-mark-btn {
+  width: 100%; height: 52px; border-radius: 16px;
+  background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+  border: 1.5px solid rgba(244,180,0,0.3);
+  color: var(--gold); font-size: 15px; font-weight: 800;
+  cursor: pointer; transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.bcp-mark-btn:active { transform: scale(0.97); }
+.bcp-mark-btn.done-today {
+  background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(34,197,94,0.1));
+  border-color: rgba(34,197,94,0.4); color: var(--green);
+}
+.bcp-mark-hint { font-size: 12px; color: var(--text3); text-align: center; margin-top: 8px; }
+
+/* ══ WHAT YOU GET ══ */
+.bcp-what-section { padding: 0 20px 32px; max-width: 480px; margin: 0 auto; }
+.bcp-what-grid { display: flex; flex-direction: column; gap: 10px; }
+.bcp-what-card {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 14px 16px;
+}
+.bcp-what-ico { font-size: 28px; flex-shrink: 0; }
+.bcp-what-title { font-size: 14px; font-weight: 800; color: var(--text); margin-bottom: 2px; }
+.bcp-what-sub   { font-size: 12px; color: var(--text2); }
+
+/* ══ COMPLETE ══ */
+.bcp-complete {
+  position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #0f1a00, #1a2e00);
+  border-top: 1px solid rgba(34,197,94,0.2);
+  border-bottom: 1px solid rgba(34,197,94,0.2);
+  padding: 48px 20px; text-align: center; margin-bottom: 0;
+}
+.bcp-complete-glow {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(34,197,94,0.2) 0%, transparent 70%);
+  pointer-events: none;
+}
+.bcp-complete-inner { position: relative; z-index: 1; }
+.bcp-trophy { font-size: 64px; margin-bottom: 12px; animation: bcpBounce 1s ease-in-out infinite alternate; }
+@keyframes bcpBounce { 0%{transform:translateY(0)}100%{transform:translateY(-8px)} }
+.bcp-complete-title { font-size: 28px; font-weight: 900; color: #fff; margin-bottom: 8px; }
+.bcp-complete-sub   { font-size: 15px; color: rgba(255,255,255,0.55); line-height: 1.6; margin-bottom: 24px; }
+.bcp-restart-btn {
+  background: rgba(34,197,94,0.15); border: 1.5px solid rgba(34,197,94,0.4);
+  color: var(--green); font-size: 14px; font-weight: 800;
+  padding: 12px 28px; border-radius: 14px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ══ ATC ══ */
+.bcp-atc-section { padding: 28px 20px; max-width: 480px; margin: 0 auto; }
+.bcp-urgency-row {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-bottom: 14px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.5);
+}
+.bcp-u-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--red); flex-shrink: 0;
+  animation: bcpBlink 1.1s ease-in-out infinite;
+}
+.bcp-u-text b { color: var(--red); }
+.bcp-atc-btn {
+  width: 100%; height: 58px; border-radius: 18px; border: none;
+  background: linear-gradient(135deg, #F4B400, #e6a800);
+  color: #000; font-size: 17px; font-weight: 900;
+  cursor: pointer; letter-spacing: 0.2px;
+  box-shadow: 0 8px 32px rgba(244,180,0,0.38);
+  transition: transform 0.18s, box-shadow 0.18s;
+  -webkit-tap-highlight-color: transparent;
+  display: flex; align-items: center; justify-content: center;
+}
+.bcp-atc-btn:active { transform: scale(0.97); }
+.bcp-atc-idle { display: flex; align-items: center; gap: 10px; }
+.bcp-spin {
+  width: 18px; height: 18px; border: 2.5px solid rgba(0,0,0,0.3);
+  border-top-color: #000; border-radius: 50%;
+  animation: bcpSpin 0.7s linear infinite; display: inline-block;
+}
+@keyframes bcpSpin { to{transform:rotate(360deg)} }
+.bcp-trust-row {
+  display: flex; justify-content: center; gap: 16px;
+  margin-top: 12px; font-size: 12px; color: var(--text3);
+  flex-wrap: wrap;
+}
+
+/* ══ HOW IT WORKS ══ */
+.bcp-how-section { padding: 0 20px 32px; max-width: 480px; margin: 0 auto; }
+.bcp-steps { display: flex; flex-direction: column; }
+.bcp-step { display: flex; gap: 14px; padding: 14px 0; position: relative; }
+.bcp-step:not(:last-child)::after {
+  content: ''; position: absolute; left: 17px; top: 48px;
+  width: 2px; height: calc(100% - 24px);
+  background: linear-gradient(to bottom, rgba(244,180,0,0.3), transparent);
+}
+.bcp-step-num {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--gold); color: #000;
+  font-size: 14px; font-weight: 900; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(244,180,0,0.3);
+}
+.bcp-step-title { font-size: 14px; font-weight: 800; color: var(--text); margin-bottom: 3px; margin-top: 6px; }
+.bcp-step-sub   { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+/* ══ SOCIAL PROOF ══ */
+.bcp-proof-section { padding: 0 20px 32px; max-width: 480px; margin: 0 auto; }
+.bcp-proofs { display: flex; flex-direction: column; gap: 10px; }
+.bcp-proof-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 16px;
+}
+.bcp-proof-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.bcp-proof-avatar { font-size: 28px; }
+.bcp-proof-name  { font-size: 13px; font-weight: 800; color: var(--text); }
+.bcp-proof-stars { font-size: 11px; color: var(--gold); }
+.bcp-proof-badge {
+  margin-left: auto; font-size: 11px; font-weight: 800;
+  background: var(--gold-dim); border: 1px solid rgba(244,180,0,0.2);
+  color: var(--gold); padding: 3px 10px; border-radius: 8px;
+}
+.bcp-proof-text { font-size: 13px; color: var(--text2); line-height: 1.6; font-style: italic; }
+</style>
+
+<!-- ══════════════════ JAVASCRIPT ══════════════════ -->
+<script>
+(function(){
+'use strict';
+
+var TOTAL_DAYS = 7;
+var STORE_KEY  = 'qbBiryaniChallenge_v1';
+
+/* ── State ── */
+function loadState(){
+  try {
+    var raw = localStorage.getItem(STORE_KEY);
+    if(raw) return JSON.parse(raw);
+  } catch(e){}
+  return { days: [], startDate: null, lastMarked: null };
+}
+function saveState(s){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(s)); }catch(e){} }
+
+var state = loadState();
+
+/* ── DOM ── */
+var dayBtns   = document.querySelectorAll('.bcp-day');
+var ringFill  = document.getElementById('bcpRingFill');
+var ringNum   = document.getElementById('bcpDayNum');
+var streakEl  = document.getElementById('bcpStreak');
+var streakNum = document.getElementById('bcpStreakNum');
+var markBtn   = document.getElementById('bcpMarkBtn');
+var markTxt   = document.getElementById('bcpMarkBtnTxt');
+var markHint  = document.getElementById('bcpMarkHint');
+var completeEl = document.getElementById('bcpComplete');
+var atcSection = document.getElementById('bcpAtcSection');
+var restartBtn = document.getElementById('bcpRestartBtn');
+var form       = document.getElementById('bcpForm');
+
+/* ── Render ── */
+function todayStr(){
+  var d = new Date();
+  return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+}
+
+function render(){
+  var done = state.days.length;
+  var today = todayStr();
+  var markedToday = state.lastMarked === today;
+
+  /* Ring */
+  var circ = 2 * Math.PI * 52;
+  var offset = circ - (done / TOTAL_DAYS) * circ;
+  if(ringFill) { ringFill.style.strokeDasharray = circ; ringFill.style.strokeDashoffset = offset; }
+  if(ringNum)  ringNum.textContent = done;
+
+  /* Day buttons */
+  dayBtns.forEach(function(btn){
+    var d = parseInt(btn.dataset.day);
+    btn.classList.remove('done','today');
+    if(d <= done) btn.classList.add('done');
+    if(d === done + 1) btn.classList.add('today');
+  });
+
+  /* Streak */
+  if(done > 0){
+    streakEl.style.display = 'flex';
+    streakNum.textContent = done;
+  } else {
+    streakEl.style.display = 'none';
+  }
+
+  /* Mark button */
+  if(done >= TOTAL_DAYS){
+    markBtn.style.display = 'none';
+    markHint.style.display = 'none';
+  } else if(markedToday){
+    markBtn.classList.add('done-today');
+    markTxt.textContent = '✓ Biryani eaten today! Come back tomorrow';
+    markBtn.disabled = true;
+    markHint.textContent = "You're on a roll 🔥 See you tomorrow!";
+  } else {
+    markBtn.classList.remove('done-today');
+    markBtn.disabled = false;
+    markTxt.textContent = '✓ Mark Today\'s Biryani Done';
+    markHint.textContent = 'Tap after you eat today\'s biryani 🍗';
+  }
+
+  /* Complete state */
+  if(done >= TOTAL_DAYS){
+    completeEl.style.display = 'block';
+    atcSection.style.display = 'none';
+  } else {
+    completeEl.style.display = 'none';
+    atcSection.style.display = 'block';
+  }
+}
+
+/* ── Mark today ── */
+function markToday(){
+  var today = todayStr();
+  if(state.lastMarked === today) return;
+  if(state.days.length >= TOTAL_DAYS) return;
+  if(!state.startDate) state.startDate = today;
+  state.days.push(today);
+  state.lastMarked = today;
+  saveState(state);
+
+  /* Bounce animation on the just-completed day */
+  var btn = dayBtns[state.days.length - 1];
+  if(btn){
+    btn.style.transform = 'scale(1.2)';
+    setTimeout(function(){ btn.style.transform = ''; }, 300);
+  }
+  render();
+}
+
+if(markBtn) markBtn.addEventListener('click', markToday);
+
+/* ── Restart ── */
+if(restartBtn) restartBtn.addEventListener('click', function(){
+  state = { days: [], startDate: null, lastMarked: null };
+  saveState(state);
+  render();
+});
+
+/* ── ATC ── */
+if(form) form.addEventListener('submit', function(e){
+  e.preventDefault();
+  var btn = document.getElementById('bcpAtcBtn');
+  var idle = btn.querySelector('.bcp-atc-idle');
+  var busy = btn.querySelector('.bcp-atc-busy');
+  var ok   = btn.querySelector('.bcp-atc-ok');
+  idle.hidden = true; busy.hidden = false; btn.disabled = true;
+
+  var vid = form.querySelector('[name="id"]').value;
+  fetch('/cart/add.js', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},
+    body: JSON.stringify({ id: parseInt(vid), quantity: 1, properties: { 'Challenge': '7 Days Biryani Challenge', 'Accepted On': todayStr() } })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    busy.hidden = true; ok.hidden = false;
+    if(!state.startDate){ state.startDate = todayStr(); saveState(state); }
+    setTimeout(function(){ window.location.href = '/checkout'; }, 1400);
+  })
+  .catch(function(){
+    busy.hidden = true; idle.hidden = false; btn.disabled = false;
+  });
+});
+
+/* ── Countdown ── */
+(function(){
+  var k = 'qbBirEnd2';
+  var end = parseInt(localStorage.getItem(k)||'0');
+  if(!end || end < Date.now()){ end = Date.now() + 23*3600000 + 47*60000; localStorage.setItem(k,end); }
+  function tick(){
+    var diff = end - Date.now();
+    if(diff<=0){ end=Date.now()+23*3600000+47*60000; localStorage.setItem(k,end); diff=end-Date.now(); }
+    var h=Math.floor(diff/3600000), m=Math.floor((diff%3600000)/60000), s=Math.floor((diff%60000)/1000);
+    var el = document.getElementById('bcpCountdown');
+    if(el) el.textContent = String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
+  tick(); setInterval(tick,1000);
+})();
+
+/* ── Init ── */
+render();
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Biryani Challenge Product",
+  "tag": "section",
+  "class": "bcp-section"
+}
+{% endschema %}
