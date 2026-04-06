@@ -534,6 +534,11 @@ html:not([data-theme]) #qbsc-root {
 .qbsc-view-cart-link:hover { color: var(--sc-text); }
 
 /* ── MINI BAR ── */
+/* Block all transitions until JS marks the bar as ready — prevents FOUC flash on refresh */
+#qbsc-bar:not([data-sc-ready]) {
+  transition: none !important;
+}
+
 .qbsc-bar {
   position: fixed;
   bottom: var(--sc-bar-bottom, calc(75px + env(safe-area-inset-bottom)));
@@ -908,22 +913,21 @@ html:not([data-theme]) #qbsc-root {
       BAR.style.transform = '';
       BAR.style.pointerEvents = '';
       ROOT.classList.add('qbsc-hidden');
+      if (!BAR.dataset.scReady) BAR.dataset.scReady = '1';
       if (isOpen) closePanel();
     } else {
       var wasHidden = ROOT.classList.contains('qbsc-hidden');
 
       if (isInit) {
         /* ── Page load / refresh: zero-flash instant show ──
-           MUST suppress transition BEFORE touching any class/style
-           that the CSS transition watches, otherwise the browser
-           fires the transition for one paint cycle = the flash.    */
-        BAR.style.transition = 'none';
+           data-sc-ready is NOT set yet, so CSS blocks all transitions.
+           We do the show, force a layout flush, THEN mark ready.    */
         BAR.style.opacity    = '1';
         BAR.style.transform  = '';
         BAR.style.pointerEvents = '';
-        ROOT.classList.remove('qbsc-hidden'); /* class change after transition disabled */
+        ROOT.classList.remove('qbsc-hidden');
         void BAR.offsetWidth;                 /* force synchronous layout flush */
-        BAR.style.transition = '';            /* restore for future interactions */
+        BAR.dataset.scReady = '1';            /* now unlock transitions */
       } else {
         /* ── Normal (user added item / cart event) ── */
         ROOT.classList.remove('qbsc-hidden');
