@@ -231,27 +231,56 @@
 
 <!-- ══════════════════ STYLES ══════════════════ -->
 <style>
+/* ── Dark mode (default — this is a dark-first section) ── */
 .bcp-root {
-  --gold: #F4B400;
-  --gold-dim: rgba(244,180,0,0.12);
+  --gold:      #F4B400;
+  --gold-dim:  rgba(244,180,0,0.12);
   --gold-glow: rgba(244,180,0,0.25);
-  --red: #ef4444;
-  --red-dim: rgba(239,68,68,0.12);
-  --green: #22c55e;
-  --bg: #0a0a0a;
-  --bg2: #111;
-  --card: #161616;
-  --card2: #1e1e1e;
-  --border: rgba(255,255,255,0.07);
-  --text: #f0f0f0;
-  --text2: #888;
-  --text3: #555;
+  --red:       #ef4444;
+  --red-dim:   rgba(239,68,68,0.12);
+  --green:     #22c55e;
+  --bg:        #0a0a0a;
+  --bg2:       #111111;
+  --card:      #161616;
+  --card2:     #1e1e1e;
+  --border:    rgba(255,255,255,0.07);
+  --text:      #f0f0f0;
+  --text2:     #888888;
+  --text3:     #555555;
+  --hero-bg:   linear-gradient(160deg, #0a0a0a 0%, #130f00 60%, #0a0a0a 100%);
+  --hero-text: #ffffff;
+  --hero-sub:  rgba(255,255,255,0.5);
+  --price-col: #F4B400;
+  --price-glow: 0 0 50px rgba(244,180,0,0.4);
+  --strike-col: rgba(255,255,255,0.3);
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   min-height: 100vh;
   padding-bottom: 120px;
+  transition: background 0.3s, color 0.3s;
 }
+
+/* ── Light mode overrides ── */
+html:not([data-theme="dark"]) .bcp-root,
+[data-theme="light"] .bcp-root {
+  --bg:        #fffbf0;
+  --bg2:       #fff8e6;
+  --card:      #ffffff;
+  --card2:     #fdf6e3;
+  --border:    rgba(0,0,0,0.08);
+  --text:      #111111;
+  --text2:     #666666;
+  --text3:     #999999;
+  --green:     #16a34a;
+  --hero-bg:   linear-gradient(160deg, #1a1200 0%, #2a1f00 60%, #1a1200 100%);
+  --hero-text: #ffffff;
+  --hero-sub:  rgba(255,255,255,0.55);
+  --price-col: #d4940a;
+  --price-glow: 0 0 30px rgba(244,180,0,0.2);
+  --strike-col: rgba(255,255,255,0.35);
+}
+
 .bcp-root *, .bcp-root *::before, .bcp-root *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* ── Section label ── */
@@ -264,7 +293,7 @@
 /* ══ HERO ══ */
 .bcp-hero {
   position: relative; overflow: hidden;
-  background: linear-gradient(160deg, #0a0a0a 0%, #130f00 60%, #0a0a0a 100%);
+  background: var(--hero-bg);
   padding: 52px 20px 48px; text-align: center;
 }
 .bcp-hero-glow {
@@ -290,20 +319,20 @@
 }
 @keyframes bcpBlink { 0%,100%{opacity:1}50%{opacity:0.3} }
 .bcp-hero-title {
-  font-size: clamp(30px, 8vw, 48px); font-weight: 900; color: #fff;
+  font-size: clamp(30px, 8vw, 48px); font-weight: 900; color: var(--hero-text);
   line-height: 1.15; margin-bottom: 12px; letter-spacing: -1px;
   text-transform: none !important;
 }
 .bcp-hero-title span { color: var(--gold); text-transform: none !important; }
-.bcp-hero-sub { font-size: 15px; color: rgba(255,255,255,0.5); line-height: 1.6; margin-bottom: 28px; }
+.bcp-hero-sub { font-size: 15px; color: var(--hero-sub); line-height: 1.6; margin-bottom: 28px; }
 
 /* Price */
 .bcp-price-wrap { margin-bottom: 32px; }
-.bcp-price-label { font-size: 11px; font-weight: 800; letter-spacing: 2px; color: rgba(244,180,0,0.6); text-transform: uppercase; margin-bottom: 2px; }
-.bcp-price { font-size: clamp(44px, 12vw, 72px); font-weight: 900; color: var(--gold); line-height: 1; letter-spacing: -2px; text-shadow: 0 0 50px rgba(244,180,0,0.4); }
+.bcp-price-label { font-size: 11px; font-weight: 800; letter-spacing: 2px; color: rgba(244,180,0,0.7); text-transform: uppercase; margin-bottom: 2px; }
+.bcp-price { font-size: clamp(44px, 12vw, 72px); font-weight: 900; color: var(--gold); line-height: 1; letter-spacing: -2px; text-shadow: var(--price-glow); }
 .bcp-price b { font-size: inherit; font-weight: inherit; }
 .bcp-price-compare { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 6px; font-size: 13px; }
-.bcp-price-compare s { color: rgba(255,255,255,0.3); }
+.bcp-price-compare s { color: var(--strike-col); }
 .bcp-save { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: var(--green); font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 8px; }
 
 /* Progress Ring */
@@ -312,7 +341,7 @@
   margin: 0 auto;
 }
 .bcp-ring { width: 140px; height: 140px; transform: rotate(-90deg); }
-.bcp-ring-track { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 8; }
+.bcp-ring-track { fill: none; stroke: var(--border); stroke-width: 8; }
 .bcp-ring-fill {
   fill: none; stroke: var(--gold); stroke-width: 8;
   stroke-linecap: round;
@@ -326,8 +355,8 @@
   align-items: center; justify-content: center; gap: 0;
 }
 .bcp-ring-num { font-size: 38px; font-weight: 900; color: var(--gold); line-height: 1; }
-.bcp-ring-of  { font-size: 13px; color: rgba(255,255,255,0.4); font-weight: 500; }
-.bcp-ring-lbl { font-size: 10px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+.bcp-ring-of  { font-size: 13px; color: var(--text2); font-weight: 500; }
+.bcp-ring-lbl { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
 
 /* ══ TRACKER ══ */
 .bcp-tracker-section { padding: 36px 20px 28px; max-width: 480px; margin: 0 auto; }
@@ -345,7 +374,7 @@
   position: relative; width: 48px; height: 48px;
 }
 .bcp-day-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
-.bcp-day-track { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 3; }
+.bcp-day-track { fill: none; stroke: var(--border); stroke-width: 3; }
 .bcp-day-prog {
   fill: none; stroke: var(--gold); stroke-width: 3; stroke-linecap: round;
   stroke-dasharray: 113.1; stroke-dashoffset: 113.1;
@@ -363,7 +392,7 @@
 .bcp-day.today .bcp-day-ring { filter: drop-shadow(0 0 8px rgba(244,180,0,0.5)); }
 .bcp-day-lbl { font-size: 10px; font-weight: 700; color: var(--text2); letter-spacing: 0.3px; }
 .bcp-day.done .bcp-day-lbl  { color: var(--gold); }
-.bcp-day.today .bcp-day-lbl { color: #fff; }
+.bcp-day.today .bcp-day-lbl { color: var(--text); }
 
 /* Streak */
 .bcp-streak {
@@ -374,12 +403,12 @@
 .bcp-streak-fire { font-size: 22px; animation: bcpShake 0.5s ease-in-out infinite alternate; }
 @keyframes bcpShake { 0%{transform:rotate(-8deg)}100%{transform:rotate(8deg)} }
 .bcp-streak-num { font-size: 24px; font-weight: 900; color: var(--gold); }
-.bcp-streak-lbl { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.7); }
+.bcp-streak-lbl { font-size: 14px; font-weight: 700; color: var(--text2); }
 
 /* Mark btn */
 .bcp-mark-btn {
   width: 100%; height: 52px; border-radius: 16px;
-  background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+  background: var(--card2);
   border: 1.5px solid rgba(244,180,0,0.3);
   color: var(--gold); font-size: 15px; font-weight: 800;
   cursor: pointer; transition: all 0.2s;
@@ -420,8 +449,8 @@
 .bcp-complete-inner { position: relative; z-index: 1; }
 .bcp-trophy { font-size: 64px; margin-bottom: 12px; animation: bcpBounce 1s ease-in-out infinite alternate; }
 @keyframes bcpBounce { 0%{transform:translateY(0)}100%{transform:translateY(-8px)} }
-.bcp-complete-title { font-size: 28px; font-weight: 900; color: #fff; margin-bottom: 8px; }
-.bcp-complete-sub   { font-size: 15px; color: rgba(255,255,255,0.55); line-height: 1.6; margin-bottom: 24px; }
+.bcp-complete-title { font-size: 28px; font-weight: 900; color: #ffffff; margin-bottom: 8px; text-transform: none !important; }
+.bcp-complete-sub   { font-size: 15px; color: rgba(255,255,255,0.6); line-height: 1.6; margin-bottom: 24px; }
 .bcp-restart-btn {
   background: rgba(34,197,94,0.15); border: 1.5px solid rgba(34,197,94,0.4);
   color: var(--green); font-size: 14px; font-weight: 800;
@@ -433,7 +462,7 @@
 .bcp-atc-section { padding: 28px 20px; max-width: 480px; margin: 0 auto; }
 .bcp-urgency-row {
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  margin-bottom: 14px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.5);
+  margin-bottom: 14px; font-size: 13px; font-weight: 600; color: var(--text2);
 }
 .bcp-u-dot {
   width: 7px; height: 7px; border-radius: 50%; background: var(--red); flex-shrink: 0;
