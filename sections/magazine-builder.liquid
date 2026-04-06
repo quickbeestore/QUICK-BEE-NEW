@@ -8,16 +8,7 @@
   - Dark/light theme aware, fully responsive
 {% endcomment %}
 
-{% if section.settings.emailjs_public_key != blank %}
-<script>
-(function(){
-  var s=document.createElement('script');
-  s.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
-  s.onload=function(){ try{ emailjs.init('{{ section.settings.emailjs_public_key | escape }}'); }catch(e){} };
-  document.head.appendChild(s);
-})();
-</script>
-{% endif %}
+{% comment %}EmailJS removed — photos submitted by customer email after order{% endcomment %}
 
 <div class="bmb"
   id="bmb-root"
@@ -110,23 +101,38 @@
         <div class="bmb-panel-head">
           <div class="bmb-panel-emoji">📸</div>
           <div>
-            <h2 class="bmb-panel-title">Upload your memories</h2>
-            <p class="bmb-panel-sub">These photos will fill the pages of your magazine. <strong>Up to <span id="bmb-max-label">20</span> photos.</strong></p>
+            <h2 class="bmb-panel-title">Your Photos</h2>
+            <p class="bmb-panel-sub">Send us your pictures after placing the order — we'll handle the rest.</p>
           </div>
         </div>
 
-        <div class="bmb-drop" id="bmb-drop" role="button" tabindex="0" aria-label="Upload photos — click or drag here">
-          <input type="file" id="bmb-file-input" accept="image/*" multiple>
-          <div class="bmb-drop-icon">📷</div>
-          <p class="bmb-drop-title">Drag & drop photos <span class="bmb-drop-or">or</span> <span class="bmb-drop-browse">browse</span></p>
-          <p class="bmb-drop-hint">JPG · PNG · HEIC · up to 10 MB each</p>
+        <div class="bmb-photo-instruction">
+          <div class="bmb-photo-instr-icon">📧</div>
+          <h3 class="bmb-photo-instr-title">Email Us Your Photos</h3>
+          <p class="bmb-photo-instr-text">
+            After placing your order, email your pictures to <strong>print@quickbee.store</strong>
+            with your <strong>Order ID &amp; Name</strong>.<br><br>
+            Our team will respond within <strong>20 minutes</strong> and start building your magazine right away.
+          </p>
+          <div class="bmb-photo-instr-steps">
+            <div class="bmb-photo-instr-step">
+              <span class="bmb-photo-instr-num">1</span>
+              <span>Place your order below — note your Order ID</span>
+            </div>
+            <div class="bmb-photo-instr-step">
+              <span class="bmb-photo-instr-num">2</span>
+              <span>Email photos to <strong>print@quickbee.store</strong></span>
+            </div>
+            <div class="bmb-photo-instr-step">
+              <span class="bmb-photo-instr-num">3</span>
+              <span>Include your Order ID &amp; Name in the email subject</span>
+            </div>
+            <div class="bmb-photo-instr-step">
+              <span class="bmb-photo-instr-num">4</span>
+              <span>We reply within 20 minutes 🚀</span>
+            </div>
+          </div>
         </div>
-
-        <div class="bmb-photo-bar">
-          <span class="bmb-photo-count"><b id="bmb-photo-n">0</b> / <b id="bmb-photo-max-n">20</b> photos</span>
-          <button type="button" class="bmb-clear-btn" id="bmb-clear" hidden>✕ Clear all</button>
-        </div>
-        <div class="bmb-photo-grid" id="bmb-photo-grid"></div>
       </div>
 
       <!-- ╔══════════╗ -->
@@ -273,18 +279,22 @@
           <input class="bmb-inp" id="bmb-email" type="email"
                  placeholder="your@email.com"
                  value="{{ customer.email | default: '' }}">
-          <p class="bmb-email-note">📬 Your photos are sent securely to our print team. Order confirmation goes to you.</p>
+          <p class="bmb-email-note">📬 Order confirmation and updates will be sent here.</p>
+        </div>
+
+        <div class="bmb-photo-reminder">
+          <span>📸</span>
+          <p>After placing your order, email your photos + Order ID &amp; Name to <strong>print@quickbee.store</strong> — we'll respond within <strong>20 minutes</strong>.</p>
         </div>
 
         <button type="button" class="bmb-atc" id="bmb-atc">
           <span class="bmb-atc-idle">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-            Add to Cart &amp; Send Photos
+            Place Order
           </span>
           <span class="bmb-atc-busy" hidden><span class="bmb-spin"></span> Processing…</span>
           <span class="bmb-atc-ok"   hidden>✓ Done! Redirecting to cart…</span>
         </button>
-        <p class="bmb-atc-legal">Photos sent securely to <b>{{ section.settings.print_email | default: 'print@quickbee.store' }}</b></p>
         <div class="bmb-err" id="bmb-err" hidden></div>
       </div>
 
@@ -292,55 +302,6 @@
       <div class="bmb-nav">
         <button type="button" class="bmb-btn-back" id="bmb-back" hidden>← Back</button>
         <button type="button" class="bmb-btn-next" id="bmb-next">Continue →</button>
-      </div>
-    </div>
-
-    <!-- ── PREVIEW SIDE ── -->
-    <div class="bmb-prev-side">
-      <div class="bmb-prev-sticky">
-        <p class="bmb-prev-tag">✦ Live Preview</p>
-
-        <!-- Magazine Mockup -->
-        <div class="bmb-mag-scene">
-          <div class="bmb-mag" id="bmb-mag">
-            <div class="bmb-mag-spine" id="bmb-mag-spine"></div>
-            <div class="bmb-mag-front" id="bmb-mag-front">
-              <div class="bmb-mag-img-wrap" id="bmb-mag-img-wrap">
-                <img class="bmb-mag-img" id="bmb-mag-img" src="" alt="" hidden>
-                <div class="bmb-mag-placeholder" id="bmb-mag-ph">
-                  <span>📷</span>
-                  <p>Cover photo<br>appears here</p>
-                </div>
-              </div>
-              <div class="bmb-mag-overlay" id="bmb-mag-overlay">
-                <div class="bmb-mag-brand">QUICKBEE MAGAZINE</div>
-                <div class="bmb-mag-hl" id="bmb-mag-hl">Your Title Here</div>
-                <div class="bmb-mag-who" id="bmb-mag-who">For Someone Special</div>
-                <div class="bmb-mag-when" id="bmb-mag-when"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Preview Stats -->
-        <div class="bmb-prev-stats">
-          <div class="bmb-prev-row">
-            <span class="bmb-prev-k">Package</span>
-            <span class="bmb-prev-v" id="bmb-pv-pkg">—</span>
-          </div>
-          <div class="bmb-prev-row">
-            <span class="bmb-prev-k">Photos</span>
-            <span class="bmb-prev-v" id="bmb-pv-photos">0 added</span>
-          </div>
-          <div class="bmb-prev-row">
-            <span class="bmb-prev-k">Style</span>
-            <span class="bmb-prev-v" id="bmb-pv-style">Modern</span>
-          </div>
-        </div>
-        <div class="bmb-prev-price-row">
-          <span>Total</span>
-          <span class="bmb-prev-price-amt" id="bmb-pv-price">{{ product.price | money }}</span>
-        </div>
       </div>
     </div>
 
@@ -503,13 +464,62 @@
 /* ── Body Layout ── */
 .bmb-body {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: 1fr;
   gap: 32px;
   padding: 0 24px;
   align-items: start;
+  max-width: 700px;
+  margin: 0 auto;
 }
-@media (max-width: 900px) {
-  .bmb-body { grid-template-columns: 1fr; }
+
+/* ── Photo Instruction ── */
+.bmb-photo-instruction {
+  background: var(--bmb-bg2);
+  border: 2px dashed var(--bmb-gold-dim);
+  border-radius: var(--bmb-radius);
+  padding: 32px 28px;
+  text-align: center;
+}
+.bmb-photo-instr-icon { font-size: 48px; margin-bottom: 12px; }
+.bmb-photo-instr-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--bmb-text);
+  margin: 0 0 12px;
+}
+.bmb-photo-instr-text {
+  font-size: 15px;
+  color: var(--bmb-text2);
+  line-height: 1.7;
+  margin: 0 0 24px;
+}
+.bmb-photo-instr-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+  max-width: 360px;
+  margin: 0 auto;
+}
+.bmb-photo-instr-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--bmb-text);
+}
+.bmb-photo-instr-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bmb-gold);
+  color: #000;
+  font-size: 13px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 /* ── Panel ── */
@@ -912,12 +922,20 @@
 .bmb-atc:active { transform: scale(.98); }
 .bmb-atc:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 .bmb-atc-idle { display: flex; align-items: center; gap: 8px; }
-.bmb-atc-legal {
-  text-align: center;
-  font-size: 12px;
-  color: var(--bmb-text3);
-  margin: 0 0 16px;
+.bmb-photo-reminder {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--bmb-gold-dim);
+  border: 1.5px solid rgba(244,180,0,.3);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--bmb-text);
 }
+.bmb-photo-reminder span { font-size: 22px; flex-shrink: 0; }
 .bmb-err {
   background: #fff0f0;
   border: 1.5px solid #ffcdd2;
@@ -1120,12 +1138,9 @@
   color: var(--bmb-gold);
 }
 
-/* Mobile preview goes top */
-@media (max-width: 900px) {
-  .bmb-prev-side { order: -1; }
-  .bmb-prev-sticky { position: static; }
-  .bmb-mag { width: 120px; height: 160px; }
+@media (max-width: 600px) {
   .bmb-panel { padding: 24px 18px; }
+  .bmb-body { padding: 0 16px; }
 }
 </style>
 
@@ -1513,7 +1528,8 @@ function validateStep(n){
     state.from = frm.value.trim();
   }
   if(n === 2){
-    if(state.photos.length < 1){ showErr('Please upload at least 1 photo.'); return false; }
+    // Step 2 is photo instruction — always valid, customer emails photos after order
+    return true;
   }
   if(n === 4){
     var hl = $id('bmb-headline');
@@ -1625,10 +1641,7 @@ async function handleOrder(){
     // 4. Update cart note
     await updateCartNote(note);
 
-    // 5. Send photos via EmailJS (non-blocking, don't fail order if email fails)
-    sendPhotosEmail().catch(function(e){ console.warn('Email send failed:', e); });
-
-    // 6. Success
+    // 5. Success — customer emails photos manually after order
     setAtcState('ok');
     setTimeout(function(){ window.location.href = '/cart'; }, 1800);
 
@@ -1653,9 +1666,8 @@ function buildOrderNote(){
     'Headline: ' + state.headline,
     state.dedication ? 'Dedication: ' + state.dedication : '',
     state.quote ? 'Quote: ' + state.quote : '',
-    'Photos: ' + state.photos.length + ' photo(s)',
     'Customer Email: ' + state.email,
-    '=== Print photos sent to ' + PRINT_EMAIL + ' ==='
+    '=== PHOTOS: Customer will email to ' + PRINT_EMAIL + ' with Order ID & Name ==='
   ].filter(Boolean);
   return lines.join('\n');
 }
