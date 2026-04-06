@@ -152,13 +152,13 @@ html:not([data-theme]) #qbsc-root {
 .qbsc-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(10px) saturate(0.8);
+  -webkit-backdrop-filter: blur(10px) saturate(0.8);
   z-index: 10001;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s var(--sc-ease);
+  transition: opacity 0.28s ease;
 }
 
 #qbsc-root.qbsc-open .qbsc-backdrop {
@@ -176,20 +176,25 @@ html:not([data-theme]) #qbsc-root {
   background: var(--sc-bg);
   border-radius: 24px 24px 0 0;
   box-shadow: var(--sc-panel-shadow);
-  border-top: 1.5px solid rgba(244, 180, 0, 0.3);
+  border-top: 1.5px solid rgba(244, 180, 0, 0.35);
   max-height: 82vh;
   display: flex;
   flex-direction: column;
-  transform: translateY(100%);
-  transition: transform 0.42s var(--sc-spring);
-  will-change: transform;
+  /* Entry: slide up + subtle scale for premium feel */
+  transform: translateY(100%) scale(0.98);
+  transform-origin: bottom center;
+  transition: transform 0.44s cubic-bezier(0.32, 0.72, 0, 1),
+              opacity 0.3s ease;
+  opacity: 0;
+  will-change: transform, opacity;
   overflow: hidden;
   pointer-events: none;
   padding-bottom: env(safe-area-inset-bottom);
 }
 
 #qbsc-root.qbsc-open .qbsc-panel {
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
+  opacity: 1;
   pointer-events: all;
 }
 
@@ -554,7 +559,10 @@ html:not([data-theme]) #qbsc-root {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.qbsc-bar:active { transform: scale(0.97) !important; }
+.qbsc-bar:hover {
+  box-shadow: var(--sc-shadow), 0 0 0 1px rgba(244,180,0,0.18);
+}
+.qbsc-bar:active { transform: scale(0.96) !important; }
 
 .qbsc-bar-l {
   display: flex;
@@ -711,16 +719,24 @@ html:not([data-theme]) #qbsc-root {
     100% { transform: translateX(-50%) translateY(0); }
   }
 
+  /* Desktop: floating card, not a bottom sheet */
   .qbsc-panel {
-    max-width: 480px;
+    max-width: 400px;
     left: 50%;
     right: auto;
-    transform: translateX(-50%) translateY(100%);
-    border-radius: 24px 24px 0 0;
+    bottom: 24px;
+    border-radius: 20px; /* all corners rounded */
+    border: 1.5px solid rgba(244, 180, 0, 0.25);
+    /* Entry: drop in from above with scale */
+    transform: translateX(-50%) translateY(24px) scale(0.96);
+    opacity: 0;
+    transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1),
+                opacity 0.25s ease;
   }
 
   #qbsc-root.qbsc-open .qbsc-panel {
-    transform: translateX(-50%) translateY(0);
+    transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 1;
   }
 
   /* Desktop: bar hide also needs translateX preserved */
@@ -941,10 +957,13 @@ html:not([data-theme]) #qbsc-root {
 
   /* ── Panel open / close ── */
   function openPanel() {
+    /* Clear any running entry/pulse animation so it doesn't fight the hide transition */
+    BAR.classList.remove('qbsc-enter', 'qbsc-pulse');
     isOpen = true;
     ROOT.classList.add('qbsc-open');
     BAR.setAttribute('aria-expanded', 'true');
     PANEL.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden'; /* prevent bg scroll */
     /* Refresh items */
     fetchCart().then(function (c) { applyCart(c, false); }).catch(function () {});
   }
@@ -954,6 +973,7 @@ html:not([data-theme]) #qbsc-root {
     ROOT.classList.remove('qbsc-open');
     BAR.setAttribute('aria-expanded', 'false');
     PANEL.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = ''; /* restore bg scroll */
   }
 
   /* ── Qty change ── */

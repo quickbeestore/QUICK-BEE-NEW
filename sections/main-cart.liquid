@@ -479,24 +479,32 @@ body { background: var(--c-bg) !important; color: var(--c-text) !important; }
 [data-theme="dark"] .qb-co-total-lbl { color: #666 !important; }
 [data-theme="dark"] .qb-co-total-val { color: #F4B400 !important; }
 
-/* ── GOLD PRICE OVERRIDES (beat base.css span !important) ── */
-/* base.css forces all spans to #F9FAFB in dark mode — override here */
-[data-theme="dark"] .qb-item-price   { color: #F4B400 !important; }
-[data-theme="dark"] .qb-total-val    { color: #F4B400 !important; }
-[data-theme="dark"] .qb-sticky-price { color: #F4B400 !important; }
-[data-theme="dark"] .qb-badge-count  { color: #F4B400 !important; }
+/* ── GOLD & MUTED COLOR OVERRIDES ────────────────────────────────────────────
+   Problem: base.css has [data-theme="dark"] span:not([class*="qb-product"])
+   with specificity (0,2,1) and !important — it overrides all our price spans.
+   Fix: scope under .qb-cart-root to reach specificity (0,3,0) which beats (0,2,1)
+   because we compare class count first (3 > 2).
+   ──────────────────────────────────────────────────────────────────────────── */
+[data-theme="dark"] .qb-cart-root .qb-item-price   { color: #F4B400 !important; }
+[data-theme="dark"] .qb-cart-root .qb-total-val    { color: #F4B400 !important; }
+[data-theme="dark"] .qb-cart-root .qb-sticky-price { color: #F4B400 !important; }
+[data-theme="dark"] .qb-cart-root .qb-badge-count  { color: #F4B400 !important; }
+[data-theme="dark"] .qb-cart-root .qb-add-more-items { color: #F4B400 !important; }
 
-/* Muted text spans — keep them properly muted, not bright white */
-[data-theme="dark"] .qb-bill-row     { color: #888888 !important; }
-[data-theme="dark"] .qb-bill-row span{ color: #888888 !important; }
-[data-theme="dark"] .qb-muted-txt    { color: #555555 !important; font-style: italic; }
-[data-theme="dark"] .qb-item-v       { color: #666666 !important; }
-[data-theme="dark"] .qb-sec-tag      { color: #555555 !important; }
-[data-theme="dark"] .qb-sticky-tag   { color: #555555 !important; }
-[data-theme="dark"] .qb-view-cart-link { color: #777777 !important; }
+/* Muted — properly dimmed, not bright white */
+[data-theme="dark"] .qb-cart-root .qb-bill-row      { color: #888888 !important; }
+[data-theme="dark"] .qb-cart-root .qb-bill-row span { color: #888888 !important; }
+[data-theme="dark"] .qb-cart-root .qb-muted-txt     { color: #555555 !important; font-style: italic; }
+[data-theme="dark"] .qb-cart-root .qb-item-v        { color: #666666 !important; }
+[data-theme="dark"] .qb-cart-root .qb-sec-tag       { color: #555555 !important; }
+[data-theme="dark"] .qb-cart-root .qb-sticky-tag    { color: #555555 !important; }
+[data-theme="dark"] .qb-cart-root .qb-view-cart-link{ color: #777777 !important; }
 
-/* Missing: checkout sheet item image fallback bg */
-[data-theme="dark"] .qb-co-item-img  { background: #2a2a2a !important; }
+/* Checkout confirm sheet is OUTSIDE .qb-cart-root — use body scope */
+[data-theme="dark"] body .qb-co-item-img   { background: #2a2a2a !important; }
+[data-theme="dark"] body .qb-co-item-price { color: #f0f0f0 !important; }
+[data-theme="dark"] body .qb-co-item-name  { color: #dddddd !important; }
+[data-theme="dark"] body .qb-co-total-val  { color: #F4B400 !important; }
 </style>
 
 <cart-items-component class="qb-cart-root" data-section-id="{{ section.id }}">
