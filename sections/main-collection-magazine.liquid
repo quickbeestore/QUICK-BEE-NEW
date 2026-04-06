@@ -1,133 +1,225 @@
 {%- comment -%}
-  This is the main section for the "Magazine" collection template.
-  It displays products in a custom grid with a "Personalize" call-to-action.
+  V2: Editorial Redesign
+  - Asymmetrical "masonry-style" grid.
+  - Premium placeholders for broken images.
+  - Serif font for titles, advanced hover effects.
+  - "Custom Design" badges and deep shadows.
+  - Dark/Light mode adaptability and mobile nav fix.
 {%- endcomment -%}
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
 <style>
-  .magazine-collection {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 40px 20px;
+  :root {
+    --mc-card-bg: #ffffff;
+    --mc-card-shadow: 10px 10px 30px rgba(0, 0, 0, 0.08);
+    --mc-card-shadow-hover: 15px 15px 35px rgba(0, 0, 0, 0.12);
+    --mc-text-color: #121212;
+    --mc-title-color: #000000;
+    --mc-placeholder-bg: linear-gradient(135deg, #f0f2f5 0%, #e6e9f0 100%);
+    --mc-title-font: 'Playfair Display', serif;
+    --mc-badge-bg: #C41E3A;
+    --mc-badge-text: #ffffff;
   }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --mc-card-bg: #2d2d2d; /* Deep charcoal */
+      --mc-card-shadow: 10px 10px 30px rgba(0, 0, 0, 0.2);
+      --mc-card-shadow-hover: 15px 15px 35px rgba(0, 0, 0, 0.3);
+      --mc-text-color: #e5e5e5;
+      --mc-title-color: #ffffff;
+      --mc-placeholder-bg: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%);
+    }
+  }
+
+  .magazine-collection {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px 100px 20px; /* Added 100px bottom padding */
+  }
+
   .magazine-collection__header {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 50px;
   }
+
   .magazine-collection__title {
-    font-size: 2.5em;
-    font-weight: 800;
-    color: #121212;
+    font-family: var(--mc-title-font);
+    font-size: 3.5em;
+    color: var(--mc-title-color);
     margin: 0 0 10px 0;
   }
-  .magazine-collection__description {
-    font-size: 1.1em;
-    color: #555;
-    max-width: 600px;
-    margin: 0 auto;
-  }
+
   .magazine-collection__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 40px;
+    align-items: start;
   }
+
+  @media (min-width: 990px) {
+    .magazine-collection__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .magazine-product-card--featured {
+      grid-column: span 2;
+    }
+  }
+
   .magazine-product-card {
-    background-color: #fff;
-    border-radius: 12px;
-    border: 1px solid #E0E0E0;
-    overflow: hidden;
+    background-color: var(--mc-card-bg);
+    border-radius: 8px;
+    box-shadow: var(--mc-card-shadow);
     display: flex;
     flex-direction: column;
-    transition: transform 0.3s, box-shadow 0.3s;
+    text-decoration: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
+
   .magazine-product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.07);
+    transform: translateY(-8px);
+    box-shadow: var(--mc-card-shadow-hover);
   }
+
   .magazine-product-card__image-wrapper {
-    display: block;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 3 / 4;
+    border-radius: 8px 8px 0 0;
     overflow: hidden;
+    position: relative;
+    background: var(--mc-placeholder-bg);
   }
+  
+  .magazine-product-card__placeholder-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 25%;
+    height: auto;
+    opacity: 0.15;
+    color: var(--mc-title-color);
+  }
+
   .magazine-product-card__image {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.4s;
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
+  
   .magazine-product-card:hover .magazine-product-card__image {
-    transform: scale(1.05);
+    transform: scale(1.08);
   }
-  .magazine-product-card__content {
-    padding: 20px;
+
+  .magazine-product-card__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
     display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-  }
-  .magazine-product-card__title {
-    font-size: 1.2em;
-    font-weight: 600;
-    color: #222;
-    margin: 0 0 10px 0;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.4s ease;
     text-decoration: none;
   }
-  .magazine-product-card__title:hover {
-    color: #C41E3A;
+
+  .magazine-product-card:hover .magazine-product-card__overlay {
+    opacity: 1;
   }
-  .magazine-product-card__price {
-    font-size: 1.1em;
-    font-weight: 700;
-    color: #111;
-    margin-bottom: 20px;
-  }
-  .magazine-product-card__button {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    margin-top: auto;
-    background-color: #C41E3A;
+
+  .magazine-product-card__cta {
     color: #fff;
-    text-align: center;
-    text-decoration: none;
-    font-size: 1em;
     font-weight: 600;
-    border-radius: 8px;
-    transition: background-color 0.3s;
+    font-size: 1.1em;
+    padding: 12px 24px;
+    border: 2px solid #fff;
+    border-radius: 50px;
+    transform: translateY(10px);
+    opacity: 0;
+    transition: transform 0.4s ease, opacity 0.4s ease;
   }
-  .magazine-product-card__button:hover {
-    background-color: #A01830;
+  
+  .magazine-product-card:hover .magazine-product-card__cta {
+    transform: translateY(0);
+    opacity: 1;
+    transition-delay: 0.1s;
+  }
+
+  .magazine-product-card__badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background-color: var(--mc-badge-bg);
+    color: var(--mc-badge-text);
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 0.75em;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    z-index: 2;
+  }
+
+  .magazine-product-card__content {
+    padding: 25px;
+  }
+
+  .magazine-product-card__title {
+    font-family: var(--mc-title-font);
+    font-size: 1.5em;
+    color: var(--mc-title-color);
+    margin: 0;
+    line-height: 1.3;
   }
 </style>
 
 <div class="magazine-collection">
   <div class="magazine-collection__header">
-    <h1 class="magazine-collection__title">{{ collection.title }}</h1>
+    <h1 class="magazine-collection__title">{{ collection.title | default: "Custom Magazines" }}</h1>
     {%- if collection.description != blank -%}
-      <div class="magazine-collection__description rte">
-        {{ collection.description }}
-      </div>
+      <div class="rte">{{ collection.description }}</div>
     {%- endif -%}
   </div>
 
   <div class="magazine-collection__grid">
     {%- for product in collection.products -%}
-      <div class="magazine-product-card">
-        <a href="{{ product.url }}" class="magazine-product-card__image-wrapper">
-          <img 
-            src="{{ product.featured_image | image_url: width: 400 }}" 
-            alt="{{ product.featured_image.alt | escape }}" 
-            class="magazine-product-card__image"
-            width="400"
-            height="400"
-            loading="lazy">
-        </a>
-        <div class="magazine-product-card__content">
-          <a href="{{ product.url }}" class="magazine-product-card__title">{{ product.title }}</a>
-          <p class="magazine-product-card__price">{{ product.price | money }}</p>
-          <a href="{{ product.url }}" class="magazine-product-card__button">
-            Personalize
-          </a>
+      {%- liquid
+        assign card_class = "magazine-product-card"
+        assign is_fifth_item = forloop.index0 | modulo: 5
+        if forloop.index == 1 or is_fifth_item == 0
+          assign card_class = "magazine-product-card magazine-product-card--featured"
+        endif
+      -%}
+      <a href="{{ product.url }}" class="{{ card_class }}">
+        <div class="magazine-product-card__image-wrapper">
+          <div class="magazine-product-card__badge">Custom Design</div>
+          {%- if product.featured_image -%}
+            <img 
+              src="{{ product.featured_image | image_url: width: 800 }}" 
+              alt="{{ product.featured_image.alt | escape }}" 
+              class="magazine-product-card__image"
+              width="{{ product.featured_image.width }}"
+              height="{{ product.featured_image.height }}"
+              loading="lazy">
+          {%- else -%}
+            <div class="magazine-product-card__placeholder-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 16h12V4H6v14zM4 6H2v14a2 2 0 0 0 2 2h14v-2H4V6zm10 2a1 1 0 1 0-2 0v2H8v2h2v2a1 1 0 1 0 2 0v-2h2v-2h-2V8z"/></svg>
+            </div>
+          {%- endif -%}
+          <div class="magazine-product-card__overlay">
+            <span class="magazine-product-card__cta">Start Designing</span>
+          </div>
         </div>
-      </div>
+        <div class="magazine-product-card__content">
+          <h2 class="magazine-product-card__title">{{ product.title }}</h2>
+        </div>
+      </a>
     {%- else -%}
       <p>No products found in this collection.</p>
     {%- endfor -%}
@@ -136,11 +228,11 @@
 
 {% schema %}
 {
-  "name": "Magazine Collection",
+  "name": "Magazine Collection V2",
   "settings": [],
   "presets": [
     {
-      "name": "Magazine Collection"
+      "name": "Magazine Collection V2"
     }
   ]
 }
