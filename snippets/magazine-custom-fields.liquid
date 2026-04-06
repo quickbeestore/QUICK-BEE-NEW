@@ -1,0 +1,174 @@
+{%- comment -%}
+  This liquid snippet generates custom input fields for specific products.
+  - It checks if the product is a "Magazine" type.
+  - It provides fields for personalization (Name, Age, Photos, Message, Date).
+  - It includes form validation via JavaScript.
+  - All styles are scoped and included within this snippet.
+{%- endcomment -%}
+
+{%- liquid
+  assign magazine_triggers = "Birthday Magazine,Anniversary Magazine,Bestie Magazine,Family Magazine,Couple Magazine" | split: ','
+  assign is_magazine_product = false
+  for trigger in magazine_triggers
+    if product.title == trigger
+      assign is_magazine_product = true
+      break
+    endif
+  endfor
+-%}
+
+{%- if is_magazine_product -%}
+<style>
+  .magazine-customizer {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    background-color: #FAFAFA;
+  }
+  .magazine-customizer__title {
+    font-size: 1.4em;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #121212;
+  }
+  .magazine-customizer__field {
+    margin-bottom: 18px;
+  }
+  .magazine-customizer__field label {
+    display: block;
+    font-size: 0.9em;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #333;
+  }
+  .magazine-customizer__field input[type="text"],
+  .magazine-customizer__field input[type="number"],
+  .magazine-customizer__field input[type="date"],
+  .magazine-customizer__field textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+  }
+  .magazine-customizer__field input:focus,
+  .magazine-customizer__field textarea:focus {
+    border-color: #444;
+    outline: none;
+  }
+  .magazine-customizer__field input[type="file"] {
+    padding: 10px 0;
+  }
+  .magazine-customizer__field-hint {
+    font-size: 0.85em;
+    color: #777;
+    margin-top: 6px;
+    display: block;
+  }
+  .magazine-customizer__field .error-border {
+    border-color: #D93A3A;
+  }
+  #customization-error-message {
+    color: #D93A3A;
+    font-weight: bold;
+    margin-bottom: 15px;
+    display: none;
+  }
+</style>
+
+<div class="magazine-customizer">
+  <h3 class="magazine-customizer__title">Personalize Your Magazine</h3>
+  
+  <p id="customization-error-message"></p>
+
+  <div class="magazine-customizer__field">
+    <label for="custom-name">Name</label>
+    <input type="text" id="custom-name" name="properties[Name]">
+    <small class="magazine-customizer__field-hint">This will be printed on your magazine cover.</small>
+  </div>
+
+  <div class="magazine-customizer__field">
+    <label for="custom-age">Age (Optional)</label>
+    <input type="number" id="custom-age" name="properties[Age]">
+  </div>
+
+  <div class="magazine-customizer__field">
+    <label for="custom-photos">Upload Photos</label>
+    <input type="file" id="custom-photos" name="properties[Photos][]" multiple>
+    <small class="magazine-customizer__field-hint">Please upload at least 1 photo. Multiple files can be selected.</small>
+  </div>
+
+  <div class="magazine-customizer__field">
+    <label for="custom-message">Personal Message</label>
+    <textarea id="custom-message" name="properties[Personal Message]" rows="4"></textarea>
+    <small class="magazine-customizer__field-hint">This message will be featured inside the magazine.</small>
+  </div>
+  
+  <div class="magazine-customizer__field">
+    <label for="custom-delivery-date">Requested Delivery Date (Optional)</label>
+    <input type="date" id="custom-delivery-date" name="properties[Delivery Date]">
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const productForm = document.querySelector('product-form.product-form');
+  if (!productForm) return;
+
+  const submitButton = productForm.querySelector('[type="submit"]');
+  if (!submitButton) return;
+
+  const nameInput = document.getElementById('custom-name');
+  const photosInput = document.getElementById('custom-photos');
+  const messageInput = document.getElementById('custom-message');
+  const errorMessage = document.getElementById('customization-error-message');
+
+  // Guard clause: if these fields don't exist, we are not on a customizable product page.
+  if (!nameInput || !photosInput || !messageInput) {
+    return;
+  }
+
+  submitButton.addEventListener('click', (event) => {
+    let isValid = true;
+    let errors = [];
+
+    // Reset previous errors
+    errorMessage.style.display = 'none';
+    errorMessage.textContent = '';
+    [nameInput, photosInput, messageInput].forEach(input => input.classList.remove('error-border'));
+
+    // 1. Name validation
+    if (nameInput.value.trim() === '') {
+      isValid = false;
+      errors.push('Name');
+      nameInput.classList.add('error-border');
+    }
+
+    // 2. Photos validation
+    if (photosInput.files.length === 0) {
+      isValid = false;
+      errors.push('At least 1 Photo');
+      photosInput.classList.add('error-border');
+    }
+
+    // 3. Message validation
+    if (messageInput.value.trim() === '') {
+      isValid = false;
+      errors.push('Personal Message');
+      messageInput.classList.add('error-border');
+    }
+
+    if (!isValid) {
+      event.preventDefault(); // Stop the form submission
+      errorMessage.textContent = `Please provide: ${errors.join(', ')}.`;
+      errorMessage.style.display = 'block';
+      errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+});
+</script>
+{%- endif -%}
