@@ -874,10 +874,17 @@
           </div>
 
           <div class="rts-card-footer">
-            <a href="/pages/contact" class="rts-btn-book">
+            <button
+              class="rts-btn-book rts-book-trigger"
+              data-variant="{{ product.first_available_variant.id }}"
+              data-name="{{ product.title | escape }}"
+              data-price="{{ product.price | money_without_currency }}"
+              data-currency="{%- if product.tags contains 'npr' or product.handle contains 'couple' -%}NPR{%- else -%}USD{%- endif -%}"
+              data-duration="{{ duration_text }}"
+            >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               Book This Package
-            </a>
+            </button>
             <a href="{{ product.url }}" class="rts-btn-details" aria-label="View details for {{ product.title | escape }}">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>
             </a>
@@ -922,10 +929,10 @@
     <h2 class="rts-book-title">Ready to Unwind?</h2>
     <p class="rts-book-sub">Walk-ins welcome. Advance booking recommended for packages to guarantee availability.</p>
     <div class="rts-book-actions">
-      <a href="/pages/contact" class="rts-call-btn">
+      <button class="rts-call-btn rts-book-trigger" data-variant="" data-name="Spa Package" data-price="" data-currency="" data-duration="">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         Book an Appointment
-      </a>
+      </button>
     </div>
     <div>
       <span class="rts-discount-note">
@@ -936,6 +943,757 @@
   </div>
 
 </div>
+
+<!-- ══════════════════════════════════════════════
+     BOOKING DRAWER
+     ══════════════════════════════════════════════ -->
+<div id="rtsBookingOverlay" class="rts-overlay" aria-hidden="true"></div>
+
+<div id="rtsBookingDrawer" class="rts-drawer" role="dialog" aria-modal="true" aria-label="Book a spa package">
+  <!-- Handle bar -->
+  <div class="rts-drawer-handle"></div>
+
+  <!-- Header -->
+  <div class="rts-drawer-header">
+    <div>
+      <p class="rts-drawer-eyebrow">Real Therapy Spa</p>
+      <h2 class="rts-drawer-title" id="rtsDrawerTitle">Book Your Session</h2>
+    </div>
+    <button class="rts-drawer-close" id="rtsDrawerClose" aria-label="Close booking">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <!-- Progress -->
+  <div class="rts-progress">
+    <div class="rts-progress-step active" data-step="1">
+      <div class="rts-progress-dot"></div>
+      <span>Date</span>
+    </div>
+    <div class="rts-progress-line"></div>
+    <div class="rts-progress-step" data-step="2">
+      <div class="rts-progress-dot"></div>
+      <span>Time</span>
+    </div>
+    <div class="rts-progress-line"></div>
+    <div class="rts-progress-step" data-step="3">
+      <div class="rts-progress-dot"></div>
+      <span>Details</span>
+    </div>
+  </div>
+
+  <!-- Package summary pill -->
+  <div class="rts-drawer-pkg" id="rtsDrawerPkg"></div>
+
+  <!-- Step content -->
+  <div class="rts-drawer-body">
+
+    <!-- STEP 1: DATE -->
+    <div class="rts-step" id="rtsStep1">
+      <p class="rts-step-label">Select your preferred date</p>
+      <div class="rts-date-scroll" id="rtsDateScroll"></div>
+    </div>
+
+    <!-- STEP 2: TIME SLOT -->
+    <div class="rts-step hidden" id="rtsStep2">
+      <p class="rts-step-label">Choose a time slot</p>
+      <div class="rts-slot-grid" id="rtsSlotGrid">
+        <button class="rts-slot" data-slot="Morning · 9:00 AM – 10:30 AM">
+          <span class="rts-slot-time">9:00 AM</span>
+          <span class="rts-slot-label">Morning</span>
+        </button>
+        <button class="rts-slot" data-slot="Late Morning · 10:30 AM – 12:00 PM">
+          <span class="rts-slot-time">10:30 AM</span>
+          <span class="rts-slot-label">Late Morning</span>
+        </button>
+        <button class="rts-slot" data-slot="Noon · 12:00 PM – 1:30 PM">
+          <span class="rts-slot-time">12:00 PM</span>
+          <span class="rts-slot-label">Noon</span>
+        </button>
+        <button class="rts-slot" data-slot="Afternoon · 1:30 PM – 3:00 PM">
+          <span class="rts-slot-time">1:30 PM</span>
+          <span class="rts-slot-label">Afternoon</span>
+        </button>
+        <button class="rts-slot" data-slot="Late Afternoon · 3:00 PM – 4:30 PM">
+          <span class="rts-slot-time">3:00 PM</span>
+          <span class="rts-slot-label">Late Afternoon</span>
+        </button>
+        <button class="rts-slot" data-slot="Evening · 4:30 PM – 6:00 PM">
+          <span class="rts-slot-time">4:30 PM</span>
+          <span class="rts-slot-label">Evening</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 3: DETAILS -->
+    <div class="rts-step hidden" id="rtsStep3">
+      <p class="rts-step-label">Your details</p>
+      <div class="rts-form-grid">
+        <div class="rts-field">
+          <label class="rts-field-label" for="rtsName">Full Name *</label>
+          <input class="rts-field-input" type="text" id="rtsName" placeholder="e.g. Aarav Sharma" autocomplete="name" />
+        </div>
+        <div class="rts-field">
+          <label class="rts-field-label" for="rtsPhone">Phone / WhatsApp *</label>
+          <input class="rts-field-input" type="tel" id="rtsPhone" placeholder="e.g. 9801234567" autocomplete="tel" />
+        </div>
+        <div class="rts-field rts-field-full">
+          <label class="rts-field-label" for="rtsNotes">Special Requests <span style="font-weight:400;opacity:0.6">(optional)</span></label>
+          <textarea class="rts-field-input rts-field-textarea" id="rtsNotes" placeholder="Allergies, preferences, celebrations…" rows="3"></textarea>
+        </div>
+      </div>
+
+      <!-- Booking summary -->
+      <div class="rts-summary" id="rtsSummary"></div>
+    </div>
+
+  </div>
+
+  <!-- Footer nav -->
+  <div class="rts-drawer-footer">
+    <button class="rts-footer-back hidden" id="rtsBack">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+      Back
+    </button>
+    <button class="rts-footer-next" id="rtsNext">
+      Next
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</div>
+
+<style>
+/* ════════════ BOOKING DRAWER ════════════ */
+.rts-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  z-index: 9000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.rts-overlay.open { opacity: 1; pointer-events: all; }
+
+.rts-drawer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 560px;
+  margin: 0 auto;
+  background: var(--rts-surface, #fff);
+  border-radius: 24px 24px 0 0;
+  z-index: 9001;
+  transform: translateY(100%);
+  transition: transform 0.44s cubic-bezier(0.32,0.72,0,1);
+  max-height: 92dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.rts-drawer.open { transform: translateY(0); }
+
+.rts-drawer-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--rts-border2, #ccc);
+  margin: 12px auto 0;
+  flex-shrink: 0;
+}
+
+.rts-drawer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 20px 8px;
+  flex-shrink: 0;
+}
+
+.rts-drawer-eyebrow {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--rts-green-lt, #4A7C43);
+  margin: 0 0 3px;
+}
+
+.rts-drawer-title {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--rts-text, #1C1A17);
+  margin: 0;
+  line-height: 1.1;
+}
+
+.rts-drawer-close {
+  all: unset;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--rts-border, #E8E0D5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--rts-muted, #8C7B68);
+  flex-shrink: 0;
+  transition: background 0.18s;
+}
+.rts-drawer-close:hover { background: var(--rts-border2, #D5CAB9); }
+
+/* Progress */
+.rts-progress {
+  display: flex;
+  align-items: center;
+  padding: 12px 24px 8px;
+  flex-shrink: 0;
+  gap: 0;
+}
+.rts-progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--rts-muted2, #BEB0A0);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition: color 0.2s;
+}
+.rts-progress-step.active { color: var(--rts-green-lt, #4A7C43); }
+.rts-progress-step.done { color: var(--rts-gold, #B8913A); }
+
+.rts-progress-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--rts-border2, #D5CAB9);
+  background: var(--rts-surface, #fff);
+  transition: border-color 0.2s, background 0.2s;
+}
+.rts-progress-step.active .rts-progress-dot {
+  border-color: var(--rts-green-lt, #4A7C43);
+  background: var(--rts-green-bg, rgba(45,90,39,0.1));
+}
+.rts-progress-step.done .rts-progress-dot {
+  border-color: var(--rts-gold, #B8913A);
+  background: var(--rts-gold-bg, rgba(184,145,58,0.1));
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23B8913A' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px;
+}
+.rts-progress-line {
+  flex: 1;
+  height: 2px;
+  background: var(--rts-border, #E8E0D5);
+  margin-bottom: 14px;
+  transition: background 0.2s;
+}
+.rts-progress-line.done { background: var(--rts-gold, #B8913A); }
+
+/* Package pill */
+.rts-drawer-pkg {
+  margin: 0 20px 12px;
+  padding: 10px 14px;
+  background: var(--rts-green-bg, rgba(45,90,39,0.07));
+  border: 1px solid var(--rts-green-bd, rgba(45,90,39,0.18));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--rts-text, #1C1A17);
+  flex-shrink: 0;
+}
+.rts-drawer-pkg .rts-pkg-name { flex: 1; min-width: 0; }
+.rts-drawer-pkg .rts-pkg-price {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--rts-green-lt, #4A7C43);
+  flex-shrink: 0;
+}
+
+/* Scrollable body */
+.rts-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 20px 8px;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.rts-drawer-body::-webkit-scrollbar { display: none; }
+
+.rts-step { padding-bottom: 12px; }
+.rts-step.hidden { display: none; }
+
+.rts-step-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--rts-muted, #8C7B68);
+  margin: 0 0 12px;
+}
+
+/* Date chips */
+.rts-date-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+  flex-wrap: nowrap;
+}
+.rts-date-scroll::-webkit-scrollbar { display: none; }
+
+.rts-date-chip {
+  all: unset;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--rts-border, #E8E0D5);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+  min-width: 58px;
+}
+.rts-date-chip:hover { border-color: var(--rts-green-bd, rgba(45,90,39,0.3)); }
+.rts-date-chip.selected {
+  border-color: var(--rts-green-lt, #4A7C43);
+  background: var(--rts-green-bg, rgba(45,90,39,0.08));
+}
+.rts-date-day {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--rts-muted, #8C7B68);
+}
+.rts-date-chip.selected .rts-date-day { color: var(--rts-green-lt, #4A7C43); }
+.rts-date-num {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--rts-text, #1C1A17);
+  line-height: 1;
+}
+.rts-date-chip.selected .rts-date-num { color: var(--rts-green, #2D5A27); }
+.rts-date-month {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--rts-muted2, #BEB0A0);
+}
+.rts-date-chip.selected .rts-date-month { color: var(--rts-green-lt, #4A7C43); }
+
+/* Time slots */
+.rts-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.rts-slot {
+  all: unset;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px 14px;
+  border: 1.5px solid var(--rts-border, #E8E0D5);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+}
+.rts-slot:hover { border-color: var(--rts-green-bd, rgba(45,90,39,0.3)); }
+.rts-slot.selected {
+  border-color: var(--rts-green-lt, #4A7C43);
+  background: var(--rts-green-bg, rgba(45,90,39,0.08));
+}
+.rts-slot-time {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--rts-text, #1C1A17);
+  letter-spacing: -0.01em;
+}
+.rts-slot.selected .rts-slot-time { color: var(--rts-green, #2D5A27); }
+.rts-slot-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--rts-muted, #8C7B68);
+}
+.rts-slot.selected .rts-slot-label { color: var(--rts-green-lt, #4A7C43); }
+
+/* Form */
+.rts-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.rts-field { display: flex; flex-direction: column; gap: 5px; }
+.rts-field-full { grid-column: 1 / -1; }
+.rts-field-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--rts-muted, #8C7B68);
+}
+.rts-field-input {
+  all: unset;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--rts-border, #E8E0D5);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--rts-text, #1C1A17);
+  background: var(--rts-surface, #fff);
+  transition: border-color 0.18s;
+}
+.rts-field-input::placeholder { color: var(--rts-muted2, #BEB0A0); font-weight: 400; }
+.rts-field-input:focus { border-color: var(--rts-green-lt, #4A7C43); outline: none; }
+.rts-field-textarea { resize: none; line-height: 1.5; }
+
+/* Summary box */
+.rts-summary {
+  margin-top: 14px;
+  padding: 14px;
+  background: var(--rts-gold-bg, rgba(184,145,58,0.07));
+  border: 1px solid var(--rts-gold-bd, rgba(184,145,58,0.2));
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rts-summary-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--rts-text2, #4A4035);
+}
+.rts-summary-row svg { color: var(--rts-gold, #B8913A); flex-shrink: 0; }
+.rts-summary-row strong { color: var(--rts-text, #1C1A17); }
+
+/* Footer */
+.rts-drawer-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--rts-border, #E8E0D5);
+  flex-shrink: 0;
+  background: var(--rts-surface, #fff);
+}
+.rts-footer-back {
+  all: unset;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 13px 18px;
+  border: 1.5px solid var(--rts-border2, #D5CAB9);
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--rts-muted, #8C7B68);
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s;
+  white-space: nowrap;
+}
+.rts-footer-back:hover { border-color: var(--rts-gold-bd); color: var(--rts-gold); }
+.rts-footer-back.hidden { display: none; }
+
+.rts-footer-next {
+  all: unset;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 15px 20px;
+  background: var(--rts-green, #2D5A27);
+  color: #fff;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(45,90,39,0.30);
+}
+.rts-footer-next:hover {
+  background: #3D7035;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(45,90,39,0.40);
+}
+.rts-footer-next:active { transform: scale(0.98); }
+.rts-footer-next:disabled {
+  background: var(--rts-border2, #D5CAB9) !important;
+  color: var(--rts-muted2, #BEB0A0) !important;
+  box-shadow: none !important;
+  transform: none !important;
+  cursor: not-allowed;
+}
+
+/* Checkout button style (step 3) */
+.rts-footer-next.checkout {
+  background: linear-gradient(135deg, #2D5A27, #B8913A);
+  box-shadow: 0 4px 20px rgba(184,145,58,0.30);
+}
+.rts-footer-next.checkout:hover {
+  background: linear-gradient(135deg, #3D7035, #D4AF6A);
+  box-shadow: 0 6px 28px rgba(184,145,58,0.45);
+}
+
+/* Error shake */
+@keyframes rtsShake {
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-6px)}
+  40%{transform:translateX(6px)}
+  60%{transform:translateX(-4px)}
+  80%{transform:translateX(4px)}
+}
+.rts-field-input.error { border-color: #ef4444 !important; animation: rtsShake 0.35s ease; }
+</style>
+
+<script>
+(function () {
+  var overlay   = document.getElementById('rtsBookingOverlay');
+  var drawer    = document.getElementById('rtsBookingDrawer');
+  var closeBtn  = document.getElementById('rtsDrawerClose');
+  var nextBtn   = document.getElementById('rtsNext');
+  var backBtn   = document.getElementById('rtsBack');
+  var steps     = [document.getElementById('rtsStep1'), document.getElementById('rtsStep2'), document.getElementById('rtsStep3')];
+  var progressSteps = drawer.querySelectorAll('.rts-progress-step');
+  var progressLines = drawer.querySelectorAll('.rts-progress-line');
+  var drawerTitle = document.getElementById('rtsDrawerTitle');
+  var pkgEl     = document.getElementById('rtsDrawerPkg');
+  var summaryEl = document.getElementById('rtsSummary');
+  var dateScroll = document.getElementById('rtsDateScroll');
+
+  var state = { step: 1, date: null, slot: null, variantId: null, packageName: '', price: '', currency: '', duration: '' };
+
+  /* ── Date chips ── */
+  var DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  (function buildDates() {
+    var today = new Date();
+    for (var i = 1; i <= 14; i++) {
+      var d = new Date(today);
+      d.setDate(today.getDate() + i);
+      var btn = document.createElement('button');
+      btn.className = 'rts-date-chip';
+      btn.setAttribute('data-date', d.toDateString());
+      btn.innerHTML =
+        '<span class="rts-date-day">' + DAYS[d.getDay()] + '</span>' +
+        '<span class="rts-date-num">' + d.getDate() + '</span>' +
+        '<span class="rts-date-month">' + MONTHS[d.getMonth()] + '</span>';
+      btn.addEventListener('click', function () {
+        dateScroll.querySelectorAll('.rts-date-chip').forEach(function (c) { c.classList.remove('selected'); });
+        this.classList.add('selected');
+        state.date = this.getAttribute('data-date');
+        checkNextable();
+      });
+      dateScroll.appendChild(btn);
+    }
+  })();
+
+  /* ── Slot selection ── */
+  drawer.querySelectorAll('.rts-slot').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      drawer.querySelectorAll('.rts-slot').forEach(function (s) { s.classList.remove('selected'); });
+      this.classList.add('selected');
+      state.slot = this.getAttribute('data-slot');
+      checkNextable();
+    });
+  });
+
+  /* ── Open ── */
+  function openDrawer(variantId, name, price, currency, duration) {
+    state.variantId = variantId;
+    state.packageName = name;
+    state.price = price;
+    state.currency = currency;
+    state.duration = duration;
+    state.step = 1;
+    state.date = null;
+    state.slot = null;
+    dateScroll.querySelectorAll('.rts-date-chip').forEach(function (c) { c.classList.remove('selected'); });
+    drawer.querySelectorAll('.rts-slot').forEach(function (s) { s.classList.remove('selected'); });
+    document.getElementById('rtsName').value = '';
+    document.getElementById('rtsPhone').value = '';
+    document.getElementById('rtsNotes').value = '';
+
+    drawerTitle.textContent = name || 'Book Your Session';
+    pkgEl.innerHTML = '<span style="font-size:20px;">🪷</span>' +
+      '<span class="rts-pkg-name">' + (name || 'Spa Package') + (duration ? ' · ' + duration : '') + '</span>' +
+      (price ? '<span class="rts-pkg-price">' + currency + ' ' + price + '</span>' : '');
+
+    goStep(1);
+    overlay.classList.add('open');
+    drawer.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  /* ── Close ── */
+  function closeDrawer() {
+    overlay.classList.remove('open');
+    drawer.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  /* ── Step navigation ── */
+  function goStep(n) {
+    state.step = n;
+    steps.forEach(function (s, i) {
+      s.classList.toggle('hidden', i !== n - 1);
+    });
+    progressSteps.forEach(function (s, i) {
+      s.classList.toggle('active', i === n - 1);
+      s.classList.toggle('done', i < n - 1);
+    });
+    progressLines.forEach(function (l, i) {
+      l.classList.toggle('done', i < n - 1);
+    });
+
+    backBtn.classList.toggle('hidden', n === 1);
+
+    if (n === 3) {
+      nextBtn.textContent = '';
+      nextBtn.innerHTML = 'Proceed to Payment <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>';
+      nextBtn.classList.add('checkout');
+      buildSummary();
+    } else {
+      nextBtn.classList.remove('checkout');
+      nextBtn.innerHTML = 'Next <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>';
+    }
+    checkNextable();
+  }
+
+  function checkNextable() {
+    var ok = false;
+    if (state.step === 1) ok = !!state.date;
+    if (state.step === 2) ok = !!state.slot;
+    if (state.step === 3) ok = true;
+    nextBtn.disabled = !ok;
+  }
+
+  function buildSummary() {
+    summaryEl.innerHTML =
+      '<div class="rts-summary-row"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span><strong>Date:</strong> ' + state.date + '</span></div>' +
+      '<div class="rts-summary-row"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span><strong>Time:</strong> ' + state.slot + '</span></div>' +
+      '<div class="rts-summary-row"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg><span><strong>Package:</strong> ' + state.packageName + '</span></div>';
+  }
+
+  /* ── Next click ── */
+  nextBtn.addEventListener('click', function () {
+    if (state.step < 3) {
+      goStep(state.step + 1);
+    } else {
+      checkout();
+    }
+  });
+
+  backBtn.addEventListener('click', function () {
+    if (state.step > 1) goStep(state.step - 1);
+  });
+
+  /* ── Checkout ── */
+  function checkout() {
+    var name  = document.getElementById('rtsName').value.trim();
+    var phone = document.getElementById('rtsPhone').value.trim();
+    var notes = document.getElementById('rtsNotes').value.trim();
+    var nameInput  = document.getElementById('rtsName');
+    var phoneInput = document.getElementById('rtsPhone');
+
+    var valid = true;
+    if (!name) {
+      nameInput.classList.add('error');
+      setTimeout(function() { nameInput.classList.remove('error'); }, 600);
+      valid = false;
+    }
+    if (!phone) {
+      phoneInput.classList.add('error');
+      setTimeout(function() { phoneInput.classList.remove('error'); }, 600);
+      valid = false;
+    }
+    if (!valid) return;
+
+    if (!state.variantId) {
+      window.location.href = '/collections/real-therapy-spa';
+      return;
+    }
+
+    nextBtn.disabled = true;
+    nextBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:rtsSpinBtn 0.8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Adding…';
+
+    var properties = {
+      'Booking Date': state.date,
+      'Time Slot': state.slot,
+      'Guest Name': name,
+      'Phone / WhatsApp': phone,
+      'Package': state.packageName
+    };
+    if (notes) properties['Special Requests'] = notes;
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: parseInt(state.variantId, 10),
+        quantity: 1,
+        properties: properties
+      })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.id) {
+        window.location.href = '/checkout';
+      } else {
+        throw new Error(d.description || 'Failed');
+      }
+    })
+    .catch(function () {
+      nextBtn.disabled = false;
+      nextBtn.innerHTML = 'Try Again <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>';
+    });
+  }
+
+  /* ── Trigger buttons ── */
+  document.addEventListener('click', function (e) {
+    var trigger = e.target.closest('.rts-book-trigger');
+    if (!trigger) return;
+    openDrawer(
+      trigger.getAttribute('data-variant'),
+      trigger.getAttribute('data-name'),
+      trigger.getAttribute('data-price'),
+      trigger.getAttribute('data-currency'),
+      trigger.getAttribute('data-duration')
+    );
+  });
+
+  closeBtn.addEventListener('click', closeDrawer);
+  overlay.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDrawer(); });
+
+  /* ── Spin animation ── */
+  var style = document.createElement('style');
+  style.textContent = '@keyframes rtsSpinBtn { to { transform: rotate(360deg); } }';
+  document.head.appendChild(style);
+
+  checkNextable();
+})();
+</script>
 
 {% schema %}
 {
