@@ -1,238 +1,587 @@
-{%- comment -%}
-  V2: Editorial Redesign
-  - Asymmetrical "masonry-style" grid.
-  - Premium placeholders for broken images.
-  - Serif font for titles, advanced hover effects.
-  - "Custom Design" badges and deep shadows.
-  - Dark/Light mode adaptability and mobile nav fix.
-{%- endcomment -%}
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
 
 <style>
-  :root {
-    --mc-card-bg: #ffffff;
-    --mc-card-shadow: 10px 10px 30px rgba(0, 0, 0, 0.08);
-    --mc-card-shadow-hover: 15px 15px 35px rgba(0, 0, 0, 0.12);
-    --mc-text-color: #121212;
-    --mc-title-color: #000000;
-    --mc-placeholder-bg: linear-gradient(135deg, #f0f2f5 0%, #e6e9f0 100%);
-    --mc-title-font: 'Playfair Display', serif;
-    --mc-badge-bg: #C41E3A;
-    --mc-badge-text: #ffffff;
-  }
+/* ── Token system ── */
+html:not([data-theme="dark"]) {
+  --mcm-bg:          #f7f6f2;
+  --mcm-surface:     #ffffff;
+  --mcm-border:      rgba(0,0,0,0.08);
+  --mcm-title:       #0d0d0d;
+  --mcm-text:        #444;
+  --mcm-muted:       #888;
+  --mcm-gold:        #F4B400;
+  --mcm-gold-bg:     rgba(244,180,0,0.08);
+  --mcm-card-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  --mcm-card-hover:  0 8px 32px rgba(0,0,0,0.13);
+  --mcm-badge-bg:    #111;
+  --mcm-badge-txt:   #F4B400;
+  --mcm-step-bg:     #fff;
+  --mcm-hero-overlay: rgba(247,246,242,0.0);
+}
+[data-theme="dark"] {
+  --mcm-bg:          #111;
+  --mcm-surface:     #1c1c1c;
+  --mcm-border:      rgba(255,255,255,0.08);
+  --mcm-title:       #f0f0f0;
+  --mcm-text:        #bbb;
+  --mcm-muted:       #666;
+  --mcm-gold:        #F4B400;
+  --mcm-gold-bg:     rgba(244,180,0,0.10);
+  --mcm-card-shadow: 0 2px 20px rgba(0,0,0,0.4);
+  --mcm-card-hover:  0 8px 36px rgba(0,0,0,0.6);
+  --mcm-badge-bg:    #F4B400;
+  --mcm-badge-txt:   #000;
+  --mcm-step-bg:     #1c1c1c;
+  --mcm-hero-overlay: rgba(17,17,17,0.0);
+}
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --mc-card-bg: #2d2d2d; /* Deep charcoal */
-      --mc-card-shadow: 10px 10px 30px rgba(0, 0, 0, 0.2);
-      --mc-card-shadow-hover: 15px 15px 35px rgba(0, 0, 0, 0.3);
-      --mc-text-color: #e5e5e5;
-      --mc-title-color: #ffffff;
-      --mc-placeholder-bg: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%);
-    }
-  }
+/* ── Page wrapper ── */
+.mcm-page {
+  background: var(--mcm-bg);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
 
-  .magazine-collection {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 40px 20px 100px 20px; /* Added 100px bottom padding */
-  }
+/* ── Hero ── */
+.mcm-hero {
+  position: relative;
+  padding: 64px 24px 52px;
+  text-align: center;
+  overflow: hidden;
+}
+.mcm-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(244,180,0,0.10) 0%, transparent 70%);
+  pointer-events: none;
+}
+.mcm-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--mcm-gold-bg);
+  border: 1px solid rgba(244,180,0,0.25);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--mcm-gold);
+  margin-bottom: 20px;
+}
+.mcm-hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 700;
+  color: var(--mcm-title);
+  margin: 0 0 14px;
+  line-height: 1.15;
+}
+.mcm-hero-title em {
+  font-style: italic;
+  color: var(--mcm-gold);
+}
+.mcm-hero-sub {
+  font-size: 15px;
+  color: var(--mcm-text);
+  max-width: 500px;
+  margin: 0 auto 32px;
+  line-height: 1.6;
+}
+.mcm-hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--mcm-gold);
+  color: #000;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 14px 28px;
+  border-radius: 999px;
+  text-decoration: none;
+  letter-spacing: 0.3px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(244,180,0,0.35);
+}
+.mcm-hero-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(244,180,0,0.45);
+}
 
-  .magazine-collection__header {
-    text-align: center;
-    margin-bottom: 50px;
-  }
+/* ── How it works ── */
+.mcm-steps {
+  display: flex;
+  gap: 12px;
+  max-width: 900px;
+  margin: 0 auto 56px;
+  padding: 0 20px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.mcm-steps::-webkit-scrollbar { display: none; }
+.mcm-step {
+  flex: 1 0 180px;
+  background: var(--mcm-step-bg);
+  border: 1px solid var(--mcm-border);
+  border-radius: 16px;
+  padding: 20px 16px;
+  text-align: center;
+  box-shadow: var(--mcm-card-shadow);
+}
+.mcm-step-num {
+  width: 36px; height: 36px;
+  background: var(--mcm-gold);
+  color: #000;
+  border-radius: 50%;
+  font-weight: 900;
+  font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 10px;
+}
+.mcm-step-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mcm-title);
+  margin-bottom: 4px;
+}
+.mcm-step-desc {
+  font-size: 11.5px;
+  color: var(--mcm-muted);
+  line-height: 1.5;
+}
 
-  .magazine-collection__title {
-    font-family: var(--mc-title-font);
-    font-size: 3.5em;
-    color: var(--mc-title-color);
-    margin: 0 0 10px 0;
-  }
+/* ── Section header ── */
+.mcm-section-head {
+  max-width: 1100px;
+  margin: 0 auto 28px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mcm-section-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--mcm-gold);
+}
+.mcm-section-line {
+  flex: 1;
+  height: 1px;
+  background: var(--mcm-border);
+}
 
-  .magazine-collection__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 40px;
-    align-items: start;
-  }
+/* ── Product grid ── */
+.mcm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+@media (min-width: 768px) {
+  .mcm-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+  .mcm-grid { grid-template-columns: repeat(3, 1fr); }
+  .mcm-card--hero { grid-column: span 2; }
+}
 
-  @media (min-width: 990px) {
-    .magazine-collection__grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-    .magazine-product-card--featured {
-      grid-column: span 2;
-    }
-  }
+/* ── Product card ── */
+.mcm-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--mcm-surface);
+  border-radius: 20px;
+  border: 1px solid var(--mcm-border);
+  box-shadow: var(--mcm-card-shadow);
+  overflow: hidden;
+  text-decoration: none;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+}
+.mcm-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--mcm-card-hover);
+}
 
-  .magazine-product-card {
-    background-color: var(--mc-card-bg);
-    border-radius: 8px;
-    box-shadow: var(--mc-card-shadow);
-    display: flex;
-    flex-direction: column;
-    text-decoration: none;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
+/* Image */
+.mcm-card-img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  display: block;
+  background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);
+  transition: transform 0.4s ease;
+}
+.mcm-card--hero .mcm-card-img { aspect-ratio: 16/9; }
+.mcm-card:hover .mcm-card-img { transform: scale(1.04); }
 
-  .magazine-product-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--mc-card-shadow-hover);
-  }
+/* Placeholder */
+.mcm-card-placeholder {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.mcm-card--hero .mcm-card-placeholder { aspect-ratio: 16/9; }
+.mcm-card-placeholder-icon {
+  width: 56px; height: 56px;
+  background: rgba(244,180,0,0.15);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+}
+.mcm-card-placeholder-text {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
 
-  .magazine-product-card__image-wrapper {
-    aspect-ratio: 3 / 4;
-    border-radius: 8px 8px 0 0;
-    overflow: hidden;
-    position: relative;
-    background: var(--mc-placeholder-bg);
-  }
-  
-  .magazine-product-card__placeholder-icon {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 25%;
-    height: auto;
-    opacity: 0.15;
-    color: var(--mc-title-color);
-  }
+/* Image wrapper */
+.mcm-card-img-wrap {
+  position: relative;
+  overflow: hidden;
+}
 
-  .magazine-product-card__image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-  
-  .magazine-product-card:hover .magazine-product-card__image {
-    transform: scale(1.08);
-  }
+/* Badge */
+.mcm-card-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: var(--mcm-badge-bg);
+  color: var(--mcm-badge-txt);
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  z-index: 2;
+}
+.mcm-card-price-pill {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  color: #F4B400;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  z-index: 2;
+}
 
-  .magazine-product-card__overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    text-decoration: none;
-  }
+/* Hover overlay */
+.mcm-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.mcm-card:hover .mcm-card-overlay { opacity: 1; }
+.mcm-card-overlay-btn {
+  background: #F4B400;
+  color: #000;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 11px 22px;
+  border-radius: 999px;
+  transform: translateY(8px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.mcm-card:hover .mcm-card-overlay-btn {
+  transform: translateY(0);
+  opacity: 1;
+  transition-delay: 0.05s;
+}
 
-  .magazine-product-card:hover .magazine-product-card__overlay {
-    opacity: 1;
-  }
+/* Body */
+.mcm-card-body {
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+.mcm-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--mcm-title);
+  line-height: 1.3;
+  margin: 0;
+}
+.mcm-card--hero .mcm-card-title { font-size: 1.5rem; }
+.mcm-card-desc {
+  font-size: 12.5px;
+  color: var(--mcm-muted);
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mcm-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--mcm-border);
+}
+.mcm-card-price {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--mcm-title);
+}
+.mcm-card-cta-link {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--mcm-gold);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.mcm-card-cta-link svg {
+  transition: transform 0.2s;
+}
+.mcm-card:hover .mcm-card-cta-link svg {
+  transform: translateX(3px);
+}
 
-  .magazine-product-card__cta {
-    color: #fff;
-    font-weight: 600;
-    font-size: 1.1em;
-    padding: 12px 24px;
-    border: 2px solid #fff;
-    border-radius: 50px;
-    transform: translateY(10px);
-    opacity: 0;
-    transition: transform 0.4s ease, opacity 0.4s ease;
-  }
-  
-  .magazine-product-card:hover .magazine-product-card__cta {
-    transform: translateY(0);
-    opacity: 1;
-    transition-delay: 0.1s;
-  }
+/* ── Empty state ── */
+.mcm-empty {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--mcm-muted);
+}
+.mcm-empty-icon { font-size: 48px; margin-bottom: 16px; }
+.mcm-empty-title { font-size: 18px; font-weight: 700; color: var(--mcm-title); margin-bottom: 8px; }
 
-  .magazine-product-card__badge {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    background-color: var(--mc-badge-bg);
-    color: var(--mc-badge-text);
-    padding: 6px 12px;
-    border-radius: 30px;
-    font-size: 0.75em;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    z-index: 2;
-  }
-
-  .magazine-product-card__content {
-    padding: 25px;
-  }
-
-  .magazine-product-card__title {
-    font-family: var(--mc-title-font);
-    font-size: 1.5em;
-    color: var(--mc-title-color);
-    margin: 0;
-    line-height: 1.3;
-  }
+/* ── Bottom CTA banner ── */
+.mcm-cta-banner {
+  max-width: 1100px;
+  margin: 56px auto 0;
+  padding: 0 20px;
+}
+.mcm-cta-inner {
+  background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+  border-radius: 24px;
+  padding: 48px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(244,180,0,0.2);
+}
+[data-theme="dark"] .mcm-cta-inner {
+  background: linear-gradient(135deg, #1c1c1c 0%, #252525 100%);
+}
+html:not([data-theme="dark"]) .mcm-cta-inner {
+  background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+}
+.mcm-cta-inner::before {
+  content: '';
+  position: absolute;
+  top: -40px; left: 50%;
+  transform: translateX(-50%);
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(244,180,0,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.mcm-cta-tag {
+  display: inline-block;
+  background: rgba(244,180,0,0.15);
+  color: #F4B400;
+  border: 1px solid rgba(244,180,0,0.3);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.mcm-cta-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  color: #fff;
+  margin: 0 0 10px;
+  line-height: 1.2;
+}
+.mcm-cta-title em { color: #F4B400; font-style: italic; }
+.mcm-cta-desc {
+  font-size: 14px;
+  color: rgba(255,255,255,0.55);
+  max-width: 420px;
+  margin: 0 auto 28px;
+  line-height: 1.6;
+}
+.mcm-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #F4B400;
+  color: #000;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 14px 30px;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 4px 24px rgba(244,180,0,0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.mcm-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(244,180,0,0.5);
+}
 </style>
 
-<div class="magazine-collection">
-  <div class="magazine-collection__header">
-    <h1 class="magazine-collection__title">{{ collection.title | default: "Custom Magazines" }}</h1>
-    {%- if collection.description != blank -%}
-      <div class="rte">{{ collection.description }}</div>
-    {%- endif -%}
+<div class="mcm-page">
+
+  <!-- ── Hero ── -->
+  <div class="mcm-hero">
+    <div class="mcm-hero-eyebrow">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Personalised Gifts
+    </div>
+    <h1 class="mcm-hero-title">Custom <em>Magazine</em><br>Made For You</h1>
+    <p class="mcm-hero-sub">Turn your memories into a stunning magazine. Professional design, fast delivery — unique every time.</p>
+    <a href="/pages/magazine-builder" class="mcm-hero-cta">
+      ✦ Start Creating
+    </a>
   </div>
 
-  <div class="magazine-collection__grid">
-    {%- for product in collection.products -%}
-      {%- liquid
-        assign card_class = "magazine-product-card"
-        assign is_fifth_item = forloop.index0 | modulo: 5
-        if forloop.index == 1 or is_fifth_item == 0
-          assign card_class = "magazine-product-card magazine-product-card--featured"
-        endif
-      -%}
-      <a href="{{ product.url }}" class="{{ card_class }}">
-        <div class="magazine-product-card__image-wrapper">
-          <div class="magazine-product-card__badge">Custom Design</div>
-          {%- if product.featured_image -%}
-            <img 
-              src="{{ product.featured_image | image_url: width: 800 }}" 
-              alt="{{ product.featured_image.alt | escape }}" 
-              class="magazine-product-card__image"
-              width="{{ product.featured_image.width }}"
-              height="{{ product.featured_image.height }}"
-              loading="lazy">
-          {%- else -%}
-            <div class="magazine-product-card__placeholder-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 16h12V4H6v14zM4 6H2v14a2 2 0 0 0 2 2h14v-2H4V6zm10 2a1 1 0 1 0-2 0v2H8v2h2v2a1 1 0 1 0 2 0v-2h2v-2h-2V8z"/></svg>
-            </div>
-          {%- endif -%}
-          <div class="magazine-product-card__overlay">
-            <span class="magazine-product-card__cta">Start Designing</span>
-          </div>
-        </div>
-        <div class="magazine-product-card__content">
-          <h2 class="magazine-product-card__title">{{ product.title }}</h2>
-        </div>
-      </a>
-    {%- else -%}
-      <p>No products found in this collection.</p>
-    {%- endfor -%}
+  <!-- ── How it works ── -->
+  <div class="mcm-steps">
+    <div class="mcm-step">
+      <div class="mcm-step-num">1</div>
+      <div class="mcm-step-title">Pick a Style</div>
+      <div class="mcm-step-desc">Choose your cover theme & layout</div>
+    </div>
+    <div class="mcm-step">
+      <div class="mcm-step-num">2</div>
+      <div class="mcm-step-title">Send Photos</div>
+      <div class="mcm-step-desc">Share your favourite memories with us</div>
+    </div>
+    <div class="mcm-step">
+      <div class="mcm-step-num">3</div>
+      <div class="mcm-step-title">We Design</div>
+      <div class="mcm-step-desc">Our team crafts your magazine in 20 min</div>
+    </div>
+    <div class="mcm-step">
+      <div class="mcm-step-num">4</div>
+      <div class="mcm-step-title">Delivered</div>
+      <div class="mcm-step-desc">Printed & delivered to your door</div>
+    </div>
   </div>
+
+  <!-- ── Products ── -->
+  {%- if collection.products_count > 0 -%}
+    <div class="mcm-section-head">
+      <span class="mcm-section-label">Choose Your Package</span>
+      <div class="mcm-section-line"></div>
+    </div>
+
+    <div class="mcm-grid">
+      {%- for product in collection.products -%}
+        {%- assign is_hero = false -%}
+        {%- if forloop.index == 1 -%}{%- assign is_hero = true -%}{%- endif -%}
+        <a href="{{ product.url }}" class="mcm-card{% if is_hero %} mcm-card--hero{% endif %}">
+          <div class="mcm-card-img-wrap">
+            {%- if product.featured_image -%}
+              <img
+                src="{{ product.featured_image | image_url: width: 900 }}"
+                alt="{{ product.featured_image.alt | escape }}"
+                class="mcm-card-img"
+                loading="lazy">
+            {%- else -%}
+              <div class="mcm-card-placeholder">
+                <div class="mcm-card-placeholder-icon">📰</div>
+                <div class="mcm-card-placeholder-text">Custom Magazine</div>
+              </div>
+            {%- endif -%}
+            <div class="mcm-card-badge">Custom Design</div>
+            {%- if product.price > 0 -%}
+              <div class="mcm-card-price-pill">{{ product.price | money }}</div>
+            {%- endif -%}
+            <div class="mcm-card-overlay">
+              <div class="mcm-card-overlay-btn">View Package →</div>
+            </div>
+          </div>
+          <div class="mcm-card-body">
+            <h2 class="mcm-card-title">{{ product.title }}</h2>
+            {%- if product.description != blank -%}
+              <p class="mcm-card-desc">{{ product.description | strip_html }}</p>
+            {%- endif -%}
+            <div class="mcm-card-footer">
+              <span class="mcm-card-price">
+                {%- if product.price > 0 -%}
+                  {{ product.price | money }}
+                  {%- if product.compare_at_price > product.price -%}
+                    <s style="font-weight:400;color:var(--mcm-muted);font-size:12px;margin-left:4px">{{ product.compare_at_price | money }}</s>
+                  {%- endif -%}
+                {%- else -%}
+                  Free
+                {%- endif -%}
+              </span>
+              <span class="mcm-card-cta-link">
+                Select
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </span>
+            </div>
+          </div>
+        </a>
+      {%- endfor -%}
+    </div>
+  {%- else -%}
+    <div class="mcm-empty">
+      <div class="mcm-empty-icon">📰</div>
+      <div class="mcm-empty-title">Packages coming soon</div>
+      <p>In the meantime, start your custom magazine directly.</p>
+    </div>
+  {%- endif -%}
+
+  <!-- ── Bottom CTA ── -->
+  <div class="mcm-cta-banner">
+    <div class="mcm-cta-inner">
+      <div class="mcm-cta-tag">✦ Ready to Begin?</div>
+      <h2 class="mcm-cta-title">Create Your <em>Story</em> Today</h2>
+      <p class="mcm-cta-desc">A custom magazine is the most personal gift you can give — birthdays, anniversaries, graduations, or just because.</p>
+      <a href="/pages/magazine-builder" class="mcm-cta-btn">
+        Start Building Now ↗
+      </a>
+    </div>
+  </div>
+
 </div>
 
 {% schema %}
 {
-  "name": "Magazine Collection V2",
+  "name": "Magazine Collection",
   "settings": [],
   "presets": [
     {
-      "name": "Magazine Collection V2"
+      "name": "Magazine Collection"
     }
   ]
 }
