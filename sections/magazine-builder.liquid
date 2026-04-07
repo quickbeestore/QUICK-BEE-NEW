@@ -888,6 +888,36 @@
 }
 .bmb-cs:hover { border-color: var(--bmb-gold); }
 
+/* Cover style — explicit theme overrides for visibility */
+html:not([data-theme="dark"]) .bmb-cs {
+  background: #ffffff;
+  border-color: #d0d0d0;
+  color: #222;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+html:not([data-theme="dark"]) .bmb-cs--on {
+  border-color: #F4B400;
+  background: #fffbea;
+  box-shadow: 0 0 0 3px rgba(244,180,0,0.18);
+  color: #111;
+}
+[data-theme="dark"] .bmb-cs {
+  background: #2a2a2a;
+  border-color: rgba(255,255,255,0.18);
+  color: #ddd;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+[data-theme="dark"] .bmb-cs--on {
+  border-color: #F4B400;
+  background: rgba(244,180,0,0.10);
+  box-shadow: 0 0 0 3px rgba(244,180,0,0.18);
+  color: #f0f0f0;
+}
+[data-theme="dark"] .bmb-cs:hover:not(.bmb-cs--on) {
+  border-color: rgba(244,180,0,0.6);
+  background: #333;
+}
+
 /* ── Pill groups ── */
 .bmb-pills {
   display: flex;
@@ -932,15 +962,20 @@
 .bmb-review-v { color: var(--bmb-text); font-weight: 600; text-align: right; max-width: 60%; }
 .bmb-photo-chip {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
-  background: rgba(244,180,0,.08);
-  border: 1.5px solid rgba(244,180,0,.25);
+  background: rgba(244,180,0,.07);
+  border: 1.5px solid rgba(244,180,0,.3);
   border-radius: var(--bmb-radius-sm);
-  padding: 12px 16px;
+  padding: 16px;
   margin-bottom: 20px;
   font-size: 14px;
   color: var(--bmb-text);
+  line-height: 1.5;
+}
+[data-theme="dark"] .bmb-photo-chip {
+  background: rgba(244,180,0,.1);
+  border-color: rgba(244,180,0,.25);
 }
 .bmb-email-row { margin-bottom: 20px; }
 .bmb-email-note {
@@ -1630,8 +1665,30 @@ function populateReview(){
   }).join('');
 
   if(chip){
-    chip.innerHTML = '📷 <strong>' + state.photos.length + ' photo' + (state.photos.length !== 1 ? 's' : '') +
-      '</strong> will be sent to our print team at ' + escHtml(PRINT_EMAIL);
+    chip.innerHTML =
+      '<div style="display:flex;flex-direction:column;gap:10px;width:100%;">' +
+        '<div style="display:flex;align-items:center;gap:10px;">' +
+          '<span style="font-size:22px;flex-shrink:0;">📋</span>' +
+          '<div>' +
+            '<div style="font-size:14px;font-weight:800;margin-bottom:2px;">Your order details & photos will be sent</div>' +
+            '<div style="font-size:12px;opacity:0.7;">Everything below is included in your order confirmation</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="border-top:1px solid rgba(244,180,0,0.2);padding-top:10px;display:flex;flex-direction:column;gap:7px;">' +
+          '<div style="display:flex;align-items:center;gap:8px;font-size:13px;">' +
+            '<span>📸</span>' +
+            '<span>Your <strong>' + state.photos.length + ' photo' + (state.photos.length !== 1 ? 's' : '') + '</strong> — email to <strong>' + escHtml(PRINT_EMAIL) + '</strong> after ordering with your Order ID</span>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:8px;font-size:13px;">' +
+            '<span>📄</span>' +
+            '<span>All magazine details (recipient, occasion, style, message) are saved to your order</span>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:8px;font-size:13px;">' +
+            '<span>⚡</span>' +
+            '<span>Our print team will contact you within <strong>20 minutes</strong> to confirm and begin design</span>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
   }
 }
 
