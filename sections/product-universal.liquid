@@ -243,29 +243,103 @@
 .qbp-var-select:focus { border-color: var(--qb-gold); box-shadow: 0 0 0 3px rgba(244,180,0,0.12); }
 
 /* qty + atc */
-.qbp-action { display: flex; gap: 10px; align-items: stretch; margin-bottom: 18px; animation: qp-up .4s .33s ease both; }
-.qbp-qty { display: flex; align-items: center; border: 1.5px solid var(--qb-border); border-radius: 16px; overflow: hidden; height: 56px; flex-shrink: 0; background: var(--qb-card); }
-.qbp-qty-btn { width: 48px; height: 56px; background: transparent; border: none; font-size: 24px; font-weight: 300; color: var(--qb-text); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; touch-action: manipulation; }
-.qbp-qty-btn:active { background: var(--qb-sep); }
-.qbp-qty-num { min-width: 38px; text-align: center; font-size: 17px; font-weight: 900; color: var(--qb-text); user-select: none; }
-.qbp-atc {
-  flex: 1; height: 56px; border: none; border-radius: 16px;
-  background: #111; color: var(--qb-gold); font-size: 15px; font-weight: 900;
-  letter-spacing: 0.8px; text-transform: uppercase; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 9px;
-  position: relative; overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-  transition: background .18s, transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s;
+.qbp-action {
+  display: flex; flex-direction: column; gap: 12px;
+  margin-bottom: 18px; animation: qp-up .4s .33s ease both;
 }
-[data-theme="dark"] .qbp-atc { background: var(--qb-gold); color: #000; animation: qp-glow 3s ease-in-out infinite; }
-.qbp-atc::before { content:''; position:absolute; top:0; left:-100%; width:50%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent); animation:qp-shine 3s ease-in-out infinite; }
-.qbp-atc:hover:not(:disabled) { background: #222; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.38); }
-[data-theme="dark"] .qbp-atc:hover:not(:disabled) { background: var(--qb-gold-l); box-shadow: 0 8px 30px rgba(244,180,0,0.6); }
-.qbp-atc:active:not(:disabled) { transform: scale(0.97); animation: qp-cart .35s ease; }
-.qbp-atc:disabled { background: var(--qb-sep); color: var(--qb-sub); box-shadow: none; cursor: not-allowed; animation: none; }
-.qbp-atc-ico { display: flex; align-items: center; }
-.qbp-atc-ico svg { width: 20px; height: 20px; fill: currentColor; transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
-.qbp-atc:hover:not(:disabled) .qbp-atc-ico svg { transform: scale(1.2) rotate(-8deg); }
+.qbp-action-top { display: flex; gap: 10px; align-items: stretch; }
+
+/* qty stepper — pill style */
+.qbp-qty {
+  display: flex; align-items: center;
+  border: 2px solid var(--qb-border); border-radius: 16px;
+  overflow: hidden; height: 58px; flex-shrink: 0;
+  background: var(--qb-card);
+  transition: border-color .2s;
+}
+.qbp-qty:hover { border-color: rgba(244,180,0,0.5); }
+.qbp-qty-btn {
+  width: 52px; height: 58px; background: transparent; border: none;
+  font-size: 26px; font-weight: 300; color: var(--qb-text);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .15s, color .15s; touch-action: manipulation;
+}
+.qbp-qty-btn:hover { color: var(--qb-gold); }
+.qbp-qty-btn:active { background: var(--qb-sep); }
+.qbp-qty-num {
+  min-width: 40px; text-align: center; font-size: 18px;
+  font-weight: 900; color: var(--qb-text); user-select: none;
+  border-left: 1.5px solid var(--qb-border); border-right: 1.5px solid var(--qb-border);
+  height: 100%; display: flex; align-items: center; justify-content: center;
+}
+
+/* ── MAIN ATC BUTTON — full width, premium ── */
+.qbp-atc {
+  width: 100%; height: 62px; border: none; border-radius: 18px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+  color: #F4B400;
+  font-size: 16px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 11px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 6px 28px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2);
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, background .2s;
+}
+[data-theme="dark"] .qbp-atc {
+  background: linear-gradient(135deg, #F4B400 0%, #FFD000 40%, #F4B400 100%);
+  background-size: 200% 100%;
+  color: #000;
+  box-shadow: 0 6px 28px rgba(244,180,0,0.45), 0 2px 8px rgba(244,180,0,0.2);
+  animation: qp-glow 3s ease-in-out infinite, qp-gold-shift 4s ease-in-out infinite;
+}
+@keyframes qp-gold-shift {
+  0%,100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+/* shine sweep */
+.qbp-atc::before {
+  content: ''; position: absolute; top: -50%; left: -80%; width: 55%; height: 200%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,0.18), transparent);
+  transform: skewX(-20deg);
+  animation: qp-shine 3.5s ease-in-out infinite;
+}
+/* bottom accent line */
+.qbp-atc::after {
+  content: ''; position: absolute; bottom: 0; left: 15%; right: 15%; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(244,180,0,0.6), transparent);
+  border-radius: 2px;
+}
+[data-theme="dark"] .qbp-atc::after {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+}
+.qbp-atc:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.45), 0 4px 12px rgba(0,0,0,0.2);
+  background: linear-gradient(135deg, #222 0%, #111 100%);
+}
+[data-theme="dark"] .qbp-atc:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 12px 36px rgba(244,180,0,0.6), 0 4px 12px rgba(244,180,0,0.3);
+  background: linear-gradient(135deg, #FFD740 0%, #F4B400 100%);
+}
+.qbp-atc:active:not(:disabled) { transform: scale(0.97); animation: qp-cart .3s ease; }
+.qbp-atc:disabled {
+  background: var(--qb-sep) !important; color: var(--qb-sub) !important;
+  box-shadow: none !important; cursor: not-allowed; animation: none !important;
+}
+.qbp-atc:disabled::before, .qbp-atc:disabled::after { display: none; }
+
+/* icon + text inside ATC */
+.qbp-atc-ico { display: flex; align-items: center; flex-shrink: 0; }
+.qbp-atc-ico svg { width: 22px; height: 22px; fill: currentColor; transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
+.qbp-atc:hover:not(:disabled) .qbp-atc-ico svg { transform: scale(1.25) rotate(-10deg); }
+.qbp-atc-txt { font-size: 16px; font-weight: 900; letter-spacing: 1.2px; }
+.qbp-atc-badge {
+  position: absolute; top: 9px; right: 14px;
+  background: rgba(255,255,255,0.15); border-radius: 20px;
+  font-size: 9px; font-weight: 800; padding: 2px 8px; letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.8);
+}
+[data-theme="dark"] .qbp-atc-badge { background: rgba(0,0,0,0.18); color: rgba(0,0,0,0.6); }
 
 /* delivery card */
 .qbp-delivery {
@@ -608,12 +682,20 @@
 
       <!-- qty + add to cart -->
       <div class="qbp-action">
-        <div class="qbp-qty">
-          <button type="button" class="qbp-qty-btn" id="qbp-minus">−</button>
-          <span class="qbp-qty-num" id="qbp-qty-disp">1</span>
-          <button type="button" class="qbp-qty-btn" id="qbp-plus">+</button>
+        <!-- qty row -->
+        <div class="qbp-action-top">
+          <div class="qbp-qty">
+            <button type="button" class="qbp-qty-btn" id="qbp-minus">−</button>
+            <span class="qbp-qty-num" id="qbp-qty-disp">1</span>
+            <button type="button" class="qbp-qty-btn" id="qbp-plus">+</button>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:2px;padding-left:4px;">
+            <span style="font-size:12px;font-weight:700;color:var(--qb-sub);">Quantity</span>
+            <span style="font-size:11px;color:var(--qb-sub);">In stock & ready to ship</span>
+          </div>
         </div>
-        <form action="/cart/add" method="post" style="flex:1;" id="qbp-form">
+        <!-- full-width ATC -->
+        <form action="/cart/add" method="post" id="qbp-form" style="width:100%;">
           <input type="hidden" id="qbp-vid" name="id" value="{{ product.variants.first.id }}">
           <input type="hidden" id="qbp-qty-h" name="quantity" value="1">
           <button type="submit" class="qbp-atc" id="qbp-atc" {% unless product.available %}disabled{% endunless %}>
@@ -622,6 +704,7 @@
                 <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM5.1 4H2V2H0v2h2l3.6 7.6L4.2 14c-.2.3-.2.7-.2 1 0 1.1.9 2 2 2h14v-2H6.4c-.1 0-.2-.1-.2-.2l.1-.3 1-1.7H19c.8 0 1.4-.4 1.8-1l3.4-6.2A1 1 0 0023.3 4H5.1z"/></svg>
               </span>
               <span class="qbp-atc-txt">Add to Cart</span>
+              <span class="qbp-atc-badge">⚡ 20 min delivery</span>
             {% else %}
               <span class="qbp-atc-txt">Out of Stock</span>
             {% endif %}
@@ -891,8 +974,13 @@
       <span class="qbp-qty-num" id="qbp-s-qty-disp" style="font-size:15px;">1</span>
       <button type="button" class="qbp-qty-btn" id="qbp-s-plus" style="width:40px;height:48px;font-size:20px;">+</button>
     </div>
-    <button type="button" class="qbp-atc" id="qbp-s-atc" style="flex:1;height:48px;font-size:13px;" {% unless product.available %}disabled{% endunless %}>
-      {% if product.available %}<span class="qbp-atc-txt">Add to Cart</span>{% else %}<span class="qbp-atc-txt">Out of Stock</span>{% endif %}
+    <button type="button" class="qbp-atc" id="qbp-s-atc" style="flex:1;height:50px;font-size:13px;border-radius:14px;" {% unless product.available %}disabled{% endunless %}>
+      {% if product.available %}
+        <span class="qbp-atc-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM5.1 4H2V2H0v2h2l3.6 7.6L4.2 14c-.2.3-.2.7-.2 1 0 1.1.9 2 2 2h14v-2H6.4c-.1 0-.2-.1-.2-.2l.1-.3 1-1.7H19c.8 0 1.4-.4 1.8-1l3.4-6.2A1 1 0 0023.3 4H5.1z"/></svg></span>
+        <span class="qbp-atc-txt">Add to Cart</span>
+      {% else %}
+        <span class="qbp-atc-txt">Out of Stock</span>
+      {% endif %}
     </button>
   </div>
 
