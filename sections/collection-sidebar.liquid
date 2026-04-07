@@ -904,7 +904,16 @@
   <aside class="qb-sidebar" id="category-sidebar">
     {% paginate collections by 100 %}
       {% for col in collections %}
-        {% unless col.handle == 'all' or col.all_products_count == 0 or col.handle == 'cake' or col.handle == 'typical-taste' or col.handle == 'yetikafe' or col.handle == 'yeti-kafe' or col.handle == 'dhido-grills' %}
+        {%- assign skip = false -%}
+        {%- if col.handle == 'all' or col.all_products_count == 0 -%}{%- assign skip = true -%}{%- endif -%}
+        {%- comment -%}Collections with dedicated custom templates — exclude from sidebar{%- endcomment -%}
+        {%- if col.handle == 'cake' or col.handle == 'typical-taste' -%}{%- assign skip = true -%}{%- endif -%}
+        {%- if col.handle == 'yetikafe' or col.handle == 'yeti-kafe' -%}{%- assign skip = true -%}{%- endif -%}
+        {%- if col.handle == 'dhido-grills' or col.handle == 'the-dhido-the-grills' -%}{%- assign skip = true -%}{%- endif -%}
+        {%- if col.handle == 'magazine' or col.handle == 'custom-magazine' or col.handle contains 'magazine' -%}{%- assign skip = true -%}{%- endif -%}
+        {%- if col.handle == 'rts-spa' or col.handle contains 'spa' -%}{%- assign skip = true -%}{%- endif -%}
+        {%- if col.handle contains 'bouquet' or col.title == 'Bouquets' -%}{%- assign skip = true -%}{%- endif -%}
+        {% unless skip %}
           <a href="/collections/{{ col.handle }}" class="qb-sidebar-category{% if collection.handle == col.handle %} active{% endif %}" data-collection-handle="{{ col.handle }}" data-collection-title="{{ col.title }}" data-collection-url="{{ col.url }}" title="{{ col.title }}">
             <div class="qb-sidebar-img-wrap">
               {% if col.featured_image %}
