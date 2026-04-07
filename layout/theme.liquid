@@ -365,6 +365,23 @@
       {%- render 'theme-editor' -%}
     {% endif %}
 
+    {%- comment -%}── OG / Social share image override ──
+      Use QuickBee brand logo for collections & pages.
+      Only use the collection/product image on product pages with actual images.
+    {%- endcomment -%}
+    {%- assign qb_og_logo = 'Quick Bee Logo.png' | asset_url -%}
+    {%- if template.name == 'product' and product.featured_image -%}
+      {%- assign qb_og_img = product.featured_image | image_url: width: 1200 -%}
+    {%- elsif template.name == 'article' and article.image -%}
+      {%- assign qb_og_img = article.image | image_url: width: 1200 -%}
+    {%- else -%}
+      {%- assign qb_og_img = qb_og_logo -%}
+    {%- endif -%}
+    <meta property="og:image" content="{{ qb_og_img }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:image" content="{{ qb_og_img }}">
+
     {{ content_for_header }}
 
     <!-- JSON-LD: LocalBusiness Schema for SEO -->
