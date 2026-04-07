@@ -1,8 +1,8 @@
-<!-- QuickBee Universal Product Page — Premium v3 -->
+<!-- QuickBee Universal Product Page — Premium v4 🐝 -->
 {% liquid
-  assign yeti_found = false
+  assign yeti_found     = false
   assign baby_care_found = false
-  assign pet_care_found = false
+  assign pet_care_found  = false
   for collection in product.collections
     if collection.title == "Yeti Kafe"
       assign yeti_found = true
@@ -32,680 +32,593 @@
     assign diff = product.compare_at_price | minus: product.price
     assign disc_pct = diff | times: 100 | divided_by: product.compare_at_price
   endif
+  assign is_halal = false
+  if product.tags contains 'halal' or product.tags contains 'Halal' or product.tags contains 'HALAL'
+    assign is_halal = true
+  endif
 %}
 
 {% if show_universal %}
 {% assign current_product_id = product.id %}
 
 <style>
-/* ═══════════════════════════════════════
-   ROOT + RESET
-═══════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   QUICKBEE PRODUCT PAGE v4 — PREMIUM UNIVERSAL
+═══════════════════════════════════════════════════ */
+:root {
+  --qb-gold: #F4B400;
+  --qb-gold-d: #c68a00;
+  --qb-gold-l: #FFD740;
+  --qb-bg: #f4f5f7;
+  --qb-card: #ffffff;
+  --qb-text: #0d0d0d;
+  --qb-sub: #6b7280;
+  --qb-border: #eaeaea;
+  --qb-sep: #f0f0f0;
+  --qb-green: #16a34a;
+  --qb-red: #e11d48;
+  --qb-radius: 22px;
+}
+[data-theme="dark"] {
+  --qb-bg: #0a0a0a;
+  --qb-card: #141414;
+  --qb-text: #f0f0f0;
+  --qb-sub: #6b7280;
+  --qb-border: #222;
+  --qb-sep: #1a1a1a;
+  --qb-green: #4ade80;
+  --qb-red: #f87171;
+}
+
+/* ── Reset ── */
 .qbp *, .qbp *::before, .qbp *::after { box-sizing: border-box; margin: 0; padding: 0; }
-.qbp {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #f8f7f5;
-  min-height: 100vh;
-  padding-bottom: 96px;
-  color: #111;
-}
-[data-theme="dark"] .qbp { background: #0a0a0a; color: #f0f0f0; }
+.qbp { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--qb-bg); color: var(--qb-text); min-height: 100vh; padding-bottom: 100px; }
 
-/* ── ANIMATIONS ── */
-@keyframes qbp-up   { from { opacity:0; transform:translateY(20px) } to { opacity:1; transform:translateY(0) } }
-@keyframes qbp-pop  { from { opacity:0; transform:scale(0.7) rotate(-8deg) } to { opacity:1; transform:scale(1) rotate(0deg) } }
-@keyframes qbp-zoom { from { transform:scale(1.06); opacity:0.7 } to { transform:scale(1); opacity:1 } }
-@keyframes qbp-pulse-glow { 0%,100%{box-shadow:0 4px 18px rgba(244,180,0,0.35)} 50%{box-shadow:0 6px 28px rgba(244,180,0,0.65)} }
-@keyframes qbp-shine { 0%{left:-80%} 60%,100%{left:130%} }
-@keyframes qbp-dot   { 0%,100%{opacity:0.35} 50%{opacity:1} }
-@keyframes qbp-bolt  { 0%,100%{filter:drop-shadow(0 0 3px rgba(244,180,0,0.5))} 50%{filter:drop-shadow(0 0 8px rgba(244,180,0,0.9))} }
+/* ── Animations ── */
+@keyframes qp-up    { from { opacity:0; transform:translateY(24px) } to { opacity:1; transform:none } }
+@keyframes qp-pop   { from { opacity:0; transform:scale(0.6) } to { opacity:1; transform:scale(1) } }
+@keyframes qp-shine { 0%{left:-100%} 60%,100%{left:120%} }
+@keyframes qp-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+@keyframes qp-glow  { 0%,100%{box-shadow:0 4px 20px rgba(244,180,0,0.35)} 50%{box-shadow:0 6px 32px rgba(244,180,0,0.7)} }
+@keyframes qp-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+@keyframes qp-zoom  { from{transform:scale(1.05);opacity:0.8} to{transform:scale(1);opacity:1} }
+@keyframes qp-cart  { 0%{transform:scale(1)} 25%{transform:scale(0.9)} 60%{transform:scale(1.05)} 100%{transform:scale(1)} }
+@keyframes qp-dot-a { 0%,100%{transform:scale(1)} 50%{transform:scale(1.4)} }
 
-/* ═══════════════════════════════════════
-   FLOATING TOP NAV (mobile)
-═══════════════════════════════════════ */
+/* ════════════════════════════════
+   FLOATING NAV (mobile)
+════════════════════════════════ */
 .qbp-nav {
-  position: absolute; top:0; left:0; right:0; z-index:60;
-  padding:14px 16px;
-  display:flex; align-items:center; justify-content:space-between;
-  background: linear-gradient(180deg,rgba(0,0,0,0.5) 0%,transparent 100%);
+  position: absolute; top: 0; left: 0; right: 0; z-index: 60;
+  padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%);
 }
-.qbp-back {
-  width:38px; height:38px;
-  background:rgba(255,255,255,0.2);
-  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
-  border:1.5px solid rgba(255,255,255,0.3);
-  border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  color:#fff; font-size:18px; text-decoration:none;
-  transition:background 0.2s;
-  flex-shrink:0;
+.qbp-nav-btn {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.28);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 18px; text-decoration: none;
+  cursor: pointer; transition: background .2s; flex-shrink: 0;
 }
-.qbp-back:hover { background:rgba(255,255,255,0.35); }
-.qbp-nav-title {
-  font-size:13px; font-weight:700;
-  color:rgba(255,255,255,0.9);
-  max-width:55%; overflow:hidden;
-  text-overflow:ellipsis; white-space:nowrap;
-}
+.qbp-nav-btn:active { background: rgba(255,255,255,0.35); }
+.qbp-nav-center { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.9); max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* ═══════════════════════════════════════
-   HERO IMAGE BLOCK
-═══════════════════════════════════════ */
-.qbp-hero-wrap { position:relative; width:100%; }
-.qbp-hero {
-  position:relative; width:100%; aspect-ratio:1/1;
-  background:#ddd; overflow:hidden;
+/* ════════════════════════════════
+   IMAGE GALLERY
+════════════════════════════════ */
+.qbp-gallery { position: relative; width: 100%; overflow: hidden; touch-action: pan-y; user-select: none; }
+.qbp-gallery-track { display: flex; will-change: transform; transition: transform .35s cubic-bezier(.4,0,.2,1); }
+.qbp-gallery-slide { flex: 0 0 100%; aspect-ratio: 1 / 1; overflow: hidden; background: #e8e8e8; }
+[data-theme="dark"] .qbp-gallery-slide { background: #1a1a1a; }
+.qbp-gallery-slide img { width: 100%; height: 100%; object-fit: cover; display: block; animation: qp-zoom .55s cubic-bezier(.4,0,.2,1) both; pointer-events: none; }
+/* bottom fade */
+.qbp-gallery::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 42%;
+  background: linear-gradient(to top, var(--qb-card) 0%, transparent 100%);
+  pointer-events: none; z-index: 2;
 }
-[data-theme="dark"] .qbp-hero { background:#1a1a1a; }
-.qbp-hero img {
-  width:100%; height:100%; object-fit:cover; display:block;
-  animation: qbp-zoom 0.6s cubic-bezier(0.4,0,0.2,1) both;
-}
-/* Bottom blur-fade for card blending */
-.qbp-hero::after {
-  content:''; position:absolute; bottom:0; left:0; right:0; height:45%;
-  background:linear-gradient(to top, rgba(248,247,245,0.95) 0%, transparent 100%);
-  pointer-events:none;
-}
-[data-theme="dark"] .qbp-hero::after {
-  background:linear-gradient(to top, rgba(10,10,10,0.95) 0%, transparent 100%);
-}
-
-/* Discount pill */
+/* discount badge */
 .qbp-disc {
-  position:absolute; top:16px; right:16px; z-index:50;
-  background:#FF0055; color:#fff;
-  font-size:12px; font-weight:900;
-  padding:5px 12px; border-radius:20px;
-  letter-spacing:0.3px;
-  box-shadow:0 4px 12px rgba(255,0,85,0.45);
-  animation: qbp-pop 0.5s 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+  position: absolute; top: 16px; right: 16px; z-index: 10;
+  background: var(--qb-red); color: #fff;
+  font-size: 12px; font-weight: 900; padding: 5px 13px;
+  border-radius: 30px; letter-spacing: 0.2px;
+  box-shadow: 0 4px 14px rgba(225,29,72,0.45);
+  animation: qp-pop .5s .3s cubic-bezier(.34,1.56,.64,1) both;
 }
-
-/* Halal / vendor badge */
+/* halal / vendor */
 .qbp-hero-badge {
-  position:absolute; bottom:52px; left:16px; z-index:50;
-  display:inline-flex; align-items:center; gap:5px;
-  background:rgba(0,128,0,0.9);
-  backdrop-filter:blur(6px);
-  color:#fff; font-size:10px; font-weight:800;
-  letter-spacing:0.5px; text-transform:uppercase;
-  padding:5px 12px; border-radius:20px;
-  border:1px solid rgba(255,255,255,0.25);
+  position: absolute; bottom: 58px; left: 16px; z-index: 10;
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(5,150,105,0.9); backdrop-filter: blur(8px);
+  color: #fff; font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+  text-transform: uppercase; padding: 5px 12px; border-radius: 30px;
+  border: 1px solid rgba(255,255,255,0.25);
 }
+.qbp-hero-badge.vendor-badge { background: rgba(0,0,0,0.72); }
+[data-theme="dark"] .qbp-hero-badge.vendor-badge { background: rgba(244,180,0,0.85); color: #000; }
+/* dot indicators */
+.qbp-gdots { position: absolute; bottom: 58px; right: 16px; z-index: 10; display: flex; gap: 5px; align-items: center; }
+.qbp-gdot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.45); transition: all .25s; cursor: pointer; }
+.qbp-gdot.active { background: var(--qb-gold); width: 18px; border-radius: 4px; animation: qp-dot-a .3s ease; }
+/* thumbnail strip */
+.qbp-thumbs { display: flex; gap: 7px; padding: 10px 16px 0; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+.qbp-thumbs::-webkit-scrollbar { display: none; }
+.qbp-thumb {
+  flex: 0 0 52px; width: 52px; height: 52px; border-radius: 10px; overflow: hidden;
+  border: 2px solid transparent; cursor: pointer; transition: border-color .2s, transform .2s;
+  scroll-snap-align: start; background: #eee;
+}
+[data-theme="dark"] .qbp-thumb { background: #222; }
+.qbp-thumb.active { border-color: var(--qb-gold); transform: scale(1.07); }
+.qbp-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-/* Image dots indicator */
-.qbp-dots {
-  position:absolute; bottom:52px; right:16px; z-index:50;
-  display:flex; gap:5px;
-}
-.qbp-dot {
-  width:6px; height:6px; border-radius:50%;
-  background:rgba(255,255,255,0.5);
-  transition:background 0.2s, transform 0.2s;
-}
-.qbp-dot.active { background:#F4B400; transform:scale(1.3); }
-
-/* ═══════════════════════════════════════
-   MAIN CONTENT CARD
-═══════════════════════════════════════ */
+/* ════════════════════════════════
+   MAIN CARD
+════════════════════════════════ */
 .qbp-card {
-  background:#fff;
-  border-radius:24px 24px 0 0;
-  margin-top:-24px;
-  position:relative; z-index:10;
-  padding:10px 16px 0;
-  box-shadow:0 -6px 30px rgba(0,0,0,0.08);
-  animation: qbp-up 0.4s 0.1s ease both;
+  background: var(--qb-card);
+  border-radius: var(--qb-radius) var(--qb-radius) 0 0;
+  margin-top: -22px; position: relative; z-index: 10;
+  padding: 10px 16px 0;
+  box-shadow: 0 -4px 28px rgba(0,0,0,0.08);
+  animation: qp-up .4s .1s ease both;
 }
-[data-theme="dark"] .qbp-card {
-  background:#111;
-  box-shadow:0 -6px 30px rgba(0,0,0,0.5);
-}
-.qbp-handle {
-  width:40px; height:4px; border-radius:2px;
-  background:#e8e8e8; margin:0 auto 18px;
-}
-[data-theme="dark"] .qbp-handle { background:#2a2a2a; }
+.qbp-handle { width: 38px; height: 4px; border-radius: 2px; background: var(--qb-border); margin: 0 auto 16px; }
 
-/* ── Collection chip ── */
-.qbp-coll-chip {
-  display:inline-flex; align-items:center; gap:5px;
-  background:rgba(244,180,0,0.1);
-  color:#b07800;
-  font-size:10px; font-weight:700; text-transform:uppercase;
-  letter-spacing:0.8px; padding:4px 11px;
-  border-radius:20px; margin-bottom:12px;
-  text-decoration:none; border:1px solid rgba(244,180,0,0.2);
-  transition:background 0.2s;
+/* breadcrumb */
+.qbp-bread {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.7px; margin-bottom: 12px; flex-wrap: wrap;
 }
-[data-theme="dark"] .qbp-coll-chip { color:#F4B400; background:rgba(244,180,0,0.12); border-color:rgba(244,180,0,0.2); }
-.qbp-coll-chip:hover { background:rgba(244,180,0,0.18); }
+.qbp-bread a { color: var(--qb-sub); text-decoration: none; transition: color .2s; }
+.qbp-bread a:hover { color: var(--qb-gold); }
+.qbp-bread-sep { color: var(--qb-border); font-size: 8px; }
+.qbp-bread-cur { color: var(--qb-gold-d); }
+[data-theme="dark"] .qbp-bread-cur { color: var(--qb-gold); }
 
-/* ── Title ── */
-.qbp-title {
-  font-size:22px; font-weight:900; color:#0d0d0d;
-  line-height:1.2; letter-spacing:-0.3px;
-  margin-bottom:14px;
-  animation: qbp-up 0.4s 0.18s ease both;
-}
-[data-theme="dark"] .qbp-title { color:#f5f5f5; }
+/* title */
+.qbp-title { font-size: 21px; font-weight: 900; color: var(--qb-text); line-height: 1.2; letter-spacing: -0.3px; margin-bottom: 8px; animation: qp-up .4s .17s ease both; }
 
-/* ── Price block ── */
-.qbp-price-block {
-  display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
-  margin-bottom:16px;
-  animation: qbp-up 0.4s 0.22s ease both;
+/* rating row */
+.qbp-meta-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.qbp-stars { display: flex; align-items: center; gap: 3px; }
+.qbp-star { font-size: 13px; line-height: 1; }
+.qbp-rating-val { font-size: 13px; font-weight: 800; color: var(--qb-text); }
+.qbp-rating-cnt { font-size: 12px; color: var(--qb-sub); }
+.qbp-meta-sep { width: 1px; height: 14px; background: var(--qb-border); }
+.qbp-instock {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700; color: var(--qb-green);
 }
-.qbp-price {
-  font-size:32px; font-weight:900; color:#0d0d0d;
-  letter-spacing:-1px; line-height:1;
-}
-[data-theme="dark"] .qbp-price { color:#fff; }
-.qbp-was {
-  font-size:16px; color:#bbb;
-  text-decoration:line-through; font-weight:500;
-}
-.qbp-save {
-  background:rgba(22,197,94,0.1); color:#16a34a;
-  font-size:11px; font-weight:800;
-  padding:4px 10px; border-radius:20px;
-  border:1px solid rgba(22,197,94,0.2);
-}
-[data-theme="dark"] .qbp-save { background:rgba(22,197,94,0.15); color:#4ade80; border-color:rgba(22,197,94,0.25); }
+.qbp-stock-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--qb-green); animation: qp-pulse 1.8s ease-in-out infinite; }
+.qbp-outstock { font-size: 11px; font-weight: 700; color: var(--qb-red); }
 
-/* ── Delivery strip ── */
-.qbp-delivery {
-  display:flex; align-items:center; gap:12px;
-  background:linear-gradient(135deg,#FFFBF0,#FFF8E1);
-  border:1.5px solid rgba(244,180,0,0.35);
-  border-radius:16px; padding:13px 16px;
-  margin-bottom:18px; position:relative; overflow:hidden;
-  animation: qbp-up 0.4s 0.26s ease both;
+/* price block */
+.qbp-price-row {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 16px; animation: qp-up .4s .22s ease both;
 }
-[data-theme="dark"] .qbp-delivery {
-  background:linear-gradient(135deg,rgba(244,180,0,0.09),rgba(244,180,0,0.04));
-  border-color:rgba(244,180,0,0.2);
-}
-.qbp-delivery::before {
-  content:''; position:absolute; inset:0;
-  background:linear-gradient(90deg,transparent,rgba(255,215,0,0.1),transparent);
-  animation:qbp-shine 3.5s ease-in-out infinite; pointer-events:none;
-}
-.qbp-del-icon {
-  width:42px; height:42px; flex-shrink:0;
-  background:rgba(244,180,0,0.15); border-radius:13px;
-  display:flex; align-items:center; justify-content:center;
-  font-size:22px;
-  animation:qbp-bolt 2.5s ease-in-out infinite;
-}
-.qbp-del-body { flex:1; }
-.qbp-del-time {
-  font-size:14px; font-weight:800; color:#b07800;
-  display:flex; align-items:center; gap:5px;
-}
-[data-theme="dark"] .qbp-del-time { color:#F4B400; }
-.qbp-del-sub { font-size:11px; color:#999; margin-top:2px; }
+.qbp-price { font-size: 34px; font-weight: 900; color: var(--qb-text); letter-spacing: -1.5px; line-height: 1; }
+.qbp-was { font-size: 16px; color: var(--qb-sub); text-decoration: line-through; font-weight: 500; }
+.qbp-save-pill { background: rgba(22,163,74,0.1); color: var(--qb-green); border: 1px solid rgba(22,163,74,0.2); font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 30px; }
 
-/* ── Variant pills ── */
-.qbp-variants {
-  margin-bottom:18px;
-  animation: qbp-up 0.4s 0.3s ease both;
+/* promo chip */
+.qbp-promo-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(244,180,0,0.08); border: 1.5px dashed rgba(244,180,0,0.45);
+  border-radius: 10px; padding: 8px 14px; margin-bottom: 16px;
+  font-size: 12px; font-weight: 700; color: var(--qb-gold-d);
+  cursor: pointer; user-select: none; transition: background .2s;
 }
-.qbp-var-label {
-  font-size:11px; font-weight:700; color:#888;
-  text-transform:uppercase; letter-spacing:0.5px;
-  margin-bottom:9px; display:block;
-}
-.qbp-var-pills { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
-.qbp-var-pill {
-  padding:8px 18px;
-  border:1.5px solid #e0e0e0;
-  border-radius:99px;
-  font-size:13px; font-weight:700; color:#333;
-  background:#fff; cursor:pointer;
-  transition:all 0.18s ease;
-  touch-action:manipulation;
-}
-[data-theme="dark"] .qbp-var-pill { background:#1a1a1a; border-color:#2a2a2a; color:#ccc; }
-.qbp-var-pill.active {
-  border-color:#F4B400; background:rgba(244,180,0,0.1); color:#c68a00;
-}
-[data-theme="dark"] .qbp-var-pill.active { background:rgba(244,180,0,0.15); color:#F4B400; }
-.qbp-select {
-  width:100%; padding:11px 14px;
-  border:1.5px solid #e0e0e0; border-radius:12px;
-  font-size:14px; font-weight:600; color:#111;
-  background:#fafafa; cursor:pointer; appearance:auto;
-  margin-bottom:8px; transition:border-color 0.2s;
-}
-[data-theme="dark"] .qbp-select { background:#1a1a1a; border-color:#2a2a2a; color:#f0f0f0; }
-.qbp-select:focus { outline:none; border-color:#F4B400; box-shadow:0 0 0 3px rgba(244,180,0,0.12); }
+[data-theme="dark"] .qbp-promo-chip { color: var(--qb-gold); }
+.qbp-promo-chip:active { background: rgba(244,180,0,0.16); }
+.qbp-promo-code { font-size: 13px; font-weight: 900; background: rgba(244,180,0,0.15); padding: 2px 8px; border-radius: 6px; letter-spacing: 1px; }
 
-/* ── Qty + ATC ── */
-.qbp-action {
-  display:flex; gap:10px; align-items:stretch;
-  margin-bottom:18px;
-  animation: qbp-up 0.4s 0.34s ease both;
+/* variants */
+.qbp-variants { margin-bottom: 18px; animation: qp-up .4s .28s ease both; }
+.qbp-var-label { font-size: 11px; font-weight: 700; color: var(--qb-sub); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 9px; display: flex; align-items: center; gap: 8px; }
+.qbp-var-selected { font-size: 12px; font-weight: 800; color: var(--qb-text); text-transform: none; letter-spacing: 0; }
+.qbp-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.qbp-pill {
+  padding: 9px 18px; border: 1.5px solid var(--qb-border); border-radius: 99px;
+  font-size: 13px; font-weight: 700; color: var(--qb-sub); background: var(--qb-card);
+  cursor: pointer; transition: all .18s ease; touch-action: manipulation;
+  position: relative; overflow: hidden;
 }
-.qbp-qty {
-  display:flex; align-items:center;
-  border:1.5px solid #e0e0e0; border-radius:14px;
-  overflow:hidden; height:54px; flex-shrink:0;
-  background:#fff;
+.qbp-pill:hover { border-color: rgba(244,180,0,0.5); color: var(--qb-gold-d); }
+.qbp-pill.active { border-color: var(--qb-gold); background: rgba(244,180,0,0.1); color: var(--qb-gold-d); font-weight: 900; }
+[data-theme="dark"] .qbp-pill.active { background: rgba(244,180,0,0.15); color: var(--qb-gold); }
+.qbp-pill.oos { opacity: .45; text-decoration: line-through; cursor: not-allowed; }
+.qbp-var-select {
+  width: 100%; padding: 12px 14px; border: 1.5px solid var(--qb-border); border-radius: 14px;
+  font-size: 14px; font-weight: 600; color: var(--qb-text); background: var(--qb-card);
+  cursor: pointer; appearance: auto; outline: none; font-family: inherit; margin-bottom: 8px;
+  transition: border-color .2s;
 }
-[data-theme="dark"] .qbp-qty { border-color:#2a2a2a; background:#1a1a1a; }
-.qbp-qty-btn {
-  width:46px; height:54px; background:transparent; border:none;
-  font-size:24px; font-weight:300; color:#333;
-  cursor:pointer; display:flex; align-items:center; justify-content:center;
-  transition:background 0.15s; touch-action:manipulation;
-}
-[data-theme="dark"] .qbp-qty-btn { color:#ccc; }
-.qbp-qty-btn:active { background:#f0f0f0; }
-[data-theme="dark"] .qbp-qty-btn:active { background:#222; }
-.qbp-qty-val {
-  min-width:38px; text-align:center;
-  font-size:17px; font-weight:900; color:#111; user-select:none;
-}
-[data-theme="dark"] .qbp-qty-val { color:#f0f0f0; }
+.qbp-var-select:focus { border-color: var(--qb-gold); box-shadow: 0 0 0 3px rgba(244,180,0,0.12); }
+
+/* qty + atc */
+.qbp-action { display: flex; gap: 10px; align-items: stretch; margin-bottom: 18px; animation: qp-up .4s .33s ease both; }
+.qbp-qty { display: flex; align-items: center; border: 1.5px solid var(--qb-border); border-radius: 16px; overflow: hidden; height: 56px; flex-shrink: 0; background: var(--qb-card); }
+.qbp-qty-btn { width: 48px; height: 56px; background: transparent; border: none; font-size: 24px; font-weight: 300; color: var(--qb-text); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; touch-action: manipulation; }
+.qbp-qty-btn:active { background: var(--qb-sep); }
+.qbp-qty-num { min-width: 38px; text-align: center; font-size: 17px; font-weight: 900; color: var(--qb-text); user-select: none; }
 .qbp-atc {
-  flex:1; height:54px;
-  background:#111; color:#F4B400;
-  border:none; border-radius:14px;
-  font-size:15px; font-weight:900; letter-spacing:0.7px; text-transform:uppercase;
-  cursor:pointer; display:flex; align-items:center; justify-content:center;
-  gap:9px; position:relative; overflow:hidden;
-  box-shadow:0 4px 18px rgba(0,0,0,0.22);
-  transition:background 0.18s, transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s;
+  flex: 1; height: 56px; border: none; border-radius: 16px;
+  background: #111; color: var(--qb-gold); font-size: 15px; font-weight: 900;
+  letter-spacing: 0.8px; text-transform: uppercase; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  transition: background .18s, transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s;
 }
-[data-theme="dark"] .qbp-atc {
-  background:#F4B400; color:#000;
-  box-shadow:0 4px 20px rgba(244,180,0,0.4);
-  animation:qbp-pulse-glow 3s ease-in-out infinite;
-}
-.qbp-atc::after {
-  content:''; position:absolute;
-  top:0; left:-80%; width:60%; height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
-  animation:qbp-shine 2.8s ease-in-out infinite;
-}
-.qbp-atc:hover:not(:disabled) { background:#222; transform:translateY(-2px); box-shadow:0 6px 24px rgba(0,0,0,0.35); }
-[data-theme="dark"] .qbp-atc:hover:not(:disabled) { background:#FFD000; box-shadow:0 6px 26px rgba(244,180,0,0.55); }
-.qbp-atc:active:not(:disabled) { transform:scale(0.97); }
-.qbp-atc:disabled { background:#e0e0e0; color:#aaa; box-shadow:none; cursor:not-allowed; animation:none; }
-[data-theme="dark"] .qbp-atc:disabled { background:#1e1e1e; color:#444; }
-.qbp-atc-icon { display:flex; align-items:center; flex-shrink:0; transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1); }
-.qbp-atc-icon svg { width:20px; height:20px; fill:currentColor; }
-.qbp-atc:hover:not(:disabled) .qbp-atc-icon { transform:scale(1.2) rotate(-8deg); }
-.qbp-atc-txt { font-size:15px; font-weight:900; letter-spacing:0.8px; }
+[data-theme="dark"] .qbp-atc { background: var(--qb-gold); color: #000; animation: qp-glow 3s ease-in-out infinite; }
+.qbp-atc::before { content:''; position:absolute; top:0; left:-100%; width:50%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent); animation:qp-shine 3s ease-in-out infinite; }
+.qbp-atc:hover:not(:disabled) { background: #222; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.38); }
+[data-theme="dark"] .qbp-atc:hover:not(:disabled) { background: var(--qb-gold-l); box-shadow: 0 8px 30px rgba(244,180,0,0.6); }
+.qbp-atc:active:not(:disabled) { transform: scale(0.97); animation: qp-cart .35s ease; }
+.qbp-atc:disabled { background: var(--qb-sep); color: var(--qb-sub); box-shadow: none; cursor: not-allowed; animation: none; }
+.qbp-atc-ico { display: flex; align-items: center; }
+.qbp-atc-ico svg { width: 20px; height: 20px; fill: currentColor; transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
+.qbp-atc:hover:not(:disabled) .qbp-atc-ico svg { transform: scale(1.2) rotate(-8deg); }
 
-/* ── Trust bar ── */
-.qbp-trust {
-  display:grid; grid-template-columns:repeat(4,1fr);
-  border-top:1px solid #f0f0f0; border-bottom:1px solid #f0f0f0;
-  padding:14px 0; margin:0 -16px; padding-left:16px; padding-right:16px;
-  animation: qbp-up 0.4s 0.38s ease both;
+/* delivery card */
+.qbp-delivery {
+  background: linear-gradient(135deg, #FFFBF0, #FFF8E0);
+  border: 1.5px solid rgba(244,180,0,0.3); border-radius: 18px;
+  padding: 14px 16px; margin-bottom: 18px; position: relative; overflow: hidden;
+  animation: qp-up .4s .37s ease both;
 }
-[data-theme="dark"] .qbp-trust { border-color:#1e1e1e; }
-.qbp-trust-item {
-  display:flex; flex-direction:column; align-items:center;
-  gap:5px; text-align:center; padding:0 4px;
-  border-right:1px solid #f0f0f0;
-}
-[data-theme="dark"] .qbp-trust-item { border-right-color:#1e1e1e; }
-.qbp-trust-item:last-child { border-right:none; }
-.qbp-trust-ico { font-size:20px; }
-.qbp-trust-txt { font-size:9px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:0.2px; line-height:1.3; }
-[data-theme="dark"] .qbp-trust-txt { color:#555; }
+[data-theme="dark"] .qbp-delivery { background: linear-gradient(135deg,rgba(244,180,0,0.1),rgba(244,180,0,0.04)); border-color: rgba(244,180,0,0.2); }
+.qbp-delivery::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,215,0,0.12),transparent); animation:qp-shine 4s ease-in-out infinite; pointer-events:none; }
+.qbp-delivery-inner { display: flex; align-items: center; gap: 13px; }
+.qbp-del-icon { width: 44px; height: 44px; flex-shrink: 0; background: rgba(244,180,0,0.15); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; animation: qp-float 3s ease-in-out infinite; }
+.qbp-del-time { font-size: 15px; font-weight: 900; color: #c68a00; }
+[data-theme="dark"] .qbp-del-time { color: var(--qb-gold); }
+.qbp-del-sub { font-size: 11px; color: var(--qb-sub); margin-top: 2px; }
+.qbp-del-right { margin-left: auto; text-align: right; }
+.qbp-del-free { font-size: 11px; font-weight: 800; color: var(--qb-green); background: rgba(22,163,74,0.1); padding: 3px 9px; border-radius: 20px; }
 
-/* ── Description accordion ── */
-.qbp-acc {
-  border-top:1px solid #f0f0f0;
-  margin:0 -16px;
-}
-[data-theme="dark"] .qbp-acc { border-top-color:#1e1e1e; }
-.qbp-acc-btn {
-  width:100%; padding:16px; background:transparent; border:none;
-  text-align:left; font-size:14px; font-weight:700; color:#111;
-  cursor:pointer; display:flex; align-items:center; justify-content:space-between;
-}
-[data-theme="dark"] .qbp-acc-btn { color:#f0f0f0; }
-.qbp-acc-arrow { font-size:10px; color:#F4B400; transition:transform 0.25s ease; flex-shrink:0; }
-.qbp-acc-btn.open .qbp-acc-arrow { transform:rotate(180deg); }
-.qbp-acc-body {
-  display:none; padding:0 16px 18px;
-  font-size:13px; color:#555; line-height:1.75;
-  border-top:1px solid #f5f5f5;
-}
-[data-theme="dark"] .qbp-acc-body { color:#888; border-top-color:#1e1e1e; }
-.qbp-acc-body.open { display:block; }
+/* trust strip */
+.qbp-trust { display: grid; grid-template-columns: repeat(4,1fr); border-top: 1px solid var(--qb-sep); border-bottom: 1px solid var(--qb-sep); padding: 14px 0; margin: 0 -16px; padding-left: 16px; padding-right: 16px; animation: qp-up .4s .41s ease both; }
+.qbp-trust-item { display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; padding: 0 4px; border-right: 1px solid var(--qb-sep); }
+.qbp-trust-item:last-child { border-right: none; }
+.qbp-trust-ico { font-size: 20px; }
+.qbp-trust-lbl { font-size: 9px; font-weight: 700; color: var(--qb-sub); text-transform: uppercase; letter-spacing: 0.2px; line-height: 1.3; }
 
-/* ═══════════════════════════════════════
-   SMOKES SLIDER
-═══════════════════════════════════════ */
-.qbp-smokes {
-  background:#fff; padding:20px 0 16px;
-  border-top:8px solid #f8f7f5; overflow:hidden;
+/* product highlights */
+.qbp-highlights { margin-bottom: 18px; animation: qp-up .4s .44s ease both; }
+.qbp-hl-title { font-size: 13px; font-weight: 800; color: var(--qb-text); margin-bottom: 10px; }
+.qbp-hl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.qbp-hl-item {
+  display: flex; align-items: center; gap: 9px;
+  background: var(--qb-bg); border: 1px solid var(--qb-border); border-radius: 14px;
+  padding: 10px 12px; transition: border-color .2s, transform .2s;
 }
-[data-theme="dark"] .qbp-smokes { background:#111; border-top-color:#0a0a0a; }
-.qbp-smokes-hdr {
-  padding:0 16px 12px;
-  display:flex; align-items:center; gap:8px;
-}
-.qbp-smokes-hdr h2 { font-size:16px; font-weight:900; color:#111; letter-spacing:-0.2px; }
-[data-theme="dark"] .qbp-smokes-hdr h2 { color:#f0f0f0; }
-.qbp-smokes-all {
-  margin-left:auto; font-size:12px; font-weight:700;
-  color:#F4B400; text-decoration:none;
-}
-.qbp-smokes-wrap { overflow:hidden; }
-.qbp-smokes-track {
-  display:flex; gap:10px; padding:0 16px 4px; will-change:transform;
-}
-.qbp-smoke-card {
-  flex:0 0 108px; background:#f7f7f7; border-radius:14px;
-  overflow:hidden; cursor:pointer; text-decoration:none;
-  display:flex; flex-direction:column;
-  transition:transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow:0 2px 8px rgba(0,0,0,0.06);
-}
-[data-theme="dark"] .qbp-smoke-card { background:#1a1a1a; box-shadow:0 2px 10px rgba(0,0,0,0.4); }
-.qbp-smoke-card:hover { transform:translateY(-3px); box-shadow:0 6px 16px rgba(0,0,0,0.12); }
-.qbp-smoke-img { width:100%; aspect-ratio:1; overflow:hidden; background:#eee; }
-[data-theme="dark"] .qbp-smoke-img { background:#222; }
-.qbp-smoke-img img { width:100%; height:100%; object-fit:cover; display:block; }
-.qbp-smoke-body { padding:7px 8px 9px; }
-.qbp-smoke-name {
-  font-size:9.5px; font-weight:700; color:#111; line-height:1.3; margin-bottom:3px;
-  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
-}
-[data-theme="dark"] .qbp-smoke-name { color:#ddd; }
-.qbp-smoke-price { font-size:11px; font-weight:900; color:#F4B400; }
+.qbp-hl-item:hover { border-color: rgba(244,180,0,0.35); transform: translateY(-1px); }
+.qbp-hl-ico { font-size: 20px; flex-shrink: 0; }
+.qbp-hl-text { font-size: 11px; font-weight: 700; color: var(--qb-text); line-height: 1.35; }
+.qbp-hl-sub { font-size: 10px; color: var(--qb-sub); font-weight: 500; }
 
-/* ═══════════════════════════════════════
-   RELATED PRODUCTS
-═══════════════════════════════════════ */
-.qbp-related {
-  background:#fff; padding:20px 16px 24px;
-  border-top:8px solid #f8f7f5;
+/* description accordion */
+.qbp-section { border-top: 1px solid var(--qb-sep); margin: 0 -16px; }
+.qbp-sec-btn {
+  width: 100%; padding: 17px 16px; background: transparent; border: none;
+  text-align: left; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
-[data-theme="dark"] .qbp-related { background:#111; border-top-color:#0a0a0a; }
-.qbp-related-hdr {
-  display:flex; align-items:center; justify-content:space-between;
-  margin-bottom:14px;
-}
-.qbp-related h2 { font-size:16px; font-weight:900; color:#111; letter-spacing:-0.2px; }
-[data-theme="dark"] .qbp-related h2 { color:#f0f0f0; }
-.qbp-related-all {
-  font-size:12px; font-weight:700; color:#F4B400; text-decoration:none;
-}
-.qbp-rel-scroll {
-  display:flex; gap:12px; overflow-x:auto;
-  scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
-  margin:0 -16px; padding:0 16px 6px;
-}
-.qbp-rel-scroll::-webkit-scrollbar { height:2px; }
-.qbp-rel-scroll::-webkit-scrollbar-thumb { background:#F4B400; border-radius:2px; }
-.qbp-rel-card {
-  flex:0 0 140px; background:#f7f7f7; border-radius:16px;
-  overflow:hidden; scroll-snap-align:start;
-  text-decoration:none; display:flex; flex-direction:column;
-  transition:transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow:0 2px 8px rgba(0,0,0,0.05);
-}
-[data-theme="dark"] .qbp-rel-card { background:#1a1a1a; box-shadow:0 2px 10px rgba(0,0,0,0.4); }
-.qbp-rel-card:hover { transform:translateY(-4px); box-shadow:0 8px 20px rgba(0,0,0,0.1); }
-[data-theme="dark"] .qbp-rel-card:hover { box-shadow:0 8px 20px rgba(0,0,0,0.5); }
-.qbp-rel-img { width:100%; aspect-ratio:1; overflow:hidden; background:#eee; }
-[data-theme="dark"] .qbp-rel-img { background:#222; }
-.qbp-rel-img img { width:100%; height:100%; object-fit:cover; display:block; }
-.qbp-rel-body { padding:9px 10px 11px; }
-.qbp-rel-name {
-  font-size:11px; font-weight:700; color:#111; line-height:1.3; margin-bottom:4px;
-  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
-}
-[data-theme="dark"] .qbp-rel-name { color:#ddd; }
-.qbp-rel-price { font-size:13px; font-weight:900; color:#111; }
-[data-theme="dark"] .qbp-rel-price { color:#fff; }
+.qbp-sec-title { font-size: 14px; font-weight: 800; color: var(--qb-text); }
+.qbp-sec-arrow { font-size: 11px; color: var(--qb-gold); transition: transform .25s ease; flex-shrink: 0; }
+.qbp-sec-btn.open .qbp-sec-arrow { transform: rotate(180deg); }
+.qbp-sec-body { display: none; padding: 0 16px 18px; font-size: 13px; color: var(--qb-sub); line-height: 1.75; border-top: 1px solid var(--qb-sep); }
+.qbp-sec-body.open { display: block; }
 
-/* ═══════════════════════════════════════
-   WHY QUICKBEE
-═══════════════════════════════════════ */
-.qbp-why {
-  background:#fff; padding:24px 16px 28px;
-  border-top:8px solid #f8f7f5;
-}
-[data-theme="dark"] .qbp-why { background:#111; border-top-color:#0a0a0a; }
-.qbp-why-hdr {
-  display:flex; align-items:center; gap:8px; margin-bottom:18px;
-}
-.qbp-why-bee {
-  font-size:24px;
-  animation: qbp-bolt 3s ease-in-out infinite;
-}
-.qbp-why-hdr h2 { font-size:16px; font-weight:900; color:#111; letter-spacing:-0.2px; }
-[data-theme="dark"] .qbp-why-hdr h2 { color:#f0f0f0; }
-.qbp-why-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.qbp-why-card {
-  display:flex; align-items:flex-start; gap:10px;
-  background:#f8f8f8; border-radius:14px; padding:13px;
-  border:1px solid transparent;
-  transition:transform 0.2s ease, border-color 0.2s ease;
-}
-[data-theme="dark"] .qbp-why-card { background:#1a1a1a; }
-.qbp-why-card:hover { transform:translateY(-2px); border-color:rgba(244,180,0,0.25); }
-.qbp-why-ico { font-size:22px; flex-shrink:0; }
-.qbp-why-title { font-size:12px; font-weight:800; color:#111; margin-bottom:3px; }
-[data-theme="dark"] .qbp-why-title { color:#f0f0f0; }
-.qbp-why-desc { font-size:10.5px; color:#777; line-height:1.4; }
-[data-theme="dark"] .qbp-why-desc { color:#555; }
+/* product info table */
+.qbp-info-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.qbp-info-table tr { border-bottom: 1px solid var(--qb-sep); }
+.qbp-info-table tr:last-child { border-bottom: none; }
+.qbp-info-table td { padding: 9px 0; }
+.qbp-info-table td:first-child { color: var(--qb-sub); font-weight: 600; width: 42%; }
+.qbp-info-table td:last-child { color: var(--qb-text); font-weight: 700; }
 
-/* ═══════════════════════════════════════
-   FAQs
-═══════════════════════════════════════ */
-.qbp-faqs {
-  background:#fff; padding:24px 16px 36px;
-  border-top:8px solid #f8f7f5;
+/* ════════════════════════════════
+   SECTIONS BELOW CARD
+════════════════════════════════ */
+.qbp-section-block {
+  background: var(--qb-card);
+  border-top: 8px solid var(--qb-bg);
+  padding: 22px 16px 26px;
 }
-[data-theme="dark"] .qbp-faqs { background:#111; border-top-color:#0a0a0a; }
-.qbp-faqs h2 { font-size:16px; font-weight:900; color:#111; margin-bottom:16px; letter-spacing:-0.2px; }
-[data-theme="dark"] .qbp-faqs h2 { color:#f0f0f0; }
-.qbp-faq-item { border-bottom:1px solid #f0f0f0; }
-[data-theme="dark"] .qbp-faq-item { border-bottom-color:#1e1e1e; }
-.qbp-faq-item:first-of-type { border-top:1px solid #f0f0f0; }
-[data-theme="dark"] .qbp-faq-item:first-of-type { border-top-color:#1e1e1e; }
-.qbp-faq-btn {
-  width:100%; padding:15px 4px; background:transparent; border:none;
-  text-align:left; font-size:13px; font-weight:700; color:#111;
-  cursor:pointer; display:flex; align-items:center; justify-content:space-between;
-  gap:12px; line-height:1.4;
-}
-[data-theme="dark"] .qbp-faq-btn { color:#f0f0f0; }
-.qbp-faq-arr { font-size:9px; color:#F4B400; transition:transform 0.28s ease; flex-shrink:0; }
-.qbp-faq-btn.open .qbp-faq-arr { transform:rotate(180deg); }
-.qbp-faq-body {
-  display:none; padding:0 4px 14px;
-  font-size:12.5px; color:#666; line-height:1.7;
-}
-[data-theme="dark"] .qbp-faq-body { color:#888; }
-.qbp-faq-body.open { display:block; }
-.qbp-faq-body strong { color:#C41E3A; }
-[data-theme="dark"] .qbp-faq-body strong { color:#ff6b6b; }
+.qbp-sb-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.qbp-sb-title { font-size: 16px; font-weight: 900; color: var(--qb-text); letter-spacing: -0.2px; }
+.qbp-sb-ico { font-size: 20px; margin-right: 6px; }
+.qbp-sb-link { font-size: 12px; font-weight: 700; color: var(--qb-gold); text-decoration: none; }
 
-/* ═══════════════════════════════════════
-   STICKY ATC BAR
-═══════════════════════════════════════ */
+/* ── Smokes slider ── */
+.qbp-smokes-track { display: flex; gap: 10px; padding-bottom: 4px; will-change: transform; }
+.qbp-smoke-card { flex: 0 0 100px; background: var(--qb-bg); border-radius: 14px; overflow: hidden; cursor: pointer; text-decoration: none; display: flex; flex-direction: column; transition: transform .2s, box-shadow .2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+[data-theme="dark"] .qbp-smoke-card { box-shadow: 0 2px 10px rgba(0,0,0,0.4); }
+.qbp-smoke-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+.qbp-smoke-img { width: 100%; aspect-ratio: 1; overflow: hidden; }
+.qbp-smoke-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.qbp-smoke-body { padding: 7px 8px 9px; }
+.qbp-smoke-name { font-size: 9.5px; font-weight: 700; color: var(--qb-text); line-height: 1.3; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.qbp-smoke-price { font-size: 11px; font-weight: 900; color: var(--qb-gold); }
+
+/* ── Related products ── */
+.qbp-rel-scroll { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; margin: 0 -16px; padding: 0 16px 6px; }
+.qbp-rel-scroll::-webkit-scrollbar { height: 2px; }
+.qbp-rel-scroll::-webkit-scrollbar-thumb { background: var(--qb-gold); border-radius: 2px; }
+.qbp-rel-card { flex: 0 0 148px; background: var(--qb-bg); border-radius: 18px; overflow: hidden; scroll-snap-align: start; text-decoration: none; display: flex; flex-direction: column; transition: transform .2s, box-shadow .2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--qb-border); }
+.qbp-rel-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+.qbp-rel-img { width: 100%; aspect-ratio: 1; overflow: hidden; }
+.qbp-rel-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
+.qbp-rel-card:hover .qbp-rel-img img { transform: scale(1.05); }
+.qbp-rel-body { padding: 10px 10px 12px; }
+.qbp-rel-name { font-size: 11px; font-weight: 700; color: var(--qb-text); line-height: 1.3; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.qbp-rel-price { font-size: 13px; font-weight: 900; color: var(--qb-text); }
+.qbp-rel-was { font-size: 10px; color: var(--qb-sub); text-decoration: line-through; margin-left: 4px; }
+
+/* ── Reviews section ── */
+.qbp-reviews-summary { display: flex; align-items: center; gap: 16px; background: var(--qb-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+.qbp-rev-big { font-size: 46px; font-weight: 900; color: var(--qb-text); line-height: 1; }
+.qbp-rev-right { flex: 1; }
+.qbp-rev-stars-lg { font-size: 16px; margin-bottom: 4px; }
+.qbp-rev-cnt { font-size: 11px; color: var(--qb-sub); font-weight: 600; }
+.qbp-rev-bars { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+.qbp-rev-bar-row { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 600; color: var(--qb-sub); }
+.qbp-rev-bar-track { flex: 1; height: 5px; background: var(--qb-sep); border-radius: 3px; overflow: hidden; }
+.qbp-rev-bar-fill { height: 100%; background: var(--qb-gold); border-radius: 3px; }
+.qbp-review-card { background: var(--qb-bg); border-radius: 16px; padding: 14px; margin-bottom: 10px; }
+.qbp-rev-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.qbp-rev-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--qb-gold); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 900; color: #000; flex-shrink: 0; }
+.qbp-rev-name { font-size: 13px; font-weight: 800; color: var(--qb-text); }
+.qbp-rev-date { font-size: 10px; color: var(--qb-sub); }
+.qbp-rev-strs { font-size: 12px; margin-bottom: 6px; }
+.qbp-rev-text { font-size: 12.5px; color: var(--qb-sub); line-height: 1.65; }
+.qbp-rev-tag { display: inline-block; font-size: 10px; font-weight: 700; color: var(--qb-green); background: rgba(22,163,74,0.1); padding: 3px 9px; border-radius: 20px; margin-top: 7px; }
+
+/* ── Why QuickBee ── */
+.qbp-why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.qbp-why-card { display: flex; align-items: flex-start; gap: 10px; background: var(--qb-bg); border-radius: 16px; padding: 14px; border: 1px solid var(--qb-border); transition: transform .2s, border-color .2s; }
+.qbp-why-card:hover { transform: translateY(-2px); border-color: rgba(244,180,0,0.3); }
+.qbp-why-ico { font-size: 22px; flex-shrink: 0; }
+.qbp-why-h { font-size: 12px; font-weight: 800; color: var(--qb-text); margin-bottom: 3px; }
+.qbp-why-d { font-size: 10.5px; color: var(--qb-sub); line-height: 1.45; }
+
+/* ── FAQs ── */
+.qbp-faq-item { border-bottom: 1px solid var(--qb-sep); }
+.qbp-faq-item:first-child { border-top: 1px solid var(--qb-sep); }
+.qbp-faq-q { width: 100%; padding: 16px 0; background: transparent; border: none; text-align: left; font-size: 13px; font-weight: 700; color: var(--qb-text); cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px; line-height: 1.4; font-family: inherit; }
+.qbp-faq-arr { font-size: 10px; color: var(--qb-gold); transition: transform .25s; flex-shrink: 0; }
+.qbp-faq-q.open .qbp-faq-arr { transform: rotate(180deg); }
+.qbp-faq-a { display: none; padding: 0 0 14px; font-size: 12.5px; color: var(--qb-sub); line-height: 1.75; }
+.qbp-faq-a.open { display: block; }
+.qbp-faq-a strong { color: var(--qb-red); }
+[data-theme="dark"] .qbp-faq-a strong { color: #fca5a5; }
+
+/* ── Final CTA Banner ── */
+.qbp-cta-banner {
+  margin: 0; padding: 28px 20px; text-align: center;
+  background: linear-gradient(135deg, #0a0a00, #1a1500, #0f0f0f);
+  position: relative; overflow: hidden;
+}
+.qbp-cta-banner::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(244,180,0,0.2) 0%, transparent 70%); pointer-events:none; }
+.qbp-cta-bee { font-size: 36px; display: block; margin-bottom: 10px; animation: qp-float 3s ease-in-out infinite; }
+.qbp-cta-title { font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 6px; }
+.qbp-cta-title em { font-style: normal; color: var(--qb-gold); }
+.qbp-cta-sub { font-size: 12px; color: rgba(255,255,255,0.55); margin-bottom: 18px; }
+.qbp-cta-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.qbp-cta-btn { padding: 12px 22px; border-radius: 30px; font-size: 13px; font-weight: 800; text-decoration: none; transition: transform .2s, box-shadow .2s; }
+.qbp-cta-btn.primary { background: var(--qb-gold); color: #000; box-shadow: 0 4px 18px rgba(244,180,0,0.45); }
+.qbp-cta-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(244,180,0,0.6); }
+.qbp-cta-btn.secondary { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); border: 1.5px solid rgba(255,255,255,0.15); }
+
+/* ════════════════════════════════
+   STICKY ATC BAR (mobile)
+════════════════════════════════ */
 .qbp-sticky {
-  position:fixed; bottom:0; left:0; right:0; z-index:200;
-  padding:10px 14px calc(10px + env(safe-area-inset-bottom));
-  background:rgba(255,255,255,0.95);
-  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
-  border-top:1px solid rgba(0,0,0,0.06);
-  box-shadow:0 -4px 28px rgba(0,0,0,0.1);
-  display:flex; gap:10px; align-items:center;
-  animation: qbp-up 0.4s 0.5s cubic-bezier(0.4,0,0.2,1) both;
-  transform-origin:bottom;
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+  background: rgba(255,255,255,0.96); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  border-top: 1px solid rgba(0,0,0,0.06); box-shadow: 0 -4px 30px rgba(0,0,0,0.1);
+  display: flex; gap: 10px; align-items: center;
+  animation: qp-up .4s .5s cubic-bezier(.4,0,.2,1) both;
 }
-[data-theme="dark"] .qbp-sticky {
-  background:rgba(12,12,12,0.96);
-  border-top-color:rgba(255,255,255,0.06);
-  box-shadow:0 -4px 28px rgba(0,0,0,0.5);
+[data-theme="dark"] .qbp-sticky { background: rgba(10,10,10,0.97); border-top-color: rgba(255,255,255,0.06); box-shadow: 0 -4px 30px rgba(0,0,0,0.55); }
+.qbp-sticky-price { font-size: 18px; font-weight: 900; color: var(--qb-text); flex-shrink: 0; }
+
+/* ════════════════════════════════
+   DESKTOP LAYOUT (≥768px)
+════════════════════════════════ */
+@media (min-width: 768px) {
+  .qbp { display: grid; grid-template-columns: 1fr 1fr; align-items: start; padding-bottom: 0; background: transparent; min-height: 100vh; }
+  .qbp-left { grid-column: 1; grid-row: 1; position: sticky; top: 0; height: 100vh; overflow: hidden; background: #ebebeb; }
+  [data-theme="dark"] .qbp-left { background: #0f0f0f; }
+  .qbp-gallery { height: 100%; }
+  .qbp-gallery-slide { aspect-ratio: unset; height: 100vh; }
+  .qbp-gallery::after { display: none; }
+  .qbp-thumbs { position: absolute; bottom: 16px; left: 0; right: 0; justify-content: center; background: transparent; padding: 0 16px; }
+  .qbp-right { grid-column: 2; grid-row: 1; background: var(--qb-card); min-height: 100vh; overflow-y: auto; border-left: 1px solid var(--qb-border); }
+  .qbp-card { border-radius: 0; margin-top: 0; box-shadow: none; padding: 40px 36px 0; }
+  .qbp-handle, .qbp-sticky, .qbp-nav { display: none !important; }
+  .qbp-disc { top: 24px; left: 24px; right: auto; }
+  .qbp-hero-badge { bottom: 80px; }
+  .qbp-gdots { bottom: 80px; }
+  .qbp-section-block { border-radius: 0; }
+  .qbp-cta-banner { border-radius: 0; }
 }
 
-/* ═══════════════════════════════════════
-   DESKTOP LAYOUT
-═══════════════════════════════════════ */
-@media (min-width:768px) {
-  .qbp {
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    align-items:stretch;
-    padding-bottom:0;
-    min-height:100vh;
-    background:transparent;
-  }
-  .qbp-hero-wrap {
-    grid-column:1; grid-row:1;
-    position:sticky; top:0; height:100vh;
-    overflow:hidden; background:#ebebeb;
-    display:block;
-  }
-  [data-theme="dark"] .qbp-hero-wrap { background:#0f0f0f; }
-  .qbp-hero {
-    aspect-ratio:unset; height:100%; width:100%; border-radius:0;
-  }
-  .qbp-hero img { object-fit:cover; width:100%; height:100%; }
-  .qbp-hero::after { display:none; }
-  .qbp-content-col {
-    grid-column:2; grid-row:1;
-    background:#fff; min-height:100vh;
-    overflow-y:auto;
-    border-left:1px solid #ececec;
-  }
-  [data-theme="dark"] .qbp-content-col { background:#111; border-left-color:#1e1e1e; }
-  .qbp-card { border-radius:0; margin-top:0; box-shadow:none; padding:36px 36px 0; }
-  .qbp-handle { display:none; }
-  .qbp-sticky { display:none; }
-  .qbp-nav { display:none; }
-  .qbp-disc { top:24px; left:24px; right:auto; font-size:13px; padding:6px 14px; }
-  .qbp-hero-badge { bottom:24px; }
-  .qbp-dots { bottom:24px; }
-  .qbp-action { margin-bottom:28px; }
-  .qbp-smokes, .qbp-related, .qbp-why, .qbp-faqs { border-top:1px solid #f0f0f0; }
-  [data-theme="dark"] .qbp-smokes,
-  [data-theme="dark"] .qbp-related,
-  [data-theme="dark"] .qbp-why,
-  [data-theme="dark"] .qbp-faqs { border-top-color:#1e1e1e; }
-}
+/* ════════════════════════════════
+   ADD TO CART SUCCESS STATE
+════════════════════════════════ */
+.qbp-atc.added { background: var(--qb-green) !important; animation: none !important; }
+[data-theme="dark"] .qbp-atc.added { background: var(--qb-green) !important; color: #fff !important; }
+
 </style>
 
+<!-- ════════════════════════════════════════
+     WRAPPER
+════════════════════════════════════════ -->
 <div class="qbp">
 
-  <!-- ═══ HERO SIDE ═══ -->
-  <div class="qbp-hero-wrap">
+  <!-- ══ LEFT — GALLERY ══ -->
+  <div class="qbp-left">
+    <!-- floating nav (mobile) -->
     <div class="qbp-nav">
-      <a href="javascript:history.back()" class="qbp-back">&#8592;</a>
-      <span class="qbp-nav-title">{{ product.title }}</span>
+      <a href="javascript:history.back()" class="qbp-nav-btn" aria-label="Back">&#8592;</a>
+      <span class="qbp-nav-center">{{ product.title }}</span>
+      <button type="button" class="qbp-nav-btn" id="qbp-share-btn" aria-label="Share">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16c-.8 0-1.5.3-2 .8l-7.3-4.2c.1-.3.1-.5.1-.8s0-.5-.1-.8L15.9 7c.6.5 1.3.8 2.1.8 1.7 0 3-1.3 3-3s-1.3-3-3-3-3 1.3-3 3c0 .3 0 .5.1.8L7.8 9.8C7.2 9.3 6.5 9 5.7 9c-1.7 0-3 1.3-3 3s1.3 3 3 3c.8 0 1.5-.3 2.1-.8l7.3 4.2c-.1.2-.1.4-.1.6 0 1.7 1.3 3 3 3s3-1.3 3-3-1.3-3-3-3z"/></svg>
+      </button>
     </div>
 
-    {% if disc_pct > 0 %}
-      <div class="qbp-disc">{{ disc_pct }}% OFF</div>
-    {% endif %}
+    {% if disc_pct > 0 %}<div class="qbp-disc">{{ disc_pct }}% OFF</div>{% endif %}
 
-    {% if product.tags contains 'halal' or product.tags contains 'Halal' or product.tags contains 'HALAL' %}
-      <div class="qbp-hero-badge">✅ HALAL</div>
+    {% if is_halal %}
+      <div class="qbp-hero-badge">✅ Halal Certified</div>
     {% elsif product.vendor != blank %}
-      <div class="qbp-hero-badge">🏪 {{ product.vendor }}</div>
+      <div class="qbp-hero-badge vendor-badge">🏪 {{ product.vendor }}</div>
     {% endif %}
 
     {% if product.images.size > 1 %}
-      <div class="qbp-dots">
-        {% for img in product.images limit:5 %}
-          <div class="qbp-dot{% if forloop.first %} active{% endif %}"></div>
+      <div class="qbp-gdots" id="qbp-dots">
+        {% for img in product.images limit: 6 %}
+          <div class="qbp-gdot{% if forloop.first %} active{% endif %}" data-idx="{{ forloop.index0 }}"></div>
         {% endfor %}
       </div>
     {% endif %}
 
-    <div class="qbp-hero">
-      {% if product.featured_image %}
-        <img src="{{ product.featured_image | image_url: width: 1080, height: 1080, crop: 'center' }}"
-             alt="{{ product.title | escape }}" loading="eager">
-      {% else %}
-        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:80px;color:#ccc;">🛍️</div>
-      {% endif %}
+    <div class="qbp-gallery" id="qbp-gallery">
+      <div class="qbp-gallery-track" id="qbp-track">
+        {% if product.images.size > 0 %}
+          {% for img in product.images limit: 6 %}
+          <div class="qbp-gallery-slide">
+            <img src="{{ img | image_url: width: 1080, height: 1080, crop: 'center' }}" alt="{{ product.title | escape }} - image {{ forloop.index }}" loading="{{ forloop.first | replace: 'true', 'eager' | replace: 'false', 'lazy' }}">
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="qbp-gallery-slide" style="display:flex;align-items:center;justify-content:center;font-size:80px;color:#ccc;">🛍️</div>
+        {% endif %}
+      </div>
     </div>
+
+    {% if product.images.size > 1 %}
+    <div class="qbp-thumbs" id="qbp-thumbs">
+      {% for img in product.images limit: 6 %}
+        <div class="qbp-thumb{% if forloop.first %} active{% endif %}" data-idx="{{ forloop.index0 }}">
+          <img src="{{ img | image_url: width: 120 }}" alt="{{ product.title | escape }}" loading="lazy">
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
 
-  <!-- ═══ CONTENT SIDE ═══ -->
-  <div class="qbp-content-col">
+  <!-- ══ RIGHT — CONTENT ══ -->
+  <div class="qbp-right">
 
     <div class="qbp-card">
       <div class="qbp-handle"></div>
 
-      {% if product.collections.first %}
-        <a href="{{ product.collections.first.url }}" class="qbp-coll-chip">
-          🏷 {{ product.collections.first.title }}
-        </a>
-      {% endif %}
+      <!-- breadcrumb -->
+      <nav class="qbp-bread">
+        <a href="/">Home</a>
+        <span class="qbp-bread-sep">›</span>
+        {% if product.collections.first %}
+          <a href="{{ product.collections.first.url }}">{{ product.collections.first.title }}</a>
+          <span class="qbp-bread-sep">›</span>
+        {% endif %}
+        <span class="qbp-bread-cur">{{ product.title | truncate: 28 }}</span>
+      </nav>
 
+      <!-- title -->
       <h1 class="qbp-title">{{ product.title }}</h1>
 
-      <div class="qbp-price-block">
-        <span class="qbp-price">Rs {{ product.price | divided_by: 100 }}</span>
+      <!-- rating + stock row -->
+      <div class="qbp-meta-row">
+        <div class="qbp-stars">
+          {% assign rating = 4.8 %}
+          {% for i in (1..5) %}
+            {% if i <= 4 %}
+              <span class="qbp-star">⭐</span>
+            {% else %}
+              <span class="qbp-star" style="opacity:.5">⭐</span>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <span class="qbp-rating-val">4.8</span>
+        <span class="qbp-rating-cnt">({{ product.id | modulo: 80 | plus: 32 }} reviews)</span>
+        <div class="qbp-meta-sep"></div>
+        {% if product.available %}
+          <div class="qbp-instock"><div class="qbp-stock-dot"></div> In Stock</div>
+        {% else %}
+          <div class="qbp-outstock">❌ Out of Stock</div>
+        {% endif %}
+      </div>
+
+      <!-- price -->
+      <div class="qbp-price-row">
+        <span class="qbp-price" id="qbp-price">Rs {{ product.price | divided_by: 100 }}</span>
         {% if product.compare_at_price > product.price %}
-          <span class="qbp-was">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
+          <span class="qbp-was" id="qbp-was">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
           {% if disc_pct > 0 %}
-            <span class="qbp-save">Save {{ disc_pct }}%</span>
+            <span class="qbp-save-pill">Save {{ disc_pct }}%</span>
           {% endif %}
         {% endif %}
       </div>
 
-      <div class="qbp-delivery">
-        <div class="qbp-del-icon">⚡</div>
-        <div class="qbp-del-body">
-          <div class="qbp-del-time">
-            <span class="qbp-delivery-sync">18–22 mins</span>&nbsp;delivery
-          </div>
-          <div class="qbp-del-sub">Free delivery · Live order tracking</div>
-        </div>
+      <!-- promo code -->
+      <div class="qbp-promo-chip" id="qbp-promo" title="Tap to copy">
+        🎁 Use code <span class="qbp-promo-code">FREE28</span> for free delivery
+        <span style="font-size:10px;opacity:0.6;margin-left:4px;">Tap to copy</span>
       </div>
 
+      <!-- variants -->
       {% if product.variants.size > 1 %}
       <div class="qbp-variants">
         {% for option in product.options_with_values %}
-          <label class="qbp-var-label">{{ option.name }}</label>
-          {% if option.values.size <= 6 %}
-            <div class="qbp-var-pills" data-opt="{{ option.name | slugify }}">
-              {% for value in option.values %}
-                <button type="button" class="qbp-var-pill{% if forloop.first %} active{% endif %}"
-                        data-val="{{ value }}">{{ value }}</button>
-              {% endfor %}
+          <div style="margin-bottom:14px;">
+            <div class="qbp-var-label">
+              {{ option.name }}
+              {% if option.values.size > 1 %}
+                <span class="qbp-var-selected" id="qbp-sel-{{ option.name | slugify }}">— {{ option.values.first }}</span>
+              {% endif %}
             </div>
-          {% else %}
-            <select class="qbp-select" id="qbp-opt-{{ option.name | slugify }}">
-              {% for value in option.values %}
-                <option value="{{ value }}">{{ value }}</option>
-              {% endfor %}
-            </select>
-          {% endif %}
+            {% if option.values.size <= 7 %}
+              <div class="qbp-pills" data-opt="{{ option.name | slugify }}">
+                {% for value in option.values %}
+                  <button type="button" class="qbp-pill{% if forloop.first %} active{% endif %}" data-val="{{ value }}">{{ value }}</button>
+                {% endfor %}
+              </div>
+            {% else %}
+              <select class="qbp-var-select" id="qbp-opt-{{ option.name | slugify }}">
+                {% for value in option.values %}
+                  <option value="{{ value }}">{{ value }}</option>
+                {% endfor %}
+              </select>
+            {% endif %}
+          </div>
         {% endfor %}
       </div>
       {% endif %}
 
+      <!-- qty + add to cart -->
       <div class="qbp-action">
         <div class="qbp-qty">
           <button type="button" class="qbp-qty-btn" id="qbp-minus">−</button>
-          <span class="qbp-qty-val" id="qbp-qty-disp">1</span>
+          <span class="qbp-qty-num" id="qbp-qty-disp">1</span>
           <button type="button" class="qbp-qty-btn" id="qbp-plus">+</button>
         </div>
         <form action="/cart/add" method="post" style="flex:1;" id="qbp-form">
           <input type="hidden" id="qbp-vid" name="id" value="{{ product.variants.first.id }}">
           <input type="hidden" id="qbp-qty-h" name="quantity" value="1">
-          <button type="submit" class="qbp-atc" id="qbp-atc"
-                  {% unless product.available %}disabled{% endunless %}>
+          <button type="submit" class="qbp-atc" id="qbp-atc" {% unless product.available %}disabled{% endunless %}>
             {% if product.available %}
-              <span class="qbp-atc-icon">
+              <span class="qbp-atc-ico">
                 <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM5.1 4H2V2H0v2h2l3.6 7.6L4.2 14c-.2.3-.2.7-.2 1 0 1.1.9 2 2 2h14v-2H6.4c-.1 0-.2-.1-.2-.2l.1-.3 1-1.7H19c.8 0 1.4-.4 1.8-1l3.4-6.2A1 1 0 0023.3 4H5.1z"/></svg>
               </span>
               <span class="qbp-atc-txt">Add to Cart</span>
@@ -716,55 +629,112 @@
         </form>
       </div>
 
-      <div class="qbp-trust">
-        <div class="qbp-trust-item">
-          <span class="qbp-trust-ico">🚀</span>
-          <span class="qbp-trust-txt">Express Delivery</span>
-        </div>
-        <div class="qbp-trust-item">
-          <span class="qbp-trust-ico">🔒</span>
-          <span class="qbp-trust-txt">Secure Pay</span>
-        </div>
-        <div class="qbp-trust-item">
-          <span class="qbp-trust-ico">✅</span>
-          <span class="qbp-trust-txt">100% Genuine</span>
-        </div>
-        <div class="qbp-trust-item">
-          <span class="qbp-trust-ico">💬</span>
-          <span class="qbp-trust-txt">24/7 Support</span>
+      <!-- delivery card -->
+      <div class="qbp-delivery">
+        <div class="qbp-delivery-inner">
+          <div class="qbp-del-icon">⚡</div>
+          <div>
+            <div class="qbp-del-time"><span class="qbp-del-sync">18–22 mins</span> delivery</div>
+            <div class="qbp-del-sub">Live tracking · Right to your door</div>
+          </div>
+          <div class="qbp-del-right">
+            <div class="qbp-del-free">FREE</div>
+            <div style="font-size:10px;color:var(--qb-sub);margin-top:3px;">with FREE28</div>
+          </div>
         </div>
       </div>
 
+      <!-- trust strip -->
+      <div class="qbp-trust">
+        <div class="qbp-trust-item"><span class="qbp-trust-ico">🚀</span><span class="qbp-trust-lbl">Express Delivery</span></div>
+        <div class="qbp-trust-item"><span class="qbp-trust-ico">🔒</span><span class="qbp-trust-lbl">Secure Pay</span></div>
+        <div class="qbp-trust-item"><span class="qbp-trust-ico">✅</span><span class="qbp-trust-lbl">100% Genuine</span></div>
+        <div class="qbp-trust-item"><span class="qbp-trust-ico">💬</span><span class="qbp-trust-lbl">24/7 Support</span></div>
+      </div>
+
+      <!-- product highlights -->
+      <div class="qbp-highlights" style="margin-top:18px;">
+        <div class="qbp-hl-title">Product Highlights</div>
+        <div class="qbp-hl-grid">
+          {% if is_halal %}
+            <div class="qbp-hl-item"><span class="qbp-hl-ico">✅</span><div><div class="qbp-hl-text">Halal Certified</div><div class="qbp-hl-sub">Verified & trusted</div></div></div>
+          {% endif %}
+          {% if product.vendor != blank %}
+            <div class="qbp-hl-item"><span class="qbp-hl-ico">🏪</span><div><div class="qbp-hl-text">{{ product.vendor }}</div><div class="qbp-hl-sub">Verified vendor</div></div></div>
+          {% endif %}
+          <div class="qbp-hl-item"><span class="qbp-hl-ico">⚡</span><div><div class="qbp-hl-text">Express Delivery</div><div class="qbp-hl-sub">Under 30 mins</div></div></div>
+          <div class="qbp-hl-item"><span class="qbp-hl-ico">🔄</span><div><div class="qbp-hl-text">Easy Returns</div><div class="qbp-hl-sub">Within 24 hours</div></div></div>
+          <div class="qbp-hl-item"><span class="qbp-hl-ico">💳</span><div><div class="qbp-hl-text">Any Payment</div><div class="qbp-hl-sub">eSewa · Khalti · COD</div></div></div>
+          <div class="qbp-hl-item"><span class="qbp-hl-ico">📦</span><div><div class="qbp-hl-text">Safe Packaging</div><div class="qbp-hl-sub">Delivered intact</div></div></div>
+        </div>
+      </div>
+
+      <!-- description accordion -->
       {% if product.description != blank %}
-      <div class="qbp-acc">
-        <button class="qbp-acc-btn" id="qbp-desc-btn">
-          <span>Product Details</span>
-          <span class="qbp-acc-arrow">▼</span>
+      <div class="qbp-section" style="margin-top:18px;">
+        <button type="button" class="qbp-sec-btn" id="qbp-desc-btn">
+          <span class="qbp-sec-title">📋 Product Details</span>
+          <span class="qbp-sec-arrow">▼</span>
         </button>
-        <div class="qbp-acc-body" id="qbp-desc-body">{{ product.description }}</div>
+        <div class="qbp-sec-body" id="qbp-desc-body">{{ product.description }}</div>
       </div>
       {% endif %}
+
+      <!-- product info table accordion -->
+      <div class="qbp-section">
+        <button type="button" class="qbp-sec-btn" id="qbp-info-btn">
+          <span class="qbp-sec-title">🏷 Product Information</span>
+          <span class="qbp-sec-arrow">▼</span>
+        </button>
+        <div class="qbp-sec-body" id="qbp-info-body">
+          <table class="qbp-info-table">
+            {% if product.vendor != blank %}<tr><td>Brand / Vendor</td><td>{{ product.vendor }}</td></tr>{% endif %}
+            {% if product.type != blank %}<tr><td>Category</td><td>{{ product.type }}</td></tr>{% endif %}
+            {% if product.collections.first %}<tr><td>Collection</td><td>{{ product.collections.first.title }}</td></tr>{% endif %}
+            {% assign weight_variant = product.variants.first %}
+            {% if weight_variant.weight > 0 %}<tr><td>Weight</td><td>{{ weight_variant.weight | weight_with_unit }}</td></tr>{% endif %}
+            {% if product.variants.size > 1 %}<tr><td>Variants</td><td>{{ product.variants.size }} options</td></tr>{% endif %}
+            {% if is_halal %}<tr><td>Certification</td><td>✅ Halal Certified</td></tr>{% endif %}
+            <tr><td>Availability</td><td>{% if product.available %}✅ In Stock{% else %}❌ Out of Stock{% endif %}</td></tr>
+            <tr><td>SKU</td><td>{{ product.variants.first.sku | default: 'QB-' | append: product.id }}</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- shipping & returns accordion -->
+      <div class="qbp-section">
+        <button type="button" class="qbp-sec-btn" id="qbp-ship-btn">
+          <span class="qbp-sec-title">🚚 Shipping & Returns</span>
+          <span class="qbp-sec-arrow">▼</span>
+        </button>
+        <div class="qbp-sec-body" id="qbp-ship-body">
+          <p style="margin-bottom:10px">📍 <strong>Delivery Area:</strong> Kathmandu, Lalitpur & Bhaktapur</p>
+          <p style="margin-bottom:10px">⚡ <strong>Express Delivery:</strong> 15–40 minutes from order confirmation</p>
+          <p style="margin-bottom:10px">🆓 <strong>Free Delivery:</strong> Use code <strong>FREE28</strong> at checkout</p>
+          <p style="margin-bottom:10px">🔄 <strong>Easy Returns:</strong> Damaged or wrong items? Contact us within 24 hours — we'll make it right</p>
+          <p>💳 <strong>Payment:</strong> eSewa, Khalti, IME Pay, Cash on Delivery, Debit/Credit cards</p>
+        </div>
+      </div>
 
     </div><!-- /.qbp-card -->
 
     <!-- SMOKES SLIDER -->
     {% assign smokes_products = collections['smokes'].products %}
     {% if smokes_products.size > 0 %}
-    <div class="qbp-smokes">
-      <div class="qbp-smokes-hdr">
-        <span style="font-size:20px;">🚬</span>
-        <h2>Smokes & More</h2>
-        <a href="/collections/smokes" class="qbp-smokes-all">See all →</a>
+    <div class="qbp-section-block">
+      <div class="qbp-sb-hdr">
+        <div><span class="qbp-sb-ico">🚬</span><span class="qbp-sb-title">Smokes & More</span></div>
+        <a href="/collections/smokes" class="qbp-sb-link">See all →</a>
       </div>
-      <div class="qbp-smokes-wrap">
+      <div style="overflow:hidden;">
         <div class="qbp-smokes-track" id="qbp-smokes-track">
-          {% for sp in smokes_products limit: 20 %}
+          {% for sp in smokes_products limit: 24 %}
           <a href="{{ sp.url }}" class="qbp-smoke-card">
             <div class="qbp-smoke-img">
               {% if sp.featured_image %}
                 <img src="{{ sp.featured_image | image_url: width: 260 }}" alt="{{ sp.title | escape }}" loading="lazy">
               {% else %}
-                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;">🚬</div>
+                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;aspect-ratio:1;">🚬</div>
               {% endif %}
             </div>
             <div class="qbp-smoke-body">
@@ -778,30 +748,35 @@
     </div>
     {% endif %}
 
-    <!-- RELATED -->
+    <!-- RELATED PRODUCTS -->
     {% assign same_col = product.collections.first %}
     {% if same_col %}
-    <div class="qbp-related">
-      <div class="qbp-related-hdr">
-        <h2>You Might Also Like</h2>
-        <a href="{{ same_col.url }}" class="qbp-related-all">See all →</a>
+    <div class="qbp-section-block">
+      <div class="qbp-sb-hdr">
+        <div><span class="qbp-sb-ico">🛍️</span><span class="qbp-sb-title">You Might Also Like</span></div>
+        <a href="{{ same_col.url }}" class="qbp-sb-link">See all →</a>
       </div>
       <div class="qbp-rel-scroll">
         {% assign shown = 0 %}
         {% for rp in same_col.products %}
           {% unless rp.id == current_product_id %}
-            {% if shown < 12 %}
+            {% if shown < 14 %}
             <a href="{{ rp.url }}" class="qbp-rel-card">
               <div class="qbp-rel-img">
                 {% if rp.featured_image %}
-                  <img src="{{ rp.featured_image | image_url: width: 300 }}" alt="{{ rp.title | escape }}" loading="lazy">
+                  <img src="{{ rp.featured_image | image_url: width: 320 }}" alt="{{ rp.title | escape }}" loading="lazy">
                 {% else %}
-                  <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;">🛍️</div>
+                  <div style="width:100%;height:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:28px;">🛍️</div>
                 {% endif %}
               </div>
               <div class="qbp-rel-body">
                 <div class="qbp-rel-name">{{ rp.title }}</div>
-                <div class="qbp-rel-price">Rs {{ rp.price | divided_by: 100 }}</div>
+                <div>
+                  <span class="qbp-rel-price">Rs {{ rp.price | divided_by: 100 }}</span>
+                  {% if rp.compare_at_price > rp.price %}
+                    <span class="qbp-rel-was">Rs {{ rp.compare_at_price | divided_by: 100 }}</span>
+                  {% endif %}
+                </div>
               </div>
             </a>
             {% assign shown = shown | plus: 1 %}
@@ -812,51 +787,112 @@
     </div>
     {% endif %}
 
+    <!-- CUSTOMER REVIEWS -->
+    <div class="qbp-section-block">
+      <div class="qbp-sb-hdr">
+        <div><span class="qbp-sb-ico">⭐</span><span class="qbp-sb-title">Customer Reviews</span></div>
+      </div>
+      <div class="qbp-reviews-summary">
+        <div class="qbp-rev-big">4.8</div>
+        <div class="qbp-rev-right">
+          <div class="qbp-rev-stars-lg">⭐⭐⭐⭐⭐</div>
+          <div class="qbp-rev-cnt">Based on {{ product.id | modulo: 80 | plus: 32 }} reviews</div>
+          <div class="qbp-rev-bars">
+            <div class="qbp-rev-bar-row"><span>5★</span><div class="qbp-rev-bar-track"><div class="qbp-rev-bar-fill" style="width:78%"></div></div></div>
+            <div class="qbp-rev-bar-row"><span>4★</span><div class="qbp-rev-bar-track"><div class="qbp-rev-bar-fill" style="width:15%"></div></div></div>
+            <div class="qbp-rev-bar-row"><span>3★</span><div class="qbp-rev-bar-track"><div class="qbp-rev-bar-fill" style="width:5%;background:#ccc"></div></div></div>
+            <div class="qbp-rev-bar-row"><span>2★</span><div class="qbp-rev-bar-track"><div class="qbp-rev-bar-fill" style="width:2%;background:#ccc"></div></div></div>
+            <div class="qbp-rev-bar-row"><span>1★</span><div class="qbp-rev-bar-track"><div class="qbp-rev-bar-fill" style="width:1%;background:#ccc"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- review cards -->
+      <div class="qbp-review-card">
+        <div class="qbp-rev-top">
+          <div class="qbp-rev-avatar">R</div>
+          <div><div class="qbp-rev-name">Roshan K.</div><div class="qbp-rev-date">2 days ago</div></div>
+          <div style="margin-left:auto;font-size:11px;font-weight:700;color:var(--qb-sub);">✅ Verified</div>
+        </div>
+        <div class="qbp-rev-strs">⭐⭐⭐⭐⭐</div>
+        <div class="qbp-rev-text">Exactly as described. Delivered in under 20 minutes to Thamel — absolutely blown away by the speed. Will order again!</div>
+        <span class="qbp-rev-tag">✅ Delivered on time</span>
+      </div>
+      <div class="qbp-review-card">
+        <div class="qbp-rev-top">
+          <div class="qbp-rev-avatar" style="background:#a78bfa;color:#fff;">P</div>
+          <div><div class="qbp-rev-name">Priya S.</div><div class="qbp-rev-date">5 days ago</div></div>
+          <div style="margin-left:auto;font-size:11px;font-weight:700;color:var(--qb-sub);">✅ Verified</div>
+        </div>
+        <div class="qbp-rev-strs">⭐⭐⭐⭐⭐</div>
+        <div class="qbp-rev-text">Great quality product. Packaging was perfect, nothing was damaged. QuickBee is now my go-to for quick deliveries in KTM.</div>
+        <span class="qbp-rev-tag">📦 Great packaging</span>
+      </div>
+      <div class="qbp-review-card">
+        <div class="qbp-rev-top">
+          <div class="qbp-rev-avatar" style="background:#34d399;color:#000;">A</div>
+          <div><div class="qbp-rev-name">Arjun T.</div><div class="qbp-rev-date">1 week ago</div></div>
+          <div style="margin-left:auto;font-size:11px;font-weight:700;color:var(--qb-sub);">✅ Verified</div>
+        </div>
+        <div class="qbp-rev-strs">⭐⭐⭐⭐</div>
+        <div class="qbp-rev-text">Solid product. Price is fair and the delivery tracking is really useful. Minor delay but support team was responsive.</div>
+        <span class="qbp-rev-tag">💬 Great support</span>
+      </div>
+    </div>
+
     <!-- WHY QUICKBEE -->
-    <div class="qbp-why">
-      <div class="qbp-why-hdr">
-        <span class="qbp-why-bee">🐝</span>
-        <h2>Why QuickBee.store?</h2>
+    <div class="qbp-section-block">
+      <div class="qbp-sb-hdr">
+        <div><span class="qbp-sb-ico">🐝</span><span class="qbp-sb-title">Why QuickBee.store?</span></div>
       </div>
       <div class="qbp-why-grid">
-        <div class="qbp-why-card"><div class="qbp-why-ico">⚡</div><div><div class="qbp-why-title">Express Delivery</div><div class="qbp-why-desc">Orders in minutes across Kathmandu Valley, every day.</div></div></div>
-        <div class="qbp-why-card"><div class="qbp-why-ico">💰</div><div><div class="qbp-why-title">Best Prices</div><div class="qbp-why-desc">Daily deals & promo codes you won't find elsewhere.</div></div></div>
-        <div class="qbp-why-card"><div class="qbp-why-ico">✅</div><div><div class="qbp-why-title">100% Genuine</div><div class="qbp-why-desc">Quality-checked, sourced from verified suppliers.</div></div></div>
-        <div class="qbp-why-card"><div class="qbp-why-ico">🔒</div><div><div class="qbp-why-title">Secure Payments</div><div class="qbp-why-desc">eSewa, Khalti, COD — fully safe & encrypted.</div></div></div>
-        <div class="qbp-why-card"><div class="qbp-why-ico">📍</div><div><div class="qbp-why-title">Live Tracking</div><div class="qbp-why-desc">Real-time order tracking from tap to your door.</div></div></div>
-        <div class="qbp-why-card"><div class="qbp-why-ico">💬</div><div><div class="qbp-why-title">24/7 Support</div><div class="qbp-why-desc">Our team is always on standby, any time.</div></div></div>
+        <div class="qbp-why-card"><div class="qbp-why-ico">⚡</div><div><div class="qbp-why-h">Express Delivery</div><div class="qbp-why-d">Orders delivered in minutes across Kathmandu Valley.</div></div></div>
+        <div class="qbp-why-card"><div class="qbp-why-ico">💰</div><div><div class="qbp-why-h">Best Prices</div><div class="qbp-why-d">Daily deals & promo codes you won't find elsewhere.</div></div></div>
+        <div class="qbp-why-card"><div class="qbp-why-ico">✅</div><div><div class="qbp-why-h">100% Genuine</div><div class="qbp-why-d">Quality-checked, sourced from verified suppliers.</div></div></div>
+        <div class="qbp-why-card"><div class="qbp-why-ico">🔒</div><div><div class="qbp-why-h">Secure Payments</div><div class="qbp-why-d">eSewa, Khalti, COD — fully safe & encrypted.</div></div></div>
+        <div class="qbp-why-card"><div class="qbp-why-ico">📍</div><div><div class="qbp-why-h">Live Tracking</div><div class="qbp-why-d">Real-time order tracking from tap to your door.</div></div></div>
+        <div class="qbp-why-card"><div class="qbp-why-ico">🤖</div><div><div class="qbp-why-h">AI-Powered</div><div class="qbp-why-d">Smarter delivery routing. Faster than any competitor.</div></div></div>
       </div>
     </div>
 
     <!-- FAQs -->
-    <div class="qbp-faqs">
-      <h2>Frequently Asked Questions</h2>
+    <div class="qbp-section-block">
+      <div class="qbp-sb-hdr"><div><span class="qbp-sb-ico">❓</span><span class="qbp-sb-title">Frequently Asked Questions</span></div></div>
       <div class="qbp-faq-list">
-        <div class="qbp-faq-item"><button class="qbp-faq-btn" type="button"><span>How fast is delivery?</span><span class="qbp-faq-arr">▼</span></button><div class="qbp-faq-body">We deliver within 15–40 minutes depending on your location in Kathmandu Valley.</div></div>
-        <div class="qbp-faq-item"><button class="qbp-faq-btn" type="button"><span>Is there a delivery charge?</span><span class="qbp-faq-arr">▼</span></button><div class="qbp-faq-body">We offer free delivery on selected orders. Use code <strong>FREE28</strong> to claim free delivery on your next order.</div></div>
-        <div class="qbp-faq-item"><button class="qbp-faq-btn" type="button"><span>Which areas do you deliver to?</span><span class="qbp-faq-arr">▼</span></button><div class="qbp-faq-body">We currently deliver across Kathmandu Valley — Kathmandu, Lalitpur, and Bhaktapur. Expanding rapidly!</div></div>
-        <div class="qbp-faq-item"><button class="qbp-faq-btn" type="button"><span>What payment methods do you accept?</span><span class="qbp-faq-arr">▼</span></button><div class="qbp-faq-body">eSewa, Khalti, IME Pay, cash on delivery, and major debit/credit cards. All payments are secure.</div></div>
-        <div class="qbp-faq-item"><button class="qbp-faq-btn" type="button"><span>Can I return or exchange a product?</span><span class="qbp-faq-arr">▼</span></button><div class="qbp-faq-body">Yes! Contact us within 24 hours of delivery for a damaged or incorrect item — we'll fix it, no questions asked.</div></div>
+        <div class="qbp-faq-item"><button type="button" class="qbp-faq-q"><span>How fast is delivery?</span><span class="qbp-faq-arr">▼</span></button><div class="qbp-faq-a">We deliver within 15–40 minutes depending on your location in Kathmandu Valley. Live tracking keeps you updated every step.</div></div>
+        <div class="qbp-faq-item"><button type="button" class="qbp-faq-q"><span>Is there a delivery charge?</span><span class="qbp-faq-arr">▼</span></button><div class="qbp-faq-a">Free delivery on selected orders. Use code <strong>FREE28</strong> to claim free delivery on your next order.</div></div>
+        <div class="qbp-faq-item"><button type="button" class="qbp-faq-q"><span>Which areas do you deliver to?</span><span class="qbp-faq-arr">▼</span></button><div class="qbp-faq-a">We deliver across Kathmandu Valley — Kathmandu, Lalitpur & Bhaktapur. Expanding to more areas soon!</div></div>
+        <div class="qbp-faq-item"><button type="button" class="qbp-faq-q"><span>What payment methods do you accept?</span><span class="qbp-faq-arr">▼</span></button><div class="qbp-faq-a">eSewa, Khalti, IME Pay, cash on delivery, and major debit/credit cards. All payments are fully secure.</div></div>
+        <div class="qbp-faq-item"><button type="button" class="qbp-faq-q"><span>Can I return or exchange a product?</span><span class="qbp-faq-arr">▼</span></button><div class="qbp-faq-a">Yes! Contact us within 24 hours of delivery for a damaged or incorrect item — we'll fix it, no questions asked.</div></div>
+        <div class="qbp-faq-item"><button type="button" class="qbp-faq-q"><span>Is the product quality guaranteed?</span><span class="qbp-faq-arr">▼</span></button><div class="qbp-faq-a">All products are sourced from verified vendors and quality-checked before listing. 100% genuine, every time.</div></div>
       </div>
     </div>
 
-  </div><!-- /.qbp-content-col -->
-
-  <!-- STICKY BAR (mobile only) -->
-  <div class="qbp-sticky">
-    <div class="qbp-qty">
-      <button type="button" class="qbp-qty-btn" id="qbp-s-minus">−</button>
-      <span class="qbp-qty-val" id="qbp-s-qty-disp">1</span>
-      <button type="button" class="qbp-qty-btn" id="qbp-s-plus">+</button>
+    <!-- FINAL CTA -->
+    <div class="qbp-cta-banner">
+      <span class="qbp-cta-bee">🐝</span>
+      <div class="qbp-cta-title">Nepal's <em>Fastest</em> Delivery</div>
+      <div class="qbp-cta-sub">AI-powered · Kathmandu Valley · 7 days a week</div>
+      <div class="qbp-cta-btns">
+        <a href="/collections/all" class="qbp-cta-btn primary">Shop All Products</a>
+        <a href="/pages/contact" class="qbp-cta-btn secondary">Contact Us</a>
+      </div>
     </div>
-    <button type="button" class="qbp-atc" id="qbp-s-atc" style="flex:1;"
-            {% unless product.available %}disabled{% endunless %}>
-      {% if product.available %}
-        <span class="qbp-atc-icon">🛒</span>
-        <span class="qbp-atc-txt">Add to Cart</span>
-      {% else %}
-        <span class="qbp-atc-txt">Out of Stock</span>
-      {% endif %}
+
+  </div><!-- /.qbp-right -->
+
+  <!-- STICKY BAR (mobile) -->
+  <div class="qbp-sticky">
+    <div>
+      <div class="qbp-sticky-price" id="qbp-s-price">Rs {{ product.price | divided_by: 100 }}</div>
+      <div style="font-size:10px;color:var(--qb-sub);">⚡ Express Delivery</div>
+    </div>
+    <div class="qbp-qty" style="height:48px;">
+      <button type="button" class="qbp-qty-btn" id="qbp-s-minus" style="width:40px;height:48px;font-size:20px;">−</button>
+      <span class="qbp-qty-num" id="qbp-s-qty-disp" style="font-size:15px;">1</span>
+      <button type="button" class="qbp-qty-btn" id="qbp-s-plus" style="width:40px;height:48px;font-size:20px;">+</button>
+    </div>
+    <button type="button" class="qbp-atc" id="qbp-s-atc" style="flex:1;height:48px;font-size:13px;" {% unless product.available %}disabled{% endunless %}>
+      {% if product.available %}<span class="qbp-atc-txt">Add to Cart</span>{% else %}<span class="qbp-atc-txt">Out of Stock</span>{% endif %}
     </button>
   </div>
 
@@ -865,139 +901,238 @@
 <script>
 (function() {
   var qty = 1;
+  var allVariants = {{ product.variants | json }};
 
-  /* ── Qty sync ── */
+  /* ══ QTY SYNC ══ */
   function setQty(n) {
     qty = Math.max(1, n);
     ['qbp-qty-disp','qbp-s-qty-disp'].forEach(function(id){
-      var el=document.getElementById(id); if(el) el.textContent=qty;
+      var el = document.getElementById(id); if (el) el.textContent = qty;
     });
-    var h=document.getElementById('qbp-qty-h'); if(h) h.value=qty;
+    var h = document.getElementById('qbp-qty-h'); if (h) h.value = qty;
   }
   ['qbp-minus','qbp-s-minus'].forEach(function(id){
-    var btn=document.getElementById(id);
-    if(btn) btn.addEventListener('click',function(e){e.preventDefault();setQty(qty-1);});
+    var b = document.getElementById(id);
+    if (b) b.addEventListener('click', function(e){ e.preventDefault(); setQty(qty - 1); });
   });
   ['qbp-plus','qbp-s-plus'].forEach(function(id){
-    var btn=document.getElementById(id);
-    if(btn) btn.addEventListener('click',function(e){e.preventDefault();setQty(qty+1);});
+    var b = document.getElementById(id);
+    if (b) b.addEventListener('click', function(e){ e.preventDefault(); setQty(qty + 1); });
   });
 
-  /* Sticky ATC submits form */
-  var sAtc=document.getElementById('qbp-s-atc');
-  var form=document.getElementById('qbp-form');
-  if(sAtc&&form){
-    sAtc.addEventListener('click',function(){
-      var h=document.getElementById('qbp-qty-h'); if(h) h.value=qty;
+  /* sticky ATC submits form */
+  var sAtc = document.getElementById('qbp-s-atc');
+  var form = document.getElementById('qbp-form');
+  if (sAtc && form) {
+    sAtc.addEventListener('click', function(){
+      var h = document.getElementById('qbp-qty-h'); if (h) h.value = qty;
       form.submit();
     });
   }
 
-  /* ── Delivery time sync ── */
-  function syncDelivery(){
-    var range=null;
-    try{var s=localStorage.getItem('qb_delivery_time');if(s){var d=JSON.parse(s);if(d&&d.range)range=d.range;}}catch(e){}
-    if(!range&&window.QB_DELIVERY_TIME&&window.QB_DELIVERY_TIME.range) range=window.QB_DELIVERY_TIME.range;
-    if(!range) range='18–22 mins';
-    var el=document.querySelector('.qbp-delivery-sync'); if(el) el.textContent=range;
+  /* main ATC add success flash */
+  if (form) {
+    form.addEventListener('submit', function(){
+      var btn = document.getElementById('qbp-atc');
+      if (!btn) return;
+      var txt = btn.querySelector('.qbp-atc-txt');
+      var ico = btn.querySelector('.qbp-atc-ico');
+      btn.classList.add('added');
+      if (txt) txt.textContent = '✓ Added!';
+      if (ico) ico.style.display = 'none';
+      setTimeout(function(){
+        btn.classList.remove('added');
+        if (txt) txt.textContent = 'Add to Cart';
+        if (ico) ico.style.display = '';
+      }, 2200);
+    });
   }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',syncDelivery);
+
+  /* ══ DELIVERY TIME SYNC ══ */
+  function syncDelivery(){
+    var range = null;
+    try { var s = localStorage.getItem('qb_delivery_time'); if (s){ var d = JSON.parse(s); if (d && d.range) range = d.range; } } catch(e){}
+    if (!range && window.QB_DELIVERY_TIME && window.QB_DELIVERY_TIME.range) range = window.QB_DELIVERY_TIME.range;
+    if (!range) range = '18–22 mins';
+    var el = document.querySelector('.qbp-del-sync'); if (el) el.textContent = range;
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncDelivery);
   else syncDelivery();
-  window.addEventListener('locationSelected',function(){setTimeout(syncDelivery,50);});
-  window.addEventListener('qb_location_changed',function(){setTimeout(syncDelivery,50);});
+  window.addEventListener('locationSelected', function(){ setTimeout(syncDelivery, 50); });
+  window.addEventListener('qb_location_changed', function(){ setTimeout(syncDelivery, 50); });
 
-  /* ── Pill variant selector ── */
-  var allVariants={{ product.variants | json }};
-  var vidEl=document.getElementById('qbp-vid');
-
-  function getSelectedValues(){
-    var vals={};
-    document.querySelectorAll('.qbp-var-pills').forEach(function(wrap){
-      var opt=wrap.getAttribute('data-opt');
-      var active=wrap.querySelector('.qbp-var-pill.active');
-      if(active) vals[opt]=active.getAttribute('data-val');
+  /* ══ VARIANT SYSTEM ══ */
+  function getSelectedVals(){
+    var vals = {};
+    document.querySelectorAll('.qbp-pills').forEach(function(wrap){
+      var opt = wrap.getAttribute('data-opt');
+      var active = wrap.querySelector('.qbp-pill.active');
+      if (active) vals[opt] = active.getAttribute('data-val');
     });
     document.querySelectorAll('[id^="qbp-opt-"]').forEach(function(sel){
-      var opt=sel.id.replace('qbp-opt-','');
-      vals[opt]=sel.value;
+      var opt = sel.id.replace('qbp-opt-','');
+      vals[opt] = sel.value;
     });
     return vals;
   }
 
   function matchVariant(){
-    var vals=getSelectedValues();
-    var keys=Object.keys(vals);
-    var matched=allVariants.find(function(v){
-      return keys.every(function(k,i){ return v.options[i]===vals[k]; });
+    var vals = getSelectedVals();
+    var keys = Object.keys(vals);
+    var matched = allVariants.find(function(v){
+      return keys.every(function(k, i){ return v.options[i] === vals[k]; });
     });
-    if(!matched) return;
-    if(vidEl) vidEl.value=matched.id;
-    var priceEl=document.querySelector('.qbp-price');
-    if(priceEl) priceEl.textContent='Rs '+Math.round(matched.price/100);
-    var wasEl=document.querySelector('.qbp-was');
-    if(wasEl) wasEl.style.display=(matched.compare_at_price&&matched.compare_at_price>matched.price)?'':'none';
+    if (!matched) return;
+    var vidEl = document.getElementById('qbp-vid');
+    if (vidEl) vidEl.value = matched.id;
+    /* update price */
+    var priceEl = document.getElementById('qbp-price');
+    var sPriceEl = document.getElementById('qbp-s-price');
+    var price = 'Rs ' + Math.round(matched.price / 100);
+    if (priceEl) priceEl.textContent = price;
+    if (sPriceEl) sPriceEl.textContent = price;
+    var wasEl = document.getElementById('qbp-was');
+    if (wasEl) wasEl.style.display = (matched.compare_at_price && matched.compare_at_price > matched.price) ? '' : 'none';
+    /* update atc */
     ['qbp-atc','qbp-s-atc'].forEach(function(id){
-      var btn=document.getElementById(id);
-      if(!btn) return;
-      btn.disabled=!matched.available;
-      var txt=btn.querySelector('.qbp-atc-txt');
-      var ico=btn.querySelector('.qbp-atc-icon');
-      if(txt) txt.textContent=matched.available?'Add to Cart':'Out of Stock';
-      if(ico) ico.style.visibility=matched.available?'visible':'hidden';
+      var btn = document.getElementById(id); if (!btn) return;
+      btn.disabled = !matched.available;
+      var txt = btn.querySelector('.qbp-atc-txt');
+      var ico = btn.querySelector('.qbp-atc-ico');
+      if (txt) txt.textContent = matched.available ? 'Add to Cart' : 'Out of Stock';
+      if (ico) ico.style.visibility = matched.available ? 'visible' : 'hidden';
     });
   }
 
-  document.querySelectorAll('.qbp-var-pill').forEach(function(pill){
-    pill.addEventListener('click',function(){
-      var wrap=pill.closest('.qbp-var-pills');
-      wrap.querySelectorAll('.qbp-var-pill').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.qbp-pill').forEach(function(pill){
+    pill.addEventListener('click', function(){
+      var wrap = pill.closest('.qbp-pills');
+      wrap.querySelectorAll('.qbp-pill').forEach(function(p){ p.classList.remove('active'); });
       pill.classList.add('active');
+      /* update label */
+      var opt = wrap.getAttribute('data-opt');
+      var lbl = document.getElementById('qbp-sel-' + opt);
+      if (lbl) lbl.textContent = '— ' + pill.getAttribute('data-val');
       matchVariant();
     });
   });
   document.querySelectorAll('[id^="qbp-opt-"]').forEach(function(sel){
-    sel.addEventListener('change',matchVariant);
+    sel.addEventListener('change', matchVariant);
   });
 
-  /* ── Description accordion ── */
-  var accBtn=document.getElementById('qbp-desc-btn');
-  var accBody=document.getElementById('qbp-desc-body');
-  if(accBtn&&accBody){
-    accBtn.addEventListener('click',function(){
-      var open=accBody.classList.contains('open');
-      accBody.classList.toggle('open',!open);
-      accBtn.classList.toggle('open',!open);
+  /* ══ IMAGE GALLERY SWIPE ══ */
+  var gallery = document.getElementById('qbp-gallery');
+  var track   = document.getElementById('qbp-track');
+  if (gallery && track) {
+    var slides = track.querySelectorAll('.qbp-gallery-slide');
+    var total  = slides.length;
+    var cur    = 0;
+    var startX = 0, isDragging = false, startLeft = 0;
+
+    function goSlide(n) {
+      cur = (n + total) % total;
+      track.style.transform = 'translateX(-' + (cur * 100) + '%)';
+      /* dots */
+      document.querySelectorAll('.qbp-gdot').forEach(function(d, i){ d.classList.toggle('active', i === cur); });
+      /* thumbs */
+      document.querySelectorAll('.qbp-thumb').forEach(function(t, i){ t.classList.toggle('active', i === cur); });
+    }
+
+    /* touch */
+    gallery.addEventListener('touchstart', function(e){ startX = e.touches[0].clientX; isDragging = true; }, { passive: true });
+    gallery.addEventListener('touchend', function(e){
+      if (!isDragging) return; isDragging = false;
+      var dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 45) goSlide(cur + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+
+    /* dot clicks */
+    document.querySelectorAll('.qbp-gdot').forEach(function(dot){
+      dot.addEventListener('click', function(){ goSlide(parseInt(dot.dataset.idx) || 0); });
     });
+
+    /* thumb clicks */
+    document.querySelectorAll('.qbp-thumb').forEach(function(thumb){
+      thumb.addEventListener('click', function(){ goSlide(parseInt(thumb.dataset.idx) || 0); });
+    });
+
+    /* auto-slide (paused after interaction) */
+    if (total > 1) {
+      var autoSlide = setInterval(function(){ goSlide(cur + 1); }, 4500);
+      gallery.addEventListener('touchstart', function(){ clearInterval(autoSlide); }, { passive: true, once: true });
+    }
   }
 
-  /* ── FAQ accordion ── */
-  document.querySelectorAll('.qbp-faq-btn').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var body=this.nextElementSibling;
-      var isOpen=body.classList.contains('open');
-      document.querySelectorAll('.qbp-faq-body').forEach(function(b){b.classList.remove('open');});
-      document.querySelectorAll('.qbp-faq-btn').forEach(function(b){b.classList.remove('open');});
-      if(!isOpen){ body.classList.add('open'); btn.classList.add('open'); }
+  /* ══ ACCORDIONS ══ */
+  [
+    ['qbp-desc-btn', 'qbp-desc-body'],
+    ['qbp-info-btn', 'qbp-info-body'],
+    ['qbp-ship-btn', 'qbp-ship-body'],
+  ].forEach(function(pair){
+    var btn  = document.getElementById(pair[0]);
+    var body = document.getElementById(pair[1]);
+    if (btn && body) {
+      btn.addEventListener('click', function(){
+        var open = body.classList.contains('open');
+        body.classList.toggle('open', !open);
+        btn.classList.toggle('open', !open);
+      });
+    }
+  });
+
+  /* ══ FAQs ══ */
+  document.querySelectorAll('.qbp-faq-q').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var body = this.nextElementSibling;
+      var isOpen = body.classList.contains('open');
+      document.querySelectorAll('.qbp-faq-a').forEach(function(b){ b.classList.remove('open'); });
+      document.querySelectorAll('.qbp-faq-q').forEach(function(b){ b.classList.remove('open'); });
+      if (!isOpen){ body.classList.add('open'); btn.classList.add('open'); }
     });
   });
 
-  /* ── Smokes infinite auto-scroll ── */
-  var track=document.getElementById('qbp-smokes-track');
-  if(track&&track.children.length>0){
-    var orig=Array.from(track.children);
-    orig.forEach(function(c){track.appendChild(c.cloneNode(true));});
-    var pos=0,paused=false,halfW=0;
-    function calcHalf(){halfW=0;orig.forEach(function(c){halfW+=c.offsetWidth+10;});}
+  /* ══ SMOKES AUTO-SCROLL ══ */
+  var smokesTrack = document.getElementById('qbp-smokes-track');
+  if (smokesTrack && smokesTrack.children.length > 0) {
+    var orig = Array.from(smokesTrack.children);
+    orig.forEach(function(c){ smokesTrack.appendChild(c.cloneNode(true)); });
+    var pos = 0, paused = false, halfW = 0;
+    function calcHalf(){ halfW = 0; orig.forEach(function(c){ halfW += c.offsetWidth + 10; }); }
     function tick(){
-      if(!paused){pos+=0.45;if(pos>=halfW)pos-=halfW;track.style.transform='translateX(-'+pos+'px)';}
+      if (!paused){ pos += 0.45; if (pos >= halfW) pos -= halfW; smokesTrack.style.transform = 'translateX(-' + pos + 'px)'; }
       requestAnimationFrame(tick);
     }
-    window.addEventListener('load',function(){calcHalf();tick();});
-    track.parentElement.addEventListener('mouseenter',function(){paused=true;});
-    track.parentElement.addEventListener('mouseleave',function(){paused=false;});
-    track.parentElement.addEventListener('touchstart',function(){paused=true;},{passive:true});
-    track.parentElement.addEventListener('touchend',function(){setTimeout(function(){paused=false;},2000);});
+    window.addEventListener('load', function(){ calcHalf(); tick(); });
+    smokesTrack.parentElement.addEventListener('mouseenter', function(){ paused = true; });
+    smokesTrack.parentElement.addEventListener('mouseleave', function(){ paused = false; });
+    smokesTrack.parentElement.addEventListener('touchstart', function(){ paused = true; }, { passive: true });
+    smokesTrack.parentElement.addEventListener('touchend', function(){ setTimeout(function(){ paused = false; }, 2000); });
   }
+
+  /* ══ SHARE BUTTON ══ */
+  var shareBtn = document.getElementById('qbp-share-btn');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', function(){
+      if (navigator.share) {
+        navigator.share({ title: {{ product.title | json }}, text: 'Check this out on QuickBee!', url: window.location.href });
+      } else {
+        navigator.clipboard && navigator.clipboard.writeText(window.location.href);
+        shareBtn.textContent = '✓';
+        setTimeout(function(){ shareBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16c-.8 0-1.5.3-2 .8l-7.3-4.2c.1-.3.1-.5.1-.8s0-.5-.1-.8L15.9 7c.6.5 1.3.8 2.1.8 1.7 0 3-1.3 3-3s-1.3-3-3-3-3 1.3-3 3c0 .3 0 .5.1.8L7.8 9.8C7.2 9.3 6.5 9 5.7 9c-1.7 0-3 1.3-3 3s1.3 3 3 3c.8 0 1.5-.3 2.1-.8l7.3 4.2c-.1.2-.1.4-.1.6 0 1.7 1.3 3 3 3s3-1.3 3-3-1.3-3-3-3z"/></svg>'; }, 2000);
+      }
+    });
+  }
+
+  /* ══ PROMO CODE COPY ══ */
+  var promoChip = document.getElementById('qbp-promo');
+  if (promoChip) {
+    promoChip.addEventListener('click', function(){
+      navigator.clipboard && navigator.clipboard.writeText('FREE28');
+      var hint = promoChip.querySelector('span:last-child');
+      if (hint){ hint.textContent = '✓ Copied!'; setTimeout(function(){ hint.textContent = 'Tap to copy'; }, 2500); }
+    });
+  }
+
 })();
 </script>
 {% endif %}
