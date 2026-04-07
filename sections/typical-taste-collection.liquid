@@ -1117,7 +1117,7 @@
             {%- assign pp  = p.price -%}
             {%- assign _ptl = p.title | downcase -%}
             {%- assign _tags = p.tags | join: ',' | downcase -%}
-            <div class="tt-card" data-vid="{{ vid }}" data-sec="drinks" data-title="{{ p.title | downcase }}">
+            <div class="tt-card" data-vid="{{ vid }}" data-sec="drinks" data-title="{{ p.title | downcase }}" data-url="{{ p.url }}">
               <div class="tt-card-img-wrap">
                 {%- if p.featured_image -%}
                   <img class="tt-card-img" src="{{ p.featured_image | img_url: '400x400', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy">
@@ -1177,7 +1177,7 @@
             {%- assign pp  = p.price -%}
             {%- assign _ptl = p.title | downcase -%}
             {%- assign _tags = p.tags | join: ',' | downcase -%}
-            <div class="tt-card" data-vid="{{ vid }}" data-sec="biryani" data-title="{{ p.title | downcase }}">
+            <div class="tt-card" data-vid="{{ vid }}" data-sec="biryani" data-title="{{ p.title | downcase }}" data-url="{{ p.url }}">
               <div class="tt-card-img-wrap">
                 {%- if p.featured_image -%}
                   <img class="tt-card-img" src="{{ p.featured_image | img_url: '400x400', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy">
@@ -1236,7 +1236,7 @@
             {%- assign pp  = p.price -%}
             {%- assign _ptl = p.title | downcase -%}
             {%- assign _tags = p.tags | join: ',' | downcase -%}
-            <div class="tt-card" data-vid="{{ vid }}" data-sec="snacks" data-title="{{ p.title | downcase }}">
+            <div class="tt-card" data-vid="{{ vid }}" data-sec="snacks" data-title="{{ p.title | downcase }}" data-url="{{ p.url }}">
               <div class="tt-card-img-wrap">
                 {%- if p.featured_image -%}
                   <img class="tt-card-img" src="{{ p.featured_image | img_url: '400x400', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy">
@@ -1294,7 +1294,7 @@
             {%- assign pp  = p.price -%}
             {%- assign _ptl = p.title | downcase -%}
             {%- assign _tags = p.tags | join: ',' | downcase -%}
-            <div class="tt-card" data-vid="{{ vid }}" data-sec="mains" data-title="{{ p.title | downcase }}">
+            <div class="tt-card" data-vid="{{ vid }}" data-sec="mains" data-title="{{ p.title | downcase }}" data-url="{{ p.url }}">
               <div class="tt-card-img-wrap">
                 {%- if p.featured_image -%}
                   <img class="tt-card-img" src="{{ p.featured_image | img_url: '400x400', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy">
@@ -1351,7 +1351,7 @@
             {%- assign vid = p.variants.first.id -%}
             {%- assign pcp = p.compare_at_price_min -%}
             {%- assign pp  = p.price -%}
-            <div class="tt-card" data-vid="{{ vid }}" data-sec="specials" data-title="{{ p.title | downcase }}">
+            <div class="tt-card" data-vid="{{ vid }}" data-sec="specials" data-title="{{ p.title | downcase }}" data-url="{{ p.url }}">
               <div class="tt-card-img-wrap">
                 {%- if p.featured_image -%}
                   <img class="tt-card-img" src="{{ p.featured_image | img_url: '400x400', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy">
@@ -1399,7 +1399,7 @@
             {%- assign vid = p.variants.first.id -%}
             {%- assign pcp = p.compare_at_price_min -%}
             {%- assign pp  = p.price -%}
-            <div class="tt-card" data-vid="{{ vid }}" data-sec="desserts" data-title="{{ p.title | downcase }}">
+            <div class="tt-card" data-vid="{{ vid }}" data-sec="desserts" data-title="{{ p.title | downcase }}" data-url="{{ p.url }}">
               <div class="tt-card-img-wrap">
                 {%- if p.featured_image -%}
                   <img class="tt-card-img" src="{{ p.featured_image | img_url: '400x400', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy">
@@ -1449,7 +1449,7 @@
             {%- assign pp  = p.price -%}
             {%- assign _ptl = p.title | downcase -%}
             {%- assign _tags = p.tags | join: ',' | downcase -%}
-            <div class="tt-card" data-vid="{{ vid }}" data-sec="others" data-title="{{ p.title | downcase }}">
+            <div class="tt-card" data-vid="{{ vid }}" data-sec="others" data-title="{{ p.title | downcase }}" data-url="{{ p.url }}">
               <div class="tt-card-img-wrap">
                 {%- if p.featured_image -%}
                   <img class="tt-card-img" src="{{ p.featured_image | img_url: '400x400', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy">
@@ -1760,6 +1760,15 @@
     }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
     document.querySelectorAll('.tt-sec').forEach(function (s) { observer.observe(s); });
   }
+
+  /* ── Card click → product page (skip add/stepper buttons) ── */
+  document.querySelectorAll('.tt-card[data-url]').forEach(function(card) {
+    card.addEventListener('click', function(e) {
+      if (e.target.closest('.tt-add-btn, .tt-stepper, .tt-stepper-btn')) return;
+      var url = card.getAttribute('data-url');
+      if (url) window.location.href = url;
+    });
+  });
 
 })();
 </script>
