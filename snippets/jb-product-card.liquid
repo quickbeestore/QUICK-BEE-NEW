@@ -11,7 +11,7 @@
   endif
   assign ptype = p.type | downcase | strip
   assign is_new = false
-  if p.created_at > 'now' | date: '%s' | minus: 2592000
+  if p.tags contains 'new' or p.tags contains 'new-arrival'
     assign is_new = true
   endif
 -%}
@@ -37,7 +37,7 @@
         {%- if p.tags contains 'bestseller' or p.tags contains 'best-seller' -%}
           <span class="jb-badge jb-badge--hot">🔥 Hot</span>
         {%- endif -%}
-        {%- if p.tags contains 'new' or p.tags contains 'new-arrival' -%}
+        {%- if is_new -%}
           <span class="jb-badge jb-badge--new">New</span>
         {%- endif -%}
         {%- if ptype contains 'choco' or ptype contains 'chocolate' -%}
