@@ -1079,7 +1079,7 @@ html[data-theme="dark"] .bk-card-no-img { background: #242018 !important; }
             {%- assign pp = p.price -%}
             {%- assign pct = 0 -%}
             {%- if cp > pp -%}{%- assign diff = cp | minus: pp -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
-            <div class="bk-card" data-vid="{{ vid }}" data-sec="pound" data-title="{{ p.title | downcase | escape }}">
+            <div class="bk-card" data-vid="{{ vid }}" data-url="{{ p.url }}" data-sec="pound" data-title="{{ p.title | downcase | escape }}">
               <div class="bk-card-img-wrap">
                 {%- if p.featured_image -%}
                   <img class="bk-card-img" src="{{ p.featured_image | img_url: '500x500', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy">
@@ -1139,7 +1139,7 @@ html[data-theme="dark"] .bk-card-no-img { background: #242018 !important; }
             {%- assign pp = p.price -%}
             {%- assign pct = 0 -%}
             {%- if cp > pp -%}{%- assign diff = cp | minus: pp -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
-            <div class="bk-card" data-vid="{{ vid }}" data-sec="bento" data-title="{{ p.title | downcase | escape }}">
+            <div class="bk-card" data-vid="{{ vid }}" data-url="{{ p.url }}" data-sec="bento" data-title="{{ p.title | downcase | escape }}">
               <div class="bk-card-img-wrap">
                 {%- if p.featured_image -%}
                   <img class="bk-card-img" src="{{ p.featured_image | img_url: '500x500', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy">
@@ -1197,7 +1197,7 @@ html[data-theme="dark"] .bk-card-no-img { background: #242018 !important; }
             {%- assign pp = p.price -%}
             {%- assign pct = 0 -%}
             {%- if cp > pp -%}{%- assign diff = cp | minus: pp -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
-            <div class="bk-card" data-vid="{{ vid }}" data-sec="mini" data-title="{{ p.title | downcase | escape }}">
+            <div class="bk-card" data-vid="{{ vid }}" data-url="{{ p.url }}" data-sec="mini" data-title="{{ p.title | downcase | escape }}">
               <div class="bk-card-img-wrap">
                 {%- if p.featured_image -%}
                   <img class="bk-card-img" src="{{ p.featured_image | img_url: '500x500', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy">
@@ -1255,7 +1255,7 @@ html[data-theme="dark"] .bk-card-no-img { background: #242018 !important; }
             {%- assign pp = p.price -%}
             {%- assign pct = 0 -%}
             {%- if cp > pp -%}{%- assign diff = cp | minus: pp -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
-            <div class="bk-card" data-vid="{{ vid }}" data-sec="others" data-title="{{ p.title | downcase | escape }}">
+            <div class="bk-card" data-vid="{{ vid }}" data-url="{{ p.url }}" data-sec="others" data-title="{{ p.title | downcase | escape }}">
               <div class="bk-card-img-wrap">
                 {%- if p.featured_image -%}
                   <img class="bk-card-img" src="{{ p.featured_image | img_url: '500x500', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy">
@@ -1504,6 +1504,12 @@ html[data-theme="dark"] .bk-card-no-img { background: #242018 !important; }
   if (content) {
     content.addEventListener('click', function (e) {
       var t = e.target;
+      /* ── Card click → navigate to product page ── */
+      var card = t.closest('.bk-card');
+      if (card && !t.closest('.bk-add-btn') && !t.closest('.bk-stepper') && !t.closest('.bk-wishlist')) {
+        var url = card.getAttribute('data-url');
+        if (url) window.location.href = url;
+      }
       if (t.classList.contains('bk-add-btn') && !t.classList.contains('loading') && !t.classList.contains('success')) {
         bkAdd(parseInt(t.getAttribute('data-vid'), 10), 1, t);
       }
