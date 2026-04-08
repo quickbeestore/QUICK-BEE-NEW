@@ -1,0 +1,89 @@
+{%- liquid
+  assign p = product
+  assign vid = p.first_available_variant
+  assign price = vid.price | money
+  assign cprice = vid.compare_at_price
+  assign has_compare = false
+  if cprice > vid.price
+    assign has_compare = true
+    assign save_pct = vid.price | times: 100 | divided_by: cprice
+    assign save_pct = 100 | minus: save_pct
+  endif
+  assign ptype = p.type | downcase | strip
+  assign is_new = false
+  if p.created_at > 'now' | date: '%s' | minus: 2592000
+    assign is_new = true
+  endif
+-%}
+<div class="jb-card" data-pid="{{ p.id }}" data-vid="{{ vid.id }}" data-sec="{{ section_id }}" data-type="{{ ptype }}">
+  <a href="{{ p.url }}" class="jb-card-img-link" style="display:block;text-decoration:none;">
+    <div class="jb-card-img-wrap">
+      {%- if p.featured_image -%}
+        <img class="jb-card-img"
+          src="{{ p.featured_image | image_url: width: 480 }}"
+          alt="{{ p.title | escape }}"
+          loading="lazy"
+          width="480"
+          height="480">
+      {%- else -%}
+        <div class="jb-card-no-img">🍫</div>
+      {%- endif -%}
+
+      <!-- badges -->
+      <div class="jb-card-badges">
+        {%- if has_compare -%}
+          <span class="jb-badge jb-badge--deal">{{ save_pct }}% OFF</span>
+        {%- endif -%}
+        {%- if p.tags contains 'bestseller' or p.tags contains 'best-seller' -%}
+          <span class="jb-badge jb-badge--hot">🔥 Hot</span>
+        {%- endif -%}
+        {%- if p.tags contains 'new' or p.tags contains 'new-arrival' -%}
+          <span class="jb-badge jb-badge--new">New</span>
+        {%- endif -%}
+        {%- if ptype contains 'choco' or ptype contains 'chocolate' -%}
+          <span class="jb-badge jb-badge--choco">🍫 Choco</span>
+        {%- endif -%}
+      </div>
+
+      <span class="jb-card-delivery">⚡ Same day</span>
+    </div>
+  </a>
+
+  <div class="jb-card-body">
+    {%- if p.type != blank -%}
+      <div class="jb-card-type">{{ p.type }}</div>
+    {%- endif -%}
+    <h3 class="jb-card-name">
+      <a href="{{ p.url }}" style="color:inherit;text-decoration:none;">{{ p.title }}</a>
+    </h3>
+    {%- if p.description != blank -%}
+      <p class="jb-card-desc">{{ p.description | strip_html | truncate: 80 }}</p>
+    {%- endif -%}
+
+    <div class="jb-card-footer">
+      <div class="jb-price-wrap">
+        <span class="jb-price">{{ price }}</span>
+        {%- if has_compare -%}
+          <span class="jb-price-compare">{{ cprice | money }}</span>
+          <span class="jb-price-save">Save {{ save_pct }}%</span>
+        {%- endif -%}
+      </div>
+      <div class="jb-card-actions">
+        {%- if vid.available -%}
+          <button class="jb-add-btn"
+            onclick="jbAdd(this,'{{ vid.id }}')"
+            data-vid="{{ vid.id }}">
+            ADD +
+          </button>
+          <div class="jb-stepper" id="jb-step-{{ vid.id }}">
+            <button class="jb-step-btn" onclick="jbChange(this,'{{ vid.id }}',-1)">−</button>
+            <span class="jb-step-qty">1</span>
+            <button class="jb-step-btn" onclick="jbChange(this,'{{ vid.id }}',1)">+</button>
+          </div>
+        {%- else -%}
+          <button class="jb-add-btn" disabled style="opacity:0.45;cursor:not-allowed;">Sold Out</button>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</div>
