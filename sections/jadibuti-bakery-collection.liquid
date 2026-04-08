@@ -647,33 +647,99 @@ html:not([data-theme="dark"]) .jb-hero {
 /* ══════════════════════════════════════════════════════
    7. TRUST SECTION
    ══════════════════════════════════════════════════════ */
+/* ── Trust strip ──────────────────────────────────── */
 .jb-trust {
-  background: var(--jb-surface);
-  border-top: 1px solid var(--jb-border);
-  border-bottom: 1px solid var(--jb-border);
-  padding: 36px 20px;
+  padding: 32px 14px 36px;
+}
+.jb-trust-label {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--jb-gold);
+  margin-bottom: 18px;
+  opacity: 0.75;
 }
 .jb-trust-inner {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 4px;
   max-width: 900px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  text-align: center;
 }
-@media(max-width:560px){ .jb-trust-inner { grid-template-columns: 1fr; gap: 20px; } }
-.jb-trust-item { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.jb-trust-inner::-webkit-scrollbar { display: none; }
+@media(min-width: 680px) {
+  .jb-trust-inner { overflow-x: visible; display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+}
+.jb-trust-item {
+  flex-shrink: 0;
+  width: 220px;
+  scroll-snap-align: start;
+  background: var(--jb-card);
+  border: 1px solid var(--jb-border);
+  border-radius: 20px;
+  padding: 20px 18px 22px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+@media(min-width: 680px) { .jb-trust-item { width: auto; } }
+.jb-trust-item:hover { transform: translateY(-3px); box-shadow: var(--jb-shadow-lg); }
+/* gold top bar */
+.jb-trust-item::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 20px 20px 0 0;
+}
+.jb-trust-item:nth-child(1)::before { background: linear-gradient(90deg, var(--jb-choco), var(--jb-caramel)); }
+.jb-trust-item:nth-child(2)::before { background: linear-gradient(90deg, var(--jb-gold), var(--jb-gold2)); }
+.jb-trust-item:nth-child(3)::before { background: linear-gradient(90deg, var(--jb-caramel), var(--jb-gold)); }
+/* subtle bg glow */
+.jb-trust-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(212,160,23,0.05) 0%, transparent 65%);
+  pointer-events: none;
+}
 .jb-trust-icon {
-  width: 56px; height: 56px;
-  background: rgba(212,160,23,0.1);
-  border-radius: 16px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 26px;
-  border: 1px solid rgba(212,160,23,0.2);
-  animation: jb-glow 4s ease-in-out infinite;
+  font-size: 32px;
+  margin-bottom: 12px;
+  display: block;
+  line-height: 1;
 }
-.jb-trust-title { font-family: var(--jb-heading); font-size: 17px; font-weight: 700; color: var(--jb-text); margin: 0; }
-.jb-trust-desc  { font-size: 12.5px; color: var(--jb-text2); margin: 0; line-height: 1.5; }
+.jb-trust-stat {
+  font-family: var(--jb-heading);
+  font-size: 28px;
+  font-weight: 900;
+  background: linear-gradient(120deg, var(--jb-caramel), var(--jb-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 2px;
+  line-height: 1;
+}
+.jb-trust-title {
+  font-family: var(--jb-heading);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--jb-text);
+  margin: 0 0 6px;
+  -webkit-text-fill-color: var(--jb-text);
+}
+.jb-trust-desc {
+  font-size: 12px;
+  color: var(--jb-text2);
+  margin: 0;
+  line-height: 1.55;
+}
 
 /* ══════════════════════════════════════════════════════
    8. CAKE MESSAGE
@@ -1078,13 +1144,13 @@ html:not([data-theme="dark"]) .jb-card-body {
 html:not([data-theme="dark"]) .jb-sec-head {
   border-bottom-color: var(--jb-border);
 }
-html:not([data-theme="dark"]) .jb-trust {
-  background: var(--jb-surface);
-  border-color: var(--jb-border);
-}
 html:not([data-theme="dark"]) .jb-trust-item {
-  border-color: var(--jb-border);
   background: #fff;
+  border-color: rgba(160,80,20,0.10);
+  box-shadow: 0 2px 14px rgba(100,40,0,0.07);
+}
+html:not([data-theme="dark"]) .jb-trust-title {
+  -webkit-text-fill-color: var(--jb-text);
 }
 html:not([data-theme="dark"]) .jb-msg-section {
   background: #fff;
@@ -1305,22 +1371,30 @@ html:not([data-theme="dark"]) .jb-add-btn:hover {
 
   <!-- Trust -->
   <div class="jb-trust">
+    <div class="jb-trust-label">✦ Why Jadibuti Bakery</div>
     <div class="jb-trust-inner">
+
       <div class="jb-trust-item">
-        <div class="jb-trust-icon">🍫</div>
+        <span class="jb-trust-icon">🍫</span>
+        <div class="jb-trust-stat">100%</div>
         <h4 class="jb-trust-title">Premium Chocolate</h4>
-        <p class="jb-trust-desc">Belgian and single-origin chocolate — every bite counts</p>
+        <p class="jb-trust-desc">Belgian &amp; single-origin chocolate — crafted for every bite</p>
       </div>
+
       <div class="jb-trust-item">
-        <div class="jb-trust-icon">⚡</div>
+        <span class="jb-trust-icon">⚡</span>
+        <div class="jb-trust-stat">&lt;2hr</div>
         <h4 class="jb-trust-title">Same-Day Delivery</h4>
-        <p class="jb-trust-desc">Order before 2 PM for same-day delivery across Kathmandu</p>
+        <p class="jb-trust-desc">Order before 2 PM — delivered fresh across Kathmandu</p>
       </div>
+
       <div class="jb-trust-item">
-        <div class="jb-trust-icon">🎨</div>
-        <h4 class="jb-trust-title">Custom Designs</h4>
-        <p class="jb-trust-desc">Personal messages, custom decorations — made just for you</p>
+        <span class="jb-trust-icon">🎨</span>
+        <div class="jb-trust-stat">500+</div>
+        <h4 class="jb-trust-title">Custom Designs Done</h4>
+        <p class="jb-trust-desc">Personal messages, toppers &amp; decorations — made just for you</p>
       </div>
+
     </div>
   </div>
 
