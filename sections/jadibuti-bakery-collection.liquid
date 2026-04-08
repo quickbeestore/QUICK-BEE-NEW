@@ -705,8 +705,37 @@ html:not([data-theme="dark"]) .jb-hero {
   margin-bottom: 10px;
   -webkit-text-fill-color: var(--jb-text);
 }
-.jb-msg-input::placeholder { color: var(--jb-text3); font-style: italic; opacity: 1; }
+.jb-msg-input::placeholder { color: var(--jb-text3); font-style: italic; opacity: 1; -webkit-text-fill-color: var(--jb-text3); }
 .jb-msg-input:focus { outline: none; border-color: var(--jb-gold); box-shadow: 0 0 0 3px rgba(212,160,23,0.18); }
+[data-theme="dark"] .jb-msg-input { background: #2a1a0a; color: #f5e6cc; -webkit-text-fill-color: #f5e6cc; border-color: rgba(212,160,23,0.22); }
+[data-theme="dark"] .jb-msg-input::placeholder { color: #7a5535; -webkit-text-fill-color: #7a5535; }
+
+/* Live message preview */
+.jb-msg-preview {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 10px 18px;
+  background: rgba(212,160,23,0.08);
+  border: 1px dashed rgba(212,160,23,0.35);
+  border-radius: 12px;
+  animation: jb-fadein 0.25s ease;
+}
+.jb-msg-preview.show { display: flex; }
+.jb-msg-preview-label { font-size: 11px; font-weight: 700; color: var(--jb-text3); text-transform: uppercase; letter-spacing: 0.8px; flex-shrink: 0; }
+.jb-msg-preview-text {
+  font-family: var(--jb-heading);
+  font-size: 17px;
+  font-weight: 700;
+  font-style: italic;
+  background: linear-gradient(120deg, var(--jb-caramel), var(--jb-gold), var(--jb-gold2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.3px;
+}
 .jb-msg-char  { font-size: 11px; color: var(--jb-text3); margin-bottom: 14px; }
 .jb-msg-btn {
   padding: 12px 32px;
@@ -1301,6 +1330,10 @@ html:not([data-theme="dark"]) .jb-add-btn:hover {
       <span class="jb-msg-icon">✍️</span>
       <h3 class="jb-msg-title">Write a Message on Your Cake</h3>
       <p class="jb-msg-sub">We'll pipe it on in gold chocolate lettering 🍫</p>
+      <div class="jb-msg-preview" id="jbMsgPreview">
+        <span class="jb-msg-preview-label">🍫 On your cake:</span>
+        <span class="jb-msg-preview-text" id="jbMsgPreviewText"></span>
+      </div>
       <input type="text" class="jb-msg-input" id="jbCakeMsg" placeholder='e.g. "Happy Birthday! 🎂"' maxlength="40">
       <div class="jb-msg-char" id="jbMsgChar">0 / 40 characters</div>
       <button class="jb-msg-btn" id="jbSaveMsgBtn">Save Message 🎀</button>
@@ -1561,11 +1594,19 @@ html:not([data-theme="dark"]) .jb-add-btn:hover {
   var msgChar=document.getElementById('jbMsgChar');
   var msgBtn=document.getElementById('jbSaveMsgBtn');
   var msgSaved=document.getElementById('jbMsgSaved');
+  var msgPreview=document.getElementById('jbMsgPreview');
+  var msgPreviewText=document.getElementById('jbMsgPreviewText');
   if(msgInput){
     msgInput.addEventListener('input',function(){
-      var len=msgInput.value.length;
+      var val=msgInput.value;
+      var len=val.length;
       if(msgChar) msgChar.textContent=len+' / 40 characters';
       if(msgSaved) msgSaved.classList.remove('show');
+      if(msgPreviewText) msgPreviewText.textContent=val;
+      if(msgPreview){
+        if(val.length>0){ msgPreview.classList.add('show'); }
+        else { msgPreview.classList.remove('show'); }
+      }
     });
   }
   if(msgBtn){
