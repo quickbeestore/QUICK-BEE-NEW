@@ -7,7 +7,11 @@
   - Shows on all pages except /cart
 {% endcomment %}
 
-{% unless template.name == 'cart' %}
+{% assign is_payment_page = false %}
+{% if request.path contains '/pages/payment' or request.path contains '/pages/checkout' or template.name == 'cart' %}
+  {% assign is_payment_page = true %}
+{% endif %}
+{% unless is_payment_page %}
 <div id="qbsc-root" class="qbsc-hidden" aria-label="Quick cart">
   <!-- Backdrop (shown when panel is open) -->
   <div id="qbsc-backdrop" class="qbsc-backdrop" role="presentation"></div>
@@ -787,6 +791,13 @@ html:not([data-theme]) #qbsc-root {
 <script>
 (function () {
   'use strict';
+  /* Hide on payment / checkout pages */
+  var _path = window.location.pathname;
+  if (_path.indexOf('/pages/payment') !== -1 || _path.indexOf('/pages/checkout') !== -1 || _path.indexOf('/checkouts/') !== -1) {
+    var _root = document.getElementById('qbsc-root');
+    if (_root) _root.remove();
+    return;
+  }
 
   var ROOT    = document.getElementById('qbsc-root');
   var BAR     = document.getElementById('qbsc-bar');
