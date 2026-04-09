@@ -595,19 +595,8 @@ html[data-theme="dark"] .ra-root {
   <!-- ══════════════ FORM ══════════════ -->
   <div class="ra-form-area">
 
-    {%- form 'contact', id: 'RiderAppForm', class: 'ra-form' -%}
-      {%- if form.posted_successfully? -%}
-
-        <div class="ra-success">
-          <div class="ra-success-emoji">🎉</div>
-          <h2>Application Received!</h2>
-          <p>Your application is in! Our team will reach out within <strong>24 hours</strong>. Get ready to ride with QuickBee!</p>
-          <a href="/" class="ra-back-btn">Back to Home</a>
-        </div>
-
-      {%- else -%}
-
-        <input type="hidden" name="contact[email]" id="RaHiddenEmail" value="rider-{{ "now" | date: "%H%M%S" }}@quickbee.store">
+    <form id="RiderAppForm" class="ra-form" novalidate>
+      <input type="hidden" id="RaVariantId" value="{{ product.variants.first.id }}">
 
         <!-- ── Personal Info ── -->
         <div class="ra-card">
@@ -791,8 +780,7 @@ html[data-theme="dark"] .ra-root {
           <p class="ra-submit-note">By applying you agree to QuickBee's rider terms & conditions. We'll never share your data with third parties.</p>
         </div>
 
-      {%- endif -%}
-    {%- endform -%}
+    </form>
 
   </div>
 
@@ -800,8 +788,6 @@ html[data-theme="dark"] .ra-root {
 
 <script>
 (function () {
-  var W3F_KEY = 'WEB3FORMS_KEY'; // ← paste your web3forms access key
-
   document.addEventListener('DOMContentLoaded', function () {
     var form    = document.getElementById('RiderAppForm');
     var btn     = document.getElementById('RaSubmitBtn');
@@ -810,45 +796,95 @@ html[data-theme="dark"] .ra-root {
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      btnText.textContent = 'Sending…';
+
+      /* ── Basic validation ── */
+      var phone = form.querySelector('#RaPhone');
+      var name  = form.querySelector('#RaName');
+      var age   = form.querySelector('#RaAge');
+      if (!name.value.trim() || !phone.value.trim() || !age.value.trim()) {
+        alert('Please fill in your name, phone number and age.');
+        return;
+      }
+
+      btnText.textContent = 'Processing…';
       btn.classList.add('loading');
       btn.disabled = true;
 
-      var fd = new FormData(form);
-      var payload = { access_key: W3F_KEY, subject: '🛵 New QuickBee Rider Application' };
-      fd.forEach(function (v, k) {
-        var clean = k.replace(/^contact\[/, '').replace(/\]$/, '');
-        if (clean !== 'email') payload[clean] = v;
-      });
-      payload['Submitted_At'] = new Date().toLocaleString();
+      /* ── Collect all fields into a readable order note ── */
+      var fd   = new FormData(form);
+      var note = '🛵 RIDER APPLICATION\n';
+      note += '──────────────────\n';
 
-      function send(attempt) {
-        fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify(payload)
+      var labels = {
+        'Full_Name':       '👤 Full Name',
+        'phone':           '📞 Phone',
+        'Age':             '🎂 Age',
+        'Location':        '📍 Location',
+        'Vehicle_Type':    '🛵 Vehicle Type',
+        'Vehicle_No':      '🔢 Plate Number',
+        'License_No':      '📋 License No.',
+        'IQ_Q1':           '🧠 Q1 Answer',
+        'IQ_Q2':           '🧠 Q2 Answer',
+        'IQ_Q3':           '🧠 Q3 Answer',
+        'Areas_Covered':   '🗺️ Areas',
+        'Available_Time':  '🕐 Availability',
+        'Expected_Salary': '💰 Expected Salary',
+        'body':            '📝 Note'
+      };
+
+      Object.keys(labels).forEach(function (key) {
+        var val = fd.get('contact[' + key + ']') || fd.get(key) || '';
+        if (val.trim()) note += labels[key] + ': ' + val.trim() + '\n';
+      });
+      note += '──────────────────\n';
+      note += '🕒 Submitted: ' + new Date().toLocaleString();
+
+      /* ── Build line item properties (shows on order detail) ── */
+      var props = {};
+      props['👤 Name']          = fd.get('contact[Full_Name]')      || '';
+      props['📞 Phone']         = fd.get('contact[phone]')           || '';
+      props['🎂 Age']           = fd.get('contact[Age]')             || '';
+      props['📍 Area']          = fd.get('contact[Location]')        || '';
+      props['🛵 Vehicle']       = fd.get('contact[Vehicle_Type]')    || '';
+      props['🔢 Plate']         = fd.get('contact[Vehicle_No]')      || '';
+      props['🕐 Availability']  = fd.get('contact[Available_Time]')  || '';
+      props['💰 Exp. Salary']   = fd.get('contact[Expected_Salary]') || '';
+
+      var variantId = parseInt(document.getElementById('RaVariantId').value, 10);
+
+      /* ── Step 1: Clear existing cart, then add rider product ── */
+      fetch('/cart/clear.js', { method: 'POST' })
+        .then(function () {
+          return fetch('/cart/add.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: variantId,
+              quantity: 1,
+              properties: props
+            })
+          });
         })
         .then(function (r) { return r.json(); })
-        .then(function (res) {
-          if (res.success) {
-            form.innerHTML =
-              '<div class="ra-success">' +
-              '<div class="ra-success-emoji">🎉</div>' +
-              '<h2>Application Received!</h2>' +
-              '<p>Our team will reach out within <strong>24 hours</strong>. Get ready to ride with QuickBee!</p>' +
-              '<a href="/" class="ra-back-btn">Back to Home</a>' +
-              '</div>';
-          } else { throw new Error(res.message); }
+        .then(function () {
+          /* ── Step 2: Set full note on cart ── */
+          return fetch('/cart/update.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ note: note })
+          });
+        })
+        .then(function () {
+          /* ── Step 3: Go straight to checkout ── */
+          window.location.href = '/checkout';
         })
         .catch(function (err) {
-          if (attempt < 1) { setTimeout(function () { send(1); }, 1200); return; }
+          console.error('[QB Rider]', err);
           btnText.textContent = 'Send My Application 🚀';
           btn.classList.remove('loading');
           btn.disabled = false;
           alert('Something went wrong. Please check your connection and try again.');
         });
-      }
-      send(0);
     });
   });
 })();
