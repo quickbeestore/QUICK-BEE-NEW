@@ -807,6 +807,27 @@ html:not([data-theme="dark"]) .qb-cat-pill {
 }
 .qb-combo-add-btn:active { transform: scale(0.9) !important; }
 
+/* Coming Soon cards */
+.qb-combo-card.qb-cs .qb-combo-add-btn { display: none !important; }
+.qb-combo-card.qb-cs .qb-combo-price { display: none !important; }
+.qb-combo-card.qb-cs .qb-combo-price-col::after {
+  content: 'Coming Soon';
+  font-size: 10px; font-weight: 800;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--theme-text-muted);
+  background: rgba(244,180,0,0.08);
+  border: 1px solid rgba(244,180,0,0.18);
+  border-radius: 999px;
+  padding: 3px 10px;
+  display: inline-block;
+}
+.qb-dg-sect .qb-combo-card.qb-cs .qb-combo-price-col::after {
+  color: rgba(229,194,90,0.55);
+  background: rgba(229,194,90,0.06);
+  border-color: rgba(229,194,90,0.2);
+}
+.qb-combo-card.qb-cs .qb-combo-delivery-badge { display: none !important; }
+
 /* Bigger, bolder section title */
 .qb-combo-title {
   font-size: 19px !important;
@@ -1990,18 +2011,35 @@ html:not([data-theme="dark"]) .qb-rs-card {
   padding-top: 14px;
   padding-bottom: 4px;
 }
-.qb-dg-sect .qb-combo-card {
-  background: rgba(255,255,255,0.035);
-  border: 1.5px solid rgba(229,194,90,0.1);
+/* Dhido cards: always dark green regardless of theme */
+.qb-dg-sect .qb-combo-card,
+html:not([data-theme="dark"]) .qb-dg-sect .qb-combo-card {
+  background: rgba(229,194,90,0.04) !important;
+  border: 1.5px solid rgba(229,194,90,0.12) !important;
+  box-shadow: none !important;
 }
-.qb-dg-sect .qb-combo-card:hover {
-  border-color: rgba(229,194,90,0.28);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 0 1px rgba(229,194,90,0.12);
+.qb-dg-sect .qb-combo-card:hover,
+html:not([data-theme="dark"]) .qb-dg-sect .qb-combo-card:hover {
+  border-color: rgba(229,194,90,0.32) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 0 1px rgba(229,194,90,0.12) !important;
 }
-.qb-dg-sect .qb-combo-product-name { color: #e0d0b4; }
-.qb-dg-sect .qb-combo-price { color: #e5c25a; }
+.qb-dg-sect .qb-combo-img-wrap,
+html:not([data-theme="dark"]) .qb-dg-sect .qb-combo-img-wrap {
+  background: rgba(0,0,0,0.35) !important;
+}
+.qb-dg-sect .qb-combo-product-name,
+html:not([data-theme="dark"]) .qb-dg-sect .qb-combo-product-name { color: #e0d0b4 !important; }
+.qb-dg-sect .qb-combo-price,
+html:not([data-theme="dark"]) .qb-dg-sect .qb-combo-price { color: #e5c25a !important; }
 .qb-dg-sect .qb-combo-subtitle { color: rgba(229,194,90,0.4); }
+.qb-dg-sect .qb-combo-info { background: transparent !important; }
 .qb-dg-sect .qb-combo-dots { background: transparent; padding-bottom: 6px; }
+.qb-dg-sect .qb-combo-add-btn,
+html:not([data-theme="dark"]) .qb-dg-sect .qb-combo-add-btn {
+  background: linear-gradient(135deg, #c8a840, #e5c25a) !important;
+  color: #0d1a0d !important;
+  border-color: transparent !important;
+}
 .qb-dg-sect .qb-combo-arrow {
   background: rgba(229,194,90,0.1);
   border: 1.5px solid rgba(229,194,90,0.2);
@@ -3050,9 +3088,9 @@ html:not([data-theme="dark"]) .qb-kw-inner {
 .qb-trust-bar {
   display: flex; align-items: center; justify-content: center;
   gap: 0; padding: 16px 12px;
-  border-top: 1px solid rgba(244,180,0,0.1);
-  border-bottom: 1px solid rgba(244,180,0,0.1);
-  background: var(--theme-bg-secondary);
+  border-top: 1px solid rgba(244,180,0,0.15);
+  border-bottom: 1px solid rgba(244,180,0,0.15);
+  background: linear-gradient(90deg, #0e0c09 0%, #1a1511 50%, #0e0c09 100%);
   flex-wrap: nowrap;
   overflow-x: auto;
   scrollbar-width: none;
@@ -3602,7 +3640,7 @@ html:not([data-theme="dark"]) .qb-trust-num { color: #C48A00; }
           {%- elsif ptl contains 'chicken' -%}{%- assign food_ico = '🍗' -%}
           {%- elsif ptl contains 'biryani' or ptl contains 'rice' -%}{%- assign food_ico = '🍛' -%}
           {%- endif -%}
-          <a href="{{ product.url }}" class="qb-combo-card">
+          <a href="{{ product.url }}" class="qb-combo-card{% if product.price == 0 %} qb-cs{% endif %}">
             <div class="qb-combo-img-wrap">
               {% if c_disc %}<div class="qb-combo-off-badge">{{ c_pct }}% OFF</div>{% endif %}
               {% if product.featured_image %}
@@ -3658,7 +3696,7 @@ html:not([data-theme="dark"]) .qb-trust-num { color: #C48A00; }
             {%- assign c_sav = product.compare_at_price | minus: product.price -%}
             {%- assign c_pct = c_sav | times: 100 | divided_by: product.compare_at_price -%}
           {%- endif -%}
-          <a href="{{ product.url }}" class="qb-combo-card">
+          <a href="{{ product.url }}" class="qb-combo-card{% if product.price == 0 %} qb-cs{% endif %}">
             <div class="qb-combo-img-wrap">
               {% if c_disc %}<div class="qb-combo-off-badge">{{ c_pct }}% OFF</div>{% endif %}
               {% if product.featured_image %}
@@ -3686,83 +3724,6 @@ html:not([data-theme="dark"]) .qb-trust-num { color: #C48A00; }
     <div class="qb-combo-dots" id="qbCakeDots"></div>
   </section>
   {% endif %}
-
-  <!-- ══════════════════════════════════════════
-       🥩 DHIDO & THE GRILLS — FULL SECTION
-  ══════════════════════════════════════════ -->
-  {% assign dg_products = collections['the-dhido-the-grills'].products %}
-  {% if dg_products.size == 0 %}{% assign dg_products = collections['dhido-grills'].products %}{% endif %}
-  <section class="qb-dg-sect" id="qb-dhido">
-
-    <!-- Restaurant Identity Header -->
-    <div class="qb-dg-header">
-      <div class="qb-dg-logo">🥩</div>
-      <div class="qb-dg-hinfo">
-        <div class="qb-dg-open-dot">Open Now</div>
-        <h2 class="qb-dg-htitle">The Dhido &amp; The Grills</h2>
-        <p class="qb-dg-hsub">Authentic Nepali Flavours · Premium Grills · Village Kitchen</p>
-        <div class="qb-dg-hpills">
-          <span class="qb-dg-hpill">⭐ 4.8</span>
-          <span class="qb-dg-hpill">⚡ 18-22 min</span>
-          <span class="qb-dg-hpill">🏷️ Free Delivery</span>
-          <span class="qb-dg-hpill">🥩 Premium Grills</span>
-        </div>
-      </div>
-      <a href="/collections/the-dhido-the-grills" class="qb-dg-cta">Order Now →</a>
-    </div>
-
-    <!-- Product Slider -->
-    {% if dg_products.size > 0 %}
-    <div class="qb-dg-slider-wrap">
-      <div class="qb-combo-slider-outer">
-        <button class="qb-combo-arrow qb-combo-arrow-left" id="qbDhidoPrev" aria-label="Previous">&#8249;</button>
-        <div class="qb-combo-track" id="qbDhidoTrack">
-          {% for product in dg_products %}
-            {%- assign c_disc = false -%}{%- assign c_pct = 0 -%}
-            {%- if product.compare_at_price > product.price -%}
-              {%- assign c_disc = true -%}
-              {%- assign c_sav = product.compare_at_price | minus: product.price -%}
-              {%- assign c_pct = c_sav | times: 100 | divided_by: product.compare_at_price -%}
-            {%- endif -%}
-            {%- assign ptl = product.title | downcase -%}
-            {%- assign dg_ico = '🥩' -%}
-            {%- if ptl contains 'dhido' -%}{%- assign dg_ico = '🫙' -%}
-            {%- elsif ptl contains 'momo' -%}{%- assign dg_ico = '🥟' -%}
-            {%- elsif ptl contains 'sekuwa' or ptl contains 'bbq' -%}{%- assign dg_ico = '🔥' -%}
-            {%- elsif ptl contains 'chicken' -%}{%- assign dg_ico = '🍗' -%}
-            {%- elsif ptl contains 'dal' or ptl contains 'bhat' -%}{%- assign dg_ico = '🍚' -%}
-            {%- elsif ptl contains 'buff' or ptl contains 'mutton' -%}{%- assign dg_ico = '🥩' -%}
-            {%- endif -%}
-            <a href="{{ product.url }}" class="qb-combo-card">
-              <div class="qb-combo-img-wrap">
-                {% if c_disc %}<div class="qb-combo-off-badge">{{ c_pct }}% OFF</div>{% endif %}
-                {% if product.featured_image %}
-                  <img src="{{ product.featured_image | img_url: '600x600', crop: 'center' }}" alt="{{ product.title }}" loading="lazy">
-                {% else %}
-                  <div class="qb-combo-no-img">{{ dg_ico }}</div>
-                {% endif %}
-                <div class="qb-combo-delivery-badge">⚡ 18-22 MINS</div>
-              </div>
-              <div class="qb-combo-info">
-                <div class="qb-combo-product-name">{{ product.title }}</div>
-                <div class="qb-combo-price-row">
-                  <div class="qb-combo-price-col">
-                    <span class="qb-combo-price">Rs {{ product.price | divided_by: 100 }}</span>
-                    {% if c_disc %}<span class="qb-combo-old-price">Rs {{ product.compare_at_price | divided_by: 100 }}</span>{% endif %}
-                  </div>
-                  <button class="qb-combo-add-btn" onclick="event.preventDefault();event.stopPropagation();qbAddToCart({{ product.variants.first.id }},this)">+</button>
-                </div>
-              </div>
-            </a>
-          {% endfor %}
-        </div>
-        <button class="qb-combo-arrow qb-combo-arrow-right" id="qbDhidoNext" aria-label="Next">&#8250;</button>
-      </div>
-      <div class="qb-combo-dots" id="qbDhidoDots"></div>
-    </div>
-    {% endif %}
-
-  </section>
 
   <!-- ══════════════════════════════════════════
        📊 TRUST STATS BAR
@@ -3812,7 +3773,7 @@ html:not([data-theme="dark"]) .qb-trust-num { color: #C48A00; }
             {%- assign c_sav = product.compare_at_price | minus: product.price -%}
             {%- assign c_pct = c_sav | times: 100 | divided_by: product.compare_at_price -%}
           {%- endif -%}
-          <a href="{{ product.url }}" class="qb-combo-card">
+          <a href="{{ product.url }}" class="qb-combo-card{% if product.price == 0 %} qb-cs{% endif %}">
             <div class="qb-combo-img-wrap">
               {% if c_disc %}<div class="qb-combo-off-badge">{{ c_pct }}% OFF</div>{% endif %}
               {% if product.featured_image %}
@@ -3876,7 +3837,7 @@ html:not([data-theme="dark"]) .qb-trust-num { color: #C48A00; }
             {%- assign c_sav = product.compare_at_price | minus: product.price -%}
             {%- assign c_pct = c_sav | times: 100 | divided_by: product.compare_at_price -%}
           {%- endif -%}
-          <a href="{{ product.url }}" class="qb-combo-card">
+          <a href="{{ product.url }}" class="qb-combo-card{% if product.price == 0 %} qb-cs{% endif %}">
             <div class="qb-combo-img-wrap">
               {% if c_disc %}<div class="qb-combo-off-badge">{{ c_pct }}% OFF</div>{% endif %}
               {% if product.featured_image %}
@@ -3951,7 +3912,7 @@ html:not([data-theme="dark"]) .qb-trust-num { color: #C48A00; }
             {%- assign c_sav = product.compare_at_price | minus: product.price -%}
             {%- assign c_pct = c_sav | times: 100 | divided_by: product.compare_at_price -%}
           {%- endif -%}
-          <a href="{{ product.url }}" class="qb-combo-card">
+          <a href="{{ product.url }}" class="qb-combo-card{% if product.price == 0 %} qb-cs{% endif %}">
             <div class="qb-combo-img-wrap">
               {% if c_disc %}<div class="qb-combo-off-badge">{{ c_pct }}% OFF</div>{% endif %}
               {% if product.featured_image %}
@@ -4006,7 +3967,7 @@ html:not([data-theme="dark"]) .qb-trust-num { color: #C48A00; }
             {%- assign c_sav = product.compare_at_price | minus: product.price -%}
             {%- assign c_pct = c_sav | times: 100 | divided_by: product.compare_at_price -%}
           {%- endif -%}
-          <a href="{{ product.url }}" class="qb-combo-card">
+          <a href="{{ product.url }}" class="qb-combo-card{% if product.price == 0 %} qb-cs{% endif %}">
             <div class="qb-combo-img-wrap">
               {% if c_disc %}<div class="qb-combo-off-badge">{{ c_pct }}% OFF</div>{% endif %}
               {% if product.featured_image %}
@@ -4278,7 +4239,7 @@ html:not([data-theme="dark"]) .qb-trust-num { color: #C48A00; }
             {%- assign c_sav = product.compare_at_price | minus: product.price -%}
             {%- assign c_pct = c_sav | times: 100 | divided_by: product.compare_at_price -%}
           {%- endif -%}
-          <a href="{{ product.url }}" class="qb-combo-card">
+          <a href="{{ product.url }}" class="qb-combo-card{% if product.price == 0 %} qb-cs{% endif %}">
             <div class="qb-combo-img-wrap">
               {% if c_disc %}<div class="qb-combo-off-badge">{{ c_pct }}% OFF</div>{% endif %}
               {% if product.featured_image %}
@@ -4333,7 +4294,7 @@ html:not([data-theme="dark"]) .qb-trust-num { color: #C48A00; }
             {%- assign c_sav = product.compare_at_price | minus: product.price -%}
             {%- assign c_pct = c_sav | times: 100 | divided_by: product.compare_at_price -%}
           {%- endif -%}
-          <a href="{{ product.url }}" class="qb-combo-card">
+          <a href="{{ product.url }}" class="qb-combo-card{% if product.price == 0 %} qb-cs{% endif %}">
             <div class="qb-combo-img-wrap">
               {% if c_disc %}<div class="qb-combo-off-badge">{{ c_pct }}% OFF</div>{% endif %}
               {% if product.featured_image %}
@@ -5126,7 +5087,6 @@ function qbHomepageBoot() {
 
   // Init all sliders
   initSlider('qbFoodTrack',       'qbFoodPrev',       'qbFoodNext',       'qbFoodDots');
-  initSlider('qbDhidoTrack',      'qbDhidoPrev',      'qbDhidoNext',      'qbDhidoDots');
   initSlider('qbCakeTrack',       'qbCakePrev',       'qbCakeNext',       'qbCakeDots');
   initSlider('qbBeerComboTrack',  'qbBeerComboPrev',  'qbBeerComboNext',  'qbBeerComboDots');
   initSlider('qbBeerTrack',       'qbBeerPrev',       'qbBeerNext',       'qbBeerDots');
@@ -5384,8 +5344,8 @@ function qbNotifySubmit(event) {
   // Evening (17-22): push beer/sekuwa up
   // Night (23-5): push beer/whiskey up
   var ORDER_MAP = {
-    morning:   ['qb-food','qb-dhido','qb-cakes','qb-beer','qb-smokes'],
-    afternoon: ['qb-food','qb-beer-combos','qb-dhido','qb-cakes','qb-beer'],
+    morning:   ['qb-food','qb-cakes','qb-beer','qb-smokes','qb-whiskey'],
+    afternoon: ['qb-food','qb-beer-combos','qb-cakes','qb-beer','qb-smokes'],
     evening:   ['qb-beer','qb-beer-combos','qb-food','qb-smokes','qb-whiskey'],
     night:     ['qb-whiskey','qb-vodka','qb-beer','qb-smokes','qb-imported']
   };
@@ -5426,7 +5386,6 @@ function qbNotifySubmit(event) {
       'qb-vodka':        'Stocked up for the night? 🍸',
       'qb-smokes':       'Back for your usual? 🚬',
       'qb-food':         'Ready for something delicious? 🍽️',
-      'qb-dhido':        'Missing that Nepali taste? 🫙',
       'qb-cakes':        'Something sweet today? 🎂',
       'qb-yeti':         'Yeti Kafe calling you back ☕',
       'qb-imported':     'Your premium picks are here 🥃'

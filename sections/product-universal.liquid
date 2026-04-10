@@ -1128,6 +1128,8 @@
 (function() {
   var qty = 1;
   var allVariants = {{ product.variants | json }};
+  var basePrice = {{ product.price }};
+  var baseCompareAtPrice = {{ product.compare_at_price }};
 
   /* ══ QTY SYNC ══ */
   function setQty(n) {
@@ -1136,6 +1138,23 @@
       var el = document.getElementById(id); if (el) el.textContent = qty;
     });
     var h = document.getElementById('qbp-qty-h'); if (h) h.value = qty;
+
+    /* Update prices based on quantity */
+    var totalPrice = Math.round((basePrice / 100) * qty);
+    ['qbp-price'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.textContent = 'Rs ' + totalPrice;
+    });
+    if (document.getElementById('qbp-s-price')) {
+      document.getElementById('qbp-s-price').textContent = 'Rs ' + totalPrice;
+    }
+
+    /* Update was price if exists */
+    if (baseCompareAtPrice && baseCompareAtPrice > basePrice) {
+      var totalWasPrice = Math.round((baseCompareAtPrice / 100) * qty);
+      var wasEl = document.getElementById('qbp-was');
+      if (wasEl) wasEl.textContent = 'Rs ' + totalWasPrice;
+    }
   }
   ['qbp-minus','qbp-s-minus'].forEach(function(id){
     var b = document.getElementById(id);
@@ -1211,14 +1230,22 @@
     if (!matched) return;
     var vidEl = document.getElementById('qbp-vid');
     if (vidEl) vidEl.value = matched.id;
-    /* update price */
+    /* update price (with quantity multiplier) */
     var priceEl = document.getElementById('qbp-price');
     var sPriceEl = document.getElementById('qbp-s-price');
-    var price = 'Rs ' + Math.round(matched.price / 100);
+    var totalPrice = Math.round((matched.price / 100) * qty);
+    var price = 'Rs ' + totalPrice;
     if (priceEl) priceEl.textContent = price;
     if (sPriceEl) sPriceEl.textContent = price;
+
     var wasEl = document.getElementById('qbp-was');
-    if (wasEl) wasEl.style.display = (matched.compare_at_price && matched.compare_at_price > matched.price) ? '' : 'none';
+    if (wasEl) {
+      wasEl.style.display = (matched.compare_at_price && matched.compare_at_price > matched.price) ? '' : 'none';
+      if (matched.compare_at_price && matched.compare_at_price > matched.price) {
+        var totalWasPrice = Math.round((matched.compare_at_price / 100) * qty);
+        wasEl.textContent = 'Rs ' + totalWasPrice;
+      }
+    }
     /* update atc */
     ['qbp-atc','qbp-s-atc'].forEach(function(id){
       var btn = document.getElementById(id); if (!btn) return;
