@@ -194,7 +194,10 @@ html[data-theme="dark"] .qb-ac-inp-wrap:focus-within {
 .qb-ac-inp-wrap:focus-within { border-color: rgba(244,180,0,.6) !important; background: var(--ac-bg2) !important; }
 .qb-ac-inp-wrap.error { border-color: var(--ac-red) !important; background: var(--ac-red-dim) !important; }
 .qb-ac-inp-icon { font-size:16px; flex-shrink:0; }
-.qb-ac-inp {
+/* Max specificity — beats Shopify theme globals */
+#qbAcProfileCard .qb-ac-inp,
+.qb-ac #qbAcProfileCard input.qb-ac-inp,
+html[data-theme="dark"] #qbAcProfileCard .qb-ac-inp {
   flex: 1;
   border: none !important;
   outline: none !important;
@@ -207,14 +210,17 @@ html[data-theme="dark"] .qb-ac-inp-wrap:focus-within {
   -webkit-text-fill-color: var(--ac-text) !important;
   font-family: inherit; min-width: 0;
   caret-color: var(--ac-gold);
+  background-color: #252525 !important;
   background: #252525 !important;
 }
-html:not([data-theme="dark"]) .qb-ac-inp {
+html:not([data-theme="dark"]) #qbAcProfileCard .qb-ac-inp,
+html:not([data-theme="dark"]) .qb-ac #qbAcProfileCard input.qb-ac-inp {
+  background-color: #f4f5f8 !important;
   background: #f4f5f8 !important;
 }
-.qb-ac-inp:focus,
-.qb-ac-inp:active,
-.qb-ac-inp:hover {
+#qbAcProfileCard .qb-ac-inp:focus,
+#qbAcProfileCard .qb-ac-inp:active,
+#qbAcProfileCard .qb-ac-inp:hover {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
@@ -1183,5 +1189,22 @@ html[data-theme="dark"] .qb-ac-inp[type="date"]::-webkit-datetime-edit-year-fiel
   loadLocation();
   loadLocalOrders();
   loadSearchHistory();
+
+  /* ── Force input backgrounds via inline style (beats all CSS specificity) ── */
+  function fixInputBg() {
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    var bg = isDark ? '#252525' : '#f4f5f8';
+    document.querySelectorAll('#qbAcProfileCard .qb-ac-inp').forEach(function(inp) {
+      inp.style.setProperty('background', bg, 'important');
+      inp.style.setProperty('background-color', bg, 'important');
+      inp.style.setProperty('border', 'none', 'important');
+      inp.style.setProperty('outline', 'none', 'important');
+      inp.style.setProperty('box-shadow', 'none', 'important');
+    });
+  }
+  fixInputBg();
+  /* Re-run if theme toggles */
+  var _themeObs = new MutationObserver(fixInputBg);
+  _themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 })();
 </script>
