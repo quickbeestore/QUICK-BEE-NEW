@@ -186,7 +186,7 @@
 /* ─── Category Tabs ──────────────────────────────────────────────────── */
 .yk-tabs-wrap {
   position: sticky;
-  top: 60px;
+  top: var(--yk-header-h, 92px);
   z-index: 400;
   background: var(--yk-bg);
   backdrop-filter: blur(16px);
@@ -1198,10 +1198,20 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
   }
 
   /* ── Boot ────────────────────────────────────────────────────── */
+  function ykSetHeaderOffset() {
+    var hdr = document.querySelector('.qb-header');
+    if (!hdr) return;
+    var h = hdr.getBoundingClientRect().height;
+    if (h > 0) document.documentElement.style.setProperty('--yk-header-h', h + 'px');
+  }
+
   function ykInit() {
+    ykSetHeaderOffset();
     ykBindCards();
     ykInitTabs();
     ykRestoreCart();
+    // Re-measure on resize (orientation change etc.)
+    window.addEventListener('resize', ykSetHeaderOffset, { passive: true });
   }
 
   if (document.readyState === 'loading') {
