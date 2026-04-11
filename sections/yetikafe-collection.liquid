@@ -186,7 +186,7 @@
 /* ─── Category Tabs ──────────────────────────────────────────────────── */
 .yk-tabs-wrap {
   position: sticky;
-  top: var(--yk-header-h, 92px);
+  top: var(--yk-header-h, 94px);
   z-index: 400;
   background: var(--yk-bg);
   backdrop-filter: blur(16px);
@@ -396,20 +396,25 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
   border-radius: 12px;
   overflow: hidden;
   flex-shrink: 0;
+  background: #f5f0e8;
   border: 1px solid var(--yk-border);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+[data-theme="dark"] .yk-img-wrap {
+  background: #2a2218;
 }
 .yk-img-wrap img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
+  padding: 4px;
 }
 .yk-img-fallback {
   width: 84px;
   height: 84px;
   border-radius: 12px;
-  background: var(--yk-section-head);
+  background: #f5f0e8;
   border: 1px solid var(--yk-border);
   display: flex;
   align-items: center;
@@ -417,6 +422,9 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
   font-size: 32px;
   flex-shrink: 0;
   transition: var(--yk-transition);
+}
+[data-theme="dark"] .yk-img-fallback {
+  background: #2a2218;
 }
 .yk-add-btn {
   width: 84px;
@@ -590,7 +598,7 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
 
   <!-- ── CATEGORY TABS ──────────────────────────────────────────── -->
   {%- if all_products.size > 0 -%}
-  <div class="yk-tabs-wrap">
+  <div class="yk-tabs-wrap" id="ykTabsWrap">
     <div class="yk-tabs" id="ykTabs">
       {%- if has_drinks -%}
       <button class="yk-tab" id="yk-tab-drinks" data-target="yk-sec-drinks">🥤 Drinks</button>
@@ -1201,16 +1209,24 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
   function ykSetHeaderOffset() {
     var hdr = document.querySelector('.qb-header');
     if (!hdr) return;
-    var h = hdr.getBoundingClientRect().height;
-    if (h > 0) document.documentElement.style.setProperty('--yk-header-h', h + 'px');
+    var h = hdr.offsetHeight;
+    if (h > 0) {
+      document.documentElement.style.setProperty('--yk-header-h', h + 'px');
+      var tabsWrap = document.getElementById('ykTabsWrap');
+      if (tabsWrap) tabsWrap.style.top = h + 'px';
+    }
   }
 
   function ykInit() {
-    ykSetHeaderOffset();
     ykBindCards();
     ykInitTabs();
     ykRestoreCart();
-    // Re-measure on resize (orientation change etc.)
+    // Measure after paint to get correct header height
+    requestAnimationFrame(function() {
+      ykSetHeaderOffset();
+      // Double-check after fonts/images load
+      setTimeout(ykSetHeaderOffset, 300);
+    });
     window.addEventListener('resize', ykSetHeaderOffset, { passive: true });
   }
 
