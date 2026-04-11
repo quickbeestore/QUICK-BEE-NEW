@@ -73,6 +73,7 @@
   padding-bottom: calc(110px + env(safe-area-inset-bottom));
   transition: var(--yk-transition);
   -webkit-tap-highlight-color: transparent;
+  isolation: isolate; /* contain all stacking contexts inside */
 }
 .yk-wrap *, .yk-wrap *::before, .yk-wrap *::after { box-sizing: border-box; }
 
@@ -185,17 +186,12 @@
 
 /* ─── Category Tabs ──────────────────────────────────────────────────── */
 .yk-tabs-wrap {
-  position: fixed;
-  top: 94px; /* JS overrides this precisely */
-  left: 0;
-  right: 0;
-  width: 100%;
+  position: sticky;
+  top: var(--yk-header-h, 94px);
   z-index: 4999;
-  background: var(--yk-bg);
   border-bottom: 1px solid var(--yk-border);
   box-shadow: 0 2px 10px rgba(0,0,0,0.08);
   transition: background 0.25s ease, border-color 0.25s ease;
-  transform: translateZ(0); /* force GPU layer, no stacking issues */
 }
 [data-theme="dark"] .yk-tabs-wrap {
   background: #110e09;
@@ -205,11 +201,7 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
   background: #faf8f5;
   box-shadow: 0 2px 10px rgba(0,0,0,0.07);
 }
-/* Spacer so content doesn't hide under the fixed tab bar */
-.yk-tabs-spacer {
-  height: 52px; /* matches tab bar height */
-  display: block;
-}
+.yk-tabs-spacer { display: none; }
 .yk-tabs {
   display: flex;
   gap: 8px;
@@ -1219,36 +1211,23 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
   /* ── Boot ────────────────────────────────────────────────────── */
   function ykSetHeaderOffset() {
     var hdr = document.querySelector('.qb-header');
-    var tabsWrap = document.getElementById('ykTabsWrap');
-    var spacer = document.getElementById('ykTabsSpacer');
-    if (!hdr || !tabsWrap) return;
-    var hdrRect = hdr.getBoundingClientRect();
-    // Use the BOTTOM edge of the header in viewport coords
-    var hdrBottom = hdrRect.bottom;
-    if (hdrBottom <= 0) hdrBottom = hdr.offsetHeight;
-    tabsWrap.style.top = hdrBottom + 'px';
-    // Make spacer match tab bar height so content doesn't jump
-    if (spacer) spacer.style.height = tabsWrap.offsetHeight + 'px';
+    if (!hdr) return;
+    var h = hdr.offsetHeight;
+    if (h > 20) {
+      document.documentElement.style.setProperty('--yk-header-h', h + 'px');
+    }
   }
 
   function ykInit() {
     ykBindCards();
     ykInitTabs();
     ykRestoreCart();
-    // Run after first paint
+    // Measure after full paint
     requestAnimationFrame(function() {
       ykSetHeaderOffset();
-      setTimeout(ykSetHeaderOffset, 200);
+      setTimeout(ykSetHeaderOffset, 400);
     });
     window.addEventListener('resize', ykSetHeaderOffset, { passive: true });
-    window.addEventListener('scroll', function() {
-      // Re-snap on scroll since header bottom can shift (announcement scrolls away)
-      var hdr = document.querySelector('.qb-header');
-      var tabsWrap = document.getElementById('ykTabsWrap');
-      if (!hdr || !tabsWrap) return;
-      var b = hdr.getBoundingClientRect().bottom;
-      if (b >= 0) tabsWrap.style.top = b + 'px';
-    }, { passive: true });
   }
 
   if (document.readyState === 'loading') {
