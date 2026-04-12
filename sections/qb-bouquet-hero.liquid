@@ -1,0 +1,738 @@
+{% comment %} QuickBee — Bouquet Homepage Hero Section {% endcomment %}
+
+{%- assign bq_col = collections[section.settings.collection_handle] -%}
+{%- assign featured = bq_col.products | default: empty -%}
+
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   QB BOUQUET HERO  ·  sections/qb-bouquet-hero.liquid
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Keyframes ─────────────────────────────────────────────── */
+@keyframes qbh-petal-fall {
+  0%   { transform: translateY(-60px) rotate(0deg)   scale(0.8); opacity: 0;   }
+  10%  { opacity: 0.8; }
+  90%  { opacity: 0.6; }
+  100% { transform: translateY(110vh)  rotate(540deg) scale(1.1); opacity: 0;   }
+}
+@keyframes qbh-drift {
+  0%, 100% { transform: translateX(0px);   }
+  33%       { transform: translateX(18px);  }
+  66%       { transform: translateX(-12px); }
+}
+@keyframes qbh-shimmer {
+  0%   { background-position: -300% center; }
+  100% { background-position:  300% center; }
+}
+@keyframes qbh-float {
+  0%, 100% { transform: translateY(0px) rotate(-2deg); }
+  50%       { transform: translateY(-12px) rotate(2deg); }
+}
+@keyframes qbh-glow-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1);   }
+  50%       { opacity: 0.9; transform: scale(1.08); }
+}
+@keyframes qbh-fade-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes qbh-card-in {
+  from { opacity: 0; transform: translateY(36px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+@keyframes qbh-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── Section Wrapper ───────────────────────────────────────── */
+.qbh-section {
+  background: #0e0208;
+  overflow: hidden;
+  position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Petal Rain Canvas ─────────────────────────────────────── */
+.qbh-petals {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.qbh-petal {
+  position: absolute;
+  top: -60px;
+  font-size: 18px;
+  opacity: 0;
+  animation: qbh-petal-fall linear infinite, qbh-drift ease-in-out infinite;
+}
+.qbh-petal:nth-child(1)  { left:  4%; font-size:14px; animation-duration: 8s,  3.2s; animation-delay: 0s,    0s;    }
+.qbh-petal:nth-child(2)  { left: 11%; font-size:20px; animation-duration: 11s, 4.1s; animation-delay: 1.2s,  0.5s;  }
+.qbh-petal:nth-child(3)  { left: 18%; font-size:12px; animation-duration: 9s,  3.8s; animation-delay: 2.4s,  1.0s;  }
+.qbh-petal:nth-child(4)  { left: 27%; font-size:22px; animation-duration: 13s, 5.0s; animation-delay: 0.6s,  1.5s;  }
+.qbh-petal:nth-child(5)  { left: 36%; font-size:16px; animation-duration: 10s, 3.5s; animation-delay: 3.0s,  0.8s;  }
+.qbh-petal:nth-child(6)  { left: 44%; font-size:11px; animation-duration: 7s,  2.9s; animation-delay: 1.8s,  2.0s;  }
+.qbh-petal:nth-child(7)  { left: 52%; font-size:19px; animation-duration: 12s, 4.3s; animation-delay: 4.5s,  0.3s;  }
+.qbh-petal:nth-child(8)  { left: 61%; font-size:15px; animation-duration: 9s,  3.6s; animation-delay: 2.1s,  1.2s;  }
+.qbh-petal:nth-child(9)  { left: 70%; font-size:21px; animation-duration: 14s, 5.2s; animation-delay: 0.3s,  2.5s;  }
+.qbh-petal:nth-child(10) { left: 78%; font-size:13px; animation-duration: 8s,  3.0s; animation-delay: 3.6s,  0.7s;  }
+.qbh-petal:nth-child(11) { left: 85%; font-size:17px; animation-duration: 11s, 4.8s; animation-delay: 1.5s,  1.8s;  }
+.qbh-petal:nth-child(12) { left: 93%; font-size:10px; animation-duration: 7s,  2.7s; animation-delay: 5.0s,  0.4s;  }
+
+/* ── Radial glows ──────────────────────────────────────────── */
+.qbh-glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+.qbh-glow-1 {
+  width: 500px; height: 500px;
+  top: -120px; left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(180,10,70,0.35) 0%, transparent 65%);
+  animation: qbh-glow-pulse 4s ease-in-out infinite;
+}
+.qbh-glow-2 {
+  width: 300px; height: 300px;
+  bottom: 0; right: -60px;
+  background: radial-gradient(ellipse, rgba(220,30,100,0.2) 0%, transparent 70%);
+  animation: qbh-glow-pulse 5.5s ease-in-out 2s infinite;
+}
+.qbh-glow-3 {
+  width: 200px; height: 200px;
+  bottom: 20%; left: -40px;
+  background: radial-gradient(ellipse, rgba(150,0,60,0.18) 0%, transparent 70%);
+  animation: qbh-glow-pulse 6s ease-in-out 1s infinite;
+}
+
+/* ── Hero Content ──────────────────────────────────────────── */
+.qbh-hero {
+  position: relative;
+  z-index: 1;
+  padding: 48px 20px 36px;
+  text-align: center;
+}
+.qbh-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: rgba(255,180,200,0.85);
+  background: rgba(192,21,79,0.15);
+  border: 1px solid rgba(192,21,79,0.3);
+  padding: 5px 16px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  animation: qbh-fade-up 0.6s ease 0.1s both;
+}
+.qbh-eyebrow-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #ff6090;
+  animation: qbh-glow-pulse 1.8s ease-in-out infinite;
+}
+.qbh-headline {
+  margin: 0 0 6px;
+  font-size: clamp(2.6rem, 11vw, 4.2rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -2.5px;
+  color: #fff;
+  text-shadow: 0 2px 30px rgba(0,0,0,0.5);
+  animation: qbh-fade-up 0.6s ease 0.2s both;
+}
+.qbh-headline-gradient {
+  background: linear-gradient(90deg, #ffb3c6 0%, #ff4d88 30%, #ff9ec0 60%, #ffb3c6 100%);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: qbh-shimmer 3.5s linear infinite;
+}
+.qbh-sub {
+  font-size: 14px;
+  color: rgba(255,200,215,0.65);
+  letter-spacing: 0.6px;
+  margin: 0 0 28px;
+  animation: qbh-fade-up 0.6s ease 0.3s both;
+}
+
+/* ── Occasion Pills ────────────────────────────────────────── */
+.qbh-occasions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 36px;
+  animation: qbh-fade-up 0.6s ease 0.4s both;
+}
+.qbh-occ-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 24px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: rgba(255,220,228,0.9);
+  background: rgba(192,21,79,0.12);
+  border: 1.5px solid rgba(192,21,79,0.25);
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  cursor: pointer;
+}
+.qbh-occ-pill:hover, .qbh-occ-pill:active {
+  background: rgba(192,21,79,0.28);
+  border-color: rgba(192,21,79,0.6);
+  transform: scale(1.04);
+  color: #fff;
+}
+
+/* ── Featured Products Grid ────────────────────────────────── */
+.qbh-products-wrap {
+  position: relative;
+  z-index: 1;
+  padding: 0 16px;
+  margin-bottom: 36px;
+}
+.qbh-products-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+@media(min-width: 480px) {
+  .qbh-products-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+}
+
+/* Product Card */
+.qbh-pcard {
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(192,21,79,0.2);
+  border-radius: 18px;
+  overflow: hidden;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  opacity: 0;
+  animation: qbh-card-in 0.5s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.qbh-pcard:nth-child(1) { animation-delay: 0.35s; }
+.qbh-pcard:nth-child(2) { animation-delay: 0.45s; }
+.qbh-pcard:nth-child(3) { animation-delay: 0.55s; }
+.qbh-pcard:nth-child(4) { animation-delay: 0.65s; }
+.qbh-pcard:active {
+  transform: scale(0.97);
+  border-color: rgba(192,21,79,0.5);
+}
+@media(hover:hover) {
+  .qbh-pcard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(192,21,79,0.25);
+    border-color: rgba(192,21,79,0.45);
+  }
+}
+
+/* Image */
+.qbh-pcard-img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(135deg, #2d0d1a, #3a1025);
+}
+.qbh-pcard-img img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+.qbh-pcard:hover .qbh-pcard-img img { transform: scale(1.07); }
+.qbh-pcard-img-fallback {
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+}
+
+/* Badge on image */
+.qbh-pcard-badge {
+  position: absolute;
+  top: 10px; left: 10px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  z-index: 1;
+}
+.qbh-pcard-badge--sale      { background: #e8185e; color: #fff; }
+.qbh-pcard-badge--bestseller{ background: rgba(0,0,0,0.65); color: #ffcc00; border: 1px solid rgba(255,204,0,0.3); }
+.qbh-pcard-badge--new       { background: #16a34a; color: #fff; }
+
+/* Fave heart */
+.qbh-pcard-heart {
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  z-index: 1;
+}
+
+/* Info */
+.qbh-pcard-info {
+  padding: 12px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+.qbh-pcard-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f0e0e8;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.qbh-pcard-desc {
+  font-size: 11px;
+  color: rgba(200,140,160,0.75);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.qbh-pcard-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  gap: 8px;
+}
+.qbh-pcard-price {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ff6090;
+}
+.qbh-pcard-old {
+  font-size: 11px;
+  color: rgba(200,140,160,0.5);
+  text-decoration: line-through;
+}
+.qbh-pcard-arrow {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: rgba(192,21,79,0.18);
+  border: 1.5px solid rgba(192,21,79,0.3);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, transform 0.2s;
+}
+.qbh-pcard:hover .qbh-pcard-arrow {
+  background: #c0154f;
+  transform: scale(1.1);
+}
+.qbh-pcard-arrow svg { width: 14px; height: 14px; stroke: #ff80a0; }
+.qbh-pcard:hover .qbh-pcard-arrow svg { stroke: #fff; }
+
+/* ── CTA Button ────────────────────────────────────────────── */
+.qbh-cta-wrap {
+  position: relative;
+  z-index: 1;
+  padding: 0 20px 48px;
+  text-align: center;
+  animation: qbh-fade-up 0.6s ease 0.7s both;
+  opacity: 0;
+}
+.qbh-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #c0154f, #e8185e);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 16px 32px;
+  border-radius: 50px;
+  text-decoration: none;
+  box-shadow: 0 8px 28px rgba(192,21,79,0.45), 0 0 0 0 rgba(192,21,79,0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.qbh-cta-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
+  border-radius: inherit;
+}
+.qbh-cta-btn:active { transform: scale(0.96); }
+@media(hover:hover) {
+  .qbh-cta-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 40px rgba(192,21,79,0.55);
+  }
+}
+.qbh-cta-icon { font-size: 18px; animation: qbh-float 2.5s ease-in-out infinite; }
+
+/* ── Marquee Ticker ────────────────────────────────────────── */
+.qbh-ticker {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border-top: 1px solid rgba(192,21,79,0.2);
+  border-bottom: 1px solid rgba(192,21,79,0.2);
+  background: rgba(192,21,79,0.08);
+  padding: 10px 0;
+  margin-bottom: 0;
+}
+.qbh-ticker-track {
+  display: flex;
+  gap: 0;
+  animation: qbh-marquee 22s linear infinite;
+  width: max-content;
+}
+.qbh-ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: rgba(255,180,200,0.8);
+  padding: 0 28px;
+  white-space: nowrap;
+}
+.qbh-ticker-item::after {
+  content: '🌹';
+  font-size: 12px;
+  margin-left: 12px;
+}
+
+/* ── Trust Row ─────────────────────────────────────────────── */
+.qbh-trust {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  padding: 24px 16px 0;
+  border-top: 1px solid rgba(192,21,79,0.12);
+  flex-wrap: wrap;
+}
+.qbh-trust-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 0 18px;
+  text-align: center;
+  border-right: 1px solid rgba(192,21,79,0.15);
+}
+.qbh-trust-item:last-child { border-right: none; }
+.qbh-trust-icon { font-size: 22px; }
+.qbh-trust-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: rgba(200,140,160,0.8);
+  text-transform: uppercase;
+}
+.qbh-trust-val {
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(255,200,215,0.95);
+}
+
+/* ── Section title bar above grid ──────────────────────────── */
+.qbh-grid-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 16px;
+  max-width: 532px;
+  margin: 0 auto;
+  animation: qbh-fade-up 0.6s ease 0.3s both;
+  opacity: 0;
+}
+.qbh-grid-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: #f0e0e8;
+  letter-spacing: -0.3px;
+}
+.qbh-grid-title span { color: #ff6090; }
+.qbh-grid-see-all {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,140,170,0.8);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  transition: color 0.2s;
+}
+.qbh-grid-see-all:hover { color: #ff6090; }
+
+/* ── Light theme overrides ─────────────────────────────────── */
+html:not([data-theme="dark"]) .qbh-section {
+  background: linear-gradient(170deg, #1a0510 0%, #3a0b28 40%, #200810 100%);
+}
+</style>
+
+<section class="qbh-section">
+
+  <!-- Petal Rain -->
+  <div class="qbh-petals" aria-hidden="true">
+    <span class="qbh-petal">🌸</span>
+    <span class="qbh-petal">🌹</span>
+    <span class="qbh-petal">🌷</span>
+    <span class="qbh-petal">🌸</span>
+    <span class="qbh-petal">💮</span>
+    <span class="qbh-petal">🌹</span>
+    <span class="qbh-petal">🌸</span>
+    <span class="qbh-petal">🌺</span>
+    <span class="qbh-petal">🌷</span>
+    <span class="qbh-petal">🌸</span>
+    <span class="qbh-petal">🌹</span>
+    <span class="qbh-petal">💮</span>
+  </div>
+
+  <!-- Glows -->
+  <div class="qbh-glow qbh-glow-1" aria-hidden="true"></div>
+  <div class="qbh-glow qbh-glow-2" aria-hidden="true"></div>
+  <div class="qbh-glow qbh-glow-3" aria-hidden="true"></div>
+
+  <!-- Ticker -->
+  <div class="qbh-ticker" aria-hidden="true">
+    <div class="qbh-ticker-track">
+      <span class="qbh-ticker-item">Same-day delivery</span>
+      <span class="qbh-ticker-item">Handcrafted bouquets</span>
+      <span class="qbh-ticker-item">Fresh-cut daily</span>
+      <span class="qbh-ticker-item">Gift wrapping included</span>
+      <span class="qbh-ticker-item">Free delivery on Rs 1500+</span>
+      <span class="qbh-ticker-item">100% fresh guarantee</span>
+      <!-- duplicate for seamless loop -->
+      <span class="qbh-ticker-item">Same-day delivery</span>
+      <span class="qbh-ticker-item">Handcrafted bouquets</span>
+      <span class="qbh-ticker-item">Fresh-cut daily</span>
+      <span class="qbh-ticker-item">Gift wrapping included</span>
+      <span class="qbh-ticker-item">Free delivery on Rs 1500+</span>
+      <span class="qbh-ticker-item">100% fresh guarantee</span>
+    </div>
+  </div>
+
+  <!-- Hero Text -->
+  <div class="qbh-hero">
+    <div class="qbh-eyebrow">
+      <span class="qbh-eyebrow-dot"></span>
+      {{ section.settings.eyebrow_text | default: 'Fresh · Handcrafted · Delivered' }}
+    </div>
+
+    <h2 class="qbh-headline">
+      <span class="qbh-headline-gradient">{{ section.settings.headline_line1 | default: 'SAY IT WITH' }}</span>
+      <br>{{ section.settings.headline_line2 | default: 'FLOWERS' }}
+    </h2>
+
+    <p class="qbh-sub">{{ section.settings.subtext | default: 'From Rs 950 · Kathmandu Valley · Same-day delivery' }}</p>
+
+    <!-- Occasion pills -->
+    <div class="qbh-occasions">
+      {%- assign occ_col_handle = section.settings.collection_handle | default: 'bouquet' -%}
+      <a class="qbh-occ-pill" href="/collections/{{ occ_col_handle }}?filter=birthday">💛 Birthday</a>
+      <a class="qbh-occ-pill" href="/collections/{{ occ_col_handle }}?filter=anniversary">❤️ Anniversary</a>
+      <a class="qbh-occ-pill" href="/collections/{{ occ_col_handle }}?filter=wedding">💍 Wedding</a>
+      <a class="qbh-occ-pill" href="/collections/{{ occ_col_handle }}?filter=valentine">🌹 Valentine's</a>
+      <a class="qbh-occ-pill" href="/collections/{{ occ_col_handle }}?filter=gift">🎁 Just a Gift</a>
+    </div>
+  </div>
+
+  <!-- Grid Header -->
+  <div class="qbh-grid-header">
+    <div class="qbh-grid-title">
+      <span>✦</span> {{ section.settings.grid_title | default: 'Bestsellers' }}
+    </div>
+    <a class="qbh-grid-see-all" href="/collections/{{ section.settings.collection_handle | default: 'bouquet' }}">
+      See all →
+    </a>
+  </div>
+
+  <!-- Featured Products Grid -->
+  <div class="qbh-products-wrap">
+    <div class="qbh-products-grid">
+      {%- if bq_col != blank and bq_col.products.size > 0 -%}
+        {%- for p in bq_col.products limit: 4 -%}
+          {%- assign cp  = p.compare_at_price | default: 0 -%}
+          {%- assign pct = 0 -%}
+          {%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+          <a class="qbh-pcard" href="{{ p.url }}">
+            <div class="qbh-pcard-img">
+              {%- if p.featured_image -%}
+                <img src="{{ p.featured_image | img_url: '400x400', crop: 'center' }}"
+                     alt="{{ p.title | escape }}"
+                     loading="lazy"
+                     width="200" height="200">
+              {%- else -%}
+                <div class="qbh-pcard-img-fallback">💐</div>
+              {%- endif -%}
+              {%- if pct >= 10 -%}
+                <span class="qbh-pcard-badge qbh-pcard-badge--sale">{{ pct }}% OFF</span>
+              {%- elsif p.tags contains 'bestseller' or p.tags contains 'Bestseller' or p.tags contains 'popular' -%}
+                <span class="qbh-pcard-badge qbh-pcard-badge--bestseller">⭐ BEST</span>
+              {%- elsif p.tags contains 'new' or p.tags contains 'New' -%}
+                <span class="qbh-pcard-badge qbh-pcard-badge--new">NEW</span>
+              {%- endif -%}
+              <span class="qbh-pcard-heart" aria-hidden="true">🤍</span>
+            </div>
+            <div class="qbh-pcard-info">
+              <div class="qbh-pcard-name">{{ p.title }}</div>
+              {%- unless p.description == blank -%}
+                <div class="qbh-pcard-desc">{{ p.description | strip_html | truncate: 45 }}</div>
+              {%- endunless -%}
+              <div class="qbh-pcard-bottom">
+                <div>
+                  <span class="qbh-pcard-price">Rs {{ p.price | divided_by: 100 }}</span>
+                  {%- if cp > p.price -%}
+                    <span class="qbh-pcard-old"> Rs {{ cp | divided_by: 100 }}</span>
+                  {%- endif -%}
+                </div>
+                <div class="qbh-pcard-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+              </div>
+            </div>
+          </a>
+        {%- endfor -%}
+      {%- else -%}
+        <!-- Placeholder cards when collection is empty / not assigned -->
+        {%- for i in (1..4) -%}
+        <div class="qbh-pcard" style="cursor:default;">
+          <div class="qbh-pcard-img"><div class="qbh-pcard-img-fallback">💐</div></div>
+          <div class="qbh-pcard-info">
+            <div class="qbh-pcard-name">Bouquet {{ i }}</div>
+            <div class="qbh-pcard-bottom">
+              <span class="qbh-pcard-price">Rs —</span>
+            </div>
+          </div>
+        </div>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="qbh-cta-wrap">
+    <a class="qbh-cta-btn" href="/collections/{{ section.settings.collection_handle | default: 'bouquet' }}">
+      <span class="qbh-cta-icon">💐</span>
+      {{ section.settings.cta_text | default: 'Shop All Bouquets' }}
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+
+  <!-- Trust Row -->
+  <div class="qbh-trust">
+    <div class="qbh-trust-item">
+      <span class="qbh-trust-icon">⚡</span>
+      <span class="qbh-trust-label">Delivery</span>
+      <span class="qbh-trust-val">Same Day</span>
+    </div>
+    <div class="qbh-trust-item">
+      <span class="qbh-trust-icon">🌹</span>
+      <span class="qbh-trust-label">Freshness</span>
+      <span class="qbh-trust-val">100% Fresh</span>
+    </div>
+    <div class="qbh-trust-item">
+      <span class="qbh-trust-icon">🎀</span>
+      <span class="qbh-trust-label">Wrapping</span>
+      <span class="qbh-trust-val">Free Gift Wrap</span>
+    </div>
+    <div class="qbh-trust-item">
+      <span class="qbh-trust-icon">📍</span>
+      <span class="qbh-trust-label">Coverage</span>
+      <span class="qbh-trust-val">KTM Valley</span>
+    </div>
+  </div>
+
+</section>
+
+{% schema %}
+{
+  "name": "QB Bouquet Hero",
+  "settings": [
+    {
+      "type": "text",
+      "id": "collection_handle",
+      "label": "Collection Handle",
+      "default": "bouquet",
+      "info": "The handle of your bouquet collection (from the URL)"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow_text",
+      "label": "Eyebrow text",
+      "default": "Fresh · Handcrafted · Delivered"
+    },
+    {
+      "type": "text",
+      "id": "headline_line1",
+      "label": "Headline line 1 (gradient)",
+      "default": "SAY IT WITH"
+    },
+    {
+      "type": "text",
+      "id": "headline_line2",
+      "label": "Headline line 2 (white)",
+      "default": "FLOWERS"
+    },
+    {
+      "type": "text",
+      "id": "subtext",
+      "label": "Subtext",
+      "default": "From Rs 950 · Kathmandu Valley · Same-day delivery"
+    },
+    {
+      "type": "text",
+      "id": "grid_title",
+      "label": "Grid section title",
+      "default": "Bestsellers"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "CTA button text",
+      "default": "Shop All Bouquets"
+    }
+  ],
+  "presets": [
+    { "name": "QB Bouquet Hero" }
+  ]
+}
+{% endschema %}
