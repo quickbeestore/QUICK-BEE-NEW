@@ -1,0 +1,1287 @@
+{% comment %} QuickBee Bouquet Collection — sections/qb-bouquet-collection.liquid {% endcomment %}
+
+{%- assign all_products = collection.products -%}
+{%- assign has_roses    = false -%}{%- assign rose_count    = 0 -%}
+{%- assign has_bouquets = false -%}{%- assign bouquet_count = 0 -%}
+{%- assign has_seasonal = false -%}{%- assign seasonal_count = 0 -%}
+{%- assign has_gifts    = false -%}{%- assign gift_count    = 0 -%}
+{%- assign has_stems    = false -%}{%- assign stem_count    = 0 -%}
+{%- assign has_others   = false -%}{%- assign other_count   = 0 -%}
+
+{%- for p in all_products -%}
+  {%- assign pt = p.type | downcase | strip -%}
+  {%- if pt contains 'rose' -%}
+    {%- assign has_roses = true -%}{%- assign rose_count = rose_count | plus: 1 -%}
+  {%- elsif pt contains 'bouquet' or pt contains 'mixed' or pt contains 'arrangement' or pt contains 'bunch' -%}
+    {%- assign has_bouquets = true -%}{%- assign bouquet_count = bouquet_count | plus: 1 -%}
+  {%- elsif pt contains 'seasonal' or pt contains 'festive' or pt contains 'occasion' or pt contains 'wedding' -%}
+    {%- assign has_seasonal = true -%}{%- assign seasonal_count = seasonal_count | plus: 1 -%}
+  {%- elsif pt contains 'gift' or pt contains 'hamper' or pt contains 'combo' or pt contains 'set' or pt contains 'basket' -%}
+    {%- assign has_gifts = true -%}{%- assign gift_count = gift_count | plus: 1 -%}
+  {%- elsif pt contains 'stem' or pt contains 'single' or pt contains 'tulip' or pt contains 'lily' or pt contains 'sunflower' or pt contains 'orchid' -%}
+    {%- assign has_stems = true -%}{%- assign stem_count = stem_count | plus: 1 -%}
+  {%- else -%}
+    {%- assign has_others = true -%}{%- assign other_count = other_count | plus: 1 -%}
+  {%- endif -%}
+{%- endfor -%}
+
+<style>
+/* ============================================================
+   QB BOUQUET COLLECTION — qb-bouquet-collection.liquid
+   Romantic · Floral · Elegant · Mobile-first
+   ============================================================ */
+
+/* ─── CSS Variables ─────────────────────────────────────────── */
+:root {
+  --bq-bg:             #fdf8f9;
+  --bq-card:           #ffffff;
+  --bq-card-hover:     #fef2f4;
+  --bq-border:         #f0e0e4;
+  --bq-text:           #1a0812;
+  --bq-text2:          #7c4a5a;
+  --bq-text3:          #c4a0aa;
+  --bq-acc:            #c0154f;
+  --bq-acc-light:      #e8185e;
+  --bq-acc-fg:         #ffffff;
+  --bq-gold:           #c9973a;
+  --bq-hero-bg:        linear-gradient(160deg, #2d0616 0%, #5a0b28 45%, #1a0310 100%);
+  --bq-section-head:   #fdf0f3;
+  --bq-pill-bg:        #f5e0e6;
+  --bq-pill-active-bg: #c0154f;
+  --bq-pill-active-fg: #ffffff;
+  --bq-shadow:         0 1px 4px rgba(192,21,79,0.06), 0 4px 14px rgba(0,0,0,0.05);
+  --bq-shadow-btn:     0 3px 12px rgba(192,21,79,0.4);
+  --bq-bestseller:     #c0154f;
+  --bq-new:            #16a34a;
+  --bq-sale:           #dc2626;
+  --bq-fresh:          #0891b2;
+  --bq-transition:     background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+[data-theme="dark"] {
+  --bq-bg:             #120409;
+  --bq-card:           #1e0810;
+  --bq-card-hover:     #280d16;
+  --bq-border:         #3a1020;
+  --bq-text:           #f9edf1;
+  --bq-text2:          #c07090;
+  --bq-text3:          #6a3045;
+  --bq-acc:            #e8185e;
+  --bq-acc-light:      #ff3575;
+  --bq-acc-fg:         #ffffff;
+  --bq-gold:           #e6b84a;
+  --bq-hero-bg:        linear-gradient(160deg, #1a0310 0%, #3a0b1e 50%, #0e0208 100%);
+  --bq-section-head:   #190710;
+  --bq-pill-bg:        #2a0f1a;
+  --bq-pill-active-bg: #e8185e;
+  --bq-pill-active-fg: #ffffff;
+  --bq-shadow:         0 1px 3px rgba(0,0,0,0.7), 0 4px 12px rgba(0,0,0,0.5);
+  --bq-shadow-btn:     0 3px 14px rgba(232,24,94,0.45);
+  --bq-transition:     background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+/* ─── Base ──────────────────────────────────────────────────── */
+.bq-wrap {
+  background: var(--bq-bg);
+  color: var(--bq-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 60vh;
+  padding-bottom: calc(110px + env(safe-area-inset-bottom));
+  transition: var(--bq-transition);
+  -webkit-tap-highlight-color: transparent;
+  isolation: isolate;
+}
+.bq-wrap *, .bq-wrap *::before, .bq-wrap *::after { box-sizing: border-box; }
+
+/* ─── Keyframes ─────────────────────────────────────────────── */
+@keyframes bq-pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(1.5); }
+}
+@keyframes bq-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes bq-bounce {
+  0%   { transform: scale(0.8); }
+  60%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+@keyframes bq-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(14px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes bq-petal-float {
+  0%   { transform: translateY(0px)   rotate(0deg)   scale(1);   opacity: 0.7; }
+  33%  { transform: translateY(-18px) rotate(25deg)  scale(1.1); opacity: 0.5; }
+  66%  { transform: translateY(-8px)  rotate(-15deg) scale(0.9); opacity: 0.65; }
+  100% { transform: translateY(0px)   rotate(0deg)   scale(1);   opacity: 0.7; }
+}
+@keyframes bq-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ─── Hero ──────────────────────────────────────────────────── */
+.bq-hero {
+  background: var(--bq-hero-bg);
+  padding: 32px 20px 28px;
+  text-align: center;
+  border-bottom: 1px solid rgba(192,21,79,0.2);
+  position: relative;
+  overflow: hidden;
+  transition: var(--bq-transition);
+}
+/* Radial glow */
+.bq-hero::before {
+  content: '';
+  position: absolute;
+  top: -40px; left: 50%; transform: translateX(-50%);
+  width: 420px; height: 260px;
+  background: radial-gradient(ellipse, rgba(200,10,80,0.28) 0%, transparent 70%);
+  pointer-events: none;
+}
+/* Decorative petal blobs */
+.bq-hero-petal {
+  position: absolute;
+  font-size: 22px;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.55;
+}
+.bq-hero-petal:nth-child(1) { top: 14px; left: 8%;  animation: bq-petal-float 4.2s ease-in-out infinite; }
+.bq-hero-petal:nth-child(2) { top: 20px; right: 9%; animation: bq-petal-float 3.6s ease-in-out 0.8s infinite; }
+.bq-hero-petal:nth-child(3) { bottom: 18px; left: 14%; animation: bq-petal-float 5.0s ease-in-out 1.2s infinite; }
+.bq-hero-petal:nth-child(4) { bottom: 12px; right: 6%; animation: bq-petal-float 4.6s ease-in-out 0.4s infinite; }
+.bq-hero-petal:nth-child(5) { top: 50%; left: 4%;  animation: bq-petal-float 3.8s ease-in-out 2.0s infinite; }
+
+.bq-hero-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  color: rgba(255,200,210,0.9);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  background: rgba(192,21,79,0.15);
+  border: 1px solid rgba(192,21,79,0.3);
+  padding: 5px 14px;
+  border-radius: 20px;
+  position: relative;
+}
+.bq-status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #ff6090;
+  display: inline-block;
+  animation: bq-pulse-dot 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.bq-hero-title {
+  margin: 0 0 6px;
+  font-size: 2.8rem;
+  font-weight: 900;
+  letter-spacing: -2px;
+  line-height: 1;
+  color: #ffffff;
+  text-shadow: 0 2px 24px rgba(0,0,0,0.5);
+  position: relative;
+}
+.bq-hero-title-accent {
+  background: linear-gradient(90deg, #ffb3c6, #ff6b9d, #ffb3c6);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: bq-shimmer 3s linear infinite;
+}
+.bq-hero-tagline {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: rgba(255,200,215,0.7);
+  letter-spacing: 0.5px;
+  position: relative;
+}
+.bq-hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 7px;
+  position: relative;
+}
+.bq-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,150,170,0.2);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,220,228,0.85);
+  background: rgba(192,21,79,0.12);
+  backdrop-filter: blur(8px);
+}
+
+/* ─── Category Tabs ─────────────────────────────────────────── */
+.bq-tabs-wrap {
+  position: relative;
+  z-index: 4999;
+  border-bottom: 1px solid var(--bq-border);
+  box-shadow: 0 2px 12px rgba(192,21,79,0.08);
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+.bq-tabs-wrap.bq-tabs-fixed {
+  position: fixed;
+  left: 0; right: 0;
+  width: 100%;
+  z-index: 4999;
+}
+[data-theme="dark"] .bq-tabs-wrap {
+  background: #120409;
+  box-shadow: 0 2px 14px rgba(0,0,0,0.6);
+}
+html:not([data-theme="dark"]) .bq-tabs-wrap {
+  background: #fdf8f9;
+  box-shadow: 0 2px 12px rgba(192,21,79,0.07);
+}
+.bq-tabs-spacer { display: none; }
+.bq-tabs-spacer.bq-tabs-spacer-active { display: block; }
+.bq-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.bq-tabs::-webkit-scrollbar { display: none; }
+.bq-tab {
+  flex-shrink: 0;
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1.5px solid transparent;
+  background: var(--bq-pill-bg);
+  color: var(--bq-text2);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+  white-space: nowrap;
+}
+.bq-tab.active {
+  background: var(--bq-acc);
+  color: var(--bq-acc-fg);
+  border-color: var(--bq-acc);
+  box-shadow: 0 2px 10px rgba(192,21,79,0.35);
+}
+@media(hover:hover){
+  .bq-tab:not(.active):hover {
+    background: var(--bq-acc);
+    color: var(--bq-acc-fg);
+    border-color: var(--bq-acc);
+  }
+}
+
+/* ─── Section Header ────────────────────────────────────────── */
+.bq-section-head {
+  background: var(--bq-section-head);
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--bq-border);
+  transition: var(--bq-transition);
+  scroll-margin-top: var(--bq-scroll-margin, 150px);
+}
+.bq-section-head-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.bq-section-emoji { font-size: 24px; line-height: 1; }
+.bq-section-title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+  color: var(--bq-text);
+  text-transform: uppercase;
+  transition: var(--bq-transition);
+}
+.bq-section-sub {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--bq-text3);
+  transition: var(--bq-transition);
+}
+/* Rose accent line on section heads */
+.bq-section-head-inner::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--bq-acc) 0%, transparent 100%);
+  opacity: 0.25;
+}
+
+/* ─── Product Cards ─────────────────────────────────────────── */
+.bq-list { max-width: 480px; margin: 0 auto; }
+.bq-card {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  background: var(--bq-card);
+  border-bottom: 1px solid var(--bq-border);
+  transition: background 0.2s ease, border-color 0.25s ease;
+  animation: bq-fade-in 0.4s ease forwards;
+  opacity: 0;
+  isolation: auto;
+  position: relative;
+  z-index: 1;
+}
+.bq-card:active { background: var(--bq-card-hover); }
+@media(hover:hover){ .bq-card:hover { background: var(--bq-card-hover); } }
+.bq-card:nth-child(1)  { animation-delay: 0.03s; }
+.bq-card:nth-child(2)  { animation-delay: 0.06s; }
+.bq-card:nth-child(3)  { animation-delay: 0.09s; }
+.bq-card:nth-child(4)  { animation-delay: 0.12s; }
+.bq-card:nth-child(5)  { animation-delay: 0.15s; }
+.bq-card:nth-child(6)  { animation-delay: 0.18s; }
+.bq-card:nth-child(7)  { animation-delay: 0.21s; }
+.bq-card:nth-child(8)  { animation-delay: 0.24s; }
+.bq-card:nth-child(9)  { animation-delay: 0.27s; }
+.bq-card:nth-child(10) { animation-delay: 0.30s; }
+
+.bq-card-left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.bq-card-top  { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+/* Badges */
+.bq-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+.bq-badge--bestseller { background: var(--bq-bestseller); color: #fff; }
+.bq-badge--new        { background: var(--bq-new);         color: #fff; }
+.bq-badge--sale       { background: var(--bq-sale);        color: #fff; }
+.bq-badge--fresh      { background: var(--bq-fresh);       color: #fff; }
+.bq-badge--premium {
+  background: linear-gradient(90deg, #b8860b, #d4af37, #b8860b);
+  background-size: 200% auto;
+  animation: bq-shimmer 2.5s linear infinite;
+  color: #fff;
+}
+
+.bq-item-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--bq-text);
+  line-height: 1.3;
+  transition: var(--bq-transition);
+}
+.bq-item-desc {
+  margin: 0;
+  font-size: 12px;
+  color: var(--bq-text2);
+  line-height: 1.45;
+  transition: var(--bq-transition);
+}
+.bq-price-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.bq-price     { font-size: 15px; font-weight: 800; color: var(--bq-acc); }
+.bq-old-price { font-size: 12px; color: var(--bq-text3); text-decoration: line-through; }
+.bq-save      { font-size: 10px; font-weight: 700; color: var(--bq-sale); }
+
+/* Right */
+.bq-card-right {
+  width: 96px; flex-shrink: 0;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 9px;
+}
+.bq-img-wrap {
+  width: 88px; height: 88px;
+  border-radius: 14px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #fce4ec, #f8bbd9);
+  border: 1.5px solid var(--bq-border);
+  box-shadow: 0 3px 10px rgba(192,21,79,0.12);
+  position: relative;
+}
+[data-theme="dark"] .bq-img-wrap {
+  background: linear-gradient(135deg, #2d0d1a, #3a1025);
+}
+.bq-img-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+.bq-card:hover .bq-img-wrap img { transform: scale(1.06); }
+.bq-img-fallback {
+  width: 88px; height: 88px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fce4ec, #f8bbd9);
+  border: 1.5px solid var(--bq-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  flex-shrink: 0;
+  transition: var(--bq-transition);
+}
+[data-theme="dark"] .bq-img-fallback {
+  background: linear-gradient(135deg, #2d0d1a, #3a1025);
+}
+
+/* ADD button */
+.bq-add-btn {
+  width: 88px;
+  padding: 8px 0;
+  border-radius: 10px;
+  border: none;
+  background: var(--bq-acc);
+  color: var(--bq-acc-fg);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  box-shadow: var(--bq-shadow-btn);
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+.bq-add-btn:active { transform: scale(0.93); }
+@media(hover:hover){ .bq-add-btn:hover { background: var(--bq-acc-light); } }
+
+/* Loading */
+@keyframes bq-spin { to { transform: rotate(360deg); } }
+@keyframes bq-btn-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.88); }
+  70%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+.bq-add-btn.loading {
+  color: transparent !important;
+  pointer-events: none;
+}
+.bq-add-btn.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 14px; height: 14px;
+  margin: -7px 0 0 -7px;
+  border: 2.5px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: bq-spin 0.55s linear infinite;
+}
+.bq-add-btn.success {
+  background: #16a34a !important;
+  pointer-events: none;
+  animation: bq-btn-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+
+/* Ripple */
+.bq-add-btn .bq-ripple {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.35);
+  transform: translate(-50%,-50%) scale(0);
+  animation: bq-ripple-out 0.5s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes bq-ripple-out {
+  to { transform: translate(-50%,-50%) scale(18); opacity: 0; }
+}
+
+/* Stepper */
+.bq-stepper {
+  display: none;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bq-acc);
+  border-radius: 9px;
+  overflow: hidden;
+}
+.bq-stepper.visible {
+  display: flex;
+  animation: bq-bounce 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.bq-stepper-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+  width: 28px; height: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  transition: background 0.15s ease;
+}
+.bq-stepper-btn:active { background: rgba(0,0,0,0.15); }
+.bq-stepper-btn.busy   { opacity: 0.4; pointer-events: none; }
+.bq-stepper-count {
+  font-size: 13px; font-weight: 800;
+  color: #fff;
+  min-width: 20px; text-align: center;
+}
+
+/* ─── Empty State ───────────────────────────────────────────── */
+.bq-empty {
+  text-align: center;
+  padding: 72px 24px;
+  color: var(--bq-text2);
+}
+.bq-empty-icon { font-size: 56px; margin-bottom: 16px; line-height: 1; }
+.bq-empty h2 { font-size: 20px; font-weight: 700; color: var(--bq-text); margin: 0 0 8px; }
+.bq-empty p  { font-size: 14px; margin: 0; }
+
+/* ─── Toast ─────────────────────────────────────────────────── */
+.bq-toast {
+  position: fixed;
+  bottom: calc(147px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  background: #16a34a;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 10px 22px;
+  border-radius: 24px;
+  z-index: 10001;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  white-space: nowrap;
+  box-shadow: 0 4px 18px rgba(22,163,74,0.4);
+}
+.bq-toast.show {
+  opacity: 1;
+  animation: bq-toast-in 0.22s ease forwards;
+}
+
+/* Cart bar — uses universal qb-sticky-cart */
+.bq-cart-bar, .bq-cart-bar.visible { display: none !important; }
+</style>
+
+<div class="bq-wrap" id="bqWrap">
+
+  <!-- ── HERO ─────────────────────────────────────────────────── -->
+  <div class="bq-hero">
+    <span class="bq-hero-petal" aria-hidden="true">🌹</span>
+    <span class="bq-hero-petal" aria-hidden="true">🌸</span>
+    <span class="bq-hero-petal" aria-hidden="true">🌷</span>
+    <span class="bq-hero-petal" aria-hidden="true">💐</span>
+    <span class="bq-hero-petal" aria-hidden="true">🌺</span>
+
+    <div class="bq-hero-status">
+      <span class="bq-status-dot"></span> SAME-DAY DELIVERY &nbsp;·&nbsp; FRESH DAILY
+    </div>
+
+    <h1 class="bq-hero-title">
+      <span class="bq-hero-title-accent">FLOWERS</span><br>
+      &amp; BOUQUETS
+    </h1>
+    <p class="bq-hero-tagline">Handcrafted with love · Delivered fresh to your door</p>
+
+    <div class="bq-hero-chips">
+      <span class="bq-chip">🌹 Fresh cut daily</span>
+      <span class="bq-chip">⚡ Same-day delivery</span>
+      <span class="bq-chip">🎀 Gift wrapping</span>
+      <span class="bq-chip">📍 Kathmandu Valley</span>
+    </div>
+  </div>
+
+  <!-- ── CATEGORY TABS ─────────────────────────────────────────── -->
+  {%- if all_products.size > 0 -%}
+  <div class="bq-tabs-wrap" id="bqTabsWrap">
+    <div class="bq-tabs" id="bqTabs">
+      {%- if has_roses -%}
+      <button class="bq-tab" id="bq-tab-roses" data-target="bq-sec-roses">🌹 Roses</button>
+      {%- endif -%}
+      {%- if has_bouquets -%}
+      <button class="bq-tab" id="bq-tab-bouquets" data-target="bq-sec-bouquets">💐 Bouquets</button>
+      {%- endif -%}
+      {%- if has_seasonal -%}
+      <button class="bq-tab" id="bq-tab-seasonal" data-target="bq-sec-seasonal">🌸 Seasonal</button>
+      {%- endif -%}
+      {%- if has_gifts -%}
+      <button class="bq-tab" id="bq-tab-gifts" data-target="bq-sec-gifts">🎁 Gift Sets</button>
+      {%- endif -%}
+      {%- if has_stems -%}
+      <button class="bq-tab" id="bq-tab-stems" data-target="bq-sec-stems">🌷 Single Stems</button>
+      {%- endif -%}
+      {%- if has_others -%}
+      <button class="bq-tab" id="bq-tab-others" data-target="bq-sec-others">🌺 More</button>
+      {%- endif -%}
+    </div>
+  </div>
+  <div class="bq-tabs-spacer" id="bqTabsSpacer"></div>
+  {%- endif -%}
+
+  <!-- ── PRODUCT SECTIONS ──────────────────────────────────────── -->
+  {%- if all_products.size == 0 -%}
+  <div class="bq-empty">
+    <div class="bq-empty-icon">💐</div>
+    <h2>Fresh blooms coming soon</h2>
+    <p>We're preparing our collection — check back shortly!</p>
+  </div>
+  {%- else -%}
+
+    <!-- ROSES -->
+    {%- if has_roses -%}
+    <div class="bq-section-head" id="bq-sec-roses">
+      <div class="bq-section-head-inner">
+        <span class="bq-section-emoji">🌹</span>
+        <div>
+          <h2 class="bq-section-title">Roses</h2>
+          <p class="bq-section-sub">{{ rose_count }} varieties available</p>
+        </div>
+      </div>
+    </div>
+    <div class="bq-list">
+      {%- for p in all_products -%}
+        {%- assign pt = p.type | downcase | strip -%}
+        {%- if pt contains 'rose' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}
+          {%- assign vid = p.variants.first.id -%}
+          {%- assign pct = 0 -%}
+          {%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+          <div class="bq-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
+            <div class="bq-card-left">
+              <div class="bq-card-top">
+                {%- if pct >= 10 -%}<span class="bq-badge bq-badge--sale">{{ pct }}% OFF</span>{%- endif -%}
+                {%- if p.tags contains 'bestseller' or p.tags contains 'Bestseller' or p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="bq-badge bq-badge--bestseller">BESTSELLER</span>{%- endif -%}
+                {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="bq-badge bq-badge--new">NEW</span>{%- endif -%}
+                {%- if p.tags contains 'premium' or p.tags contains 'Premium' -%}<span class="bq-badge bq-badge--premium">PREMIUM</span>{%- endif -%}
+                {%- if p.tags contains 'fresh' or p.tags contains 'Fresh' -%}<span class="bq-badge bq-badge--fresh">FRESH</span>{%- endif -%}
+              </div>
+              <h3 class="bq-item-name">{{ p.title }}</h3>
+              {%- unless p.description == blank -%}
+              <p class="bq-item-desc">{{ p.description | strip_html | truncate: 65 }}</p>
+              {%- endunless -%}
+              <div class="bq-price-row">
+                <span class="bq-price">Rs {{ p.price | divided_by: 100 }}</span>
+                {%- if cp > p.price -%}
+                <span class="bq-old-price">Rs {{ cp | divided_by: 100 }}</span>
+                <span class="bq-save">Save Rs {{ p.price | minus: cp | abs | divided_by: 100 }}</span>
+                {%- endif -%}
+              </div>
+            </div>
+            <div class="bq-card-right">
+              {%- if p.featured_image -%}
+              <div class="bq-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="88" height="88"></div>
+              {%- else -%}
+              <div class="bq-img-fallback">🌹</div>
+              {%- endif -%}
+              <button class="bq-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="bq-stepper" data-vid="{{ vid }}">
+                <button class="bq-stepper-btn bq-stepper-minus" data-vid="{{ vid }}">−</button>
+                <span class="bq-stepper-count" data-vid="{{ vid }}">1</span>
+                <button class="bq-stepper-btn bq-stepper-plus" data-vid="{{ vid }}">+</button>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
+
+    <!-- BOUQUETS -->
+    {%- if has_bouquets -%}
+    <div class="bq-section-head" id="bq-sec-bouquets">
+      <div class="bq-section-head-inner">
+        <span class="bq-section-emoji">💐</span>
+        <div>
+          <h2 class="bq-section-title">Bouquets</h2>
+          <p class="bq-section-sub">{{ bouquet_count }} handcrafted arrangements</p>
+        </div>
+      </div>
+    </div>
+    <div class="bq-list">
+      {%- for p in all_products -%}
+        {%- assign pt = p.type | downcase | strip -%}
+        {%- if pt contains 'bouquet' or pt contains 'mixed' or pt contains 'arrangement' or pt contains 'bunch' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}
+          {%- assign vid = p.variants.first.id -%}
+          {%- assign pct = 0 -%}
+          {%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+          <div class="bq-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
+            <div class="bq-card-left">
+              <div class="bq-card-top">
+                {%- if pct >= 10 -%}<span class="bq-badge bq-badge--sale">{{ pct }}% OFF</span>{%- endif -%}
+                {%- if p.tags contains 'bestseller' or p.tags contains 'Bestseller' or p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="bq-badge bq-badge--bestseller">BESTSELLER</span>{%- endif -%}
+                {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="bq-badge bq-badge--new">NEW</span>{%- endif -%}
+                {%- if p.tags contains 'premium' or p.tags contains 'Premium' -%}<span class="bq-badge bq-badge--premium">PREMIUM</span>{%- endif -%}
+              </div>
+              <h3 class="bq-item-name">{{ p.title }}</h3>
+              {%- unless p.description == blank -%}
+              <p class="bq-item-desc">{{ p.description | strip_html | truncate: 65 }}</p>
+              {%- endunless -%}
+              <div class="bq-price-row">
+                <span class="bq-price">Rs {{ p.price | divided_by: 100 }}</span>
+                {%- if cp > p.price -%}
+                <span class="bq-old-price">Rs {{ cp | divided_by: 100 }}</span>
+                <span class="bq-save">Save Rs {{ p.price | minus: cp | abs | divided_by: 100 }}</span>
+                {%- endif -%}
+              </div>
+            </div>
+            <div class="bq-card-right">
+              {%- if p.featured_image -%}
+              <div class="bq-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="88" height="88"></div>
+              {%- else -%}
+              <div class="bq-img-fallback">💐</div>
+              {%- endif -%}
+              <button class="bq-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="bq-stepper" data-vid="{{ vid }}">
+                <button class="bq-stepper-btn bq-stepper-minus" data-vid="{{ vid }}">−</button>
+                <span class="bq-stepper-count" data-vid="{{ vid }}">1</span>
+                <button class="bq-stepper-btn bq-stepper-plus" data-vid="{{ vid }}">+</button>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
+
+    <!-- SEASONAL -->
+    {%- if has_seasonal -%}
+    <div class="bq-section-head" id="bq-sec-seasonal">
+      <div class="bq-section-head-inner">
+        <span class="bq-section-emoji">🌸</span>
+        <div>
+          <h2 class="bq-section-title">Seasonal & Occasions</h2>
+          <p class="bq-section-sub">{{ seasonal_count }} limited collections</p>
+        </div>
+      </div>
+    </div>
+    <div class="bq-list">
+      {%- for p in all_products -%}
+        {%- assign pt = p.type | downcase | strip -%}
+        {%- if pt contains 'seasonal' or pt contains 'festive' or pt contains 'occasion' or pt contains 'wedding' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}
+          {%- assign vid = p.variants.first.id -%}
+          {%- assign pct = 0 -%}
+          {%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+          <div class="bq-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
+            <div class="bq-card-left">
+              <div class="bq-card-top">
+                {%- if pct >= 10 -%}<span class="bq-badge bq-badge--sale">{{ pct }}% OFF</span>{%- endif -%}
+                {%- if p.tags contains 'bestseller' or p.tags contains 'Bestseller' or p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="bq-badge bq-badge--bestseller">BESTSELLER</span>{%- endif -%}
+                {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="bq-badge bq-badge--new">NEW</span>{%- endif -%}
+                {%- if p.tags contains 'premium' or p.tags contains 'Premium' -%}<span class="bq-badge bq-badge--premium">PREMIUM</span>{%- endif -%}
+              </div>
+              <h3 class="bq-item-name">{{ p.title }}</h3>
+              {%- unless p.description == blank -%}
+              <p class="bq-item-desc">{{ p.description | strip_html | truncate: 65 }}</p>
+              {%- endunless -%}
+              <div class="bq-price-row">
+                <span class="bq-price">Rs {{ p.price | divided_by: 100 }}</span>
+                {%- if cp > p.price -%}
+                <span class="bq-old-price">Rs {{ cp | divided_by: 100 }}</span>
+                <span class="bq-save">Save Rs {{ p.price | minus: cp | abs | divided_by: 100 }}</span>
+                {%- endif -%}
+              </div>
+            </div>
+            <div class="bq-card-right">
+              {%- if p.featured_image -%}
+              <div class="bq-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="88" height="88"></div>
+              {%- else -%}
+              <div class="bq-img-fallback">🌸</div>
+              {%- endif -%}
+              <button class="bq-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="bq-stepper" data-vid="{{ vid }}">
+                <button class="bq-stepper-btn bq-stepper-minus" data-vid="{{ vid }}">−</button>
+                <span class="bq-stepper-count" data-vid="{{ vid }}">1</span>
+                <button class="bq-stepper-btn bq-stepper-plus" data-vid="{{ vid }}">+</button>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
+
+    <!-- GIFT SETS -->
+    {%- if has_gifts -%}
+    <div class="bq-section-head" id="bq-sec-gifts">
+      <div class="bq-section-head-inner">
+        <span class="bq-section-emoji">🎁</span>
+        <div>
+          <h2 class="bq-section-title">Gift Sets</h2>
+          <p class="bq-section-sub">{{ gift_count }} curated combos</p>
+        </div>
+      </div>
+    </div>
+    <div class="bq-list">
+      {%- for p in all_products -%}
+        {%- assign pt = p.type | downcase | strip -%}
+        {%- if pt contains 'gift' or pt contains 'hamper' or pt contains 'combo' or pt contains 'set' or pt contains 'basket' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}
+          {%- assign vid = p.variants.first.id -%}
+          {%- assign pct = 0 -%}
+          {%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+          <div class="bq-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
+            <div class="bq-card-left">
+              <div class="bq-card-top">
+                {%- if pct >= 10 -%}<span class="bq-badge bq-badge--sale">{{ pct }}% OFF</span>{%- endif -%}
+                {%- if p.tags contains 'bestseller' or p.tags contains 'Bestseller' or p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="bq-badge bq-badge--bestseller">BESTSELLER</span>{%- endif -%}
+                {%- if p.tags contains 'premium' or p.tags contains 'Premium' -%}<span class="bq-badge bq-badge--premium">PREMIUM</span>{%- endif -%}
+                {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="bq-badge bq-badge--new">NEW</span>{%- endif -%}
+              </div>
+              <h3 class="bq-item-name">{{ p.title }}</h3>
+              {%- unless p.description == blank -%}
+              <p class="bq-item-desc">{{ p.description | strip_html | truncate: 65 }}</p>
+              {%- endunless -%}
+              <div class="bq-price-row">
+                <span class="bq-price">Rs {{ p.price | divided_by: 100 }}</span>
+                {%- if cp > p.price -%}
+                <span class="bq-old-price">Rs {{ cp | divided_by: 100 }}</span>
+                <span class="bq-save">Save Rs {{ p.price | minus: cp | abs | divided_by: 100 }}</span>
+                {%- endif -%}
+              </div>
+            </div>
+            <div class="bq-card-right">
+              {%- if p.featured_image -%}
+              <div class="bq-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="88" height="88"></div>
+              {%- else -%}
+              <div class="bq-img-fallback">🎁</div>
+              {%- endif -%}
+              <button class="bq-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="bq-stepper" data-vid="{{ vid }}">
+                <button class="bq-stepper-btn bq-stepper-minus" data-vid="{{ vid }}">−</button>
+                <span class="bq-stepper-count" data-vid="{{ vid }}">1</span>
+                <button class="bq-stepper-btn bq-stepper-plus" data-vid="{{ vid }}">+</button>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
+
+    <!-- SINGLE STEMS -->
+    {%- if has_stems -%}
+    <div class="bq-section-head" id="bq-sec-stems">
+      <div class="bq-section-head-inner">
+        <span class="bq-section-emoji">🌷</span>
+        <div>
+          <h2 class="bq-section-title">Single Stems</h2>
+          <p class="bq-section-sub">{{ stem_count }} individual blooms</p>
+        </div>
+      </div>
+    </div>
+    <div class="bq-list">
+      {%- for p in all_products -%}
+        {%- assign pt = p.type | downcase | strip -%}
+        {%- if pt contains 'stem' or pt contains 'single' or pt contains 'tulip' or pt contains 'lily' or pt contains 'sunflower' or pt contains 'orchid' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}
+          {%- assign vid = p.variants.first.id -%}
+          {%- assign pct = 0 -%}
+          {%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+          <div class="bq-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
+            <div class="bq-card-left">
+              <div class="bq-card-top">
+                {%- if pct >= 10 -%}<span class="bq-badge bq-badge--sale">{{ pct }}% OFF</span>{%- endif -%}
+                {%- if p.tags contains 'bestseller' or p.tags contains 'Bestseller' or p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="bq-badge bq-badge--bestseller">BESTSELLER</span>{%- endif -%}
+                {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="bq-badge bq-badge--new">NEW</span>{%- endif -%}
+                {%- if p.tags contains 'fresh' or p.tags contains 'Fresh' -%}<span class="bq-badge bq-badge--fresh">FRESH</span>{%- endif -%}
+              </div>
+              <h3 class="bq-item-name">{{ p.title }}</h3>
+              {%- unless p.description == blank -%}
+              <p class="bq-item-desc">{{ p.description | strip_html | truncate: 65 }}</p>
+              {%- endunless -%}
+              <div class="bq-price-row">
+                <span class="bq-price">Rs {{ p.price | divided_by: 100 }}</span>
+                {%- if cp > p.price -%}
+                <span class="bq-old-price">Rs {{ cp | divided_by: 100 }}</span>
+                <span class="bq-save">Save Rs {{ p.price | minus: cp | abs | divided_by: 100 }}</span>
+                {%- endif -%}
+              </div>
+            </div>
+            <div class="bq-card-right">
+              {%- if p.featured_image -%}
+              <div class="bq-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="88" height="88"></div>
+              {%- else -%}
+              <div class="bq-img-fallback">🌷</div>
+              {%- endif -%}
+              <button class="bq-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="bq-stepper" data-vid="{{ vid }}">
+                <button class="bq-stepper-btn bq-stepper-minus" data-vid="{{ vid }}">−</button>
+                <span class="bq-stepper-count" data-vid="{{ vid }}">1</span>
+                <button class="bq-stepper-btn bq-stepper-plus" data-vid="{{ vid }}">+</button>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
+
+    <!-- OTHERS -->
+    {%- if has_others -%}
+    <div class="bq-section-head" id="bq-sec-others">
+      <div class="bq-section-head-inner">
+        <span class="bq-section-emoji">🌺</span>
+        <div>
+          <h2 class="bq-section-title">More Flowers</h2>
+          <p class="bq-section-sub">{{ other_count }} items available</p>
+        </div>
+      </div>
+    </div>
+    <div class="bq-list">
+      {%- for p in all_products -%}
+        {%- assign pt = p.type | downcase | strip -%}
+        {%- unless pt contains 'rose' or pt contains 'bouquet' or pt contains 'mixed' or pt contains 'arrangement' or pt contains 'bunch' or pt contains 'seasonal' or pt contains 'festive' or pt contains 'occasion' or pt contains 'wedding' or pt contains 'gift' or pt contains 'hamper' or pt contains 'combo' or pt contains 'set' or pt contains 'basket' or pt contains 'stem' or pt contains 'single' or pt contains 'tulip' or pt contains 'lily' or pt contains 'sunflower' or pt contains 'orchid' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}
+          {%- assign vid = p.variants.first.id -%}
+          {%- assign pct = 0 -%}
+          {%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+          <div class="bq-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
+            <div class="bq-card-left">
+              <div class="bq-card-top">
+                {%- if pct >= 10 -%}<span class="bq-badge bq-badge--sale">{{ pct }}% OFF</span>{%- endif -%}
+                {%- if p.tags contains 'bestseller' or p.tags contains 'Bestseller' or p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="bq-badge bq-badge--bestseller">BESTSELLER</span>{%- endif -%}
+                {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="bq-badge bq-badge--new">NEW</span>{%- endif -%}
+                {%- if p.tags contains 'premium' or p.tags contains 'Premium' -%}<span class="bq-badge bq-badge--premium">PREMIUM</span>{%- endif -%}
+              </div>
+              <h3 class="bq-item-name">{{ p.title }}</h3>
+              {%- unless p.description == blank -%}
+              <p class="bq-item-desc">{{ p.description | strip_html | truncate: 65 }}</p>
+              {%- endunless -%}
+              <div class="bq-price-row">
+                <span class="bq-price">Rs {{ p.price | divided_by: 100 }}</span>
+                {%- if cp > p.price -%}
+                <span class="bq-old-price">Rs {{ cp | divided_by: 100 }}</span>
+                <span class="bq-save">Save Rs {{ p.price | minus: cp | abs | divided_by: 100 }}</span>
+                {%- endif -%}
+              </div>
+            </div>
+            <div class="bq-card-right">
+              {%- if p.featured_image -%}
+              <div class="bq-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="88" height="88"></div>
+              {%- else -%}
+              <div class="bq-img-fallback">🌺</div>
+              {%- endif -%}
+              <button class="bq-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="bq-stepper" data-vid="{{ vid }}">
+                <button class="bq-stepper-btn bq-stepper-minus" data-vid="{{ vid }}">−</button>
+                <span class="bq-stepper-count" data-vid="{{ vid }}">1</span>
+                <button class="bq-stepper-btn bq-stepper-plus" data-vid="{{ vid }}">+</button>
+              </div>
+            </div>
+          </div>
+        {%- endunless -%}
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
+
+  {%- endif -%}
+</div>
+
+<!-- Toast -->
+<div class="bq-toast" id="bqToast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var bqCart = {};
+
+  /* ── Render a single variant's ADD/stepper state ─────── */
+  function bqRenderVid(vid) {
+    var qty  = bqCart[vid] || 0;
+    var btns = document.querySelectorAll('.bq-add-btn[data-vid="' + vid + '"]');
+    var stps = document.querySelectorAll('.bq-stepper[data-vid="' + vid + '"]');
+    var cnts = document.querySelectorAll('.bq-stepper-count[data-vid="' + vid + '"]');
+    btns.forEach(function (b) { b.style.display = qty > 0 ? 'none' : ''; });
+    stps.forEach(function (s) {
+      s.style.display = qty > 0 ? 'flex' : 'none';
+      if (qty > 0) s.classList.add('visible');
+      else         s.classList.remove('visible');
+    });
+    cnts.forEach(function (c) { c.textContent = qty; });
+  }
+
+  /* ── Update universal QB cart bar ───────────────────── */
+  function bqUpdateBar() {
+    var total = Object.values(bqCart).reduce(function (a, b) { return a + b; }, 0);
+    var event = new CustomEvent('qb:cart:update', { detail: { count: total } });
+    document.dispatchEvent(event);
+  }
+
+  /* ── Toast ───────────────────────────────────────────── */
+  function bqShowToast(msg) {
+    var t = document.getElementById('bqToast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._bqTimer);
+    t._bqTimer = setTimeout(function () { t.classList.remove('show'); }, 2000);
+  }
+
+  /* ── Add to cart ─────────────────────────────────────── */
+  function bqAddToCart(vid, qty, btn) {
+    if (!vid) return;
+    if (btn) {
+      btn.classList.add('loading');
+      btn.setAttribute('disabled', '');
+    }
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ id: parseInt(vid, 10), quantity: qty })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function () {
+      bqCart[vid] = (bqCart[vid] || 0) + qty;
+      if (btn) {
+        btn.classList.remove('loading');
+        btn.classList.add('success');
+        btn.textContent = '✓';
+        setTimeout(function () {
+          bqRenderVid(vid);
+          bqUpdateBar();
+          bqShowToast('Added to cart 🌹');
+        }, 320);
+      } else {
+        bqRenderVid(vid);
+        bqUpdateBar();
+        bqShowToast('Added to cart 🌹');
+      }
+    })
+    .catch(function (e) {
+      console.error('[BQCart] add error', e);
+      if (btn) {
+        btn.classList.remove('loading');
+        btn.removeAttribute('disabled');
+        btn.textContent = 'ADD';
+      }
+    });
+  }
+
+  /* ── Change quantity ─────────────────────────────────── */
+  function bqChangeQty(vid, newQty, btn) {
+    if (btn) btn.classList.add('busy');
+    fetch('/cart/change.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ id: parseInt(vid, 10), quantity: newQty })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function () {
+      if (newQty <= 0) delete bqCart[vid];
+      else             bqCart[vid] = newQty;
+      bqRenderVid(vid);
+      bqUpdateBar();
+    })
+    .catch(function (e) {
+      console.error('[BQCart] change error', e);
+      if (btn) btn.classList.remove('busy');
+    });
+  }
+
+  /* ── Restore cart on load ────────────────────────────── */
+  function bqRestoreCart() {
+    fetch('/cart.js', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      bqCart = {};
+      if (data && data.items) {
+        data.items.forEach(function (item) {
+          bqCart[String(item.variant_id)] = item.quantity;
+        });
+      }
+      Object.keys(bqCart).forEach(function (vid) { bqRenderVid(vid); });
+      bqUpdateBar();
+    })
+    .catch(function (e) { console.error('[BQCart] restore error', e); });
+  }
+
+  /* ── Category tabs: click + scroll-active ───────────── */
+  var bqHeaderH    = 0;
+  var bqTabsWrapEl = null;
+  var bqTabsSpacerEl = null;
+  var bqTabsFixed  = false;
+
+  function bqGetHeaderH() {
+    var hdr = document.querySelector('.qb-header');
+    var ann = document.querySelector('.qb-announcement');
+    var h = 0;
+    if (hdr) h += hdr.offsetHeight;
+    if (ann) h += ann.offsetHeight;
+    return h > 20 ? h : 102;
+  }
+
+  function bqUpdateTabsFixed() {
+    if (!bqTabsWrapEl) return;
+    var tabsTop = bqTabsWrapEl.getBoundingClientRect().top;
+    if (!bqTabsFixed) {
+      if (tabsTop <= bqHeaderH) {
+        bqTabsFixed = true;
+        bqTabsWrapEl.classList.add('bq-tabs-fixed');
+        bqTabsWrapEl.style.top = bqHeaderH + 'px';
+        if (bqTabsSpacerEl) {
+          bqTabsSpacerEl.style.height = bqTabsWrapEl.offsetHeight + 'px';
+          bqTabsSpacerEl.classList.add('bq-tabs-spacer-active');
+        }
+      }
+    } else {
+      if (bqTabsSpacerEl) {
+        var spacerTop = bqTabsSpacerEl.getBoundingClientRect().top;
+        if (spacerTop > bqHeaderH) {
+          bqTabsFixed = false;
+          bqTabsWrapEl.classList.remove('bq-tabs-fixed');
+          bqTabsWrapEl.style.top = '';
+          bqTabsSpacerEl.classList.remove('bq-tabs-spacer-active');
+        }
+      }
+    }
+  }
+
+  function bqInitFixed() {
+    bqTabsWrapEl   = document.getElementById('bqTabsWrap');
+    bqTabsSpacerEl = document.getElementById('bqTabsSpacer');
+    if (!bqTabsWrapEl) return;
+    bqHeaderH = bqGetHeaderH();
+    var tabsH = bqTabsWrapEl.offsetHeight;
+    document.documentElement.style.setProperty('--bq-scroll-margin', (bqHeaderH + tabsH + 8) + 'px');
+    window.addEventListener('scroll', bqUpdateTabsFixed, { passive: true });
+    window.addEventListener('resize', function () {
+      bqHeaderH = bqGetHeaderH();
+      var th = bqTabsWrapEl.offsetHeight;
+      document.documentElement.style.setProperty('--bq-scroll-margin', (bqHeaderH + th + 8) + 'px');
+      if (bqTabsFixed) bqTabsWrapEl.style.top = bqHeaderH + 'px';
+    }, { passive: true });
+  }
+
+  function bqInitTabs() {
+    var tabs = document.querySelectorAll('.bq-tab');
+    if (!tabs.length) return;
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        var targetId = tab.getAttribute('data-target');
+        var target   = document.getElementById(targetId);
+        if (!target) return;
+        var tabsH  = bqTabsWrapEl ? bqTabsWrapEl.offsetHeight : 44;
+        var offset = bqHeaderH + tabsH + 4;
+        var top    = target.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+      });
+    });
+
+    if (!('IntersectionObserver' in window)) return;
+
+    var sections = [
+      { id: 'bq-sec-roses',    tabId: 'bq-tab-roses'    },
+      { id: 'bq-sec-bouquets', tabId: 'bq-tab-bouquets' },
+      { id: 'bq-sec-seasonal', tabId: 'bq-tab-seasonal' },
+      { id: 'bq-sec-gifts',    tabId: 'bq-tab-gifts'    },
+      { id: 'bq-sec-stems',    tabId: 'bq-tab-stems'    },
+      { id: 'bq-sec-others',   tabId: 'bq-tab-others'   }
+    ];
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var sid = entry.target.id;
+        sections.forEach(function (s) {
+          var tab = document.getElementById(s.tabId);
+          if (!tab) return;
+          if (s.id === sid) {
+            tab.classList.add('active');
+            tab.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+          } else {
+            tab.classList.remove('active');
+          }
+        });
+      });
+    }, { rootMargin: '-56px 0px -60% 0px', threshold: 0 });
+
+    sections.forEach(function (s) {
+      var el = document.getElementById(s.id);
+      if (el) observer.observe(el);
+    });
+  }
+
+  /* ── Event delegation for ADD / stepper ─────────────── */
+  function bqBindCards() {
+    var wrap = document.getElementById('bqWrap');
+    if (!wrap) return;
+    wrap.addEventListener('click', function (e) {
+      var t = e.target;
+
+      if (t.classList.contains('bq-add-btn') && !t.classList.contains('loading') && !t.classList.contains('success')) {
+        // Ripple
+        var r = document.createElement('span');
+        r.className = 'bq-ripple';
+        var rect = t.getBoundingClientRect();
+        r.style.left = (e.clientX - rect.left) + 'px';
+        r.style.top  = (e.clientY - rect.top) + 'px';
+        t.appendChild(r);
+        setTimeout(function () { r.remove(); }, 600);
+        bqAddToCart(t.getAttribute('data-vid'), 1, t);
+        return;
+      }
+
+      if (t.classList.contains('bq-stepper-minus') && !t.classList.contains('busy')) {
+        var vid = t.getAttribute('data-vid');
+        bqChangeQty(vid, Math.max(0, (bqCart[vid] || 0) - 1), t);
+        return;
+      }
+
+      if (t.classList.contains('bq-stepper-plus') && !t.classList.contains('busy')) {
+        var vid = t.getAttribute('data-vid');
+        bqChangeQty(vid, (bqCart[vid] || 0) + 1, t);
+        return;
+      }
+    });
+  }
+
+  /* ── Boot ────────────────────────────────────────────── */
+  function bqInit() {
+    bqBindCards();
+    bqInitTabs();
+    bqRestoreCart();
+    requestAnimationFrame(function () {
+      setTimeout(bqInitFixed, 300);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bqInit);
+  } else {
+    bqInit();
+  }
+
+})();
+</script>
+
+{% schema %}
+{ "name": "QB Bouquet Collection", "settings": [] }
+{% endschema %}

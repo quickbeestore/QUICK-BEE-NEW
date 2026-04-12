@@ -178,12 +178,18 @@
 
 /* ─── Category Tabs ──────────────────────────────────────────────────── */
 .yk-tabs-wrap {
-  position: sticky;
-  top: var(--yk-header-h, 102px);
+  position: relative;
   z-index: 4999;
   border-bottom: 1px solid var(--yk-border);
   box-shadow: 0 2px 10px rgba(0,0,0,0.08);
   transition: background 0.25s ease, border-color 0.25s ease;
+}
+.yk-tabs-wrap.yk-tabs-fixed {
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 4999;
 }
 [data-theme="dark"] .yk-tabs-wrap {
   background: #110e09;
@@ -194,6 +200,7 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
   box-shadow: 0 2px 10px rgba(0,0,0,0.07);
 }
 .yk-tabs-spacer { display: none; }
+.yk-tabs-spacer.yk-tabs-spacer-active { display: block; }
 .yk-tabs {
   display: flex;
   gap: 8px;
@@ -237,7 +244,7 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
   padding: 14px 16px;
   border-bottom: 1px solid var(--yk-border);
   transition: var(--yk-transition);
-  scroll-margin-top: 110px;
+  scroll-margin-top: var(--yk-scroll-margin, 150px);
 }
 .yk-section-head-inner {
   display: flex;
@@ -1132,7 +1139,8 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
         var targetId = tab.getAttribute('data-target');
         var target   = document.getElementById(targetId);
         if (!target) return;
-        var offset = 56 + 48;
+        var tabsH  = ykTabsWrapEl ? ykTabsWrapEl.offsetHeight : 44;
+        var offset = ykHeaderH + tabsH + 4;
         var top    = target.getBoundingClientRect().top + window.scrollY - offset;
         window.scrollTo({ top: top, behavior: 'smooth' });
       });
@@ -1201,26 +1209,73 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
   }
 
   /* ── Boot ────────────────────────────────────────────────────── */
-  function ykSetHeaderOffset() {
+  var ykHeaderH = 0;
+  var ykTabsWrapEl = null;
+  var ykTabsSpacerEl = null;
+  var ykTabsFixed = false;
+
+  function ykGetHeaderH() {
     var hdr = document.querySelector('.qb-header');
     var ann = document.querySelector('.qb-announcement');
-    if (!hdr) return;
-    var h = hdr.offsetHeight + (ann ? ann.offsetHeight : 0);
-    if (h > 20) {
-      document.documentElement.style.setProperty('--yk-header-h', h + 'px');
+    var h = 0;
+    if (hdr) h += hdr.offsetHeight;
+    if (ann) h += ann.offsetHeight;
+    return h > 20 ? h : 102;
+  }
+
+  function ykUpdateTabsFixed() {
+    if (!ykTabsWrapEl) return;
+    var tabsTop = ykTabsWrapEl.getBoundingClientRect().top;
+    // If not fixed: check if we've scrolled past header
+    if (!ykTabsFixed) {
+      if (tabsTop <= ykHeaderH) {
+        ykTabsFixed = true;
+        ykTabsWrapEl.classList.add('yk-tabs-fixed');
+        ykTabsWrapEl.style.top = ykHeaderH + 'px';
+        if (ykTabsSpacerEl) {
+          ykTabsSpacerEl.style.height = ykTabsWrapEl.offsetHeight + 'px';
+          ykTabsSpacerEl.classList.add('yk-tabs-spacer-active');
+        }
+      }
+    } else {
+      // If fixed: check if spacer top is back above header
+      if (ykTabsSpacerEl) {
+        var spacerTop = ykTabsSpacerEl.getBoundingClientRect().top;
+        if (spacerTop > ykHeaderH) {
+          ykTabsFixed = false;
+          ykTabsWrapEl.classList.remove('yk-tabs-fixed');
+          ykTabsWrapEl.style.top = '';
+          ykTabsSpacerEl.classList.remove('yk-tabs-spacer-active');
+        }
+      }
     }
+  }
+
+  function ykInitFixed() {
+    ykTabsWrapEl = document.getElementById('ykTabsWrap');
+    ykTabsSpacerEl = document.getElementById('ykTabsSpacer');
+    if (!ykTabsWrapEl) return;
+    ykHeaderH = ykGetHeaderH();
+    var tabsH = ykTabsWrapEl.offsetHeight;
+    document.documentElement.style.setProperty('--yk-scroll-margin', (ykHeaderH + tabsH + 8) + 'px');
+    window.addEventListener('scroll', ykUpdateTabsFixed, { passive: true });
+    window.addEventListener('resize', function() {
+      ykHeaderH = ykGetHeaderH();
+      var th = ykTabsWrapEl.offsetHeight;
+      document.documentElement.style.setProperty('--yk-scroll-margin', (ykHeaderH + th + 8) + 'px');
+      if (ykTabsFixed) {
+        ykTabsWrapEl.style.top = ykHeaderH + 'px';
+      }
+    }, { passive: true });
   }
 
   function ykInit() {
     ykBindCards();
     ykInitTabs();
     ykRestoreCart();
-    // Measure after full paint
     requestAnimationFrame(function() {
-      ykSetHeaderOffset();
-      setTimeout(ykSetHeaderOffset, 400);
+      setTimeout(ykInitFixed, 300);
     });
-    window.addEventListener('resize', ykSetHeaderOffset, { passive: true });
   }
 
   if (document.readyState === 'loading') {
