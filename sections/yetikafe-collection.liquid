@@ -1159,8 +1159,10 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
         if (!target) return;
         var tabsH  = ykTabsWrapEl ? ykTabsWrapEl.offsetHeight : 44;
         var offset = ykHeaderH + tabsH + 4;
-        var top    = target.getBoundingClientRect().top + window.scrollY - offset;
-        window.scrollTo({ top: top, behavior: 'smooth' });
+        var scroller = document.getElementById('MainContent') || window;
+        var scrollTop = scroller === window ? window.scrollY : scroller.scrollTop;
+        var top = target.getBoundingClientRect().top + scrollTop - offset;
+        scroller.scrollTo({ top: top, behavior: 'smooth' });
       });
     });
 
@@ -1276,7 +1278,8 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
     ykHeaderH = ykGetHeaderH();
     var tabsH = ykTabsWrapEl.offsetHeight;
     document.documentElement.style.setProperty('--yk-scroll-margin', (ykHeaderH + tabsH + 8) + 'px');
-    window.addEventListener('scroll', ykUpdateTabsFixed, { passive: true });
+    var ykScroller = document.getElementById('MainContent') || window;
+    ykScroller.addEventListener('scroll', ykUpdateTabsFixed, { passive: true });
     window.addEventListener('resize', function() {
       ykHeaderH = ykGetHeaderH();
       var th = ykTabsWrapEl.offsetHeight;

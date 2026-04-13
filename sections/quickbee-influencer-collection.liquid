@@ -1,269 +1,284 @@
-{% comment %} QuickBee Influencer Application Form {% endcomment %}
+{% comment %} QuickBee Influencer Application — Redesigned {% endcomment %}
 
 <style>
-.qbif-page {
-  background: #0a0a0a;
-  min-height: 100vh;
-  color: #f0f0f0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  overflow-x: hidden;
+/* ── Theme Variables ─────────────────────────────── */
+:root {
+  --qi-bg:       #0a0a0f;
+  --qi-card:     #12121a;
+  --qi-card2:    #1a1a26;
+  --qi-border:   rgba(255,255,255,0.08);
+  --qi-text:     #f0f0f8;
+  --qi-muted:    #8888aa;
+  --qi-gold:     #F4B400;
+  --qi-gold2:    #f59e0b;
+  --qi-input-bg: #0e0e18;
+}
+html:not([data-theme="dark"]) {
+  --qi-bg:       #f8f8fc;
+  --qi-card:     #ffffff;
+  --qi-card2:    #f0f0f8;
+  --qi-border:   rgba(0,0,0,0.08);
+  --qi-text:     #1a1a2e;
+  --qi-muted:    #666688;
+  --qi-gold:     #d4920a;
+  --qi-gold2:    #b87800;
+  --qi-input-bg: #ffffff;
 }
 
-/* HERO */
-.qbif-hero {
-  background: linear-gradient(160deg, #0a0a0a 0%, #1a1033 50%, #0a1a1a 100%);
-  padding: 60px 20px 48px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
+/* ── Page ─────────────────────────────────────────── */
+.qi-page {
+  background: var(--qi-bg);
+  color: var(--qi-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-height: 100%;
+  transition: background 0.25s, color 0.25s;
 }
-.qbif-hero::before {
+
+/* ── Hero ─────────────────────────────────────────── */
+.qi-hero {
+  position: relative;
+  padding: 56px 20px 48px;
+  text-align: center;
+  overflow: hidden;
+  background: linear-gradient(160deg, #0a0010 0%, #1a0535 50%, #050010 100%);
+}
+html:not([data-theme="dark"]) .qi-hero {
+  background: linear-gradient(160deg, #1a0535 0%, #3d1070 50%, #1a0535 100%);
+}
+.qi-hero::before {
   content: '';
-  position: absolute;
-  top: -60px; left: 50%; transform: translateX(-50%);
-  width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(251,191,36,0.08) 0%, transparent 70%);
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(244,180,0,0.12) 0%, transparent 70%);
   pointer-events: none;
 }
-.qbif-hero-badge {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.3);
-  color: #fbbf24; padding: 8px 18px; border-radius: 24px;
-  font-size: 13px; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 20px;
+.qi-hero-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(244,180,0,0.15); border: 1px solid rgba(244,180,0,0.35);
+  color: var(--qi-gold); padding: 6px 16px; border-radius: 99px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.8px;
+  text-transform: uppercase; margin-bottom: 22px;
 }
-.qbif-hero-title {
-  font-size: clamp(28px, 7vw, 52px); font-weight: 900; line-height: 1.1;
-  background: linear-gradient(135deg, #fff 0%, #fbbf24 50%, #f59e0b 100%);
+.qi-hero-title {
+  font-size: clamp(32px, 8vw, 58px); font-weight: 900; line-height: 1.08;
+  color: #fff; margin: 0 0 16px;
+}
+.qi-hero-title span {
+  background: linear-gradient(90deg, #F4B400, #fff176, #F4B400);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  margin: 0 0 14px;
 }
-.qbif-hero-sub {
-  font-size: 16px; color: #888; max-width: 560px; margin: 0 auto 32px; line-height: 1.7;
+.qi-hero-sub {
+  font-size: 15px; color: rgba(255,255,255,0.6);
+  max-width: 500px; margin: 0 auto 36px; line-height: 1.75;
 }
-.qbif-stats {
-  display: flex; gap: 24px; justify-content: center; flex-wrap: wrap;
+.qi-stats {
+  display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;
 }
-.qbif-stat {
-  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px; padding: 14px 24px; text-align: center;
+.qi-stat {
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px); border-radius: 16px;
+  padding: 16px 28px; min-width: 100px;
 }
-.qbif-stat-val { font-size: 22px; font-weight: 800; color: #fbbf24; }
-.qbif-stat-lbl { font-size: 11px; color: #666; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+.qi-stat-val { font-size: 26px; font-weight: 900; color: var(--qi-gold); line-height: 1; }
+.qi-stat-lbl { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
 
-/* FORM CONTAINER */
-.qbif-container {
-  max-width: 720px; margin: 0 auto; padding: 40px 20px 80px;
+/* ── Perks Strip ──────────────────────────────────── */
+.qi-perks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  max-width: 680px; margin: 0 auto;
+  padding: 32px 20px 0;
 }
-.qbif-card {
-  background: #111; border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 20px; padding: 32px 28px; margin-bottom: 20px;
+@media(max-width: 520px){ .qi-perks { grid-template-columns: repeat(2, 1fr); } }
+.qi-perk {
+  background: var(--qi-card); border: 1px solid var(--qi-border);
+  border-radius: 16px; padding: 20px 14px; text-align: center;
+  transition: border-color 0.2s;
 }
-@media(max-width: 600px){ .qbif-card { padding: 24px 20px; } }
-.qbif-section-title {
-  font-size: 16px; font-weight: 800; color: #fbbf24; margin: 0 0 24px;
+.qi-perk:hover { border-color: rgba(244,180,0,0.3); }
+.qi-perk-ico { font-size: 26px; margin-bottom: 8px; }
+.qi-perk-name { font-size: 13px; font-weight: 700; color: var(--qi-gold); margin-bottom: 4px; }
+.qi-perk-desc { font-size: 11px; color: var(--qi-muted); line-height: 1.5; }
+
+/* ── Form wrapper ─────────────────────────────────── */
+.qi-form-wrap {
+  max-width: 680px; margin: 0 auto; padding: 28px 20px 80px;
+}
+
+/* ── Section card ─────────────────────────────────── */
+.qi-card {
+  background: var(--qi-card); border: 1px solid var(--qi-border);
+  border-radius: 20px; padding: 28px 24px; margin-bottom: 16px;
+  transition: background 0.25s, border-color 0.25s;
+}
+@media(max-width:520px){ .qi-card { padding: 20px 16px; } }
+.qi-card-title {
+  font-size: 14px; font-weight: 800; color: var(--qi-gold);
   display: flex; align-items: center; gap: 8px;
+  margin: 0 0 20px; text-transform: uppercase; letter-spacing: 0.5px;
 }
-.qbif-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-@media(max-width: 520px){ .qbif-row { grid-template-columns: 1fr; } }
-.qbif-field { margin-bottom: 18px; }
-.qbif-label {
-  display: block; font-size: 12px; font-weight: 600; color: #aaa;
-  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+
+/* ── Fields ───────────────────────────────────────── */
+.qi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media(max-width:500px){ .qi-row { grid-template-columns: 1fr; } }
+.qi-field { margin-bottom: 14px; }
+.qi-field:last-child { margin-bottom: 0; }
+.qi-label {
+  display: block; font-size: 11px; font-weight: 700; color: var(--qi-muted);
+  text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px;
 }
-.qbif-label span { color: #ef4444; }
-.qbif-input, .qbif-select, .qbif-textarea {
-  width: 100%; padding: 13px 16px; background: #1a1a1a; border: 1.5px solid rgba(255,255,255,0.1);
-  border-radius: 12px; color: #f0f0f0; font-size: 14px; font-family: inherit;
+.qi-req { color: #ef4444; }
+.qi-input, .qi-select, .qi-textarea {
+  width: 100%; padding: 12px 14px;
+  background: var(--qi-input-bg); border: 1.5px solid var(--qi-border);
+  border-radius: 12px; color: var(--qi-text); font-size: 14px; font-family: inherit;
   transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box; outline: none;
 }
-.qbif-input:focus, .qbif-select:focus, .qbif-textarea:focus {
-  border-color: #fbbf24; box-shadow: 0 0 0 3px rgba(251,191,36,0.12);
+.qi-input:focus, .qi-select:focus, .qi-textarea:focus {
+  border-color: var(--qi-gold); box-shadow: 0 0 0 3px rgba(244,180,0,0.12);
 }
-.qbif-select { appearance: none; cursor: pointer; }
-.qbif-textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+.qi-input::placeholder, .qi-textarea::placeholder { color: var(--qi-muted); opacity: 0.6; }
+.qi-select { appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+.qi-textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
 
-/* PLATFORM CHECKBOXES */
-.qbif-platforms { display: flex; flex-wrap: wrap; gap: 10px; }
-.qbif-platform-cb { position: absolute; opacity: 0; pointer-events: none; }
-.qbif-platform-lbl {
-  display: flex; align-items: center; gap: 7px;
-  background: #1a1a1a; border: 1.5px solid rgba(255,255,255,0.1);
-  border-radius: 24px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
-  transition: all 0.2s; user-select: none;
+/* ── Chip options (platforms + ranges) ───────────────── */
+.qi-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.qi-chip-input { position: absolute; opacity: 0; pointer-events: none; }
+.qi-chip-lbl {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--qi-card2); border: 1.5px solid var(--qi-border);
+  border-radius: 99px; padding: 8px 16px; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.18s; user-select: none; color: var(--qi-text);
 }
-.qbif-platform-lbl:hover { border-color: rgba(251,191,36,0.4); }
-.qbif-platform-cb:checked + .qbif-platform-lbl {
-  background: rgba(251,191,36,0.12); border-color: #fbbf24; color: #fbbf24;
+.qi-chip-lbl:hover { border-color: rgba(244,180,0,0.5); color: var(--qi-gold); }
+.qi-chip-input:checked + .qi-chip-lbl {
+  background: rgba(244,180,0,0.12); border-color: var(--qi-gold); color: var(--qi-gold);
 }
-
-/* HANDLES TABLE */
-.qbif-handles { display: none; margin-top: 20px; }
-.qbif-handles.qbif-show { display: block; }
-.qbif-handle-row {
-  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+.qi-range-lbl {
+  background: var(--qi-card2); border: 1.5px solid var(--qi-border);
+  border-radius: 10px; padding: 9px 14px; font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: all 0.18s; user-select: none; color: var(--qi-text);
 }
-.qbif-handle-icon { font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
-.qbif-handle-prefix { font-size: 13px; color: #666; }
-
-/* FOLLOWER RANGE BUTTONS */
-.qbif-ranges { display: flex; flex-wrap: wrap; gap: 10px; }
-.qbif-range-radio { position: absolute; opacity: 0; pointer-events: none; }
-.qbif-range-lbl {
-  background: #1a1a1a; border: 1.5px solid rgba(255,255,255,0.1);
-  border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 600;
-  cursor: pointer; transition: all 0.2s;
-}
-.qbif-range-lbl:hover { border-color: rgba(251,191,36,0.4); }
-.qbif-range-radio:checked + .qbif-range-lbl {
-  background: rgba(251,191,36,0.12); border-color: #fbbf24; color: #fbbf24;
+.qi-range-lbl:hover { border-color: rgba(244,180,0,0.5); color: var(--qi-gold); }
+.qi-chip-input:checked + .qi-range-lbl {
+  background: rgba(244,180,0,0.12); border-color: var(--qi-gold); color: var(--qi-gold);
 }
 
-/* SUBMIT BTN */
-.qbif-submit-wrap { text-align: center; margin-top: 10px; }
-.qbif-submit {
+/* ── Handles ──────────────────────────────────────── */
+.qi-handles { display: none; margin-top: 18px; }
+.qi-handles.qi-show { display: block; }
+.qi-handle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.qi-handle-ico { font-size: 18px; width: 26px; text-align: center; flex-shrink: 0; }
+.qi-handle-prefix { font-size: 13px; color: var(--qi-muted); white-space: nowrap; }
+
+/* ── Submit ───────────────────────────────────────── */
+.qi-submit-area { text-align: center; padding-top: 8px; }
+.qi-submit {
   display: inline-flex; align-items: center; gap: 10px;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  color: #000; border: none; padding: 18px 48px;
-  border-radius: 50px; font-size: 16px; font-weight: 800;
+  background: linear-gradient(135deg, #F4B400, #f59e0b);
+  color: #000; border: none; padding: 16px 48px;
+  border-radius: 50px; font-size: 15px; font-weight: 800;
   cursor: pointer; transition: transform 0.15s, box-shadow 0.2s;
-  box-shadow: 0 8px 32px rgba(251,191,36,0.3); letter-spacing: 0.3px;
+  box-shadow: 0 6px 28px rgba(244,180,0,0.35); letter-spacing: 0.3px;
 }
-.qbif-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(251,191,36,0.45); }
-.qbif-submit:active { transform: scale(0.97); }
-.qbif-submit:disabled { background: #333; color: #666; cursor: default; transform: none; box-shadow: none; }
-.qbif-disclaimer {
-  font-size: 12px; color: #555; margin-top: 14px; line-height: 1.6;
-  max-width: 440px; margin-left: auto; margin-right: auto;
-}
-
-/* PERKS */
-.qbif-perks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 32px; }
-@media(max-width: 520px){ .qbif-perks { grid-template-columns: 1fr 1fr; } }
-.qbif-perk {
-  background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.15);
-  border-radius: 14px; padding: 18px 14px; text-align: center;
-}
-.qbif-perk-icon { font-size: 28px; margin-bottom: 8px; }
-.qbif-perk-title { font-size: 13px; font-weight: 700; color: #fbbf24; margin-bottom: 4px; }
-.qbif-perk-desc { font-size: 11px; color: #666; line-height: 1.5; }
+.qi-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(244,180,0,0.5); }
+.qi-submit:active { transform: scale(0.97); }
+.qi-submit:disabled { background: #333; color: #666; cursor: default; transform: none; box-shadow: none; }
+.qi-note { font-size: 11px; color: var(--qi-muted); margin-top: 14px; line-height: 1.6; max-width: 400px; margin-left: auto; margin-right: auto; }
 </style>
 
-<div class="qbif-page">
+<div class="qi-page">
 
   <!-- HERO -->
-  <div class="qbif-hero">
-    <div class="qbif-hero-badge">⭐ Creator Program</div>
-    <h1 class="qbif-hero-title">Become a QuickBee<br>Influencer</h1>
-    <p class="qbif-hero-sub">Partner with Nepal's fastest-growing delivery platform. Share exclusive deals, earn commissions, and grow your audience with QuickBee.</p>
-    <div class="qbif-stats">
-      <div class="qbif-stat"><div class="qbif-stat-val">500+</div><div class="qbif-stat-lbl">Creators</div></div>
-      <div class="qbif-stat"><div class="qbif-stat-val">2M+</div><div class="qbif-stat-lbl">Combined Reach</div></div>
-      <div class="qbif-stat"><div class="qbif-stat-val">20%</div><div class="qbif-stat-lbl">Commission</div></div>
+  <div class="qi-hero">
+    <div class="qi-hero-tag">⭐ Creator Program</div>
+    <h1 class="qi-hero-title">Become a<br><span>QuickBee Creator</span></h1>
+    <p class="qi-hero-sub">Join Nepal's fastest-growing delivery platform. Share deals, earn commissions, and grow with QuickBee.</p>
+    <div class="qi-stats">
+      <div class="qi-stat"><div class="qi-stat-val">500+</div><div class="qi-stat-lbl">Creators</div></div>
+      <div class="qi-stat"><div class="qi-stat-val">2M+</div><div class="qi-stat-lbl">Combined Reach</div></div>
+      <div class="qi-stat"><div class="qi-stat-val">20%</div><div class="qi-stat-lbl">Commission</div></div>
     </div>
   </div>
 
-  <div class="qbif-container">
+  <!-- PERKS -->
+  <div class="qi-perks">
+    <div class="qi-perk"><div class="qi-perk-ico">💰</div><div class="qi-perk-name">Earn Cash</div><div class="qi-perk-desc">Commission on every order through your code</div></div>
+    <div class="qi-perk"><div class="qi-perk-ico">🎁</div><div class="qi-perk-name">Free Products</div><div class="qi-perk-desc">Monthly gifting from partner brands</div></div>
+    <div class="qi-perk"><div class="qi-perk-ico">📊</div><div class="qi-perk-name">Analytics</div><div class="qi-perk-desc">Real-time dashboard & insights</div></div>
+    <div class="qi-perk"><div class="qi-perk-ico">🚀</div><div class="qi-perk-name">Early Access</div><div class="qi-perk-desc">First to know about launches & deals</div></div>
+    <div class="qi-perk"><div class="qi-perk-ico">🤝</div><div class="qi-perk-name">Collabs</div><div class="qi-perk-desc">Brand partnerships & paid campaigns</div></div>
+    <div class="qi-perk"><div class="qi-perk-ico">🏆</div><div class="qi-perk-name">Recognition</div><div class="qi-perk-desc">Featured on QuickBee's channels</div></div>
+  </div>
 
-    <!-- PERKS -->
-    <div class="qbif-perks">
-      <div class="qbif-perk">
-        <div class="qbif-perk-icon">💰</div>
-        <div class="qbif-perk-title">Earn Cash</div>
-        <div class="qbif-perk-desc">Commission on every order through your code</div>
-      </div>
-      <div class="qbif-perk">
-        <div class="qbif-perk-icon">🎁</div>
-        <div class="qbif-perk-title">Free Products</div>
-        <div class="qbif-perk-desc">Monthly gifting from our partner brands</div>
-      </div>
-      <div class="qbif-perk">
-        <div class="qbif-perk-icon">📊</div>
-        <div class="qbif-perk-title">Analytics</div>
-        <div class="qbif-perk-desc">Real-time dashboard and performance insights</div>
-      </div>
-      <div class="qbif-perk">
-        <div class="qbif-perk-icon">🚀</div>
-        <div class="qbif-perk-title">Early Access</div>
-        <div class="qbif-perk-desc">First to know about launches and deals</div>
-      </div>
-      <div class="qbif-perk">
-        <div class="qbif-perk-icon">🤝</div>
-        <div class="qbif-perk-title">Collabs</div>
-        <div class="qbif-perk-desc">Brand partnerships and paid campaigns</div>
-      </div>
-      <div class="qbif-perk">
-        <div class="qbif-perk-icon">🏆</div>
-        <div class="qbif-perk-title">Recognition</div>
-        <div class="qbif-perk-desc">Featured on QuickBee's official channels</div>
-      </div>
-    </div>
+  <!-- FORM -->
+  <div class="qi-form-wrap">
+    <form id="qiForm" onsubmit="qiSubmit(event)">
 
-    <form id="qbifForm" onsubmit="qbifSubmit(event)">
-
-      <!-- PERSONAL INFO -->
-      <div class="qbif-card">
-        <div class="qbif-section-title">👤 Personal Information</div>
-        <div class="qbif-row">
-          <div class="qbif-field">
-            <label class="qbif-label">Full Name <span>*</span></label>
-            <input type="text" class="qbif-input" id="qbif-name" placeholder="Your full name" required>
+      <!-- PERSONAL -->
+      <div class="qi-card">
+        <div class="qi-card-title">👤 Personal Info</div>
+        <div class="qi-row">
+          <div class="qi-field">
+            <label class="qi-label">Full Name <span class="qi-req">*</span></label>
+            <input type="text" class="qi-input" id="qi-name" placeholder="Your full name" required>
           </div>
-          <div class="qbif-field">
-            <label class="qbif-label">Phone / WhatsApp <span>*</span></label>
-            <input type="tel" class="qbif-input" id="qbif-phone" placeholder="98XXXXXXXX" required>
+          <div class="qi-field">
+            <label class="qi-label">Phone / WhatsApp <span class="qi-req">*</span></label>
+            <input type="tel" class="qi-input" id="qi-phone" placeholder="98XXXXXXXX" required>
           </div>
         </div>
-        <div class="qbif-row">
-          <div class="qbif-field">
-            <label class="qbif-label">Email Address <span>*</span></label>
-            <input type="email" class="qbif-input" id="qbif-email" placeholder="you@email.com" required>
+        <div class="qi-row">
+          <div class="qi-field">
+            <label class="qi-label">Email <span class="qi-req">*</span></label>
+            <input type="email" class="qi-input" id="qi-email" placeholder="you@email.com" required>
           </div>
-          <div class="qbif-field">
-            <label class="qbif-label">City / Location <span>*</span></label>
-            <input type="text" class="qbif-input" id="qbif-city" placeholder="Kathmandu, Pokhara..." required>
+          <div class="qi-field">
+            <label class="qi-label">City <span class="qi-req">*</span></label>
+            <input type="text" class="qi-input" id="qi-city" placeholder="Kathmandu, Pokhara..." required>
           </div>
         </div>
       </div>
 
-      <!-- SOCIAL PLATFORMS -->
-      <div class="qbif-card">
-        <div class="qbif-section-title">📲 Social Media Platforms</div>
-        <div class="qbif-field">
-          <label class="qbif-label">Active On <span>*</span></label>
-          <div class="qbif-platforms">
-            <label><input type="checkbox" class="qbif-platform-cb" name="platform" value="Instagram" id="pl-ig" onchange="qbifToggleHandles()"><span class="qbif-platform-lbl">📸 Instagram</span></label>
-            <label><input type="checkbox" class="qbif-platform-cb" name="platform" value="TikTok" id="pl-tt" onchange="qbifToggleHandles()"><span class="qbif-platform-lbl">🎵 TikTok</span></label>
-            <label><input type="checkbox" class="qbif-platform-cb" name="platform" value="YouTube" id="pl-yt" onchange="qbifToggleHandles()"><span class="qbif-platform-lbl">▶️ YouTube</span></label>
-            <label><input type="checkbox" class="qbif-platform-cb" name="platform" value="Facebook" id="pl-fb" onchange="qbifToggleHandles()"><span class="qbif-platform-lbl">👥 Facebook</span></label>
-            <label><input type="checkbox" class="qbif-platform-cb" name="platform" value="Twitter" id="pl-tw" onchange="qbifToggleHandles()"><span class="qbif-platform-lbl">𝕏 Twitter</span></label>
-            <label><input type="checkbox" class="qbif-platform-cb" name="platform" value="Snapchat" id="pl-sc" onchange="qbifToggleHandles()"><span class="qbif-platform-lbl">👻 Snapchat</span></label>
+      <!-- PLATFORMS -->
+      <div class="qi-card">
+        <div class="qi-card-title">📲 Social Platforms</div>
+        <div class="qi-field">
+          <label class="qi-label">Active On <span class="qi-req">*</span></label>
+          <div class="qi-chips">
+            <label><input type="checkbox" class="qi-chip-input" name="platform" value="Instagram" id="pl-ig" onchange="qiToggleHandles()"><span class="qi-chip-lbl">📸 Instagram</span></label>
+            <label><input type="checkbox" class="qi-chip-input" name="platform" value="TikTok" id="pl-tt" onchange="qiToggleHandles()"><span class="qi-chip-lbl">🎵 TikTok</span></label>
+            <label><input type="checkbox" class="qi-chip-input" name="platform" value="YouTube" id="pl-yt" onchange="qiToggleHandles()"><span class="qi-chip-lbl">▶️ YouTube</span></label>
+            <label><input type="checkbox" class="qi-chip-input" name="platform" value="Facebook" id="pl-fb" onchange="qiToggleHandles()"><span class="qi-chip-lbl">👥 Facebook</span></label>
+            <label><input type="checkbox" class="qi-chip-input" name="platform" value="Twitter" id="pl-tw" onchange="qiToggleHandles()"><span class="qi-chip-lbl">𝕏 Twitter</span></label>
+            <label><input type="checkbox" class="qi-chip-input" name="platform" value="Snapchat" id="pl-sc" onchange="qiToggleHandles()"><span class="qi-chip-lbl">👻 Snapchat</span></label>
           </div>
         </div>
-        <div class="qbif-handles" id="qbifHandles">
-          <label class="qbif-label" style="margin-bottom:14px">Your Handles</label>
-          <div id="qbif-handle-rows"></div>
+        <div class="qi-handles" id="qiHandles">
+          <label class="qi-label" style="margin-bottom:12px">Your Handles</label>
+          <div id="qi-handle-rows"></div>
         </div>
       </div>
 
-      <!-- REACH & NICHE -->
-      <div class="qbif-card">
-        <div class="qbif-section-title">📈 Your Reach</div>
-        <div class="qbif-field">
-          <label class="qbif-label">Total Followers (across all platforms) <span>*</span></label>
-          <div class="qbif-ranges">
-            <label><input type="radio" class="qbif-range-radio" name="followers" value="Under 1K" required><span class="qbif-range-lbl">Under 1K</span></label>
-            <label><input type="radio" class="qbif-range-radio" name="followers" value="1K – 5K"><span class="qbif-range-lbl">1K – 5K</span></label>
-            <label><input type="radio" class="qbif-range-radio" name="followers" value="5K – 20K"><span class="qbif-range-lbl">5K – 20K</span></label>
-            <label><input type="radio" class="qbif-range-radio" name="followers" value="20K – 100K"><span class="qbif-range-lbl">20K – 100K</span></label>
-            <label><input type="radio" class="qbif-range-radio" name="followers" value="100K – 500K"><span class="qbif-range-lbl">100K – 500K</span></label>
-            <label><input type="radio" class="qbif-range-radio" name="followers" value="500K+"><span class="qbif-range-lbl">500K+</span></label>
+      <!-- REACH -->
+      <div class="qi-card">
+        <div class="qi-card-title">📈 Your Reach</div>
+        <div class="qi-field">
+          <label class="qi-label">Total Followers <span class="qi-req">*</span></label>
+          <div class="qi-chips">
+            <label><input type="radio" class="qi-chip-input" name="followers" value="Under 1K" required><span class="qi-range-lbl">Under 1K</span></label>
+            <label><input type="radio" class="qi-chip-input" name="followers" value="1K – 5K"><span class="qi-range-lbl">1K – 5K</span></label>
+            <label><input type="radio" class="qi-chip-input" name="followers" value="5K – 20K"><span class="qi-range-lbl">5K – 20K</span></label>
+            <label><input type="radio" class="qi-chip-input" name="followers" value="20K – 100K"><span class="qi-range-lbl">20K – 100K</span></label>
+            <label><input type="radio" class="qi-chip-input" name="followers" value="100K – 500K"><span class="qi-range-lbl">100K – 500K</span></label>
+            <label><input type="radio" class="qi-chip-input" name="followers" value="500K+"><span class="qi-range-lbl">500K+</span></label>
           </div>
         </div>
-        <div class="qbif-row" style="margin-top:16px">
-          <div class="qbif-field">
-            <label class="qbif-label">Content Niche <span>*</span></label>
-            <select class="qbif-select" id="qbif-niche" required>
-              <option value="" disabled selected>Select your niche</option>
+        <div class="qi-row" style="margin-top:14px">
+          <div class="qi-field">
+            <label class="qi-label">Content Niche <span class="qi-req">*</span></label>
+            <select class="qi-select" id="qi-niche" required>
+              <option value="" disabled selected>Select niche</option>
               <option>Food & Lifestyle</option>
               <option>Travel & Adventure</option>
               <option>Fashion & Beauty</option>
@@ -275,27 +290,27 @@
               <option>Other</option>
             </select>
           </div>
-          <div class="qbif-field">
-            <label class="qbif-label">Expected Rate (NPR/post)</label>
-            <input type="text" class="qbif-input" id="qbif-rate" placeholder="e.g. 5,000 or Negotiable">
+          <div class="qi-field">
+            <label class="qi-label">Rate (NPR/post)</label>
+            <input type="text" class="qi-input" id="qi-rate" placeholder="e.g. 5,000 or Negotiable">
           </div>
         </div>
       </div>
 
-      <!-- ABOUT YOU -->
-      <div class="qbif-card">
-        <div class="qbif-section-title">✍️ About You</div>
-        <div class="qbif-field">
-          <label class="qbif-label">Short Bio <span>*</span></label>
-          <textarea class="qbif-textarea" id="qbif-bio" placeholder="Tell us about yourself, your content style, and your audience..." required></textarea>
+      <!-- ABOUT -->
+      <div class="qi-card">
+        <div class="qi-card-title">✍️ About You</div>
+        <div class="qi-field">
+          <label class="qi-label">Short Bio <span class="qi-req">*</span></label>
+          <textarea class="qi-textarea" id="qi-bio" placeholder="Tell us about yourself, your content style, and your audience..." required></textarea>
         </div>
-        <div class="qbif-field">
-          <label class="qbif-label">Why QuickBee? <span>*</span></label>
-          <textarea class="qbif-textarea" id="qbif-why" placeholder="Why do you want to partner with QuickBee? What value can you bring?" required style="min-height:80px"></textarea>
+        <div class="qi-field">
+          <label class="qi-label">Why QuickBee? <span class="qi-req">*</span></label>
+          <textarea class="qi-textarea" id="qi-why" placeholder="Why partner with QuickBee? What value can you bring?" required style="min-height:76px"></textarea>
         </div>
-        <div class="qbif-field">
-          <label class="qbif-label">Preferred Collaboration Type</label>
-          <select class="qbif-select" id="qbif-collab">
+        <div class="qi-field">
+          <label class="qi-label">Preferred Collab Type</label>
+          <select class="qi-select" id="qi-collab">
             <option value="" disabled selected>Select type</option>
             <option>Paid Promotions</option>
             <option>Product Reviews</option>
@@ -307,11 +322,9 @@
       </div>
 
       <!-- SUBMIT -->
-      <div class="qbif-submit-wrap">
-        <button type="submit" class="qbif-submit" id="qbifSubmitBtn">
-          🚀 Submit Application
-        </button>
-        <p class="qbif-disclaimer">By submitting, you agree that QuickBee may contact you at the details provided. Applications are reviewed within 3–5 business days.</p>
+      <div class="qi-submit-area">
+        <button type="submit" class="qi-submit" id="qiSubmitBtn">🚀 Submit Application</button>
+        <p class="qi-note">By submitting, you agree that QuickBee may contact you at the details provided. Applications are reviewed within 3–5 business days.</p>
       </div>
 
     </form>
@@ -329,100 +342,78 @@
     'Snapchat':  { icon: '👻', prefix: '@' }
   };
 
-  window.qbifToggleHandles = function(){
+  window.qiToggleHandles = function(){
     var checked = [];
-    document.querySelectorAll('.qbif-platform-cb:checked').forEach(function(cb){ checked.push(cb.value); });
-    var container = document.getElementById('qbif-handle-rows');
-    var handlesWrap = document.getElementById('qbifHandles');
-    if(checked.length === 0){
-      handlesWrap.classList.remove('qbif-show');
-      container.innerHTML = '';
-      return;
-    }
-    handlesWrap.classList.add('qbif-show');
+    document.querySelectorAll('.qi-chip-input[name="platform"]:checked').forEach(function(cb){ checked.push(cb.value); });
+    var container = document.getElementById('qi-handle-rows');
+    var handlesWrap = document.getElementById('qiHandles');
+    if(!checked.length){ handlesWrap.classList.remove('qi-show'); container.innerHTML = ''; return; }
+    handlesWrap.classList.add('qi-show');
     var html = '';
     checked.forEach(function(p){
       var info = platformIcons[p] || { icon: '🔗', prefix: '' };
-      var existing = document.getElementById('qbif-handle-' + p);
+      var existing = document.getElementById('qi-handle-' + p);
       var val = existing ? existing.value : '';
-      html += '<div class="qbif-handle-row">' +
-        '<span class="qbif-handle-icon">' + info.icon + '</span>' +
-        '<span class="qbif-handle-prefix">' + info.prefix + '</span>' +
-        '<input type="text" class="qbif-input" id="qbif-handle-' + p + '" data-platform="' + p + '" placeholder="' + p + ' username" value="' + val + '" style="margin:0">' +
+      html += '<div class="qi-handle-row">' +
+        '<span class="qi-handle-ico">' + info.icon + '</span>' +
+        (info.prefix ? '<span class="qi-handle-prefix">' + info.prefix + '</span>' : '') +
+        '<input type="text" class="qi-input" id="qi-handle-' + p + '" data-platform="' + p + '" placeholder="' + p + ' username" value="' + val + '" style="margin:0">' +
         '</div>';
     });
     container.innerHTML = html;
   };
 
-  window.qbifSubmit = function(e){
+  window.qiSubmit = function(e){
     e.preventDefault();
-    var btn = document.getElementById('qbifSubmitBtn');
-
-    // Collect platforms
+    var btn = document.getElementById('qiSubmitBtn');
     var platforms = [];
-    document.querySelectorAll('.qbif-platform-cb:checked').forEach(function(cb){ platforms.push(cb.value); });
-    if(platforms.length === 0){
-      alert('Please select at least one social platform.');
-      return;
-    }
+    document.querySelectorAll('.qi-chip-input[name="platform"]:checked').forEach(function(cb){ platforms.push(cb.value); });
+    if(!platforms.length){ alert('Please select at least one social platform.'); return; }
 
-    // Collect handles
     var handleLines = '';
-    document.querySelectorAll('[id^="qbif-handle-"]').forEach(function(inp){
+    document.querySelectorAll('[id^="qi-handle-"]').forEach(function(inp){
       var p = inp.dataset.platform;
       var val = inp.value.trim();
-      if(val){
-        var info = platformIcons[p] || { icon: '🔗', prefix: '' };
-        handleLines += '\n' + p + ': ' + info.prefix + val;
-      }
+      if(val){ var info = platformIcons[p] || { icon: '🔗', prefix: '' }; handleLines += '\n' + p + ': ' + info.prefix + val; }
     });
 
-    // Followers
-    var followers = '';
-    var followerRadio = document.querySelector('.qbif-range-radio:checked');
-    if(followerRadio) followers = followerRadio.value;
-
-    var name    = document.getElementById('qbif-name').value.trim();
-    var phone   = document.getElementById('qbif-phone').value.trim();
-    var email   = document.getElementById('qbif-email').value.trim();
-    var city    = document.getElementById('qbif-city').value.trim();
-    var niche   = document.getElementById('qbif-niche').value;
-    var bio     = document.getElementById('qbif-bio').value.trim();
-    var why     = document.getElementById('qbif-why').value.trim();
-    var collab  = document.getElementById('qbif-collab').value || 'Not specified';
-    var rate    = document.getElementById('qbif-rate').value.trim() || 'Not specified';
-    var now     = new Date().toLocaleString('en-NP', { timeZone: 'Asia/Kathmandu' });
+    var followerRadio = document.querySelector('.qi-chip-input[name="followers"]:checked');
+    var followers = followerRadio ? followerRadio.value : '';
+    var name   = document.getElementById('qi-name').value.trim();
+    var phone  = document.getElementById('qi-phone').value.trim();
+    var email  = document.getElementById('qi-email').value.trim();
+    var city   = document.getElementById('qi-city').value.trim();
+    var niche  = document.getElementById('qi-niche').value;
+    var bio    = document.getElementById('qi-bio').value.trim();
+    var why    = document.getElementById('qi-why').value.trim();
+    var collab = document.getElementById('qi-collab').value || 'Not specified';
+    var rate   = document.getElementById('qi-rate').value.trim() || 'Not specified';
+    var now    = new Date().toLocaleString('en-NP', { timeZone: 'Asia/Kathmandu' });
 
     var note = [
       '━━━ QUICKBEE INFLUENCER APPLICATION ━━━',
       '',
-      '👤 PERSONAL',
-      'Name: ' + name,
-      'Phone: ' + phone,
-      'Email: ' + email,
-      'City: ' + city,
+      '👤 Name: ' + name,
+      '📞 Phone: ' + phone,
+      '✉️ Email: ' + email,
+      '📍 City: ' + city,
       '',
-      '📲 SOCIAL PLATFORMS',
-      'Active On: ' + platforms.join(', '),
-      handleLines.trim() ? handleLines : '(no handles provided)',
+      '📲 Platforms: ' + platforms.join(', '),
+      handleLines.trim() || '(no handles provided)',
       '',
-      '📈 REACH & NICHE',
-      'Followers: ' + followers,
-      'Niche: ' + niche,
-      'Rate: NPR ' + rate,
+      '👥 Followers: ' + followers,
+      '🎯 Niche: ' + niche,
+      '💰 Rate: NPR ' + rate,
       '',
-      '✍️ ABOUT',
-      'Bio: ' + bio,
-      'Why QB: ' + why,
-      'Collab Type: ' + collab,
+      '📝 Bio: ' + bio,
+      '💡 Why QB: ' + why,
+      '🤝 Collab: ' + collab,
       '',
       '📅 Applied: ' + now
     ].join('\n');
 
-    btn.disabled = true;
-    btn.innerHTML = '⏳ Submitting…';
+    btn.disabled = true; btn.innerHTML = '⏳ Submitting…';
 
-    // Add product to cart then set note and redirect
     {% assign qbif_product = all_products['quick-bee-influencer'] %}
     {% if qbif_product and qbif_product.variants.first %}
       var variantId = {{ qbif_product.variants.first.id }};
@@ -431,26 +422,15 @@
     {% endif %}
 
     function setNoteAndCheckout(){
-      fetch('/cart/update.js', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ note: note })
-      }).then(function(){
-        window.location.href = '/cart';
-      }).catch(function(){
-        window.location.href = '/cart';
-      });
+      fetch('/cart/update.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ note: note }) })
+        .then(function(){ window.location.href = '/cart'; })
+        .catch(function(){ window.location.href = '/cart'; });
     }
 
     if(variantId){
-      fetch('/cart/add.js', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: variantId, quantity: 1 })
-      }).then(setNoteAndCheckout).catch(setNoteAndCheckout);
-    } else {
-      setNoteAndCheckout();
-    }
+      fetch('/cart/add.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: variantId, quantity: 1 }) })
+        .then(setNoteAndCheckout).catch(setNoteAndCheckout);
+    } else { setNoteAndCheckout(); }
   };
 })();
 </script>
