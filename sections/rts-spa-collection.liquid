@@ -1632,47 +1632,45 @@
     nextBtn.disabled = true;
     nextBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:rtsSpinBtn 0.8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Processing…';
 
-    var noteLines = [
-      '--- REAL THERAPY SPA BOOKING ---',
-      (state.packageName ? 'Package: '         + state.packageName : ''),
-      (state.duration    ? 'Duration: '        + state.duration    : ''),
-      'Date: '             + state.date,
-      'Time: '             + state.slot,
-      'Guest Name: '       + name,
-      'Phone / WhatsApp: ' + phone,
-      (notes ? 'Special Requests: ' + notes : '')
-    ].filter(Boolean).join('\n');
+    var properties = {
+      'Booking Date': state.date,
+      'Booking Time': state.slot,
+      'Treatment Type': state.packageName,
+      'Customer Name': name,
+      'WhatsApp/Phone': phone
+    };
+    if (notes) {
+      properties['Note'] = notes;
+    }
 
     var vid = parseInt(state.variantId, 10);
-
-    function setNoteAndCheckout() {
-      fetch('/cart/update.js', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ note: noteLines })
-      })
-      .then(function () {
-        window.location.href = '/cart';
-      })
-      .catch(function () {
-        window.location.href = '/cart';
-      });
-    }
 
     if (vid) {
       fetch('/cart/add.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: vid, quantity: 1 })
+        body: JSON.stringify({
+          id: vid,
+          quantity: 1,
+          properties: properties
+        })
       })
-      .then(function (r) { return r.json(); })
-      .then(function () { setNoteAndCheckout(); })
+      .then(function (r) {
+        if (r.ok) {
+          window.location.href = '/cart';
+        } else {
+          return r.json().then(function(err) { throw err; });
+        }
+      })
       .catch(function () {
         nextBtn.disabled = false;
         nextBtn.innerHTML = 'Try Again <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>';
       });
     } else {
-      setNoteAndCheckout();
+      // Handle case where there is no variant ID, though this shouldn't happen in normal flow.
+      // Maybe just go to cart page with an error message? For now, just re-enable button.
+      nextBtn.disabled = false;
+      nextBtn.innerHTML = 'Try Again <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>';
     }
   }
 
