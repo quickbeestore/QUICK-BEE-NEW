@@ -1,67 +1,143 @@
-<section class="flash-deals-section">
-  <h2>⚡ {{ section.settings.title }}</h2>
-  <p>{{ section.settings.subtitle }}</p>
-  <div class="flash-deals-grid">
-    {% for block in section.blocks %}
-      <div class="flash-deal-card">
-        <div class="deal-header">
-          <span class="discount-badge">{{ block.settings.discount_percentage }}% OFF</span>
-          <span class="timer">⏱️ Limited Time</span>
-        </div>
-        <h3>{{ block.settings.product_name }}</h3>
-        <div class="price-section">
-          <span class="original-price">Rs {{ block.settings.original_price }}</span>
-          <span class="deal-price">Rs {{ block.settings.deal_price }}</span>
-        </div>
-        <button class="grab-deal-btn">Grab Deal Now</button>
-      </div>
-    {% endfor %}
+{%- comment -%}
+Flash Deals Section
+Main orchestrator section for the Flash Deals page
+Includes hero banner, featured carousel, and 3 product grid sections
+{%- endcomment -%}
+
+<div class="section-background"></div>
+
+{%- # HERO BANNER -%}
+<div class="flash-deals-hero">
+  <div class="flash-deals-hero-content">
+    <h1 class="flash-deals-hero-title">⚡ FLASH DEALS</h1>
+    <p class="flash-deals-hero-subtitle">Limited time. Incredible savings on the products you love.</p>
   </div>
-</section>
+</div>
+
+{%- # FEATURED CAROUSEL SECTION -%}
+{% if section.settings.featured_deals != blank %}
+  <div class="container-max-width">
+    <div class="flash-deals-carousel-wrapper">
+      <div class="flash-deals-carousel-container">
+        {%- for product in section.settings.featured_deals -%}
+          <div class="flash-deals-carousel-item">
+            {%- render 'flash-deal-card', product: product, section: 'carousel' -%}
+          </div>
+        {%- endfor -%}
+      </div>
+
+      {%- # Carousel Navigation Arrows -%}
+      <div class="carousel-arrows">
+        <button
+          class="carousel-arrow"
+          data-direction="prev"
+          aria-label="Previous carousel item"
+        >
+          ←
+        </button>
+        <button
+          class="carousel-arrow"
+          data-direction="next"
+          aria-label="Next carousel item"
+        >
+          →
+        </button>
+      </div>
+    </div>
+
+    {%- # Carousel Dots -%}
+    <div class="carousel-nav-dots">
+      {%- for product in section.settings.featured_deals -%}
+        <button
+          class="carousel-dot{% if forloop.first %} active{% endif %}"
+          aria-label="Go to carousel item {{ forloop.index }}"
+          data-index="{{ forloop.index0 }}"
+        ></button>
+      {%- endfor -%}
+    </div>
+  </div>
+{% endif %}
+
+{%- # JUST STARTED SECTION -%}
+{% if section.settings.just_started_deals != blank %}
+  <div class="flash-deals-section just-started-section">
+    <h2 class="flash-deals-section-title">🆕 JUST STARTED</h2>
+    <div class="flash-deals-grid">
+      {%- for product in section.settings.just_started_deals -%}
+        {%- render 'flash-deal-card', product: product, section: 'just-started' -%}
+      {%- endfor -%}
+    </div>
+  </div>
+{% endif %}
+
+{%- # BIGGEST SAVINGS SECTION -%}
+{% if section.settings.biggest_savings_deals != blank %}
+  <div class="flash-deals-section biggest-savings-section">
+    <h2 class="flash-deals-section-title">💰 BIGGEST SAVINGS</h2>
+    <div class="flash-deals-grid">
+      {%- for product in section.settings.biggest_savings_deals -%}
+        {%- render 'flash-deal-card', product: product, section: 'biggest-savings' -%}
+      {%- endfor -%}
+    </div>
+  </div>
+{% endif %}
+
+{%- # ENDING SOON SECTION -%}
+{% if section.settings.ending_soon_deals != blank %}
+  <div class="flash-deals-section ending-soon-section">
+    <h2 class="flash-deals-section-title ending-soon">⏰ ENDING SOON</h2>
+    <div class="flash-deals-grid">
+      {%- for product in section.settings.ending_soon_deals -%}
+        {%- render 'flash-deal-card', product: product, section: 'ending-soon' -%}
+      {%- endfor -%}
+    </div>
+  </div>
+{% endif %}
+
+{%- # Load JavaScript for Flash Deals -%}
+<script src="{{ 'flash-deals.js' | asset_url }}" defer="defer"></script>
+<link rel="stylesheet" href="{{ 'flash-deals.css' | asset_url }}">
 
 {% schema %}
 {
   "name": "Flash Deals",
+  "class": "section-wrapper",
   "settings": [
     {
-      "type": "text",
-      "id": "title",
-      "label": "Title",
-      "default": "Flash Deals"
+      "type": "header",
+      "content": "Featured Carousel"
     },
     {
-      "type": "text",
-      "id": "subtitle",
-      "label": "Subtitle",
-      "default": "Limited time offers - Grab yours now!"
-    }
-  ],
-  "blocks": [
+      "type": "product_list",
+      "id": "featured_deals",
+      "label": "Featured Deals Products"
+    },
     {
-      "name": "Deal",
-      "type": "deal",
-      "settings": [
-        {
-          "type": "text",
-          "id": "product_name",
-          "label": "Product Name"
-        },
-        {
-          "type": "text",
-          "id": "original_price",
-          "label": "Original Price"
-        },
-        {
-          "type": "text",
-          "id": "deal_price",
-          "label": "Deal Price"
-        },
-        {
-          "type": "text",
-          "id": "discount_percentage",
-          "label": "Discount %"
-        }
-      ]
+      "type": "header",
+      "content": "Just Started"
+    },
+    {
+      "type": "product_list",
+      "id": "just_started_deals",
+      "label": "Just Started Products"
+    },
+    {
+      "type": "header",
+      "content": "Biggest Savings"
+    },
+    {
+      "type": "product_list",
+      "id": "biggest_savings_deals",
+      "label": "Biggest Savings Products"
+    },
+    {
+      "type": "header",
+      "content": "Ending Soon"
+    },
+    {
+      "type": "product_list",
+      "id": "ending_soon_deals",
+      "label": "Ending Soon Products"
     }
   ],
   "presets": [
