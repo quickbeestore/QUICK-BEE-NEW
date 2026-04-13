@@ -1,17 +1,50 @@
 {%- assign all_products = collection.products -%}
-{%- assign has_drinks = false -%}{%- assign drink_count = 0 -%}
-{%- assign has_slices = false -%}{%- assign slice_count = 0 -%}
-{%- assign has_boxes = false -%}{%- assign box_count = 0 -%}
-{%- assign has_biscuits = false -%}{%- assign biscuit_count = 0 -%}
-{%- assign has_others = false -%}{%- assign other_count = 0 -%}
+
+{%- comment -%} ── CATEGORY COUNTERS ── {%- endcomment -%}
+{%- assign has_hot    = false -%}{%- assign hot_count    = 0 -%}
+{%- assign has_cold   = false -%}{%- assign cold_count   = 0 -%}
+{%- assign has_cakes  = false -%}{%- assign cake_count   = 0 -%}
+{%- assign has_bakery = false -%}{%- assign bakery_count = 0 -%}
+{%- assign has_snacks = false -%}{%- assign snack_count  = 0 -%}
+{%- assign has_mains  = false -%}{%- assign main_count   = 0 -%}
+{%- assign has_combos = false -%}{%- assign combo_count  = 0 -%}
+{%- assign has_others = false -%}{%- assign other_count  = 0 -%}
+
 {%- for p in all_products -%}
-  {%- assign pt = p.type | downcase | strip -%}
-  {%- if pt contains 'drink' or pt contains 'tea' or pt contains 'coffee' or pt contains 'juice' or pt contains 'shake' or pt contains 'smoothie' or pt contains 'latte' or pt contains 'cappuccino' or pt contains 'mocktail' or pt contains 'lassi' or pt contains 'bubble' or pt contains 'beverage' -%}
-    {%- assign has_drinks = true -%}{%- assign drink_count = drink_count | plus: 1 -%}
-  {%- elsif pt contains 'slice' -%}{%- assign has_slices = true -%}{%- assign slice_count = slice_count | plus: 1 -%}
-  {%- elsif pt contains 'box' -%}{%- assign has_boxes = true -%}{%- assign box_count = box_count | plus: 1 -%}
-  {%- elsif pt contains 'biscuit' or pt contains 'bread' or pt contains 'cookie' -%}{%- assign has_biscuits = true -%}{%- assign biscuit_count = biscuit_count | plus: 1 -%}
-  {%- else -%}{%- assign has_others = true -%}{%- assign other_count = other_count | plus: 1 -%}
+  {%- assign pt    = p.type | downcase | strip -%}
+  {%- assign _tags = p.tags | join: ',' | downcase -%}
+  {%- assign _ttl  = p.title | downcase -%}
+
+  {%- comment -%} ☕ HOT DRINKS — coffee, espresso, hot tea, chai, latte, cappuccino, mocha, matcha hot, hot chocolate {%- endcomment -%}
+  {%- if pt contains 'coffee' or pt contains 'espresso' or pt contains 'latte' or pt contains 'cappuccino' or pt contains 'americano' or pt contains 'mocha' or pt contains 'macchiato' or pt contains 'flat white' or pt contains 'cortado' or pt contains 'hot chocolate' or pt contains 'hot drink' or pt contains 'hot tea' or pt contains 'chai' or pt contains 'herbal tea' or pt contains 'hot milk' or _tags contains 'hot-drink' or _tags contains 'coffee' or _tags contains 'hot drink' -%}
+    {%- assign has_hot = true -%}{%- assign hot_count = hot_count | plus: 1 -%}
+
+  {%- comment -%} 🧊 COLD DRINKS — iced, cold brew, frappe, smoothie, juice, shake, lassi, mocktail, bubble tea, soda {%- endcomment -%}
+  {%- elsif pt contains 'cold' or pt contains 'iced' or pt contains 'frappe' or pt contains 'frappuccino' or pt contains 'smoothie' or pt contains 'juice' or pt contains 'shake' or pt contains 'milkshake' or pt contains 'lassi' or pt contains 'mocktail' or pt contains 'bubble' or pt contains 'boba' or pt contains 'soda' or pt contains 'lemonade' or pt contains 'cooler' or pt contains 'squash' or pt contains 'beverage' or pt contains 'drink' or pt contains 'tea' or _tags contains 'cold-drink' or _tags contains 'cold drink' or _tags contains 'beverage' -%}
+    {%- assign has_cold = true -%}{%- assign cold_count = cold_count | plus: 1 -%}
+
+  {%- comment -%} 📦 COMBOS & BOXES — box, combo, set, bundle, package {%- endcomment -%}
+  {%- elsif pt contains 'box' or pt contains 'combo' or pt contains 'bundle' or pt contains 'package' or pt contains 'set meal' or _tags contains 'combo' or _tags contains 'box' -%}
+    {%- assign has_combos = true -%}{%- assign combo_count = combo_count | plus: 1 -%}
+
+  {%- comment -%} 🍰 CAKES & SWEETS — cake, slice, pastry, tart, brownie, muffin, dessert, sweet, donut, cupcake {%- endcomment -%}
+  {%- elsif pt contains 'cake' or pt contains 'slice' or pt contains 'pastry' or pt contains 'tart' or pt contains 'cheesecake' or pt contains 'brownie' or pt contains 'muffin' or pt contains 'dessert' or pt contains 'sweet' or pt contains 'pudding' or pt contains 'tiramisu' or pt contains 'donut' or pt contains 'doughnut' or pt contains 'cupcake' or _tags contains 'dessert' or _tags contains 'sweet' -%}
+    {%- assign has_cakes = true -%}{%- assign cake_count = cake_count | plus: 1 -%}
+
+  {%- comment -%} 🥐 BAKERY & BREADS — bread, biscuit, cookie, croissant, waffle, pancake, roll, bun, bagel {%- endcomment -%}
+  {%- elsif pt contains 'bread' or pt contains 'biscuit' or pt contains 'cookie' or pt contains 'croissant' or pt contains 'scone' or pt contains 'bagel' or pt contains 'waffle' or pt contains 'pancake' or pt contains 'roll' or pt contains 'bun' or pt contains 'bakery' or _tags contains 'bakery' or _tags contains 'bread' -%}
+    {%- assign has_bakery = true -%}{%- assign bakery_count = bakery_count | plus: 1 -%}
+
+  {%- comment -%} 🥗 SNACKS & SIDES — snack, fries, starter, salad, soup, samosa, side, nachos {%- endcomment -%}
+  {%- elsif pt contains 'snack' or pt contains 'side' or pt contains 'fry' or pt contains 'fries' or pt contains 'starter' or pt contains 'appetizer' or pt contains 'salad' or pt contains 'soup' or pt contains 'nachos' or pt contains 'samosa' or _tags contains 'snack' or _tags contains 'starter' -%}
+    {%- assign has_snacks = true -%}{%- assign snack_count = snack_count | plus: 1 -%}
+
+  {%- comment -%} 🍽️ MAIN FOOD — main, rice, noodle, pasta, pizza, momo, burger, sandwich, wrap, curry, thali, bowl, food, meal {%- endcomment -%}
+  {%- elsif pt contains 'main' or pt contains 'rice' or pt contains 'noodle' or pt contains 'pasta' or pt contains 'pizza' or pt contains 'momo' or pt contains 'burger' or pt contains 'sandwich' or pt contains 'wrap' or pt contains 'curry' or pt contains 'thali' or pt contains 'bowl' or pt contains 'food' or pt contains 'meal' or pt contains 'dish' or pt contains 'platter' or pt contains 'toast' or _tags contains 'main' or _tags contains 'food' or _tags contains 'momo' -%}
+    {%- assign has_mains = true -%}{%- assign main_count = main_count | plus: 1 -%}
+
+  {%- else -%}
+    {%- assign has_others = true -%}{%- assign other_count = other_count | plus: 1 -%}
   {%- endif -%}
 {%- endfor -%}
 
@@ -614,20 +647,29 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
   {%- if all_products.size > 0 -%}
   <div class="yk-tabs-wrap" id="ykTabsWrap">
     <div class="yk-tabs" id="ykTabs">
-      {%- if has_drinks -%}
-      <button class="yk-tab" id="yk-tab-drinks" data-target="yk-sec-drinks">🥤 Drinks</button>
+      {%- if has_hot -%}
+      <button class="yk-tab" id="yk-tab-hot" data-target="yk-sec-hot">☕ Hot Drinks</button>
       {%- endif -%}
-      {%- if has_slices -%}
-      <button class="yk-tab" id="yk-tab-slices" data-target="yk-sec-slices">🍰 Slices</button>
+      {%- if has_cold -%}
+      <button class="yk-tab" id="yk-tab-cold" data-target="yk-sec-cold">🧊 Cold Drinks</button>
       {%- endif -%}
-      {%- if has_boxes -%}
-      <button class="yk-tab" id="yk-tab-boxes" data-target="yk-sec-boxes">📦 Boxes</button>
+      {%- if has_mains -%}
+      <button class="yk-tab" id="yk-tab-mains" data-target="yk-sec-mains">🍽️ Food</button>
       {%- endif -%}
-      {%- if has_biscuits -%}
-      <button class="yk-tab" id="yk-tab-biscuits" data-target="yk-sec-biscuits">🍪 Biscuits & Bread</button>
+      {%- if has_snacks -%}
+      <button class="yk-tab" id="yk-tab-snacks" data-target="yk-sec-snacks">🥗 Snacks</button>
+      {%- endif -%}
+      {%- if has_cakes -%}
+      <button class="yk-tab" id="yk-tab-cakes" data-target="yk-sec-cakes">🍰 Cakes & Sweets</button>
+      {%- endif -%}
+      {%- if has_bakery -%}
+      <button class="yk-tab" id="yk-tab-bakery" data-target="yk-sec-bakery">🥐 Bakery</button>
+      {%- endif -%}
+      {%- if has_combos -%}
+      <button class="yk-tab" id="yk-tab-combos" data-target="yk-sec-combos">📦 Combos</button>
       {%- endif -%}
       {%- if has_others -%}
-      <button class="yk-tab" id="yk-tab-others" data-target="yk-sec-others">🍽️ Food</button>
+      <button class="yk-tab" id="yk-tab-others" data-target="yk-sec-others">🌟 Others</button>
       {%- endif -%}
     </div>
   </div>
@@ -643,58 +685,32 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
   </div>
   {%- else -%}
 
-    <!-- DRINKS -->
-    {%- if has_drinks -%}
-    <div class="yk-section-head" id="yk-sec-drinks">
-      <div class="yk-section-head-inner">
-        <span class="yk-section-emoji">🥤</span>
-        <div>
-          <h2 class="yk-section-title">Drinks</h2>
-          <p class="yk-section-sub">{{ drink_count }} refreshing choices</p>
-        </div>
+    {%- comment -%} ── CARD MACRO (reused per section via capture) ── {%- endcomment -%}
+
+    {%- comment -%} ☕ HOT DRINKS {%- endcomment -%}
+    {%- if has_hot -%}
+    <div class="yk-section-head" id="yk-sec-hot">
+      <div class="yk-section-head-inner"><span class="yk-section-emoji">☕</span>
+        <div><h2 class="yk-section-title">Hot Drinks</h2><p class="yk-section-sub">{{ hot_count }} warm choices</p></div>
       </div>
     </div>
     <div class="yk-list">
       {%- for p in all_products -%}
-        {%- assign pt = p.type | downcase | strip -%}
-        {%- if pt contains 'drink' or pt contains 'tea' or pt contains 'coffee' or pt contains 'juice' or pt contains 'shake' or pt contains 'smoothie' or pt contains 'latte' or pt contains 'cappuccino' or pt contains 'mocktail' or pt contains 'lassi' or pt contains 'bubble' or pt contains 'beverage' -%}
-          {%- assign cp = p.compare_at_price | default: 0 -%}
-          {%- assign vid = p.variants.first.id -%}
-          {%- assign pct = 0 -%}
-          {%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+        {%- assign pt = p.type | downcase | strip -%}{%- assign _tags = p.tags | join: ',' | downcase -%}
+        {%- if pt contains 'coffee' or pt contains 'espresso' or pt contains 'latte' or pt contains 'cappuccino' or pt contains 'americano' or pt contains 'mocha' or pt contains 'macchiato' or pt contains 'flat white' or pt contains 'cortado' or pt contains 'hot chocolate' or pt contains 'hot drink' or pt contains 'hot tea' or pt contains 'chai' or pt contains 'herbal tea' or pt contains 'hot milk' or _tags contains 'hot-drink' or _tags contains 'coffee' or _tags contains 'hot drink' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}{%- assign vid = p.variants.first.id -%}{%- assign pct = 0 -%}{%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
           <div class="yk-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
             <a class="yk-card-link" href="{{ p.url }}" aria-label="{{ p.title | escape }}"></a>
             <div class="yk-card-left">
-              <div class="yk-card-top">
-                {%- assign _pt = p.title | downcase -%}{%- assign _tags = p.tags | join: ',' | downcase -%}{%- if _pt contains 'chicken' or _pt contains 'mutton' or _pt contains 'beef' or _pt contains 'pork' or _pt contains 'fish' or _pt contains 'prawn' or _pt contains 'shrimp' or _pt contains 'lamb' or _pt contains 'egg' or _pt contains 'meat' or _pt contains 'duck' or _tags contains 'non-veg' or _tags contains 'nonveg' %}<span class="yk-nonveg-dot"></span>{%- else -%}<span class="yk-veg-dot"></span>{%- endif -%}
-                {%- if pct >= 10 -%}<span class="yk-badge yk-badge--deal">DEAL</span>{%- endif -%}
-                {%- if p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="yk-badge yk-badge--popular">POPULAR</span>{%- endif -%}
-                {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="yk-badge yk-badge--new">NEW</span>{%- endif -%}
-              </div>
+              <div class="yk-card-top">{%- assign _ttl = p.title | downcase -%}{%- if _ttl contains 'chicken' or _ttl contains 'mutton' or _ttl contains 'beef' or _ttl contains 'pork' or _ttl contains 'fish' or _ttl contains 'prawn' or _ttl contains 'egg' or _ttl contains 'meat' or _tags contains 'non-veg' or _tags contains 'nonveg' -%}<span class="yk-nonveg-dot"></span>{%- else -%}<span class="yk-veg-dot"></span>{%- endif -%}{%- if pct >= 10 -%}<span class="yk-badge yk-badge--deal">DEAL</span>{%- endif -%}{%- if p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="yk-badge yk-badge--popular">POPULAR</span>{%- endif -%}{%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="yk-badge yk-badge--new">NEW</span>{%- endif -%}</div>
               <h3 class="yk-item-name">{{ p.title }}</h3>
-              {%- unless p.description == blank -%}
-              <p class="yk-item-desc">{{ p.description | strip_html | truncate: 60 }}</p>
-              {%- endunless -%}
-              <div class="yk-price-row">
-                <span class="yk-price">Rs {{ p.price | divided_by: 100 }}</span>
-                {%- if cp > p.price -%}
-                <span class="yk-old-price">Rs {{ cp | divided_by: 100 }}</span>
-                <span class="yk-save">{{ pct }}% off</span>
-                {%- endif -%}
-              </div>
+              {%- unless p.description == blank -%}<p class="yk-item-desc">{{ p.description | strip_html | truncate: 60 }}</p>{%- endunless -%}
+              <div class="yk-price-row"><span class="yk-price">Rs {{ p.price | divided_by: 100 }}</span>{%- if cp > p.price -%}<span class="yk-old-price">Rs {{ cp | divided_by: 100 }}</span><span class="yk-save">{{ pct }}% off</span>{%- endif -%}</div>
             </div>
             <div class="yk-card-right">
-              {%- if p.featured_image -%}
-              <div class="yk-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="72" height="72"></div>
-              {%- else -%}
-              <div class="yk-img-fallback">🥤</div>
-              {%- endif -%}
+              {%- if p.featured_image -%}<div class="yk-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="72" height="72"></div>{%- else -%}<div class="yk-img-fallback">☕</div>{%- endif -%}
               <button class="yk-add-btn" data-vid="{{ vid }}">ADD</button>
-              <div class="yk-stepper" data-vid="{{ vid }}">
-                <button class="yk-stepper-btn yk-stepper-minus" data-vid="{{ vid }}">−</button>
-                <span class="yk-stepper-count" data-vid="{{ vid }}">1</span>
-                <button class="yk-stepper-btn yk-stepper-plus" data-vid="{{ vid }}">+</button>
-              </div>
+              <div class="yk-stepper" data-vid="{{ vid }}"><button class="yk-stepper-btn yk-stepper-minus" data-vid="{{ vid }}">−</button><span class="yk-stepper-count" data-vid="{{ vid }}">1</span><button class="yk-stepper-btn yk-stepper-plus" data-vid="{{ vid }}">+</button></div>
             </div>
           </div>
         {%- endif -%}
@@ -702,63 +718,30 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
     </div>
     {%- endif -%}
 
-    <!-- SLICES -->
-    {%- if has_slices -%}
-    <div class="yk-section-head" id="yk-sec-slices">
-      <div class="yk-section-head-inner">
-        <span class="yk-section-emoji">🍰</span>
-        <div>
-          <h2 class="yk-section-title">Slices</h2>
-          <p class="yk-section-sub">{{ slice_count }} items available</p>
-        </div>
+    {%- comment -%} 🧊 COLD DRINKS {%- endcomment -%}
+    {%- if has_cold -%}
+    <div class="yk-section-head" id="yk-sec-cold">
+      <div class="yk-section-head-inner"><span class="yk-section-emoji">🧊</span>
+        <div><h2 class="yk-section-title">Cold Drinks</h2><p class="yk-section-sub">{{ cold_count }} refreshing choices</p></div>
       </div>
     </div>
     <div class="yk-list">
       {%- for p in all_products -%}
-        {%- assign pt = p.type | downcase | strip -%}
-        {%- if pt contains 'slice' -%}
-          {%- assign cp = p.compare_at_price | default: 0 -%}
-          {%- assign vid = p.variants.first.id -%}
-          {%- assign pct = 0 -%}
-          {%- if cp > p.price -%}
-            {%- assign diff = cp | minus: p.price -%}
-            {%- assign pct = diff | times: 100 | divided_by: cp -%}
-          {%- endif -%}
+        {%- assign pt = p.type | downcase | strip -%}{%- assign _tags = p.tags | join: ',' | downcase -%}
+        {%- if pt contains 'cold' or pt contains 'iced' or pt contains 'frappe' or pt contains 'frappuccino' or pt contains 'smoothie' or pt contains 'juice' or pt contains 'shake' or pt contains 'milkshake' or pt contains 'lassi' or pt contains 'mocktail' or pt contains 'bubble' or pt contains 'boba' or pt contains 'soda' or pt contains 'lemonade' or pt contains 'cooler' or pt contains 'squash' or pt contains 'beverage' or pt contains 'drink' or pt contains 'tea' or _tags contains 'cold-drink' or _tags contains 'cold drink' or _tags contains 'beverage' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}{%- assign vid = p.variants.first.id -%}{%- assign pct = 0 -%}{%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
           <div class="yk-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
             <a class="yk-card-link" href="{{ p.url }}" aria-label="{{ p.title | escape }}"></a>
             <div class="yk-card-left">
-              <div class="yk-card-top">
-                {%- assign _pt = p.title | downcase -%}{%- assign _tags = p.tags | join: ',' | downcase -%}{%- if _pt contains 'chicken' or _pt contains 'mutton' or _pt contains 'beef' or _pt contains 'pork' or _pt contains 'fish' or _pt contains 'prawn' or _pt contains 'shrimp' or _pt contains 'lamb' or _pt contains 'egg' or _pt contains 'meat' or _pt contains 'duck' or _tags contains 'non-veg' or _tags contains 'nonveg' %}<span class="yk-nonveg-dot"></span>{%- else -%}<span class="yk-veg-dot"></span>{%- endif -%}
-                {%- if pct >= 10 -%}<span class="yk-badge yk-badge--deal">DEAL</span>{%- endif -%}
-                {%- if p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="yk-badge yk-badge--popular">POPULAR</span>{%- endif -%}
-                {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="yk-badge yk-badge--new">NEW</span>{%- endif -%}
-              </div>
+              <div class="yk-card-top">{%- assign _ttl = p.title | downcase -%}{%- if _ttl contains 'chicken' or _ttl contains 'mutton' or _ttl contains 'beef' or _ttl contains 'pork' or _ttl contains 'fish' or _ttl contains 'prawn' or _ttl contains 'egg' or _ttl contains 'meat' or _tags contains 'non-veg' or _tags contains 'nonveg' -%}<span class="yk-nonveg-dot"></span>{%- else -%}<span class="yk-veg-dot"></span>{%- endif -%}{%- if pct >= 10 -%}<span class="yk-badge yk-badge--deal">DEAL</span>{%- endif -%}{%- if p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="yk-badge yk-badge--popular">POPULAR</span>{%- endif -%}{%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="yk-badge yk-badge--new">NEW</span>{%- endif -%}</div>
               <h3 class="yk-item-name">{{ p.title }}</h3>
-              {%- unless p.description == blank -%}
-              <p class="yk-item-desc">{{ p.description | strip_html | truncate: 60 }}</p>
-              {%- endunless -%}
-              <div class="yk-price-row">
-                <span class="yk-price">Rs {{ p.price | divided_by: 100 }}</span>
-                {%- if cp > p.price -%}
-                <span class="yk-old-price">Rs {{ cp | divided_by: 100 }}</span>
-                <span class="yk-save">{{ pct }}% off</span>
-                {%- endif -%}
-              </div>
+              {%- unless p.description == blank -%}<p class="yk-item-desc">{{ p.description | strip_html | truncate: 60 }}</p>{%- endunless -%}
+              <div class="yk-price-row"><span class="yk-price">Rs {{ p.price | divided_by: 100 }}</span>{%- if cp > p.price -%}<span class="yk-old-price">Rs {{ cp | divided_by: 100 }}</span><span class="yk-save">{{ pct }}% off</span>{%- endif -%}</div>
             </div>
             <div class="yk-card-right">
-              {%- if p.featured_image -%}
-              <div class="yk-img-wrap">
-                <img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="72" height="72">
-              </div>
-              {%- else -%}
-              <div class="yk-img-fallback">🍰</div>
-              {%- endif -%}
-              <button class="yk-add-btn" data-vid="{{ vid }}" aria-label="Add {{ p.title | escape }} to cart">ADD</button>
-              <div class="yk-stepper" data-vid="{{ vid }}" role="group" aria-label="Quantity for {{ p.title | escape }}">
-                <button class="yk-stepper-btn yk-stepper-minus" data-vid="{{ vid }}" aria-label="Decrease quantity">−</button>
-                <span class="yk-stepper-count" data-vid="{{ vid }}">1</span>
-                <button class="yk-stepper-btn yk-stepper-plus" data-vid="{{ vid }}" aria-label="Increase quantity">+</button>
-              </div>
+              {%- if p.featured_image -%}<div class="yk-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="72" height="72"></div>{%- else -%}<div class="yk-img-fallback">🧊</div>{%- endif -%}
+              <button class="yk-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="yk-stepper" data-vid="{{ vid }}"><button class="yk-stepper-btn yk-stepper-minus" data-vid="{{ vid }}">−</button><span class="yk-stepper-count" data-vid="{{ vid }}">1</span><button class="yk-stepper-btn yk-stepper-plus" data-vid="{{ vid }}">+</button></div>
             </div>
           </div>
         {%- endif -%}
@@ -766,63 +749,30 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
     </div>
     {%- endif -%}
 
-    <!-- BOXES -->
-    {%- if has_boxes -%}
-    <div class="yk-section-head" id="yk-sec-boxes">
-      <div class="yk-section-head-inner">
-        <span class="yk-section-emoji">📦</span>
-        <div>
-          <h2 class="yk-section-title">Boxes</h2>
-          <p class="yk-section-sub">{{ box_count }} items available</p>
-        </div>
+    {%- comment -%} 🍽️ MAIN FOOD {%- endcomment -%}
+    {%- if has_mains -%}
+    <div class="yk-section-head" id="yk-sec-mains">
+      <div class="yk-section-head-inner"><span class="yk-section-emoji">🍽️</span>
+        <div><h2 class="yk-section-title">Food</h2><p class="yk-section-sub">{{ main_count }} items available</p></div>
       </div>
     </div>
     <div class="yk-list">
       {%- for p in all_products -%}
-        {%- assign pt = p.type | downcase | strip -%}
-        {%- if pt contains 'box' -%}
-          {%- assign cp = p.compare_at_price | default: 0 -%}
-          {%- assign vid = p.variants.first.id -%}
-          {%- assign pct = 0 -%}
-          {%- if cp > p.price -%}
-            {%- assign diff = cp | minus: p.price -%}
-            {%- assign pct = diff | times: 100 | divided_by: cp -%}
-          {%- endif -%}
+        {%- assign pt = p.type | downcase | strip -%}{%- assign _tags = p.tags | join: ',' | downcase -%}
+        {%- if pt contains 'main' or pt contains 'rice' or pt contains 'noodle' or pt contains 'pasta' or pt contains 'pizza' or pt contains 'momo' or pt contains 'burger' or pt contains 'sandwich' or pt contains 'wrap' or pt contains 'curry' or pt contains 'thali' or pt contains 'bowl' or pt contains 'food' or pt contains 'meal' or pt contains 'dish' or pt contains 'platter' or pt contains 'toast' or _tags contains 'main' or _tags contains 'food' or _tags contains 'momo' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}{%- assign vid = p.variants.first.id -%}{%- assign pct = 0 -%}{%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
           <div class="yk-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
             <a class="yk-card-link" href="{{ p.url }}" aria-label="{{ p.title | escape }}"></a>
             <div class="yk-card-left">
-              <div class="yk-card-top">
-                {%- assign _pt = p.title | downcase -%}{%- assign _tags = p.tags | join: ',' | downcase -%}{%- if _pt contains 'chicken' or _pt contains 'mutton' or _pt contains 'beef' or _pt contains 'pork' or _pt contains 'fish' or _pt contains 'prawn' or _pt contains 'shrimp' or _pt contains 'lamb' or _pt contains 'egg' or _pt contains 'meat' or _pt contains 'duck' or _tags contains 'non-veg' or _tags contains 'nonveg' %}<span class="yk-nonveg-dot"></span>{%- else -%}<span class="yk-veg-dot"></span>{%- endif -%}
-                {%- if pct >= 10 -%}<span class="yk-badge yk-badge--deal">DEAL</span>{%- endif -%}
-                {%- if p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="yk-badge yk-badge--popular">POPULAR</span>{%- endif -%}
-                {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="yk-badge yk-badge--new">NEW</span>{%- endif -%}
-              </div>
+              <div class="yk-card-top">{%- assign _ttl = p.title | downcase -%}{%- if _ttl contains 'chicken' or _ttl contains 'mutton' or _ttl contains 'beef' or _ttl contains 'pork' or _ttl contains 'fish' or _ttl contains 'prawn' or _ttl contains 'egg' or _ttl contains 'meat' or _tags contains 'non-veg' or _tags contains 'nonveg' -%}<span class="yk-nonveg-dot"></span>{%- else -%}<span class="yk-veg-dot"></span>{%- endif -%}{%- if pct >= 10 -%}<span class="yk-badge yk-badge--deal">DEAL</span>{%- endif -%}{%- if p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="yk-badge yk-badge--popular">POPULAR</span>{%- endif -%}{%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="yk-badge yk-badge--new">NEW</span>{%- endif -%}</div>
               <h3 class="yk-item-name">{{ p.title }}</h3>
-              {%- unless p.description == blank -%}
-              <p class="yk-item-desc">{{ p.description | strip_html | truncate: 60 }}</p>
-              {%- endunless -%}
-              <div class="yk-price-row">
-                <span class="yk-price">Rs {{ p.price | divided_by: 100 }}</span>
-                {%- if cp > p.price -%}
-                <span class="yk-old-price">Rs {{ cp | divided_by: 100 }}</span>
-                <span class="yk-save">{{ pct }}% off</span>
-                {%- endif -%}
-              </div>
+              {%- unless p.description == blank -%}<p class="yk-item-desc">{{ p.description | strip_html | truncate: 60 }}</p>{%- endunless -%}
+              <div class="yk-price-row"><span class="yk-price">Rs {{ p.price | divided_by: 100 }}</span>{%- if cp > p.price -%}<span class="yk-old-price">Rs {{ cp | divided_by: 100 }}</span><span class="yk-save">{{ pct }}% off</span>{%- endif -%}</div>
             </div>
             <div class="yk-card-right">
-              {%- if p.featured_image -%}
-              <div class="yk-img-wrap">
-                <img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="72" height="72">
-              </div>
-              {%- else -%}
-              <div class="yk-img-fallback">📦</div>
-              {%- endif -%}
-              <button class="yk-add-btn" data-vid="{{ vid }}" aria-label="Add {{ p.title | escape }} to cart">ADD</button>
-              <div class="yk-stepper" data-vid="{{ vid }}" role="group" aria-label="Quantity for {{ p.title | escape }}">
-                <button class="yk-stepper-btn yk-stepper-minus" data-vid="{{ vid }}" aria-label="Decrease quantity">−</button>
-                <span class="yk-stepper-count" data-vid="{{ vid }}">1</span>
-                <button class="yk-stepper-btn yk-stepper-plus" data-vid="{{ vid }}" aria-label="Increase quantity">+</button>
-              </div>
+              {%- if p.featured_image -%}<div class="yk-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="72" height="72"></div>{%- else -%}<div class="yk-img-fallback">🍽️</div>{%- endif -%}
+              <button class="yk-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="yk-stepper" data-vid="{{ vid }}"><button class="yk-stepper-btn yk-stepper-minus" data-vid="{{ vid }}">−</button><span class="yk-stepper-count" data-vid="{{ vid }}">1</span><button class="yk-stepper-btn yk-stepper-plus" data-vid="{{ vid }}">+</button></div>
             </div>
           </div>
         {%- endif -%}
@@ -830,63 +780,30 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
     </div>
     {%- endif -%}
 
-    <!-- BISCUITS / BREAD / COOKIES -->
-    {%- if has_biscuits -%}
-    <div class="yk-section-head" id="yk-sec-biscuits">
-      <div class="yk-section-head-inner">
-        <span class="yk-section-emoji">🍪</span>
-        <div>
-          <h2 class="yk-section-title">Biscuits &amp; Breads</h2>
-          <p class="yk-section-sub">{{ biscuit_count }} items available</p>
-        </div>
+    {%- comment -%} 🥗 SNACKS & SIDES {%- endcomment -%}
+    {%- if has_snacks -%}
+    <div class="yk-section-head" id="yk-sec-snacks">
+      <div class="yk-section-head-inner"><span class="yk-section-emoji">🥗</span>
+        <div><h2 class="yk-section-title">Snacks &amp; Sides</h2><p class="yk-section-sub">{{ snack_count }} items available</p></div>
       </div>
     </div>
     <div class="yk-list">
       {%- for p in all_products -%}
-        {%- assign pt = p.type | downcase | strip -%}
-        {%- if pt contains 'biscuit' or pt contains 'bread' or pt contains 'cookie' -%}
-          {%- assign cp = p.compare_at_price | default: 0 -%}
-          {%- assign vid = p.variants.first.id -%}
-          {%- assign pct = 0 -%}
-          {%- if cp > p.price -%}
-            {%- assign diff = cp | minus: p.price -%}
-            {%- assign pct = diff | times: 100 | divided_by: cp -%}
-          {%- endif -%}
+        {%- assign pt = p.type | downcase | strip -%}{%- assign _tags = p.tags | join: ',' | downcase -%}
+        {%- if pt contains 'snack' or pt contains 'side' or pt contains 'fry' or pt contains 'fries' or pt contains 'starter' or pt contains 'appetizer' or pt contains 'salad' or pt contains 'soup' or pt contains 'nachos' or pt contains 'samosa' or _tags contains 'snack' or _tags contains 'starter' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}{%- assign vid = p.variants.first.id -%}{%- assign pct = 0 -%}{%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
           <div class="yk-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
             <a class="yk-card-link" href="{{ p.url }}" aria-label="{{ p.title | escape }}"></a>
             <div class="yk-card-left">
-              <div class="yk-card-top">
-                {%- assign _pt = p.title | downcase -%}{%- assign _tags = p.tags | join: ',' | downcase -%}{%- if _pt contains 'chicken' or _pt contains 'mutton' or _pt contains 'beef' or _pt contains 'pork' or _pt contains 'fish' or _pt contains 'prawn' or _pt contains 'shrimp' or _pt contains 'lamb' or _pt contains 'egg' or _pt contains 'meat' or _pt contains 'duck' or _tags contains 'non-veg' or _tags contains 'nonveg' %}<span class="yk-nonveg-dot"></span>{%- else -%}<span class="yk-veg-dot"></span>{%- endif -%}
-                {%- if pct >= 10 -%}<span class="yk-badge yk-badge--deal">DEAL</span>{%- endif -%}
-                {%- if p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="yk-badge yk-badge--popular">POPULAR</span>{%- endif -%}
-                {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="yk-badge yk-badge--new">NEW</span>{%- endif -%}
-              </div>
+              <div class="yk-card-top">{%- assign _ttl = p.title | downcase -%}{%- if _ttl contains 'chicken' or _ttl contains 'mutton' or _ttl contains 'beef' or _ttl contains 'pork' or _ttl contains 'fish' or _ttl contains 'prawn' or _ttl contains 'egg' or _ttl contains 'meat' or _tags contains 'non-veg' or _tags contains 'nonveg' -%}<span class="yk-nonveg-dot"></span>{%- else -%}<span class="yk-veg-dot"></span>{%- endif -%}{%- if pct >= 10 -%}<span class="yk-badge yk-badge--deal">DEAL</span>{%- endif -%}{%- if p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="yk-badge yk-badge--popular">POPULAR</span>{%- endif -%}{%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="yk-badge yk-badge--new">NEW</span>{%- endif -%}</div>
               <h3 class="yk-item-name">{{ p.title }}</h3>
-              {%- unless p.description == blank -%}
-              <p class="yk-item-desc">{{ p.description | strip_html | truncate: 60 }}</p>
-              {%- endunless -%}
-              <div class="yk-price-row">
-                <span class="yk-price">Rs {{ p.price | divided_by: 100 }}</span>
-                {%- if cp > p.price -%}
-                <span class="yk-old-price">Rs {{ cp | divided_by: 100 }}</span>
-                <span class="yk-save">{{ pct }}% off</span>
-                {%- endif -%}
-              </div>
+              {%- unless p.description == blank -%}<p class="yk-item-desc">{{ p.description | strip_html | truncate: 60 }}</p>{%- endunless -%}
+              <div class="yk-price-row"><span class="yk-price">Rs {{ p.price | divided_by: 100 }}</span>{%- if cp > p.price -%}<span class="yk-old-price">Rs {{ cp | divided_by: 100 }}</span><span class="yk-save">{{ pct }}% off</span>{%- endif -%}</div>
             </div>
             <div class="yk-card-right">
-              {%- if p.featured_image -%}
-              <div class="yk-img-wrap">
-                <img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="72" height="72">
-              </div>
-              {%- else -%}
-              <div class="yk-img-fallback">🍪</div>
-              {%- endif -%}
-              <button class="yk-add-btn" data-vid="{{ vid }}" aria-label="Add {{ p.title | escape }} to cart">ADD</button>
-              <div class="yk-stepper" data-vid="{{ vid }}" role="group" aria-label="Quantity for {{ p.title | escape }}">
-                <button class="yk-stepper-btn yk-stepper-minus" data-vid="{{ vid }}" aria-label="Decrease quantity">−</button>
-                <span class="yk-stepper-count" data-vid="{{ vid }}">1</span>
-                <button class="yk-stepper-btn yk-stepper-plus" data-vid="{{ vid }}" aria-label="Increase quantity">+</button>
-              </div>
+              {%- if p.featured_image -%}<div class="yk-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="72" height="72"></div>{%- else -%}<div class="yk-img-fallback">🥗</div>{%- endif -%}
+              <button class="yk-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="yk-stepper" data-vid="{{ vid }}"><button class="yk-stepper-btn yk-stepper-minus" data-vid="{{ vid }}">−</button><span class="yk-stepper-count" data-vid="{{ vid }}">1</span><button class="yk-stepper-btn yk-stepper-plus" data-vid="{{ vid }}">+</button></div>
             </div>
           </div>
         {%- endif -%}
@@ -894,63 +811,123 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
     </div>
     {%- endif -%}
 
-    <!-- OTHERS -->
+    {%- comment -%} 🍰 CAKES & SWEETS {%- endcomment -%}
+    {%- if has_cakes -%}
+    <div class="yk-section-head" id="yk-sec-cakes">
+      <div class="yk-section-head-inner"><span class="yk-section-emoji">🍰</span>
+        <div><h2 class="yk-section-title">Cakes &amp; Sweets</h2><p class="yk-section-sub">{{ cake_count }} sweet treats</p></div>
+      </div>
+    </div>
+    <div class="yk-list">
+      {%- for p in all_products -%}
+        {%- assign pt = p.type | downcase | strip -%}{%- assign _tags = p.tags | join: ',' | downcase -%}
+        {%- if pt contains 'cake' or pt contains 'slice' or pt contains 'pastry' or pt contains 'tart' or pt contains 'cheesecake' or pt contains 'brownie' or pt contains 'muffin' or pt contains 'dessert' or pt contains 'sweet' or pt contains 'pudding' or pt contains 'tiramisu' or pt contains 'donut' or pt contains 'doughnut' or pt contains 'cupcake' or _tags contains 'dessert' or _tags contains 'sweet' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}{%- assign vid = p.variants.first.id -%}{%- assign pct = 0 -%}{%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+          <div class="yk-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
+            <a class="yk-card-link" href="{{ p.url }}" aria-label="{{ p.title | escape }}"></a>
+            <div class="yk-card-left">
+              <div class="yk-card-top">{%- assign _ttl = p.title | downcase -%}{%- if _ttl contains 'chicken' or _ttl contains 'mutton' or _ttl contains 'beef' or _ttl contains 'pork' or _ttl contains 'fish' or _ttl contains 'prawn' or _ttl contains 'egg' or _ttl contains 'meat' or _tags contains 'non-veg' or _tags contains 'nonveg' -%}<span class="yk-nonveg-dot"></span>{%- else -%}<span class="yk-veg-dot"></span>{%- endif -%}{%- if pct >= 10 -%}<span class="yk-badge yk-badge--deal">DEAL</span>{%- endif -%}{%- if p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="yk-badge yk-badge--popular">POPULAR</span>{%- endif -%}{%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="yk-badge yk-badge--new">NEW</span>{%- endif -%}</div>
+              <h3 class="yk-item-name">{{ p.title }}</h3>
+              {%- unless p.description == blank -%}<p class="yk-item-desc">{{ p.description | strip_html | truncate: 60 }}</p>{%- endunless -%}
+              <div class="yk-price-row"><span class="yk-price">Rs {{ p.price | divided_by: 100 }}</span>{%- if cp > p.price -%}<span class="yk-old-price">Rs {{ cp | divided_by: 100 }}</span><span class="yk-save">{{ pct }}% off</span>{%- endif -%}</div>
+            </div>
+            <div class="yk-card-right">
+              {%- if p.featured_image -%}<div class="yk-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="72" height="72"></div>{%- else -%}<div class="yk-img-fallback">🍰</div>{%- endif -%}
+              <button class="yk-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="yk-stepper" data-vid="{{ vid }}"><button class="yk-stepper-btn yk-stepper-minus" data-vid="{{ vid }}">−</button><span class="yk-stepper-count" data-vid="{{ vid }}">1</span><button class="yk-stepper-btn yk-stepper-plus" data-vid="{{ vid }}">+</button></div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
+
+    {%- comment -%} 🥐 BAKERY & BREADS {%- endcomment -%}
+    {%- if has_bakery -%}
+    <div class="yk-section-head" id="yk-sec-bakery">
+      <div class="yk-section-head-inner"><span class="yk-section-emoji">🥐</span>
+        <div><h2 class="yk-section-title">Bakery &amp; Breads</h2><p class="yk-section-sub">{{ bakery_count }} freshly baked</p></div>
+      </div>
+    </div>
+    <div class="yk-list">
+      {%- for p in all_products -%}
+        {%- assign pt = p.type | downcase | strip -%}{%- assign _tags = p.tags | join: ',' | downcase -%}
+        {%- if pt contains 'bread' or pt contains 'biscuit' or pt contains 'cookie' or pt contains 'croissant' or pt contains 'scone' or pt contains 'bagel' or pt contains 'waffle' or pt contains 'pancake' or pt contains 'roll' or pt contains 'bun' or pt contains 'bakery' or _tags contains 'bakery' or _tags contains 'bread' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}{%- assign vid = p.variants.first.id -%}{%- assign pct = 0 -%}{%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+          <div class="yk-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
+            <a class="yk-card-link" href="{{ p.url }}" aria-label="{{ p.title | escape }}"></a>
+            <div class="yk-card-left">
+              <div class="yk-card-top">{%- assign _ttl = p.title | downcase -%}{%- if _ttl contains 'chicken' or _ttl contains 'mutton' or _ttl contains 'beef' or _ttl contains 'pork' or _ttl contains 'fish' or _ttl contains 'prawn' or _ttl contains 'egg' or _ttl contains 'meat' or _tags contains 'non-veg' or _tags contains 'nonveg' -%}<span class="yk-nonveg-dot"></span>{%- else -%}<span class="yk-veg-dot"></span>{%- endif -%}{%- if pct >= 10 -%}<span class="yk-badge yk-badge--deal">DEAL</span>{%- endif -%}{%- if p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="yk-badge yk-badge--popular">POPULAR</span>{%- endif -%}{%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="yk-badge yk-badge--new">NEW</span>{%- endif -%}</div>
+              <h3 class="yk-item-name">{{ p.title }}</h3>
+              {%- unless p.description == blank -%}<p class="yk-item-desc">{{ p.description | strip_html | truncate: 60 }}</p>{%- endunless -%}
+              <div class="yk-price-row"><span class="yk-price">Rs {{ p.price | divided_by: 100 }}</span>{%- if cp > p.price -%}<span class="yk-old-price">Rs {{ cp | divided_by: 100 }}</span><span class="yk-save">{{ pct }}% off</span>{%- endif -%}</div>
+            </div>
+            <div class="yk-card-right">
+              {%- if p.featured_image -%}<div class="yk-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="72" height="72"></div>{%- else -%}<div class="yk-img-fallback">🥐</div>{%- endif -%}
+              <button class="yk-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="yk-stepper" data-vid="{{ vid }}"><button class="yk-stepper-btn yk-stepper-minus" data-vid="{{ vid }}">−</button><span class="yk-stepper-count" data-vid="{{ vid }}">1</span><button class="yk-stepper-btn yk-stepper-plus" data-vid="{{ vid }}">+</button></div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
+
+    {%- comment -%} 📦 COMBOS & BOXES {%- endcomment -%}
+    {%- if has_combos -%}
+    <div class="yk-section-head" id="yk-sec-combos">
+      <div class="yk-section-head-inner"><span class="yk-section-emoji">📦</span>
+        <div><h2 class="yk-section-title">Combos &amp; Boxes</h2><p class="yk-section-sub">{{ combo_count }} value deals</p></div>
+      </div>
+    </div>
+    <div class="yk-list">
+      {%- for p in all_products -%}
+        {%- assign pt = p.type | downcase | strip -%}{%- assign _tags = p.tags | join: ',' | downcase -%}
+        {%- if pt contains 'box' or pt contains 'combo' or pt contains 'bundle' or pt contains 'package' or pt contains 'set meal' or _tags contains 'combo' or _tags contains 'box' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}{%- assign vid = p.variants.first.id -%}{%- assign pct = 0 -%}{%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+          <div class="yk-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
+            <a class="yk-card-link" href="{{ p.url }}" aria-label="{{ p.title | escape }}"></a>
+            <div class="yk-card-left">
+              <div class="yk-card-top">{%- assign _ttl = p.title | downcase -%}{%- if _ttl contains 'chicken' or _ttl contains 'mutton' or _ttl contains 'beef' or _ttl contains 'pork' or _ttl contains 'fish' or _ttl contains 'prawn' or _ttl contains 'egg' or _ttl contains 'meat' or _tags contains 'non-veg' or _tags contains 'nonveg' -%}<span class="yk-nonveg-dot"></span>{%- else -%}<span class="yk-veg-dot"></span>{%- endif -%}{%- if pct >= 10 -%}<span class="yk-badge yk-badge--deal">DEAL</span>{%- endif -%}{%- if p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="yk-badge yk-badge--popular">POPULAR</span>{%- endif -%}{%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="yk-badge yk-badge--new">NEW</span>{%- endif -%}</div>
+              <h3 class="yk-item-name">{{ p.title }}</h3>
+              {%- unless p.description == blank -%}<p class="yk-item-desc">{{ p.description | strip_html | truncate: 60 }}</p>{%- endunless -%}
+              <div class="yk-price-row"><span class="yk-price">Rs {{ p.price | divided_by: 100 }}</span>{%- if cp > p.price -%}<span class="yk-old-price">Rs {{ cp | divided_by: 100 }}</span><span class="yk-save">{{ pct }}% off</span>{%- endif -%}</div>
+            </div>
+            <div class="yk-card-right">
+              {%- if p.featured_image -%}<div class="yk-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="72" height="72"></div>{%- else -%}<div class="yk-img-fallback">📦</div>{%- endif -%}
+              <button class="yk-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="yk-stepper" data-vid="{{ vid }}"><button class="yk-stepper-btn yk-stepper-minus" data-vid="{{ vid }}">−</button><span class="yk-stepper-count" data-vid="{{ vid }}">1</span><button class="yk-stepper-btn yk-stepper-plus" data-vid="{{ vid }}">+</button></div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
+
+    {%- comment -%} 🌟 OTHERS {%- endcomment -%}
     {%- if has_others -%}
     <div class="yk-section-head" id="yk-sec-others">
-      <div class="yk-section-head-inner">
-        <span class="yk-section-emoji">☕</span>
-        <div>
-          <h2 class="yk-section-title">More from the Menu</h2>
-          <p class="yk-section-sub">{{ other_count }} items available</p>
-        </div>
+      <div class="yk-section-head-inner"><span class="yk-section-emoji">🌟</span>
+        <div><h2 class="yk-section-title">More Items</h2><p class="yk-section-sub">{{ other_count }} items available</p></div>
       </div>
     </div>
     <div class="yk-list">
       {%- for p in all_products -%}
-        {%- assign pt = p.type | downcase | strip -%}
-        {%- unless pt contains 'slice' or pt contains 'box' or pt contains 'biscuit' or pt contains 'bread' or pt contains 'cookie' -%}
-          {%- assign cp = p.compare_at_price | default: 0 -%}
-          {%- assign vid = p.variants.first.id -%}
-          {%- assign pct = 0 -%}
-          {%- if cp > p.price -%}
-            {%- assign diff = cp | minus: p.price -%}
-            {%- assign pct = diff | times: 100 | divided_by: cp -%}
-          {%- endif -%}
+        {%- assign pt = p.type | downcase | strip -%}{%- assign _tags = p.tags | join: ',' | downcase -%}
+        {%- unless pt contains 'coffee' or pt contains 'espresso' or pt contains 'latte' or pt contains 'cappuccino' or pt contains 'americano' or pt contains 'mocha' or pt contains 'macchiato' or pt contains 'flat white' or pt contains 'cortado' or pt contains 'hot chocolate' or pt contains 'hot drink' or pt contains 'hot tea' or pt contains 'chai' or pt contains 'herbal tea' or pt contains 'hot milk' or _tags contains 'hot-drink' or _tags contains 'coffee' or pt contains 'cold' or pt contains 'iced' or pt contains 'frappe' or pt contains 'frappuccino' or pt contains 'smoothie' or pt contains 'juice' or pt contains 'shake' or pt contains 'milkshake' or pt contains 'lassi' or pt contains 'mocktail' or pt contains 'bubble' or pt contains 'boba' or pt contains 'soda' or pt contains 'lemonade' or pt contains 'beverage' or pt contains 'drink' or pt contains 'tea' or _tags contains 'cold-drink' or _tags contains 'beverage' or pt contains 'box' or pt contains 'combo' or pt contains 'bundle' or pt contains 'package' or _tags contains 'combo' or pt contains 'cake' or pt contains 'slice' or pt contains 'pastry' or pt contains 'tart' or pt contains 'brownie' or pt contains 'muffin' or pt contains 'dessert' or pt contains 'sweet' or pt contains 'donut' or pt contains 'cupcake' or _tags contains 'dessert' or pt contains 'bread' or pt contains 'biscuit' or pt contains 'cookie' or pt contains 'croissant' or pt contains 'waffle' or pt contains 'pancake' or pt contains 'roll' or pt contains 'bun' or pt contains 'bakery' or _tags contains 'bakery' or pt contains 'snack' or pt contains 'side' or pt contains 'fry' or pt contains 'fries' or pt contains 'starter' or pt contains 'salad' or pt contains 'soup' or pt contains 'samosa' or _tags contains 'snack' or pt contains 'main' or pt contains 'rice' or pt contains 'noodle' or pt contains 'pasta' or pt contains 'pizza' or pt contains 'momo' or pt contains 'burger' or pt contains 'sandwich' or pt contains 'wrap' or pt contains 'curry' or pt contains 'thali' or pt contains 'bowl' or pt contains 'food' or pt contains 'meal' or pt contains 'dish' or pt contains 'platter' or pt contains 'toast' or _tags contains 'food' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}{%- assign vid = p.variants.first.id -%}{%- assign pct = 0 -%}{%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
           <div class="yk-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
             <a class="yk-card-link" href="{{ p.url }}" aria-label="{{ p.title | escape }}"></a>
             <div class="yk-card-left">
-              <div class="yk-card-top">
-                {%- assign _pt = p.title | downcase -%}{%- assign _tags = p.tags | join: ',' | downcase -%}{%- if _pt contains 'chicken' or _pt contains 'mutton' or _pt contains 'beef' or _pt contains 'pork' or _pt contains 'fish' or _pt contains 'prawn' or _pt contains 'shrimp' or _pt contains 'lamb' or _pt contains 'egg' or _pt contains 'meat' or _pt contains 'duck' or _tags contains 'non-veg' or _tags contains 'nonveg' %}<span class="yk-nonveg-dot"></span>{%- else -%}<span class="yk-veg-dot"></span>{%- endif -%}
-                {%- if pct >= 10 -%}<span class="yk-badge yk-badge--deal">DEAL</span>{%- endif -%}
-                {%- if p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="yk-badge yk-badge--popular">POPULAR</span>{%- endif -%}
-                {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="yk-badge yk-badge--new">NEW</span>{%- endif -%}
-              </div>
+              <div class="yk-card-top">{%- assign _ttl = p.title | downcase -%}{%- if _ttl contains 'chicken' or _ttl contains 'mutton' or _ttl contains 'beef' or _ttl contains 'pork' or _ttl contains 'fish' or _ttl contains 'prawn' or _ttl contains 'egg' or _ttl contains 'meat' or _tags contains 'non-veg' or _tags contains 'nonveg' -%}<span class="yk-nonveg-dot"></span>{%- else -%}<span class="yk-veg-dot"></span>{%- endif -%}{%- if pct >= 10 -%}<span class="yk-badge yk-badge--deal">DEAL</span>{%- endif -%}{%- if p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="yk-badge yk-badge--popular">POPULAR</span>{%- endif -%}{%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="yk-badge yk-badge--new">NEW</span>{%- endif -%}</div>
               <h3 class="yk-item-name">{{ p.title }}</h3>
-              {%- unless p.description == blank -%}
-              <p class="yk-item-desc">{{ p.description | strip_html | truncate: 60 }}</p>
-              {%- endunless -%}
-              <div class="yk-price-row">
-                <span class="yk-price">Rs {{ p.price | divided_by: 100 }}</span>
-                {%- if cp > p.price -%}
-                <span class="yk-old-price">Rs {{ cp | divided_by: 100 }}</span>
-                <span class="yk-save">{{ pct }}% off</span>
-                {%- endif -%}
-              </div>
+              {%- unless p.description == blank -%}<p class="yk-item-desc">{{ p.description | strip_html | truncate: 60 }}</p>{%- endunless -%}
+              <div class="yk-price-row"><span class="yk-price">Rs {{ p.price | divided_by: 100 }}</span>{%- if cp > p.price -%}<span class="yk-old-price">Rs {{ cp | divided_by: 100 }}</span><span class="yk-save">{{ pct }}% off</span>{%- endif -%}</div>
             </div>
             <div class="yk-card-right">
-              {%- if p.featured_image -%}
-              <div class="yk-img-wrap">
-                <img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="72" height="72">
-              </div>
-              {%- else -%}
-              <div class="yk-img-fallback">☕</div>
-              {%- endif -%}
-              <button class="yk-add-btn" data-vid="{{ vid }}" aria-label="Add {{ p.title | escape }} to cart">ADD</button>
-              <div class="yk-stepper" data-vid="{{ vid }}" role="group" aria-label="Quantity for {{ p.title | escape }}">
-                <button class="yk-stepper-btn yk-stepper-minus" data-vid="{{ vid }}" aria-label="Decrease quantity">−</button>
-                <span class="yk-stepper-count" data-vid="{{ vid }}">1</span>
-                <button class="yk-stepper-btn yk-stepper-plus" data-vid="{{ vid }}" aria-label="Increase quantity">+</button>
-              </div>
+              {%- if p.featured_image -%}<div class="yk-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="72" height="72"></div>{%- else -%}<div class="yk-img-fallback">🌟</div>{%- endif -%}
+              <button class="yk-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="yk-stepper" data-vid="{{ vid }}"><button class="yk-stepper-btn yk-stepper-minus" data-vid="{{ vid }}">−</button><span class="yk-stepper-count" data-vid="{{ vid }}">1</span><button class="yk-stepper-btn yk-stepper-plus" data-vid="{{ vid }}">+</button></div>
             </div>
           </div>
         {%- endunless -%}
@@ -1158,19 +1135,26 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
         var target   = document.getElementById(targetId);
         if (!target) return;
         var tabsH  = ykTabsWrapEl ? ykTabsWrapEl.offsetHeight : 44;
-        var offset = ykHeaderH + tabsH + 4;
-        var top    = target.getBoundingClientRect().top + window.scrollY - offset;
-        window.scrollTo({ top: top, behavior: 'smooth' });
+        var offset = ykHeaderH + tabsH + 8;
+        /* Use absolute offsetTop walk to avoid getBoundingClientRect quirks */
+        var absTop = 0;
+        var node = target;
+        while (node) { absTop += node.offsetTop || 0; node = node.offsetParent; }
+        window.scrollTo({ top: absTop - offset, behavior: 'smooth' });
       });
     });
 
     if (!('IntersectionObserver' in window)) return;
 
     var sections = [
-      { id: 'yk-sec-slices',   tabId: 'yk-tab-slices'   },
-      { id: 'yk-sec-boxes',    tabId: 'yk-tab-boxes'    },
-      { id: 'yk-sec-biscuits', tabId: 'yk-tab-biscuits' },
-      { id: 'yk-sec-others',   tabId: 'yk-tab-others'   }
+      { id: 'yk-sec-hot',    tabId: 'yk-tab-hot'    },
+      { id: 'yk-sec-cold',   tabId: 'yk-tab-cold'   },
+      { id: 'yk-sec-mains',  tabId: 'yk-tab-mains'  },
+      { id: 'yk-sec-snacks', tabId: 'yk-tab-snacks' },
+      { id: 'yk-sec-cakes',  tabId: 'yk-tab-cakes'  },
+      { id: 'yk-sec-bakery', tabId: 'yk-tab-bakery' },
+      { id: 'yk-sec-combos', tabId: 'yk-tab-combos' },
+      { id: 'yk-sec-others', tabId: 'yk-tab-others' }
     ];
 
     var observer = new IntersectionObserver(function (entries) {
@@ -1241,49 +1225,56 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
     return h > 20 ? h : 102;
   }
 
+  /* Track the scroll-Y at which the tabs should become fixed */
+  var ykTabsTriggerY = 0;
+
   function ykUpdateTabsFixed() {
-    if (!ykTabsWrapEl) return;
-    var tabsTop = ykTabsWrapEl.getBoundingClientRect().top;
-    // If not fixed: check if we've scrolled past header
+    if (!ykTabsWrapEl || !ykTabsSpacerEl) return;
+    var scrollY = window.scrollY || window.pageYOffset;
+
     if (!ykTabsFixed) {
-      if (tabsTop <= ykHeaderH) {
+      /* Use spacer's offsetTop (relative to document) as trigger point */
+      if (scrollY + ykHeaderH >= ykTabsTriggerY) {
         ykTabsFixed = true;
         ykTabsWrapEl.classList.add('yk-tabs-fixed');
         ykTabsWrapEl.style.top = ykHeaderH + 'px';
-        if (ykTabsSpacerEl) {
-          ykTabsSpacerEl.style.height = ykTabsWrapEl.offsetHeight + 'px';
-          ykTabsSpacerEl.classList.add('yk-tabs-spacer-active');
-        }
+        ykTabsSpacerEl.style.height = ykTabsWrapEl.offsetHeight + 'px';
+        ykTabsSpacerEl.classList.add('yk-tabs-spacer-active');
       }
     } else {
-      // If fixed: check if spacer top is back above header
-      if (ykTabsSpacerEl) {
-        var spacerTop = ykTabsSpacerEl.getBoundingClientRect().top;
-        if (spacerTop > ykHeaderH) {
-          ykTabsFixed = false;
-          ykTabsWrapEl.classList.remove('yk-tabs-fixed');
-          ykTabsWrapEl.style.top = '';
-          ykTabsSpacerEl.classList.remove('yk-tabs-spacer-active');
-        }
+      if (scrollY + ykHeaderH < ykTabsTriggerY) {
+        ykTabsFixed = false;
+        ykTabsWrapEl.classList.remove('yk-tabs-fixed');
+        ykTabsWrapEl.style.top = '';
+        ykTabsSpacerEl.classList.remove('yk-tabs-spacer-active');
       }
     }
   }
 
+  function ykComputeTrigger() {
+    /* offsetTop of spacer = exact document position where tabs bar sits */
+    var el = ykTabsSpacerEl || ykTabsWrapEl;
+    var top = 0;
+    var node = el;
+    while (node) { top += node.offsetTop || 0; node = node.offsetParent; }
+    return top;
+  }
+
   function ykInitFixed() {
-    ykTabsWrapEl = document.getElementById('ykTabsWrap');
+    ykTabsWrapEl   = document.getElementById('ykTabsWrap');
     ykTabsSpacerEl = document.getElementById('ykTabsSpacer');
     if (!ykTabsWrapEl) return;
-    ykHeaderH = ykGetHeaderH();
+    ykHeaderH      = ykGetHeaderH();
+    ykTabsTriggerY = ykComputeTrigger();
     var tabsH = ykTabsWrapEl.offsetHeight;
     document.documentElement.style.setProperty('--yk-scroll-margin', (ykHeaderH + tabsH + 8) + 'px');
     window.addEventListener('scroll', ykUpdateTabsFixed, { passive: true });
-    window.addEventListener('resize', function() {
-      ykHeaderH = ykGetHeaderH();
+    window.addEventListener('resize', function () {
+      ykHeaderH      = ykGetHeaderH();
+      ykTabsTriggerY = ykComputeTrigger();
       var th = ykTabsWrapEl.offsetHeight;
       document.documentElement.style.setProperty('--yk-scroll-margin', (ykHeaderH + th + 8) + 'px');
-      if (ykTabsFixed) {
-        ykTabsWrapEl.style.top = ykHeaderH + 'px';
-      }
+      if (ykTabsFixed) ykTabsWrapEl.style.top = ykHeaderH + 'px';
     }, { passive: true });
   }
 
