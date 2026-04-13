@@ -1,0 +1,1298 @@
+{% comment %} Meow Meow Bubble Tea — sections/mm-bubble-tea-collection.liquid {% endcomment %}
+
+{%- assign all_products = collection.products -%}
+{%- assign has_milk     = false -%}{%- assign milk_count     = 0 -%}
+{%- assign has_fruit    = false -%}{%- assign fruit_count    = 0 -%}
+{%- assign has_special  = false -%}{%- assign special_count  = 0 -%}
+{%- assign has_smoothie = false -%}{%- assign smoothie_count = 0 -%}
+{%- assign has_toppings = false -%}{%- assign topping_count  = 0 -%}
+{%- assign has_others   = false -%}{%- assign other_count    = 0 -%}
+
+{%- for p in all_products -%}
+  {%- assign pt = p.type | downcase | strip -%}
+  {%- if pt contains 'milk' or pt contains 'taro' or pt contains 'matcha' or pt contains 'classic' or pt contains 'brown sugar' or pt contains 'oolong' or pt contains 'thai' -%}
+    {%- assign has_milk = true -%}{%- assign milk_count = milk_count | plus: 1 -%}
+  {%- elsif pt contains 'fruit' or pt contains 'berry' or pt contains 'mango' or pt contains 'lemon' or pt contains 'passion' or pt contains 'lychee' or pt contains 'strawberry' or pt contains 'peach' -%}
+    {%- assign has_fruit = true -%}{%- assign fruit_count = fruit_count | plus: 1 -%}
+  {%- elsif pt contains 'special' or pt contains 'signature' or pt contains 'seasonal' or pt contains 'limited' or pt contains 'meow' -%}
+    {%- assign has_special = true -%}{%- assign special_count = special_count | plus: 1 -%}
+  {%- elsif pt contains 'smoothie' or pt contains 'shake' or pt contains 'blend' or pt contains 'slush' or pt contains 'frappe' -%}
+    {%- assign has_smoothie = true -%}{%- assign smoothie_count = smoothie_count | plus: 1 -%}
+  {%- elsif pt contains 'topping' or pt contains 'add-on' or pt contains 'extra' or pt contains 'pearl' or pt contains 'jelly' or pt contains 'pudding' -%}
+    {%- assign has_toppings = true -%}{%- assign topping_count = topping_count | plus: 1 -%}
+  {%- else -%}
+    {%- assign has_others = true -%}{%- assign other_count = other_count | plus: 1 -%}
+  {%- endif -%}
+{%- endfor -%}
+
+<style>
+/* ════════════════════════════════════════════════════════════════
+   MEOW MEOW BUBBLE TEA  ·  mm-bubble-tea-collection.liquid
+   Kawaii · Bubbly · Smooth · Mobile-first
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── CSS Variables ────────────────────────────────────────────── */
+:root {
+  --mm-bg:           #fdf6ff;
+  --mm-card:         #ffffff;
+  --mm-card-hover:   #fdf0ff;
+  --mm-border:       #eed5f5;
+  --mm-text:         #1a0a2e;
+  --mm-text2:        #7a4a90;
+  --mm-text3:        #c8a0d8;
+  --mm-acc:          #9b3fc8;
+  --mm-acc2:         #b44ee0;
+  --mm-acc-fg:       #ffffff;
+  --mm-pink:         #f472b6;
+  --mm-teal:         #06b6d4;
+  --mm-gold:         #f59e0b;
+  --mm-hero-bg:      linear-gradient(160deg, #2d0a4e 0%, #4a1070 45%, #1a0535 100%);
+  --mm-section-head: #fdf0ff;
+  --mm-pill-bg:      #f0d8fc;
+  --mm-shadow:       0 2px 12px rgba(155,63,200,0.1), 0 1px 3px rgba(0,0,0,0.06);
+  --mm-shadow-btn:   0 4px 16px rgba(155,63,200,0.45);
+  --mm-transition:   background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+  --mm-new:          #10b981;
+  --mm-popular:      #9b3fc8;
+  --mm-limited:      #ef4444;
+  --mm-vegan:        #16a34a;
+}
+[data-theme="dark"] {
+  --mm-bg:           #0e0618;
+  --mm-card:         #180928;
+  --mm-card-hover:   #200d35;
+  --mm-border:       #2e1048;
+  --mm-text:         #f0e0ff;
+  --mm-text2:        #c090e0;
+  --mm-text3:        #5a2870;
+  --mm-acc:          #c060ff;
+  --mm-acc2:         #d580ff;
+  --mm-acc-fg:       #0e0618;
+  --mm-pink:         #f472b6;
+  --mm-teal:         #22d3ee;
+  --mm-gold:         #fbbf24;
+  --mm-hero-bg:      linear-gradient(160deg, #0a0118 0%, #1e0638 55%, #060010 100%);
+  --mm-section-head: #130520;
+  --mm-pill-bg:      #1e0a30;
+  --mm-shadow:       0 2px 12px rgba(0,0,0,0.6), 0 1px 4px rgba(0,0,0,0.4);
+  --mm-shadow-btn:   0 4px 18px rgba(192,96,255,0.5);
+  --mm-transition:   background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+/* ── Base ─────────────────────────────────────────────────────── */
+.mm-wrap {
+  background: var(--mm-bg);
+  color: var(--mm-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 60vh;
+  padding-bottom: calc(110px + env(safe-area-inset-bottom));
+  transition: var(--mm-transition);
+  -webkit-tap-highlight-color: transparent;
+  isolation: isolate;
+}
+.mm-wrap *, .mm-wrap *::before, .mm-wrap *::after { box-sizing: border-box; }
+
+/* ── Keyframes ────────────────────────────────────────────────── */
+@keyframes mm-bubble-rise {
+  0%   { transform: translateY(0)   scale(1)    opacity: 0;   }
+  10%  { opacity: 0.7; }
+  85%  { opacity: 0.5; }
+  100% { transform: translateY(-110vh) scale(1.2); opacity: 0; }
+}
+@keyframes mm-bubble-drift {
+  0%, 100% { transform: translateX(0); }
+  50%       { transform: translateX(14px); }
+}
+@keyframes mm-pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(1.6); }
+}
+@keyframes mm-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes mm-bounce {
+  0%   { transform: scale(0.8); }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+@keyframes mm-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(14px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes mm-float {
+  0%, 100% { transform: translateY(0px)  rotate(-1deg); }
+  50%       { transform: translateY(-10px) rotate(1deg); }
+}
+@keyframes mm-shimmer {
+  0%   { background-position: -300% center; }
+  100% { background-position:  300% center; }
+}
+@keyframes mm-straw-sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50%       { transform: rotate(3deg);  }
+}
+@keyframes mm-spin { to { transform: rotate(360deg); } }
+@keyframes mm-btn-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.88); }
+  70%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+@keyframes mm-ripple-out {
+  to { transform: translate(-50%,-50%) scale(18); opacity: 0; }
+}
+
+/* ── Floating Bubbles ─────────────────────────────────────────── */
+.mm-bubbles {
+  position: absolute;
+  bottom: 0; left: 0; right: 0; top: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.mm-bubble {
+  position: absolute;
+  bottom: -30px;
+  border-radius: 50%;
+  opacity: 0;
+  animation: mm-bubble-rise linear infinite, mm-bubble-drift ease-in-out infinite;
+}
+.mm-bubble:nth-child(1)  { left: 5%;  width:12px; height:12px; background:rgba(244,114,182,0.5); animation-duration:7s,3s;   animation-delay:0s,0s;    }
+.mm-bubble:nth-child(2)  { left:12%;  width:18px; height:18px; background:rgba(155,63,200,0.4);  animation-duration:9s,4s;   animation-delay:1.2s,0.5s; }
+.mm-bubble:nth-child(3)  { left:22%;  width:10px; height:10px; background:rgba(34,211,238,0.45); animation-duration:6s,2.5s; animation-delay:2.5s,1s;   }
+.mm-bubble:nth-child(4)  { left:32%;  width:22px; height:22px; background:rgba(251,191,36,0.35); animation-duration:11s,5s;  animation-delay:0.5s,1.5s; }
+.mm-bubble:nth-child(5)  { left:43%;  width:14px; height:14px; background:rgba(244,114,182,0.4); animation-duration:8s,3.5s; animation-delay:3.5s,0.8s; }
+.mm-bubble:nth-child(6)  { left:54%;  width: 9px; height: 9px; background:rgba(155,63,200,0.5);  animation-duration:6.5s,2.8s;animation-delay:1.8s,2s; }
+.mm-bubble:nth-child(7)  { left:63%;  width:16px; height:16px; background:rgba(34,211,238,0.4);  animation-duration:10s,4.2s;animation-delay:4s,0.3s;  }
+.mm-bubble:nth-child(8)  { left:72%;  width:11px; height:11px; background:rgba(244,114,182,0.45);animation-duration:7.5s,3.2s;animation-delay:2.2s,1.2s;}
+.mm-bubble:nth-child(9)  { left:81%;  width:20px; height:20px; background:rgba(155,63,200,0.35); animation-duration:12s,5.5s;animation-delay:0.8s,2.5s;}
+.mm-bubble:nth-child(10) { left:90%;  width:13px; height:13px; background:rgba(251,191,36,0.4);  animation-duration:8.5s,3.8s;animation-delay:3s,0.6s; }
+
+/* ── Hero ─────────────────────────────────────────────────────── */
+.mm-hero {
+  background: var(--mm-hero-bg);
+  padding: 30px 20px 26px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(192,96,255,0.18);
+}
+/* Top glow */
+.mm-hero::before {
+  content: '';
+  position: absolute;
+  top: -80px; left: 50%; transform: translateX(-50%);
+  width: 480px; height: 320px;
+  background: radial-gradient(ellipse, rgba(155,63,200,0.38) 0%, transparent 65%);
+  pointer-events: none;
+}
+/* Bottom gradient fade */
+.mm-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0; height: 40px;
+  background: linear-gradient(to bottom, transparent, var(--mm-bg));
+  pointer-events: none;
+}
+
+/* Location pill */
+.mm-hero-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: rgba(220,180,255,0.8);
+  background: rgba(155,63,200,0.15);
+  border: 1px solid rgba(155,63,200,0.3);
+  padding: 4px 14px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+  position: relative;
+}
+.mm-loc-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--mm-pink);
+  animation: mm-pulse-dot 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+/* Cup illustration */
+.mm-cup-wrap {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 12px;
+  animation: mm-float 3.5s ease-in-out infinite;
+}
+.mm-cup-emoji { font-size: 64px; line-height: 1; display: block; }
+.mm-straw {
+  position: absolute;
+  top: -14px; right: -8px;
+  font-size: 28px;
+  animation: mm-straw-sway 2.5s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+.mm-paw-left  { position: absolute; left: -22px; top: 50%; font-size: 18px; opacity: 0.6; transform: rotate(-20deg) translateY(-50%); }
+.mm-paw-right { position: absolute; right: -22px; top: 50%; font-size: 18px; opacity: 0.6; transform: rotate(20deg) translateY(-50%) scaleX(-1); }
+
+/* Title */
+.mm-hero-title {
+  margin: 0 0 4px;
+  font-size: clamp(2rem, 9vw, 3rem);
+  font-weight: 900;
+  letter-spacing: -1.5px;
+  line-height: 1;
+  color: #fff;
+  position: relative;
+}
+.mm-title-shimmer {
+  background: linear-gradient(90deg, #f472b6 0%, #c084fc 25%, #22d3ee 50%, #c084fc 75%, #f472b6 100%);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: mm-shimmer 4s linear infinite;
+}
+.mm-hero-sub {
+  font-size: 12.5px;
+  color: rgba(220,180,255,0.65);
+  letter-spacing: 0.5px;
+  margin: 0 0 18px;
+  position: relative;
+}
+
+/* Stat chips */
+.mm-hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 7px;
+  position: relative;
+  margin-bottom: 4px;
+}
+.mm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(230,195,255,0.9);
+  background: rgba(155,63,200,0.14);
+  border: 1px solid rgba(155,63,200,0.28);
+  backdrop-filter: blur(6px);
+}
+
+/* ── Category Tabs ────────────────────────────────────────────── */
+.mm-tabs-wrap {
+  position: relative;
+  z-index: 4999;
+  border-bottom: 1px solid var(--mm-border);
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+.mm-tabs-wrap.mm-tabs-fixed {
+  position: fixed;
+  left: 0; right: 0; width: 100%;
+  z-index: 4999;
+}
+[data-theme="dark"] .mm-tabs-wrap {
+  background: #0e0618;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.7);
+}
+html:not([data-theme="dark"]) .mm-tabs-wrap {
+  background: #fdf6ff;
+  box-shadow: 0 2px 12px rgba(155,63,200,0.08);
+}
+.mm-tabs-spacer { display: none; }
+.mm-tabs-spacer.mm-tabs-spacer-active { display: block; }
+
+.mm-tabs {
+  display: flex;
+  gap: 7px;
+  padding: 10px 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.mm-tabs::-webkit-scrollbar { display: none; }
+.mm-tab {
+  flex-shrink: 0;
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1.5px solid transparent;
+  background: var(--mm-pill-bg);
+  color: var(--mm-text2);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  transition: all 0.2s ease;
+  outline: none;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+.mm-tab.active {
+  background: linear-gradient(135deg, var(--mm-acc), var(--mm-acc2));
+  color: var(--mm-acc-fg);
+  border-color: transparent;
+  box-shadow: 0 2px 12px rgba(155,63,200,0.4);
+}
+@media(hover:hover){
+  .mm-tab:not(.active):hover {
+    background: rgba(155,63,200,0.12);
+    color: var(--mm-acc);
+    border-color: rgba(155,63,200,0.3);
+  }
+}
+
+/* Active tab indicator dot */
+.mm-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 4px; left: 50%;
+  transform: translateX(-50%);
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.6);
+}
+
+/* ── Section Header ───────────────────────────────────────────── */
+.mm-section-head {
+  background: var(--mm-section-head);
+  padding: 13px 16px 11px;
+  border-bottom: 1px solid var(--mm-border);
+  transition: var(--mm-transition);
+  scroll-margin-top: var(--mm-scroll-margin, 150px);
+}
+.mm-section-head-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.mm-section-emoji { font-size: 22px; line-height: 1; }
+.mm-section-title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+  color: var(--mm-text);
+  text-transform: uppercase;
+  transition: var(--mm-transition);
+}
+.mm-section-sub {
+  margin: 1px 0 0;
+  font-size: 11px;
+  color: var(--mm-text3);
+  transition: var(--mm-transition);
+}
+.mm-section-head-inner::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(155,63,200,0.3) 0%, transparent 100%);
+}
+
+/* ── Product Cards ────────────────────────────────────────────── */
+.mm-list { max-width: 480px; margin: 0 auto; }
+.mm-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--mm-card);
+  border-bottom: 1px solid var(--mm-border);
+  transition: background 0.2s ease;
+  animation: mm-fade-in 0.4s ease forwards;
+  opacity: 0;
+  position: relative;
+  z-index: 1;
+  isolation: auto;
+}
+.mm-card:active { background: var(--mm-card-hover); }
+@media(hover:hover){ .mm-card:hover { background: var(--mm-card-hover); } }
+.mm-card:nth-child(1)  { animation-delay: 0.03s; }
+.mm-card:nth-child(2)  { animation-delay: 0.06s; }
+.mm-card:nth-child(3)  { animation-delay: 0.09s; }
+.mm-card:nth-child(4)  { animation-delay: 0.12s; }
+.mm-card:nth-child(5)  { animation-delay: 0.15s; }
+.mm-card:nth-child(6)  { animation-delay: 0.18s; }
+.mm-card:nth-child(7)  { animation-delay: 0.21s; }
+.mm-card:nth-child(8)  { animation-delay: 0.24s; }
+.mm-card:nth-child(9)  { animation-delay: 0.27s; }
+.mm-card:nth-child(10) { animation-delay: 0.30s; }
+
+/* Clickable link overlay */
+.mm-card-link {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Left */
+.mm-card-left {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 4px;
+  position: relative; z-index: 1;
+  pointer-events: none;
+}
+.mm-card-top { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+
+/* Badges */
+.mm-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.mm-badge--popular { background: linear-gradient(135deg, var(--mm-acc), var(--mm-acc2)); color: #fff; }
+.mm-badge--new     { background: var(--mm-new);     color: #fff; }
+.mm-badge--limited { background: var(--mm-limited);  color: #fff; }
+.mm-badge--vegan   { background: var(--mm-vegan);    color: #fff; }
+.mm-badge--hot {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: #fff;
+}
+.mm-badge--iced {
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  color: #fff;
+}
+
+.mm-item-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--mm-text);
+  line-height: 1.3;
+  transition: var(--mm-transition);
+}
+.mm-item-desc {
+  margin: 0;
+  font-size: 12px;
+  color: var(--mm-text2);
+  line-height: 1.45;
+  transition: var(--mm-transition);
+}
+
+/* Sweetness / size indicators */
+.mm-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 1px;
+}
+.mm-meta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--mm-text3);
+}
+
+.mm-price-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.mm-price {
+  font-size: 15px;
+  font-weight: 800;
+  background: linear-gradient(90deg, var(--mm-acc), var(--mm-pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.mm-old-price { font-size: 12px; color: var(--mm-text3); text-decoration: line-through; }
+.mm-save      { font-size: 10px; font-weight: 700; color: var(--mm-limited); }
+
+/* Right */
+.mm-card-right {
+  width: 96px; flex-shrink: 0;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 9px;
+  position: relative; z-index: 2;
+}
+
+.mm-img-wrap {
+  width: 88px; height: 88px;
+  border-radius: 16px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #f3e8ff, #fce7f3);
+  border: 1.5px solid var(--mm-border);
+  box-shadow: 0 3px 12px rgba(155,63,200,0.15);
+  position: relative;
+}
+[data-theme="dark"] .mm-img-wrap {
+  background: linear-gradient(135deg, #1e0835, #2d1045);
+}
+.mm-img-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+.mm-card:hover .mm-img-wrap img { transform: scale(1.07); }
+
+.mm-img-fallback {
+  width: 88px; height: 88px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f3e8ff, #fce7f3);
+  border: 1.5px solid var(--mm-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px; flex-shrink: 0;
+}
+[data-theme="dark"] .mm-img-fallback {
+  background: linear-gradient(135deg, #1e0835, #2d1045);
+}
+
+/* ADD button */
+.mm-add-btn {
+  width: 88px;
+  padding: 8px 0;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, var(--mm-acc), var(--mm-pink));
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  box-shadow: var(--mm-shadow-btn);
+  transition: opacity 0.2s ease, transform 0.15s ease;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+.mm-add-btn:active { transform: scale(0.93); }
+@media(hover:hover){ .mm-add-btn:hover { opacity: 0.88; } }
+
+.mm-add-btn.loading { color: transparent !important; pointer-events: none; }
+.mm-add-btn.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 14px; height: 14px;
+  margin: -7px 0 0 -7px;
+  border: 2.5px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: mm-spin 0.55s linear infinite;
+}
+.mm-add-btn.success {
+  background: #10b981 !important;
+  pointer-events: none;
+  animation: mm-btn-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+.mm-add-btn .mm-ripple {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  transform: translate(-50%,-50%) scale(0);
+  animation: mm-ripple-out 0.5s ease-out forwards;
+  pointer-events: none;
+}
+
+/* Stepper */
+.mm-stepper {
+  display: none;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, var(--mm-acc), var(--mm-acc2));
+  border-radius: 10px;
+  overflow: hidden;
+}
+.mm-stepper.visible {
+  display: flex;
+  animation: mm-bounce 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.mm-stepper-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 17px; font-weight: 700;
+  width: 28px; height: 30px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  outline: none;
+  transition: background 0.15s;
+}
+.mm-stepper-btn:active { background: rgba(255,255,255,0.15); }
+.mm-stepper-btn.busy { opacity: 0.4; pointer-events: none; }
+.mm-stepper-count {
+  font-size: 13px; font-weight: 800;
+  color: #fff;
+  min-width: 20px; text-align: center;
+}
+
+/* ── Empty State ──────────────────────────────────────────────── */
+.mm-empty {
+  text-align: center;
+  padding: 72px 24px;
+  color: var(--mm-text2);
+}
+.mm-empty-icon { font-size: 60px; margin-bottom: 14px; line-height: 1; }
+.mm-empty h2 { font-size: 20px; font-weight: 800; color: var(--mm-text); margin: 0 0 8px; }
+.mm-empty p  { font-size: 14px; margin: 0; }
+
+/* ── Toast ────────────────────────────────────────────────────── */
+.mm-toast {
+  position: fixed;
+  bottom: calc(147px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  background: linear-gradient(135deg, #9b3fc8, #f472b6);
+  color: #fff;
+  font-size: 13px; font-weight: 700;
+  padding: 10px 22px;
+  border-radius: 24px;
+  z-index: 10001;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(155,63,200,0.45);
+}
+.mm-toast.show {
+  opacity: 1;
+  animation: mm-toast-in 0.22s ease forwards;
+}
+
+/* Cart bar disabled — universal qb-sticky-cart */
+.mm-cart-bar, .mm-cart-bar.visible { display: none !important; }
+
+/* ── Marquee ticker ───────────────────────────────────────────── */
+@keyframes mm-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.mm-ticker {
+  overflow: hidden;
+  border-top: 1px solid rgba(155,63,200,0.15);
+  border-bottom: 1px solid rgba(155,63,200,0.15);
+  background: rgba(155,63,200,0.06);
+  padding: 8px 0;
+}
+.mm-ticker-track {
+  display: flex;
+  width: max-content;
+  animation: mm-marquee 20s linear infinite;
+}
+.mm-ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--mm-text2);
+  padding: 0 24px;
+  white-space: nowrap;
+}
+.mm-ticker-item::after { content: '🧋'; margin-left: 10px; font-size: 12px; }
+</style>
+
+<div class="mm-wrap" id="mmWrap">
+
+  <!-- ── HERO ──────────────────────────────────────────────────── -->
+  <div class="mm-hero">
+
+    <!-- Floating bubbles -->
+    <div class="mm-bubbles" aria-hidden="true">
+      <span class="mm-bubble"></span><span class="mm-bubble"></span>
+      <span class="mm-bubble"></span><span class="mm-bubble"></span>
+      <span class="mm-bubble"></span><span class="mm-bubble"></span>
+      <span class="mm-bubble"></span><span class="mm-bubble"></span>
+      <span class="mm-bubble"></span><span class="mm-bubble"></span>
+    </div>
+
+    <!-- Location -->
+    <div class="mm-hero-location">
+      <span class="mm-loc-dot"></span>
+      📍 Freak St, Kathmandu
+    </div>
+
+    <!-- Cup -->
+    <div class="mm-cup-wrap" aria-hidden="true">
+      <span class="mm-paw-left">🐾</span>
+      <span class="mm-cup-emoji">🧋</span>
+      <span class="mm-straw">🥤</span>
+      <span class="mm-paw-right">🐾</span>
+    </div>
+
+    <!-- Title -->
+    <h1 class="mm-hero-title">
+      <span class="mm-title-shimmer">MEOW MEOW</span><br>
+      <span style="font-size:0.7em; letter-spacing: 0px; color: rgba(230,195,255,0.9);">Bubble Tea 🐱</span>
+    </h1>
+    <p class="mm-hero-sub">Handcrafted boba · Freak Street's finest · Purr-fect every sip</p>
+
+    <!-- Chips -->
+    <div class="mm-hero-chips">
+      <span class="mm-chip">🧋 Fresh Brewed Daily</span>
+      <span class="mm-chip">⚡ Ready in 5 min</span>
+      <span class="mm-chip">🐱 Kawaii &amp; Delicious</span>
+      <span class="mm-chip">🌿 Vegan Options</span>
+    </div>
+
+  </div>
+
+  <!-- ── TICKER ─────────────────────────────────────────────────── -->
+  <div class="mm-ticker" aria-hidden="true">
+    <div class="mm-ticker-track">
+      <span class="mm-ticker-item">Taro Milk Tea</span>
+      <span class="mm-ticker-item">Brown Sugar Boba</span>
+      <span class="mm-ticker-item">Matcha Latte</span>
+      <span class="mm-ticker-item">Strawberry Fruit Tea</span>
+      <span class="mm-ticker-item">Passion Fruit</span>
+      <span class="mm-ticker-item">Mango Smoothie</span>
+      <span class="mm-ticker-item">Taro Milk Tea</span>
+      <span class="mm-ticker-item">Brown Sugar Boba</span>
+      <span class="mm-ticker-item">Matcha Latte</span>
+      <span class="mm-ticker-item">Strawberry Fruit Tea</span>
+      <span class="mm-ticker-item">Passion Fruit</span>
+      <span class="mm-ticker-item">Mango Smoothie</span>
+    </div>
+  </div>
+
+  <!-- ── CATEGORY TABS ─────────────────────────────────────────── -->
+  {%- if all_products.size > 0 -%}
+  <div class="mm-tabs-wrap" id="mmTabsWrap">
+    <div class="mm-tabs" id="mmTabs">
+      {%- if has_special  -%}<button class="mm-tab" id="mm-tab-special"  data-target="mm-sec-special">✨ Signatures</button>{%- endif -%}
+      {%- if has_milk     -%}<button class="mm-tab" id="mm-tab-milk"     data-target="mm-sec-milk">🧋 Milk Tea</button>{%- endif -%}
+      {%- if has_fruit    -%}<button class="mm-tab" id="mm-tab-fruit"    data-target="mm-sec-fruit">🍓 Fruit Tea</button>{%- endif -%}
+      {%- if has_smoothie -%}<button class="mm-tab" id="mm-tab-smoothie" data-target="mm-sec-smoothie">🥤 Smoothies</button>{%- endif -%}
+      {%- if has_toppings -%}<button class="mm-tab" id="mm-tab-toppings" data-target="mm-sec-toppings">🍡 Toppings</button>{%- endif -%}
+      {%- if has_others   -%}<button class="mm-tab" id="mm-tab-others"   data-target="mm-sec-others">🐱 More</button>{%- endif -%}
+    </div>
+  </div>
+  <div class="mm-tabs-spacer" id="mmTabsSpacer"></div>
+  {%- endif -%}
+
+  <!-- ── PRODUCT SECTIONS ──────────────────────────────────────── -->
+  {%- if all_products.size == 0 -%}
+  <div class="mm-empty">
+    <div class="mm-empty-icon">🧋</div>
+    <h2>Brewing something amazing…</h2>
+    <p>Our menu is being prepared. Come back soon! 🐱</p>
+  </div>
+  {%- else -%}
+
+    {%- comment -%} ── MACRO: renders one product card ─────────── {%- endcomment -%}
+
+    {%- assign sections_data = "special|✨|Signature Drinks|mm-sec-special|special,signature,seasonal,limited,meow,milk|🧋|Milk Tea|mm-sec-milk|milk,taro,matcha,classic,brown sugar,oolong,thai,fruit|🍓|Fruit Tea|mm-sec-fruit|fruit,berry,mango,lemon,passion,lychee,strawberry,peach,smoothie|🥤|Smoothies & Shakes|mm-sec-smoothie|smoothie,shake,blend,slush,frappe,topping|🍡|Toppings & Add-ons|mm-sec-toppings|topping,add-on,extra,pearl,jelly,pudding" | split: "," -%}
+
+    <!-- SIGNATURES -->
+    {%- if has_special -%}
+    <div class="mm-section-head" id="mm-sec-special">
+      <div class="mm-section-head-inner">
+        <span class="mm-section-emoji">✨</span>
+        <div><h2 class="mm-section-title">Signature Drinks</h2><p class="mm-section-sub">{{ special_count }} exclusive recipes</p></div>
+      </div>
+    </div>
+    <div class="mm-list">
+      {%- for p in all_products -%}
+        {%- assign pt = p.type | downcase | strip -%}
+        {%- if pt contains 'special' or pt contains 'signature' or pt contains 'seasonal' or pt contains 'limited' or pt contains 'meow' -%}
+          {%- render 'mm-product-card', product: p, fallback: '✨' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}
+          {%- assign vid = p.variants.first.id -%}
+          {%- assign pct = 0 -%}{%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+          <div class="mm-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
+            <a class="mm-card-link" href="{{ p.url }}" aria-label="{{ p.title | escape }}"></a>
+            <div class="mm-card-left">
+              <div class="mm-card-top">
+                {%- if pct >= 10 -%}<span class="mm-badge mm-badge--limited">{{ pct }}% OFF</span>{%- endif -%}
+                {%- if p.tags contains 'popular' or p.tags contains 'Popular' or p.tags contains 'bestseller' -%}<span class="mm-badge mm-badge--popular">🔥 POPULAR</span>{%- endif -%}
+                {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="mm-badge mm-badge--new">NEW</span>{%- endif -%}
+                {%- if p.tags contains 'limited' or p.tags contains 'Limited' -%}<span class="mm-badge mm-badge--limited">LIMITED</span>{%- endif -%}
+                {%- if p.tags contains 'vegan' or p.tags contains 'Vegan' -%}<span class="mm-badge mm-badge--vegan">🌿 VEGAN</span>{%- endif -%}
+              </div>
+              <h3 class="mm-item-name">{{ p.title }}</h3>
+              {%- unless p.description == blank -%}<p class="mm-item-desc">{{ p.description | strip_html | truncate: 65 }}</p>{%- endunless -%}
+              <div class="mm-price-row">
+                <span class="mm-price">Rs {{ p.price | divided_by: 100 }}</span>
+                {%- if cp > p.price -%}<span class="mm-old-price">Rs {{ cp | divided_by: 100 }}</span><span class="mm-save">Save Rs {{ p.price | minus: cp | abs | divided_by: 100 }}</span>{%- endif -%}
+              </div>
+            </div>
+            <div class="mm-card-right">
+              {%- if p.featured_image -%}
+              <div class="mm-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="88" height="88"></div>
+              {%- else -%}<div class="mm-img-fallback">✨</div>{%- endif -%}
+              <button class="mm-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="mm-stepper" data-vid="{{ vid }}">
+                <button class="mm-stepper-btn mm-stepper-minus" data-vid="{{ vid }}">−</button>
+                <span class="mm-stepper-count" data-vid="{{ vid }}">1</span>
+                <button class="mm-stepper-btn mm-stepper-plus" data-vid="{{ vid }}">+</button>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
+
+    <!-- MILK TEA -->
+    {%- if has_milk -%}
+    <div class="mm-section-head" id="mm-sec-milk">
+      <div class="mm-section-head-inner">
+        <span class="mm-section-emoji">🧋</span>
+        <div><h2 class="mm-section-title">Milk Tea</h2><p class="mm-section-sub">{{ milk_count }} creamy classics</p></div>
+      </div>
+    </div>
+    <div class="mm-list">
+      {%- for p in all_products -%}
+        {%- assign pt = p.type | downcase | strip -%}
+        {%- if pt contains 'milk' or pt contains 'taro' or pt contains 'matcha' or pt contains 'classic' or pt contains 'brown sugar' or pt contains 'oolong' or pt contains 'thai' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}{%- assign vid = p.variants.first.id -%}{%- assign pct = 0 -%}{%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+          <div class="mm-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
+            <a class="mm-card-link" href="{{ p.url }}" aria-label="{{ p.title | escape }}"></a>
+            <div class="mm-card-left">
+              <div class="mm-card-top">
+                {%- if pct >= 10 -%}<span class="mm-badge mm-badge--limited">{{ pct }}% OFF</span>{%- endif -%}
+                {%- if p.tags contains 'popular' or p.tags contains 'Popular' or p.tags contains 'bestseller' -%}<span class="mm-badge mm-badge--popular">🔥 POPULAR</span>{%- endif -%}
+                {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="mm-badge mm-badge--new">NEW</span>{%- endif -%}
+                {%- if p.tags contains 'hot' or p.tags contains 'Hot' -%}<span class="mm-badge mm-badge--hot">🔥 HOT</span>{%- endif -%}
+                {%- if p.tags contains 'iced' or p.tags contains 'Iced' or p.tags contains 'cold' -%}<span class="mm-badge mm-badge--iced">🧊 ICED</span>{%- endif -%}
+                {%- if p.tags contains 'vegan' or p.tags contains 'Vegan' -%}<span class="mm-badge mm-badge--vegan">🌿</span>{%- endif -%}
+              </div>
+              <h3 class="mm-item-name">{{ p.title }}</h3>
+              {%- unless p.description == blank -%}<p class="mm-item-desc">{{ p.description | strip_html | truncate: 65 }}</p>{%- endunless -%}
+              <div class="mm-price-row">
+                <span class="mm-price">Rs {{ p.price | divided_by: 100 }}</span>
+                {%- if cp > p.price -%}<span class="mm-old-price">Rs {{ cp | divided_by: 100 }}</span><span class="mm-save">Save Rs {{ p.price | minus: cp | abs | divided_by: 100 }}</span>{%- endif -%}
+              </div>
+            </div>
+            <div class="mm-card-right">
+              {%- if p.featured_image -%}<div class="mm-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="88" height="88"></div>
+              {%- else -%}<div class="mm-img-fallback">🧋</div>{%- endif -%}
+              <button class="mm-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="mm-stepper" data-vid="{{ vid }}">
+                <button class="mm-stepper-btn mm-stepper-minus" data-vid="{{ vid }}">−</button>
+                <span class="mm-stepper-count" data-vid="{{ vid }}">1</span>
+                <button class="mm-stepper-btn mm-stepper-plus" data-vid="{{ vid }}">+</button>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
+
+    <!-- FRUIT TEA -->
+    {%- if has_fruit -%}
+    <div class="mm-section-head" id="mm-sec-fruit">
+      <div class="mm-section-head-inner">
+        <span class="mm-section-emoji">🍓</span>
+        <div><h2 class="mm-section-title">Fruit Tea</h2><p class="mm-section-sub">{{ fruit_count }} refreshing blends</p></div>
+      </div>
+    </div>
+    <div class="mm-list">
+      {%- for p in all_products -%}
+        {%- assign pt = p.type | downcase | strip -%}
+        {%- if pt contains 'fruit' or pt contains 'berry' or pt contains 'mango' or pt contains 'lemon' or pt contains 'passion' or pt contains 'lychee' or pt contains 'strawberry' or pt contains 'peach' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}{%- assign vid = p.variants.first.id -%}{%- assign pct = 0 -%}{%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+          <div class="mm-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
+            <a class="mm-card-link" href="{{ p.url }}" aria-label="{{ p.title | escape }}"></a>
+            <div class="mm-card-left">
+              <div class="mm-card-top">
+                {%- if pct >= 10 -%}<span class="mm-badge mm-badge--limited">{{ pct }}% OFF</span>{%- endif -%}
+                {%- if p.tags contains 'popular' or p.tags contains 'Popular' or p.tags contains 'bestseller' -%}<span class="mm-badge mm-badge--popular">🔥 POPULAR</span>{%- endif -%}
+                {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="mm-badge mm-badge--new">NEW</span>{%- endif -%}
+                {%- if p.tags contains 'vegan' or p.tags contains 'Vegan' -%}<span class="mm-badge mm-badge--vegan">🌿 VEGAN</span>{%- endif -%}
+              </div>
+              <h3 class="mm-item-name">{{ p.title }}</h3>
+              {%- unless p.description == blank -%}<p class="mm-item-desc">{{ p.description | strip_html | truncate: 65 }}</p>{%- endunless -%}
+              <div class="mm-price-row">
+                <span class="mm-price">Rs {{ p.price | divided_by: 100 }}</span>
+                {%- if cp > p.price -%}<span class="mm-old-price">Rs {{ cp | divided_by: 100 }}</span><span class="mm-save">Save Rs {{ p.price | minus: cp | abs | divided_by: 100 }}</span>{%- endif -%}
+              </div>
+            </div>
+            <div class="mm-card-right">
+              {%- if p.featured_image -%}<div class="mm-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="88" height="88"></div>
+              {%- else -%}<div class="mm-img-fallback">🍓</div>{%- endif -%}
+              <button class="mm-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="mm-stepper" data-vid="{{ vid }}">
+                <button class="mm-stepper-btn mm-stepper-minus" data-vid="{{ vid }}">−</button>
+                <span class="mm-stepper-count" data-vid="{{ vid }}">1</span>
+                <button class="mm-stepper-btn mm-stepper-plus" data-vid="{{ vid }}">+</button>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
+
+    <!-- SMOOTHIES -->
+    {%- if has_smoothie -%}
+    <div class="mm-section-head" id="mm-sec-smoothie">
+      <div class="mm-section-head-inner">
+        <span class="mm-section-emoji">🥤</span>
+        <div><h2 class="mm-section-title">Smoothies &amp; Shakes</h2><p class="mm-section-sub">{{ smoothie_count }} thick &amp; creamy</p></div>
+      </div>
+    </div>
+    <div class="mm-list">
+      {%- for p in all_products -%}
+        {%- assign pt = p.type | downcase | strip -%}
+        {%- if pt contains 'smoothie' or pt contains 'shake' or pt contains 'blend' or pt contains 'slush' or pt contains 'frappe' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}{%- assign vid = p.variants.first.id -%}{%- assign pct = 0 -%}{%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+          <div class="mm-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
+            <a class="mm-card-link" href="{{ p.url }}" aria-label="{{ p.title | escape }}"></a>
+            <div class="mm-card-left">
+              <div class="mm-card-top">
+                {%- if pct >= 10 -%}<span class="mm-badge mm-badge--limited">{{ pct }}% OFF</span>{%- endif -%}
+                {%- if p.tags contains 'popular' or p.tags contains 'Popular' or p.tags contains 'bestseller' -%}<span class="mm-badge mm-badge--popular">🔥 POPULAR</span>{%- endif -%}
+                {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="mm-badge mm-badge--new">NEW</span>{%- endif -%}
+                {%- if p.tags contains 'vegan' or p.tags contains 'Vegan' -%}<span class="mm-badge mm-badge--vegan">🌿 VEGAN</span>{%- endif -%}
+              </div>
+              <h3 class="mm-item-name">{{ p.title }}</h3>
+              {%- unless p.description == blank -%}<p class="mm-item-desc">{{ p.description | strip_html | truncate: 65 }}</p>{%- endunless -%}
+              <div class="mm-price-row">
+                <span class="mm-price">Rs {{ p.price | divided_by: 100 }}</span>
+                {%- if cp > p.price -%}<span class="mm-old-price">Rs {{ cp | divided_by: 100 }}</span><span class="mm-save">Save Rs {{ p.price | minus: cp | abs | divided_by: 100 }}</span>{%- endif -%}
+              </div>
+            </div>
+            <div class="mm-card-right">
+              {%- if p.featured_image -%}<div class="mm-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="88" height="88"></div>
+              {%- else -%}<div class="mm-img-fallback">🥤</div>{%- endif -%}
+              <button class="mm-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="mm-stepper" data-vid="{{ vid }}">
+                <button class="mm-stepper-btn mm-stepper-minus" data-vid="{{ vid }}">−</button>
+                <span class="mm-stepper-count" data-vid="{{ vid }}">1</span>
+                <button class="mm-stepper-btn mm-stepper-plus" data-vid="{{ vid }}">+</button>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
+
+    <!-- TOPPINGS -->
+    {%- if has_toppings -%}
+    <div class="mm-section-head" id="mm-sec-toppings">
+      <div class="mm-section-head-inner">
+        <span class="mm-section-emoji">🍡</span>
+        <div><h2 class="mm-section-title">Toppings &amp; Add-ons</h2><p class="mm-section-sub">{{ topping_count }} customise your cup</p></div>
+      </div>
+    </div>
+    <div class="mm-list">
+      {%- for p in all_products -%}
+        {%- assign pt = p.type | downcase | strip -%}
+        {%- if pt contains 'topping' or pt contains 'add-on' or pt contains 'extra' or pt contains 'pearl' or pt contains 'jelly' or pt contains 'pudding' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}{%- assign vid = p.variants.first.id -%}{%- assign pct = 0 -%}{%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+          <div class="mm-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
+            <a class="mm-card-link" href="{{ p.url }}" aria-label="{{ p.title | escape }}"></a>
+            <div class="mm-card-left">
+              <div class="mm-card-top">
+                {%- if pct >= 10 -%}<span class="mm-badge mm-badge--limited">{{ pct }}% OFF</span>{%- endif -%}
+                {%- if p.tags contains 'popular' or p.tags contains 'Popular' -%}<span class="mm-badge mm-badge--popular">🔥 POPULAR</span>{%- endif -%}
+                {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="mm-badge mm-badge--new">NEW</span>{%- endif -%}
+              </div>
+              <h3 class="mm-item-name">{{ p.title }}</h3>
+              {%- unless p.description == blank -%}<p class="mm-item-desc">{{ p.description | strip_html | truncate: 65 }}</p>{%- endunless -%}
+              <div class="mm-price-row">
+                <span class="mm-price">Rs {{ p.price | divided_by: 100 }}</span>
+                {%- if cp > p.price -%}<span class="mm-old-price">Rs {{ cp | divided_by: 100 }}</span>{%- endif -%}
+              </div>
+            </div>
+            <div class="mm-card-right">
+              {%- if p.featured_image -%}<div class="mm-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="88" height="88"></div>
+              {%- else -%}<div class="mm-img-fallback">🍡</div>{%- endif -%}
+              <button class="mm-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="mm-stepper" data-vid="{{ vid }}">
+                <button class="mm-stepper-btn mm-stepper-minus" data-vid="{{ vid }}">−</button>
+                <span class="mm-stepper-count" data-vid="{{ vid }}">1</span>
+                <button class="mm-stepper-btn mm-stepper-plus" data-vid="{{ vid }}">+</button>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
+
+    <!-- OTHERS -->
+    {%- if has_others -%}
+    <div class="mm-section-head" id="mm-sec-others">
+      <div class="mm-section-head-inner">
+        <span class="mm-section-emoji">🐱</span>
+        <div><h2 class="mm-section-title">More from Meow Meow</h2><p class="mm-section-sub">{{ other_count }} items available</p></div>
+      </div>
+    </div>
+    <div class="mm-list">
+      {%- for p in all_products -%}
+        {%- assign pt = p.type | downcase | strip -%}
+        {%- unless pt contains 'special' or pt contains 'signature' or pt contains 'seasonal' or pt contains 'limited' or pt contains 'meow' or pt contains 'milk' or pt contains 'taro' or pt contains 'matcha' or pt contains 'classic' or pt contains 'oolong' or pt contains 'thai' or pt contains 'fruit' or pt contains 'berry' or pt contains 'mango' or pt contains 'lemon' or pt contains 'passion' or pt contains 'lychee' or pt contains 'strawberry' or pt contains 'peach' or pt contains 'smoothie' or pt contains 'shake' or pt contains 'blend' or pt contains 'slush' or pt contains 'frappe' or pt contains 'topping' or pt contains 'add-on' or pt contains 'extra' or pt contains 'pearl' or pt contains 'jelly' or pt contains 'pudding' -%}
+          {%- assign cp = p.compare_at_price | default: 0 -%}{%- assign vid = p.variants.first.id -%}{%- assign pct = 0 -%}{%- if cp > p.price -%}{%- assign diff = cp | minus: p.price -%}{%- assign pct = diff | times: 100 | divided_by: cp -%}{%- endif -%}
+          <div class="mm-card" data-vid="{{ vid }}" data-pid="{{ p.id }}">
+            <a class="mm-card-link" href="{{ p.url }}" aria-label="{{ p.title | escape }}"></a>
+            <div class="mm-card-left">
+              <div class="mm-card-top">
+                {%- if pct >= 10 -%}<span class="mm-badge mm-badge--limited">{{ pct }}% OFF</span>{%- endif -%}
+                {%- if p.tags contains 'popular' or p.tags contains 'Popular' or p.tags contains 'bestseller' -%}<span class="mm-badge mm-badge--popular">🔥 POPULAR</span>{%- endif -%}
+                {%- if p.tags contains 'new' or p.tags contains 'New' -%}<span class="mm-badge mm-badge--new">NEW</span>{%- endif -%}
+              </div>
+              <h3 class="mm-item-name">{{ p.title }}</h3>
+              {%- unless p.description == blank -%}<p class="mm-item-desc">{{ p.description | strip_html | truncate: 65 }}</p>{%- endunless -%}
+              <div class="mm-price-row">
+                <span class="mm-price">Rs {{ p.price | divided_by: 100 }}</span>
+                {%- if cp > p.price -%}<span class="mm-old-price">Rs {{ cp | divided_by: 100 }}</span><span class="mm-save">Save Rs {{ p.price | minus: cp | abs | divided_by: 100 }}</span>{%- endif -%}
+              </div>
+            </div>
+            <div class="mm-card-right">
+              {%- if p.featured_image -%}<div class="mm-img-wrap"><img src="{{ p.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="88" height="88"></div>
+              {%- else -%}<div class="mm-img-fallback">🐱</div>{%- endif -%}
+              <button class="mm-add-btn" data-vid="{{ vid }}">ADD</button>
+              <div class="mm-stepper" data-vid="{{ vid }}">
+                <button class="mm-stepper-btn mm-stepper-minus" data-vid="{{ vid }}">−</button>
+                <span class="mm-stepper-count" data-vid="{{ vid }}">1</span>
+                <button class="mm-stepper-btn mm-stepper-plus" data-vid="{{ vid }}">+</button>
+              </div>
+            </div>
+          </div>
+        {%- endunless -%}
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
+
+  {%- endif -%}
+</div>
+
+<div class="mm-toast" id="mmToast"></div>
+
+<script>
+(function () {
+  'use strict';
+  var mmCart = {};
+
+  /* ── Render ADD/stepper for a variant ──────────────── */
+  function mmRenderVid(vid) {
+    var qty  = mmCart[vid] || 0;
+    document.querySelectorAll('.mm-add-btn[data-vid="' + vid + '"]').forEach(function (b) {
+      b.style.display = qty > 0 ? 'none' : '';
+    });
+    document.querySelectorAll('.mm-stepper[data-vid="' + vid + '"]').forEach(function (s) {
+      s.style.display = qty > 0 ? 'flex' : 'none';
+      qty > 0 ? s.classList.add('visible') : s.classList.remove('visible');
+    });
+    document.querySelectorAll('.mm-stepper-count[data-vid="' + vid + '"]').forEach(function (c) {
+      c.textContent = qty;
+    });
+  }
+
+  /* ── Update QB universal cart bar ──────────────────── */
+  function mmUpdateBar() {
+    var total = Object.values(mmCart).reduce(function (a, b) { return a + b; }, 0);
+    document.dispatchEvent(new CustomEvent('qb:cart:update', { detail: { count: total } }));
+  }
+
+  /* ── Toast ──────────────────────────────────────────── */
+  function mmShowToast(msg) {
+    var t = document.getElementById('mmToast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._mm);
+    t._mm = setTimeout(function () { t.classList.remove('show'); }, 2000);
+  }
+
+  /* ── Add to cart ────────────────────────────────────── */
+  function mmAddToCart(vid, qty, btn) {
+    if (!vid) return;
+    if (btn) { btn.classList.add('loading'); btn.setAttribute('disabled', ''); }
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ id: parseInt(vid, 10), quantity: qty })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function () {
+      mmCart[vid] = (mmCart[vid] || 0) + qty;
+      if (btn) {
+        btn.classList.remove('loading');
+        btn.classList.add('success');
+        btn.textContent = '✓';
+        setTimeout(function () { mmRenderVid(vid); mmUpdateBar(); mmShowToast('Added! 🧋'); }, 320);
+      } else { mmRenderVid(vid); mmUpdateBar(); mmShowToast('Added! 🧋'); }
+    })
+    .catch(function () {
+      if (btn) { btn.classList.remove('loading'); btn.removeAttribute('disabled'); btn.textContent = 'ADD'; }
+    });
+  }
+
+  /* ── Change quantity ────────────────────────────────── */
+  function mmChangeQty(vid, newQty, btn) {
+    if (btn) btn.classList.add('busy');
+    fetch('/cart/change.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ id: parseInt(vid, 10), quantity: newQty })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function () {
+      if (newQty <= 0) delete mmCart[vid]; else mmCart[vid] = newQty;
+      mmRenderVid(vid); mmUpdateBar();
+    })
+    .catch(function () { if (btn) btn.classList.remove('busy'); });
+  }
+
+  /* ── Restore cart on load ───────────────────────────── */
+  function mmRestoreCart() {
+    fetch('/cart.js', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      mmCart = {};
+      if (data && data.items) {
+        data.items.forEach(function (item) { mmCart[String(item.variant_id)] = item.quantity; });
+      }
+      Object.keys(mmCart).forEach(mmRenderVid);
+      mmUpdateBar();
+    });
+  }
+
+  /* ── Sticky tabs (JS fixed — works across all themes) ─ */
+  var mmHeaderH = 0, mmTabsWrapEl = null, mmTabsSpacerEl = null, mmTabsFixed = false;
+
+  function mmGetHeaderH() {
+    var hdr = document.querySelector('.qb-header');
+    var ann = document.querySelector('.qb-announcement');
+    var h = 0;
+    if (hdr) h += hdr.offsetHeight;
+    if (ann) h += ann.offsetHeight;
+    return h > 20 ? h : 102;
+  }
+
+  function mmUpdateFixed() {
+    if (!mmTabsWrapEl) return;
+    var top = mmTabsWrapEl.getBoundingClientRect().top;
+    if (!mmTabsFixed) {
+      if (top <= mmHeaderH) {
+        mmTabsFixed = true;
+        mmTabsWrapEl.classList.add('mm-tabs-fixed');
+        mmTabsWrapEl.style.top = mmHeaderH + 'px';
+        if (mmTabsSpacerEl) {
+          mmTabsSpacerEl.style.height = mmTabsWrapEl.offsetHeight + 'px';
+          mmTabsSpacerEl.classList.add('mm-tabs-spacer-active');
+        }
+      }
+    } else {
+      if (mmTabsSpacerEl && mmTabsSpacerEl.getBoundingClientRect().top > mmHeaderH) {
+        mmTabsFixed = false;
+        mmTabsWrapEl.classList.remove('mm-tabs-fixed');
+        mmTabsWrapEl.style.top = '';
+        mmTabsSpacerEl.classList.remove('mm-tabs-spacer-active');
+      }
+    }
+  }
+
+  function mmInitFixed() {
+    mmTabsWrapEl   = document.getElementById('mmTabsWrap');
+    mmTabsSpacerEl = document.getElementById('mmTabsSpacer');
+    if (!mmTabsWrapEl) return;
+    mmHeaderH = mmGetHeaderH();
+    var th = mmTabsWrapEl.offsetHeight;
+    document.documentElement.style.setProperty('--mm-scroll-margin', (mmHeaderH + th + 8) + 'px');
+    window.addEventListener('scroll', mmUpdateFixed, { passive: true });
+    window.addEventListener('resize', function () {
+      mmHeaderH = mmGetHeaderH();
+      document.documentElement.style.setProperty('--mm-scroll-margin', (mmHeaderH + mmTabsWrapEl.offsetHeight + 8) + 'px');
+      if (mmTabsFixed) mmTabsWrapEl.style.top = mmHeaderH + 'px';
+    }, { passive: true });
+  }
+
+  /* ── Category tab navigation ────────────────────────── */
+  function mmInitTabs() {
+    var tabs = document.querySelectorAll('.mm-tab');
+    if (!tabs.length) return;
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        var target = document.getElementById(tab.getAttribute('data-target'));
+        if (!target) return;
+        var offset = mmHeaderH + (mmTabsWrapEl ? mmTabsWrapEl.offsetHeight : 44) + 4;
+        window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - offset, behavior: 'smooth' });
+      });
+    });
+
+    if (!('IntersectionObserver' in window)) return;
+    var sections = [
+      { id: 'mm-sec-special',  tabId: 'mm-tab-special'  },
+      { id: 'mm-sec-milk',     tabId: 'mm-tab-milk'     },
+      { id: 'mm-sec-fruit',    tabId: 'mm-tab-fruit'    },
+      { id: 'mm-sec-smoothie', tabId: 'mm-tab-smoothie' },
+      { id: 'mm-sec-toppings', tabId: 'mm-tab-toppings' },
+      { id: 'mm-sec-others',   tabId: 'mm-tab-others'   }
+    ];
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        sections.forEach(function (s) {
+          var t = document.getElementById(s.tabId);
+          if (!t) return;
+          if (s.id === e.target.id) { t.classList.add('active'); t.scrollIntoView({ inline: 'nearest', block: 'nearest' }); }
+          else t.classList.remove('active');
+        });
+      });
+    }, { rootMargin: '-56px 0px -60% 0px', threshold: 0 });
+    sections.forEach(function (s) { var el = document.getElementById(s.id); if (el) obs.observe(el); });
+  }
+
+  /* ── Event delegation ───────────────────────────────── */
+  function mmBindCards() {
+    var wrap = document.getElementById('mmWrap');
+    if (!wrap) return;
+    wrap.addEventListener('click', function (e) {
+      var t = e.target;
+      if (t.classList.contains('mm-add-btn') && !t.classList.contains('loading') && !t.classList.contains('success')) {
+        var r = document.createElement('span'); r.className = 'mm-ripple';
+        var rect = t.getBoundingClientRect();
+        r.style.left = (e.clientX - rect.left) + 'px'; r.style.top = (e.clientY - rect.top) + 'px';
+        t.appendChild(r); setTimeout(function () { r.remove(); }, 600);
+        mmAddToCart(t.getAttribute('data-vid'), 1, t); return;
+      }
+      if (t.classList.contains('mm-stepper-minus') && !t.classList.contains('busy')) {
+        var vid = t.getAttribute('data-vid');
+        mmChangeQty(vid, Math.max(0, (mmCart[vid] || 0) - 1), t); return;
+      }
+      if (t.classList.contains('mm-stepper-plus') && !t.classList.contains('busy')) {
+        var vid = t.getAttribute('data-vid');
+        mmChangeQty(vid, (mmCart[vid] || 0) + 1, t);
+      }
+    });
+  }
+
+  /* ── Boot ───────────────────────────────────────────── */
+  function mmInit() {
+    mmBindCards();
+    mmInitTabs();
+    mmRestoreCart();
+    requestAnimationFrame(function () { setTimeout(mmInitFixed, 300); });
+  }
+
+  document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', mmInit)
+    : mmInit();
+
+})();
+</script>
+
+{% schema %}
+{ "name": "Meow Meow Bubble Tea", "settings": [] }
+{% endschema %}
