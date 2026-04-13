@@ -1,367 +1,1704 @@
-{% comment %} Real Therapy Spa — Booking Page {% endcomment %}
-{% assign rts_treatments = collection.products %}
+{%- comment -%} Real Therapy Spa — Collection Page Template {%- endcomment -%}
 
 <style>
-:root {
-  --rts-teal: #2a9d8f;
-  --rts-light-teal: #70c8be;
-  --rts-dark: #0d1a19;
-  --rts-surface: #122220;
-  --rts-card: #192e2c;
-  --rts-border: rgba(42,157,143,0.2);
-  --rts-text: #e8f5f4;
-  --rts-muted: #6aada8;
-  --rts-radius: 16px;
-}
+/* ════════════════════════════════════════════════
+   REAL THERAPY SPA — COLLECTION TEMPLATE
+   Luxurious · Serene · Mobile-First
+   ════════════════════════════════════════════════ */
+
+/* ── Light mode (default) ── */
 .rts-page {
-  background: var(--rts-dark);
-  min-height: 100vh;
+  --rts-bg:        #F9F6F1;
+  --rts-surface:   #FFFFFF;
+  --rts-card:      #FFFFFF;
+  --rts-border:    #E8E0D5;
+  --rts-border2:   #D5CAB9;
+  --rts-text:      #1C1A17;
+  --rts-text2:     #4A4035;
+  --rts-muted:     #8C7B68;
+  --rts-muted2:    #BEB0A0;
+  --rts-gold:      #B8913A;
+  --rts-gold-bg:   rgba(184,145,58,0.08);
+  --rts-gold-bd:   rgba(184,145,58,0.20);
+  --rts-green:     #2D5A27;
+  --rts-green-lt:  #4A7C43;
+  --rts-green-bg:  rgba(45,90,39,0.07);
+  --rts-green-bd:  rgba(45,90,39,0.18);
+  --rts-rose:      #9B4B4B;
+  --rts-rose-bg:   rgba(155,75,75,0.07);
+  --rts-rose-bd:   rgba(155,75,75,0.20);
+  --rts-radius:    20px;
+  --rts-shadow:    0 4px 24px rgba(28,26,23,0.07);
+  --rts-shadow2:   0 12px 40px rgba(28,26,23,0.12);
+}
+
+/* ── Dark mode ── */
+[data-theme="dark"] .rts-page {
+  --rts-bg:        #0c0c0c;
+  --rts-surface:   #141414;
+  --rts-card:      #181818;
+  --rts-border:    #2a2a2a;
+  --rts-border2:   #363636;
+  --rts-text:      #F0EDE8;
+  --rts-text2:     #C8C0B4;
+  --rts-muted:     #8A8078;
+  --rts-muted2:    #4A4540;
+  --rts-gold:      #D4AF6A;
+  --rts-gold-bg:   rgba(212,175,106,0.10);
+  --rts-gold-bd:   rgba(212,175,106,0.22);
+  --rts-green:     #3D7035;
+  --rts-green-lt:  #6AAD60;
+  --rts-green-bg:  rgba(61,112,53,0.12);
+  --rts-green-bd:  rgba(61,112,53,0.28);
+  --rts-rose:      #C26060;
+  --rts-rose-bg:   rgba(194,96,96,0.10);
+  --rts-rose-bd:   rgba(194,96,96,0.25);
+  --rts-shadow:    0 4px 24px rgba(0,0,0,0.40);
+  --rts-shadow2:   0 12px 40px rgba(0,0,0,0.55);
+}
+
+/* ── Base ── */
+.rts-page {
+  background: var(--rts-bg);
   color: var(--rts-text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  overflow-x: hidden;
+  font-family: var(--font-body--family, system-ui, sans-serif);
+  min-height: 100vh;
 }
+
+/* ════════════════════════════════════════════════
+   HERO BANNER
+   ════════════════════════════════════════════════ */
 .rts-hero {
-  background: linear-gradient(160deg, #0d1a19 0%, #122e2a 50%, #0a1812 100%);
-  padding: 64px 20px 48px;
+  position: relative;
+  background: linear-gradient(155deg, #1C2E1A 0%, #2D5A27 55%, #3D7035 100%);
+  overflow: hidden;
+  padding: 60px 24px 52px;
   text-align: center;
-  position: relative; overflow: hidden;
 }
+
+.rts-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse 60% 50% at 30% 40%, rgba(255,255,255,0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 80% 70%, rgba(184,145,58,0.10) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Decorative leaf shapes */
+.rts-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: var(--rts-bg);
+  clip-path: ellipse(55% 100% at 50% 100%);
+}
+
 .rts-hero-eyebrow {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(42,157,143,0.1); border: 1px solid var(--rts-border);
-  color: var(--rts-teal); padding: 8px 20px; border-radius: 24px;
-  font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  background: rgba(184,145,58,0.15);
+  border: 1px solid rgba(184,145,58,0.30);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #D4AF6A;
+  margin-bottom: 18px;
 }
+
 .rts-hero-title {
-  font-size: clamp(30px, 7vw, 56px); font-weight: 300; line-height: 1.1; margin: 0 0 10px;
+  font-size: clamp(28px, 8vw, 48px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+  margin: 0 0 14px;
+  line-height: 1.1;
 }
-.rts-hero-title em {
-  font-style: italic; font-weight: 700;
-  background: linear-gradient(135deg, #70c8be, #2a9d8f, #1a7a70);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+
+.rts-hero-subtitle {
+  font-size: clamp(14px, 3.5vw, 16px);
+  color: rgba(255,255,255,0.70);
+  max-width: 48ch;
+  margin: 0 auto 28px;
+  line-height: 1.6;
 }
-.rts-hero-sub { font-size: 15px; color: var(--rts-muted); margin: 10px 0 0; font-style: italic; }
 
-.rts-section { padding: 48px 20px; }
-.rts-section-title-wrap { text-align: center; margin-bottom: 36px; }
-.rts-eyebrow { font-size: 11px; color: var(--rts-teal); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
-.rts-section-h { font-size: 26px; font-weight: 300; }
-.rts-section-h strong { font-weight: 800; }
+.rts-hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: #B8913A;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.18s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(184,145,58,0.35);
+}
 
+.rts-hero-cta:hover {
+  background: #D4AF6A;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(184,145,58,0.45);
+}
+
+/* ════════════════════════════════════════════════
+   TRUST BADGES
+   ════════════════════════════════════════════════ */
+.rts-trust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 0 16px;
+  margin: 28px 0 0;
+  flex-wrap: wrap;
+}
+
+.rts-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 18px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rts-muted);
+  white-space: nowrap;
+  position: relative;
+}
+
+.rts-trust-item + .rts-trust-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 25%;
+  height: 50%;
+  width: 1px;
+  background: var(--rts-border2);
+}
+
+.rts-trust-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--rts-green-bg);
+  border: 1px solid var(--rts-green-bd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════════════════════
+   SECTION HEADING
+   ════════════════════════════════════════════════ */
+.rts-section-head {
+  text-align: center;
+  padding: 52px 24px 40px;
+}
+
+.rts-section-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--rts-gold);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.rts-section-eyebrow::before,
+.rts-section-eyebrow::after {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  background: var(--rts-gold);
+  opacity: 0.5;
+}
+
+.rts-section-title {
+  font-size: clamp(22px, 5vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--rts-text);
+  margin: 0 0 12px;
+  line-height: 1.2;
+}
+
+.rts-section-desc {
+  font-size: 15px;
+  color: var(--rts-muted);
+  max-width: 50ch;
+  margin: 0 auto;
+  line-height: 1.65;
+}
+
+/* ════════════════════════════════════════════════
+   PACKAGE CARDS
+   ════════════════════════════════════════════════ */
 .rts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 18px; max-width: 960px; margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 0 16px 64px;
+  max-width: 960px;
+  margin: 0 auto;
 }
-.rts-card {
-  background: var(--rts-card); border: 1px solid var(--rts-border);
-  border-radius: var(--rts-radius); overflow: hidden;
-  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
-}
-.rts-card:hover { transform: translateY(-4px); border-color: rgba(42,157,143,0.4); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
-.rts-card-img { width: 100%; height: 170px; object-fit: cover; }
-.rts-card-img-ph {
-  width: 100%; height: 170px;
-  background: linear-gradient(135deg, #192e2c, #0d1a19);
-  display: flex; align-items: center; justify-content: center; font-size: 52px;
-}
-.rts-card-body { padding: 18px; }
-.rts-card-name { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
-.rts-card-desc { font-size: 13px; color: var(--rts-muted); line-height: 1.6; margin-bottom: 12px; }
-.rts-card-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
-.rts-tag {
-  background: rgba(42,157,143,0.08); border: 1px solid var(--rts-border);
-  color: var(--rts-teal); padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600;
-}
-.rts-card-price { font-size: 17px; font-weight: 700; color: var(--rts-teal); margin-bottom: 14px; }
-.rts-book-btn {
-  width: 100%; padding: 13px; background: linear-gradient(135deg, #2a9d8f, #1a7a70);
-  color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
-  cursor: pointer; transition: opacity 0.2s;
-}
-.rts-book-btn:hover { opacity: 0.88; }
-.rts-book-btn:disabled { background: #333; color: #666; cursor: default; }
 
-/* DRAWER */
-.rts-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.72);
-  backdrop-filter: blur(6px); z-index: 300; opacity: 0; pointer-events: none;
-  transition: opacity 0.3s;
+@media (min-width: 700px) {
+  .rts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    padding: 0 24px 72px;
+  }
 }
-.rts-overlay.rts-open { opacity: 1; pointer-events: auto; }
-.rts-drawer {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  background: #122220; border-top: 1px solid var(--rts-border);
-  border-radius: 22px 22px 0 0; z-index: 301;
-  transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
-  max-height: 92vh; overflow-y: auto;
+
+@media (min-width: 1024px) {
+  .rts-grid {
+    grid-template-columns: repeat(3, 1fr);
+    padding: 0 32px 80px;
+  }
 }
-.rts-drawer.rts-open { transform: translateY(0); }
-#rtsBookingDrawer {
-  --rts-teal: #2a9d8f; --rts-border: rgba(42,157,143,0.2);
-  --rts-card: #192e2c; --rts-text: #e8f5f4; --rts-muted: #6aada8;
+
+/* The featured card spans full width on desktop */
+.rts-card.featured {
+  grid-column: 1 / -1;
 }
-.rts-drawer-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 14px auto 0; cursor: pointer; }
-.rts-drawer-hdr { padding: 18px 22px; border-bottom: 1px solid var(--rts-border); }
-.rts-drawer-title { font-size: 17px; font-weight: 700; color: var(--rts-text); }
-.rts-drawer-sub { font-size: 13px; color: var(--rts-muted); margin-top: 3px; }
-.rts-drawer-body { padding: 22px; }
-.rts-step-lbl { font-size: 11px; color: var(--rts-muted); margin-bottom: 8px; letter-spacing: 0.5px; }
-.rts-dots { display: flex; gap: 8px; margin-bottom: 24px; }
-.rts-dot { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.1); transition: background 0.3s; }
-.rts-dot.rts-done { background: var(--rts-teal); }
-.rts-panel { display: none; }
-.rts-panel.rts-active { display: block; }
-.rts-date-grid { display: flex; gap: 10px; flex-wrap: wrap; }
-.rts-date-chip {
-  background: var(--rts-card); border: 1.5px solid var(--rts-border);
-  border-radius: 12px; padding: 10px 12px; cursor: pointer; text-align: center; transition: all 0.2s;
+
+@media (min-width: 700px) and (max-width: 1023px) {
+  .rts-card.featured {
+    grid-column: 1 / -1;
+  }
 }
-.rts-date-chip.rts-sel { background: rgba(42,157,143,0.15); border-color: var(--rts-teal); }
-.rts-date-day { font-size: 11px; color: var(--rts-muted); text-transform: uppercase; }
-.rts-date-num { font-size: 20px; font-weight: 800; color: var(--rts-text); }
-.rts-date-mon { font-size: 11px; color: var(--rts-muted); }
-.rts-time-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
-.rts-slot {
-  background: var(--rts-card); border: 1.5px solid var(--rts-border);
-  border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s;
+
+@media (min-width: 1024px) {
+  .rts-card.featured {
+    grid-column: span 1;
+  }
 }
-.rts-slot.rts-sel { background: rgba(42,157,143,0.15); border-color: var(--rts-teal); }
-.rts-slot-period { font-size: 11px; color: var(--rts-teal); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-.rts-slot-range { font-size: 14px; font-weight: 700; color: var(--rts-text); margin-top: 2px; }
-.rts-summary {
-  background: rgba(42,157,143,0.06); border: 1px solid var(--rts-border);
-  border-radius: 14px; padding: 16px; margin-bottom: 18px;
+
+/* ── Card ── */
+.rts-card {
+  background: var(--rts-card);
+  border: 1px solid var(--rts-border);
+  border-radius: var(--rts-radius);
+  overflow: hidden;
+  box-shadow: var(--rts-shadow);
+  transition: border-color 0.25s, transform 0.22s, box-shadow 0.25s;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
-.rts-sum-row { display: flex; justify-content: space-between; padding: 6px 0; }
-.rts-sum-row + .rts-sum-row { border-top: 1px solid rgba(255,255,255,0.05); }
-.rts-sum-k { font-size: 12px; color: var(--rts-muted); }
-.rts-sum-v { font-size: 13px; font-weight: 600; color: var(--rts-text); text-align: right; max-width: 65%; }
-.rts-field { margin-bottom: 14px; }
-.rts-lbl { display: block; font-size: 11px; color: var(--rts-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 7px; }
-.rts-input, .rts-ta {
-  width: 100%; padding: 13px 16px; background: var(--rts-card); border: 1.5px solid var(--rts-border);
-  border-radius: 12px; color: var(--rts-text); font-size: 14px; font-family: inherit;
-  outline: none; transition: border-color 0.2s; box-sizing: border-box;
+
+.rts-card:hover {
+  border-color: var(--rts-gold-bd);
+  transform: translateY(-4px);
+  box-shadow: var(--rts-shadow2);
 }
-.rts-input:focus, .rts-ta:focus { border-color: var(--rts-teal); }
-.rts-ta { resize: vertical; min-height: 70px; line-height: 1.6; }
-.rts-btn-row { display: flex; gap: 10px; margin-top: 18px; }
-.rts-btn-back {
-  padding: 13px 18px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-  color: var(--rts-text); border-radius: 12px; font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: background 0.2s; white-space: nowrap;
+
+/* Card image */
+.rts-card-img {
+  aspect-ratio: 16 / 9;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #D5CAB9 0%, #C5B8A5 100%);
 }
-.rts-btn-back:hover { background: rgba(255,255,255,0.1); }
-.rts-btn-next {
-  flex: 1; padding: 13px; background: linear-gradient(135deg, #2a9d8f, #1a7a70);
-  color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 700;
-  cursor: pointer; transition: opacity 0.2s;
+
+.rts-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
 }
-.rts-btn-next:disabled { background: #333; color: #666; cursor: default; }
-.rts-btn-next:hover:not(:disabled) { opacity: 0.88; }
+
+.rts-card:hover .rts-card-img img { transform: scale(1.04); }
+
+.rts-card-img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52px;
+  background: linear-gradient(135deg, #D5ECD0 0%, #C5D9C0 100%);
+}
+
+/* Ribbon badge */
+.rts-ribbon {
+  position: absolute;
+  top: 16px;
+  left: -4px;
+  padding: 5px 14px 5px 12px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 0 6px 6px 0;
+  z-index: 2;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
+}
+
+.rts-ribbon.bestseller {
+  background: #B8913A;
+  color: #fff;
+}
+
+.rts-ribbon.popular {
+  background: var(--rts-green);
+  color: #fff;
+}
+
+.rts-ribbon.romantic {
+  background: var(--rts-rose);
+  color: #fff;
+}
+
+/* Discount pill on image */
+.rts-discount-pill {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  padding: 4px 10px;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  border-radius: 999px;
+  z-index: 2;
+}
+
+/* Card body */
+.rts-card-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 14px;
+}
+
+.rts-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rts-duration-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: var(--rts-green-bg);
+  border: 1px solid var(--rts-green-bd);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--rts-green-lt);
+}
+
+.rts-type-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: var(--rts-gold-bg);
+  border: 1px solid var(--rts-gold-bd);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--rts-gold);
+}
+
+.rts-card-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--rts-text);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Includes list */
+.rts-includes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rts-includes li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--rts-text2);
+  line-height: 1.4;
+}
+
+.rts-includes li::before {
+  content: '';
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--rts-green-bg);
+  border: 1.5px solid var(--rts-green-bd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%232D5A27' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10px;
+}
+
+/* Divider */
+.rts-card-divider {
+  height: 1px;
+  background: var(--rts-border);
+}
+
+/* Pricing */
+.rts-price-area {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.rts-price {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: var(--rts-text);
+  line-height: 1;
+}
+
+.rts-price-currency {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--rts-muted);
+  margin-bottom: 2px;
+}
+
+.rts-compare-price {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--rts-muted2);
+  text-decoration: line-through;
+  margin-bottom: 2px;
+}
+
+.rts-savings-badge {
+  margin-left: auto;
+  padding: 4px 10px;
+  background: rgba(45,90,39,0.10);
+  border: 1px solid rgba(45,90,39,0.20);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--rts-green-lt);
+}
+
+/* Card footer CTAs */
+.rts-card-footer {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.rts-btn-book {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 14px 18px;
+  background: var(--rts-green);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.18s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(45,90,39,0.25);
+}
+
+.rts-btn-book:hover {
+  background: #3D7035;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(45,90,39,0.35);
+}
+
+.rts-btn-details {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  background: transparent;
+  border: 1.5px solid var(--rts-border2);
+  border-radius: 12px;
+  color: var(--rts-muted);
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.rts-btn-details:hover {
+  border-color: var(--rts-gold-bd);
+  color: var(--rts-gold);
+}
+
+/* ════════════════════════════════════════════════
+   WHY CHOOSE US STRIP
+   ════════════════════════════════════════════════ */
+.rts-why {
+  background: var(--rts-green);
+  padding: 48px 24px;
+  text-align: center;
+  color: #fff;
+}
+
+.rts-why-title {
+  font-size: clamp(18px, 4vw, 24px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0 0 32px;
+  color: #fff;
+}
+
+.rts-why-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .rts-why-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.rts-why-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.rts-why-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.rts-why-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.35;
+}
+
+/* ════════════════════════════════════════════════
+   BOOK STRIP
+   ════════════════════════════════════════════════ */
+.rts-book-strip {
+  padding: 56px 24px;
+  text-align: center;
+  background: var(--rts-bg);
+}
+
+.rts-book-title {
+  font-size: clamp(20px, 5vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--rts-text);
+  margin: 0 0 10px;
+}
+
+.rts-book-sub {
+  font-size: 14px;
+  color: var(--rts-muted);
+  margin: 0 auto 28px;
+  max-width: 40ch;
+  line-height: 1.6;
+}
+
+.rts-book-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.rts-call-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 26px;
+  background: var(--rts-green);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.18s;
+  box-shadow: 0 4px 16px rgba(45,90,39,0.25);
+}
+
+.rts-call-btn:hover { background: #3D7035; transform: translateY(-2px); }
+
+.rts-wa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 26px;
+  background: #25D366;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.18s;
+  box-shadow: 0 4px 16px rgba(37,211,102,0.30);
+}
+
+.rts-wa-btn:hover { background: #1ebe5a; transform: translateY(-2px); }
+
+.rts-discount-note {
+  margin-top: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  background: var(--rts-gold-bg);
+  border: 1px solid var(--rts-gold-bd);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rts-gold);
+}
+
+/* ════════════════════════════════════════════════
+   ACCESSIBILITY
+   ════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .rts-card, .rts-btn-book, .rts-hero-cta,
+  .rts-card-img img { transition: none !important; transform: none !important; }
+}
 </style>
 
 <div class="rts-page">
+
+  <!-- ═══════════════════════════
+       HERO
+       ═══════════════════════════ -->
   <div class="rts-hero">
-    <div class="rts-hero-eyebrow">💆 Therapeutic Wellness</div>
-    <h1 class="rts-hero-title">{{ collection.title | default: 'Real Therapy Spa' }}<br><em>Book Your Session</em></h1>
-    <p class="rts-hero-sub">Healing therapies, expert hands, genuine care.</p>
+    <div class="rts-hero-eyebrow">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
+      Thamel, Kathmandu · Since 2002
+    </div>
+    <h1 class="rts-hero-title">Spa Packages<br>in Kathmandu</h1>
+    <p class="rts-hero-subtitle">Complete wellness journeys blending Ayurvedic traditions with modern therapeutic practices — in the heart of Thamel.</p>
+    <a href="/pages/contact" class="rts-hero-cta">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Book Now
+    </a>
   </div>
 
-  <div class="rts-section">
-    <div class="rts-section-title-wrap">
-      <div class="rts-eyebrow">✦ Our Treatments</div>
-      <div class="rts-section-h">Choose Your <strong>Therapy</strong></div>
+  <!-- ═══════════════════════════
+       TRUST BADGES
+       ═══════════════════════════ -->
+  <div class="rts-trust">
+    <div class="rts-trust-item">
+      <div class="rts-trust-icon">⭐</div>
+      <span>5-Star Rated<br>on TripAdvisor</span>
     </div>
-    <div class="rts-grid">
-      {% for p in rts_treatments %}
-        {% assign dur_tag = '' %}
-        {% for tag in p.tags %}{% if tag contains 'min' or tag contains 'hour' %}{% assign dur_tag = tag %}{% endif %}{% endfor %}
-        <div class="rts-card">
-          {% if p.featured_image %}
-            <img class="rts-card-img" src="{{ p.featured_image | img_url: '600x340', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy">
-          {% else %}
-            <div class="rts-card-img-ph">💆</div>
-          {% endif %}
-          <div class="rts-card-body">
-            <div class="rts-card-name">{{ p.title }}</div>
-            {% if p.description != blank %}<div class="rts-card-desc">{{ p.description | strip_html | truncate: 110 }}</div>{% endif %}
-            <div class="rts-card-tags">
-              {% if dur_tag != blank %}<span class="rts-tag">⏱ {{ dur_tag }}</span>{% endif %}
-              {% if p.type != blank %}<span class="rts-tag">{{ p.type }}</span>{% endif %}
+    <div class="rts-trust-item">
+      <div class="rts-trust-icon">🏛️</div>
+      <span>Since 2002<br>Trusted Heritage</span>
+    </div>
+    <div class="rts-trust-item">
+      <div class="rts-trust-icon">🔒</div>
+      <span>Private<br>Facilities</span>
+    </div>
+    <div class="rts-trust-item">
+      <div class="rts-trust-icon">🌿</div>
+      <span>Ayurvedic<br>Methods</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════
+       PACKAGES
+       ═══════════════════════════ -->
+  <div class="rts-section-head">
+    <p class="rts-section-eyebrow">Our Packages</p>
+    <h2 class="rts-section-title">Choose Your Wellness Journey</h2>
+    <p class="rts-section-desc">Each package is fully customizable. Swap any treatment for another of equal duration — just let our front desk know when booking.</p>
+  </div>
+
+  <div class="rts-grid">
+
+    {%- for product in collection.products -%}
+
+      {%- assign is_featured = false -%}
+      {%- if product.tags contains 'full-day' or product.handle contains 'full-day' -%}
+        {%- assign is_featured = true -%}
+        {%- assign ribbon_class = 'bestseller' -%}
+        {%- assign ribbon_text = 'Best Value' -%}
+        {%- assign duration_text = '8 Hours' -%}
+        {%- assign type_icon = '✦' -%}
+        {%- assign card_includes = 'Sauna & Steam + Jacuzzi (x2)|Best Treatment or Hot Stone Massage (120 min)|Full Body Scrub & Massage (60 min)|Lunch Included|Facial + Pedicure + Manicure (60 min each)' | split: '|' -%}
+      {%- elsif product.tags contains 'half-day' or product.handle contains 'half-day' -%}
+        {%- assign ribbon_class = 'popular' -%}
+        {%- assign ribbon_text = 'Most Popular' -%}
+        {%- assign duration_text = '5 Hours' -%}
+        {%- assign type_icon = '◆' -%}
+        {%- assign card_includes = 'Sauna & Steam + Jacuzzi (60 min)|Best Treatment or Hot Stone Massage (90 min)|Facial or Full Body Scrub (60 min)|Pedicure or Full Leg Waxing (60 min)|Lunch Included' | split: '|' -%}
+      {%- elsif product.tags contains 'couples' or product.handle contains 'couple' -%}
+        {%- assign ribbon_class = 'romantic' -%}
+        {%- assign ribbon_text = 'For Couples' -%}
+        {%- assign duration_text = 'Flexible' -%}
+        {%- assign type_icon = '♥' -%}
+        {%- assign card_includes = 'Private Couples Sauna & Jacuzzi (120 min)|Ayurvedic Massage for Both (60 min each)|Private Shower & Resting Area|Unlimited Tea & Coffee|Fully Separate from Other Guests' | split: '|' -%}
+      {%- else -%}
+        {%- assign ribbon_class = '' -%}
+        {%- assign ribbon_text = '' -%}
+        {%- assign duration_text = product.metafields.custom.duration | default: 'Custom' -%}
+        {%- assign type_icon = '◆' -%}
+        {%- assign card_includes = '' | split: ',' -%}
+      {%- endif -%}
+
+      {%- assign has_discount = false -%}
+      {%- if product.compare_at_price > product.price -%}
+        {%- assign has_discount = true -%}
+        {%- assign savings = product.compare_at_price | minus: product.price -%}
+      {%- endif -%}
+
+      <div class="rts-card{% if is_featured %} featured{% endif %}">
+
+        <div class="rts-card-img">
+          {%- if product.featured_image -%}
+            <img
+              src="{{ product.featured_image | image_url: width: 800 }}"
+              alt="{{ product.featured_image.alt | default: product.title | escape }}"
+              loading="lazy"
+              width="800"
+              height="450"
+            >
+          {%- else -%}
+            <div class="rts-card-img-placeholder">
+              {%- if ribbon_class == 'romantic' -%}🌹
+              {%- elsif ribbon_class == 'popular' -%}🌿
+              {%- else -%}🪷{%- endif -%}
             </div>
-            <div class="rts-card-price">NPR {{ p.price | money_without_currency }}</div>
-            {% if p.available %}
-              <button class="rts-book-btn"
-                data-variant="{{ p.variants.first.id }}"
-                data-name="{{ p.title | escape }}"
-                data-price="{{ p.price | money_without_currency }}"
-                data-duration="{{ dur_tag | default: 'As per package' }}"
-                onclick="rtsOpenBooking(this)">Book Now</button>
-            {% else %}
-              <button class="rts-book-btn" disabled>Unavailable</button>
-            {% endif %}
-          </div>
+          {%- endif -%}
+
+          {%- if ribbon_text != '' -%}
+            <span class="rts-ribbon {{ ribbon_class }}">{{ ribbon_text }}</span>
+          {%- endif -%}
+
+          {%- if has_discount -%}
+            {%- assign discount_pct = savings | times: 100 | divided_by: product.compare_at_price -%}
+            <span class="rts-discount-pill">{{ discount_pct }}% OFF</span>
+          {%- endif -%}
         </div>
-      {% endfor %}
+
+        <div class="rts-card-body">
+
+          <div class="rts-card-meta">
+            {%- if duration_text != '' -%}
+              <span class="rts-duration-chip">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                {{ duration_text }}
+              </span>
+            {%- endif -%}
+            <span class="rts-type-chip">{{ type_icon }} Spa Package</span>
+          </div>
+
+          <h3 class="rts-card-title">{{ product.title }}</h3>
+
+          {%- if card_includes.size > 0 -%}
+            <ul class="rts-includes">
+              {%- for item in card_includes limit: 5 -%}
+                <li>{{ item }}</li>
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
+
+          <div class="rts-card-divider"></div>
+
+          <div class="rts-price-area">
+            <span class="rts-price-currency">
+              {%- if product.tags contains 'npr' or product.handle contains 'couple' -%}NPR{%- else -%}USD{%- endif -%}
+            </span>
+            <span class="rts-price">{{ product.price | money_without_currency }}</span>
+            {%- if has_discount -%}
+              <span class="rts-compare-price">
+                {%- if product.tags contains 'npr' or product.handle contains 'couple' -%}NPR{%- else -%}USD{%- endif -%}
+                {{ product.compare_at_price | money_without_currency }}
+              </span>
+            {%- endif -%}
+            {%- if has_discount -%}
+              <span class="rts-savings-badge">Save {{ savings | money_without_currency }}</span>
+            {%- endif -%}
+          </div>
+
+          <div class="rts-card-footer">
+            <button
+              class="rts-btn-book rts-book-trigger"
+              data-variant="{{ product.first_available_variant.id }}"
+              data-name="{{ product.title | escape }}"
+              data-price="{{ product.price | money_without_currency }}"
+              data-currency="{%- if product.tags contains 'npr' or product.handle contains 'couple' -%}NPR{%- else -%}USD{%- endif -%}"
+              data-duration="{{ duration_text }}"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Book This Package
+            </button>
+            <a href="{{ product.url }}" class="rts-btn-details" aria-label="View details for {{ product.title | escape }}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+    {%- endfor -%}
+
+  </div>
+
+  <!-- ═══════════════════════════
+       WHY CHOOSE US
+       ═══════════════════════════ -->
+  <div class="rts-why">
+    <h2 class="rts-why-title">Why Real Therapy Spa?</h2>
+    <div class="rts-why-grid">
+      <div class="rts-why-item">
+        <div class="rts-why-icon">🏛️</div>
+        <span class="rts-why-label">20+ Years<br>of Excellence</span>
+      </div>
+      <div class="rts-why-item">
+        <div class="rts-why-icon">🌿</div>
+        <span class="rts-why-label">Ayurvedic<br>Wellness</span>
+      </div>
+      <div class="rts-why-item">
+        <div class="rts-why-icon">🔒</div>
+        <span class="rts-why-label">Private<br>Facilities</span>
+      </div>
+      <div class="rts-why-item">
+        <div class="rts-why-icon">✏️</div>
+        <span class="rts-why-label">Fully<br>Customizable</span>
+      </div>
     </div>
   </div>
+
+  <!-- ═══════════════════════════
+       BOOK CTA STRIP
+       ═══════════════════════════ -->
+  <div class="rts-book-strip">
+    <h2 class="rts-book-title">Ready to Unwind?</h2>
+    <p class="rts-book-sub">Walk-ins welcome. Advance booking recommended for packages to guarantee availability.</p>
+    <div class="rts-book-actions">
+      <button class="rts-call-btn rts-book-trigger" data-variant="" data-name="Spa Package" data-price="" data-currency="" data-duration="">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Book an Appointment
+      </button>
+    </div>
+    <div>
+      <span class="rts-discount-note">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+        Book online and get 20% off your appointment
+      </span>
+    </div>
+  </div>
+
 </div>
 
-<div class="rts-overlay" id="rtsOverlay" onclick="rtsCloseBooking()"></div>
-<div class="rts-drawer" id="rtsBookingDrawer">
-  <div class="rts-drawer-handle" onclick="rtsCloseBooking()"></div>
-  <div class="rts-drawer-hdr">
-    <div class="rts-drawer-title" id="rtsDrawerTitle">Book Treatment</div>
-    <div class="rts-drawer-sub" id="rtsDrawerSub"></div>
+<!-- ══════════════════════════════════════════════
+     BOOKING DRAWER
+     ══════════════════════════════════════════════ -->
+<div id="rtsBookingOverlay" class="rts-overlay" aria-hidden="true"></div>
+
+<div id="rtsBookingDrawer" class="rts-drawer" role="dialog" aria-modal="true" aria-label="Book a spa package">
+  <!-- Handle bar -->
+  <div class="rts-drawer-handle"></div>
+
+  <!-- Header -->
+  <div class="rts-drawer-header">
+    <div>
+      <p class="rts-drawer-eyebrow">Real Therapy Spa</p>
+      <h2 class="rts-drawer-title" id="rtsDrawerTitle">Book Your Session</h2>
+    </div>
+    <button class="rts-drawer-close" id="rtsDrawerClose" aria-label="Close booking">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
   </div>
+
+  <!-- Progress -->
+  <div class="rts-progress">
+    <div class="rts-progress-step active" data-step="1">
+      <div class="rts-progress-dot"></div>
+      <span>Date</span>
+    </div>
+    <div class="rts-progress-line"></div>
+    <div class="rts-progress-step" data-step="2">
+      <div class="rts-progress-dot"></div>
+      <span>Time</span>
+    </div>
+    <div class="rts-progress-line"></div>
+    <div class="rts-progress-step" data-step="3">
+      <div class="rts-progress-dot"></div>
+      <span>Details</span>
+    </div>
+  </div>
+
+  <!-- Package summary pill -->
+  <div class="rts-drawer-pkg" id="rtsDrawerPkg"></div>
+
+  <!-- Step content -->
   <div class="rts-drawer-body">
-    <div class="rts-step-lbl" id="rtsStepLbl">Step 1 of 3 — Select Date</div>
-    <div class="rts-dots">
-      <div class="rts-dot rts-done" id="rtsDot1"></div>
-      <div class="rts-dot" id="rtsDot2"></div>
-      <div class="rts-dot" id="rtsDot3"></div>
+
+    <!-- STEP 1: DATE -->
+    <div class="rts-step" id="rtsStep1">
+      <p class="rts-step-label">Select your preferred date</p>
+      <div class="rts-date-scroll" id="rtsDateScroll"></div>
     </div>
 
-    <div class="rts-panel rts-active" id="rtsPanel1">
-      <div class="rts-date-grid" id="rtsDateGrid"></div>
-      <div class="rts-btn-row">
-        <button class="rts-btn-next" id="rtsNext1" onclick="rtsGoStep(2)" disabled>Continue →</button>
+    <!-- STEP 2: TIME SLOT -->
+    <div class="rts-step hidden" id="rtsStep2">
+      <p class="rts-step-label">Choose a time slot</p>
+      <div class="rts-slot-grid" id="rtsSlotGrid">
+        <button class="rts-slot" data-slot="Morning · 9:00 AM – 10:30 AM">
+          <span class="rts-slot-time">9:00 AM</span>
+          <span class="rts-slot-label">Morning</span>
+        </button>
+        <button class="rts-slot" data-slot="Late Morning · 10:30 AM – 12:00 PM">
+          <span class="rts-slot-time">10:30 AM</span>
+          <span class="rts-slot-label">Late Morning</span>
+        </button>
+        <button class="rts-slot" data-slot="Noon · 12:00 PM – 1:30 PM">
+          <span class="rts-slot-time">12:00 PM</span>
+          <span class="rts-slot-label">Noon</span>
+        </button>
+        <button class="rts-slot" data-slot="Afternoon · 1:30 PM – 3:00 PM">
+          <span class="rts-slot-time">1:30 PM</span>
+          <span class="rts-slot-label">Afternoon</span>
+        </button>
+        <button class="rts-slot" data-slot="Late Afternoon · 3:00 PM – 4:30 PM">
+          <span class="rts-slot-time">3:00 PM</span>
+          <span class="rts-slot-label">Late Afternoon</span>
+        </button>
+        <button class="rts-slot" data-slot="Evening · 4:30 PM – 6:00 PM">
+          <span class="rts-slot-time">4:30 PM</span>
+          <span class="rts-slot-label">Evening</span>
+        </button>
       </div>
     </div>
 
-    <div class="rts-panel" id="rtsPanel2">
-      <div class="rts-time-grid">
-        <div class="rts-slot" onclick="rtsSelTime(this,'Morning','9:00 AM – 10:30 AM')"><div class="rts-slot-period">Morning</div><div class="rts-slot-range">9:00 AM – 10:30 AM</div></div>
-        <div class="rts-slot" onclick="rtsSelTime(this,'Late Morning','10:30 AM – 12:00 PM')"><div class="rts-slot-period">Late Morning</div><div class="rts-slot-range">10:30 AM – 12:00 PM</div></div>
-        <div class="rts-slot" onclick="rtsSelTime(this,'Afternoon','1:00 PM – 2:30 PM')"><div class="rts-slot-period">Afternoon</div><div class="rts-slot-range">1:00 PM – 2:30 PM</div></div>
-        <div class="rts-slot" onclick="rtsSelTime(this,'Late Afternoon','3:00 PM – 4:30 PM')"><div class="rts-slot-period">Late Afternoon</div><div class="rts-slot-range">3:00 PM – 4:30 PM</div></div>
-        <div class="rts-slot" onclick="rtsSelTime(this,'Evening','5:00 PM – 6:30 PM')"><div class="rts-slot-period">Evening</div><div class="rts-slot-range">5:00 PM – 6:30 PM</div></div>
-        <div class="rts-slot" onclick="rtsSelTime(this,'Late Evening','7:00 PM – 8:30 PM')"><div class="rts-slot-period">Late Evening</div><div class="rts-slot-range">7:00 PM – 8:30 PM</div></div>
+    <!-- STEP 3: DETAILS -->
+    <div class="rts-step hidden" id="rtsStep3">
+      <p class="rts-step-label">Your details</p>
+      <div class="rts-form-grid">
+        <div class="rts-field">
+          <label class="rts-field-label" for="rtsName">Full Name *</label>
+          <input class="rts-field-input" type="text" id="rtsName" placeholder="e.g. Aarav Sharma" autocomplete="name" />
+        </div>
+        <div class="rts-field">
+          <label class="rts-field-label" for="rtsPhone">Phone / WhatsApp *</label>
+          <input class="rts-field-input" type="tel" id="rtsPhone" placeholder="e.g. 9801234567" autocomplete="tel" />
+        </div>
+        <div class="rts-field rts-field-full">
+          <label class="rts-field-label" for="rtsNotes">Special Requests <span style="font-weight:400;opacity:0.6">(optional)</span></label>
+          <textarea class="rts-field-input rts-field-textarea" id="rtsNotes" placeholder="Allergies, preferences, celebrations…" rows="3"></textarea>
+        </div>
       </div>
-      <div class="rts-btn-row">
-        <button class="rts-btn-back" onclick="rtsGoStep(1)">← Back</button>
-        <button class="rts-btn-next" id="rtsNext2" onclick="rtsGoStep(3)" disabled>Continue →</button>
-      </div>
-    </div>
 
-    <div class="rts-panel" id="rtsPanel3">
+      <!-- Booking summary -->
       <div class="rts-summary" id="rtsSummary"></div>
-      <div class="rts-field">
-        <label class="rts-lbl">Your Name *</label>
-        <input type="text" class="rts-input" id="rtsGuestName" placeholder="Full name">
-      </div>
-      <div class="rts-field">
-        <label class="rts-lbl">Phone / WhatsApp *</label>
-        <input type="tel" class="rts-input" id="rtsGuestPhone" placeholder="98XXXXXXXX">
-      </div>
-      <div class="rts-field">
-        <label class="rts-lbl">Special Requests</label>
-        <textarea class="rts-ta" id="rtsSpecial" placeholder="Any preferences or notes…"></textarea>
-      </div>
-      <div class="rts-btn-row">
-        <button class="rts-btn-back" onclick="rtsGoStep(2)">← Back</button>
-        <button class="rts-btn-next" id="rtsConfirmBtn" onclick="rtsConfirm()">Confirm Booking</button>
-      </div>
     </div>
+
+  </div>
+
+  <!-- Footer nav -->
+  <div class="rts-drawer-footer">
+    <button class="rts-footer-back hidden" id="rtsBack">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+      Back
+    </button>
+    <button class="rts-footer-next" id="rtsNext">
+      Next
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
   </div>
 </div>
+
+<style>
+/* ════════════ BOOKING DRAWER ════════════ */
+.rts-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  z-index: 9000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.rts-overlay.open { opacity: 1; pointer-events: all; }
+
+.rts-drawer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 560px;
+  margin: 0 auto;
+  background: var(--rts-surface, #fff);
+  border-radius: 24px 24px 0 0;
+  z-index: 9001;
+  transform: translateY(100%);
+  transition: transform 0.44s cubic-bezier(0.32,0.72,0,1);
+  max-height: 92dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.rts-drawer.open { transform: translateY(0); }
+
+.rts-drawer-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--rts-border2, #ccc);
+  margin: 12px auto 0;
+  flex-shrink: 0;
+}
+
+.rts-drawer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 20px 8px;
+  flex-shrink: 0;
+}
+
+.rts-drawer-eyebrow {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--rts-green-lt, #4A7C43);
+  margin: 0 0 3px;
+}
+
+.rts-drawer-title {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--rts-text, #1C1A17);
+  margin: 0;
+  line-height: 1.1;
+}
+
+.rts-drawer-close {
+  all: unset;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--rts-border, #E8E0D5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--rts-muted, #8C7B68);
+  flex-shrink: 0;
+  transition: background 0.18s;
+}
+.rts-drawer-close:hover { background: var(--rts-border2, #D5CAB9); }
+
+/* Progress */
+.rts-progress {
+  display: flex;
+  align-items: center;
+  padding: 12px 24px 8px;
+  flex-shrink: 0;
+  gap: 0;
+}
+.rts-progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--rts-muted2, #BEB0A0);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition: color 0.2s;
+}
+.rts-progress-step.active { color: var(--rts-green-lt, #4A7C43); }
+.rts-progress-step.done { color: var(--rts-gold, #B8913A); }
+
+.rts-progress-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--rts-border2, #D5CAB9);
+  background: var(--rts-surface, #fff);
+  transition: border-color 0.2s, background 0.2s;
+}
+.rts-progress-step.active .rts-progress-dot {
+  border-color: var(--rts-green-lt, #4A7C43);
+  background: var(--rts-green-bg, rgba(45,90,39,0.1));
+}
+.rts-progress-step.done .rts-progress-dot {
+  border-color: var(--rts-gold, #B8913A);
+  background: var(--rts-gold-bg, rgba(184,145,58,0.1));
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23B8913A' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px;
+}
+.rts-progress-line {
+  flex: 1;
+  height: 2px;
+  background: var(--rts-border, #E8E0D5);
+  margin-bottom: 14px;
+  transition: background 0.2s;
+}
+.rts-progress-line.done { background: var(--rts-gold, #B8913A); }
+
+/* Package pill */
+.rts-drawer-pkg {
+  margin: 0 20px 12px;
+  padding: 10px 14px;
+  background: var(--rts-green-bg, rgba(45,90,39,0.07));
+  border: 1px solid var(--rts-green-bd, rgba(45,90,39,0.18));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--rts-text, #1C1A17);
+  flex-shrink: 0;
+}
+.rts-drawer-pkg .rts-pkg-name { flex: 1; min-width: 0; }
+.rts-drawer-pkg .rts-pkg-price {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--rts-green-lt, #4A7C43);
+  flex-shrink: 0;
+}
+
+/* Scrollable body */
+.rts-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 20px 8px;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.rts-drawer-body::-webkit-scrollbar { display: none; }
+
+.rts-step { padding-bottom: 12px; }
+.rts-step.hidden { display: none; }
+
+.rts-step-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--rts-muted, #8C7B68);
+  margin: 0 0 12px;
+}
+
+/* Date chips */
+.rts-date-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+  flex-wrap: nowrap;
+}
+.rts-date-scroll::-webkit-scrollbar { display: none; }
+
+.rts-date-chip {
+  all: unset;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--rts-border, #E8E0D5);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+  min-width: 58px;
+}
+.rts-date-chip:hover { border-color: var(--rts-green-bd, rgba(45,90,39,0.3)); }
+.rts-date-chip.selected {
+  border-color: var(--rts-green-lt, #4A7C43);
+  background: var(--rts-green-bg, rgba(45,90,39,0.08));
+}
+.rts-date-day {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--rts-muted, #8C7B68);
+}
+.rts-date-chip.selected .rts-date-day { color: var(--rts-green-lt, #4A7C43); }
+.rts-date-num {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--rts-text, #1C1A17);
+  line-height: 1;
+}
+.rts-date-chip.selected .rts-date-num { color: var(--rts-green, #2D5A27); }
+.rts-date-month {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--rts-muted2, #BEB0A0);
+}
+.rts-date-chip.selected .rts-date-month { color: var(--rts-green-lt, #4A7C43); }
+
+/* Time slots */
+.rts-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.rts-slot {
+  all: unset;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px 14px;
+  border: 1.5px solid var(--rts-border, #E8E0D5);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+}
+.rts-slot:hover { border-color: var(--rts-green-bd, rgba(45,90,39,0.3)); }
+.rts-slot.selected {
+  border-color: var(--rts-green-lt, #4A7C43);
+  background: var(--rts-green-bg, rgba(45,90,39,0.08));
+}
+.rts-slot-time {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--rts-text, #1C1A17);
+  letter-spacing: -0.01em;
+}
+.rts-slot.selected .rts-slot-time { color: var(--rts-green, #2D5A27); }
+.rts-slot-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--rts-muted, #8C7B68);
+}
+.rts-slot.selected .rts-slot-label { color: var(--rts-green-lt, #4A7C43); }
+
+/* Form */
+.rts-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.rts-field { display: flex; flex-direction: column; gap: 5px; }
+.rts-field-full { grid-column: 1 / -1; }
+.rts-field-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--rts-muted, #8C7B68);
+}
+.rts-field-input {
+  all: unset;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--rts-border, #E8E0D5);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--rts-text, #1C1A17);
+  background: var(--rts-surface, #fff);
+  transition: border-color 0.18s;
+}
+.rts-field-input::placeholder { color: var(--rts-muted2, #BEB0A0); font-weight: 400; }
+.rts-field-input:focus { border-color: var(--rts-green-lt, #4A7C43); outline: none; }
+.rts-field-textarea { resize: none; line-height: 1.5; }
+
+/* Summary box */
+.rts-summary {
+  margin-top: 14px;
+  padding: 14px;
+  background: var(--rts-gold-bg, rgba(184,145,58,0.07));
+  border: 1px solid var(--rts-gold-bd, rgba(184,145,58,0.2));
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rts-summary-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--rts-text2, #4A4035);
+}
+.rts-summary-row svg { color: var(--rts-gold, #B8913A); flex-shrink: 0; }
+.rts-summary-row strong { color: var(--rts-text, #1C1A17); }
+
+/* Footer */
+.rts-drawer-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--rts-border, #E8E0D5);
+  flex-shrink: 0;
+  background: var(--rts-surface, #fff);
+}
+.rts-footer-back {
+  all: unset;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 13px 18px;
+  border: 1.5px solid var(--rts-border2, #D5CAB9);
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--rts-muted, #8C7B68);
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s;
+  white-space: nowrap;
+}
+.rts-footer-back:hover { border-color: var(--rts-gold-bd); color: var(--rts-gold); }
+.rts-footer-back.hidden { display: none; }
+
+.rts-footer-next {
+  all: unset;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 15px 20px;
+  background: var(--rts-green, #2D5A27);
+  color: #fff;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(45,90,39,0.30);
+}
+.rts-footer-next:hover {
+  background: #3D7035;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(45,90,39,0.40);
+}
+.rts-footer-next:active { transform: scale(0.98); }
+.rts-footer-next:disabled {
+  background: var(--rts-border2, #D5CAB9) !important;
+  color: var(--rts-muted2, #BEB0A0) !important;
+  box-shadow: none !important;
+  transform: none !important;
+  cursor: not-allowed;
+}
+
+/* Checkout button style (step 3) */
+.rts-footer-next.checkout {
+  background: linear-gradient(135deg, #2D5A27, #B8913A);
+  box-shadow: 0 4px 20px rgba(184,145,58,0.30);
+}
+.rts-footer-next.checkout:hover {
+  background: linear-gradient(135deg, #3D7035, #D4AF6A);
+  box-shadow: 0 6px 28px rgba(184,145,58,0.45);
+}
+
+/* Error shake */
+@keyframes rtsShake {
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-6px)}
+  40%{transform:translateX(6px)}
+  60%{transform:translateX(-4px)}
+  80%{transform:translateX(4px)}
+}
+.rts-field-input.error { border-color: #ef4444 !important; animation: rtsShake 0.35s ease; }
+</style>
 
 <script>
-(function(){
-  var S = { variant: null, name: '', price: '', duration: '', date: null, time: null, period: '' };
-  var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+(function () {
+  var overlay   = document.getElementById('rtsBookingOverlay');
+  var drawer    = document.getElementById('rtsBookingDrawer');
+  var closeBtn  = document.getElementById('rtsDrawerClose');
+  var nextBtn   = document.getElementById('rtsNext');
+  var backBtn   = document.getElementById('rtsBack');
+  var steps     = [document.getElementById('rtsStep1'), document.getElementById('rtsStep2'), document.getElementById('rtsStep3')];
+  var progressSteps = drawer.querySelectorAll('.rts-progress-step');
+  var progressLines = drawer.querySelectorAll('.rts-progress-line');
+  var drawerTitle = document.getElementById('rtsDrawerTitle');
+  var pkgEl     = document.getElementById('rtsDrawerPkg');
+  var summaryEl = document.getElementById('rtsSummary');
+  var dateScroll = document.getElementById('rtsDateScroll');
 
-  function buildDates(){
-    var today = new Date(); var html = '';
-    for(var i = 1; i <= 14; i++){
-      var d = new Date(today); d.setDate(today.getDate() + i);
-      html += '<div class="rts-date-chip" onclick="rtsSelDate(this,\'' + d.toDateString() + '\')">' +
-        '<div class="rts-date-day">' + days[d.getDay()] + '</div>' +
-        '<div class="rts-date-num">' + d.getDate() + '</div>' +
-        '<div class="rts-date-mon">' + months[d.getMonth()] + '</div>' +
-        '</div>';
+  var state = { step: 1, date: null, slot: null, variantId: null, packageName: '', price: '', currency: '', duration: '' };
+
+  /* ── Date chips ── */
+  var DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  (function buildDates() {
+    var today = new Date();
+    for (var i = 1; i <= 14; i++) {
+      var d = new Date(today);
+      d.setDate(today.getDate() + i);
+      var btn = document.createElement('button');
+      btn.className = 'rts-date-chip';
+      btn.setAttribute('data-date', d.toDateString());
+      btn.innerHTML =
+        '<span class="rts-date-day">' + DAYS[d.getDay()] + '</span>' +
+        '<span class="rts-date-num">' + d.getDate() + '</span>' +
+        '<span class="rts-date-month">' + MONTHS[d.getMonth()] + '</span>';
+      btn.addEventListener('click', function () {
+        dateScroll.querySelectorAll('.rts-date-chip').forEach(function (c) { c.classList.remove('selected'); });
+        this.classList.add('selected');
+        state.date = this.getAttribute('data-date');
+        checkNextable();
+      });
+      dateScroll.appendChild(btn);
     }
-    document.getElementById('rtsDateGrid').innerHTML = html;
-  }
-  buildDates();
+  })();
 
-  window.rtsOpenBooking = function(btn){
-    S.variant = btn.dataset.variant; S.name = btn.dataset.name;
-    S.price = btn.dataset.price; S.duration = btn.dataset.duration;
-    S.date = null; S.time = null; S.period = '';
-    document.getElementById('rtsDrawerTitle').textContent = S.name;
-    document.getElementById('rtsDrawerSub').textContent = 'NPR ' + S.price + (S.duration ? ' · ' + S.duration : '');
-    document.querySelectorAll('.rts-date-chip,.rts-slot').forEach(function(e){ e.classList.remove('rts-sel'); });
-    ['rtsGuestName','rtsGuestPhone','rtsSpecial'].forEach(function(id){ document.getElementById(id).value = ''; });
-    document.getElementById('rtsNext1').disabled = true;
-    document.getElementById('rtsNext2').disabled = true;
-    rtsGoStep(1);
-    document.getElementById('rtsOverlay').classList.add('rts-open');
-    document.getElementById('rtsBookingDrawer').classList.add('rts-open');
+  /* ── Slot selection ── */
+  drawer.querySelectorAll('.rts-slot').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      drawer.querySelectorAll('.rts-slot').forEach(function (s) { s.classList.remove('selected'); });
+      this.classList.add('selected');
+      state.slot = this.getAttribute('data-slot');
+      checkNextable();
+    });
+  });
+
+  /* ── Open ── */
+  function openDrawer(variantId, name, price, currency, duration) {
+    state.variantId = variantId;
+    state.packageName = name;
+    state.price = price;
+    state.currency = currency;
+    state.duration = duration;
+    state.step = 1;
+    state.date = null;
+    state.slot = null;
+    dateScroll.querySelectorAll('.rts-date-chip').forEach(function (c) { c.classList.remove('selected'); });
+    drawer.querySelectorAll('.rts-slot').forEach(function (s) { s.classList.remove('selected'); });
+    document.getElementById('rtsName').value = '';
+    document.getElementById('rtsPhone').value = '';
+    document.getElementById('rtsNotes').value = '';
+
+    drawerTitle.textContent = name || 'Book Your Session';
+    pkgEl.innerHTML = '<span style="font-size:20px;">🪷</span>' +
+      '<span class="rts-pkg-name">' + (name || 'Spa Package') + (duration ? ' · ' + duration : '') + '</span>' +
+      (price ? '<span class="rts-pkg-price">' + currency + ' ' + price + '</span>' : '');
+
+    goStep(1);
+    overlay.classList.add('open');
+    drawer.classList.add('open');
     document.body.style.overflow = 'hidden';
-  };
-  window.rtsCloseBooking = function(){
-    document.getElementById('rtsOverlay').classList.remove('rts-open');
-    document.getElementById('rtsBookingDrawer').classList.remove('rts-open');
+  }
+
+  /* ── Close ── */
+  function closeDrawer() {
+    overlay.classList.remove('open');
+    drawer.classList.remove('open');
     document.body.style.overflow = '';
-  };
-  window.rtsGoStep = function(step){
-    document.querySelectorAll('.rts-panel').forEach(function(p){ p.classList.remove('rts-active'); });
-    document.getElementById('rtsPanel' + step).classList.add('rts-active');
-    var lbls = ['','Step 1 of 3 — Select Date','Step 2 of 3 — Select Time','Step 3 of 3 — Your Details'];
-    document.getElementById('rtsStepLbl').textContent = lbls[step];
-    ['rtsDot1','rtsDot2','rtsDot3'].forEach(function(id,i){ document.getElementById(id).classList.toggle('rts-done', i < step); });
-    if(step === 3){
-      var b = document.getElementById('rtsSummary');
-      b.innerHTML = '<div class="rts-sum-row"><span class="rts-sum-k">Treatment</span><span class="rts-sum-v">' + S.name + '</span></div>' +
-        '<div class="rts-sum-row"><span class="rts-sum-k">Duration</span><span class="rts-sum-v">' + S.duration + '</span></div>' +
-        '<div class="rts-sum-row"><span class="rts-sum-k">Date</span><span class="rts-sum-v">' + S.date + '</span></div>' +
-        '<div class="rts-sum-row"><span class="rts-sum-k">Time</span><span class="rts-sum-v">' + S.period + ' · ' + S.time + '</span></div>' +
-        '<div class="rts-sum-row"><span class="rts-sum-k">Price</span><span class="rts-sum-v" style="color:var(--rts-teal)">NPR ' + S.price + '</span></div>';
+  }
+
+  /* ── Step navigation ── */
+  function goStep(n) {
+    state.step = n;
+    steps.forEach(function (s, i) {
+      s.classList.toggle('hidden', i !== n - 1);
+    });
+    progressSteps.forEach(function (s, i) {
+      s.classList.toggle('active', i === n - 1);
+      s.classList.toggle('done', i < n - 1);
+    });
+    progressLines.forEach(function (l, i) {
+      l.classList.toggle('done', i < n - 1);
+    });
+
+    backBtn.classList.toggle('hidden', n === 1);
+
+    if (n === 3) {
+      nextBtn.textContent = '';
+      nextBtn.innerHTML = 'Proceed to Payment <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>';
+      nextBtn.classList.add('checkout');
+      buildSummary();
+    } else {
+      nextBtn.classList.remove('checkout');
+      nextBtn.innerHTML = 'Next <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>';
     }
-  };
-  window.rtsSelDate = function(chip, dateStr){
-    document.querySelectorAll('.rts-date-chip').forEach(function(c){ c.classList.remove('rts-sel'); });
-    chip.classList.add('rts-sel'); S.date = dateStr;
-    document.getElementById('rtsNext1').disabled = false;
-  };
-  window.rtsSelTime = function(slot, period, range){
-    document.querySelectorAll('.rts-slot').forEach(function(s){ s.classList.remove('rts-sel'); });
-    slot.classList.add('rts-sel'); S.time = range; S.period = period;
-    document.getElementById('rtsNext2').disabled = false;
-  };
-  window.rtsConfirm = function(){
-    var name = document.getElementById('rtsGuestName').value.trim();
-    var phone = document.getElementById('rtsGuestPhone').value.trim();
-    var special = document.getElementById('rtsSpecial').value.trim();
-    if(!name || !phone){ alert('Please enter your name and phone number.'); return; }
-    var btn = document.getElementById('rtsConfirmBtn');
-    btn.disabled = true; btn.textContent = '⏳ Processing…';
-    var note = [
-      '--- REAL THERAPY SPA BOOKING ---',
-      'Treatment: ' + S.name,
-      'Duration: ' + S.duration,
-      'Date: ' + S.date,
-      'Time: ' + S.period + ' · ' + S.time,
-      'Guest Name: ' + name,
-      'Phone / WhatsApp: ' + phone,
-      special ? 'Special Requests: ' + special : 'Special Requests: None'
-    ].join('\n');
-    function setNoteAndGo(){
-      fetch('/cart/update.js', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ note: note })
-      }).then(function(){ window.location.href = '/cart'; }).catch(function(){ window.location.href = '/cart'; });
+    checkNextable();
+  }
+
+  function checkNextable() {
+    var ok = false;
+    if (state.step === 1) ok = !!state.date;
+    if (state.step === 2) ok = !!state.slot;
+    if (state.step === 3) ok = true;
+    nextBtn.disabled = !ok;
+  }
+
+  function buildSummary() {
+    summaryEl.innerHTML =
+      '<div class="rts-summary-row"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span><strong>Date:</strong> ' + state.date + '</span></div>' +
+      '<div class="rts-summary-row"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span><strong>Time:</strong> ' + state.slot + '</span></div>' +
+      '<div class="rts-summary-row"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg><span><strong>Package:</strong> ' + state.packageName + '</span></div>';
+  }
+
+  /* ── Next click ── */
+  nextBtn.addEventListener('click', function () {
+    if (state.step < 3) {
+      goStep(state.step + 1);
+    } else {
+      checkout();
     }
-    if(S.variant){
-      fetch('/cart/add.js', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: S.variant, quantity: 1 })
-      }).then(setNoteAndGo).catch(setNoteAndGo);
-    } else { setNoteAndGo(); }
-  };
+  });
+
+  backBtn.addEventListener('click', function () {
+    if (state.step > 1) goStep(state.step - 1);
+  });
+
+  /* ── Checkout ── */
+  function checkout() {
+    var name  = document.getElementById('rtsName').value.trim();
+    var phone = document.getElementById('rtsPhone').value.trim();
+    var notes = document.getElementById('rtsNotes').value.trim();
+    var nameInput  = document.getElementById('rtsName');
+    var phoneInput = document.getElementById('rtsPhone');
+
+    var valid = true;
+    if (!name) {
+      nameInput.classList.add('error');
+      setTimeout(function() { nameInput.classList.remove('error'); }, 600);
+      valid = false;
+    }
+    if (!phone) {
+      phoneInput.classList.add('error');
+      setTimeout(function() { phoneInput.classList.remove('error'); }, 600);
+      valid = false;
+    }
+    if (!valid) return;
+
+    if (!state.variantId) {
+      window.location.href = '/collections/real-therapy-spa';
+      return;
+    }
+
+    nextBtn.disabled = true;
+    nextBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:rtsSpinBtn 0.8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Adding…';
+
+    var properties = {
+      'Booking Date': state.date,
+      'Time Slot': state.slot,
+      'Guest Name': name,
+      'Phone / WhatsApp': phone,
+      'Package': state.packageName
+    };
+    if (notes) properties['Special Requests'] = notes;
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: parseInt(state.variantId, 10),
+        quantity: 1,
+        properties: properties
+      })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.id) {
+        window.location.href = '/checkout';
+      } else {
+        throw new Error(d.description || 'Failed');
+      }
+    })
+    .catch(function () {
+      nextBtn.disabled = false;
+      nextBtn.innerHTML = 'Try Again <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>';
+    });
+  }
+
+  /* ── Trigger buttons ── */
+  document.addEventListener('click', function (e) {
+    var trigger = e.target.closest('.rts-book-trigger');
+    if (!trigger) return;
+    openDrawer(
+      trigger.getAttribute('data-variant'),
+      trigger.getAttribute('data-name'),
+      trigger.getAttribute('data-price'),
+      trigger.getAttribute('data-currency'),
+      trigger.getAttribute('data-duration')
+    );
+  });
+
+  closeBtn.addEventListener('click', closeDrawer);
+  overlay.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDrawer(); });
+
+  /* ── Spin animation ── */
+  var style = document.createElement('style');
+  style.textContent = '@keyframes rtsSpinBtn { to { transform: rotate(360deg); } }';
+  document.head.appendChild(style);
+
+  checkNextable();
 })();
 </script>
+
+{% schema %}
+{
+  "name": "RTS Spa Collection",
+  "settings": [],
+  "presets": []
+}
+{% endschema %}

@@ -1,491 +1,899 @@
-{% comment %} sections/rider-application-page.liquid {% endcomment %}
+{% comment %} Rider Application Page — Premium Product Template {% endcomment %}
 
 <style>
-  .ra-root {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    min-height: 100vh;
-    background: var(--ra-bg, #0A0F1E);
-    color: var(--ra-text, #F0F4FF);
-  }
+/* ═══════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════ */
+html:not([data-theme="dark"]) .ra-root {
+  --ra-bg:        #F4F6FB;
+  --ra-bg2:       #EAECF4;
+  --ra-card:      #FFFFFF;
+  --ra-text:      #0D0F1A;
+  --ra-text2:     #4A5068;
+  --ra-text3:     #8890A8;
+  --ra-border:    rgba(0,0,0,0.08);
+  --ra-gold:      #E6A800;
+  --ra-gold2:     #F4B400;
+  --ra-gold-bg:   rgba(244,180,0,0.10);
+  --ra-gold-glow: rgba(244,180,0,0.20);
+  --ra-hero-from: #0B1120;
+  --ra-hero-to:   #12234A;
+  --ra-shadow:    0 4px 20px rgba(0,0,0,0.08);
+  --ra-shadow-lg: 0 12px 48px rgba(0,0,0,0.14);
+  --ra-inp-bg:    #F8F9FC;
+  --ra-inp-border:#DDE0EC;
+  --ra-inp-text:  #0D0F1A;
+  --ra-placeholder: #9BA3B8;
+}
+html[data-theme="dark"] .ra-root {
+  --ra-bg:        #0C0D14;
+  --ra-bg2:       #131520;
+  --ra-card:      #181A28;
+  --ra-text:      #EEF0FF;
+  --ra-text2:     #8890B8;
+  --ra-text3:     #50546A;
+  --ra-border:    rgba(255,255,255,0.07);
+  --ra-gold:      #F4B400;
+  --ra-gold2:     #FFD040;
+  --ra-gold-bg:   rgba(244,180,0,0.08);
+  --ra-gold-glow: rgba(244,180,0,0.15);
+  --ra-hero-from: #070810;
+  --ra-hero-to:   #0E1530;
+  --ra-shadow:    0 4px 24px rgba(0,0,0,0.4);
+  --ra-shadow-lg: 0 12px 56px rgba(0,0,0,0.6);
+  --ra-inp-bg:    #10111C;
+  --ra-inp-border: rgba(255,255,255,0.1);
+  --ra-inp-text:  #EEF0FF;
+  --ra-placeholder: #454860;
+}
 
-  html:not([data-theme="dark"]) .ra-root {
-    --ra-bg: #F4F6FB;
-    --ra-text: #1A1E2E;
-    --ra-card: #FFFFFF;
-    --ra-border: rgba(0,0,0,0.08);
-    --ra-muted: #6B7280;
-    --ra-gold: #D4A843;
-    --ra-navy: #0D1A3A;
-    --ra-input-bg: #F9FAFB;
-    --ra-input-border: #D1D5DB;
-  }
+/* ═══════════════════════════════════════
+   BASE
+═══════════════════════════════════════ */
+.ra-root {
+  background: var(--ra-bg);
+  color: var(--ra-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+.ra-root *, .ra-root *::before, .ra-root *::after { box-sizing: border-box; }
 
-  html[data-theme="dark"] .ra-root {
-    --ra-bg: #0A0F1E;
-    --ra-text: #F0F4FF;
-    --ra-card: #141929;
-    --ra-border: rgba(255,255,255,0.08);
-    --ra-muted: #8B92A5;
-    --ra-gold: #F0BE55;
-    --ra-navy: #0D1A3A;
-    --ra-input-bg: #1A2035;
-    --ra-input-border: rgba(255,255,255,0.12);
-  }
+/* ═══════════════════════════════════════
+   HERO
+═══════════════════════════════════════ */
+.ra-hero {
+  position: relative;
+  background: linear-gradient(160deg, var(--ra-hero-from) 0%, var(--ra-hero-to) 100%);
+  overflow: hidden;
+  padding: 0 0 0;
+}
+.ra-hero-glow-1 {
+  position: absolute; top: -120px; right: -60px;
+  width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(244,180,0,0.14) 0%, transparent 65%);
+  pointer-events: none;
+}
+.ra-hero-glow-2 {
+  position: absolute; bottom: -80px; left: -80px;
+  width: 360px; height: 360px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(80,100,255,0.10) 0%, transparent 65%);
+  pointer-events: none;
+}
+.ra-hero-dots {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.ra-hero-inner {
+  position: relative; z-index: 2;
+  max-width: 700px; margin: 0 auto;
+  padding: 56px 24px 40px;
+  text-align: center;
+}
+.ra-hero-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(244,180,0,0.15);
+  border: 1px solid rgba(244,180,0,0.35);
+  color: #F4B400;
+  font-size: 11px; font-weight: 800;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 6px 16px; border-radius: 999px;
+  margin-bottom: 22px;
+  animation: ra-fade-up 0.5s ease both;
+}
+.ra-hero-badge-dot {
+  width: 6px; height: 6px; background: #F4B400;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(244,180,0,0.7);
+  animation: ra-pulse 1.8s ease-in-out infinite;
+}
+@keyframes ra-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.5)} }
+@keyframes ra-fade-up { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 
-  .ra-hero {
-    background: linear-gradient(135deg, #080E20 0%, #0D1A3A 60%, #122040 100%);
-    padding: 60px 20px 50px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
+.ra-hero-h1 {
+  font-size: clamp(34px, 7vw, 64px);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.05;
+  margin: 0 0 10px;
+  letter-spacing: -0.03em;
+  animation: ra-fade-up 0.55s 0.1s ease both;
+}
+.ra-hero-h1 .ra-gold-word {
+  background: linear-gradient(120deg, #F4B400, #FFD860, #F4B400);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.ra-hero-sub {
+  font-size: 16px; color: rgba(255,255,255,0.6);
+  line-height: 1.6; max-width: 440px; margin: 0 auto 32px;
+  animation: ra-fade-up 0.6s 0.18s ease both;
+}
+.ra-hero-stats {
+  display: flex; align-items: stretch; justify-content: center;
+  gap: 0; background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-radius: 20px; overflow: hidden;
+  max-width: 460px; margin: 0 auto 0;
+  animation: ra-fade-up 0.65s 0.25s ease both;
+}
+.ra-hero-stat {
+  flex: 1; padding: 18px 12px; text-align: center;
+  position: relative;
+}
+.ra-hero-stat + .ra-hero-stat::before {
+  content: ''; position: absolute; left: 0; top: 20%; height: 60%;
+  width: 1px; background: rgba(255,255,255,0.1);
+}
+.ra-hero-stat-num {
+  font-size: 22px; font-weight: 900; color: #F4B400;
+  line-height: 1; margin-bottom: 4px;
+  letter-spacing: -0.02em;
+}
+.ra-hero-stat-label {
+  font-size: 10.5px; font-weight: 700; color: rgba(255,255,255,0.5);
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
 
-  .ra-hero::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at 50% 0%, rgba(212,168,67,0.15) 0%, transparent 70%);
-    pointer-events: none;
-  }
+/* ── Wave ── */
+.ra-hero-wave { display: block; width: 100%; line-height: 0; margin-top: -1px; }
 
-  .ra-hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(212,168,67,0.15);
-    border: 1px solid rgba(212,168,67,0.35);
-    border-radius: 100px;
-    padding: 6px 16px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #F0BE55;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 20px;
-  }
+/* ═══════════════════════════════════════
+   BENEFITS BAR
+═══════════════════════════════════════ */
+.ra-benefits {
+  background: var(--ra-bg);
+  padding: 28px 16px 0;
+}
+.ra-benefits-inner {
+  max-width: 700px; margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media(min-width: 540px) {
+  .ra-benefits-inner { grid-template-columns: repeat(4, 1fr); }
+}
+.ra-benefit-card {
+  background: var(--ra-card);
+  border: 1px solid var(--ra-border);
+  border-radius: 16px;
+  padding: 18px 14px;
+  text-align: center;
+  box-shadow: var(--ra-shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.ra-benefit-card:hover { transform: translateY(-3px); box-shadow: var(--ra-shadow-lg); }
+.ra-benefit-icon { font-size: 28px; margin-bottom: 8px; line-height: 1; }
+.ra-benefit-title {
+  font-size: 13px; font-weight: 800; color: var(--ra-text);
+  margin-bottom: 2px;
+}
+.ra-benefit-desc { font-size: 11px; color: var(--ra-text3); line-height: 1.4; }
 
-  .ra-hero-badge::before {
-    content: '';
-    width: 7px;
-    height: 7px;
-    background: #4ADE80;
-    border-radius: 50%;
-    animation: ra-pulse 1.5s ease-in-out infinite;
-  }
+/* ═══════════════════════════════════════
+   HOW IT WORKS
+═══════════════════════════════════════ */
+.ra-steps {
+  padding: 36px 16px 0;
+  max-width: 700px; margin: 0 auto;
+}
+.ra-section-label {
+  font-size: 10px; font-weight: 900; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--ra-gold);
+  margin-bottom: 6px;
+}
+.ra-section-h2 {
+  font-size: 22px; font-weight: 900; color: var(--ra-text);
+  margin: 0 0 20px; letter-spacing: -0.02em;
+}
+.ra-steps-list {
+  display: flex; flex-direction: column; gap: 0;
+  position: relative;
+}
+.ra-steps-list::before {
+  content: ''; position: absolute;
+  left: 19px; top: 38px; bottom: 38px; width: 2px;
+  background: linear-gradient(to bottom, var(--ra-gold), transparent);
+}
+.ra-step {
+  display: flex; gap: 18px; align-items: flex-start;
+  padding: 14px 0;
+  position: relative; z-index: 1;
+}
+.ra-step-num {
+  width: 40px; height: 40px; min-width: 40px;
+  background: linear-gradient(135deg, #E6A800, #F4B400);
+  color: #000;
+  font-size: 14px; font-weight: 900;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(244,180,0,0.35);
+}
+.ra-step-title { font-size: 15px; font-weight: 800; color: var(--ra-text); margin-bottom: 3px; }
+.ra-step-desc { font-size: 13px; color: var(--ra-text2); line-height: 1.5; }
 
-  @keyframes ra-pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(1.4); }
-  }
+/* ═══════════════════════════════════════
+   REQUIREMENTS
+═══════════════════════════════════════ */
+.ra-req-wrap {
+  padding: 28px 16px 0;
+  max-width: 700px; margin: 0 auto;
+}
+.ra-req-card {
+  background: var(--ra-card);
+  border: 1px solid var(--ra-border);
+  border-radius: 20px;
+  padding: 24px 20px;
+  box-shadow: var(--ra-shadow);
+}
+.ra-req-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+  margin-top: 16px;
+}
+.ra-req-item {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--ra-text2); font-weight: 500;
+}
+.ra-req-check {
+  width: 22px; height: 22px; min-width: 22px;
+  background: var(--ra-gold-bg);
+  border: 1.5px solid var(--ra-gold);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+}
 
-  .ra-hero h1 {
-    font-size: clamp(28px, 5vw, 48px);
-    font-weight: 800;
-    color: #FFFFFF;
-    margin: 0 0 12px;
-    line-height: 1.2;
-  }
+/* ═══════════════════════════════════════
+   FORM AREA
+═══════════════════════════════════════ */
+.ra-form-area {
+  max-width: 700px; margin: 28px auto 0;
+  padding: 0 16px;
+}
+.ra-form { display: flex; flex-direction: column; gap: 14px; }
 
-  .ra-hero h1 em {
-    font-style: normal;
-    background: linear-gradient(135deg, #F0BE55, #D4A843);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+.ra-card {
+  background: var(--ra-card);
+  border: 1px solid var(--ra-border);
+  border-radius: 20px;
+  padding: 24px 20px 22px;
+  box-shadow: var(--ra-shadow);
+}
 
-  .ra-hero-sub {
-    font-size: 16px;
-    color: rgba(240,244,255,0.7);
-    max-width: 480px;
-    margin: 0 auto 32px;
-    line-height: 1.6;
-  }
+/* Card header */
+.ra-card-head {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 22px;
+}
+.ra-card-icon {
+  width: 42px; height: 42px; min-width: 42px;
+  background: linear-gradient(135deg, #E6A800, #F4B400);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 4px 14px rgba(244,180,0,0.3);
+}
+.ra-card-title { font-size: 16px; font-weight: 800; color: var(--ra-text); line-height: 1.2; }
+.ra-card-sub { font-size: 12px; color: var(--ra-text3); margin-top: 2px; }
 
-  .ra-stats {
-    display: flex;
-    justify-content: center;
-    gap: 32px;
-    flex-wrap: wrap;
-  }
+/* Fields */
+.ra-fields { display: flex; flex-direction: column; gap: 14px; }
+.ra-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width: 400px) { .ra-row { grid-template-columns: 1fr; } }
 
-  .ra-stat {
-    text-align: center;
-  }
+.ra-field label {
+  display: block; font-size: 11px; font-weight: 800;
+  color: var(--ra-text3);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  margin-bottom: 7px;
+}
+.ra-req-star { color: var(--ra-gold); }
 
-  .ra-stat-num {
-    font-size: 24px;
-    font-weight: 800;
-    color: #F0BE55;
-  }
+.ra-field input[type="text"],
+.ra-field input[type="tel"],
+.ra-field textarea {
+  width: 100%;
+  padding: 13px 15px;
+  border: 1.5px solid var(--ra-inp-border);
+  border-radius: 12px;
+  font-size: 15px;
+  background: var(--ra-inp-bg);
+  color: var(--ra-inp-text);
+  -webkit-text-fill-color: var(--ra-inp-text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+  font-family: inherit;
+}
+.ra-field input::placeholder, .ra-field textarea::placeholder {
+  color: var(--ra-placeholder);
+  -webkit-text-fill-color: var(--ra-placeholder);
+}
+.ra-field input:focus, .ra-field textarea:focus {
+  outline: none;
+  border-color: var(--ra-gold);
+  box-shadow: 0 0 0 4px var(--ra-gold-glow);
+}
 
-  .ra-stat-label {
-    font-size: 12px;
-    color: rgba(240,244,255,0.6);
-    margin-top: 2px;
-  }
+/* Vehicle picker */
+.ra-vehicle-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+.ra-vehicle-opt {
+  position: relative; cursor: pointer;
+}
+.ra-vehicle-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+.ra-vehicle-label {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 14px;
+  border: 1.5px solid var(--ra-inp-border);
+  border-radius: 12px;
+  font-size: 14px; font-weight: 700; color: var(--ra-text2);
+  background: var(--ra-inp-bg);
+  transition: all 0.18s;
+  cursor: pointer;
+}
+.ra-vehicle-opt input:checked + .ra-vehicle-label {
+  border-color: var(--ra-gold);
+  background: var(--ra-gold-bg);
+  color: var(--ra-text);
+  box-shadow: 0 0 0 3px var(--ra-gold-glow);
+}
+.ra-vehicle-emoji { font-size: 20px; line-height: 1; }
 
-  .ra-section {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 40px 20px;
-  }
+/* IQ Section */
+.ra-iq-card { border-top: 3px solid var(--ra-gold); }
+.ra-iq-q { display: flex; flex-direction: column; gap: 10px; }
+.ra-iq-q + .ra-iq-q { margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--ra-border); }
+.ra-iq-question {
+  font-size: 14px; font-weight: 700; color: var(--ra-text);
+  line-height: 1.5; margin: 0;
+}
+.ra-iq-num {
+  display: inline-flex; width: 22px; height: 22px;
+  background: var(--ra-gold); color: #000;
+  font-size: 11px; font-weight: 900;
+  border-radius: 6px; align-items: center; justify-content: center;
+  margin-right: 8px; flex-shrink: 0;
+  vertical-align: middle;
+}
+.ra-iq-options { display: flex; flex-direction: column; gap: 8px; }
+.ra-iq-opt { position: relative; cursor: pointer; }
+.ra-iq-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+.ra-iq-opt-label {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--ra-inp-border);
+  border-radius: 11px;
+  font-size: 13px; font-weight: 500; color: var(--ra-text2);
+  background: var(--ra-inp-bg);
+  transition: all 0.18s;
+  cursor: pointer; line-height: 1.4;
+}
+.ra-iq-opt-dot {
+  width: 18px; height: 18px; min-width: 18px;
+  border-radius: 50%; border: 2px solid var(--ra-inp-border);
+  transition: all 0.18s;
+  flex-shrink: 0;
+}
+.ra-iq-opt input:checked + .ra-iq-opt-label {
+  border-color: var(--ra-gold);
+  background: var(--ra-gold-bg);
+  color: var(--ra-text);
+}
+.ra-iq-opt input:checked + .ra-iq-opt-label .ra-iq-opt-dot {
+  background: var(--ra-gold);
+  border-color: var(--ra-gold);
+  box-shadow: 0 0 0 3px var(--ra-gold-glow);
+}
 
-  .ra-section-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--ra-text);
-    margin: 0 0 20px;
-  }
+/* Submit */
+.ra-submit-wrap { text-align: center; margin-top: 8px; }
+.ra-submit-btn {
+  width: 100%;
+  background: linear-gradient(120deg, #D49500, #F4B400, #D49500);
+  background-size: 200%;
+  color: #0D0F1A;
+  border: none;
+  border-radius: 14px;
+  padding: 16px 24px;
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: all 0.25s;
+  font-family: inherit;
+  box-shadow: 0 6px 24px rgba(244,180,0,0.35);
+  position: relative;
+  overflow: hidden;
+}
+.ra-submit-btn:hover {
+  background-position: right;
+  box-shadow: 0 8px 32px rgba(244,180,0,0.5);
+  transform: translateY(-2px);
+}
+.ra-submit-btn:active { transform: scale(0.98); }
+.ra-submit-note {
+  font-size: 11px; color: var(--ra-text3);
+  margin-top: 12px; line-height: 1.5;
+}
 
-  .ra-cards-grid {
-    display: grid;
-    gap: 16px;
-  }
+/* ── Success state ── */
+.ra-success {
+  text-align: center; padding: 48px 24px;
+  background: var(--ra-card);
+  border: 1px solid var(--ra-border);
+  border-radius: 20px;
+  box-shadow: var(--ra-shadow);
+  margin: 28px 16px 0;
+  max-width: 700px; margin-left: auto; margin-right: auto;
+}
+.ra-success-emoji { font-size: 64px; margin-bottom: 16px; line-height: 1; }
+.ra-success h2 { font-size: 24px; font-weight: 900; color: var(--ra-text); margin: 0 0 10px; }
+.ra-success p { font-size: 15px; color: var(--ra-text2); line-height: 1.6; margin: 0 0 24px; }
+.ra-back-btn {
+  display: inline-block;
+  background: linear-gradient(120deg, #D49500, #F4B400);
+  color: #000; font-weight: 900; font-size: 14px;
+  padding: 12px 28px; border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(244,180,0,0.35);
+  transition: filter 0.2s, transform 0.2s;
+}
+.ra-back-btn:hover { filter: brightness(1.08); transform: translateY(-2px); }
 
-  .ra-card {
-    background: var(--ra-card);
-    border: 1px solid var(--ra-border);
-    border-radius: 16px;
-    padding: 24px;
-  }
-
-  .ra-card-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--ra-text);
-    margin: 0 0 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .ra-input-group {
-    margin-bottom: 14px;
-  }
-
-  .ra-input-group:last-child {
-    margin-bottom: 0;
-  }
-
-  .ra-label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--ra-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-  }
-
-  .ra-input,
-  .ra-select,
-  .ra-textarea {
-    width: 100%;
-    background: var(--ra-input-bg);
-    border: 1px solid var(--ra-input-border);
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 15px;
-    color: var(--ra-text);
-    outline: none;
-    transition: border-color 0.2s;
-    box-sizing: border-box;
-    font-family: inherit;
-  }
-
-  .ra-input:focus,
-  .ra-select:focus,
-  .ra-textarea:focus {
-    border-color: #F0BE55;
-  }
-
-  .ra-textarea {
-    resize: vertical;
-    min-height: 80px;
-  }
-
-  .ra-vehicle-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .ra-vehicle-tile {
-    display: none;
-  }
-
-  .ra-vehicle-label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    background: var(--ra-input-bg);
-    border: 2px solid var(--ra-input-border);
-    border-radius: 12px;
-    padding: 16px 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-  }
-
-  .ra-vehicle-tile:checked + .ra-vehicle-label {
-    border-color: #F0BE55;
-    background: rgba(240,190,85,0.1);
-  }
-
-  .ra-vehicle-icon {
-    font-size: 28px;
-  }
-
-  .ra-vehicle-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ra-text);
-  }
-
-  .ra-vehicle-note {
-    font-size: 11px;
-    color: var(--ra-muted);
-  }
-
-  .ra-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  @media (max-width: 480px) {
-    .ra-row { grid-template-columns: 1fr; }
-  }
-
-  .ra-submit-wrap {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 0 20px 60px;
-  }
-
-  .ra-submit-btn {
-    width: 100%;
-    background: linear-gradient(135deg, #F0BE55, #D4A843);
-    color: #0A0F1E;
-    font-size: 17px;
-    font-weight: 800;
-    border: none;
-    border-radius: 14px;
-    padding: 18px;
-    cursor: pointer;
-    letter-spacing: 0.3px;
-    transition: opacity 0.2s, transform 0.1s;
-  }
-
-  .ra-submit-btn:active {
-    transform: scale(0.98);
-  }
-
-  .ra-submit-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .ra-note {
-    text-align: center;
-    font-size: 12px;
-    color: var(--ra-muted);
-    margin-top: 12px;
-  }
+/* ── Loading spinner ── */
+@keyframes ra-spin { to { transform: rotate(360deg); } }
+.ra-submit-btn.loading { opacity: 0.8; pointer-events: none; }
+.ra-submit-btn.loading::after {
+  content: ''; display: inline-block;
+  width: 14px; height: 14px;
+  border: 2.5px solid rgba(0,0,0,0.3);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: ra-spin 0.7s linear infinite;
+  margin-left: 10px; vertical-align: middle;
+}
 </style>
 
 <div class="ra-root">
 
-  <!-- Hero -->
+  <!-- ══════════════ HERO ══════════════ -->
   <div class="ra-hero">
-    <div class="ra-hero-badge">Now Hiring</div>
-    <h1>Ride with <em>QuickBee</em></h1>
-    <p class="ra-hero-sub">Join Nepal's fastest delivery network. Earn on your schedule, get paid weekly.</p>
-    <div class="ra-stats">
-      <div class="ra-stat">
-        <div class="ra-stat-num">Rs 800+</div>
-        <div class="ra-stat-label">Daily Avg Earnings</div>
+    <div class="ra-hero-glow-1"></div>
+    <div class="ra-hero-glow-2"></div>
+    <div class="ra-hero-dots"></div>
+    <div class="ra-hero-inner">
+      <div class="ra-hero-badge">
+        <span class="ra-hero-badge-dot"></span>
+        🛵 Now Hiring Riders in KTM Valley
       </div>
-      <div class="ra-stat">
-        <div class="ra-stat-num">15 min</div>
-        <div class="ra-stat-label">Onboarding</div>
+      <h1 class="ra-hero-h1">
+        Earn Big.<br>
+        <span class="ra-gold-word">Ride Free.</span>
+      </h1>
+      <p class="ra-hero-sub">Join QuickBee's elite delivery fleet — flexible hours, weekly payouts, and real earning potential on every order.</p>
+      <div class="ra-hero-stats">
+        <div class="ra-hero-stat">
+          <div class="ra-hero-stat-num">Rs 40K+</div>
+          <div class="ra-hero-stat-label">Monthly Earn</div>
+        </div>
+        <div class="ra-hero-stat">
+          <div class="ra-hero-stat-num">500+</div>
+          <div class="ra-hero-stat-label">Active Riders</div>
+        </div>
+        <div class="ra-hero-stat">
+          <div class="ra-hero-stat-num">Weekly</div>
+          <div class="ra-hero-stat-label">Payout</div>
+        </div>
+        <div class="ra-hero-stat">
+          <div class="ra-hero-stat-num">24 hrs</div>
+          <div class="ra-hero-stat-label">Onboarding</div>
+        </div>
       </div>
-      <div class="ra-stat">
-        <div class="ra-stat-num">Weekly</div>
-        <div class="ra-stat-label">Payout</div>
+    </div>
+    <svg class="ra-hero-wave" viewBox="0 0 1440 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="height:48px;">
+      <path d="M0,30 C320,0 720,48 1080,24 C1280,12 1380,40 1440,32 L1440,48 L0,48 Z" fill="var(--ra-bg)"/>
+    </svg>
+  </div>
+
+  <!-- ══════════════ BENEFITS ══════════════ -->
+  <div class="ra-benefits">
+    <div class="ra-benefits-inner">
+      <div class="ra-benefit-card">
+        <div class="ra-benefit-icon">💰</div>
+        <div class="ra-benefit-title">Top Earnings</div>
+        <div class="ra-benefit-desc">Per-delivery pay + tips + bonuses</div>
+      </div>
+      <div class="ra-benefit-card">
+        <div class="ra-benefit-icon">🕐</div>
+        <div class="ra-benefit-title">Your Schedule</div>
+        <div class="ra-benefit-desc">Work when you want, full or part time</div>
+      </div>
+      <div class="ra-benefit-card">
+        <div class="ra-benefit-icon">⚡</div>
+        <div class="ra-benefit-title">Weekly Pay</div>
+        <div class="ra-benefit-desc">Fast, reliable payouts every week</div>
+      </div>
+      <div class="ra-benefit-card">
+        <div class="ra-benefit-icon">🛡️</div>
+        <div class="ra-benefit-title">Full Support</div>
+        <div class="ra-benefit-desc">24/7 rider support & training</div>
       </div>
     </div>
   </div>
 
-  <!-- Form -->
-  <div class="ra-section">
-    <div class="ra-section-title">Your Details</div>
-    <div class="ra-cards-grid">
-
-      <!-- Personal Info -->
-      <div class="ra-card">
-        <div class="ra-card-title">👤 Personal Information</div>
-        <div class="ra-row">
-          <div class="ra-input-group">
-            <label class="ra-label">Full Name *</label>
-            <input class="ra-input" id="ra-name" type="text" placeholder="Your full name" required>
-          </div>
-          <div class="ra-input-group">
-            <label class="ra-label">Phone *</label>
-            <input class="ra-input" id="ra-phone" type="tel" placeholder="98XXXXXXXX" required>
-          </div>
-        </div>
-        <div class="ra-row">
-          <div class="ra-input-group">
-            <label class="ra-label">Age *</label>
-            <input class="ra-input" id="ra-age" type="number" placeholder="18–45" min="18" max="60">
-          </div>
-          <div class="ra-input-group">
-            <label class="ra-label">City *</label>
-            <select class="ra-select" id="ra-city">
-              <option value="">Select city</option>
-              <option>Kathmandu</option>
-              <option>Bhaktapur</option>
-              <option>Lalitpur</option>
-              <option>Pokhara</option>
-            </select>
-          </div>
-        </div>
-        <div class="ra-input-group">
-          <label class="ra-label">Expected Monthly Salary</label>
-          <input class="ra-input" id="ra-salary" type="text" placeholder="Write your expected salary">
+  <!-- ══════════════ HOW IT WORKS ══════════════ -->
+  <div class="ra-steps">
+    <div class="ra-section-label">How It Works</div>
+    <div class="ra-section-h2">Start riding in 3 simple steps</div>
+    <div class="ra-steps-list">
+      <div class="ra-step">
+        <div class="ra-step-num">01</div>
+        <div>
+          <div class="ra-step-title">Fill This Form</div>
+          <div class="ra-step-desc">Takes less than 2 minutes. Just your basic info, vehicle details and a quick 3-question test.</div>
         </div>
       </div>
-
-      <!-- Vehicle -->
-      <div class="ra-card">
-        <div class="ra-card-title">🛵 Vehicle <span style="font-size:12px;font-weight:400;color:var(--ra-muted);margin-left:4px;">(recommended, not compulsory)</span></div>
-        <div class="ra-vehicle-grid">
-          <div>
-            <input class="ra-vehicle-tile" type="radio" name="ra-vehicle" id="v-bike" value="Motorcycle">
-            <label class="ra-vehicle-label" for="v-bike">
-              <span class="ra-vehicle-icon">🏍️</span>
-              <span class="ra-vehicle-name">Motorcycle</span>
-            </label>
-          </div>
-          <div>
-            <input class="ra-vehicle-tile" type="radio" name="ra-vehicle" id="v-scooter" value="Scooter">
-            <label class="ra-vehicle-label" for="v-scooter">
-              <span class="ra-vehicle-icon">🛵</span>
-              <span class="ra-vehicle-name">Scooter</span>
-            </label>
-          </div>
-          <div>
-            <input class="ra-vehicle-tile" type="radio" name="ra-vehicle" id="v-bicycle" value="Bicycle">
-            <label class="ra-vehicle-label" for="v-bicycle">
-              <span class="ra-vehicle-icon">🚲</span>
-              <span class="ra-vehicle-name">Bicycle</span>
-            </label>
-          </div>
-          <div>
-            <input class="ra-vehicle-tile" type="radio" name="ra-vehicle" id="v-none" value="No vehicle" checked>
-            <label class="ra-vehicle-label" for="v-none">
-              <span class="ra-vehicle-icon">🚶</span>
-              <span class="ra-vehicle-name">No vehicle</span>
-              <span class="ra-vehicle-note">Still welcome!</span>
-            </label>
-          </div>
+      <div class="ra-step">
+        <div class="ra-step-num">02</div>
+        <div>
+          <div class="ra-step-title">Get Called Within 24 Hours</div>
+          <div class="ra-step-desc">Our rider ops team will call you to confirm details and schedule a quick onboarding session.</div>
         </div>
       </div>
-
-      <!-- Availability -->
-      <div class="ra-card">
-        <div class="ra-card-title">🕒 Availability</div>
-        <div class="ra-input-group">
-          <label class="ra-label">Preferred Shift</label>
-          <select class="ra-select" id="ra-shift">
-            <option value="">Select shift</option>
-            <option>Morning (6am–12pm)</option>
-            <option>Afternoon (12pm–6pm)</option>
-            <option>Evening (6pm–11pm)</option>
-            <option>Full day</option>
-            <option>Flexible</option>
-          </select>
-        </div>
-        <div class="ra-input-group">
-          <label class="ra-label">Anything else you want to tell us?</label>
-          <textarea class="ra-textarea" id="ra-note" placeholder="Previous delivery experience, questions, etc."></textarea>
+      <div class="ra-step">
+        <div class="ra-step-num">03</div>
+        <div>
+          <div class="ra-step-title">Start Earning</div>
+          <div class="ra-step-desc">Get your QuickBee kit, activate your rider app, and start delivering and earning from day one.</div>
         </div>
       </div>
-
     </div>
   </div>
 
-  <!-- Submit -->
-  <div class="ra-submit-wrap">
-    <input type="hidden" id="RaVariantId" value="{{ product.variants.first.id }}">
-    <button class="ra-submit-btn" id="ra-submit-btn" onclick="raSubmit()">
-      🛵 Submit Application
-    </button>
-    <p class="ra-note">We'll contact you within 24 hours via phone.</p>
+  <!-- ══════════════ REQUIREMENTS ══════════════ -->
+  <div class="ra-req-wrap">
+    <div class="ra-req-card">
+      <div class="ra-section-label">Requirements</div>
+      <div class="ra-section-h2" style="margin-bottom:0">What you need to apply</div>
+      <div class="ra-req-grid">
+        <div class="ra-req-item"><div class="ra-req-check">✓</div>Age 18 or above</div>
+        <div class="ra-req-item"><div class="ra-req-check">✓</div>Valid driving license</div>
+        <div class="ra-req-item"><div class="ra-req-check">✓</div>Vehicle recommended, not compulsory</div>
+        <div class="ra-req-item"><div class="ra-req-check">✓</div>Smartphone with internet</div>
+        <div class="ra-req-item"><div class="ra-req-check">✓</div>Kathmandu Valley based</div>
+        <div class="ra-req-item"><div class="ra-req-check">✓</div>Reliable & punctual attitude</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ FORM ══════════════ -->
+  <div class="ra-form-area">
+
+    <form id="RiderAppForm" class="ra-form" novalidate>
+      <input type="hidden" id="RaVariantId" value="{{ product.variants.first.id }}">
+
+        <!-- ── Personal Info ── -->
+        <div class="ra-card">
+          <div class="ra-card-head">
+            <div class="ra-card-icon">👤</div>
+            <div>
+              <div class="ra-card-title">Personal Info</div>
+              <div class="ra-card-sub">Tell us a bit about yourself</div>
+            </div>
+          </div>
+          <div class="ra-fields">
+            <div class="ra-field">
+              <label for="RaName">Full Name <span class="ra-req-star">*</span></label>
+              <input type="text" id="RaName" name="contact[Full_Name]" placeholder="Your full name" required>
+            </div>
+            <div class="ra-field">
+              <label for="RaPhone">Phone Number <span class="ra-req-star">*</span></label>
+              <input type="tel" id="RaPhone" name="contact[phone]" placeholder="98XXXXXXXX" required>
+            </div>
+            <div class="ra-row">
+              <div class="ra-field">
+                <label for="RaAge">Age <span class="ra-req-star">*</span></label>
+                <input type="text" id="RaAge" name="contact[Age]" placeholder="e.g. 24" required>
+              </div>
+              <div class="ra-field">
+                <label for="RaLocation">Your Area</label>
+                <input type="text" id="RaLocation" name="contact[Location]" placeholder="e.g. Thamel">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Vehicle Info ── -->
+        <div class="ra-card">
+          <div class="ra-card-head">
+            <div class="ra-card-icon">🛵</div>
+            <div>
+              <div class="ra-card-title">Vehicle Details</div>
+              <div class="ra-card-sub">What are you riding?</div>
+            </div>
+          </div>
+          <div class="ra-fields">
+            <div class="ra-field">
+              <label>Vehicle Type <span class="ra-req-star">*</span></label>
+              <div class="ra-vehicle-grid">
+                <label class="ra-vehicle-opt">
+                  <input type="radio" name="contact[Vehicle_Type]" value="Bike" required>
+                  <div class="ra-vehicle-label"><span class="ra-vehicle-emoji">🏍️</span> Bike</div>
+                </label>
+                <label class="ra-vehicle-opt">
+                  <input type="radio" name="contact[Vehicle_Type]" value="Scooter">
+                  <div class="ra-vehicle-label"><span class="ra-vehicle-emoji">🛵</span> Scooter</div>
+                </label>
+                <label class="ra-vehicle-opt">
+                  <input type="radio" name="contact[Vehicle_Type]" value="Electric">
+                  <div class="ra-vehicle-label"><span class="ra-vehicle-emoji">⚡</span> Electric</div>
+                </label>
+                <label class="ra-vehicle-opt">
+                  <input type="radio" name="contact[Vehicle_Type]" value="Other">
+                  <div class="ra-vehicle-label"><span class="ra-vehicle-emoji">🚗</span> Other</div>
+                </label>
+              </div>
+            </div>
+            <div class="ra-row">
+              <div class="ra-field">
+                <label for="RaPlate">Plate Number</label>
+                <input type="text" id="RaPlate" name="contact[Vehicle_No]" placeholder="BA 1 PA 1234">
+              </div>
+              <div class="ra-field">
+                <label for="RaLicense">License No.</label>
+                <input type="text" id="RaLicense" name="contact[License_No]" placeholder="License number">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Delivery IQ ── -->
+        <div class="ra-card ra-iq-card">
+          <div class="ra-card-head">
+            <div class="ra-card-icon" style="background:linear-gradient(135deg,#4A6FFF,#7B5EA7);">🧠</div>
+            <div>
+              <div class="ra-card-title">Delivery IQ Check</div>
+              <div class="ra-card-sub">3 quick questions — no wrong answers, just honest ones</div>
+            </div>
+          </div>
+          <div class="ra-fields">
+
+            <div class="ra-iq-q">
+              <p class="ra-iq-question"><span class="ra-iq-num">1</span>A customer doesn't answer the door or phone for 10 minutes. What do you do?</p>
+              <div class="ra-iq-options">
+                <label class="ra-iq-opt">
+                  <input type="radio" name="contact[IQ_Q1]" value="Leave at door and go">
+                  <div class="ra-iq-opt-label"><span class="ra-iq-opt-dot"></span>Leave the order at the door and go</div>
+                </label>
+                <label class="ra-iq-opt">
+                  <input type="radio" name="contact[IQ_Q1]" value="Call Support and wait for instructions">
+                  <div class="ra-iq-opt-label"><span class="ra-iq-opt-dot"></span>Call support and wait for instructions</div>
+                </label>
+                <label class="ra-iq-opt">
+                  <input type="radio" name="contact[IQ_Q1]" value="Take the food and finish shift">
+                  <div class="ra-iq-opt-label"><span class="ra-iq-opt-dot"></span>Take the food home</div>
+                </label>
+              </div>
+            </div>
+
+            <div class="ra-iq-q">
+              <p class="ra-iq-question"><span class="ra-iq-num">2</span>A drink spills slightly inside the bag. Best action?</p>
+              <div class="ra-iq-options">
+                <label class="ra-iq-opt">
+                  <input type="radio" name="contact[IQ_Q2]" value="Wipe it and deliver silently">
+                  <div class="ra-iq-opt-label"><span class="ra-iq-opt-dot"></span>Wipe it and deliver without saying anything</div>
+                </label>
+                <label class="ra-iq-opt">
+                  <input type="radio" name="contact[IQ_Q2]" value="Inform customer, apologize, and contact support">
+                  <div class="ra-iq-opt-label"><span class="ra-iq-opt-dot"></span>Tell the customer, apologize & contact support</div>
+                </label>
+                <label class="ra-iq-opt">
+                  <input type="radio" name="contact[IQ_Q2]" value="Tell the customer it was the restaurant's fault">
+                  <div class="ra-iq-opt-label"><span class="ra-iq-opt-dot"></span>Blame the restaurant</div>
+                </label>
+              </div>
+            </div>
+
+            <div class="ra-iq-q">
+              <p class="ra-iq-question"><span class="ra-iq-num">3</span>The most important part of being a QuickBee rider is?</p>
+              <div class="ra-iq-options">
+                <label class="ra-iq-opt">
+                  <input type="radio" name="contact[IQ_Q3]" value="Speed - Driving as fast as possible">
+                  <div class="ra-iq-opt-label"><span class="ra-iq-opt-dot"></span>Driving as fast as possible</div>
+                </label>
+                <label class="ra-iq-opt">
+                  <input type="radio" name="contact[IQ_Q3]" value="Safety - Delivering items in perfect condition">
+                  <div class="ra-iq-opt-label"><span class="ra-iq-opt-dot"></span>Delivering safely and in perfect condition</div>
+                </label>
+                <label class="ra-iq-opt">
+                  <input type="radio" name="contact[IQ_Q3]" value="Earnings - Completing most orders by any means">
+                  <div class="ra-iq-opt-label"><span class="ra-iq-opt-dot"></span>Completing the most orders by any means</div>
+                </label>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── Availability ── -->
+        <div class="ra-card">
+          <div class="ra-card-head">
+            <div class="ra-card-icon" style="background:linear-gradient(135deg,#00A86B,#00C87A);">📍</div>
+            <div>
+              <div class="ra-card-title">Availability & Area</div>
+              <div class="ra-card-sub">When and where can you ride?</div>
+            </div>
+          </div>
+          <div class="ra-fields">
+            <div class="ra-field">
+              <label for="RaAreas">Areas You Know Best</label>
+              <input type="text" id="RaAreas" name="contact[Areas_Covered]" placeholder="e.g. Thamel, Baneshwor, Lalitpur, Patan">
+            </div>
+            <div class="ra-row">
+              <div class="ra-field">
+                <label for="RaAvail">Availability</label>
+                <input type="text" id="RaAvail" name="contact[Available_Time]" placeholder="Full Time / Morning…">
+              </div>
+              <div class="ra-field">
+                <label for="RaSalary">Expected Monthly Salary</label>
+                <input type="text" id="RaSalary" name="contact[Expected_Salary]" placeholder="Write your expected salary">
+              </div>
+            </div>
+            <div class="ra-field">
+              <label for="RaNote">Anything else to add? (optional)</label>
+              <textarea id="RaNote" name="contact[body]" rows="3" placeholder="Tell us anything extra — experience, why you want to ride with QuickBee, etc."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Submit ── -->
+        <div class="ra-submit-wrap">
+          <button type="submit" class="ra-submit-btn" id="RaSubmitBtn">
+            <span id="RaSubmitText">Send My Application 🚀</span>
+          </button>
+          <p class="ra-submit-note">By applying you agree to QuickBee's rider terms & conditions. We'll never share your data with third parties.</p>
+        </div>
+
+    </form>
+
   </div>
 
 </div>
 
 <script>
-async function raSubmit() {
-  const btn = document.getElementById('ra-submit-btn');
-  const name = document.getElementById('ra-name').value.trim();
-  const phone = document.getElementById('ra-phone').value.trim();
+(function () {
+  document.addEventListener('DOMContentLoaded', function () {
+    var form    = document.getElementById('RiderAppForm');
+    var btn     = document.getElementById('RaSubmitBtn');
+    var btnText = document.getElementById('RaSubmitText');
+    if (!form || !btn) return;
 
-  if (!name || !phone) {
-    alert('Please fill in your name and phone number.');
-    return;
-  }
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
 
-  btn.disabled = true;
-  btn.textContent = 'Submitting...';
+      /* ── Basic validation ── */
+      var phone = form.querySelector('#RaPhone');
+      var name  = form.querySelector('#RaName');
+      var age   = form.querySelector('#RaAge');
+      if (!name.value.trim() || !phone.value.trim() || !age.value.trim()) {
+        alert('Please fill in your name, phone number and age.');
+        return;
+      }
 
-  const vehicle = document.querySelector('input[name="ra-vehicle"]:checked');
-  const variantId = document.getElementById('RaVariantId').value;
+      btnText.textContent = 'Processing…';
+      btn.classList.add('loading');
+      btn.disabled = true;
 
-  const props = {
-    '👤 Full Name': name,
-    '📞 Phone': phone,
-    '🎂 Age': document.getElementById('ra-age').value || '—',
-    '📍 City': document.getElementById('ra-city').value || '—',
-    '💰 Expected Salary': document.getElementById('ra-salary').value || '—',
-    '🛵 Vehicle': vehicle ? vehicle.value : '—',
-    '🕒 Shift': document.getElementById('ra-shift').value || '—',
-    '📝 Note': document.getElementById('ra-note').value || '—',
-    '🕒 Submitted': new Date().toLocaleString('en-NP', { timeZone: 'Asia/Kathmandu' })
-  };
+      /* ── Collect all fields into a readable order note ── */
+      var fd   = new FormData(form);
+      var note = '🛵 RIDER APPLICATION\n';
+      note += '──────────────────\n';
 
-  const note = `🛵 RIDER APPLICATION\n──────────────────\n` +
-    Object.entries(props).map(([k,v]) => `${k}: ${v}`).join('\n');
+      var labels = {
+        'Full_Name':       '👤 Full Name',
+        'phone':           '📞 Phone',
+        'Age':             '🎂 Age',
+        'Location':        '📍 Location',
+        'Vehicle_Type':    '🛵 Vehicle Type',
+        'Vehicle_No':      '🔢 Plate Number',
+        'License_No':      '📋 License No.',
+        'IQ_Q1':           '🧠 Q1 Answer',
+        'IQ_Q2':           '🧠 Q2 Answer',
+        'IQ_Q3':           '🧠 Q3 Answer',
+        'Areas_Covered':   '🗺️ Areas',
+        'Available_Time':  '🕐 Availability',
+        'Expected_Salary': '💰 Expected Salary',
+        'body':            '📝 Note'
+      };
 
-  try {
-    await fetch('/cart/clear.js', { method: 'POST' });
-    await fetch('/cart/add.js', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: variantId, quantity: 1, properties: props })
+      Object.keys(labels).forEach(function (key) {
+        var val = fd.get('contact[' + key + ']') || fd.get(key) || '';
+        if (val.trim()) note += labels[key] + ': ' + val.trim() + '\n';
+      });
+      note += '──────────────────\n';
+      note += '🕒 Submitted: ' + new Date().toLocaleString();
+
+      /* ── Build line item properties (shows on order detail) ── */
+      var props = {};
+      props['👤 Name']          = fd.get('contact[Full_Name]')      || '';
+      props['📞 Phone']         = fd.get('contact[phone]')           || '';
+      props['🎂 Age']           = fd.get('contact[Age]')             || '';
+      props['📍 Area']          = fd.get('contact[Location]')        || '';
+      props['🛵 Vehicle']       = fd.get('contact[Vehicle_Type]')    || '';
+      props['🔢 Plate']         = fd.get('contact[Vehicle_No]')      || '';
+      props['🕐 Availability']  = fd.get('contact[Available_Time]')  || '';
+      props['💰 Exp. Salary']   = fd.get('contact[Expected_Salary]') || '';
+
+      var variantId = parseInt(document.getElementById('RaVariantId').value, 10);
+
+      /* ── Step 1: Clear existing cart, then add rider product ── */
+      fetch('/cart/clear.js', { method: 'POST' })
+        .then(function () {
+          return fetch('/cart/add.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: variantId,
+              quantity: 1,
+              properties: props
+            })
+          });
+        })
+        .then(function (r) { return r.json(); })
+        .then(function () {
+          /* ── Step 2: Set full note on cart ── */
+          return fetch('/cart/update.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ note: note })
+          });
+        })
+        .then(function () {
+          /* ── Step 3: Go straight to checkout ── */
+          window.location.href = '/checkout';
+        })
+        .catch(function (err) {
+          console.error('[QB Rider]', err);
+          btnText.textContent = 'Send My Application 🚀';
+          btn.classList.remove('loading');
+          btn.disabled = false;
+          alert('Something went wrong. Please check your connection and try again.');
+        });
     });
-    await fetch('/cart/update.js', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ note })
-    });
-    window.location.href = '/checkout';
-  } catch(e) {
-    btn.disabled = false;
-    btn.textContent = '🛵 Submit Application';
-    alert('Something went wrong. Please try again.');
-  }
-}
+  });
+})();
 </script>
 
 {% schema %}
 {
-  "name": "Rider Application",
-  "settings": []
+  "name": "Rider Application Page",
+  "settings": [],
+  "presets": [{ "name": "Rider Application Page" }]
 }
 {% endschema %}
