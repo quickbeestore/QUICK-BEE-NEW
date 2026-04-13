@@ -729,10 +729,10 @@
     </div>
     <h1 class="rts-hero-title">Spa Packages<br>in Kathmandu</h1>
     <p class="rts-hero-subtitle">Complete wellness journeys blending Ayurvedic traditions with modern therapeutic practices — in the heart of Thamel.</p>
-    <a href="/pages/contact" class="rts-hero-cta">
+    <button class="rts-hero-cta rts-book-trigger" data-variant="" data-name="Spa Package" data-price="" data-currency="" data-duration="">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       Book Now
-    </a>
+    </button>
   </div>
 
   <!-- ═══════════════════════════
@@ -1629,44 +1629,51 @@
     }
     if (!valid) return;
 
-    if (!state.variantId) {
-      window.location.href = '/collections/real-therapy-spa';
-      return;
+    nextBtn.disabled = true;
+    nextBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:rtsSpinBtn 0.8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Processing…';
+
+    var noteLines = [
+      '--- REAL THERAPY SPA BOOKING ---',
+      (state.packageName ? 'Package: '         + state.packageName : ''),
+      (state.duration    ? 'Duration: '        + state.duration    : ''),
+      'Date: '             + state.date,
+      'Time: '             + state.slot,
+      'Guest Name: '       + name,
+      'Phone / WhatsApp: ' + phone,
+      (notes ? 'Special Requests: ' + notes : '')
+    ].filter(Boolean).join('\n');
+
+    var vid = parseInt(state.variantId, 10);
+
+    function setNoteAndCheckout() {
+      fetch('/cart/update.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note: noteLines })
+      })
+      .then(function () {
+        window.location.href = '/checkout';
+      })
+      .catch(function () {
+        window.location.href = '/checkout';
+      });
     }
 
-    nextBtn.disabled = true;
-    nextBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:rtsSpinBtn 0.8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Adding…';
-
-    var properties = {
-      'Booking Date': state.date,
-      'Time Slot': state.slot,
-      'Guest Name': name,
-      'Phone / WhatsApp': phone,
-      'Package': state.packageName
-    };
-    if (notes) properties['Special Requests'] = notes;
-
-    fetch('/cart/add.js', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        id: parseInt(state.variantId, 10),
-        quantity: 1,
-        properties: properties
+    if (vid) {
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: vid, quantity: 1 })
       })
-    })
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      if (d.id) {
-        window.location.href = '/checkout';
-      } else {
-        throw new Error(d.description || 'Failed');
-      }
-    })
-    .catch(function () {
-      nextBtn.disabled = false;
-      nextBtn.innerHTML = 'Try Again <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>';
-    });
+      .then(function (r) { return r.json(); })
+      .then(function () { setNoteAndCheckout(); })
+      .catch(function () {
+        nextBtn.disabled = false;
+        nextBtn.innerHTML = 'Try Again <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>';
+      });
+    } else {
+      setNoteAndCheckout();
+    }
   }
 
   /* ── Trigger buttons ── */
