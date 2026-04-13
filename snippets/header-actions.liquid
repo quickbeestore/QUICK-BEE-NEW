@@ -53,11 +53,6 @@
   {% endif %}
   {{- block.shopify_attributes -}}
 >
-  <!-- QuickBEE Location Button (GPS Auto-Detection) -->
-  <div class="header-actions__action">
-    {% render 'location-button' %}
-  </div>
-
   {{ wallet_button }}
 
   {% if shop.customer_accounts_enabled %}
@@ -110,14 +105,14 @@
     </div>
   {% endif %}
 
-  <!-- Always show side cart drawer as primary action -->
-  <script
-    src="{{ 'cart-drawer.js' | asset_url }}"
-    type="module"
-    fetchpriority="low"
-  ></script>
+  {% if settings.cart_type == 'drawer' and template.name != 'cart' %}
+    <script
+      src="{{ 'cart-drawer.js' | asset_url }}"
+      type="module"
+      fetchpriority="low"
+    ></script>
 
-  {% capture empty_cart_drawer_content %}
+    {% capture empty_cart_drawer_content %}
       <div class="cart-drawer__header">
         <button
           ref="closeButton"
@@ -235,6 +230,16 @@
         </div>
       </dialog>
     </cart-drawer-component>
+  {% else %}
+    <a
+      href="{{ routes.cart_url }}"
+      class="header-actions__action action__cart{% if display_style == 'text' %} header-actions__text-style{% endif %}"
+      aria-label="{{ 'accessibility.cart' | t }}"
+      aria-describedby="cart-bubble-text"
+    >
+      {{ cart_icon }}
+    </a>
+  {% endif %}
 </header-actions>
 
 {% stylesheet %}
@@ -298,12 +303,11 @@
   }
 
   .cart-drawer {
-    --cart-drawer-padding: 12px 14px;
+    --cart-drawer-padding: var(--padding-xl) var(--padding-xl);
     --cart-drawer-padding-desktop: var(--padding-xl) var(--padding-2xl);
 
     @media screen and (min-width: 750px) {
       margin-inline-end: calc(var(--gap-xs) * -1);
-      --cart-drawer-padding: var(--padding-xl) var(--padding-xl);
     }
   }
 
@@ -315,78 +319,27 @@
   }
 
   .cart-drawer__dialog {
-    position: fixed !important;
+    position: fixed;
     overflow: hidden;
     border-radius: 0;
-    width: min(85vw, 380px) !important;
-    max-width: 380px !important;
-    height: 100dvh !important;
-    margin: 0 !important;
+    width: 100%;
+    height: 100%;
+    margin: 0 0 0 auto;
     padding: 0;
     border-left: var(--style-border-drawer);
     box-shadow: var(--shadow-drawer);
     background-color: var(--color-background);
-    animation: slide-in-drawer 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    right: 0 !important;
-    top: 0 !important;
-    left: auto !important;
-    inset: 0 0 0 auto !important;
 
     @media screen and (min-width: 750px) {
-      width: var(--sidebar-width) !important;
-      max-width: 95vw !important;
-      animation: slide-in-drawer-desktop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-  }
-
-  @keyframes slide-in-drawer {
-    from {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-
-  @keyframes slide-in-drawer-desktop {
-    from {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
+      width: var(--sidebar-width);
+      max-width: 95vw;
     }
   }
 
   /* Needed to ensure the drawer is full height */
   .cart-drawer__dialog:modal {
-    width: min(85vw, 380px) !important;
-    max-width: 380px !important;
     max-height: 100dvh;
     overflow-y: hidden;
-
-    @media screen and (min-width: 750px) {
-      width: var(--sidebar-width) !important;
-      max-width: 95vw !important;
-    }
-  }
-
-  .cart-drawer__dialog.dialog-closing {
-    animation: slide-out-drawer 0.3s cubic-bezier(0.7, 0, 0.84, 0) forwards !important;
-  }
-
-  @keyframes slide-out-drawer {
-    from {
-      transform: translateX(0);
-      opacity: 1;
-    }
-    to {
-      transform: translateX(100%);
-      opacity: 0;
-    }
   }
 
   .cart-drawer__inner {
@@ -409,12 +362,6 @@
     align-items: center;
     gap: var(--gap-xs);
     margin-bottom: 0;
-    font-size: clamp(16px, 5vw, 22px);
-    font-weight: 800;
-
-    @media screen and (min-width: 750px) {
-      font-size: 22px;
-    }
   }
 
   .cart-drawer__close-button {
@@ -451,7 +398,7 @@
   }
 
   .cart-drawer__summary {
-    --cart-drawer-summary-padding: 12px;
+    --cart-drawer-summary-padding: var(--padding-lg);
 
     position: sticky;
     bottom: 0;
@@ -459,7 +406,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: var(--gap-xl);
     padding: var(--cart-drawer-summary-padding);
     margin-top: auto;
     background-color: var(--color-background);
@@ -468,7 +415,6 @@
 
     @media screen and (min-width: 750px) {
       --cart-drawer-summary-padding: var(--padding-2xl);
-      gap: var(--gap-xl);
     }
   }
 
@@ -546,16 +492,14 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--color-border);
+    padding: var(--cart-drawer-padding);
+    border-bottom: var(--style-border-width) solid none;
     position: sticky;
     top: 0;
     z-index: 1;
 
     @media screen and (min-width: 750px) {
-      padding: var(--cart-drawer-padding);
       padding-inline: var(--cart-drawer-padding-desktop);
-      border-bottom: var(--style-border-width) solid none;
     }
   }
 
@@ -785,46 +729,6 @@
 
     .header__column--right .header-actions--text {
       margin-inline-start: 0;
-    }
-  }
-
-  {% comment %}Location Picker Styling{% endcomment %}
-  .header-actions__location-picker {
-    display: flex;
-    align-items: center;
-    margin-right: var(--gap-md);
-    order: -2;
-  }
-
-  .location-picker-button {
-    color: var(--color-foreground);
-    background-color: var(--color-background);
-    border-color: var(--color-border);
-  }
-
-  .location-picker-button:hover {
-    border-color: var(--color-primary-button-background);
-  }
-
-  .location-picker-button.open {
-    border-color: var(--color-primary-button-background);
-    color: var(--color-primary-button-background);
-  }
-
-  @media screen and (max-width: 749px) {
-    .header-actions__location-picker {
-      margin-right: var(--gap-sm);
-      order: -3;
-    }
-
-    .location-picker-button {
-      min-width: 120px;
-      padding: 8px 10px;
-      font-size: 11px;
-    }
-
-    .location-picker-button__label {
-      display: none;
     }
   }
 {% endstylesheet %}

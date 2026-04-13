@@ -43,7 +43,17 @@
     assign image_sizes = sizes_attribute | strip
   endif
 
-  assign ratio = '1 / 1'
+  assign ratio = '1'
+  case block_settings.image_ratio
+    when 'landscape'
+      assign ratio = '16 / 9'
+    when 'portrait'
+      assign ratio = '4 / 5'
+    when 'square'
+      assign ratio = '1'
+    when 'adapt'
+      assign ratio = product.featured_media.preview_image.aspect_ratio | default: '1'
+  endcase
 
   if block_settings.image_ratio == 'adapt' and block_settings.constrain_to_viewport
     if block_settings.constrain_to_viewport != ''
@@ -55,8 +65,12 @@
 
 <div
   ref="cardGallery"
-  class="card-gallery card-gallery-{{ block.id }}{% if has_badges %} card-gallery--badge-{{ badge_position }}{% endif %}"
-  style="--gallery-aspect-ratio: {{ ratio }};"
+  class="card-gallery card-gallery-{{ block.id }} spacing-style border-style{% if has_badges %} card-gallery--badge-{{ badge_position }}{% endif %}"
+  style="
+    {% render 'border-override', settings: block_settings %}
+    {% render 'spacing-style', settings: block_settings %}
+    --gallery-aspect-ratio: {{ ratio }};
+  "
   data-product-id="{{ product.id }}"
   {% if settings.show_second_image_on_hover %}
     on:pointerenter="/previewImage"
@@ -193,15 +207,6 @@
     overflow: hidden;
     container-type: inline-size; /* Make card-gallery a container */
     container-name: card-gallery-container; /* Optional: name the container */
-
-    /* Make image full-bleed on top, left, and right */
-    margin-top: calc({{ block_settings.padding-block-start | default: 0 }}px * -1);
-    margin-left: calc({{ block_settings.padding-inline-start | default: 0 }}px * -1);
-    margin-right: calc({{ block_settings.padding-inline-end | default: 0 }}px * -1);
-
-    /* Match the parent card's border radius on the top corners */
-    border-top-left-radius: {{ block_settings.border_radius | default: 0 }}px;
-    border-top-right-radius: {{ block_settings.border_radius | default: 0 }}px;
   }
 
   .card-gallery__placeholder svg {
