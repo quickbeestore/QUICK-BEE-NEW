@@ -414,6 +414,19 @@ html:not([data-theme="dark"]) .qi-hero {
 
     btn.disabled = true; btn.innerHTML = '⏳ Submitting…';
 
+    // Save application to localStorage
+    try {
+      var appData = {
+        name: name, phone: phone, email: email, city: city,
+        platforms: platforms, handles: handleLines.trim(),
+        followers: followers, niche: niche, rate: rate,
+        bio: bio, why: why, collab: collab,
+        submittedAt: now, noteText: note
+      };
+      localStorage.setItem('qb_influencer_application', JSON.stringify(appData));
+      localStorage.setItem('qb_influencer_note', note);
+    } catch(err) { /* localStorage unavailable */ }
+
     {% assign qbif_product = all_products['quick-bee-influencer'] %}
     {% if qbif_product and qbif_product.variants.first %}
       var variantId = {{ qbif_product.variants.first.id }};
@@ -422,15 +435,38 @@ html:not([data-theme="dark"]) .qi-hero {
     {% endif %}
 
     function setNoteAndCheckout(){
-      fetch('/cart/update.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ note: note }) })
-        .then(function(){ window.location.href = '/cart'; })
-        .catch(function(){ window.location.href = '/cart'; });
+      // Set cart note with full application text
+      fetch('/cart/update.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note: note })
+      })
+      .then(function(){ window.location.href = '/cart'; })
+      .catch(function(){ window.location.href = '/cart'; });
     }
 
     if(variantId){
-      fetch('/cart/add.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: variantId, quantity: 1 }) })
-        .then(setNoteAndCheckout).catch(setNoteAndCheckout);
-    } else { setNoteAndCheckout(); }
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: variantId,
+          quantity: 1,
+          properties: {
+            'Applicant': name,
+            'Phone': phone,
+            'Email': email,
+            'Platforms': platforms.join(', '),
+            'Followers': followers,
+            'Niche': niche
+          }
+        })
+      })
+      .then(setNoteAndCheckout)
+      .catch(setNoteAndCheckout);
+    } else {
+      setNoteAndCheckout();
+    }
   };
 })();
 </script>
