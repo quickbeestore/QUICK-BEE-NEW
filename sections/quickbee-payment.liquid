@@ -1034,19 +1034,29 @@
         if (qrImg && amtRs > 0) {
           if (qrLoader) qrLoader.style.display = 'flex';
           qrImg.style.display = 'none';
-          fetch(RAILWAY_API + '/api/generate-qr?amount=' + amtRs)
+          var qrFallback = function() {
+            qrImg.src = '{{ "PAYMENTSQRONLINE.png" | asset_url }}';
+            qrImg.style.display = 'block';
+            if (qrLoader) qrLoader.style.display = 'none';
+          };
+          var qrTimeout = setTimeout(qrFallback, 8000);
+          var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+          setTimeout(function() { if (controller) controller.abort(); }, 8000);
+          fetch(RAILWAY_API + '/api/generate-qr?amount=' + amtRs, controller ? { signal: controller.signal } : {})
             .then(function (r) { return r.json(); })
             .then(function (data) {
+              clearTimeout(qrTimeout);
               if (data.success && data.qr_image) {
                 qrImg.src = data.qr_image;
                 qrImg.style.display = 'block';
                 if (qrLoader) qrLoader.style.display = 'none';
+              } else {
+                qrFallback();
               }
             })
             .catch(function () {
-              qrImg.src = '{{ "PAYMENTSQRONLINE.png" | asset_url }}';
-              qrImg.style.display = 'block';
-              if (qrLoader) qrLoader.style.display = 'none';
+              clearTimeout(qrTimeout);
+              qrFallback();
             });
         }
       } else {
