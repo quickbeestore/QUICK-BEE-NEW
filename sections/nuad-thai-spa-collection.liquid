@@ -733,10 +733,27 @@
   color: var(--nt-text-mid);
   background: var(--nt-beige);
   border: 1px solid var(--nt-border);
-  padding: 3px 9px;
+  padding: 4px 10px;
   border-radius: 50px;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
+  line-height: 1.4;
+}
+.nt-variant-pill:hover {
+  border-color: var(--nt-gold);
+  color: var(--nt-gold);
+}
+.nt-variant-pill.nt-variant-active {
+  background: var(--nt-green);
+  border-color: var(--nt-green);
+  color: #fff;
+}
+.nt-variant-pill:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 [data-theme="dark"] .nt-variant-pill { background: var(--nt-beige-dark); }
+[data-theme="dark"] .nt-variant-pill.nt-variant-active { background: var(--nt-green-mid); border-color: var(--nt-gold); color: var(--nt-gold); }
 
 .nt-prod-footer {
   display: flex;
@@ -1676,7 +1693,9 @@
 (function () {
   'use strict';
 
-  /* ── Sticky tabs ── */
+  /* ══════════════════════════════════════
+     STICKY TABS
+     ══════════════════════════════════════ */
   function ntUpdateFixed() {
     var wrap = document.getElementById('nt-tabs-wrap');
     var spacer = document.getElementById('nt-tabs-spacer');
@@ -1696,15 +1715,15 @@
   }
   window.addEventListener('scroll', ntUpdateFixed, { passive: true });
 
-  /* ── Tab filtering ── */
+  /* ══════════════════════════════════════
+     TAB FILTERING
+     ══════════════════════════════════════ */
   var tabs = document.querySelectorAll('.nt-tab-btn');
   var cards = document.querySelectorAll('.nt-prod-card');
 
   tabs.forEach(function (tab) {
     tab.addEventListener('click', function () {
       var filter = this.getAttribute('data-filter');
-
-      // Update active tab
       tabs.forEach(function (t) {
         t.classList.remove('nt-tab-active');
         t.setAttribute('aria-selected', 'false');
@@ -1712,7 +1731,6 @@
       this.classList.add('nt-tab-active');
       this.setAttribute('aria-selected', 'true');
 
-      // Filter cards
       var visibleCount = 0;
       cards.forEach(function (card) {
         if (filter === 'all' || card.getAttribute('data-type') === filter) {
@@ -1723,7 +1741,6 @@
         }
       });
 
-      // Empty state
       var grid = document.getElementById('nt-prod-grid');
       var emptyMsg = document.getElementById('nt-filter-empty');
       if (grid) {
@@ -1742,7 +1759,279 @@
     });
   });
 
-  /* ── Scroll-triggered fade-in animations ── */
+  /* ══════════════════════════════════════
+     VARIANT SELECTOR — update price + ATC vid
+     ══════════════════════════════════════ */
+  document.querySelectorAll('.nt-variant-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pid = this.getAttribute('data-card');
+      var vid = this.getAttribute('data-vid');
+      var price = this.getAttribute('data-price');
+
+      // Deactivate siblings
+      document.querySelectorAll('.nt-variant-btn[data-card="' + pid + '"]').forEach(function (b) {
+        b.classList.remove('nt-variant-active');
+      });
+      this.classList.add('nt-variant-active');
+
+      // Update displayed price
+      var priceEl = document.getElementById('nt-price-' + pid);
+      if (priceEl) priceEl.textContent = price;
+
+      // Update ATC button's vid
+      var atcBtn = document.querySelector('.nt-atc-btn[data-pid="' + pid + '"]');
+      if (atcBtn) atcBtn.setAttribute('data-vid', vid);
+    });
+  });
+
+  /* ══════════════════════════════════════
+     TOAST NOTIFICATION
+     ══════════════════════════════════════ */
+  function ntShowToast(msg, isError) {
+    var existing = document.getElementById('nt-toast');
+    if (existing) existing.remove();
+
+    var toast = document.createElement('div');
+    toast.id = 'nt-toast';
+    toast.style.cssText = [
+      'position:fixed',
+      'bottom:24px',
+      'left:50%',
+      'transform:translateX(-50%) translateY(20px)',
+      'background:' + (isError ? '#8b1a1a' : 'linear-gradient(135deg,#1B3A2D,#2D5240)'),
+      'color:#fff',
+      'padding:14px 24px',
+      'border-radius:50px',
+      'font-size:14px',
+      'font-weight:600',
+      'box-shadow:0 8px 32px rgba(0,0,0,0.35)',
+      'z-index:99999',
+      'pointer-events:none',
+      'transition:transform 0.3s ease,opacity 0.3s ease',
+      'border:1px solid rgba(201,168,76,0.4)',
+      'white-space:nowrap'
+    ].join(';');
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(function () {
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+
+    setTimeout(function () {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(-50%) translateY(10px)';
+      setTimeout(function () { toast.remove(); }, 300);
+    }, 2800);
+  }
+
+  /* ══════════════════════════════════════
+     CART DRAWER (slide-up panel)
+     ══════════════════════════════════════ */
+  function ntBuildDrawer() {
+    if (document.getElementById('nt-cart-drawer')) return;
+
+    var overlay = document.createElement('div');
+    overlay.id = 'nt-cart-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99990;opacity:0;transition:opacity 0.3s;display:none;';
+    overlay.addEventListener('click', ntCloseDrawer);
+
+    var drawer = document.createElement('div');
+    drawer.id = 'nt-cart-drawer';
+    drawer.style.cssText = [
+      'position:fixed',
+      'bottom:0',
+      'left:0',
+      'right:0',
+      'background:var(--nt-card, #fff)',
+      'border-radius:24px 24px 0 0',
+      'z-index:99991',
+      'transform:translateY(100%)',
+      'transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1)',
+      'max-height:85vh',
+      'overflow-y:auto',
+      'padding:24px 20px 40px',
+      'box-shadow:0 -8px 40px rgba(0,0,0,0.25)'
+    ].join(';');
+
+    drawer.innerHTML = [
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">',
+        '<h3 style="font-family:Georgia,serif;font-size:20px;font-weight:700;color:var(--nt-text,#1a1610);margin:0;">🛒 Your Booking</h3>',
+        '<button id="nt-drawer-close" style="background:none;border:none;cursor:pointer;font-size:22px;color:var(--nt-text-soft,#7a6e5f);padding:4px;">✕</button>',
+      '</div>',
+      '<div id="nt-drawer-items" style="margin-bottom:20px;"></div>',
+      '<div style="border-top:1px solid var(--nt-border,#E8DCC8);padding-top:16px;margin-bottom:20px;">',
+        '<div style="display:flex;justify-content:space-between;font-weight:700;font-size:16px;color:var(--nt-text,#1a1610);">',
+          '<span>Total</span>',
+          '<span id="nt-drawer-total" style="color:#C9A84C;"></span>',
+        '</div>',
+      '</div>',
+      '<button id="nt-checkout-btn" style="width:100%;padding:16px;background:linear-gradient(135deg,#1B3A2D,#2D5240);color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:0.5px;transition:opacity 0.2s;">',
+        'Proceed to Checkout →',
+      '</button>',
+      '<button id="nt-continue-btn" style="width:100%;padding:12px;background:none;border:1.5px solid var(--nt-border,#E8DCC8);color:var(--nt-text-mid,#4a3f2f);border-radius:14px;font-size:14px;cursor:pointer;margin-top:10px;transition:border-color 0.2s;">',
+        'Continue Browsing',
+      '</button>'
+    ].join('');
+
+    document.body.appendChild(overlay);
+    document.body.appendChild(drawer);
+
+    document.getElementById('nt-drawer-close').addEventListener('click', ntCloseDrawer);
+    document.getElementById('nt-continue-btn').addEventListener('click', ntCloseDrawer);
+    document.getElementById('nt-checkout-btn').addEventListener('click', function () {
+      window.location.href = '/checkout';
+    });
+    document.getElementById('nt-checkout-btn').addEventListener('mouseenter', function () {
+      this.style.opacity = '0.85';
+    });
+    document.getElementById('nt-checkout-btn').addEventListener('mouseleave', function () {
+      this.style.opacity = '1';
+    });
+  }
+
+  function ntOpenDrawer(cartData) {
+    var overlay = document.getElementById('nt-cart-overlay');
+    var drawer = document.getElementById('nt-cart-drawer');
+    if (!overlay || !drawer) return;
+
+    // Render items
+    var itemsEl = document.getElementById('nt-drawer-items');
+    var totalEl = document.getElementById('nt-drawer-total');
+    itemsEl.innerHTML = '';
+
+    cartData.items.forEach(function (item) {
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--nt-border,#E8DCC8);';
+      row.innerHTML = [
+        '<div style="width:56px;height:56px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--nt-beige,#F5EFE0);display:flex;align-items:center;justify-content:center;font-size:24px;">',
+          item.featured_image ? '<img src="' + item.featured_image.url + '" style="width:100%;height:100%;object-fit:cover;" alt="">' : '🪷',
+        '</div>',
+        '<div style="flex:1;min-width:0;">',
+          '<p style="font-weight:600;font-size:14px;color:var(--nt-text,#1a1610);margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + item.product_title + '</p>',
+          item.variant_title && item.variant_title !== 'Default Title'
+            ? '<p style="font-size:12px;color:var(--nt-text-soft,#7a6e5f);margin:0 0 6px;">' + item.variant_title + '</p>'
+            : '',
+          '<div style="display:flex;align-items:center;gap:8px;">',
+            '<button data-key="' + item.key + '" data-qty="' + (item.quantity - 1) + '" class="nt-qty-btn" style="width:26px;height:26px;border:1px solid var(--nt-border,#E8DCC8);background:none;border-radius:6px;cursor:pointer;font-size:16px;color:var(--nt-text-mid,#4a3f2f);">−</button>',
+            '<span style="font-size:14px;font-weight:600;color:var(--nt-text,#1a1610);min-width:20px;text-align:center;">' + item.quantity + '</span>',
+            '<button data-key="' + item.key + '" data-qty="' + (item.quantity + 1) + '" class="nt-qty-btn" style="width:26px;height:26px;border:1px solid var(--nt-border,#E8DCC8);background:none;border-radius:6px;cursor:pointer;font-size:16px;color:var(--nt-text-mid,#4a3f2f);">+</button>',
+          '</div>',
+        '</div>',
+        '<div style="font-weight:700;color:#C9A84C;font-size:14px;flex-shrink:0;">' + ntFormatMoney(item.line_price) + '</div>'
+      ].join('');
+      itemsEl.appendChild(row);
+    });
+
+    if (totalEl) totalEl.textContent = ntFormatMoney(cartData.total_price);
+
+    // Qty buttons
+    itemsEl.querySelectorAll('.nt-qty-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var key = this.getAttribute('data-key');
+        var qty = parseInt(this.getAttribute('data-qty'), 10);
+        ntChangeQty(key, qty);
+      });
+    });
+
+    overlay.style.display = 'block';
+    requestAnimationFrame(function () {
+      overlay.style.opacity = '1';
+      drawer.style.transform = 'translateY(0)';
+    });
+    document.body.style.overflow = 'hidden';
+  }
+
+  function ntCloseDrawer() {
+    var overlay = document.getElementById('nt-cart-overlay');
+    var drawer = document.getElementById('nt-cart-drawer');
+    if (!overlay || !drawer) return;
+    overlay.style.opacity = '0';
+    drawer.style.transform = 'translateY(100%)';
+    document.body.style.overflow = '';
+    setTimeout(function () { overlay.style.display = 'none'; }, 320);
+  }
+
+  function ntFormatMoney(cents) {
+    return 'NPR ' + (cents / 100).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+  }
+
+  /* ══════════════════════════════════════
+     ADD TO CART
+     ══════════════════════════════════════ */
+  function ntAddToCart(vid, title, btnEl) {
+    if (btnEl) {
+      btnEl.disabled = true;
+      btnEl.textContent = 'Adding…';
+    }
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ id: vid, quantity: 1 })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.status) throw new Error(data.description || 'Could not add to cart');
+
+      // Fire universal QB cart update event
+      fetch('/cart.js')
+        .then(function (r) { return r.json(); })
+        .then(function (cart) {
+          document.dispatchEvent(new CustomEvent('qb:cart:update', { detail: { count: cart.item_count } }));
+          ntBuildDrawer();
+          ntOpenDrawer(cart);
+        });
+
+      if (btnEl) {
+        btnEl.textContent = '✓ Added';
+        setTimeout(function () {
+          btnEl.disabled = false;
+          btnEl.textContent = 'Book Now';
+        }, 2000);
+      }
+    })
+    .catch(function (err) {
+      ntShowToast('⚠ ' + (err.message || 'Something went wrong'), true);
+      if (btnEl) {
+        btnEl.disabled = false;
+        btnEl.textContent = 'Book Now';
+      }
+    });
+  }
+
+  /* ══════════════════════════════════════
+     CHANGE QTY IN DRAWER
+     ══════════════════════════════════════ */
+  function ntChangeQty(key, qty) {
+    fetch('/cart/change.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ id: key, quantity: qty })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (cart) {
+      document.dispatchEvent(new CustomEvent('qb:cart:update', { detail: { count: cart.item_count } }));
+      ntOpenDrawer(cart); // re-render drawer with updated cart
+    });
+  }
+
+  /* ══════════════════════════════════════
+     ATC BUTTON LISTENERS
+     ══════════════════════════════════════ */
+  document.querySelectorAll('.nt-atc-btn').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var vid = this.getAttribute('data-vid');
+      var title = this.getAttribute('data-title');
+      ntAddToCart(parseInt(vid, 10), title, this);
+    });
+  });
+
+  /* ══════════════════════════════════════
+     FADE-IN ANIMATIONS
+     ══════════════════════════════════════ */
   var fadeEls = document.querySelectorAll('.nt-fade-in');
   if ('IntersectionObserver' in window) {
     var observer = new IntersectionObserver(function (entries) {
@@ -1753,7 +2042,6 @@
         }
       });
     }, { threshold: 0.08 });
-
     fadeEls.forEach(function (el) { observer.observe(el); });
   } else {
     fadeEls.forEach(function (el) { el.classList.add('nt-visible'); });
@@ -1766,23 +2054,6 @@
 {
   "name": "Nuad Thai Spa Collection",
   "settings": [
-    {
-      "type": "header",
-      "content": "Booking & Contact"
-    },
-    {
-      "type": "text",
-      "id": "whatsapp_number",
-      "label": "WhatsApp Number",
-      "placeholder": "+977 98XXXXXXXX",
-      "info": "Include country code, e.g. +9779800000000"
-    },
-    {
-      "type": "url",
-      "id": "booking_url",
-      "label": "Online Booking URL",
-      "info": "Link for the 'Book Now' CTAs. Leave blank to scroll to the service grid."
-    },
     {
       "type": "header",
       "content": "Sections"
