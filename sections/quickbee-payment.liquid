@@ -1032,22 +1032,25 @@
         var qrLoader = document.getElementById('qbpQRLoader');
         var amtRs    = Math.round(cartTotal / 100);
         if (qrImg && amtRs > 0) {
-          if (qrLoader) qrLoader.style.display = 'flex';
-          qrImg.style.display = 'none';
+          var staticQR = '{{ "PAYMENTSQRONLINE.png" | asset_url }}';
+          // Show static QR immediately so user is never stuck on a spinner
+          qrImg.src = staticQR;
+          qrImg.style.display = 'block';
+          if (qrLoader) qrLoader.style.display = 'none';
+
+          // Try the dynamic QR in background — replace if it loads within 8s
+          var dynamicDone = false;
+          var timer = setTimeout(function () { dynamicDone = true; }, 8000);
           fetch(RAILWAY_API + '/api/generate-qr?amount=' + amtRs)
             .then(function (r) { return r.json(); })
             .then(function (data) {
-              if (data.success && data.qr_image) {
+              if (!dynamicDone && data.success && data.qr_image) {
+                clearTimeout(timer);
+                dynamicDone = true;
                 qrImg.src = data.qr_image;
-                qrImg.style.display = 'block';
-                if (qrLoader) qrLoader.style.display = 'none';
               }
             })
-            .catch(function () {
-              qrImg.src = '{{ "PAYMENTSQRONLINE.png" | asset_url }}';
-              qrImg.style.display = 'block';
-              if (qrLoader) qrLoader.style.display = 'none';
-            });
+            .catch(function () { /* static QR already showing */ });
         }
       } else {
         var desc = document.getElementById('qbpCODDesc');
