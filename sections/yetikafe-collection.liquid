@@ -1136,7 +1136,7 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
         if (!target) return;
         var tabsH  = ykTabsWrapEl ? ykTabsWrapEl.offsetHeight : 44;
         var offset = ykHeaderH + tabsH + 8;
-        /* Use absolute offsetTop walk to avoid getBoundingClientRect quirks */
+        /* Use absolute offsetTop walk — never use getBoundingClientRect on fixed elements */
         var absTop = 0;
         var node = target;
         while (node) { absTop += node.offsetTop || 0; node = node.offsetParent; }
@@ -1157,27 +1157,50 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
       { id: 'yk-sec-others', tabId: 'yk-tab-others' }
     ];
 
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-        var sid = entry.target.id;
-        sections.forEach(function (s) {
-          var tab = document.getElementById(s.tabId);
-          if (!tab) return;
-          if (s.id === sid) {
-            tab.classList.add('active');
-            tab.scrollIntoView({ inline: 'nearest', block: 'nearest' });
-          } else {
-            tab.classList.remove('active');
-          }
-        });
-      });
-    }, { rootMargin: '-56px 0px -60% 0px', threshold: 0 });
+    /* Build rootMargin dynamically so it accounts for real header+tabs height */
+    function ykMakeObserver() {
+      var tabsH   = ykTabsWrapEl ? ykTabsWrapEl.offsetHeight : 44;
+      var topBias = ykHeaderH + tabsH;          /* px from top to ignore */
+      var botBias = Math.round(window.innerHeight * 0.55); /* bottom dead zone */
+      var margin  = '-' + topBias + 'px 0px -' + botBias + 'px 0px';
 
-    sections.forEach(function (s) {
-      var el = document.getElementById(s.id);
-      if (el) observer.observe(el);
-    });
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          var sid = entry.target.id;
+          sections.forEach(function (s) {
+            var tab = document.getElementById(s.tabId);
+            if (!tab) return;
+            if (s.id === sid) {
+              tab.classList.add('active');
+              /* Auto-scroll the tab bar so active tab is visible */
+              var tabsEl = document.getElementById('ykTabs');
+              if (tabsEl) {
+                var tLeft  = tab.offsetLeft;
+                var tW     = tab.offsetWidth;
+                var barW   = tabsEl.offsetWidth;
+                var scroll = tabsEl.scrollLeft;
+                if (tLeft < scroll + 20) {
+                  tabsEl.scrollTo({ left: tLeft - 20, behavior: 'smooth' });
+                } else if (tLeft + tW > scroll + barW - 20) {
+                  tabsEl.scrollTo({ left: tLeft + tW - barW + 20, behavior: 'smooth' });
+                }
+              }
+            } else {
+              tab.classList.remove('active');
+            }
+          });
+        });
+      }, { rootMargin: margin, threshold: 0 });
+
+      sections.forEach(function (s) {
+        var el = document.getElementById(s.id);
+        if (el) obs.observe(el);
+      });
+      return obs;
+    }
+
+    ykMakeObserver();
   }
 
   /* ── Event delegation for ADD / stepper ─────────────────────── */
@@ -1252,10 +1275,9 @@ html:not([data-theme="dark"]) .yk-tabs-wrap {
   }
 
   function ykComputeTrigger() {
-    /* offsetTop of spacer = exact document position where tabs bar sits */
-    var el = ykTabsSpacerEl || ykTabsWrapEl;
+    /* ALWAYS walk from ykTabsWrapEl — spacer starts display:none so offsetParent=null → returns 0 which breaks everything */
     var top = 0;
-    var node = el;
+    var node = ykTabsWrapEl;
     while (node) { top += node.offsetTop || 0; node = node.offsetParent; }
     return top;
   }
