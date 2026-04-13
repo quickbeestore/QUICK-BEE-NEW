@@ -1209,7 +1209,8 @@ html:not([data-theme="dark"]) .mm-tabs-wrap {
     mmHeaderH = mmGetHeaderH();
     var th = mmTabsWrapEl.offsetHeight;
     document.documentElement.style.setProperty('--mm-scroll-margin', (mmHeaderH + th + 8) + 'px');
-    window.addEventListener('scroll', mmUpdateFixed, { passive: true });
+    var mmScroller = document.getElementById('MainContent') || window;
+    mmScroller.addEventListener('scroll', mmUpdateFixed, { passive: true });
     window.addEventListener('resize', function () {
       mmHeaderH = mmGetHeaderH();
       document.documentElement.style.setProperty('--mm-scroll-margin', (mmHeaderH + mmTabsWrapEl.offsetHeight + 8) + 'px');
@@ -1227,7 +1228,9 @@ html:not([data-theme="dark"]) .mm-tabs-wrap {
         var target = document.getElementById(tab.getAttribute('data-target'));
         if (!target) return;
         var offset = mmHeaderH + (mmTabsWrapEl ? mmTabsWrapEl.offsetHeight : 44) + 4;
-        window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - offset, behavior: 'smooth' });
+        var scroller = document.getElementById('MainContent') || window;
+        var scrollTop = scroller === window ? window.scrollY : scroller.scrollTop;
+        scroller.scrollTo({ top: target.getBoundingClientRect().top + scrollTop - offset, behavior: 'smooth' });
       });
     });
 
