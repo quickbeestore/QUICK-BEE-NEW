@@ -1,874 +1,456 @@
-{% comment %} QuickBee Influencer Registration — Collection Template {% endcomment %}
-
-{%- assign first_product = collection.products.first -%}
+{% comment %} QuickBee Influencer Application Form {% endcomment %}
 
 <style>
-/* ── Reset & Base ─────────────────────────────── */
-.qbi-page {
+.qbif-page {
+  background: #0a0a0a;
   min-height: 100vh;
-  background: #f7f4ef;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  color: #1a1a1a;
-}
-[data-theme="dark"] .qbi-page {
-  background: #0f0f0f;
-  color: #f0ede6;
+  color: #f0f0f0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow-x: hidden;
 }
 
-/* ── Hero ─────────────────────────────────────── */
-.qbi-hero {
+/* HERO */
+.qbif-hero {
+  background: linear-gradient(160deg, #0a0a0a 0%, #1a1033 50%, #0a1a1a 100%);
+  padding: 60px 20px 48px;
+  text-align: center;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #1a0a2e 0%, #16213e 40%, #0f3460 100%);
-  padding: 80px 20px 70px;
-  text-align: center;
 }
-.qbi-hero::before {
+.qbif-hero::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255,193,7,0.18) 0%, transparent 70%),
-    radial-gradient(ellipse 40% 40% at 80% 80%, rgba(255,87,34,0.12) 0%, transparent 60%);
+  top: -60px; left: 50%; transform: translateX(-50%);
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(251,191,36,0.08) 0%, transparent 70%);
   pointer-events: none;
 }
-.qbi-hero-badge {
-  display: inline-block;
-  background: linear-gradient(90deg, #FFD700, #FFA500);
-  color: #1a0a2e;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  padding: 5px 16px;
-  border-radius: 20px;
-  margin-bottom: 20px;
+.qbif-hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.3);
+  color: #fbbf24; padding: 8px 18px; border-radius: 24px;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 20px;
 }
-.qbi-hero h1 {
-  font-size: clamp(2rem, 5vw, 3.6rem);
-  font-weight: 900;
-  color: #ffffff;
+.qbif-hero-title {
+  font-size: clamp(28px, 7vw, 52px); font-weight: 900; line-height: 1.1;
+  background: linear-gradient(135deg, #fff 0%, #fbbf24 50%, #f59e0b 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   margin: 0 0 14px;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
 }
-.qbi-hero h1 span {
-  background: linear-gradient(90deg, #FFD700, #FFA500, #FF6B35);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.qbif-hero-sub {
+  font-size: 16px; color: #888; max-width: 560px; margin: 0 auto 32px; line-height: 1.7;
 }
-.qbi-hero p {
-  font-size: clamp(1rem, 2vw, 1.15rem);
-  color: rgba(255,255,255,0.72);
-  max-width: 560px;
-  margin: 0 auto 32px;
-  line-height: 1.6;
+.qbif-stats {
+  display: flex; gap: 24px; justify-content: center; flex-wrap: wrap;
 }
-.qbi-hero-stats {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  flex-wrap: wrap;
+.qbif-stat {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px; padding: 14px 24px; text-align: center;
 }
-.qbi-hero-stat {
-  text-align: center;
+.qbif-stat-val { font-size: 22px; font-weight: 800; color: #fbbf24; }
+.qbif-stat-lbl { font-size: 11px; color: #666; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* FORM CONTAINER */
+.qbif-container {
+  max-width: 720px; margin: 0 auto; padding: 40px 20px 80px;
 }
-.qbi-hero-stat strong {
-  display: block;
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: #FFD700;
+.qbif-card {
+  background: #111; border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px; padding: 32px 28px; margin-bottom: 20px;
 }
-.qbi-hero-stat span {
-  font-size: 0.78rem;
-  color: rgba(255,255,255,0.55);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+@media(max-width: 600px){ .qbif-card { padding: 24px 20px; } }
+.qbif-section-title {
+  font-size: 16px; font-weight: 800; color: #fbbf24; margin: 0 0 24px;
+  display: flex; align-items: center; gap: 8px;
+}
+.qbif-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media(max-width: 520px){ .qbif-row { grid-template-columns: 1fr; } }
+.qbif-field { margin-bottom: 18px; }
+.qbif-label {
+  display: block; font-size: 12px; font-weight: 600; color: #aaa;
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+}
+.qbif-label span { color: #ef4444; }
+.qbif-input, .qbif-select, .qbif-textarea {
+  width: 100%; padding: 13px 16px; background: #1a1a1a; border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 12px; color: #f0f0f0; font-size: 14px; font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box; outline: none;
+}
+.qbif-input:focus, .qbif-select:focus, .qbif-textarea:focus {
+  border-color: #fbbf24; box-shadow: 0 0 0 3px rgba(251,191,36,0.12);
+}
+.qbif-select { appearance: none; cursor: pointer; }
+.qbif-textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+
+/* PLATFORM CHECKBOXES */
+.qbif-platforms { display: flex; flex-wrap: wrap; gap: 10px; }
+.qbif-platform-cb { position: absolute; opacity: 0; pointer-events: none; }
+.qbif-platform-lbl {
+  display: flex; align-items: center; gap: 7px;
+  background: #1a1a1a; border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 24px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: all 0.2s; user-select: none;
+}
+.qbif-platform-lbl:hover { border-color: rgba(251,191,36,0.4); }
+.qbif-platform-cb:checked + .qbif-platform-lbl {
+  background: rgba(251,191,36,0.12); border-color: #fbbf24; color: #fbbf24;
 }
 
-/* ── Benefits Strip ──────────────────────────── */
-.qbi-benefits {
-  background: #ffffff;
-  border-bottom: 1px solid #e8e0d0;
-  padding: 24px 20px;
-  overflow: hidden;
+/* HANDLES TABLE */
+.qbif-handles { display: none; margin-top: 20px; }
+.qbif-handles.qbif-show { display: block; }
+.qbif-handle-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
 }
-[data-theme="dark"] .qbi-benefits {
-  background: #161616;
-  border-bottom-color: #2a2a2a;
+.qbif-handle-icon { font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
+.qbif-handle-prefix { font-size: 13px; color: #666; }
+
+/* FOLLOWER RANGE BUTTONS */
+.qbif-ranges { display: flex; flex-wrap: wrap; gap: 10px; }
+.qbif-range-radio { position: absolute; opacity: 0; pointer-events: none; }
+.qbif-range-lbl {
+  background: #1a1a1a; border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
 }
-.qbi-benefits-inner {
-  display: flex;
-  justify-content: center;
-  gap: 0;
-  flex-wrap: wrap;
-  max-width: 900px;
-  margin: 0 auto;
-}
-.qbi-benefit-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 28px;
-  border-right: 1px solid #e8e0d0;
-  flex: 1 1 200px;
-  min-width: 180px;
-}
-[data-theme="dark"] .qbi-benefit-item {
-  border-right-color: #2a2a2a;
-}
-.qbi-benefit-item:last-child { border-right: none; }
-.qbi-benefit-icon {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #FFD700, #FFA500);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
-}
-.qbi-benefit-text strong {
-  display: block;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  line-height: 1.2;
-}
-[data-theme="dark"] .qbi-benefit-text strong { color: #f0ede6; }
-.qbi-benefit-text span {
-  font-size: 0.75rem;
-  color: #888;
+.qbif-range-lbl:hover { border-color: rgba(251,191,36,0.4); }
+.qbif-range-radio:checked + .qbif-range-lbl {
+  background: rgba(251,191,36,0.12); border-color: #fbbf24; color: #fbbf24;
 }
 
-/* ── Layout wrapper ──────────────────────────── */
-.qbi-layout {
-  max-width: 760px;
-  margin: 0 auto;
-  padding: 56px 20px 80px;
+/* SUBMIT BTN */
+.qbif-submit-wrap { text-align: center; margin-top: 10px; }
+.qbif-submit {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #000; border: none; padding: 18px 48px;
+  border-radius: 50px; font-size: 16px; font-weight: 800;
+  cursor: pointer; transition: transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 8px 32px rgba(251,191,36,0.3); letter-spacing: 0.3px;
+}
+.qbif-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(251,191,36,0.45); }
+.qbif-submit:active { transform: scale(0.97); }
+.qbif-submit:disabled { background: #333; color: #666; cursor: default; transform: none; box-shadow: none; }
+.qbif-disclaimer {
+  font-size: 12px; color: #555; margin-top: 14px; line-height: 1.6;
+  max-width: 440px; margin-left: auto; margin-right: auto;
 }
 
-/* ── Form Card ───────────────────────────────── */
-.qbi-card {
-  background: #ffffff;
-  border-radius: 20px;
-  box-shadow: 0 4px 40px rgba(0,0,0,0.08);
-  overflow: hidden;
+/* PERKS */
+.qbif-perks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 32px; }
+@media(max-width: 520px){ .qbif-perks { grid-template-columns: 1fr 1fr; } }
+.qbif-perk {
+  background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.15);
+  border-radius: 14px; padding: 18px 14px; text-align: center;
 }
-[data-theme="dark"] .qbi-card {
-  background: #1a1a1a;
-  box-shadow: 0 4px 40px rgba(0,0,0,0.4);
-}
-
-.qbi-card-header {
-  background: linear-gradient(135deg, #1a0a2e, #0f3460);
-  padding: 28px 36px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.qbi-card-header-icon {
-  width: 48px;
-  height: 48px;
-  background: linear-gradient(135deg, #FFD700, #FFA500);
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  flex-shrink: 0;
-}
-.qbi-card-header h2 {
-  margin: 0 0 4px;
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: #ffffff;
-}
-.qbi-card-header p {
-  margin: 0;
-  font-size: 0.82rem;
-  color: rgba(255,255,255,0.6);
-}
-
-.qbi-form-body {
-  padding: 36px;
-}
-
-/* ── Section Divider ─────────────────────────── */
-.qbi-section-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #FFA500;
-  margin: 32px 0 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.qbi-section-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, #e8e0d0, transparent);
-}
-[data-theme="dark"] .qbi-section-label::after {
-  background: linear-gradient(90deg, #2a2a2a, transparent);
-}
-.qbi-section-label:first-child { margin-top: 0; }
-
-/* ── Field Groups ────────────────────────────── */
-.qbi-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-@media (max-width: 540px) {
-  .qbi-row { grid-template-columns: 1fr; }
-  .qbi-card-header, .qbi-form-body { padding-left: 20px; padding-right: 20px; }
-}
-.qbi-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.qbi-field.full { grid-column: 1 / -1; }
-.qbi-field label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #555;
-  letter-spacing: 0.03em;
-}
-[data-theme="dark"] .qbi-field label { color: #999; }
-.qbi-field label .req {
-  color: #FFA500;
-  margin-left: 2px;
-}
-
-/* ── Inputs ──────────────────────────────────── */
-.qbi-input,
-.qbi-select,
-.qbi-textarea {
-  width: 100%;
-  box-sizing: border-box;
-  border: 1.5px solid #e0d8cc;
-  border-radius: 10px;
-  padding: 11px 14px;
-  font-size: 0.9rem;
-  font-family: inherit;
-  color: #1a1a1a;
-  background: #fafaf8;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  outline: none;
-  -webkit-appearance: none;
-}
-[data-theme="dark"] .qbi-input,
-[data-theme="dark"] .qbi-select,
-[data-theme="dark"] .qbi-textarea {
-  border-color: #2e2e2e;
-  background: #111111;
-  color: #f0ede6;
-}
-.qbi-input:focus,
-.qbi-select:focus,
-.qbi-textarea:focus {
-  border-color: #FFA500;
-  box-shadow: 0 0 0 3px rgba(255,165,0,0.15);
-}
-.qbi-input.error,
-.qbi-select.error,
-.qbi-textarea.error {
-  border-color: #e53e3e;
-  box-shadow: 0 0 0 3px rgba(229,62,62,0.12);
-}
-.qbi-select {
-  cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  padding-right: 36px;
-}
-.qbi-textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-.qbi-field-hint {
-  font-size: 0.73rem;
-  color: #aaa;
-  margin-top: 2px;
-}
-.qbi-field-error {
-  font-size: 0.73rem;
-  color: #e53e3e;
-  margin-top: 2px;
-  display: none;
-}
-
-/* ── Platform Pills ──────────────────────────── */
-.qbi-platform-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: 10px;
-}
-.qbi-platform-pill {
-  display: none;
-}
-.qbi-platform-label {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 12px 8px;
-  border: 1.5px solid #e0d8cc;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.18s;
-  background: #fafaf8;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #555;
-  text-align: center;
-  line-height: 1.2;
-}
-[data-theme="dark"] .qbi-platform-label {
-  border-color: #2e2e2e;
-  background: #111;
-  color: #999;
-}
-.qbi-platform-label:hover {
-  border-color: #FFA500;
-  color: #FFA500;
-}
-.qbi-platform-pill:checked + .qbi-platform-label {
-  border-color: #FFA500;
-  background: rgba(255,165,0,0.08);
-  color: #FFA500;
-  box-shadow: 0 0 0 2px rgba(255,165,0,0.2);
-}
-.qbi-platform-icon { font-size: 22px; line-height: 1; }
-
-/* ── Agreement ───────────────────────────────── */
-.qbi-agree-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-top: 4px;
-}
-.qbi-agree-row input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  accent-color: #FFA500;
-  margin-top: 2px;
-  cursor: pointer;
-}
-.qbi-agree-row label {
-  font-size: 0.82rem;
-  color: #666;
-  line-height: 1.5;
-  cursor: pointer;
-}
-[data-theme="dark"] .qbi-agree-row label { color: #999; }
-.qbi-agree-row label a {
-  color: #FFA500;
-  text-decoration: underline;
-}
-
-/* ── Submit ──────────────────────────────────── */
-.qbi-submit-wrap {
-  margin-top: 28px;
-  border-top: 1px solid #e8e0d0;
-  padding-top: 28px;
-}
-[data-theme="dark"] .qbi-submit-wrap { border-top-color: #2a2a2a; }
-.qbi-submit-btn {
-  width: 100%;
-  padding: 16px 24px;
-  background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF6B35 100%);
-  border: none;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 800;
-  color: #1a0a2e;
-  cursor: pointer;
-  letter-spacing: 0.03em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  transition: opacity 0.2s, transform 0.15s;
-  box-shadow: 0 4px 20px rgba(255,165,0,0.35);
-}
-.qbi-submit-btn:hover { opacity: 0.92; transform: translateY(-1px); }
-.qbi-submit-btn:active { transform: translateY(0); }
-.qbi-submit-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
-.qbi-submit-note {
-  text-align: center;
-  font-size: 0.76rem;
-  color: #aaa;
-  margin-top: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-/* ── Success State ───────────────────────────── */
-.qbi-success {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 60px 36px;
-}
-.qbi-success-icon {
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, #FFD700, #FFA500);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 40px;
-  margin-bottom: 20px;
-  animation: qbiPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
-}
-@keyframes qbiPop {
-  from { transform: scale(0); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
-}
-.qbi-success h3 {
-  font-size: 1.4rem;
-  font-weight: 800;
-  margin: 0 0 10px;
-  color: #1a1a1a;
-}
-[data-theme="dark"] .qbi-success h3 { color: #f0ede6; }
-.qbi-success p {
-  color: #888;
-  font-size: 0.92rem;
-  max-width: 400px;
-  line-height: 1.6;
-}
-
-/* ── Trust Footer ────────────────────────────── */
-.qbi-trust {
-  display: flex;
-  justify-content: center;
-  gap: 32px;
-  flex-wrap: wrap;
-  margin-top: 32px;
-  padding: 0 20px;
-}
-.qbi-trust-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.8rem;
-  color: #888;
-}
-.qbi-trust-item strong { color: #555; }
-[data-theme="dark"] .qbi-trust-item strong { color: #bbb; }
+.qbif-perk-icon { font-size: 28px; margin-bottom: 8px; }
+.qbif-perk-title { font-size: 13px; font-weight: 700; color: #fbbf24; margin-bottom: 4px; }
+.qbif-perk-desc { font-size: 11px; color: #666; line-height: 1.5; }
 </style>
 
-<div class="qbi-page">
+<div class="qbif-page">
 
   <!-- HERO -->
-  <div class="qbi-hero">
-    <div class="qbi-hero-badge">✦ Now Accepting Applications</div>
-    <h1>Become a <span>QuickBee</span><br>Influencer</h1>
-    <p>Join Nepal's fastest-growing network of food & lifestyle creators. Partner with top local brands and earn through collaborations.</p>
-    <div class="qbi-hero-stats">
-      <div class="qbi-hero-stat"><strong>50+</strong><span>Brand Partners</span></div>
-      <div class="qbi-hero-stat"><strong>NPR</strong><span>Paid in Deals</span></div>
-      <div class="qbi-hero-stat"><strong>Open</strong><span>Applications</span></div>
+  <div class="qbif-hero">
+    <div class="qbif-hero-badge">⭐ Creator Program</div>
+    <h1 class="qbif-hero-title">Become a QuickBee<br>Influencer</h1>
+    <p class="qbif-hero-sub">Partner with Nepal's fastest-growing delivery platform. Share exclusive deals, earn commissions, and grow your audience with QuickBee.</p>
+    <div class="qbif-stats">
+      <div class="qbif-stat"><div class="qbif-stat-val">500+</div><div class="qbif-stat-lbl">Creators</div></div>
+      <div class="qbif-stat"><div class="qbif-stat-val">2M+</div><div class="qbif-stat-lbl">Combined Reach</div></div>
+      <div class="qbif-stat"><div class="qbif-stat-val">20%</div><div class="qbif-stat-lbl">Commission</div></div>
     </div>
   </div>
 
-  <!-- BENEFITS -->
-  <div class="qbi-benefits">
-    <div class="qbi-benefits-inner">
-      <div class="qbi-benefit-item">
-        <div class="qbi-benefit-icon">💰</div>
-        <div class="qbi-benefit-text"><strong>Paid Collaborations</strong><span>Earn per campaign</span></div>
+  <div class="qbif-container">
+
+    <!-- PERKS -->
+    <div class="qbif-perks">
+      <div class="qbif-perk">
+        <div class="qbif-perk-icon">💰</div>
+        <div class="qbif-perk-title">Earn Cash</div>
+        <div class="qbif-perk-desc">Commission on every order through your code</div>
       </div>
-      <div class="qbi-benefit-item">
-        <div class="qbi-benefit-icon">🎁</div>
-        <div class="qbi-benefit-text"><strong>Free Products</strong><span>Exclusive gifting</span></div>
+      <div class="qbif-perk">
+        <div class="qbif-perk-icon">🎁</div>
+        <div class="qbif-perk-title">Free Products</div>
+        <div class="qbif-perk-desc">Monthly gifting from our partner brands</div>
       </div>
-      <div class="qbi-benefit-item">
-        <div class="qbi-benefit-icon">📈</div>
-        <div class="qbi-benefit-text"><strong>Grow Your Reach</strong><span>Featured on our channels</span></div>
+      <div class="qbif-perk">
+        <div class="qbif-perk-icon">📊</div>
+        <div class="qbif-perk-title">Analytics</div>
+        <div class="qbif-perk-desc">Real-time dashboard and performance insights</div>
       </div>
-      <div class="qbi-benefit-item">
-        <div class="qbi-benefit-icon">🤝</div>
-        <div class="qbi-benefit-text"><strong>Long-term Deals</strong><span>Brand ambassador roles</span></div>
+      <div class="qbif-perk">
+        <div class="qbif-perk-icon">🚀</div>
+        <div class="qbif-perk-title">Early Access</div>
+        <div class="qbif-perk-desc">First to know about launches and deals</div>
+      </div>
+      <div class="qbif-perk">
+        <div class="qbif-perk-icon">🤝</div>
+        <div class="qbif-perk-title">Collabs</div>
+        <div class="qbif-perk-desc">Brand partnerships and paid campaigns</div>
+      </div>
+      <div class="qbif-perk">
+        <div class="qbif-perk-icon">🏆</div>
+        <div class="qbif-perk-title">Recognition</div>
+        <div class="qbif-perk-desc">Featured on QuickBee's official channels</div>
       </div>
     </div>
-  </div>
 
-  <!-- FORM -->
-  <div class="qbi-layout">
-    <div class="qbi-card" id="qbiCard">
+    <form id="qbifForm" onsubmit="qbifSubmit(event)">
 
-      <!-- Card header -->
-      <div class="qbi-card-header">
-        <div class="qbi-card-header-icon">🐝</div>
-        <div>
-          <h2>Influencer Application</h2>
-          <p>Fill in all details accurately — our team reviews every application</p>
+      <!-- PERSONAL INFO -->
+      <div class="qbif-card">
+        <div class="qbif-section-title">👤 Personal Information</div>
+        <div class="qbif-row">
+          <div class="qbif-field">
+            <label class="qbif-label">Full Name <span>*</span></label>
+            <input type="text" class="qbif-input" id="qbif-name" placeholder="Your full name" required>
+          </div>
+          <div class="qbif-field">
+            <label class="qbif-label">Phone / WhatsApp <span>*</span></label>
+            <input type="tel" class="qbif-input" id="qbif-phone" placeholder="98XXXXXXXX" required>
+          </div>
+        </div>
+        <div class="qbif-row">
+          <div class="qbif-field">
+            <label class="qbif-label">Email Address <span>*</span></label>
+            <input type="email" class="qbif-input" id="qbif-email" placeholder="you@email.com" required>
+          </div>
+          <div class="qbif-field">
+            <label class="qbif-label">City / Location <span>*</span></label>
+            <input type="text" class="qbif-input" id="qbif-city" placeholder="Kathmandu, Pokhara..." required>
+          </div>
         </div>
       </div>
 
-      <!-- Form body -->
-      <div class="qbi-form-body" id="qbiFormBody">
-        <form id="qbiForm" novalidate>
-
-          <!-- Personal Info -->
-          <div class="qbi-section-label">👤 Personal Information</div>
-          <div class="qbi-row">
-            <div class="qbi-field">
-              <label for="qbiFullName">Full Name <span class="req">*</span></label>
-              <input type="text" id="qbiFullName" name="fullName" class="qbi-input" placeholder="Aarav Sharma" autocomplete="name">
-              <span class="qbi-field-error" id="errFullName">Please enter your full name</span>
-            </div>
-            <div class="qbi-field">
-              <label for="qbiPhone">Phone / WhatsApp <span class="req">*</span></label>
-              <input type="tel" id="qbiPhone" name="phone" class="qbi-input" placeholder="98XXXXXXXX" autocomplete="tel">
-              <span class="qbi-field-error" id="errPhone">Please enter a valid phone number</span>
-            </div>
+      <!-- SOCIAL PLATFORMS -->
+      <div class="qbif-card">
+        <div class="qbif-section-title">📲 Social Media Platforms</div>
+        <div class="qbif-field">
+          <label class="qbif-label">Active On <span>*</span></label>
+          <div class="qbif-platforms">
+            <label><input type="checkbox" class="qbif-platform-cb" name="platform" value="Instagram" id="pl-ig" onchange="qbifToggleHandles()"><span class="qbif-platform-lbl">📸 Instagram</span></label>
+            <label><input type="checkbox" class="qbif-platform-cb" name="platform" value="TikTok" id="pl-tt" onchange="qbifToggleHandles()"><span class="qbif-platform-lbl">🎵 TikTok</span></label>
+            <label><input type="checkbox" class="qbif-platform-cb" name="platform" value="YouTube" id="pl-yt" onchange="qbifToggleHandles()"><span class="qbif-platform-lbl">▶️ YouTube</span></label>
+            <label><input type="checkbox" class="qbif-platform-cb" name="platform" value="Facebook" id="pl-fb" onchange="qbifToggleHandles()"><span class="qbif-platform-lbl">👥 Facebook</span></label>
+            <label><input type="checkbox" class="qbif-platform-cb" name="platform" value="Twitter" id="pl-tw" onchange="qbifToggleHandles()"><span class="qbif-platform-lbl">𝕏 Twitter</span></label>
+            <label><input type="checkbox" class="qbif-platform-cb" name="platform" value="Snapchat" id="pl-sc" onchange="qbifToggleHandles()"><span class="qbif-platform-lbl">👻 Snapchat</span></label>
           </div>
-          <div class="qbi-row" style="margin-top:16px;">
-            <div class="qbi-field">
-              <label for="qbiEmail">Email Address <span class="req">*</span></label>
-              <input type="email" id="qbiEmail" name="email" class="qbi-input" placeholder="you@example.com" autocomplete="email">
-              <span class="qbi-field-error" id="errEmail">Please enter a valid email</span>
-            </div>
-            <div class="qbi-field">
-              <label for="qbiCity">City / Location <span class="req">*</span></label>
-              <input type="text" id="qbiCity" name="city" class="qbi-input" placeholder="Kathmandu">
-              <span class="qbi-field-error" id="errCity">Please enter your city</span>
-            </div>
-          </div>
-
-          <!-- Social Platforms -->
-          <div class="qbi-section-label" style="margin-top:28px;">📲 Your Platforms <span class="req" style="font-size:0.8rem;font-weight:400;">(select all that apply)</span></div>
-          <div class="qbi-platform-grid">
-            <div>
-              <input type="checkbox" class="qbi-platform-pill" id="plt-instagram" name="platforms" value="Instagram">
-              <label for="plt-instagram" class="qbi-platform-label"><span class="qbi-platform-icon">📸</span>Instagram</label>
-            </div>
-            <div>
-              <input type="checkbox" class="qbi-platform-pill" id="plt-tiktok" name="platforms" value="TikTok">
-              <label for="plt-tiktok" class="qbi-platform-label"><span class="qbi-platform-icon">🎵</span>TikTok</label>
-            </div>
-            <div>
-              <input type="checkbox" class="qbi-platform-pill" id="plt-youtube" name="platforms" value="YouTube">
-              <label for="plt-youtube" class="qbi-platform-label"><span class="qbi-platform-icon">▶️</span>YouTube</label>
-            </div>
-            <div>
-              <input type="checkbox" class="qbi-platform-pill" id="plt-facebook" name="platforms" value="Facebook">
-              <label for="plt-facebook" class="qbi-platform-label"><span class="qbi-platform-icon">👥</span>Facebook</label>
-            </div>
-            <div>
-              <input type="checkbox" class="qbi-platform-pill" id="plt-twitter" name="platforms" value="Twitter/X">
-              <label for="plt-twitter" class="qbi-platform-label"><span class="qbi-platform-icon">𝕏</span>Twitter / X</label>
-            </div>
-            <div>
-              <input type="checkbox" class="qbi-platform-pill" id="plt-snapchat" name="platforms" value="Snapchat">
-              <label for="plt-snapchat" class="qbi-platform-label"><span class="qbi-platform-icon">👻</span>Snapchat</label>
-            </div>
-          </div>
-
-          <!-- Social Links -->
-          <div class="qbi-section-label" style="margin-top:28px;">🔗 Social Media Handles</div>
-          <div class="qbi-row">
-            <div class="qbi-field">
-              <label for="qbiInstagram">Instagram Handle</label>
-              <input type="text" id="qbiInstagram" name="instagram" class="qbi-input" placeholder="@yourhandle">
-            </div>
-            <div class="qbi-field">
-              <label for="qbiTiktok">TikTok Handle</label>
-              <input type="text" id="qbiTiktok" name="tiktok" class="qbi-input" placeholder="@yourhandle">
-            </div>
-          </div>
-          <div class="qbi-row" style="margin-top:16px;">
-            <div class="qbi-field">
-              <label for="qbiYoutube">YouTube Channel</label>
-              <input type="text" id="qbiYoutube" name="youtube" class="qbi-input" placeholder="Channel name or URL">
-            </div>
-            <div class="qbi-field">
-              <label for="qbiFacebook">Facebook Page / Profile</label>
-              <input type="text" id="qbiFacebook" name="facebook" class="qbi-input" placeholder="Page name or URL">
-            </div>
-          </div>
-
-          <!-- Audience -->
-          <div class="qbi-section-label" style="margin-top:28px;">📊 Audience & Reach</div>
-          <div class="qbi-row">
-            <div class="qbi-field">
-              <label for="qbiFollowers">Total Followers (approx.) <span class="req">*</span></label>
-              <select id="qbiFollowers" name="followers" class="qbi-select">
-                <option value="">Select range…</option>
-                <option>Under 1,000</option>
-                <option>1,000 – 5,000</option>
-                <option>5,000 – 10,000</option>
-                <option>10,000 – 50,000</option>
-                <option>50,000 – 100,000</option>
-                <option>100,000+</option>
-              </select>
-              <span class="qbi-field-error" id="errFollowers">Please select your follower range</span>
-            </div>
-            <div class="qbi-field">
-              <label for="qbiNiche">Content Niche <span class="req">*</span></label>
-              <select id="qbiNiche" name="niche" class="qbi-select">
-                <option value="">Select niche…</option>
-                <option>Food & Dining</option>
-                <option>Lifestyle & Travel</option>
-                <option>Fashion & Beauty</option>
-                <option>Health & Fitness</option>
-                <option>Tech & Gaming</option>
-                <option>Entertainment / Comedy</option>
-                <option>Education / How-to</option>
-                <option>Vlogging / Daily Life</option>
-                <option>Other</option>
-              </select>
-              <span class="qbi-field-error" id="errNiche">Please select your content niche</span>
-            </div>
-          </div>
-
-          <!-- About -->
-          <div class="qbi-section-label" style="margin-top:28px;">✍️ About You</div>
-          <div class="qbi-field full">
-            <label for="qbiBio">Short Bio <span class="req">*</span></label>
-            <textarea id="qbiBio" name="bio" class="qbi-textarea" rows="3" placeholder="Tell us about yourself, your content style, and what makes you unique as a creator…"></textarea>
-            <span class="qbi-field-error" id="errBio">Please write a short bio</span>
-          </div>
-          <div class="qbi-field full" style="margin-top:16px;">
-            <label for="qbiWhy">Why do you want to partner with QuickBee?</label>
-            <textarea id="qbiWhy" name="why" class="qbi-textarea" rows="2" placeholder="I love QuickBee because…"></textarea>
-          </div>
-          <div class="qbi-row" style="margin-top:16px;">
-            <div class="qbi-field">
-              <label for="qbiCollabType">Preferred Collaboration</label>
-              <select id="qbiCollabType" name="collabType" class="qbi-select">
-                <option value="">Select type…</option>
-                <option>Paid Promotion Post</option>
-                <option>Product Review</option>
-                <option>Brand Ambassador</option>
-                <option>Giveaway / Contest</option>
-                <option>Story / Reel Feature</option>
-                <option>Open to All</option>
-              </select>
-            </div>
-            <div class="qbi-field">
-              <label for="qbiRate">Expected Rate (NPR)</label>
-              <input type="text" id="qbiRate" name="rate" class="qbi-input" placeholder="e.g. 5000 per post">
-              <span class="qbi-field-hint">Optional — leave blank if flexible</span>
-            </div>
-          </div>
-
-          <!-- Agreement -->
-          <div style="margin-top:24px;">
-            <div class="qbi-agree-row">
-              <input type="checkbox" id="qbiAgree" name="agree">
-              <label for="qbiAgree">I confirm that all information provided is accurate and I agree to QuickBee's influencer partnership terms. I understand my application will be reviewed by the QuickBee team.</label>
-            </div>
-            <span class="qbi-field-error" id="errAgree" style="margin-left:30px;">Please accept the terms to proceed</span>
-          </div>
-
-          <!-- Submit -->
-          <div class="qbi-submit-wrap">
-            <button type="submit" class="qbi-submit-btn" id="qbiSubmitBtn">
-              <span>🚀</span>
-              <span id="qbiBtnText">Submit Application</span>
-            </button>
-            <div class="qbi-submit-note">
-              🔒 Secure &nbsp;·&nbsp; Your data is safe &nbsp;·&nbsp; Review within 3–5 business days
-            </div>
-          </div>
-
-        </form>
+        </div>
+        <div class="qbif-handles" id="qbifHandles">
+          <label class="qbif-label" style="margin-bottom:14px">Your Handles</label>
+          <div id="qbif-handle-rows"></div>
+        </div>
       </div>
 
-      <!-- Success state (hidden until submit) -->
-      <div class="qbi-success" id="qbiSuccess">
-        <div class="qbi-success-icon">🎉</div>
-        <h3>Application Submitted!</h3>
-        <p>Thanks for applying to the QuickBee Influencer Program. Our team will review your application and reach out within <strong>3–5 business days</strong>.</p>
+      <!-- REACH & NICHE -->
+      <div class="qbif-card">
+        <div class="qbif-section-title">📈 Your Reach</div>
+        <div class="qbif-field">
+          <label class="qbif-label">Total Followers (across all platforms) <span>*</span></label>
+          <div class="qbif-ranges">
+            <label><input type="radio" class="qbif-range-radio" name="followers" value="Under 1K" required><span class="qbif-range-lbl">Under 1K</span></label>
+            <label><input type="radio" class="qbif-range-radio" name="followers" value="1K – 5K"><span class="qbif-range-lbl">1K – 5K</span></label>
+            <label><input type="radio" class="qbif-range-radio" name="followers" value="5K – 20K"><span class="qbif-range-lbl">5K – 20K</span></label>
+            <label><input type="radio" class="qbif-range-radio" name="followers" value="20K – 100K"><span class="qbif-range-lbl">20K – 100K</span></label>
+            <label><input type="radio" class="qbif-range-radio" name="followers" value="100K – 500K"><span class="qbif-range-lbl">100K – 500K</span></label>
+            <label><input type="radio" class="qbif-range-radio" name="followers" value="500K+"><span class="qbif-range-lbl">500K+</span></label>
+          </div>
+        </div>
+        <div class="qbif-row" style="margin-top:16px">
+          <div class="qbif-field">
+            <label class="qbif-label">Content Niche <span>*</span></label>
+            <select class="qbif-select" id="qbif-niche" required>
+              <option value="" disabled selected>Select your niche</option>
+              <option>Food & Lifestyle</option>
+              <option>Travel & Adventure</option>
+              <option>Fashion & Beauty</option>
+              <option>Fitness & Health</option>
+              <option>Tech & Gaming</option>
+              <option>Entertainment & Comedy</option>
+              <option>Business & Finance</option>
+              <option>Education</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="qbif-field">
+            <label class="qbif-label">Expected Rate (NPR/post)</label>
+            <input type="text" class="qbif-input" id="qbif-rate" placeholder="e.g. 5,000 or Negotiable">
+          </div>
+        </div>
       </div>
 
-    </div>
+      <!-- ABOUT YOU -->
+      <div class="qbif-card">
+        <div class="qbif-section-title">✍️ About You</div>
+        <div class="qbif-field">
+          <label class="qbif-label">Short Bio <span>*</span></label>
+          <textarea class="qbif-textarea" id="qbif-bio" placeholder="Tell us about yourself, your content style, and your audience..." required></textarea>
+        </div>
+        <div class="qbif-field">
+          <label class="qbif-label">Why QuickBee? <span>*</span></label>
+          <textarea class="qbif-textarea" id="qbif-why" placeholder="Why do you want to partner with QuickBee? What value can you bring?" required style="min-height:80px"></textarea>
+        </div>
+        <div class="qbif-field">
+          <label class="qbif-label">Preferred Collaboration Type</label>
+          <select class="qbif-select" id="qbif-collab">
+            <option value="" disabled selected>Select type</option>
+            <option>Paid Promotions</option>
+            <option>Product Reviews</option>
+            <option>Affiliate / Commission Only</option>
+            <option>Brand Ambassador</option>
+            <option>All of the above</option>
+          </select>
+        </div>
+      </div>
 
-    <!-- Trust signals -->
-    <div class="qbi-trust">
-      <div class="qbi-trust-item">🔒 <strong>Secure</strong> &amp; Private</div>
-      <div class="qbi-trust-item">✅ <strong>Free</strong> to Apply</div>
-      <div class="qbi-trust-item">📬 Response in <strong>3–5 days</strong></div>
-      <div class="qbi-trust-item">🇳🇵 <strong>Nepal-based</strong> Network</div>
-    </div>
+      <!-- SUBMIT -->
+      <div class="qbif-submit-wrap">
+        <button type="submit" class="qbif-submit" id="qbifSubmitBtn">
+          🚀 Submit Application
+        </button>
+        <p class="qbif-disclaimer">By submitting, you agree that QuickBee may contact you at the details provided. Applications are reviewed within 3–5 business days.</p>
+      </div>
+
+    </form>
   </div>
-
 </div>
 
 <script>
-(function () {
-  var form      = document.getElementById('qbiForm');
-  var submitBtn = document.getElementById('qbiSubmitBtn');
-  var btnText   = document.getElementById('qbiBtnText');
-  var formBody  = document.getElementById('qbiFormBody');
-  var successEl = document.getElementById('qbiSuccess');
+(function(){
+  var platformIcons = {
+    'Instagram': { icon: '📸', prefix: '@' },
+    'TikTok':    { icon: '🎵', prefix: '@' },
+    'YouTube':   { icon: '▶️', prefix: '' },
+    'Facebook':  { icon: '👥', prefix: '' },
+    'Twitter':   { icon: '𝕏', prefix: '@' },
+    'Snapchat':  { icon: '👻', prefix: '@' }
+  };
 
-  // ── Product variant from collection ──────────
-  var VARIANT_ID = '{{ first_product.variants.first.id }}';
-
-  // ── Validation helpers ───────────────────────
-  function showErr(fieldId, errId) {
-    var f = document.getElementById(fieldId);
-    var e = document.getElementById(errId);
-    if (f) f.classList.add('error');
-    if (e) e.style.display = 'block';
-  }
-  function clearErr(fieldId, errId) {
-    var f = document.getElementById(fieldId);
-    var e = document.getElementById(errId);
-    if (f) f.classList.remove('error');
-    if (e) e.style.display = 'none';
-  }
-  function validate() {
-    var ok = true;
-    var checks = [
-      ['qbiFullName', 'errFullName', function(v){ return v.trim().length >= 2; }],
-      ['qbiPhone',    'errPhone',    function(v){ return /^\d{7,15}$/.test(v.trim().replace(/[\s\-+()]/g,'')); }],
-      ['qbiEmail',    'errEmail',    function(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); }],
-      ['qbiCity',     'errCity',     function(v){ return v.trim().length >= 2; }],
-      ['qbiFollowers','errFollowers',function(v){ return v !== ''; }],
-      ['qbiNiche',    'errNiche',    function(v){ return v !== ''; }],
-      ['qbiBio',      'errBio',      function(v){ return v.trim().length >= 20; }],
-    ];
-    checks.forEach(function(c) {
-      var el = document.getElementById(c[0]);
-      if (!el) return;
-      if (c[2](el.value)) {
-        clearErr(c[0], c[1]);
-      } else {
-        showErr(c[0], c[1]);
-        ok = false;
-      }
-    });
-    // checkbox agree
-    var agree = document.getElementById('qbiAgree');
-    if (!agree.checked) {
-      document.getElementById('errAgree').style.display = 'block';
-      ok = false;
-    } else {
-      document.getElementById('errAgree').style.display = 'none';
+  window.qbifToggleHandles = function(){
+    var checked = [];
+    document.querySelectorAll('.qbif-platform-cb:checked').forEach(function(cb){ checked.push(cb.value); });
+    var container = document.getElementById('qbif-handle-rows');
+    var handlesWrap = document.getElementById('qbifHandles');
+    if(checked.length === 0){
+      handlesWrap.classList.remove('qbif-show');
+      container.innerHTML = '';
+      return;
     }
-    return ok;
-  }
-
-  // Live clear errors on input
-  ['qbiFullName','qbiPhone','qbiEmail','qbiCity','qbiBio'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.addEventListener('input', function() {
-      el.classList.remove('error');
-      var errId = 'err' + id.replace('qbi','');
-      var e = document.getElementById(errId);
-      if (e) e.style.display = 'none';
+    handlesWrap.classList.add('qbif-show');
+    var html = '';
+    checked.forEach(function(p){
+      var info = platformIcons[p] || { icon: '🔗', prefix: '' };
+      var existing = document.getElementById('qbif-handle-' + p);
+      var val = existing ? existing.value : '';
+      html += '<div class="qbif-handle-row">' +
+        '<span class="qbif-handle-icon">' + info.icon + '</span>' +
+        '<span class="qbif-handle-prefix">' + info.prefix + '</span>' +
+        '<input type="text" class="qbif-input" id="qbif-handle-' + p + '" data-platform="' + p + '" placeholder="' + p + ' username" value="' + val + '" style="margin:0">' +
+        '</div>';
     });
-  });
+    container.innerHTML = html;
+  };
 
-  // ── Build order note ─────────────────────────
-  function buildNote() {
-    var g = function(id) {
-      var el = document.getElementById(id);
-      return el ? el.value.trim() : '';
-    };
-    var platforms = [];
-    document.querySelectorAll('input[name="platforms"]:checked').forEach(function(cb) {
-      platforms.push(cb.value);
-    });
-
-    var lines = [
-      '━━━ QUICKBEE INFLUENCER APPLICATION ━━━',
-      '',
-      '👤 PERSONAL',
-      'Name:       ' + g('qbiFullName'),
-      'Phone:      ' + g('qbiPhone'),
-      'Email:      ' + g('qbiEmail'),
-      'City:       ' + g('qbiCity'),
-      '',
-      '📲 SOCIAL PLATFORMS',
-      'Active On:  ' + (platforms.length ? platforms.join(', ') : '—'),
-      'Instagram:  ' + (g('qbiInstagram') || '—'),
-      'TikTok:     ' + (g('qbiTiktok')    || '—'),
-      'YouTube:    ' + (g('qbiYoutube')   || '—'),
-      'Facebook:   ' + (g('qbiFacebook')  || '—'),
-      '',
-      '📊 AUDIENCE',
-      'Followers:  ' + (g('qbiFollowers') || '—'),
-      'Niche:      ' + (g('qbiNiche')     || '—'),
-      '',
-      '✍️ ABOUT',
-      'Bio:        ' + g('qbiBio'),
-      'Why QB:     ' + (g('qbiWhy') || '—'),
-      '',
-      '🤝 COLLABORATION',
-      'Type:       ' + (g('qbiCollabType') || 'Open'),
-      'Rate (NPR): ' + (g('qbiRate') || 'Flexible'),
-      '',
-      'Applied: ' + new Date().toLocaleString('en-NP', { timeZone: 'Asia/Kathmandu' }),
-      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
-    ];
-    return lines.join('\n');
-  }
-
-  // ── Submit ───────────────────────────────────
-  form.addEventListener('submit', function(e) {
+  window.qbifSubmit = function(e){
     e.preventDefault();
-    if (!validate()) {
-      // Scroll to first error
-      var firstErr = form.querySelector('.error');
-      if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    var btn = document.getElementById('qbifSubmitBtn');
+
+    // Collect platforms
+    var platforms = [];
+    document.querySelectorAll('.qbif-platform-cb:checked').forEach(function(cb){ platforms.push(cb.value); });
+    if(platforms.length === 0){
+      alert('Please select at least one social platform.');
       return;
     }
 
-    submitBtn.disabled = true;
-    btnText.textContent = 'Submitting…';
+    // Collect handles
+    var handleLines = '';
+    document.querySelectorAll('[id^="qbif-handle-"]').forEach(function(inp){
+      var p = inp.dataset.platform;
+      var val = inp.value.trim();
+      if(val){
+        var info = platformIcons[p] || { icon: '🔗', prefix: '' };
+        handleLines += '\n' + p + ': ' + info.prefix + val;
+      }
+    });
 
-    var note = buildNote();
+    // Followers
+    var followers = '';
+    var followerRadio = document.querySelector('.qbif-range-radio:checked');
+    if(followerRadio) followers = followerRadio.value;
 
-    function goToCart() {
-      window.location.href = '/cart';
-    }
+    var name    = document.getElementById('qbif-name').value.trim();
+    var phone   = document.getElementById('qbif-phone').value.trim();
+    var email   = document.getElementById('qbif-email').value.trim();
+    var city    = document.getElementById('qbif-city').value.trim();
+    var niche   = document.getElementById('qbif-niche').value;
+    var bio     = document.getElementById('qbif-bio').value.trim();
+    var why     = document.getElementById('qbif-why').value.trim();
+    var collab  = document.getElementById('qbif-collab').value || 'Not specified';
+    var rate    = document.getElementById('qbif-rate').value.trim() || 'Not specified';
+    var now     = new Date().toLocaleString('en-NP', { timeZone: 'Asia/Kathmandu' });
 
-    function setNoteAndRedirect() {
+    var note = [
+      '━━━ QUICKBEE INFLUENCER APPLICATION ━━━',
+      '',
+      '👤 PERSONAL',
+      'Name: ' + name,
+      'Phone: ' + phone,
+      'Email: ' + email,
+      'City: ' + city,
+      '',
+      '📲 SOCIAL PLATFORMS',
+      'Active On: ' + platforms.join(', '),
+      handleLines.trim() ? handleLines : '(no handles provided)',
+      '',
+      '📈 REACH & NICHE',
+      'Followers: ' + followers,
+      'Niche: ' + niche,
+      'Rate: NPR ' + rate,
+      '',
+      '✍️ ABOUT',
+      'Bio: ' + bio,
+      'Why QB: ' + why,
+      'Collab Type: ' + collab,
+      '',
+      '📅 Applied: ' + now
+    ].join('\n');
+
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Submitting…';
+
+    // Add product to cart then set note and redirect
+    {% assign qbif_product = all_products['quick-bee-influencer'] %}
+    {% if qbif_product and qbif_product.variants.first %}
+      var variantId = {{ qbif_product.variants.first.id }};
+    {% else %}
+      var variantId = null;
+    {% endif %}
+
+    function setNoteAndCheckout(){
       fetch('/cart/update.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ note: note })
-      })
-      .then(function() { goToCart(); })
-      .catch(function() { goToCart(); });
+      }).then(function(){
+        window.location.href = '/cart';
+      }).catch(function(){
+        window.location.href = '/cart';
+      });
     }
 
-    if (VARIANT_ID && VARIANT_ID !== '') {
+    if(variantId){
       fetch('/cart/add.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: VARIANT_ID, quantity: 1 })
-      })
-      .then(function() { setNoteAndRedirect(); })
-      .catch(function() { setNoteAndRedirect(); });
+        body: JSON.stringify({ id: variantId, quantity: 1 })
+      }).then(setNoteAndCheckout).catch(setNoteAndCheckout);
     } else {
-      // No product linked — just save note and go to cart
-      setNoteAndRedirect();
+      setNoteAndCheckout();
     }
-  });
-
+  };
 })();
 </script>

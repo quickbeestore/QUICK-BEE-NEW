@@ -1,997 +1,221 @@
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+{% comment %} Custom Magazine — Magazine Layout {% endcomment %}
+{% assign mag_products = collection.products %}
 
 <style>
-/* ─── TOKENS ─────────────────────────────────────────── */
-:root {
-  --gold: #F4B400;
-  --gold2: #ffcf40;
-  --gold-dim: rgba(244,180,0,0.15);
-  --gold-glow: rgba(244,180,0,0.35);
-  --ink: #0a0908;
-  --ink2: #1c1a18;
-  --paper: #faf9f6;
-  --paper2: #f0ede6;
-  --muted: #8a8278;
-  --border: rgba(0,0,0,0.08);
-  --r-card: 20px;
-  --ease: cubic-bezier(0.34,1.2,0.64,1);
-}
-[data-theme="dark"] {
-  --ink: #f0ede6;
-  --ink2: #c8c4bc;
-  --paper: #111009;
-  --paper2: #1c1a18;
-  --muted: #6a6460;
-  --border: rgba(255,255,255,0.07);
+.mag-page {
+  background: #fafaf8;
+  min-height: 100vh;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: #1a1a1a;
+  overflow-x: hidden;
 }
 
-/* ─── BASE ──────────────────────────────────────────── */
-.mag { font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); overflow-x: hidden; }
-.mag *, .mag *::before, .mag *::after { box-sizing: border-box; }
-.mag a { text-decoration: none; color: inherit; }
-
-/* ─── HERO ──────────────────────────────────────────── */
-.mag-hero {
-  position: relative;
-  min-height: 92dvh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+/* MASTHEAD */
+.mag-masthead {
+  background: #1a1a1a; color: #fff;
+  padding: 40px 20px;
   text-align: center;
-  padding: 80px 24px 100px;
-  background: var(--ink2);
-  overflow: hidden;
+  border-bottom: 3px solid #c9a02a;
 }
+.mag-masthead-top {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  color: rgba(255,255,255,0.5); margin-bottom: 16px;
+}
+.mag-masthead-line { width: 60px; height: 1px; background: rgba(255,255,255,0.2); }
+.mag-logo { font-size: clamp(36px, 8vw, 72px); font-weight: 900; letter-spacing: -2px; line-height: 1; }
+.mag-logo span { color: #c9a02a; }
+.mag-tagline { font-size: 14px; font-style: italic; color: rgba(255,255,255,0.5); margin-top: 10px; letter-spacing: 1px; }
+.mag-date-bar {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);
+  font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.4);
+}
+.mag-cta-scroll {
+  background: #c9a02a; color: #000; padding: 10px 28px; border-radius: 4px;
+  font-size: 12px; font-weight: 700; letter-spacing: 1px; cursor: pointer; border: none;
+  font-family: -apple-system, sans-serif; transition: background 0.2s; text-transform: uppercase;
+}
+.mag-cta-scroll:hover { background: #e8b830; }
 
-/* animated grain overlay */
-.mag-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events: none;
-  opacity: 0.5;
+/* SECTION HEADER */
+.mag-section-wrap { max-width: 1200px; margin: 0 auto; padding: 40px 20px 80px; }
+.mag-section-hdr {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 32px;
 }
+.mag-section-rule { flex: 1; height: 2px; background: #1a1a1a; }
+.mag-section-rule-thin { flex: 1; height: 1px; background: #ddd; }
+.mag-section-title-wrap { text-align: center; }
+.mag-section-eyebrow { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: #c9a02a; font-family: -apple-system, sans-serif; }
+.mag-section-h { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; font-family: -apple-system, sans-serif; }
 
-/* radial gold glow */
-.mag-hero::after {
-  content: '';
-  position: absolute;
-  top: -20%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80vw;
-  height: 80vw;
-  max-width: 600px;
-  max-height: 600px;
-  background: radial-gradient(circle, rgba(244,180,0,0.18) 0%, transparent 65%);
-  pointer-events: none;
+/* HERO FEATURE */
+.mag-hero-feature {
+  display: grid; grid-template-columns: 1fr; gap: 0;
+  margin-bottom: 40px; border: 1px solid #e0e0e0;
 }
+@media(min-width: 768px){
+  .mag-hero-feature { grid-template-columns: 3fr 2fr; }
+}
+.mag-hero-img { width: 100%; height: 360px; object-fit: cover; display: block; }
+.mag-hero-img-ph {
+  width: 100%; height: 360px; background: linear-gradient(135deg, #2a2820, #1a1a14);
+  display: flex; align-items: center; justify-content: center; font-size: 80px;
+}
+.mag-hero-content {
+  padding: 32px; background: #fff;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.mag-hero-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: #c9a02a; font-family: -apple-system, sans-serif; margin-bottom: 12px; }
+.mag-hero-title { font-size: 28px; font-weight: 900; line-height: 1.2; margin-bottom: 12px; font-family: -apple-system, sans-serif; }
+.mag-hero-desc { font-size: 14px; color: #555; line-height: 1.7; margin-bottom: 20px; }
+.mag-hero-price { font-size: 22px; font-weight: 800; color: #c9a02a; font-family: -apple-system, sans-serif; }
+.mag-hero-btn {
+  display: inline-block; margin-top: 16px; padding: 12px 28px;
+  background: #1a1a1a; color: #fff; border: none; border-radius: 4px;
+  font-size: 13px; font-weight: 700; cursor: pointer; font-family: -apple-system, sans-serif;
+  text-decoration: none; letter-spacing: 0.5px; transition: background 0.2s;
+}
+.mag-hero-btn:hover { background: #333; }
 
-.mag-hero-badge {
-  position: relative;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(244,180,0,0.12);
-  border: 1px solid rgba(244,180,0,0.3);
-  color: var(--gold);
-  border-radius: 999px;
-  padding: 6px 16px;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-bottom: 24px;
-  backdrop-filter: blur(8px);
-}
-.mag-hero-badge-dot {
-  width: 6px; height: 6px;
-  background: var(--gold);
-  border-radius: 50%;
-  animation: pulse-dot 2s infinite;
-}
-@keyframes pulse-dot {
-  0%,100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.7); }
-}
-
-.mag-hero-h1 {
-  position: relative;
-  z-index: 1;
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(2.6rem, 10vw, 5.5rem);
-  font-weight: 900;
-  color: #fff;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  margin: 0 0 20px;
-}
-.mag-hero-h1 em {
-  font-style: italic;
-  font-weight: 400;
-  color: var(--gold);
-  display: block;
-}
-
-.mag-hero-sub {
-  position: relative;
-  z-index: 1;
-  font-size: clamp(14px, 3.5vw, 16px);
-  color: rgba(255,255,255,0.55);
-  max-width: 380px;
-  line-height: 1.7;
-  margin: 0 auto 36px;
-  font-weight: 400;
-}
-
-.mag-hero-cta {
-  position: relative;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--gold);
-  color: #000;
-  font-weight: 800;
-  font-size: 14px;
-  padding: 16px 30px;
-  border-radius: 999px;
-  box-shadow: 0 0 0 0 var(--gold-glow);
-  animation: ring-pulse 3s infinite;
-  transition: transform 0.2s var(--ease), box-shadow 0.2s;
-  letter-spacing: 0.02em;
-}
-.mag-hero-cta:active { transform: scale(0.97); }
-@keyframes ring-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(244,180,0,0.5); }
-  60% { box-shadow: 0 0 0 14px rgba(244,180,0,0); }
-  100% { box-shadow: 0 0 0 0 rgba(244,180,0,0); }
-}
-.mag-hero-cta-arrow {
-  width: 32px; height: 32px;
-  background: rgba(0,0,0,0.12);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  transition: transform 0.2s var(--ease);
-}
-.mag-hero-cta:hover .mag-hero-cta-arrow { transform: translateX(3px); }
-
-/* social proof row */
-.mag-hero-proof {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 32px;
-  flex-wrap: wrap;
-}
-.mag-hero-proof-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11.5px;
-  color: rgba(255,255,255,0.45);
-  font-weight: 500;
-}
-.mag-hero-proof-item svg { color: var(--gold); }
-
-/* scroll hint */
-.mag-scroll-hint {
-  position: absolute;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  color: rgba(255,255,255,0.25);
-  font-size: 10px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  font-weight: 600;
-}
-.mag-scroll-bar {
-  width: 1.5px;
-  height: 32px;
-  background: linear-gradient(to bottom, rgba(244,180,0,0.6), transparent);
-  animation: scroll-bar 2s ease-in-out infinite;
-  border-radius: 999px;
-}
-@keyframes scroll-bar {
-  0%,100% { transform: scaleY(1); opacity: 1; }
-  50% { transform: scaleY(0.4); opacity: 0.4; }
-}
-
-/* ─── HOW IT WORKS ──────────────────────────────────── */
-.mag-steps-wrap {
-  padding: 56px 0 52px;
-  background: var(--paper2);
-  border-bottom: 1px solid var(--border);
-}
-.mag-steps-head {
-  text-align: center;
-  margin-bottom: 32px;
-  padding: 0 20px;
-}
-.mag-steps-label {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 8px;
-}
-.mag-steps-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(1.4rem, 5vw, 2rem);
-  font-weight: 700;
-  color: var(--ink);
-  line-height: 1.2;
-}
-
-.mag-steps-track {
-  display: flex;
+/* PRODUCTS GRID */
+.mag-products-id { scroll-margin-top: 80px; }
+.mag-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 0;
-  padding: 0 20px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x mandatory;
+  border: 1px solid #e0e0e0;
 }
-.mag-steps-track::-webkit-scrollbar { display: none; }
+@media(min-width: 640px){ .mag-grid { grid-template-columns: repeat(3, 1fr); } }
+@media(min-width: 1024px){ .mag-grid { grid-template-columns: repeat(4, 1fr); } }
 
-.mag-step-item {
-  flex: 0 0 auto;
-  width: 200px;
-  scroll-snap-align: start;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 0 12px;
-  position: relative;
-}
-/* connector line */
-.mag-step-item:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  top: 28px;
-  left: calc(50% + 28px);
-  right: calc(-50% + 28px);
-  height: 1.5px;
-  background: linear-gradient(to right, var(--gold), var(--border));
-}
-
-.mag-step-num {
-  width: 56px; height: 56px;
-  background: var(--ink2);
-  border: 2px solid rgba(244,180,0,0.3);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 14px;
-  position: relative;
-  z-index: 1;
-  transition: border-color 0.3s, background 0.3s;
-}
-[data-theme="dark"] .mag-step-num { background: rgba(244,180,0,0.08); }
-.mag-step-num span {
-  font-size: 20px;
-}
-.mag-step-t { font-size: 13px; font-weight: 800; color: var(--ink); margin-bottom: 4px; }
-.mag-step-d { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
-
-/* ─── PRODUCTS ──────────────────────────────────────── */
-.mag-products-wrap {
-  padding: 52px 0 80px;
-}
-.mag-products-head {
-  padding: 0 20px;
-  margin-bottom: 28px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-}
-.mag-products-label {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 6px;
-}
-.mag-products-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(1.5rem, 5vw, 2.1rem);
-  font-weight: 700;
-  color: var(--ink);
-  line-height: 1.15;
-}
-.mag-products-count {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--muted);
-  background: var(--paper2);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 4px 12px;
-  white-space: nowrap;
-  flex-shrink: 0;
-  margin-bottom: 4px;
-}
-
-.mag-cards-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 0 16px;
-  max-width: 700px;
-  margin: 0 auto;
-}
-
-/* ─── CARD ──────────────────────────────────────────── */
 .mag-card {
-  display: block;
-  background: var(--paper2);
-  border: 1.5px solid var(--border);
-  border-radius: var(--r-card);
+  border-right: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
   overflow: hidden;
-  position: relative;
-  transition: transform 0.25s var(--ease), box-shadow 0.25s, border-color 0.25s;
-  -webkit-tap-highlight-color: transparent;
+  transition: box-shadow 0.2s;
 }
-.mag-card:active { transform: scale(0.985); }
-@media (hover: hover) {
-  .mag-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.12);
-    border-color: rgba(244,180,0,0.35);
-  }
-}
-[data-theme="dark"] .mag-card {
-  background: #1a1812;
-  box-shadow: 0 2px 20px rgba(0,0,0,0.4);
-}
-[data-theme="dark"] .mag-card:hover {
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-}
-
-/* featured glow ring */
-.mag-card--featured {
-  border-color: rgba(244,180,0,0.4);
-  box-shadow: 0 0 0 3px rgba(244,180,0,0.1), 0 4px 24px rgba(0,0,0,0.1);
-}
-[data-theme="dark"] .mag-card--featured {
-  box-shadow: 0 0 0 3px rgba(244,180,0,0.12), 0 6px 32px rgba(0,0,0,0.5);
-}
-
-/* image area */
-.mag-card-img-wrap {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16/9;
-  overflow: hidden;
-  background: linear-gradient(135deg, #0d0c0a 0%, #1e1c18 50%, #0a1628 100%);
-}
-.mag-card-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.6s ease;
-  display: block;
-}
+.mag-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); z-index: 1; position: relative; }
+.mag-card-img-wrap { position: relative; overflow: hidden; }
+.mag-card-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; transition: transform 0.3s; }
 .mag-card:hover .mag-card-img { transform: scale(1.04); }
-
-.mag-card-img-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background: linear-gradient(135deg, #0d0c0a 0%, #1e1c18 50%, #0a1628 100%);
+.mag-card-img-ph { width: 100%; aspect-ratio: 4/3; background: #f5f5f0; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+.mag-card-body { padding: 14px; background: #fff; }
+.mag-card-type { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #c9a02a; font-family: -apple-system, sans-serif; margin-bottom: 6px; }
+.mag-card-name { font-size: 14px; font-weight: 700; line-height: 1.4; margin-bottom: 6px; font-family: -apple-system, sans-serif; }
+.mag-card-desc { font-size: 12px; color: #777; line-height: 1.5; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.mag-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.mag-card-price { font-size: 14px; font-weight: 800; color: #1a1a1a; font-family: -apple-system, sans-serif; }
+.mag-card-compare { font-size: 12px; color: #aaa; text-decoration: line-through; }
+.mag-add-btn {
+  padding: 7px 14px; background: #1a1a1a; color: #fff; border: none; border-radius: 4px;
+  font-size: 11px; font-weight: 700; cursor: pointer; font-family: -apple-system, sans-serif;
+  transition: background 0.2s; white-space: nowrap;
 }
-.mag-card-img-placeholder-icon {
-  font-size: 48px;
-  filter: drop-shadow(0 0 20px rgba(244,180,0,0.4));
-}
-.mag-card-img-placeholder-text {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: rgba(244,180,0,0.5);
-}
-
-/* floating badge on image */
-.mag-card-img-badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  border-radius: 999px;
-  padding: 5px 12px;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  backdrop-filter: blur(10px);
-}
-.mag-card--featured .mag-card-img-badge {
-  background: var(--gold);
-  color: #000;
-  box-shadow: 0 2px 12px rgba(244,180,0,0.4);
-}
-.mag-card:not(.mag-card--featured) .mag-card-img-badge {
-  background: rgba(0,0,0,0.55);
-  color: rgba(255,255,255,0.85);
-  border: 1px solid rgba(255,255,255,0.12);
-}
-
-/* price on image */
-.mag-card-img-price {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 12px;
-  padding: 6px 12px;
-  text-align: right;
-}
-.mag-card-price-main {
-  display: block;
-  font-size: 16px;
-  font-weight: 900;
-  color: #fff;
-  line-height: 1.1;
-}
-.mag-card-price-was {
-  display: block;
-  font-size: 10px;
-  color: rgba(255,255,255,0.45);
-  text-decoration: line-through;
-  line-height: 1.2;
-}
-
-/* save badge on image */
-.mag-card-save-badge {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  background: #16a34a;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 800;
-  border-radius: 999px;
-  padding: 3px 10px;
-  box-shadow: 0 2px 8px rgba(22,163,74,0.35);
-}
-
-/* bottom stripe on featured */
-.mag-card--featured .mag-card-img-wrap::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 3px;
-  background: var(--gold);
-}
-
-/* card body */
-.mag-card-body {
-  padding: 20px 20px 18px;
-}
-.mag-card-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(1.15rem, 4vw, 1.35rem);
-  font-weight: 700;
-  color: var(--ink);
-  line-height: 1.25;
-  margin: 0 0 8px;
-}
-.mag-card-desc {
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.65;
-  margin: 0 0 14px;
-}
-
-/* feature pills */
-.mag-card-features {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 18px;
-}
-.mag-card-feature {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--muted);
-  background: var(--paper);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 4px 10px;
-}
-[data-theme="dark"] .mag-card-feature { background: rgba(255,255,255,0.04); }
-
-/* CTA row */
-.mag-card-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-}
-.mag-card-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 800;
-  font-size: 13px;
-  padding: 11px 20px;
-  border-radius: 999px;
-  transition: transform 0.2s var(--ease), box-shadow 0.2s;
-  letter-spacing: 0.01em;
-}
-.mag-card--featured .mag-card-btn {
-  background: var(--gold);
-  color: #000;
-  box-shadow: 0 4px 16px rgba(244,180,0,0.3);
-}
-.mag-card:not(.mag-card--featured) .mag-card-btn {
-  background: var(--ink2);
-  color: #fff;
-}
-[data-theme="dark"] .mag-card:not(.mag-card--featured) .mag-card-btn {
-  background: rgba(255,255,255,0.1);
-  color: #fff;
-}
-.mag-card:hover .mag-card-btn { transform: translateX(3px); }
-
-.mag-card-btn-arrow {
-  width: 26px; height: 26px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.1);
-  display: flex; align-items: center; justify-content: center;
-  transition: transform 0.2s var(--ease);
-}
-.mag-card--featured .mag-card-btn-arrow { background: rgba(0,0,0,0.15); }
-
-.mag-card-eta {
-  font-size: 11px;
-  color: var(--muted);
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
-}
-
-/* ─── TRUST STRIP ───────────────────────────────────── */
-.mag-trust {
-  background: var(--paper2);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  padding: 20px 16px;
-  display: flex;
-  overflow-x: auto;
-  scrollbar-width: none;
-  gap: 0;
-}
-.mag-trust::-webkit-scrollbar { display: none; }
-.mag-trust-item {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 24px;
-  border-right: 1px solid var(--border);
-  white-space: nowrap;
-}
-.mag-trust-item:first-child { padding-left: 0; }
-.mag-trust-item:last-child { border-right: none; }
-.mag-trust-icon { font-size: 18px; }
-.mag-trust-text { font-size: 12px; font-weight: 700; color: var(--ink); }
-.mag-trust-sub { font-size: 10.5px; color: var(--muted); display: block; font-weight: 400; }
-
-/* ─── BOTTOM CTA ────────────────────────────────────── */
-.mag-bottom {
-  padding: 0 16px 40px;
-  max-width: 700px;
-  margin: 0 auto;
-}
-.mag-bottom-inner {
-  background: var(--ink2);
-  border-radius: 24px;
-  overflow: hidden;
-  position: relative;
-  padding: 44px 28px 40px;
-  text-align: center;
-}
-[data-theme="dark"] .mag-bottom-inner { background: #1a1812; border: 1px solid rgba(244,180,0,0.12); }
-.mag-bottom-inner::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(244,180,0,0.14) 0%, transparent 70%);
-  pointer-events: none;
-}
-.mag-bottom-badge {
-  display: inline-block;
-  background: rgba(244,180,0,0.12);
-  border: 1px solid rgba(244,180,0,0.25);
-  color: var(--gold);
-  border-radius: 999px;
-  padding: 5px 14px;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-bottom: 16px;
-}
-.mag-bottom-h {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(1.5rem, 5.5vw, 2.2rem);
-  font-weight: 700;
-  color: #fff;
-  line-height: 1.2;
-  margin: 0 0 10px;
-}
-.mag-bottom-h em { color: var(--gold); font-style: italic; }
-.mag-bottom-p {
-  font-size: 13.5px;
-  color: rgba(255,255,255,0.45);
-  max-width: 340px;
-  margin: 0 auto 28px;
-  line-height: 1.7;
-}
-.mag-bottom-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--gold);
-  color: #000;
-  font-weight: 800;
-  font-size: 14px;
-  padding: 15px 28px;
-  border-radius: 999px;
-  box-shadow: 0 6px 24px rgba(244,180,0,0.4);
-  transition: transform 0.2s var(--ease), box-shadow 0.2s;
-}
-.mag-bottom-btn:active { transform: scale(0.97); }
-
-/* ─── STICKY CTA (mobile) ───────────────────────────── */
-.mag-sticky {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  z-index: 999;
-  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-  background: linear-gradient(to top, var(--paper) 70%, transparent);
-  transform: translateY(100%);
-  transition: transform 0.4s var(--ease);
-  pointer-events: none;
-}
-.mag-sticky.mag-sticky--show { transform: translateY(0); pointer-events: all; }
-.mag-sticky-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background: var(--gold);
-  color: #000;
-  font-weight: 800;
-  font-size: 14.5px;
-  padding: 16px;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(244,180,0,0.45);
-  width: 100%;
-  transition: transform 0.15s;
-}
-.mag-sticky-btn:active { transform: scale(0.98); }
-
-/* ─── EMPTY ──────────────────────────────────────────── */
-.mag-empty {
-  text-align: center;
-  padding: 80px 20px;
-  color: var(--muted);
-}
-
-/* ─── ANIMATIONS ─────────────────────────────────────── */
-.mag-reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.6s ease, transform 0.6s var(--ease);
-}
-.mag-reveal.mag-reveal--visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-.mag-reveal--delay-1 { transition-delay: 0.08s; }
-.mag-reveal--delay-2 { transition-delay: 0.16s; }
-.mag-reveal--delay-3 { transition-delay: 0.24s; }
-.mag-reveal--delay-4 { transition-delay: 0.32s; }
-
-@media (prefers-reduced-motion: reduce) {
-  .mag-reveal { opacity: 1; transform: none; }
-  .mag-sticky { transition: none; }
-}
+.mag-add-btn:hover { background: #c9a02a; color: #000; }
+.mag-add-btn:disabled { background: #ccc; color: #888; cursor: default; }
 </style>
 
-<div class="mag">
+<div class="mag-page">
 
-  <!-- ── HERO ── -->
-  <section class="mag-hero">
-    <div class="mag-hero-badge">
-      <span class="mag-hero-badge-dot"></span>
-      Personalised Gifts
+  <!-- MASTHEAD -->
+  <div class="mag-masthead">
+    <div class="mag-masthead-top">
+      <div class="mag-masthead-line"></div>
+      <span>QuickBee Presents</span>
+      <div class="mag-masthead-line"></div>
     </div>
-
-    <h1 class="mag-hero-h1">
-      Custom
-      <em>Magazine</em>
-      Made For You
-    </h1>
-
-    <p class="mag-hero-sub">Turn your photos & memories into a stunning printed magazine — designed by us, delivered to your door.</p>
-
-    <a href="#mag-products" class="mag-hero-cta" onclick="event.preventDefault();document.getElementById('mag-products').scrollIntoView({behavior:'smooth',block:'start'});">
-      ✦ Start Creating Now
-      <span class="mag-hero-cta-arrow">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </span>
-    </a>
-
-    <div class="mag-hero-proof">
-      <span class="mag-hero-proof-item">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        4.9 Rating
-      </span>
-      <span class="mag-hero-proof-item">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Ready in ~20 mins
-      </span>
-      <span class="mag-hero-proof-item">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-        Free Delivery
-      </span>
+    <div class="mag-logo">{{ collection.title | default: 'THE MAGAZINE' | upcase }}</div>
+    <div class="mag-tagline">{{ collection.description | strip_html | truncate: 80 | default: 'Curated selections, delivered to you.' }}</div>
+    <div class="mag-date-bar">
+      <span>{{ 'now' | date: '%B %Y' }} Edition</span>
+      <button class="mag-cta-scroll" onclick="document.getElementById('mag-products').scrollIntoView({behavior:'smooth'})">Shop This Issue ↓</button>
+      <span>{{ collection.products_count }} Items</span>
     </div>
-
-    <div class="mag-scroll-hint">
-      <div class="mag-scroll-bar"></div>
-      Scroll
-    </div>
-  </section>
-
-  <!-- ── TRUST STRIP ── -->
-  <div class="mag-trust mag-reveal">
-    <div class="mag-trust-item"><span class="mag-trust-icon">⚡</span><div><span class="mag-trust-text">Fast Design</span><span class="mag-trust-sub">Ready in ~20 minutes</span></div></div>
-    <div class="mag-trust-item"><span class="mag-trust-icon">🖨️</span><div><span class="mag-trust-text">Print Quality</span><span class="mag-trust-sub">Professional grade</span></div></div>
-    <div class="mag-trust-item"><span class="mag-trust-icon">🚀</span><div><span class="mag-trust-text">Fast Delivery</span><span class="mag-trust-sub">Across KTM Valley</span></div></div>
-    <div class="mag-trust-item"><span class="mag-trust-icon">🎁</span><div><span class="mag-trust-text">Gift Ready</span><span class="mag-trust-sub">Beautifully packaged</span></div></div>
   </div>
 
-  <!-- ── HOW IT WORKS ── -->
-  <section class="mag-steps-wrap">
-    <div class="mag-steps-head mag-reveal">
-      <div class="mag-steps-label">How It Works</div>
-      <h2 class="mag-steps-title">Four Simple Steps</h2>
-    </div>
-    <div class="mag-steps-track">
-      <div class="mag-step-item mag-reveal mag-reveal--delay-1">
-        <div class="mag-step-num"><span>🎨</span></div>
-        <div class="mag-step-t">Pick a Style</div>
-        <div class="mag-step-d">Choose your cover theme & package</div>
-      </div>
-      <div class="mag-step-item mag-reveal mag-reveal--delay-2">
-        <div class="mag-step-num"><span>📸</span></div>
-        <div class="mag-step-t">Send Photos</div>
-        <div class="mag-step-d">Share your favourite memories</div>
-      </div>
-      <div class="mag-step-item mag-reveal mag-reveal--delay-3">
-        <div class="mag-step-num"><span>✏️</span></div>
-        <div class="mag-step-t">We Design</div>
-        <div class="mag-step-d">Your magazine is ready in ~20 mins</div>
-      </div>
-      <div class="mag-step-item mag-reveal mag-reveal--delay-4">
-        <div class="mag-step-num"><span>📦</span></div>
-        <div class="mag-step-t">Delivered</div>
-        <div class="mag-step-d">Printed & delivered to your door</div>
-      </div>
-    </div>
-  </section>
+  <div class="mag-section-wrap">
 
-  <!-- ── PACKAGES ── -->
-  {%- if collection.products_count > 0 -%}
-  <section class="mag-products-wrap" id="mag-products">
-
-    <div class="mag-products-head mag-reveal">
-      <div>
-        <div class="mag-products-label">Our Packages</div>
-        <h2 class="mag-products-title">Choose Your Package</h2>
+    <!-- HERO FEATURE (first product) -->
+    {% if mag_products.size > 0 %}
+      {% assign hero = mag_products[0] %}
+      <div class="mag-hero-feature">
+        {% if hero.featured_image %}
+          <img class="mag-hero-img" src="{{ hero.featured_image | img_url: '800x600', crop: 'center' }}" alt="{{ hero.title | escape }}">
+        {% else %}
+          <div class="mag-hero-img-ph">📰</div>
+        {% endif %}
+        <div class="mag-hero-content">
+          <div class="mag-hero-label">✦ Cover Feature</div>
+          <div class="mag-hero-title">{{ hero.title }}</div>
+          {% if hero.description != blank %}<div class="mag-hero-desc">{{ hero.description | strip_html | truncate: 200 }}</div>{% endif %}
+          <div class="mag-hero-price">NPR {{ hero.price | money_without_currency }}</div>
+          {% if hero.available %}
+            <button class="mag-hero-btn" onclick="magAdd(this, {{ hero.variants.first.id }})">+ Add to Cart</button>
+          {% else %}
+            <button class="mag-hero-btn" style="background:#ccc;color:#888" disabled>Sold Out</button>
+          {% endif %}
+        </div>
       </div>
-      <span class="mag-products-count">{{ collection.products_count }} option{% if collection.products_count > 1 %}s{% endif %}</span>
+    {% endif %}
+
+    <!-- SECTION HEADER -->
+    <div class="mag-section-hdr">
+      <div class="mag-section-rule"></div>
+      <div class="mag-section-title-wrap">
+        <div class="mag-section-eyebrow">In This Issue</div>
+        <div class="mag-section-h">All Products</div>
+      </div>
+      <div class="mag-section-rule"></div>
     </div>
 
-    <div class="mag-cards-list">
-      {%- for product in collection.products -%}
-        {%- assign is_featured = false -%}
-        {%- if forloop.index == 1 -%}{%- assign is_featured = true -%}{%- endif -%}
-        {%- assign has_discount = false -%}
-        {%- if product.compare_at_price > product.price -%}{%- assign has_discount = true -%}{%- endif -%}
-        {%- assign save_amt = product.compare_at_price | minus: product.price -%}
-
-        <a href="{{ product.url }}" class="mag-card{% if is_featured %} mag-card--featured{% endif %} mag-reveal mag-reveal--delay-{{ forloop.index }}">
-
-          <!-- Image -->
+    <!-- PRODUCTS GRID -->
+    <div class="mag-grid" id="mag-products">
+      {% for p in mag_products %}
+        <div class="mag-card mag-products-id">
           <div class="mag-card-img-wrap">
-            {%- if product.featured_image -%}
-              <img
-                class="mag-card-img"
-                src="{{ product.featured_image | image_url: width: 800 }}"
-                alt="{{ product.featured_image.alt | escape }}"
-                loading="lazy"
-                width="800"
-              >
-            {%- else -%}
-              <div class="mag-card-img-placeholder">
-                <div class="mag-card-img-placeholder-icon">📰</div>
-                <div class="mag-card-img-placeholder-text">Custom Magazine</div>
-              </div>
-            {%- endif -%}
-
-            <!-- Floating badge -->
-            <span class="mag-card-img-badge">
-              {%- if is_featured -%}⭐ Most Popular{%- else -%}✦ Custom Design{%- endif -%}
-            </span>
-
-            <!-- Price overlay -->
-            <div class="mag-card-img-price">
-              <span class="mag-card-price-main">{{ product.price | money }}</span>
-              {%- if has_discount -%}
-                <span class="mag-card-price-was">{{ product.compare_at_price | money }}</span>
-              {%- endif -%}
-            </div>
-
-            <!-- Save badge -->
-            {%- if has_discount -%}
-              <span class="mag-card-save-badge">Save {{ save_amt | money }}</span>
-            {%- endif -%}
+            {% if p.featured_image %}
+              <img class="mag-card-img" src="{{ p.featured_image | img_url: '400x300', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy">
+            {% else %}
+              <div class="mag-card-img-ph">📄</div>
+            {% endif %}
           </div>
-
-          <!-- Body -->
           <div class="mag-card-body">
-            <h2 class="mag-card-title">{{ product.title }}</h2>
-
-            {%- if product.description != blank -%}
-              <p class="mag-card-desc">{{ product.description | strip_html | truncate: 110 }}</p>
-            {%- endif -%}
-
-            {%- if product.tags.size > 0 -%}
-              <div class="mag-card-features">
-                {%- for tag in product.tags limit: 4 -%}
-                  <span class="mag-card-feature">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                    {{ tag }}
-                  </span>
-                {%- endfor -%}
+            {% if p.type != blank %}<div class="mag-card-type">{{ p.type }}</div>{% endif %}
+            <div class="mag-card-name">{{ p.title }}</div>
+            {% if p.description != blank %}<div class="mag-card-desc">{{ p.description | strip_html }}</div>{% endif %}
+            <div class="mag-card-footer">
+              <div>
+                <span class="mag-card-price">NPR {{ p.price | money_without_currency }}</span>
+                {% if p.compare_at_price > p.price %}<br><span class="mag-card-compare">NPR {{ p.compare_at_price | money_without_currency }}</span>{% endif %}
               </div>
-            {%- endif -%}
-
-            <div class="mag-card-foot">
-              <span class="mag-card-btn">
-                Select Package
-                <span class="mag-card-btn-arrow">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </span>
-              </span>
-              <span class="mag-card-eta">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                ~20 min
-              </span>
+              {% if p.available %}
+                <button class="mag-add-btn" onclick="magAdd(this, {{ p.variants.first.id }})">Add +</button>
+              {% else %}
+                <button class="mag-add-btn" disabled>Sold Out</button>
+              {% endif %}
             </div>
           </div>
-        </a>
-      {%- endfor -%}
+        </div>
+      {% endfor %}
     </div>
 
-  </section>
-
-  {%- else -%}
-  <div class="mag-empty mag-reveal">
-    <div style="font-size:52px;margin-bottom:16px;filter:drop-shadow(0 0 20px rgba(244,180,0,0.3))">📰</div>
-    <div style="font-size:18px;font-weight:800;color:var(--ink);margin-bottom:8px;font-family:'Playfair Display',serif">Packages coming soon</div>
-    <p style="font-size:14px;color:var(--muted)">Start your custom magazine directly in the meantime.</p>
-    <a href="/pages/magazine-builder" style="display:inline-flex;align-items:center;gap:8px;margin-top:20px;background:var(--gold);color:#000;font-weight:800;font-size:13px;padding:13px 24px;border-radius:999px;">✦ Start Creating Now</a>
   </div>
-  {%- endif -%}
-
-  <!-- ── BOTTOM CTA ── -->
-  <div class="mag-bottom mag-reveal">
-    <div class="mag-bottom-inner">
-      <div class="mag-bottom-badge">✦ Ready to Begin?</div>
-      <h2 class="mag-bottom-h">Turn Memories into<br><em>Your Story</em></h2>
-      <p class="mag-bottom-p">Birthdays, anniversaries, graduations — a custom magazine is the most personal gift you can give.</p>
-      <a href="/pages/magazine-builder" class="mag-bottom-btn">
-        ✦ Start Building Now
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-    </div>
-  </div>
-
-</div>
-
-<!-- Sticky CTA (appears after scroll past hero) -->
-<div class="mag-sticky" id="mag-sticky-bar">
-  <a href="/pages/magazine-builder" class="mag-sticky-btn">
-    ✦ Start Creating Your Magazine
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-  </a>
 </div>
 
 <script>
-(function() {
-  // Scroll reveal
-  var revealEls = document.querySelectorAll('.mag-reveal');
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function(entries) {
-      entries.forEach(function(e) {
-        if (e.isIntersecting) {
-          e.target.classList.add('mag-reveal--visible');
-          io.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-    revealEls.forEach(function(el) { io.observe(el); });
-  } else {
-    revealEls.forEach(function(el) { el.classList.add('mag-reveal--visible'); });
-  }
-
-  // Sticky CTA
-  var stickyBar = document.getElementById('mag-sticky-bar');
-  var hero = document.querySelector('.mag-hero');
-  if (stickyBar && hero) {
-    var lastY = 0;
-    window.addEventListener('scroll', function() {
-      var heroBottom = hero.getBoundingClientRect().bottom;
-      var y = window.scrollY;
-      var scrollingUp = y < lastY;
-      lastY = y;
-      if (heroBottom < 0) {
-        stickyBar.classList.add('mag-sticky--show');
-        // hide when near bottom of page
-        var nearBottom = (window.innerHeight + y) >= document.body.scrollHeight - 120;
-        if (nearBottom || scrollingUp && y < 200) {
-          stickyBar.classList.remove('mag-sticky--show');
-        }
-      } else {
-        stickyBar.classList.remove('mag-sticky--show');
-      }
-    }, { passive: true });
-  }
-})();
+window.magAdd = function(btn, vid){
+  var orig = btn.textContent;
+  btn.disabled = true; btn.textContent = '✓ Added';
+  fetch('/cart/add.js', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: vid, quantity: 1 })
+  }).then(function(){
+    setTimeout(function(){ btn.disabled = false; btn.textContent = orig; }, 1800);
+  }).catch(function(){
+    btn.disabled = false; btn.textContent = orig;
+    alert('Could not add item. Please try again.');
+  });
+};
 </script>
-
-{% schema %}
-{
-  "name": "Magazine Collection",
-  "settings": [],
-  "presets": [{ "name": "Magazine Collection" }]
-}
-{% endschema %}
