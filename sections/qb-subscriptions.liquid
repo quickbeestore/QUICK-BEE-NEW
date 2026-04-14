@@ -572,149 +572,363 @@ html:not([data-theme]) {
 
 /* ── LAUNCH LOCK OVERLAY ── */
 .qb-sub-root { position: relative; }
+/* ══════════════════════════════════════════════════════════════
+   🔒 LOCK SCREEN — Immersive Countdown UI
+   ══════════════════════════════════════════════════════════════ */
 .qb-sub-lock {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #05030e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Animated radial glow orbs in background */
+.qb-lock-bg {
   position: absolute;
   inset: 0;
-  z-index: 200;
-  background: linear-gradient(160deg, rgba(9,9,9,0.97) 0%, rgba(18,12,0,0.97) 100%);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 80px 20px 60px;
-  min-height: 100%;
+  pointer-events: none;
+  overflow: hidden;
 }
+.qb-lock-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0;
+  animation: qbOrbFloat linear infinite;
+}
+.qb-lock-orb:nth-child(1) {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(244,180,0,0.22) 0%, transparent 70%);
+  top: -120px; left: -80px;
+  animation-duration: 18s; animation-delay: 0s; opacity: 0.8;
+}
+.qb-lock-orb:nth-child(2) {
+  width: 380px; height: 380px;
+  background: radial-gradient(circle, rgba(255,140,0,0.18) 0%, transparent 70%);
+  bottom: -60px; right: -40px;
+  animation-duration: 22s; animation-delay: -8s; opacity: 0.7;
+}
+.qb-lock-orb:nth-child(3) {
+  width: 260px; height: 260px;
+  background: radial-gradient(circle, rgba(244,180,0,0.14) 0%, transparent 70%);
+  top: 40%; left: 60%;
+  animation-duration: 14s; animation-delay: -4s; opacity: 0.5;
+}
+@keyframes qbOrbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(30px, -20px) scale(1.08); }
+  66%       { transform: translate(-15px, 25px) scale(0.95); }
+}
+
+/* Floating honey particles */
+.qb-lock-particle {
+  position: absolute;
+  font-size: 18px;
+  opacity: 0;
+  animation: qbParticleRise linear infinite;
+  pointer-events: none;
+  user-select: none;
+}
+@keyframes qbParticleRise {
+  0%   { transform: translateY(0) rotate(0deg) scale(0.6);  opacity: 0; }
+  10%  { opacity: 0.6; }
+  85%  { opacity: 0.3; }
+  100% { transform: translateY(-100vh) rotate(360deg) scale(1); opacity: 0; }
+}
+
+/* Grid lines overlay */
+.qb-lock-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(244,180,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(244,180,0,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+/* Inner card */
 .qb-sub-lock-inner {
+  position: relative;
+  z-index: 10;
   text-align: center;
-  max-width: 420px;
   width: 100%;
+  max-width: 480px;
+  padding: 0 20px;
 }
+
+/* Bee icon */
 .qb-sub-lock-icon {
-  font-size: 52px;
-  margin-bottom: 14px;
+  font-size: 56px;
   display: block;
-  animation: qbLockPulse 2s ease-in-out infinite;
+  margin-bottom: 10px;
+  animation: qbLockBee 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(244,180,0,0.6));
 }
-@keyframes qbLockPulse {
-  0%,100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+@keyframes qbLockBee {
+  0%,100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-10px) rotate(3deg); }
 }
+
+/* Badge chip */
 .qb-sub-lock-chip {
-  display: inline-block;
-  background: rgba(244,180,0,0.15);
-  border: 1px solid rgba(244,180,0,0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(244,180,0,0.12);
+  border: 1px solid rgba(244,180,0,0.40);
   color: #F4B400;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1.4px;
-  padding: 5px 16px;
-  border-radius: 20px;
-  margin-bottom: 18px;
+  letter-spacing: 2px;
+  padding: 6px 18px;
+  border-radius: 50px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 20px rgba(244,180,0,0.12), inset 0 1px 0 rgba(255,255,255,0.08);
 }
+.qb-sub-lock-chip::before {
+  content: '🔒';
+  font-size: 11px;
+}
+
+/* Title */
 .qb-sub-lock-title {
-  font-size: 30px;
+  font-size: 32px;
   font-weight: 900;
   color: #ffffff;
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   line-height: 1.2;
+  letter-spacing: -0.5px;
+  text-shadow: 0 0 40px rgba(244,180,0,0.2);
 }
-.qb-sub-lock-title span { color: #F4B400; }
+.qb-sub-lock-title span {
+  background: linear-gradient(90deg, #F4B400, #FFD700, #F4B400);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: qbShimmer 3s linear infinite;
+}
+@keyframes qbShimmer {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Launch date */
 .qb-sub-lock-date {
-  font-size: 16px;
-  color: rgba(255,255,255,0.55);
+  font-size: 13px;
+  color: rgba(255,255,255,0.40);
   margin: 0 0 32px;
   font-weight: 500;
+  letter-spacing: 0.3px;
 }
+
+/* ── COUNTDOWN TILES ── */
 .qb-sub-lock-countdown {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  gap: 6px;
-  margin-bottom: 28px;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 .qb-sub-lock-unit {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.09);
-  border-radius: 14px;
-  padding: 14px 16px 10px;
-  min-width: 68px;
+  position: relative;
 }
-.qb-sub-lock-unit span {
-  font-size: 36px;
+.qb-lock-tile {
+  background: linear-gradient(160deg, #1a1200 0%, #0d0900 100%);
+  border: 1px solid rgba(244,180,0,0.22);
+  border-radius: 16px;
+  padding: 16px 14px 12px;
+  min-width: 72px;
+  box-shadow:
+    0 0 0 1px rgba(244,180,0,0.08),
+    0 8px 32px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  position: relative;
+  overflow: hidden;
+}
+/* Tile gloss line */
+.qb-lock-tile::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(244,180,0,0.3), transparent);
+}
+/* Tile mid-split line */
+.qb-lock-tile::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 0; right: 0;
+  height: 1px;
+  background: rgba(0,0,0,0.4);
+  transform: translateY(-50%);
+}
+.qb-lock-tile span {
+  font-size: 42px;
   font-weight: 900;
   color: #F4B400;
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -1px;
+  letter-spacing: -2px;
+  display: block;
+  text-shadow: 0 0 20px rgba(244,180,0,0.5);
+  position: relative;
+  z-index: 1;
 }
-.qb-sub-lock-unit small {
-  font-size: 10px;
+.qb-lock-tile small {
+  display: block;
+  font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  color: rgba(255,255,255,0.4);
-  font-weight: 600;
-  margin-top: 5px;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.35);
+  font-weight: 700;
+  margin-top: 7px;
 }
+
+/* Separator */
 .qb-sub-lock-sep {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 900;
-  color: rgba(244,180,0,0.5);
-  padding-bottom: 18px;
+  color: rgba(244,180,0,0.45);
+  padding-bottom: 22px;
   line-height: 1;
+  animation: qbSepBlink 1s ease-in-out infinite;
 }
+@keyframes qbSepBlink {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+/* Progress bar */
+.qb-lock-progress-wrap {
+  margin: 18px auto 24px;
+  max-width: 360px;
+}
+.qb-lock-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 8px;
+}
+.qb-lock-progress-bar {
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.qb-lock-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #F4B400, #FFD700);
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(244,180,0,0.6);
+  transition: width 1s linear;
+}
+
+/* Sub text */
 .qb-sub-lock-sub {
-  font-size: 14px;
-  color: rgba(255,255,255,0.45);
-  margin: 0;
-  line-height: 1.6;
+  font-size: 13px;
+  color: rgba(255,255,255,0.38);
+  margin: 0 0 24px;
+  line-height: 1.7;
 }
+.qb-sub-lock-sub strong {
+  color: rgba(244,180,0,0.7);
+  font-weight: 700;
+}
+
+/* Notify row */
 .qb-sub-lock-notify {
-  margin-top: 24px;
   display: flex;
   gap: 8px;
-  max-width: 320px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 340px;
+  margin: 0 auto 12px;
 }
 .qb-sub-lock-notify input {
   flex: 1;
-  height: 44px;
-  padding: 0 14px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 12px;
+  height: 46px;
+  padding: 0 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 14px;
   color: #fff;
   font-size: 14px;
   outline: none;
+  transition: border-color 0.2s;
 }
-.qb-sub-lock-notify input::placeholder { color: rgba(255,255,255,0.35); }
+.qb-sub-lock-notify input:focus {
+  border-color: rgba(244,180,0,0.45);
+  background: rgba(255,255,255,0.08);
+}
+.qb-sub-lock-notify input::placeholder { color: rgba(255,255,255,0.28); }
 .qb-sub-lock-notify button {
-  height: 44px;
-  padding: 0 18px;
-  background: #F4B400;
-  color: #000;
-  font-weight: 800;
+  height: 46px;
+  padding: 0 20px;
+  background: linear-gradient(135deg, #F4B400, #E09800);
+  color: #0a0600;
+  font-weight: 900;
   font-size: 13px;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   cursor: pointer;
   white-space: nowrap;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 20px rgba(244,180,0,0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.qb-sub-lock-notify button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 28px rgba(244,180,0,0.50);
 }
 .qb-sub-lock-ok {
-  margin-top: 12px;
+  margin-top: 10px;
   color: #22c55e;
   font-size: 13px;
   font-weight: 600;
 }
+
+/* Feature teasers */
+.qb-lock-features {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+.qb-lock-feat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+.qb-lock-feat span:first-child {
+  font-size: 22px;
+  filter: grayscale(0.3);
+}
+
 @media (max-width: 400px) {
-  .qb-sub-lock-unit { min-width: 56px; padding: 10px 10px 8px; }
-  .qb-sub-lock-unit span { font-size: 28px; }
-  .qb-sub-lock-title { font-size: 24px; }
+  .qb-lock-tile { min-width: 58px; padding: 12px 10px 10px; }
+  .qb-lock-tile span { font-size: 32px; }
+  .qb-sub-lock-title { font-size: 26px; }
+  .qb-sub-lock-countdown { gap: 5px; }
+  .qb-sub-lock-sep { font-size: 24px; padding-bottom: 16px; }
+  .qb-lock-features { gap: 14px; }
 }
 </style>
 
@@ -722,26 +936,90 @@ html:not([data-theme]) {
 
   <!-- LAUNCH COUNTDOWN LOCK -->
   <div class="qb-sub-lock" id="qbSubLock">
+
+    <!-- Animated background orbs -->
+    <div class="qb-lock-bg">
+      <div class="qb-lock-orb"></div>
+      <div class="qb-lock-orb"></div>
+      <div class="qb-lock-orb"></div>
+    </div>
+
+    <!-- Floating honey particles -->
+    <span class="qb-lock-particle" style="left:8%;bottom:10%;animation-duration:9s;animation-delay:0s;">🍯</span>
+    <span class="qb-lock-particle" style="left:20%;bottom:5%;animation-duration:12s;animation-delay:-3s;">✨</span>
+    <span class="qb-lock-particle" style="left:35%;bottom:15%;animation-duration:8s;animation-delay:-1.5s;">🐝</span>
+    <span class="qb-lock-particle" style="left:52%;bottom:8%;animation-duration:11s;animation-delay:-5s;">🍯</span>
+    <span class="qb-lock-particle" style="left:68%;bottom:12%;animation-duration:10s;animation-delay:-2s;">✨</span>
+    <span class="qb-lock-particle" style="left:80%;bottom:6%;animation-duration:13s;animation-delay:-7s;">🐝</span>
+    <span class="qb-lock-particle" style="left:92%;bottom:20%;animation-duration:7s;animation-delay:-4s;">🍯</span>
+
+    <!-- Grid overlay -->
+    <div class="qb-lock-grid"></div>
+
+    <!-- Inner content -->
     <div class="qb-sub-lock-inner">
-      <span class="qb-sub-lock-icon">🔒</span>
+      <span class="qb-sub-lock-icon">🐝</span>
       <div class="qb-sub-lock-chip">Coming Soon</div>
       <h2 class="qb-sub-lock-title">Subscriptions Go <span>Live</span></h2>
-      <p class="qb-sub-lock-date">April 12, 2026 · 8:00 PM Nepal Time</p>
+      <p class="qb-sub-lock-date">April 17, 2026 · 7:10 PM Nepal Time</p>
+
+      <!-- Countdown tiles -->
       <div class="qb-sub-lock-countdown">
-        <div class="qb-sub-lock-unit"><span id="qbLockD">00</span><small>Days</small></div>
+        <div class="qb-sub-lock-unit">
+          <div class="qb-lock-tile">
+            <span id="qbLockD">00</span>
+            <small>Days</small>
+          </div>
+        </div>
         <div class="qb-sub-lock-sep">:</div>
-        <div class="qb-sub-lock-unit"><span id="qbLockH">00</span><small>Hours</small></div>
+        <div class="qb-sub-lock-unit">
+          <div class="qb-lock-tile">
+            <span id="qbLockH">00</span>
+            <small>Hours</small>
+          </div>
+        </div>
         <div class="qb-sub-lock-sep">:</div>
-        <div class="qb-sub-lock-unit"><span id="qbLockM">00</span><small>Mins</small></div>
+        <div class="qb-sub-lock-unit">
+          <div class="qb-lock-tile">
+            <span id="qbLockM">00</span>
+            <small>Mins</small>
+          </div>
+        </div>
         <div class="qb-sub-lock-sep">:</div>
-        <div class="qb-sub-lock-unit"><span id="qbLockS">00</span><small>Secs</small></div>
+        <div class="qb-sub-lock-unit">
+          <div class="qb-lock-tile">
+            <span id="qbLockS">00</span>
+            <small>Secs</small>
+          </div>
+        </div>
       </div>
-      <p class="qb-sub-lock-sub">Set your reminder — we're almost ready 🚀<br>Fresh eggs & meat subscriptions, starting Rs 75/pack.</p>
+
+      <!-- Progress bar -->
+      <div class="qb-lock-progress-wrap">
+        <div class="qb-lock-progress-label">
+          <span>Launching</span>
+          <span id="qbLockPct">0%</span>
+        </div>
+        <div class="qb-lock-progress-bar">
+          <div class="qb-lock-progress-fill" id="qbLockFill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <p class="qb-sub-lock-sub">Set your reminder — we're almost ready 🚀<br>Fresh eggs &amp; meat subscriptions, starting <strong>Rs 75/pack</strong>.</p>
+
       <div class="qb-sub-lock-notify">
         <input type="email" id="qbLockEmail" placeholder="your@email.com">
         <button type="button" onclick="qbLockNotify()">Notify Me</button>
       </div>
       <p class="qb-sub-lock-ok" id="qbLockOk" style="display:none">✅ You're on the list!</p>
+
+      <!-- Feature teasers -->
+      <div class="qb-lock-features">
+        <div class="qb-lock-feat"><span>🥚</span><span>Fresh Eggs</span></div>
+        <div class="qb-lock-feat"><span>🥩</span><span>Daily Meat</span></div>
+        <div class="qb-lock-feat"><span>🚀</span><span>Auto-Deliver</span></div>
+        <div class="qb-lock-feat"><span>💰</span><span>Save 15%</span></div>
+      </div>
     </div>
   </div>
 
@@ -1106,13 +1384,15 @@ html:not([data-theme]) {
   });
 
   /* ── Launch Countdown ── */
-  // April 12, 2026 8:00 PM Nepal Standard Time (UTC+5:45) = April 12, 2026 14:15:00 UTC
-  var qbLaunchTarget = new Date('2026-04-12T14:15:00Z').getTime();
+  // April 17, 2026 7:10 PM Nepal Standard Time (UTC+5:45) = April 17, 2026 13:25:00 UTC
+  // Locked for 66 hours from April 14, 2026 ~19:25 NPT = April 14, 2026 13:40:00 UTC
+  var qbLaunchTarget = new Date('2026-04-17T13:25:00Z').getTime();
+  var qbLockStart    = qbLaunchTarget - (66 * 3600 * 1000); // 66 hrs before launch
 
   function qbTickLock() {
     var lock = document.getElementById('qbSubLock');
     if (!lock) return;
-    var now = Date.now();
+    var now  = Date.now();
     var diff = qbLaunchTarget - now;
     if (diff <= 0) {
       lock.style.display = 'none';
@@ -1130,6 +1410,15 @@ html:not([data-theme]) {
     if (hEl) hEl.textContent = String(h).padStart(2, '0');
     if (mEl) mEl.textContent = String(m).padStart(2, '0');
     if (sEl) sEl.textContent = String(s).padStart(2, '0');
+
+    /* Progress bar — % of 66hr window elapsed */
+    var totalMs  = qbLaunchTarget - qbLockStart;
+    var elapsedMs = Math.max(0, now - qbLockStart);
+    var pct = Math.min(100, Math.round((elapsedMs / totalMs) * 100));
+    var fill = document.getElementById('qbLockFill');
+    var pctEl = document.getElementById('qbLockPct');
+    if (fill)  fill.style.width = pct + '%';
+    if (pctEl) pctEl.textContent = pct + '%';
   }
   qbTickLock();
   setInterval(qbTickLock, 1000);
