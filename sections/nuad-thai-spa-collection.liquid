@@ -515,6 +515,7 @@
 
 .nt-sig-btn {
   display: block;
+  width: 100%;
   text-align: center;
   background: var(--nt-green);
   color: #fff;
@@ -522,9 +523,13 @@
   font-weight: 600;
   padding: 11px 18px;
   border-radius: 50px;
+  border: none;
+  cursor: pointer;
   text-decoration: none;
   transition: background 0.22s, transform 0.18s;
   margin-top: 4px;
+  font-family: inherit;
+  letter-spacing: 0.01em;
 }
 .nt-sig-btn:hover {
   background: var(--nt-gold);
@@ -1307,8 +1312,9 @@
   </div>
 
   <!-- ══════════════════════════════════════
-       § 3  SIGNATURE PACKAGES
+       § 3  SIGNATURE PACKAGES — live from collection
        ══════════════════════════════════════ -->
+  {%- if collection.products.size > 0 -%}
   <section class="nt-signatures nt-fade-in" id="nt-signatures">
     <div class="nt-container">
       <div class="nt-section-header">
@@ -1320,68 +1326,56 @@
       <div class="nt-sig-scroll">
         <div class="nt-sig-grid">
 
-          {%- assign booking_link = section.settings.booking_url | default: '#' -%}
+          {%- for product in collection.products limit: 8 -%}
+            {%- assign first_variant = product.selected_or_first_available_variant -%}
 
-          <div class="nt-sig-card">
-            <h3 class="nt-sig-name">Energise Body</h3>
-            <span class="nt-sig-duration">90 / 120 min</span>
-            <p class="nt-sig-benefit">Revitalize tired muscles with deep Thai techniques</p>
-            <div class="nt-sig-price">From NPR 2,500</div>
-            <a href="{{ booking_link }}" class="nt-sig-btn">Book Now</a>
-          </div>
+            {%- comment -%} Build duration string from variant titles {%- endcomment -%}
+            {%- if product.variants.size > 1 -%}
+              {%- assign duration_parts = "" -%}
+              {%- for variant in product.variants -%}
+                {%- if forloop.first -%}
+                  {%- assign duration_parts = variant.title -%}
+                {%- else -%}
+                  {%- assign duration_parts = duration_parts | append: " / " | append: variant.title -%}
+                {%- endif -%}
+              {%- endfor -%}
+            {%- elsif first_variant.title != "Default Title" -%}
+              {%- assign duration_parts = first_variant.title -%}
+            {%- else -%}
+              {%- assign duration_parts = "" -%}
+            {%- endif -%}
 
-          <div class="nt-sig-card">
-            <h3 class="nt-sig-name">Relax Body</h3>
-            <span class="nt-sig-duration">90 / 120 min</span>
-            <p class="nt-sig-benefit">Melt away tension with calming aromatherapy</p>
-            <div class="nt-sig-price">From NPR 2,200</div>
-            <a href="{{ booking_link }}" class="nt-sig-btn">Book Now</a>
-          </div>
-
-          <div class="nt-sig-card">
-            <h3 class="nt-sig-name">Pain Release</h3>
-            <span class="nt-sig-duration">60 / 90 / 120 min</span>
-            <p class="nt-sig-benefit">Targeted relief for chronic pain &amp; stiffness</p>
-            <div class="nt-sig-price">From NPR 1,800</div>
-            <a href="{{ booking_link }}" class="nt-sig-btn">Book Now</a>
-          </div>
-
-          <div class="nt-sig-card">
-            <h3 class="nt-sig-name">Thai De-Stress</h3>
-            <span class="nt-sig-duration">60 / 90 min</span>
-            <p class="nt-sig-benefit">Full-body stress relief, mind &amp; body reset</p>
-            <div class="nt-sig-price">From NPR 2,000</div>
-            <a href="{{ booking_link }}" class="nt-sig-btn">Book Now</a>
-          </div>
-
-          <div class="nt-sig-card">
-            <h3 class="nt-sig-name">Trekking Recovery</h3>
-            <span class="nt-sig-duration">90 / 120 min</span>
-            <p class="nt-sig-benefit">Post-trek muscle recovery &amp; joint relief</p>
-            <div class="nt-sig-price">From NPR 2,800</div>
-            <a href="{{ booking_link }}" class="nt-sig-btn">Book Now</a>
-          </div>
-
-          <div class="nt-sig-card">
-            <h3 class="nt-sig-name">Bangkok Package</h3>
-            <span class="nt-sig-duration">120 min</span>
-            <p class="nt-sig-benefit">The ultimate Thai spa experience</p>
-            <div class="nt-sig-price">From NPR 3,500</div>
-            <a href="{{ booking_link }}" class="nt-sig-btn">Book Now</a>
-          </div>
-
-          <div class="nt-sig-card">
-            <h3 class="nt-sig-name">London Package</h3>
-            <span class="nt-sig-duration">150 min</span>
-            <p class="nt-sig-benefit">Luxury full-body indulgence</p>
-            <div class="nt-sig-price">From NPR 4,200</div>
-            <a href="{{ booking_link }}" class="nt-sig-btn">Book Now</a>
-          </div>
+            <div class="nt-sig-card">
+              <h3 class="nt-sig-name">{{ product.title }}</h3>
+              {%- if duration_parts != "" -%}
+                <span class="nt-sig-duration">{{ duration_parts }}</span>
+              {%- endif -%}
+              {%- if product.description != blank -%}
+                <p class="nt-sig-benefit">{{ product.description | strip_html | truncate: 70 }}</p>
+              {%- endif -%}
+              <div class="nt-sig-price">
+                {%- if product.price_varies -%}From {%- endif -%}
+                {{ product.price_min | money }}
+              </div>
+              <button
+                type="button"
+                class="nt-sig-btn nt-book-trigger"
+                data-variant="{{ first_variant.id }}"
+                data-name="{{ product.title | escape }}"
+                data-price="{{ product.price_min | money_without_currency }}"
+                data-currency="NPR"
+                data-duration="{{ first_variant.title | escape }}"
+                data-pid="{{ product.id }}">
+                Book Now
+              </button>
+            </div>
+          {%- endfor -%}
 
         </div>
       </div>
     </div>
   </section>
+  {%- endif -%}
 
   <!-- ══════════════════════════════════════
        § 4  CATEGORY TABS + PRODUCT GRID
