@@ -1682,26 +1682,40 @@ html:not([data-theme="dark"]) .qb-ticker-body::after  { background: linear-gradi
    ⏰ SMART TIME BOX
 ══════════════════════════════════════════════════════ */
 .qb-timebox {
-  margin: 0 12px 8px; border-radius: 16px; overflow: hidden;
+  margin: 0 12px 12px; border-radius: 20px; overflow: hidden;
 }
 .qb-timebox-inner {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 13px 16px; gap: 12px;
-  border-radius: 16px; border: 1.5px solid rgba(244,180,0,0.15);
+  padding: 14px 14px 14px 12px; gap: 10px;
+  border-radius: 20px; border: 1px solid rgba(244,180,0,0.12);
   background: linear-gradient(135deg,#0d0900,#1a1200);
+  position: relative; overflow: hidden;
   transition: border-color .3s, background .3s;
 }
-.qb-timebox-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
-.qb-timebox-emoji { font-size: 26px; flex-shrink: 0; }
-.qb-timebox-title { font-size: 14px; font-weight: 900; color: #fff; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.qb-timebox-sub { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.qb-timebox-cta {
-  flex-shrink: 0; padding: 8px 14px; border-radius: 10px;
-  background: rgba(244,180,0,0.12); border: 1.5px solid rgba(244,180,0,0.25);
-  color: #F4B400; font-size: 12px; font-weight: 800; text-decoration: none;
-  white-space: nowrap; transition: background .18s;
+.qb-timebox-inner::after {
+  content: ''; position: absolute; top: -40px; right: -40px;
+  width: 130px; height: 130px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(244,180,0,0.13) 0%, transparent 70%);
+  pointer-events: none;
 }
-.qb-timebox-cta:hover { background: rgba(244,180,0,0.22); }
+.qb-timebox-left { display: flex; align-items: center; gap: 11px; flex: 1; min-width: 0; }
+.qb-timebox-icon-wrap {
+  width: 50px; height: 50px; border-radius: 14px; flex-shrink: 0;
+  background: rgba(244,180,0,0.1); border: 1px solid rgba(244,180,0,0.18);
+  display: flex; align-items: center; justify-content: center;
+}
+.qb-timebox-emoji { font-size: 26px; line-height: 1; }
+.qb-timebox-label { font-size: 9px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: rgba(244,180,0,0.65); margin-bottom: 2px; }
+.qb-timebox-title { font-size: 14px; font-weight: 800; color: #fff; line-height: 1.2; }
+.qb-timebox-sub { font-size: 11px; color: rgba(255,255,255,0.42); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+.qb-timebox-cta {
+  flex-shrink: 0; padding: 10px 15px; border-radius: 12px;
+  background: #F4B400; color: #0a0600;
+  font-size: 12px; font-weight: 800; text-decoration: none;
+  white-space: nowrap; transition: background .15s, transform .1s;
+  letter-spacing: 0.01em; position: relative; z-index: 1;
+}
+.qb-timebox-cta:active { transform: scale(0.95); background: #e0a400; }
 
 /* ══════════════════════════════════════════════════════
    🏷️ BRAND MARQUEE
@@ -3718,13 +3732,16 @@ html:not([data-theme="dark"]) .qb-trust-lbl { color: #888; }
   <div class="qb-timebox" id="qbTimeBox" style="display:none">
     <div class="qb-timebox-inner">
       <div class="qb-timebox-left">
-        <span class="qb-timebox-emoji" id="qbTimeEmoji">🌅</span>
-        <div>
+        <div class="qb-timebox-icon-wrap" id="qbTimeIconWrap">
+          <span class="qb-timebox-emoji" id="qbTimeEmoji">🌅</span>
+        </div>
+        <div style="min-width:0;">
+          <div class="qb-timebox-label" id="qbTimeLabel">Serving Now</div>
           <div class="qb-timebox-title" id="qbTimeTitle">Good Morning!</div>
           <div class="qb-timebox-sub" id="qbTimeSub">Start your day with fresh food</div>
         </div>
       </div>
-      <a class="qb-timebox-cta" id="qbTimeCta" href="/collections/typical-taste">Order Now →</a>
+      <a class="qb-timebox-cta" id="qbTimeCta" href="/collections/typical-taste">Order →</a>
     </div>
   </div>
 
@@ -5338,21 +5355,25 @@ function initTimeBox() {
   var npDate = new Date(npMs);
   var h = npDate.getHours();
   var configs = [
-    { min:6,  max:11, emoji:'🌅', title:'Good Morning, Nepal!',  sub:'Fresh breakfast & morning orders — delivered in 20 mins', cta:'/collections/typical-taste',   bg:'linear-gradient(135deg,#0d0700 0%,#1a1000 100%)', border:'rgba(244,180,0,0.2)' },
-    { min:11, max:15, emoji:'🍽️', title:'Lunch Rush! Order Now', sub:'Beat the hunger — meal combos delivered in 20 mins',    cta:'/collections/typical-taste',   bg:'linear-gradient(135deg,#0e0600 0%,#1c0c00 100%)', border:'rgba(251,146,60,0.2)' },
-    { min:15, max:19, emoji:'☕', title:'Afternoon Cravings',     sub:'Snacks, chai & bites delivered to your door',           cta:'/collections/all',              bg:'linear-gradient(135deg,#0a0a0a 0%,#141414 100%)', border:'rgba(244,180,0,0.15)' },
-    { min:19, max:22, emoji:'🍺', title:'Evening Unwind Time',   sub:'Ice cold beer & grills — perfect end to your day',      cta:'/collections/beer',             bg:'linear-gradient(135deg,#060e06 0%,#0c1a0c 100%)', border:'rgba(74,222,128,0.15)' },
-    { min:22, max:24, emoji:'🌙', title:'Night Owl Mode',         sub:'Still craving? We deliver 24/7 — late night special',   cta:'/collections/all',              bg:'linear-gradient(135deg,#06060f 0%,#0d0d20 100%)', border:'rgba(139,92,246,0.15)' },
-    { min:0,  max:6,  emoji:'🌙', title:"Up Late? We've Got You", sub:'Night delivery available — order now, arrive in 20 mins', cta:'/collections/all',            bg:'linear-gradient(135deg,#06060f 0%,#0d0d20 100%)', border:'rgba(139,92,246,0.15)' }
+    { min:6,  max:11, emoji:'🌅', label:'Morning Special',   title:'Good Morning, Nepal!',   sub:'Fresh breakfast — delivered in 20 mins',       cta:'/collections/typical-taste', bg:'linear-gradient(135deg,#0d0700 0%,#1a1000 100%)', border:'rgba(244,180,0,0.18)',   iconBg:'rgba(244,180,0,0.12)',  iconBorder:'rgba(244,180,0,0.22)',  ctaBg:'#F4B400', ctaColor:'#0a0600' },
+    { min:11, max:15, emoji:'🍽️', label:'Lunch Time',        title:'Lunch Rush! Order Now',  sub:'Hot meals delivered in 20 mins',               cta:'/collections/typical-taste', bg:'linear-gradient(135deg,#0e0600 0%,#1c0c00 100%)', border:'rgba(251,146,60,0.18)', iconBg:'rgba(251,146,60,0.12)', iconBorder:'rgba(251,146,60,0.22)',  ctaBg:'#fb923c', ctaColor:'#1a0500' },
+    { min:15, max:19, emoji:'☕', label:'Afternoon Cravings', title:'Chai & Snack Time',      sub:'Snacks & bites delivered to your door',         cta:'/collections/all',           bg:'linear-gradient(135deg,#0a0800 0%,#161000 100%)', border:'rgba(244,180,0,0.15)',   iconBg:'rgba(244,180,0,0.1)',   iconBorder:'rgba(244,180,0,0.2)',    ctaBg:'#F4B400', ctaColor:'#0a0600' },
+    { min:19, max:22, emoji:'🍺', label:'Evening Special',   title:'Evening Unwind Time',    sub:'Ice cold drinks & grills delivered fast',       cta:'/collections/beer',          bg:'linear-gradient(135deg,#060e06 0%,#0c1a0c 100%)', border:'rgba(74,222,128,0.15)', iconBg:'rgba(74,222,128,0.1)',  iconBorder:'rgba(74,222,128,0.2)',   ctaBg:'#4ade80', ctaColor:'#020f06' },
+    { min:22, max:24, emoji:'🌙', label:'Night Delivery',    title:'Night Owl Mode On',      sub:'Late night cravings? We deliver 24/7',          cta:'/collections/all',           bg:'linear-gradient(135deg,#06060f 0%,#0d0d20 100%)', border:'rgba(139,92,246,0.15)', iconBg:'rgba(139,92,246,0.1)', iconBorder:'rgba(139,92,246,0.2)',   ctaBg:'#a78bfa', ctaColor:'#06020f' },
+    { min:0,  max:6,  emoji:'🌙', label:'Night Delivery',    title:"Up Late? We've Got You", sub:'Night delivery on — order now',                 cta:'/collections/all',           bg:'linear-gradient(135deg,#06060f 0%,#0d0d20 100%)', border:'rgba(139,92,246,0.15)', iconBg:'rgba(139,92,246,0.1)', iconBorder:'rgba(139,92,246,0.2)',   ctaBg:'#a78bfa', ctaColor:'#06020f' }
   ];
   var cfg = configs.find(function(c){ return h >= c.min && h < c.max; });
   if (!cfg) return;
   var inner = box.querySelector('.qb-timebox-inner');
   if (inner) { inner.style.background = cfg.bg; inner.style.borderColor = cfg.border; }
+  var iconWrap = document.getElementById('qbTimeIconWrap');
+  if (iconWrap) { iconWrap.style.background = cfg.iconBg; iconWrap.style.borderColor = cfg.iconBorder; }
   var e = document.getElementById('qbTimeEmoji'); if (e) e.textContent = cfg.emoji;
+  var l = document.getElementById('qbTimeLabel'); if (l) l.textContent = cfg.label;
   var t = document.getElementById('qbTimeTitle'); if (t) t.textContent = cfg.title;
   var s = document.getElementById('qbTimeSub');   if (s) s.textContent = cfg.sub;
-  var c = document.getElementById('qbTimeCta');   if (c) c.href = cfg.cta;
+  var c = document.getElementById('qbTimeCta');
+  if (c) { c.href = cfg.cta; c.style.background = cfg.ctaBg; c.style.color = cfg.ctaColor; }
   box.style.display = 'block';
 }
 
