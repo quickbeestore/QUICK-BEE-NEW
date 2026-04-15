@@ -701,6 +701,23 @@
   85%  { width: 92%; }
   100% { width: 100%; }
 }
+
+/* ── Dark / Light Theme ── */
+[data-theme="dark"] .qbp-page { background: #0a0a0f !important; color: #f0f0f8 !important; }
+[data-theme="dark"] .qbp-card,
+[data-theme="dark"] .qbp-step,
+[data-theme="dark"] .qbp-method { background: #12121a !important; border-color: rgba(255,255,255,0.08) !important; color: #f0f0f8 !important; }
+[data-theme="dark"] .qbp-input,
+[data-theme="dark"] .qbp-name-input { background: #0e0e18 !important; border-color: rgba(255,255,255,0.12) !important; color: #f0f0f8 !important; }
+[data-theme="dark"] .qbp-method-title { color: #f0f0f8 !important; }
+[data-theme="dark"] .qbp-method-sub { color: #888 !important; }
+[data-theme="dark"] .qbp-page h1, [data-theme="dark"] .qbp-page h2, [data-theme="dark"] .qbp-page h3 { color: #f0f0f8 !important; }
+[data-theme="dark"] .qbp-qr-wrap { background: #12121a !important; }
+
+html:not([data-theme="dark"]) .qbp-page { background: #f8f8fc; color: #1a1a1a; }
+html:not([data-theme="dark"]) .qbp-card,
+html:not([data-theme="dark"]) .qbp-step,
+html:not([data-theme="dark"]) .qbp-method { background: #fff; border-color: #eee; }
 </style>
 
 <!-- ══════════════════════════════════════════════════════
@@ -739,14 +756,6 @@
           <div class="qbp-method-radio"></div>
         </div>
 
-        <div class="qbp-method" data-method="card" id="qbpM_card">
-          <div class="qbp-method-icon">💳</div>
-          <div class="qbp-method-info">
-            <span class="qbp-method-title">Card on Delivery</span>
-            <span class="qbp-method-sub">Debit/credit card paid when delivered</span>
-          </div>
-          <div class="qbp-method-radio"></div>
-        </div>
 
         <div class="qbp-method" data-method="cash" id="qbpM_cash">
           <div class="qbp-method-icon">💵</div>
@@ -914,6 +923,9 @@
   ───────────────────────────────────────────────────── */
   var cartItems = [];
 
+  function lsJson(k) { try { var s = localStorage.getItem(k); return s ? JSON.parse(s) : null; } catch(e) { return null; } }
+  function lsStr(k)  { try { return localStorage.getItem(k) || ''; } catch(e) { return ''; } }
+
   function buildOrderNote(paymentMethod, customerName, amtRs) {
     /* Nepal time */
     var nowUtc  = Date.now();
@@ -923,9 +935,12 @@
     var totalMin = npDate.getHours()*60 + npDate.getMinutes();
     var isLate  = totalMin < 360 || totalMin >= 1200;
 
-    /* Location from localStorage */
-    var loc = null;
-    try { loc = JSON.parse(localStorage.getItem('qb_selected_location') || 'null'); } catch(e){}
+    /* All localStorage data */
+    var loc     = lsJson('qb_selected_location');
+    var liveLoc = lsJson('qb_live_location');
+    var delTime = lsJson('qb_delivery_time');
+    var prof    = lsJson('qb_user_profile');
+    var zone    = lsJson('qb_zone');
 
     /* Cart items summary */
     var itemLines = '';
@@ -947,23 +962,46 @@
     note += '  Name   : ' + customerName  + '\n';
     note += '  Amount : Rs ' + amtRs       + '\n\n';
 
+    if (prof) {
+      note += '👤 CUSTOMER PROFILE\n';
+      if (prof.name)        note += '  Name        : ' + prof.name        + '\n';
+      if (prof.phone)       note += '  Phone       : ' + prof.phone       + '\n';
+      if (prof.email)       note += '  Email       : ' + prof.email       + '\n';
+      if (prof.gender)      note += '  Gender      : ' + prof.gender      + '\n';
+      if (prof.dob)         note += '  Birthday    : ' + prof.dob         + '\n';
+      if (prof.nationality) note += '  Nationality : ' + prof.nationality + '\n';
+      if (prof.deliveryPref)note += '  Pref        : ' + prof.deliveryPref+ '\n';
+      note += '\n';
+    }
+
     if (loc) {
-      var addr = loc.address || loc.street || loc.landmark_link || '';
+      var addr = loc.address || loc.street || loc.location || loc.landmark_link || '';
       note += '📍 DELIVERY LOCATION\n';
-      if (addr)             note += '  Address : ' + addr + '\n';
-      if (loc.mode)         note += '  Mode    : ' + loc.mode + '\n';
-      if (loc.latitude)     note += '  Lat     : ' + loc.latitude  + '\n';
-      if (loc.longitude)    note += '  Lng     : ' + loc.longitude + '\n';
+      if (addr)              note += '  Address   : ' + addr          + '\n';
+      if (loc.recipient_name)note += '  Recipient : ' + loc.recipient_name + '\n';
+      if (loc.mode)          note += '  Mode      : ' + loc.mode      + '\n';
+      if (loc.landmark_link && loc.landmark_link !== addr) note += '  Landmark  : ' + loc.landmark_link + '\n';
       if (loc.latitude && loc.longitude) {
-        note += '  Map     : https://www.google.com/maps?q=' + loc.latitude + ',' + loc.longitude + '\n';
+        note += '  Lat/Lng   : ' + loc.latitude + ', ' + loc.longitude + '\n';
+        note += '  Map       : https://www.google.com/maps?q=' + loc.latitude + ',' + loc.longitude + '\n';
       }
-      if (loc.recipient_name) note += '  Recipient : ' + loc.recipient_name + '\n';
+      if (zone)              note += '  Zone      : ' + (zone.name || zone.zone || '') + '\n';
+      note += '\n';
+    }
+
+    if (liveLoc && liveLoc.latitude && liveLoc.longitude) {
+      note += '📡 LIVE GPS (at checkout)\n';
+      note += '  Lat/Lng : ' + liveLoc.latitude + ', ' + liveLoc.longitude + '\n';
+      note += '  Map     : https://www.google.com/maps?q=' + liveLoc.latitude + ',' + liveLoc.longitude + '\n';
+      if (liveLoc.accuracy) note += '  Accuracy: ±' + Math.round(liveLoc.accuracy) + 'm\n';
       note += '\n';
     }
 
     note += '🕐 ORDER TIME\n';
     note += '  Nepal Time    : ' + npTime + '\n';
-    note += '  Delivery Type : ' + (isLate ? 'Late Night (8PM–6AM)' : 'Daytime (6AM–8PM)') + '\n\n';
+    note += '  Delivery Type : ' + (isLate ? 'Late Night (8PM–6AM)' : 'Daytime (6AM–8PM)') + '\n';
+    if (delTime && delTime.range) note += '  Est. Delivery : ' + delTime.range + '\n';
+    note += '\n';
 
     if (itemLines) {
       note += '🛒 CART ITEMS' + itemLines + '\n';
@@ -990,6 +1028,9 @@
     show('qbpStepFinal');
     setTimeout(function () { window.location.href = '/checkout'; }, 2200);
   }
+
+  /* ── Wake Render API immediately on page load so it's ready when user picks QR ── */
+  fetch(RAILWAY_API + '/api/generate-qr?amount=1', { method: 'GET' }).catch(function(){});
 
   /* ── Load cart total on page load ──────────── */
   fetch('/cart.js', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
@@ -1034,30 +1075,37 @@
         if (qrImg && amtRs > 0) {
           if (qrLoader) qrLoader.style.display = 'flex';
           qrImg.style.display = 'none';
-          var qrFallback = function() {
-            qrImg.src = '{{ "PAYMENTSQRONLINE.png" | asset_url }}';
-            qrImg.style.display = 'block';
-            if (qrLoader) qrLoader.style.display = 'none';
-          };
-          var qrTimeout = setTimeout(qrFallback, 8000);
-          var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-          setTimeout(function() { if (controller) controller.abort(); }, 8000);
-          fetch(RAILWAY_API + '/api/generate-qr?amount=' + amtRs, controller ? { signal: controller.signal } : {})
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
-              clearTimeout(qrTimeout);
-              if (data.success && data.qr_image) {
-                qrImg.src = data.qr_image;
-                qrImg.style.display = 'block';
-                if (qrLoader) qrLoader.style.display = 'none';
-              } else {
-                qrFallback();
-              }
-            })
-            .catch(function () {
-              clearTimeout(qrTimeout);
-              qrFallback();
-            });
+
+          var qrLoaderMsg = qrLoader ? qrLoader.querySelector('span') : null;
+          var qrAttempt = 0;
+          var qrMaxAttempts = 6; /* 6 × 5s = 30s total */
+          var qrTimer = null;
+
+          function tryFetchQR() {
+            qrAttempt++;
+            if (qrLoaderMsg) qrLoaderMsg.textContent = qrAttempt > 1 ? 'Still loading… (' + qrAttempt + '/6)' : 'Generating your QR…';
+            fetch(RAILWAY_API + '/api/generate-qr?amount=' + amtRs)
+              .then(function(r) { return r.json(); })
+              .then(function(data) {
+                if (data.success && data.qr_image) {
+                  qrImg.src = data.qr_image;
+                  qrImg.style.display = 'block';
+                  if (qrLoader) qrLoader.style.display = 'none';
+                } else if (qrAttempt < qrMaxAttempts) {
+                  qrTimer = setTimeout(tryFetchQR, 5000);
+                } else {
+                  if (qrLoaderMsg) qrLoaderMsg.textContent = 'QR unavailable — please use COD';
+                }
+              })
+              .catch(function() {
+                if (qrAttempt < qrMaxAttempts) {
+                  qrTimer = setTimeout(tryFetchQR, 5000);
+                } else {
+                  if (qrLoaderMsg) qrLoaderMsg.textContent = 'QR unavailable — please use COD';
+                }
+              });
+          }
+          tryFetchQR();
         }
       } else {
         var desc = document.getElementById('qbpCODDesc');

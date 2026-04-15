@@ -1,68 +1,75 @@
 {% comment %}
   qb-cart-note-sync.liquid
-  Automatically writes QB location picker data into the Shopify cart note.
-  Runs on every page load. Safe — silently skips if no location data exists.
+  Syncs ALL QB user data (profile, location, live GPS, delivery prefs) into the Shopify cart note.
+  Runs on every page load + on location/profile changes. The payment page overwrites this with
+  the full detailed note at checkout time, but this ensures data is never missing.
 {% endcomment %}
 <script>
 (function () {
   'use strict';
 
-  /* ── Read location + delivery data from localStorage ── */
-  function getQBLocation() {
-    try { return JSON.parse(localStorage.getItem('qb_selected_location') || 'null'); } catch (_) { return null; }
-  }
-  function getQBDelivery() {
-    try { return JSON.parse(localStorage.getItem('qb_delivery_time') || 'null'); } catch (_) { return null; }
-  }
+  function lsJson(k) { try { var s = localStorage.getItem(k); return s ? JSON.parse(s) : null; } catch(_) { return null; } }
 
-  /* ── Build a human-readable cart note ── */
-  function buildNote(loc, del) {
+  function buildNote() {
+    var loc     = lsJson('qb_selected_location');
+    var liveLoc = lsJson('qb_live_location');
+    var del     = lsJson('qb_delivery_time');
+    var prof    = lsJson('qb_user_profile');
+    var zone    = lsJson('qb_zone');
+
+    if (!loc && !liveLoc && !prof) return '';
+
     var parts = [];
+
+    if (prof) {
+      var pLine = '👤 Customer: ' + (prof.name || '—');
+      if (prof.phone) pLine += ' · ' + prof.phone;
+      if (prof.email) pLine += ' · ' + prof.email;
+      parts.push(pLine);
+    }
+
     if (loc) {
       var addr = loc.address || loc.street || loc.location || '';
-      var name = loc.recipient_name || loc.name || '';
-      var link = loc.landmark_link || '';
-      if (addr)  parts.push('📍 Delivery Address: ' + addr);
-      if (link && link !== addr) parts.push('🔗 Location Link: ' + link);
-      if (name)  parts.push('👤 Recipient: ' + name);
+      var recip = loc.recipient_name || '';
+      if (addr)  parts.push('📍 Address: ' + addr);
+      if (recip && recip !== (prof && prof.name)) parts.push('🙋 Recipient: ' + recip);
+      if (loc.landmark_link) parts.push('🔗 Link: ' + loc.landmark_link);
       if (loc.latitude && loc.longitude) {
-        parts.push('🗺 Coordinates: ' + parseFloat(loc.latitude).toFixed(5) + ', ' + parseFloat(loc.longitude).toFixed(5));
+        parts.push('🗺 Coords: ' + parseFloat(loc.latitude).toFixed(5) + ', ' + parseFloat(loc.longitude).toFixed(5));
+        parts.push('📌 Map: https://www.google.com/maps?q=' + loc.latitude + ',' + loc.longitude);
       }
+      if (zone && (zone.name || zone.zone)) parts.push('🏘 Zone: ' + (zone.name || zone.zone));
     }
-    if (del) {
-      if (del.range) parts.push('⚡ Est. Delivery: ' + del.range);
+
+    if (liveLoc && liveLoc.latitude && liveLoc.longitude) {
+      parts.push('📡 Live GPS: ' + liveLoc.latitude + ', ' + liveLoc.longitude);
     }
+
+    if (del && del.range) parts.push('⚡ Est. Delivery: ' + del.range);
+
     return parts.join('\n');
   }
 
-  /* ── Push note to Shopify cart via /cart/update.js ── */
   function syncCartNote() {
-    var loc = getQBLocation();
-    var del = getQBDelivery();
-    if (!loc && !del) return; // nothing to sync
-
-    var note = buildNote(loc, del);
+    var note = buildNote();
     if (!note) return;
-
     fetch('/cart/update.js', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body:    JSON.stringify({ note: note })
-    }).catch(function () {}); // silent fail
+    }).catch(function () {});
   }
 
-  /* ── Run on page load + whenever location is updated ── */
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', syncCartNote);
   } else {
     syncCartNote();
   }
 
-  /* Re-sync when user picks a new location */
   window.addEventListener('locationSelected',    syncCartNote);
   window.addEventListener('qb_location_changed', syncCartNote);
+  window.addEventListener('qb_profile_saved',    syncCartNote);
 
-  /* Expose globally so other scripts (laundry booking, etc.) can call it */
   window.qbSyncCartNote = syncCartNote;
 })();
 </script>
