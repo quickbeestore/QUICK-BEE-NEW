@@ -250,6 +250,39 @@ Provides GPS auto-detection with delivery time estimation based on location
   background: linear-gradient(135deg, #00B4D8, #0077B6);
 }
 
+/* Switch-to-self inline chip */
+.qblm-switch-self-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 10px 16px;
+  background: rgba(0,180,216,0.07);
+  border: 1.5px dashed rgba(0,180,216,0.40);
+  border-radius: 12px;
+  color: #0077B6;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+  text-align: left;
+}
+.qblm-switch-self-btn:hover {
+  background: rgba(0,180,216,0.14);
+  border-color: rgba(0,180,216,0.70);
+}
+[data-theme="dark"] .qblm-switch-self-btn,
+body.dark-theme .qblm-switch-self-btn {
+  background: rgba(0,180,216,0.08);
+  border-color: rgba(0,180,216,0.30);
+  color: #00B4D8;
+}
+[data-theme="dark"] .qblm-switch-self-btn:hover,
+body.dark-theme .qblm-switch-self-btn:hover {
+  background: rgba(0,180,216,0.16);
+  border-color: rgba(0,180,216,0.60);
+}
+
 /* Someone else card */
 #qbSomeoneElseBtn { border-color: rgba(255,107,53,0.3); }
 #qbSomeoneElseBtn:hover {
@@ -939,6 +972,14 @@ body.dark-theme .qb-location-guide-dismiss:hover { background: #fff; }
           <div class="qb-detected-check">✓</div>
         </div>
 
+        <!-- Switch to self chip — only shown in someone-else mode -->
+        <div id="qbSwitchToSelfRow" style="display:none; margin-bottom:14px;">
+          <button type="button" id="qbSwitchToSelfBtn" class="qblm-switch-self-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+            Ordering for yourself instead?
+          </button>
+        </div>
+
         <div class="qb-location-form-group" id="qbReceiverNameGroup" style="display: none;">
           <label class="qb-location-form-label">Receiver&apos;s Name *</label>
           <input type="text" class="qb-location-form-input" id="qbReceiverName" placeholder="Enter receiver name">
@@ -1244,6 +1285,10 @@ body.dark-theme .qb-location-guide-dismiss:hover { background: #fff; }
       showGroup(formGroups.lng,           false);  // never shown to user
       showGroup(formGroups.receiverName,   isSE);
       showGroup(formGroups.landmarkLink,   isSE);
+
+      // Show "ordering for yourself instead?" chip only in someone-else mode
+      var switchRow = document.getElementById('qbSwitchToSelfRow');
+      if (switchRow) switchRow.style.display = isSE ? 'block' : 'none';
 
       if (isSE) {
         deliveryInfoEl.style.display = 'none';
@@ -1599,6 +1644,18 @@ body.dark-theme .qb-location-guide-dismiss:hover { background: #fff; }
 
     detectAutoBtn.addEventListener('click',  detectLocation);
     someoneElseBtn.addEventListener('click', orderForSomeoneElse);
+
+    // "Ordering for yourself instead?" — switch from someone-else form to GPS detect
+    var switchToSelfBtn = document.getElementById('qbSwitchToSelfBtn');
+    if (switchToSelfBtn) {
+      switchToSelfBtn.addEventListener('click', function () {
+        // Clear someone-else fields
+        formInputs.receiverName.value = '';
+        formInputs.landmarkLink.value = '';
+        // Jump straight to GPS detection
+        detectLocation();
+      });
+    }
     selectBtn.addEventListener('click',      handleSubmit);
 
     [formInputs.street,
