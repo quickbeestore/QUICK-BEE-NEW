@@ -1115,15 +1115,21 @@ html:not([data-theme]) #qbsc-root {
 
   /* ── Init ── */
   function init() {
-    /* Fast-path: if we previously stored that cart was empty, skip the fetch
-       animation entirely — bar stays hidden with no flash until fetch confirms */
     var cached = 0;
     try { cached = parseInt(localStorage.getItem(LS_KEY) || '0', 10) || 0; } catch(e) {}
 
-    /* If we know cart is empty from last page, pre-hide so even a slow CSS
-       parse doesn't cause a flash (the inline style on #qbsc-bar already does
-       this, but belt-and-suspenders) */
-    if (cached === 0) {
+    if (cached > 0) {
+      /* Cart had items last time — reveal bar instantly (no API wait = no flash) */
+      BAR.style.opacity    = '1';
+      BAR.style.transform  = '';
+      BAR.style.pointerEvents = '';
+      ROOT.classList.remove('qbsc-hidden');
+      /* Lift the inline display:none immediately */
+      ROOT.style.display   = '';
+      ROOT.dataset.scReady = '1';
+      BAR.dataset.scReady  = '1';
+    } else {
+      /* Cart was empty — keep bar hidden, no flash possible */
       ROOT.classList.add('qbsc-hidden');
     }
 
