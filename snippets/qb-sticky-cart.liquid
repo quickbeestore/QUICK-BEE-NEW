@@ -12,7 +12,7 @@
   {% assign is_payment_page = true %}
 {% endif %}
 {% unless is_payment_page %}
-<div id="qbsc-root" class="qbsc-hidden" aria-label="Quick cart">
+<div id="qbsc-root" class="qbsc-hidden" style="display:none" aria-label="Quick cart">
   <!-- Backdrop (shown when panel is open) -->
   <div id="qbsc-backdrop" class="qbsc-backdrop" role="presentation"></div>
 
@@ -964,13 +964,15 @@ html:not([data-theme]) #qbsc-root {
     prevCount = count;
 
     /* ── Unhide root after first render ─────────────────
-       Double-rAF: first frame lets the browser compute the bar's
-       correct position/opacity; second frame makes ROOT visible.
-       This guarantees display:none lifts only after the bar is
-       fully painted at the right state — zero flash. */
+       Clears the server-rendered inline style="display:none" which is
+       the strongest possible guard against flash — inline styles can't
+       be overridden by any CSS.
+       Double-rAF: first frame computes bar's final position/opacity,
+       second frame makes ROOT visible — zero flash regardless of cart state. */
     if (!ROOT.dataset.scReady) {
       requestAnimationFrame(function () {
         requestAnimationFrame(function () {
+          ROOT.style.display   = '';   /* lift the inline display:none */
           ROOT.dataset.scReady = '1';
           BAR.dataset.scReady  = '1';
         });
@@ -988,7 +990,11 @@ html:not([data-theme]) #qbsc-root {
         /* Even on error, unhide root so UI isn't stuck invisible */
         if (!ROOT.dataset.scReady) {
           requestAnimationFrame(function () {
-            requestAnimationFrame(function () { ROOT.dataset.scReady = '1'; BAR.dataset.scReady = '1'; });
+            requestAnimationFrame(function () {
+              ROOT.style.display   = '';
+              ROOT.dataset.scReady = '1';
+              BAR.dataset.scReady  = '1';
+            });
           });
         }
       })
