@@ -146,9 +146,10 @@ html:not([data-theme]) #qbsc-root {
 }
 
 /* ── INVISIBLE UNTIL JS FIRST RENDER — zero flash guarantee ── */
+/* display:none is used instead of visibility:hidden because fixed children
+   with backdrop-filter can still composite/flash through visibility:hidden */
 #qbsc-root:not([data-sc-ready]) {
-  visibility: hidden !important;
-  pointer-events: none !important;
+  display: none !important;
 }
 
 /* ── HIDDEN STATE ── (no items in cart) */
@@ -963,13 +964,16 @@ html:not([data-theme]) #qbsc-root {
     prevCount = count;
 
     /* ── Unhide root after first render ─────────────────
-       requestAnimationFrame fires AFTER the browser paints,
-       so visibility:hidden lifts only once the correct state
-       is already composited — zero flash regardless of cart state. */
+       Double-rAF: first frame lets the browser compute the bar's
+       correct position/opacity; second frame makes ROOT visible.
+       This guarantees display:none lifts only after the bar is
+       fully painted at the right state — zero flash. */
     if (!ROOT.dataset.scReady) {
       requestAnimationFrame(function () {
-        ROOT.dataset.scReady = '1';
-        BAR.dataset.scReady  = '1';
+        requestAnimationFrame(function () {
+          ROOT.dataset.scReady = '1';
+          BAR.dataset.scReady  = '1';
+        });
       });
     }
   }
@@ -983,7 +987,9 @@ html:not([data-theme]) #qbsc-root {
       .catch(function () {
         /* Even on error, unhide root so UI isn't stuck invisible */
         if (!ROOT.dataset.scReady) {
-          requestAnimationFrame(function () { ROOT.dataset.scReady = '1'; BAR.dataset.scReady = '1'; });
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () { ROOT.dataset.scReady = '1'; BAR.dataset.scReady = '1'; });
+          });
         }
       })
       .then(function () { isFetching = false; });
