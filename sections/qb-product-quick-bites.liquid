@@ -1,0 +1,660 @@
+{% comment %}
+  sections/qb-product-quick-bites.liquid
+  Quick Bites product template — food delivery style
+  Used for: Typical Taste, fast food, halal kitchen items
+  Mobile-first · Dark/light theme · Gold accent
+{% endcomment %}
+
+{%- liquid
+  assign product = product
+  assign current_variant = product.selected_or_first_available_variant
+
+  assign is_halal   = false
+  assign is_veg     = false
+  assign is_spicy   = false
+  assign spice_lvl  = ''
+  assign serves     = ''
+  assign prep_time  = '15–20 mins'
+
+  for tag in product.tags
+    assign t = tag | downcase
+    if t == 'halal'
+      assign is_halal = true
+    endif
+    if t == 'vegetarian' or t == 'veg'
+      assign is_veg = true
+    endif
+    if t contains 'spicy'
+      assign is_spicy = true
+    endif
+    if t contains 'spice:'
+      assign spice_lvl = tag | remove: 'spice:'
+    endif
+    if t contains 'serves:'
+      assign serves = tag | remove: 'serves:'
+    endif
+    if t contains 'preptime:'
+      assign prep_time = tag | remove: 'preptime:'
+    endif
+  endfor
+
+  assign food_icon = '🍽️'
+  assign pt = product.type | downcase
+  if pt contains 'momo'
+    assign food_icon = '🥟'
+  elsif pt contains 'burger'
+    assign food_icon = '🍔'
+  elsif pt contains 'grill' or pt contains 'sekuwa'
+    assign food_icon = '🥩'
+  elsif pt contains 'chicken'
+    assign food_icon = '🍗'
+  elsif pt contains 'biryani' or pt contains 'rice'
+    assign food_icon = '🍛'
+  elsif pt contains 'noodle' or pt contains 'thukpa'
+    assign food_icon = '🍜'
+  elsif pt contains 'pizza'
+    assign food_icon = '🍕'
+  elsif pt contains 'snack'
+    assign food_icon = '🍟'
+  elsif pt contains 'soup'
+    assign food_icon = '🍲'
+  elsif pt contains 'dessert' or pt contains 'sweet'
+    assign food_icon = '🍮'
+  elsif pt contains 'drink' or pt contains 'beverage'
+    assign food_icon = '🥤'
+  endif
+-%}
+
+<style>
+/* ══════════════════════════════════════════════════════
+   QB QUICK BITES — Product Page
+   Food-delivery inspired · Mobile-first
+══════════════════════════════════════════════════════ */
+:root {
+  --qb-bg:       #0a0a0a;
+  --qb-card:     #141414;
+  --qb-card2:    #1c1c1c;
+  --qb-border:   rgba(255,255,255,0.07);
+  --qb-text:     #f0f0f0;
+  --qb-text2:    #999999;
+  --qb-gold:     #F4B400;
+  --qb-gold2:    #FFD700;
+  --qb-green:    #22c55e;
+  --qb-red:      #ef4444;
+  --qb-orange:   #f97316;
+  --qb-shadow:   0 8px 32px rgba(0,0,0,0.5);
+}
+html:not([data-theme="dark"]) {
+  --qb-bg:       #FAF7F2;
+  --qb-card:     #FFFFFF;
+  --qb-card2:    #F5F0E8;
+  --qb-border:   rgba(0,0,0,0.08);
+  --qb-text:     #1A1209;
+  --qb-text2:    #6B5A44;
+  --qb-shadow:   0 8px 32px rgba(0,0,0,0.08);
+}
+
+.qbqb-root {
+  background: var(--qb-bg);
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--qb-text);
+  padding-bottom: calc(100px + env(safe-area-inset-bottom));
+}
+
+/* ── Image / Hero ── */
+.qbqb-img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: linear-gradient(135deg, #1a0830, #0d0510);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+html:not([data-theme="dark"]) .qbqb-img-wrap {
+  background: linear-gradient(135deg, #EDE9FE, #FCE7F3);
+}
+.qbqb-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.qbqb-img-fallback {
+  font-size: 80px;
+  filter: drop-shadow(0 4px 20px rgba(0,0,0,0.4));
+}
+.qbqb-delivery-badge {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0,0,0,0.75);
+  color: #F4B400;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 5px 10px;
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+  letter-spacing: 0.3px;
+}
+html:not([data-theme="dark"]) .qbqb-delivery-badge {
+  background: rgba(0,0,0,0.65);
+}
+
+/* ── Content body ── */
+.qbqb-body {
+  padding: 20px 16px;
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+/* ── Badges row ── */
+.qbqb-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.qbqb-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.qbqb-badge--halal  { background: rgba(34,197,94,0.15);  color: #22c55e;  border: 1px solid rgba(34,197,94,0.3); }
+.qbqb-badge--veg    { background: rgba(34,197,94,0.12);  color: #16a34a;  border: 1px solid rgba(22,163,74,0.3); }
+.qbqb-badge--spicy  { background: rgba(239,68,68,0.12);  color: #ef4444;  border: 1px solid rgba(239,68,68,0.3); }
+.qbqb-badge--serves { background: rgba(244,180,0,0.12);  color: #F4B400;  border: 1px solid rgba(244,180,0,0.25); }
+
+/* ── Title & meta ── */
+.qbqb-title {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--qb-text);
+  margin: 0 0 6px;
+  line-height: 1.2;
+  letter-spacing: -0.4px;
+}
+.qbqb-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.qbqb-meta-item {
+  font-size: 12px;
+  color: var(--qb-text2);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+.qbqb-meta-sep { color: var(--qb-border); font-size: 14px; }
+
+/* ── Price ── */
+.qbqb-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.qbqb-price {
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--qb-gold);
+  letter-spacing: -0.5px;
+}
+.qbqb-compare-price {
+  font-size: 16px;
+  color: var(--qb-text2);
+  text-decoration: line-through;
+  font-weight: 500;
+}
+.qbqb-save-badge {
+  font-size: 11px;
+  font-weight: 800;
+  background: rgba(239,68,68,0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239,68,68,0.3);
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+/* ── Description ── */
+.qbqb-desc {
+  font-size: 14px;
+  color: var(--qb-text2);
+  line-height: 1.7;
+  margin-bottom: 22px;
+  padding: 14px;
+  background: var(--qb-card2);
+  border-radius: 14px;
+  border: 1px solid var(--qb-border);
+}
+
+/* ── Variants ── */
+.qbqb-variants-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--qb-text2);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 10px;
+}
+.qbqb-variants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+.qbqb-variant-btn {
+  padding: 9px 18px;
+  border-radius: 12px;
+  border: 1.5px solid var(--qb-border);
+  background: var(--qb-card2);
+  color: var(--qb-text);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.qbqb-variant-btn.active,
+.qbqb-variant-btn:hover {
+  border-color: var(--qb-gold);
+  background: rgba(244,180,0,0.10);
+  color: var(--qb-gold);
+}
+.qbqb-variant-btn.sold-out {
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+/* ── Quantity ── */
+.qbqb-qty-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.qbqb-qty-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--qb-text2);
+}
+.qbqb-qty-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--qb-card2);
+  border: 1.5px solid var(--qb-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.qbqb-qty-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  color: var(--qb-text);
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.qbqb-qty-btn:active { background: rgba(244,180,0,0.10); }
+.qbqb-qty-num {
+  min-width: 36px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--qb-text);
+}
+
+/* ── Add to cart ── */
+.qbqb-atc-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 54px;
+  background: linear-gradient(135deg, #F4B400, #E09800);
+  color: #0a0600;
+  font-size: 16px;
+  font-weight: 900;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  box-shadow: 0 6px 24px rgba(244,180,0,0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.qbqb-atc-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 3px 12px rgba(244,180,0,0.25);
+}
+.qbqb-atc-btn:disabled {
+  background: var(--qb-card2);
+  color: var(--qb-text2);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.qbqb-atc-msg {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--qb-text2);
+  min-height: 20px;
+  transition: color 0.2s;
+}
+.qbqb-atc-msg.success { color: var(--qb-green); }
+.qbqb-atc-msg.error   { color: var(--qb-red); }
+
+/* ── Delivery info strip ── */
+.qbqb-delivery-strip {
+  display: flex;
+  gap: 10px;
+  margin: 22px 0;
+  padding: 14px;
+  background: var(--qb-card);
+  border: 1px solid var(--qb-border);
+  border-radius: 14px;
+}
+.qbqb-delivery-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+.qbqb-delivery-icon { font-size: 20px; }
+.qbqb-delivery-val {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--qb-text);
+}
+.qbqb-delivery-sub {
+  font-size: 10px;
+  color: var(--qb-text2);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.qbqb-delivery-divider {
+  width: 1px;
+  background: var(--qb-border);
+  align-self: stretch;
+}
+
+/* ── Restaurant tag ── */
+.qbqb-restaurant-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--qb-card);
+  border: 1px solid var(--qb-border);
+  border-radius: 14px;
+  margin-bottom: 22px;
+  text-decoration: none;
+}
+.qbqb-restaurant-icon { font-size: 26px; }
+.qbqb-restaurant-info { flex: 1; }
+.qbqb-restaurant-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--qb-text);
+}
+.qbqb-restaurant-sub {
+  font-size: 11px;
+  color: var(--qb-text2);
+  font-weight: 500;
+}
+.qbqb-restaurant-arrow {
+  font-size: 18px;
+  color: var(--qb-text2);
+}
+</style>
+
+<div class="qbqb-root">
+
+  <!-- Product image / hero -->
+  <div class="qbqb-img-wrap">
+    {%- if product.featured_image -%}
+      <img src="{{ product.featured_image | img_url: '800x600', crop: 'center' }}"
+           alt="{{ product.title | escape }}" loading="eager">
+    {%- else -%}
+      <div class="qbqb-img-fallback">{{ food_icon }}</div>
+    {%- endif -%}
+    <div class="qbqb-delivery-badge">⚡ {{ prep_time }}</div>
+  </div>
+
+  <div class="qbqb-body">
+
+    <!-- Badges -->
+    <div class="qbqb-badges">
+      {%- if is_halal -%}
+        <span class="qbqb-badge qbqb-badge--halal">☪ Halal</span>
+      {%- endif -%}
+      {%- if is_veg -%}
+        <span class="qbqb-badge qbqb-badge--veg">🌿 Veg</span>
+      {%- endif -%}
+      {%- if is_spicy -%}
+        <span class="qbqb-badge qbqb-badge--spicy">🌶️ {% if spice_lvl != '' %}{{ spice_lvl }}{% else %}Spicy{% endif %}</span>
+      {%- endif -%}
+      {%- if serves != '' -%}
+        <span class="qbqb-badge qbqb-badge--serves">👥 Serves {{ serves }}</span>
+      {%- endif -%}
+    </div>
+
+    <!-- Title -->
+    <h1 class="qbqb-title">{{ product.title }}</h1>
+
+    <!-- Meta -->
+    <div class="qbqb-meta">
+      <span class="qbqb-meta-item">⭐ 4.9</span>
+      <span class="qbqb-meta-sep">·</span>
+      <span class="qbqb-meta-item">{{ product.type }}</span>
+      {%- if product.vendor != blank -%}
+        <span class="qbqb-meta-sep">·</span>
+        <span class="qbqb-meta-item">{{ product.vendor }}</span>
+      {%- endif -%}
+    </div>
+
+    <!-- Price -->
+    <div class="qbqb-price-row">
+      <span class="qbqb-price" id="qbqbPrice">{{ current_variant.price | money }}</span>
+      {%- if current_variant.compare_at_price > current_variant.price -%}
+        <span class="qbqb-compare-price" id="qbqbOldPrice">{{ current_variant.compare_at_price | money }}</span>
+        {%- assign save_pct = current_variant.compare_at_price | minus: current_variant.price | times: 100 | divided_by: current_variant.compare_at_price -%}
+        <span class="qbqb-save-badge">{{ save_pct }}% OFF</span>
+      {%- endif -%}
+    </div>
+
+    <!-- Description -->
+    {%- if product.description != blank -%}
+      <div class="qbqb-desc">{{ product.description | strip_html }}</div>
+    {%- endif -%}
+
+    <!-- Variants -->
+    {%- if product.variants.size > 1 -%}
+      <div class="qbqb-variants-label">Choose Size / Portion</div>
+      <div class="qbqb-variants" id="qbqbVariants">
+        {%- for v in product.variants -%}
+          <button
+            type="button"
+            class="qbqb-variant-btn{% if v.id == current_variant.id %} active{% endif %}{% unless v.available %} sold-out{% endunless %}"
+            data-vid="{{ v.id }}"
+            data-price="{{ v.price }}"
+            data-compare="{{ v.compare_at_price | default: 0 }}"
+            data-avail="{{ v.available }}"
+            {% unless v.available %}disabled{% endunless %}
+          >{{ v.title }}</button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    <!-- Quantity -->
+    <div class="qbqb-qty-row">
+      <span class="qbqb-qty-label">Qty</span>
+      <div class="qbqb-qty-ctrl">
+        <button type="button" class="qbqb-qty-btn" id="qbqbQtyDec" aria-label="Decrease">−</button>
+        <span class="qbqb-qty-num" id="qbqbQtyNum">1</span>
+        <button type="button" class="qbqb-qty-btn" id="qbqbQtyInc" aria-label="Increase">+</button>
+      </div>
+    </div>
+
+    <!-- Add to Cart -->
+    <button type="button" class="qbqb-atc-btn" id="qbqbAtcBtn"
+      {% unless current_variant.available %}disabled{% endunless %}>
+      🛒 {% if current_variant.available %}Add to Cart{% else %}Sold Out{% endif %}
+    </button>
+    <div class="qbqb-atc-msg" id="qbqbAtcMsg"></div>
+
+    <!-- Delivery info -->
+    <div class="qbqb-delivery-strip">
+      <div class="qbqb-delivery-item">
+        <span class="qbqb-delivery-icon">⚡</span>
+        <span class="qbqb-delivery-val">{{ prep_time }}</span>
+        <span class="qbqb-delivery-sub">Delivery</span>
+      </div>
+      <div class="qbqb-delivery-divider"></div>
+      <div class="qbqb-delivery-item">
+        <span class="qbqb-delivery-icon">🏷️</span>
+        <span class="qbqb-delivery-val">Free</span>
+        <span class="qbqb-delivery-sub">Delivery</span>
+      </div>
+      <div class="qbqb-delivery-divider"></div>
+      <div class="qbqb-delivery-item">
+        <span class="qbqb-delivery-icon">📦</span>
+        <span class="qbqb-delivery-val">Fresh</span>
+        <span class="qbqb-delivery-sub">Packaged</span>
+      </div>
+    </div>
+
+    <!-- Restaurant link -->
+    {%- if product.vendor != blank -%}
+      {%- assign vendor_handle = product.vendor | handleize -%}
+      <a href="/collections/{{ vendor_handle }}" class="qbqb-restaurant-strip">
+        <span class="qbqb-restaurant-icon">{{ food_icon }}</span>
+        <div class="qbqb-restaurant-info">
+          <div class="qbqb-restaurant-name">{{ product.vendor }}</div>
+          <div class="qbqb-restaurant-sub">View full menu →</div>
+        </div>
+        <span class="qbqb-restaurant-arrow">›</span>
+      </a>
+    {%- endif -%}
+
+  </div>
+</div>
+
+<script>
+(function () {
+  var vid    = {{ current_variant.id }};
+  var qty    = 1;
+  var avail  = {{ current_variant.available | json }};
+
+  var priceEl   = document.getElementById('qbqbPrice');
+  var oldPrEl   = document.getElementById('qbqbOldPrice');
+  var atcBtn    = document.getElementById('qbqbAtcBtn');
+  var atcMsg    = document.getElementById('qbqbAtcMsg');
+  var qtyNum    = document.getElementById('qbqbQtyNum');
+  var qtyDec    = document.getElementById('qbqbQtyDec');
+  var qtyInc    = document.getElementById('qbqbQtyInc');
+
+  function fmtMoney(cents) {
+    return 'Rs\u00a0' + Math.round(cents / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function setMsg(text, type) {
+    if (!atcMsg) return;
+    atcMsg.textContent = text;
+    atcMsg.className = 'qbqb-atc-msg' + (type ? ' ' + type : '');
+  }
+
+  /* Variant selection */
+  var variantBtns = document.querySelectorAll('.qbqb-variant-btn');
+  variantBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      vid   = parseInt(btn.dataset.vid, 10);
+      avail = btn.dataset.avail === 'true';
+
+      variantBtns.forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+
+      var price   = parseInt(btn.dataset.price, 10);
+      var compare = parseInt(btn.dataset.compare, 10);
+      if (priceEl) priceEl.textContent = fmtMoney(price);
+      if (oldPrEl) oldPrEl.style.display = (compare > price) ? '' : 'none';
+      if (oldPrEl && compare > price) oldPrEl.textContent = fmtMoney(compare);
+
+      if (atcBtn) {
+        atcBtn.disabled = !avail;
+        atcBtn.textContent = avail ? '🛒 Add to Cart' : '❌ Sold Out';
+      }
+      setMsg('');
+    });
+  });
+
+  /* Quantity */
+  if (qtyDec) qtyDec.addEventListener('click', function () {
+    if (qty > 1) { qty--; if (qtyNum) qtyNum.textContent = qty; }
+  });
+  if (qtyInc) qtyInc.addEventListener('click', function () {
+    qty++; if (qtyNum) qtyNum.textContent = qty;
+  });
+
+  /* Add to cart */
+  if (atcBtn) atcBtn.addEventListener('click', function () {
+    if (!avail || atcBtn.disabled) return;
+    atcBtn.disabled = true;
+    setMsg('Adding…', '');
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ id: vid, quantity: qty })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.status) throw new Error(data.description || 'Error');
+      setMsg('✓ Added to cart!', 'success');
+      document.dispatchEvent(new Event('cart:add'));
+      setTimeout(function () { setMsg(''); }, 3000);
+    })
+    .catch(function (err) {
+      setMsg('⚠ ' + (err.message || 'Could not add. Try again.'), 'error');
+    })
+    .finally(function () {
+      atcBtn.disabled = false;
+    });
+  });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Quick Bites Product",
+  "tag": "section",
+  "class": "qb-product-quick-bites",
+  "settings": [],
+  "presets": [
+    { "name": "Quick Bites Product" }
+  ]
+}
+{% endschema %}
