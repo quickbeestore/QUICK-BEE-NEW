@@ -903,6 +903,39 @@ html:not([data-theme]) #qbsc-root {
     /* Persist count so next page load can skip animation */
     try { localStorage.setItem(LS_KEY, count); } catch(e) {}
 
+    /* ── Order history snapshot ──
+       While cart has items, keep a fresh snapshot so we can record the order
+       the moment the cart is cleared by a successful checkout. */
+    if (count > 0) {
+      try {
+        var items = (cart.items || []).map(function(it) {
+          return { variant_id: it.variant_id || it.id, quantity: it.quantity, title: it.title || it.product_title || '' };
+        });
+        localStorage.setItem('qb_cart_snapshot', JSON.stringify({ items: items, total: Math.round(total / 100), count: count }));
+      } catch(e) {}
+    }
+
+    /* ── Checkout detection ──
+       Cart going from >0 to 0 (not on page-load init) = checkout completed.
+       Save the snapshot as an entry in qb_order_history for the account page. */
+    if (count === 0 && prevCount > 0 && !isInit) {
+      try {
+        var snap = JSON.parse(localStorage.getItem('qb_cart_snapshot') || 'null');
+        if (snap && snap.items && snap.items.length) {
+          var loc = JSON.parse(localStorage.getItem('qb_selected_location') || 'null');
+          var locStr = loc ? (loc.location || loc.address || loc.street || '') : '';
+          var names = snap.items.map(function(it){ return it.title.split(' - ')[0]; }).slice(0,3).join(', ');
+          var summary = snap.count + (snap.count === 1 ? ' item' : ' items') + (names ? ' — ' + names : '');
+          var order = { id: Date.now(), date: new Date().toISOString(), summary: summary, items: snap.items, total: snap.total, status: 'placed', location: locStr };
+          var hist = JSON.parse(localStorage.getItem('qb_order_history') || '[]');
+          hist.unshift(order);
+          if (hist.length > 30) hist = hist.slice(0, 30); /* keep max 30 */
+          localStorage.setItem('qb_order_history', JSON.stringify(hist));
+          localStorage.removeItem('qb_cart_snapshot');
+        }
+      } catch(e) {}
+    }
+
     var countChanged = (prevCount !== -1 && count !== prevCount);
 
     /* Update bar */
