@@ -969,13 +969,20 @@ html:not([data-theme]) #qbsc-root {
       var wasHidden = ROOT.classList.contains('qbsc-hidden');
 
       if (isInit) {
-        /* ── Page load / refresh ──
-           Root is visibility:hidden until requestAnimationFrame fires below.
-           Just set the correct state — no transition suppression needed.  */
+        /* ── Page load / refresh — NO animation, just silently appear ── */
+        BAR.style.transition = 'none';
+        BAR.style.animation  = 'none';
+        BAR.classList.remove('qbsc-enter', 'qbsc-pulse');
         BAR.style.opacity    = '1';
-        BAR.style.transform  = '';
+        BAR.style.transform  = 'translateY(0)';
         BAR.style.pointerEvents = '';
         ROOT.classList.remove('qbsc-hidden');
+        requestAnimationFrame(function(){
+          requestAnimationFrame(function(){
+            BAR.style.transition = '';
+            BAR.style.animation  = '';
+          });
+        });
       } else {
         /* ── Normal (user added item / cart event) ── */
         ROOT.classList.remove('qbsc-hidden');
@@ -1152,17 +1159,25 @@ html:not([data-theme]) #qbsc-root {
     try { cached = parseInt(localStorage.getItem(LS_KEY) || '0', 10) || 0; } catch(e) {}
 
     if (cached > 0) {
-      /* Cart had items last time — reveal bar instantly (no API wait = no flash) */
+      /* Cart had items last time — reveal bar silently with NO transition/animation */
+      BAR.style.transition = 'none';         /* kill slide-up animation */
+      BAR.style.animation  = 'none';         /* kill any enter animation */
       BAR.style.opacity    = '1';
-      BAR.style.transform  = '';
+      BAR.style.transform  = 'translateY(0)';
       BAR.style.pointerEvents = '';
       ROOT.classList.remove('qbsc-hidden');
-      /* Lift the inline display:none immediately */
       ROOT.style.display   = '';
       ROOT.dataset.scReady = '1';
       BAR.dataset.scReady  = '1';
+      /* Re-enable transitions after 2 frames so user-triggered animations still work */
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          BAR.style.transition = '';
+          BAR.style.animation  = '';
+        });
+      });
     } else {
-      /* Cart was empty — keep bar hidden, no flash possible */
+      /* Cart was empty — keep bar hidden */
       ROOT.classList.add('qbsc-hidden');
     }
 
