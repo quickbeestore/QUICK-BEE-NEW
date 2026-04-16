@@ -343,6 +343,16 @@ html,body{overflow:hidden!important;height:100%;background:#000!important;touch-
   text-decoration:none;
 }
 .sw-btn-secondary:active{background:rgba(255,255,255,0.08);}
+.sw-btn-whatsapp{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:14px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,#25D366,#128C7E);
+  color:#fff;font-size:14px;font-weight:800;cursor:pointer;
+  text-decoration:none;touch-action:manipulation;
+  box-shadow:0 4px 20px rgba(37,211,102,0.35);
+  transition:transform .1s,box-shadow .1s;
+}
+.sw-btn-whatsapp:active{transform:scale(0.97);}
 
 /* ── Win history pill row ── */
 .sw-history{
@@ -408,8 +418,8 @@ html,body{overflow:hidden!important;height:100%;background:#000!important;touch-
   <!-- Header -->
   <div class="sw-header">
     <div class="sw-header-brand">
-      <span class="sw-header-bee">🐝</span>
-      <span class="sw-header-name">QuickBee</span>
+      <span class="sw-header-bee">🍶</span>
+      <span class="sw-header-name">Aila Madira</span>
     </div>
     <span class="sw-header-badge">Spin & Win</span>
   </div>
@@ -417,7 +427,7 @@ html,body{overflow:hidden!important;height:100%;background:#000!important;touch-
   <!-- Title -->
   <div class="sw-title-block">
     <div class="sw-title">🎰 Lucky Wheel</div>
-    <div class="sw-subtitle">Real prizes · Instant coupon · Delivered to you</div>
+    <div class="sw-subtitle">Spin · Win · Screenshot · Claim on WhatsApp</div>
     <div class="sw-chip available" id="swChip">
       <span class="sw-chip-dot"></span>
       <span id="swChipText">1 Free Spin Available!</span>
@@ -503,8 +513,12 @@ html,body{overflow:hidden!important;height:100%;background:#000!important;touch-
       <!-- Actions -->
       <div class="sw-actions">
         <button class="sw-btn-primary" id="swCtaBtn" type="button">
-          <span id="swCtaIcon">🎁</span><span id="swCtaText">Claim Reward &amp; Checkout →</span>
+          <span id="swCtaIcon">📸</span><span id="swCtaText">Screenshot &amp; Claim on WhatsApp →</span>
         </button>
+        <div style="text-align:center;font-size:11px;color:rgba(255,255,255,0.4);margin-top:6px;margin-bottom:2px;">Take a screenshot of this screen, then send it on WhatsApp to claim your prize</div>
+        <a class="sw-btn-whatsapp" id="swWhatsappBtn" href="#" target="_blank">
+          <span>💬</span><span>Open WhatsApp to Claim</span>
+        </a>
         <button class="sw-btn-secondary" id="swCloseBtn">Close</button>
       </div>
       <!-- History in sheet -->
@@ -1052,17 +1066,22 @@ function showSheet(s,tryagain){
     voucher.style.display='none';
   }
 
+  /* Reset WhatsApp button */
+  var waBtn=document.getElementById('swWhatsappBtn');
+  waBtn.style.display='none';
+  waBtn.href=buildWALink(s);
+
   var ctaBtn=document.getElementById('swCtaBtn');
   ctaBtn.disabled=false;
   if(tryagain||!s.code){
-    document.getElementById('swCtaIcon').textContent='🛍️';
-    document.getElementById('swCtaText').textContent='Browse Deals →';
-    ctaBtn.style.background='linear-gradient(135deg,#333,#222)';
-    ctaBtn.style.color='rgba(255,255,255,0.7)';
-    ctaBtn.style.boxShadow='none';
+    document.getElementById('swCtaIcon').textContent='💬';
+    document.getElementById('swCtaText').textContent='Chat on WhatsApp →';
+    ctaBtn.style.background='linear-gradient(135deg,#25D366,#128C7E)';
+    ctaBtn.style.color='#fff';
+    ctaBtn.style.boxShadow='0 4px 20px rgba(37,211,102,0.35)';
   } else {
-    document.getElementById('swCtaIcon').textContent='🎁';
-    document.getElementById('swCtaText').textContent='Claim Reward & Checkout →';
+    document.getElementById('swCtaIcon').textContent='📸';
+    document.getElementById('swCtaText').textContent='Screenshot & Claim on WhatsApp →';
     ctaBtn.style.background='';ctaBtn.style.color='';ctaBtn.style.boxShadow='';
   }
 
@@ -1257,77 +1276,39 @@ canvas.addEventListener('touchend',function(e){
 document.getElementById('swCloseBtn').addEventListener('click',closeSheet);
 overlay.addEventListener('click',function(e){if(e.target===overlay)closeSheet();});
 
-/* ── Claim & Checkout flow ── */
+/* ── WhatsApp Claim flow ── */
+var WA_NUMBER = '9779704015190'; /* Nepal +977 */
 var currentWinSeg=null; /* set when sheet opens */
+
+function buildWALink(s){
+  var date=new Date().toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});
+  var msg;
+  if(s.type==='lose'){
+    msg='Hi! I just spun the Aila Madira Lucky Wheel and got "Better Luck Tomorrow". I\'d like to try again tomorrow! 🎰';
+  } else {
+    msg='🎰 I won on the Aila Madira Lucky Wheel!\n\n'
+      +'🏆 Prize: '+s.prize+'\n'
+      +'🏷️ Code: '+s.code+'\n'
+      +'📅 Won on: '+date+'\n\n'
+      +'Please help me claim this prize! (Screenshot attached)';
+  }
+  return 'https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent(msg);
+}
 
 document.getElementById('swCtaBtn').addEventListener('click',function(){
   if(!currentWinSeg) return;
   var s=currentWinSeg;
-
-  /* If "Try Again" / no code — just go to collections */
   if(s.type==='lose'||!s.code){
-    closeSheet();
-    window.location.href='/collections/all';
+    /* Directly open WhatsApp for lose */
+    window.open(buildWALink(s),'_blank');
     return;
   }
-
-  /* Start loading state */
-  var btn=document.getElementById('swCtaBtn');
-  btn.disabled=true;
-  document.getElementById('swCtaIcon').textContent='⏳';
-  document.getElementById('swCtaText').textContent='Processing…';
-
-  /* Step 1 — fetch spin-the-wheel product to get variant ID */
-  fetch('/products/spin-the-wheel.js')
-    .then(function(r){return r.json();})
-    .then(function(prod){
-      var variantId=prod.variants[0].id;
-
-      /* Step 2 — add to cart with prize as line item property */
-      return fetch('/cart/add.js',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          items:[{
-            id:variantId,
-            quantity:1,
-            properties:{
-              '🎁 Prize Won':s.prize,
-              '🏷️ Coupon Code':s.code,
-              '📅 Won On':new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}),
-              '_source':'QuickBee Lucky Wheel'
-            }
-          }]
-        })
-      });
-    })
-    .then(function(r){return r.json();})
-    .then(function(){
-      /* Step 3 — update cart note with prize details */
-      var noteExtra='\n\n🎰 LUCKY WHEEL WIN\n'
-        +'  Prize  : '+s.prize+'\n'
-        +'  Code   : '+s.code+'\n'
-        +'  Won On : '+new Date().toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});
-
-      return fetch('/cart/update.js',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({note:noteExtra})
-      });
-    })
-    .then(function(){
-      document.getElementById('swCtaIcon').textContent='✓';
-      document.getElementById('swCtaText').textContent='Redirecting to checkout…';
-      /* Step 4 — go to checkout with discount code pre-applied */
-      setTimeout(function(){
-        window.location.href='/checkout?discount='+encodeURIComponent(s.code);
-      },400);
-    })
-    .catch(function(err){
-      console.error('Spin claim error:',err);
-      /* Fallback: just go to checkout with discount */
-      window.location.href='/checkout?discount='+encodeURIComponent(s.code);
-    });
+  /* Win: show screenshot instruction then reveal WA button */
+  document.getElementById('swCtaIcon').textContent='📸';
+  document.getElementById('swCtaText').textContent='Take a screenshot now, then send below!';
+  var waBtn=document.getElementById('swWhatsappBtn');
+  waBtn.href=buildWALink(s);
+  waBtn.style.display='flex';
 });
 
 /* ═══════════════════════════════════════════
