@@ -1,338 +1,817 @@
+{% comment %} QuickBee Spin The Wheel — Premium 2026 Edition {% endcomment %}
+
 <style>
-  :root {
-    --sw-gold: #D4AF37;
-    --sw-dark-gold: #B8860B;
-    --sw-black: #1A1A1A;
-    --sw-dark-gray: #222222;
-    --sw-wheel-size: clamp(320px, 90vmin, 550px);
-    --sw-segments: 8;
-    --sw-segment-angle: calc(360deg / var(--sw-segments));
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-  /* --- Base Setup & Full-Screen Container --- */
-  .spin-wheel-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: var(--sw-black);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    overflow: hidden;
-    z-index: 100;
-  }
-  
-  /* Hide theme header/footer for a truly full-screen experience */
-  #shopify-section-header, 
-  #shopify-section-footer,
-  .shopify-section-header,
-  .shopify-section-footer {
-    display: none !important;
-  }
-  body {
-    overflow: hidden !important;
-  }
+/* ── Hide theme chrome ── */
+#shopify-section-header,header.site-header,.site-header,
+#shopify-section-footer,footer.site-footer,.site-footer,
+.qb-ticker,.qb-trust-bar,.qb-sticky-cart-bar,
+#qbsc-root,[id*="announcement"],[class*="announcement"]{display:none!important}
+body,html{overflow:hidden!important;background:#000!important}
 
-  /* --- Wheel Wrapper & Pointer --- */
-  .sw-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+/* ── Root ── */
+.qbsw-root{
+  position:fixed;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,#1a1000 0%,#0a0800 40%,#000 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  overflow:hidden;z-index:9999;
+}
 
-  .sw-pointer {
-    position: absolute;
-    top: -15px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    border-top: 30px solid var(--sw-gold);
-    z-index: 10;
-    filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.5));
-  }
+/* ── Stars bg ── */
+.qbsw-stars{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.qbsw-star{
+  position:absolute;border-radius:50%;background:#fff;
+  animation:qbswTwinkle var(--d,3s) var(--delay,0s) ease-in-out infinite alternate;
+}
+@keyframes qbswTwinkle{0%{opacity:.1;transform:scale(1)}100%{opacity:.9;transform:scale(1.4)}}
 
-  /* --- The Wheel --- */
-  .sw-wheel {
-    width: var(--sw-wheel-size);
-    height: var(--sw-wheel-size);
-    position: relative;
-    border-radius: 50%;
-    border: 10px solid var(--sw-gold);
-    box-shadow: 0 0 25px rgba(0,0,0,0.7), inset 0 0 20px rgba(0,0,0,0.5);
-    background: conic-gradient(
-      from 0deg,
-      var(--sw-dark-gray) 0deg var(--sw-segment-angle),
-      var(--sw-black) var(--sw-segment-angle) calc(var(--sw-segment-angle) * 2),
-      var(--sw-dark-gray) calc(var(--sw-segment-angle) * 2) calc(var(--sw-segment-angle) * 3),
-      var(--sw-black) calc(var(--sw-segment-angle) * 3) calc(var(--sw-segment-angle) * 4),
-      var(--sw-dark-gray) calc(var(--sw-segment-angle) * 4) calc(var(--sw-segment-angle) * 5),
-      var(--sw-black) calc(var(--sw-segment-angle) * 5) calc(var(--sw-segment-angle) * 6),
-      var(--sw-dark-gray) calc(var(--sw-segment-angle) * 6) calc(var(--sw-segment-angle) * 7),
-      var(--sw-black) calc(var(--sw-segment-angle) * 7) calc(var(--sw-segment-angle) * 8)
-    );
-    transition: transform 6s cubic-bezier(0.1, 0.7, 0.3, 1);
-  }
+/* ── Header ── */
+.qbsw-header{
+  text-align:center;margin-bottom:16px;position:relative;z-index:2;
+}
+.qbsw-logo{
+  font-size:13px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;
+  color:rgba(244,180,0,0.6);margin-bottom:6px;
+}
+.qbsw-title{
+  font-size:clamp(22px,5vw,32px);font-weight:900;
+  background:linear-gradient(135deg,#FFD700 0%,#F4B400 40%,#FFA500 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  letter-spacing:-0.5px;line-height:1.1;
+}
+.qbsw-sub{
+  font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px;letter-spacing:0.05em;
+}
+.qbsw-spins-left{
+  display:inline-flex;align-items:center;gap:5px;margin-top:8px;
+  font-size:11px;font-weight:700;color:rgba(244,180,0,0.8);
+  background:rgba(244,180,0,0.1);border:1px solid rgba(244,180,0,0.2);
+  padding:4px 12px;border-radius:99px;letter-spacing:0.05em;
+}
 
-  /* --- Segments & Text --- */
-  .sw-segment {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-  }
+/* ── Wheel zone ── */
+.qbsw-wheel-zone{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  z-index:2;
+}
 
-  .sw-segment-label {
-    position: absolute;
-    top: 10%;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #fff;
-    font-weight: bold;
-    font-size: clamp(12px, 3.5vmin, 18px);
-    text-align: center;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
-    max-width: 80%;
-    word-wrap: break-word;
-  }
+/* ── Pointer ── */
+.qbsw-pointer{
+  position:absolute;top:-8px;left:50%;transform:translateX(-50%);
+  z-index:20;filter:drop-shadow(0 0 8px rgba(244,180,0,0.9));
+}
 
-  /* --- Spin Button --- */
-  .sw-spin-btn {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 20%;
-    height: 20%;
-    border-radius: 50%;
-    background: var(--sw-dark-gold);
-    border: 5px solid var(--sw-gold);
-    color: white;
-    font-weight: bold;
-    font-size: clamp(16px, 5vmin, 28px);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    z-index: 5;
-    transition: background-color 0.2s, transform 0.2s;
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.5), inset 0 0 10px rgba(0,0,0,0.5);
-  }
+/* ── Outer glow ring ── */
+.qbsw-glow-ring{
+  position:absolute;border-radius:50%;
+  box-shadow:0 0 40px 8px rgba(244,180,0,0.25),0 0 80px 20px rgba(244,180,0,0.1);
+  pointer-events:none;
+}
 
-  .sw-spin-btn:hover:not(:disabled) {
-    background: var(--sw-gold);
-  }
-  
-  .sw-spin-btn:active:not(:disabled) {
-    transform: translate(-50%, -50%) scale(0.95);
-  }
+/* ── Canvas wheel ── */
+#qbswCanvas{
+  display:block;border-radius:50%;
+  filter:drop-shadow(0 0 20px rgba(244,180,0,0.3));
+  cursor:pointer;
+  transition:filter .3s;
+}
+#qbswCanvas:hover{filter:drop-shadow(0 0 30px rgba(244,180,0,0.5));}
 
-  .sw-spin-btn:disabled {
-    cursor: not-allowed;
-    background: #555;
-    color: #999;
-    border-color: #777;
-    box-shadow: none;
-  }
-  
-  .sw-wheel.spinning {
-      transition-timing-function: cubic-bezier(0.2, 0.8, 0.7, 1);
-  }
+/* ── Center button ── */
+.qbsw-center-btn{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:clamp(64px,15%,88px);height:clamp(64px,15%,88px);
+  border-radius:50%;border:none;cursor:pointer;
+  background:radial-gradient(circle at 35% 35%,#ffe566,#F4B400 50%,#B8860B 100%);
+  box-shadow:0 0 0 4px #0a0800,0 0 0 7px rgba(244,180,0,0.4),0 8px 24px rgba(0,0,0,0.6);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:0;z-index:15;
+  transition:transform .12s,box-shadow .12s;
+  -webkit-tap-highlight-color:transparent;
+}
+.qbsw-center-btn:active{transform:translate(-50%,-50%) scale(0.93);}
+.qbsw-center-btn:disabled{
+  background:radial-gradient(circle,#444,#222);cursor:not-allowed;
+  box-shadow:0 0 0 4px #0a0800,0 0 0 7px rgba(255,255,255,0.1);
+}
+.qbsw-btn-icon{font-size:clamp(18px,4%,26px);line-height:1;}
+.qbsw-btn-text{
+  font-size:clamp(9px,2%,11px);font-weight:900;color:#0a0600;
+  letter-spacing:0.1em;text-transform:uppercase;line-height:1;margin-top:2px;
+}
+.qbsw-center-btn:disabled .qbsw-btn-text{color:#888;}
+.qbsw-center-btn:disabled .qbsw-btn-icon{opacity:0.4;}
 
-  /* --- Result Modal --- */
-  .sw-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 101;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s, visibility 0.3s;
-  }
+/* ── Tick indicator dots ── */
+.qbsw-ticks{
+  position:absolute;inset:-22px;border-radius:50%;pointer-events:none;z-index:18;
+}
 
-  .sw-modal-overlay.visible {
-    opacity: 1;
-    visibility: visible;
-  }
-  
-  .sw-modal-content {
-    background: var(--sw-black);
-    border: 3px solid var(--sw-gold);
-    border-radius: 10px;
-    padding: 40px;
-    text-align: center;
-    box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
-    transform: scale(0.8);
-    transition: transform 0.3s ease-out;
-  }
+/* ── Modal overlay ── */
+.qbsw-modal{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.85);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:10000;
+  opacity:0;visibility:hidden;
+  transition:opacity .35s,visibility .35s;
+}
+.qbsw-modal.show{opacity:1;visibility:visible;}
 
-  .sw-modal-overlay.visible .sw-modal-content {
-    transform: scale(1);
-  }
+.qbsw-modal-card{
+  background:linear-gradient(145deg,#131000,#1e1600,#131000);
+  border:2px solid rgba(244,180,0,0.4);
+  border-radius:28px;padding:36px 28px;text-align:center;
+  max-width:340px;width:90%;
+  box-shadow:0 0 0 1px rgba(244,180,0,0.1),0 40px 80px rgba(0,0,0,0.8),0 0 60px rgba(244,180,0,0.1);
+  transform:scale(0.8) translateY(20px);
+  transition:transform .35s cubic-bezier(0.34,1.56,0.64,1);
+  position:relative;overflow:hidden;
+}
+.qbsw-modal.show .qbsw-modal-card{transform:scale(1) translateY(0);}
+.qbsw-modal-card::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;
+  background:radial-gradient(ellipse at 50% 0%,rgba(244,180,0,0.08),transparent 60%);
+  pointer-events:none;
+}
 
-  .sw-modal-content h2 {
-    color: var(--sw-gold);
-    font-size: 2em;
-    margin: 0 0 10px 0;
-  }
+.qbsw-modal-emoji{font-size:64px;line-height:1;margin-bottom:12px;display:block;animation:qbswBounce .6s .2s cubic-bezier(0.34,1.56,0.64,1) both;}
+@keyframes qbswBounce{0%{transform:scale(0.3) rotate(-15deg)}100%{transform:scale(1) rotate(0deg)}}
 
-  .sw-modal-content p {
-    font-size: 1.2em;
-    margin: 0 0 25px 0;
-  }
+.qbsw-modal-tag{
+  font-size:10px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;
+  color:rgba(244,180,0,0.6);margin-bottom:6px;
+}
+.qbsw-modal-heading{
+  font-size:26px;font-weight:900;
+  background:linear-gradient(135deg,#FFD700,#F4B400);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:4px;
+}
+.qbsw-modal-prize{
+  font-size:20px;font-weight:800;color:#fff;margin-bottom:6px;
+}
+.qbsw-modal-desc{
+  font-size:12px;color:rgba(255,255,255,0.45);line-height:1.5;margin-bottom:20px;
+}
 
-  .sw-modal-close-btn {
-    background: var(--sw-gold);
-    border: none;
-    color: var(--sw-black);
-    padding: 10px 25px;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
+/* Coupon box */
+.qbsw-coupon{
+  background:rgba(244,180,0,0.08);border:1.5px dashed rgba(244,180,0,0.35);
+  border-radius:12px;padding:12px 16px;margin-bottom:20px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.qbsw-coupon-label{font-size:10px;color:rgba(244,180,0,0.6);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
+.qbsw-coupon-code{font-size:20px;font-weight:900;color:#F4B400;letter-spacing:0.08em;font-family:monospace;}
+.qbsw-coupon-copy{
+  background:rgba(244,180,0,0.15);border:1px solid rgba(244,180,0,0.3);
+  border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;
+  color:#F4B400;cursor:pointer;white-space:nowrap;
+  transition:background .15s;
+}
+.qbsw-coupon-copy:hover{background:rgba(244,180,0,0.25);}
+.qbsw-coupon-copy.copied{color:#4ade80;border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.1);}
 
-  .sw-modal-close-btn:hover {
-    background: var(--sw-dark-gold);
-  }
+.qbsw-modal-cta{
+  display:block;width:100%;padding:14px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,#F4B400,#e0a000);
+  color:#0a0600;font-size:15px;font-weight:900;cursor:pointer;
+  letter-spacing:0.02em;
+  box-shadow:0 4px 20px rgba(244,180,0,0.3);
+  transition:transform .1s,box-shadow .1s;
+  text-decoration:none;
+}
+.qbsw-modal-cta:active{transform:scale(0.97);box-shadow:0 2px 10px rgba(244,180,0,0.2);}
+
+.qbsw-modal-spin-again{
+  display:block;margin-top:12px;font-size:12px;color:rgba(255,255,255,0.35);
+  cursor:pointer;text-decoration:underline;background:none;border:none;
+  transition:color .15s;
+}
+.qbsw-modal-spin-again:hover{color:rgba(255,255,255,0.65);}
+
+/* ── Confetti canvas ── */
+#qbswConfetti{
+  position:fixed;inset:0;pointer-events:none;z-index:11000;
+}
+
+/* ── Try Again modal variant ── */
+.qbsw-modal-card.tryagain{
+  background:linear-gradient(145deg,#0d0d0d,#1a1a1a,#0d0d0d);
+  border-color:rgba(255,255,255,0.1);
+}
+.qbsw-modal-card.tryagain .qbsw-modal-heading{
+  background:linear-gradient(135deg,#888,#aaa);
+  -webkit-background-clip:text;background-clip:text;
+}
+
+/* ── Bottom hint ── */
+.qbsw-hint{
+  position:absolute;bottom:20px;left:0;right:0;text-align:center;
+  font-size:11px;color:rgba(255,255,255,0.2);letter-spacing:0.05em;
+}
+
+/* Mobile tweaks */
+@media(max-height:700px){
+  .qbsw-header{margin-bottom:8px;}
+  .qbsw-title{font-size:20px;}
+}
 </style>
 
-<div class="spin-wheel-container">
-  <div class="sw-wrapper">
-    <div class="sw-pointer"></div>
-    <div class="sw-wheel" id="spin-wheel">
-      <!-- Segments will be populated by JavaScript -->
+<!-- Stars -->
+<div class="qbsw-root" id="qbswRoot">
+  <div class="qbsw-stars" id="qbswStars"></div>
+
+  <!-- Header -->
+  <div class="qbsw-header">
+    <div class="qbsw-logo">⚡ QuickBee</div>
+    <div class="qbsw-title">Spin &amp; Win!</div>
+    <div class="qbsw-sub">One spin a day · Real prizes · Instant reward</div>
+    <div class="qbsw-spins-left" id="qbswSpinsLeft">🎯 1 Spin Available Today</div>
+  </div>
+
+  <!-- Wheel -->
+  <div class="qbsw-wheel-zone" id="qbswZone">
+    <!-- Gold glow ring (sized by JS) -->
+    <div class="qbsw-glow-ring" id="qbswGlowRing"></div>
+
+    <!-- Pointer arrow -->
+    <div class="qbsw-pointer">
+      <svg width="28" height="36" viewBox="0 0 28 36">
+        <polygon points="14,36 0,0 28,0" fill="#F4B400"/>
+        <polygon points="14,30 4,4 24,4" fill="#FFD700" opacity="0.5"/>
+      </svg>
     </div>
-    <button class="sw-spin-btn" id="spin-button">SPIN</button>
+
+    <!-- Canvas wheel -->
+    <canvas id="qbswCanvas"></canvas>
+
+    <!-- Center spin button -->
+    <button class="qbsw-center-btn" id="qbswBtn" aria-label="Spin the wheel">
+      <span class="qbsw-btn-icon">🎰</span>
+      <span class="qbsw-btn-text">SPIN</span>
+    </button>
+  </div>
+
+  <div class="qbsw-hint">Tap the center button or the wheel to spin</div>
+</div>
+
+<!-- Result Modal -->
+<div class="qbsw-modal" id="qbswModal">
+  <div class="qbsw-modal-card" id="qbswModalCard">
+    <span class="qbsw-modal-emoji" id="qbswModalEmoji">🎉</span>
+    <div class="qbsw-modal-tag" id="qbswModalTag">You Won!</div>
+    <div class="qbsw-modal-heading" id="qbswModalHeading">Congratulations!</div>
+    <div class="qbsw-modal-prize" id="qbswModalPrize">Free Delivery</div>
+    <div class="qbsw-modal-desc" id="qbswModalDesc">Use your coupon code at checkout</div>
+    <div class="qbsw-coupon" id="qbswCoupon">
+      <div>
+        <div class="qbsw-coupon-label">Coupon Code</div>
+        <div class="qbsw-coupon-code" id="qbswCouponCode">FREE28</div>
+      </div>
+      <button class="qbsw-coupon-copy" id="qbswCopyBtn">Copy</button>
+    </div>
+    <a class="qbsw-modal-cta" href="/collections/all" id="qbswCta">Shop Now &amp; Claim →</a>
+    <button class="qbsw-modal-spin-again" id="qbswSpinAgainBtn">Close</button>
   </div>
 </div>
 
-<div class="sw-modal-overlay" id="result-modal">
-  <div class="sw-modal-content">
-    <h2 id="modal-title">Congratulations!</h2>
-    <p>You won: <strong id="modal-prize"></strong></p>
-    <button class="sw-modal-close-btn" id="modal-close-button">Claim Prize</button>
-  </div>
-</div>
-
+<!-- Confetti canvas -->
+<canvas id="qbswConfetti"></canvas>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const wheel = document.getElementById('spin-wheel');
-  const spinBtn = document.getElementById('spin-button');
-  const resultModal = document.getElementById('result-modal');
-  const modalPrize = document.getElementById('modal-prize');
-  const modalTitle = document.getElementById('modal-title');
-  const modalCloseBtn = document.getElementById('modal-close-button');
+(function(){
+'use strict';
 
-  const rewards = [
-    "Free Delivery",
-    "Biryani",
-    "Leg Piece x2",
-    "Tuborg 650ml",
-    "Gorkha 650ml",
-    "JD Shot",
-    "Jager Shot",
-    "Try Again"
-  ];
-  
-  const numSegments = rewards.length;
-  const segmentAngle = 360 / numSegments;
-  let currentRotation = 0;
-  let isSpinning = false;
+/* ─────────────────────────────────────────
+   SEGMENT DATA
+───────────────────────────────────────── */
+var SEGMENTS = [
+  {
+    label:'FREE\nDelivery', emoji:'🎁',
+    outerColor:'#0D5C2E', innerColor:'#1a8f48',
+    code:'FREE28', cta:'/collections/all',
+    desc:'Apply FREE28 at checkout — free delivery on your next order!',
+    type:'win', weight:15
+  },
+  {
+    label:'Chicken\nBiryani', emoji:'🍛',
+    outerColor:'#7A1515', innerColor:'#b82020',
+    code:'BIRYANI50', cta:'/collections/typical-taste',
+    desc:'50% off on Chicken Biryani. Valid today only!',
+    type:'win', weight:10
+  },
+  {
+    label:'Leg Piece\nx2', emoji:'🍗',
+    outerColor:'#3D1278', innerColor:'#6a1fd4',
+    code:'LEGPIECE', cta:'/collections/typical-taste',
+    desc:'Get 2 Leg Pieces FREE with your next food order!',
+    type:'win', weight:10
+  },
+  {
+    label:'Tuborg\n650ml', emoji:'🍺',
+    outerColor:'#0B3D6B', innerColor:'#1565c0',
+    code:'TUBORG20', cta:'/collections/beer',
+    desc:'Rs 20 off on Tuborg 650ml. Ice cold, delivered fast.',
+    type:'win', weight:12
+  },
+  {
+    label:'Gorkha\n650ml', emoji:'🏔️',
+    outerColor:'#5C3200', innerColor:'#964f00',
+    code:'GORKHA20', cta:'/collections/beer',
+    desc:'Rs 20 off on Gorkha 650ml. Nepal\'s pride, delivered.',
+    type:'win', weight:12
+  },
+  {
+    label:'JD Shot\n50ml', emoji:'🥃',
+    outerColor:'#1A4A3A', innerColor:'#2d7a60',
+    code:'JDSHOT', cta:'/collections/whiskey',
+    desc:'Free JD Shot with your next spirits order!',
+    type:'win', weight:8
+  },
+  {
+    label:'Jager\nShot', emoji:'🦌',
+    outerColor:'#4A0D2E', innerColor:'#7a1550',
+    code:'JAGER', cta:'/collections/all',
+    desc:'Free Jagermeister Shot with your next order!',
+    type:'win', weight:8
+  },
+  {
+    label:'Try\nAgain', emoji:'😅',
+    outerColor:'#1a1a1a', innerColor:'#2e2e2e',
+    code:null, cta:null,
+    desc:'No luck this time! Come back tomorrow for another spin.',
+    type:'lose', weight:25
+  }
+];
 
-  // --- Populate Wheel Segments ---
-  rewards.forEach((reward, i) => {
-    const angle = segmentAngle * i;
-    const segment = document.createElement('div');
-    segment.className = 'sw-segment';
-    
-    const label = document.createElement('span');
-    label.className = 'sw-segment-label';
-    label.textContent = reward;
-    
-    // Rotate the segment container and the text inside
-    const rotation = `rotate(${angle + segmentAngle / 2}deg)`;
-    segment.style.transform = rotation;
-    
-    segment.appendChild(label);
-    wheel.appendChild(segment);
+var NUM = SEGMENTS.length;
+var SPIN_DURATION = 5500; /* ms */
+var LS_KEY = 'qbsw_last_spin';
+
+/* ─────────────────────────────────────────
+   DOM refs
+───────────────────────────────────────── */
+var canvas    = document.getElementById('qbswCanvas');
+var ctx       = canvas.getContext('2d');
+var btn       = document.getElementById('qbswBtn');
+var modal     = document.getElementById('qbswModal');
+var modalCard = document.getElementById('qbswModalCard');
+var confetti  = document.getElementById('qbswConfetti');
+var cctx      = confetti.getContext('2d');
+var zone      = document.getElementById('qbswZone');
+var glow      = document.getElementById('qbswGlowRing');
+var spinsEl   = document.getElementById('qbswSpinsLeft');
+
+/* ─────────────────────────────────────────
+   SIZING
+───────────────────────────────────────── */
+var SIZE, R, CX, CY;
+function resize(){
+  var vw = window.innerWidth, vh = window.innerHeight;
+  var headerH = document.querySelector('.qbsw-header').offsetHeight;
+  var available = Math.min(vw - 32, vh - headerH - 120);
+  SIZE = Math.max(240, Math.min(available, 440));
+  R = SIZE / 2;
+  CX = R; CY = R;
+  canvas.width  = SIZE;
+  canvas.height = SIZE;
+  canvas.style.width  = SIZE + 'px';
+  canvas.style.height = SIZE + 'px';
+  glow.style.width  = (SIZE + 44) + 'px';
+  glow.style.height = (SIZE + 44) + 'px';
+  glow.style.left = '-22px';
+  glow.style.top  = '-22px';
+  drawWheel(currentAngle);
+}
+window.addEventListener('resize', resize);
+
+/* ─────────────────────────────────────────
+   DRAW WHEEL
+───────────────────────────────────────── */
+var currentAngle = 0; /* radians, total accumulated */
+
+function drawWheel(angle){
+  ctx.clearRect(0,0,SIZE,SIZE);
+  var sliceAngle = (Math.PI * 2) / NUM;
+
+  SEGMENTS.forEach(function(seg, i){
+    var startA = angle + sliceAngle * i - Math.PI/2;
+    var endA   = startA + sliceAngle;
+    var midA   = startA + sliceAngle / 2;
+
+    /* Gradient fill */
+    var grd = ctx.createRadialGradient(CX,CY,R*0.1,CX,CY,R*0.98);
+    grd.addColorStop(0, seg.innerColor);
+    grd.addColorStop(1, seg.outerColor);
+
+    ctx.beginPath();
+    ctx.moveTo(CX, CY);
+    ctx.arc(CX, CY, R - 5, startA, endA);
+    ctx.closePath();
+    ctx.fillStyle = grd;
+    ctx.fill();
+
+    /* Divider lines */
+    ctx.beginPath();
+    ctx.moveTo(CX, CY);
+    ctx.arc(CX, CY, R - 5, startA, endA);
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(244,180,0,0.4)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    /* Text */
+    ctx.save();
+    ctx.translate(CX, CY);
+    ctx.rotate(midA);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    /* Shadow */
+    ctx.shadowColor = 'rgba(0,0,0,0.8)';
+    ctx.shadowBlur = 4;
+
+    /* Emoji */
+    var emojiSize = Math.max(14, R * 0.13);
+    ctx.font = emojiSize + 'px serif';
+    ctx.fillText(seg.emoji, R * 0.62, 0);
+
+    /* Label lines */
+    ctx.shadowBlur = 3;
+    ctx.fillStyle = '#fff';
+    var lines = seg.label.split('\n');
+    var fontSize = Math.max(9, Math.min(13, R * 0.075));
+    ctx.font = 'bold ' + fontSize + 'px -apple-system,sans-serif';
+    var lineH = fontSize + 2;
+    var textX = R * 0.31;
+    lines.forEach(function(line, li){
+      var offsetY = (li - (lines.length-1)/2) * lineH;
+      ctx.fillText(line, textX, offsetY);
+    });
+
+    ctx.restore();
   });
 
-  // --- Spin Logic ---
-  spinBtn.addEventListener('click', () => {
-    if (isSpinning) return;
-    isSpinning = true;
-    spinBtn.disabled = true;
-    wheel.classList.add('spinning');
+  /* Outer gold ring */
+  ctx.beginPath();
+  ctx.arc(CX, CY, R - 3, 0, Math.PI*2);
+  ctx.strokeStyle = '#F4B400';
+  ctx.lineWidth = 6;
+  ctx.shadowColor = 'rgba(244,180,0,0.6)';
+  ctx.shadowBlur = 12;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
 
-    // Calculate a new random rotation
-    // Add multiple full spins for visual effect + random final position
-    const randomDegrees = Math.random() * 360;
-    const fullSpins = 5;
-    const spinAmount = (fullSpins * 360) + randomDegrees;
-    currentRotation += spinAmount;
+  /* Inner hub circle */
+  var hubR = R * 0.13;
+  var hubGrd = ctx.createRadialGradient(CX,CY,0,CX,CY,hubR);
+  hubGrd.addColorStop(0,'#0a0800');
+  hubGrd.addColorStop(1,'#1a1200');
+  ctx.beginPath();
+  ctx.arc(CX, CY, hubR, 0, Math.PI*2);
+  ctx.fillStyle = hubGrd;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(244,180,0,0.5)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
 
-    wheel.style.transform = `rotate(${currentRotation}deg)`;
-  });
+/* ─────────────────────────────────────────
+   SPIN LOGIC
+───────────────────────────────────────── */
+var isSpinning = false;
+var spinStart, spinFrom, spinTarget, winIndex;
+var audioCtx = null;
 
-  // --- Handle End of Spin ---
-  wheel.addEventListener('transitionend', () => {
-    isSpinning = false;
-    spinBtn.disabled = false;
-    wheel.classList.remove('spinning');
+function getAudioCtx(){
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){}
+  }
+  return audioCtx;
+}
 
-    const finalAngle = currentRotation % 360;
-    // We align the pointer at the top (0deg), so we need to find what segment lands there
-    const normalizedAngle = (360 - finalAngle) % 360;
-    const winningIndex = Math.floor(normalizedAngle / segmentAngle);
-    const prize = rewards[winningIndex];
+function playTick(){
+  var ac = getAudioCtx();
+  if(!ac) return;
+  try{
+    var osc = ac.createOscillator();
+    var gain = ac.createGain();
+    osc.connect(gain); gain.connect(ac.destination);
+    osc.frequency.value = 880;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.08, ac.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.06);
+    osc.start(ac.currentTime);
+    osc.stop(ac.currentTime + 0.06);
+  }catch(e){}
+}
 
-    showResult(prize);
-  });
-  
-  // --- Modal Logic ---
-  function showResult(prize) {
-    modalPrize.textContent = prize;
-    if (prize === "Try Again") {
-      modalTitle.textContent = "Better Luck Next Time!";
-    } else {
-      modalTitle.textContent = "Congratulations!";
-    }
-    resultModal.classList.add('visible');
+function easeOut(t){ return 1 - Math.pow(1-t, 4); }
+
+var lastTickSegment = -1;
+
+function animateSpin(ts){
+  if(!spinStart) spinStart = ts;
+  var elapsed = ts - spinStart;
+  var progress = Math.min(elapsed / SPIN_DURATION, 1);
+  var eased = easeOut(progress);
+
+  currentAngle = spinFrom + (spinTarget - spinFrom) * eased;
+  drawWheel(currentAngle);
+
+  /* Tick sound */
+  var sliceAngle = (Math.PI * 2) / NUM;
+  var normalized = ((currentAngle % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
+  var seg = Math.floor(normalized / sliceAngle);
+  if(seg !== lastTickSegment){
+    var speedFactor = 1 - progress;
+    if(speedFactor > 0.08) playTick();
+    lastTickSegment = seg;
   }
 
-  modalCloseBtn.addEventListener('click', () => {
-    resultModal.classList.remove('visible');
-  });
+  if(progress < 1){
+    requestAnimationFrame(animateSpin);
+  } else {
+    onSpinEnd();
+  }
+}
 
-  resultModal.addEventListener('click', (e) => {
-    if (e.target === resultModal) {
-      resultModal.classList.remove('visible');
-    }
-  });
+function onSpinEnd(){
+  isSpinning = false;
+  /* Save spin date */
+  try{ localStorage.setItem(LS_KEY, new Date().toDateString()); }catch(e){}
+  updateSpinsLeft();
+
+  var seg = SEGMENTS[winIndex];
+  if(seg.type === 'win'){
+    launchConfetti();
+    showModal(seg);
+  } else {
+    showTryAgain(seg);
+  }
+}
+
+function spin(){
+  if(isSpinning) return;
+
+  /* Check daily limit */
+  var lastSpin = '';
+  try{ lastSpin = localStorage.getItem(LS_KEY)||''; }catch(e){}
+  if(lastSpin === new Date().toDateString()){
+    showAlreadySpun(); return;
+  }
+
+  isSpinning = true;
+  btn.disabled = true;
+  spinStart = null;
+  spinFrom = currentAngle;
+
+  /* Weighted random pick */
+  winIndex = weightedRandom();
+
+  /* Calculate target angle so winning segment lands at top pointer */
+  var sliceAngle = (Math.PI * 2) / NUM;
+  /* Pointer is at -PI/2 (top). We want midpoint of winIndex segment to land there. */
+  /* midAngle of segment i = sliceAngle * i + sliceAngle/2 (before rotation offset) */
+  /* After rotation angle, segment midAngle = angle + sliceAngle*i + sliceAngle/2 */
+  /* We want angle + sliceAngle*winIndex + sliceAngle/2 ≡ -PI/2 (mod 2PI) */
+  var targetOffset = -Math.PI/2 - (sliceAngle * winIndex + sliceAngle/2);
+  /* Normalize */
+  targetOffset = ((targetOffset % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
+  /* Add multiple full spins */
+  var fullSpins = 6 + Math.floor(Math.random()*3);
+  spinTarget = spinFrom - (spinFrom % (Math.PI*2)) + (Math.PI*2) * fullSpins + targetOffset;
+  /* Ensure we always spin forward a lot */
+  if(spinTarget - spinFrom < Math.PI*2*4) spinTarget += Math.PI*2*4;
+
+  requestAnimationFrame(animateSpin);
+}
+
+function weightedRandom(){
+  var total = SEGMENTS.reduce(function(s,g){return s+g.weight;},0);
+  var r = Math.random()*total;
+  var acc = 0;
+  for(var i=0;i<SEGMENTS.length;i++){
+    acc += SEGMENTS[i].weight;
+    if(r<=acc) return i;
+  }
+  return SEGMENTS.length-1;
+}
+
+/* ─────────────────────────────────────────
+   MODAL
+───────────────────────────────────────── */
+function showModal(seg){
+  modalCard.classList.remove('tryagain');
+  document.getElementById('qbswModalEmoji').textContent = seg.emoji;
+  document.getElementById('qbswModalTag').textContent = '🎉 You Won!';
+  document.getElementById('qbswModalHeading').textContent = 'Congratulations!';
+  document.getElementById('qbswModalPrize').textContent = seg.label.replace('\n',' ');
+  document.getElementById('qbswModalDesc').textContent = seg.desc;
+
+  var couponDiv = document.getElementById('qbswCoupon');
+  var cta = document.getElementById('qbswCta');
+  if(seg.code){
+    document.getElementById('qbswCouponCode').textContent = seg.code;
+    couponDiv.style.display = 'flex';
+    cta.href = seg.cta || '/collections/all';
+    cta.textContent = 'Shop Now & Claim →';
+    cta.style.display = 'block';
+  } else {
+    couponDiv.style.display = 'none';
+    cta.style.display = 'none';
+  }
+
+  document.getElementById('qbswSpinAgainBtn').textContent = 'Close';
+  modal.classList.add('show');
+}
+
+function showTryAgain(seg){
+  modalCard.classList.add('tryagain');
+  document.getElementById('qbswModalEmoji').textContent = seg.emoji;
+  document.getElementById('qbswModalTag').textContent = 'Better luck next time';
+  document.getElementById('qbswModalHeading').textContent = 'Try Again Tomorrow!';
+  document.getElementById('qbswModalPrize').textContent = 'No prize this time';
+  document.getElementById('qbswModalDesc').textContent = seg.desc;
+  document.getElementById('qbswCoupon').style.display = 'none';
+  var cta = document.getElementById('qbswCta');
+  cta.style.display = 'block';
+  cta.href = '/collections/all';
+  cta.textContent = 'Shop Anyway →';
+  document.getElementById('qbswSpinAgainBtn').textContent = 'Close';
+  modal.classList.add('show');
+}
+
+function showAlreadySpun(){
+  modalCard.classList.remove('tryagain');
+  document.getElementById('qbswModalEmoji').textContent = '⏰';
+  document.getElementById('qbswModalTag').textContent = 'Come back tomorrow';
+  document.getElementById('qbswModalHeading').textContent = 'Already Spun!';
+  document.getElementById('qbswModalPrize').textContent = 'One spin per day';
+  document.getElementById('qbswModalDesc').textContent = 'You\'ve already used your spin today. Come back tomorrow for another chance to win!';
+  document.getElementById('qbswCoupon').style.display = 'none';
+  var cta = document.getElementById('qbswCta');
+  cta.style.display = 'block';
+  cta.href = '/collections/all';
+  cta.textContent = 'Shop Now →';
+  document.getElementById('qbswSpinAgainBtn').textContent = 'Close';
+  modal.classList.add('show');
+}
+
+function closeModal(){
+  modal.classList.remove('show');
+  stopConfetti();
+  if(!isSpinning) btn.disabled = false;
+}
+
+/* ─────────────────────────────────────────
+   COPY COUPON
+───────────────────────────────────────── */
+document.getElementById('qbswCopyBtn').addEventListener('click', function(){
+  var code = document.getElementById('qbswCouponCode').textContent;
+  var btn2 = this;
+  try{
+    navigator.clipboard.writeText(code).then(function(){
+      btn2.textContent = 'Copied!';
+      btn2.classList.add('copied');
+      setTimeout(function(){ btn2.textContent='Copy'; btn2.classList.remove('copied'); },2000);
+    });
+  }catch(e){
+    /* fallback */
+    var ta = document.createElement('textarea');
+    ta.value = code; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    btn2.textContent = 'Copied!'; btn2.classList.add('copied');
+    setTimeout(function(){ btn2.textContent='Copy'; btn2.classList.remove('copied'); },2000);
+  }
 });
+
+/* ─────────────────────────────────────────
+   CONFETTI
+───────────────────────────────────────── */
+var confettiParts = [];
+var confettiRAF = null;
+var COLORS = ['#F4B400','#FFD700','#ff6b6b','#4ade80','#60a5fa','#a78bfa','#fb923c','#fff'];
+
+function launchConfetti(){
+  confetti.width  = window.innerWidth;
+  confetti.height = window.innerHeight;
+  confettiParts = [];
+  for(var i=0;i<120;i++){
+    confettiParts.push({
+      x: Math.random()*confetti.width,
+      y: -10 - Math.random()*40,
+      w: 6+Math.random()*8, h: 10+Math.random()*10,
+      color: COLORS[Math.floor(Math.random()*COLORS.length)],
+      vx: -3+Math.random()*6, vy: 2+Math.random()*5,
+      rot: Math.random()*360, rotV: -5+Math.random()*10,
+      life: 1
+    });
+  }
+  if(confettiRAF) cancelAnimationFrame(confettiRAF);
+  animateConfetti();
+}
+
+function animateConfetti(){
+  cctx.clearRect(0,0,confetti.width,confetti.height);
+  var alive = false;
+  confettiParts.forEach(function(p){
+    if(p.y > confetti.height + 20 || p.life<=0) return;
+    alive = true;
+    p.x += p.vx; p.y += p.vy; p.vy += 0.12;
+    p.rot += p.rotV; p.life -= 0.006;
+    cctx.save();
+    cctx.translate(p.x,p.y);
+    cctx.rotate(p.rot*Math.PI/180);
+    cctx.globalAlpha = Math.min(1, p.life*3);
+    cctx.fillStyle = p.color;
+    cctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+    cctx.restore();
+  });
+  if(alive) confettiRAF = requestAnimationFrame(animateConfetti);
+  else stopConfetti();
+}
+
+function stopConfetti(){
+  if(confettiRAF){ cancelAnimationFrame(confettiRAF); confettiRAF=null; }
+  cctx.clearRect(0,0,confetti.width,confetti.height);
+}
+
+/* ─────────────────────────────────────────
+   STARS background
+───────────────────────────────────────── */
+(function(){
+  var starsDiv = document.getElementById('qbswStars');
+  for(var i=0;i<60;i++){
+    var s=document.createElement('div');
+    s.className='qbsw-star';
+    var size=(Math.random()*2.5+0.5).toFixed(1);
+    s.style.cssText='width:'+size+'px;height:'+size+'px;'
+      +'left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;'
+      +'--d:'+(2+Math.random()*4).toFixed(1)+'s;--delay:'+(Math.random()*4).toFixed(1)+'s;'
+      +'opacity:'+Math.random().toFixed(2)+';';
+    starsDiv.appendChild(s);
+  }
+})();
+
+/* ─────────────────────────────────────────
+   SPINS LEFT
+───────────────────────────────────────── */
+function updateSpinsLeft(){
+  var last='';
+  try{last=localStorage.getItem(LS_KEY)||'';}catch(e){}
+  var hasSpun = (last===new Date().toDateString());
+  spinsEl.textContent = hasSpun ? '🔒 Used today — Come back tomorrow!' : '🎯 1 Spin Available Today';
+  if(hasSpun) btn.disabled = true;
+}
+
+/* ─────────────────────────────────────────
+   EVENTS
+───────────────────────────────────────── */
+btn.addEventListener('click', spin);
+canvas.addEventListener('click', spin);
+document.getElementById('qbswSpinAgainBtn').addEventListener('click', closeModal);
+document.getElementById('qbswCta').addEventListener('click', function(){
+  closeModal();
+});
+modal.addEventListener('click', function(e){
+  if(e.target===modal) closeModal();
+});
+
+/* ─────────────────────────────────────────
+   INIT
+───────────────────────────────────────── */
+resize();
+updateSpinsLeft();
+/* Initial gentle idle rotation */
+var idleAngle = 0;
+var idleRAF;
+function idleRotate(){
+  if(isSpinning) return;
+  idleAngle += 0.0008;
+  currentAngle = idleAngle;
+  drawWheel(currentAngle);
+  idleRAF = requestAnimationFrame(idleRotate);
+}
+idleRotate();
+
+/* Stop idle on first spin */
+var origSpin = spin;
+btn.addEventListener('click', function(){ if(idleRAF){cancelAnimationFrame(idleRAF);idleRAF=null;} }, true);
+canvas.addEventListener('click', function(){ if(idleRAF){cancelAnimationFrame(idleRAF);idleRAF=null;} }, true);
+
+})();
 </script>
 
 {% schema %}
 {
-  "name": "Spin Wheel",
+  "name": "Spin the Wheel",
   "settings": []
 }
 {% endschema %}
