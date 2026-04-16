@@ -1,810 +1,1263 @@
-{% comment %} QuickBee Spin The Wheel — Premium 2026 Edition {% endcomment %}
-
+{% comment %} QuickBee — Spin The Wheel Premium Mobile Edition 2026 {% endcomment %}
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{overflow:hidden!important;height:100%;background:#000!important;touch-action:none;}
+#shopify-section-header,.site-header,header[class*="header"],
+#shopify-section-footer,.site-footer,footer[class*="footer"],
+.qb-ticker,.qb-trust-bar,#qbsc-root,.qb-timebox,
+[class*="announcement"],[id*="announcement"]{display:none!important;}
 
-/* ── Hide theme chrome ── */
-#shopify-section-header,header.site-header,.site-header,
-#shopify-section-footer,footer.site-footer,.site-footer,
-.qb-ticker,.qb-trust-bar,.qb-sticky-cart-bar,
-#qbsc-root,[id*="announcement"],[class*="announcement"]{display:none!important}
-body,html{overflow:hidden!important;background:#000!important}
-
-/* ── Root ── */
-.qbsw-root{
+/* ═══════════════════════════════════════════
+   ROOT
+═══════════════════════════════════════════ */
+.sw{
   position:fixed;inset:0;
-  background:radial-gradient(ellipse at 50% 0%,#1a1000 0%,#0a0800 40%,#000 100%);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  overflow:hidden;z-index:9999;
+  background:#000;
+  display:flex;flex-direction:column;align-items:center;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;
+  z-index:9999;overflow:hidden;
+  user-select:none;-webkit-user-select:none;
 }
 
-/* ── Stars bg ── */
-.qbsw-stars{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
-.qbsw-star{
-  position:absolute;border-radius:50%;background:#fff;
-  animation:qbswTwinkle var(--d,3s) var(--delay,0s) ease-in-out infinite alternate;
+/* Animated bg */
+.sw-bg{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%,rgba(244,180,0,0.18) 0%,transparent 70%),
+    radial-gradient(ellipse 60% 40% at 50% 110%,rgba(244,180,0,0.08) 0%,transparent 60%),
+    #080600;
 }
-@keyframes qbswTwinkle{0%{opacity:.1;transform:scale(1)}100%{opacity:.9;transform:scale(1.4)}}
+.sw-bg-pulse{
+  position:absolute;width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(244,180,0,0.06) 0%,transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  animation:swPulse 3s ease-in-out infinite;
+}
+@keyframes swPulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.5}50%{transform:translate(-50%,-50%) scale(1.4);opacity:1}}
 
-/* ── Header ── */
-.qbsw-header{
-  text-align:center;margin-bottom:16px;position:relative;z-index:2;
+/* Stars */
+.sw-star{
+  position:absolute;border-radius:50%;background:#fff;pointer-events:none;
+  animation:swTwinkle var(--d) var(--dl) ease-in-out infinite alternate;
 }
-.qbsw-logo{
-  font-size:13px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;
-  color:rgba(244,180,0,0.6);margin-bottom:6px;
+@keyframes swTwinkle{0%{opacity:.05}100%{opacity:.7}}
+
+/* ═══════════════════════════════════════════
+   HEADER BAR
+═══════════════════════════════════════════ */
+.sw-header{
+  width:100%;padding:env(safe-area-inset-top,12px) 20px 0;
+  display:flex;align-items:center;justify-content:space-between;
+  position:relative;z-index:5;flex-shrink:0;
+  padding-top:calc(env(safe-area-inset-top,0px) + 12px);
 }
-.qbsw-title{
-  font-size:clamp(22px,5vw,32px);font-weight:900;
-  background:linear-gradient(135deg,#FFD700 0%,#F4B400 40%,#FFA500 100%);
+.sw-header-brand{
+  display:flex;align-items:center;gap:7px;
+}
+.sw-header-bee{font-size:22px;line-height:1;}
+.sw-header-name{
+  font-size:16px;font-weight:900;letter-spacing:-0.3px;
+  background:linear-gradient(135deg,#FFD700,#F4B400);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  letter-spacing:-0.5px;line-height:1.1;
 }
-.qbsw-sub{
-  font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px;letter-spacing:0.05em;
-}
-.qbsw-spins-left{
-  display:inline-flex;align-items:center;gap:5px;margin-top:8px;
-  font-size:11px;font-weight:700;color:rgba(244,180,0,0.8);
-  background:rgba(244,180,0,0.1);border:1px solid rgba(244,180,0,0.2);
-  padding:4px 12px;border-radius:99px;letter-spacing:0.05em;
+.sw-header-badge{
+  font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
+  color:#0a0600;background:#F4B400;border-radius:99px;
+  padding:3px 9px;
 }
 
-/* ── Wheel zone ── */
-.qbsw-wheel-zone{
-  position:relative;display:flex;align-items:center;justify-content:center;
-  z-index:2;
+/* ═══════════════════════════════════════════
+   TITLE SECTION
+═══════════════════════════════════════════ */
+.sw-title-block{
+  text-align:center;flex-shrink:0;
+  padding:10px 20px 6px;position:relative;z-index:5;
+}
+.sw-title{
+  font-size:clamp(24px,6vw,34px);font-weight:900;letter-spacing:-0.5px;line-height:1;
+  background:linear-gradient(135deg,#FFFFFF 0%,#FFD700 50%,#F4B400 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.sw-subtitle{
+  font-size:12px;color:rgba(255,255,255,0.38);margin-top:4px;letter-spacing:0.04em;
 }
 
-/* ── Pointer ── */
-.qbsw-pointer{
-  position:absolute;top:-8px;left:50%;transform:translateX(-50%);
-  z-index:20;filter:drop-shadow(0 0 8px rgba(244,180,0,0.9));
+/* ═══════════════════════════════════════════
+   SPIN AVAILABILITY CHIP
+═══════════════════════════════════════════ */
+.sw-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 14px;border-radius:99px;
+  font-size:11px;font-weight:800;letter-spacing:0.04em;
+  margin:4px 0 0;
+  transition:all .3s;
+}
+.sw-chip.available{
+  background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);color:#4ade80;
+}
+.sw-chip.used{
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.35);
+}
+.sw-chip-dot{
+  width:6px;height:6px;border-radius:50%;flex-shrink:0;
+}
+.sw-chip.available .sw-chip-dot{background:#4ade80;animation:swDotPulse 1.2s ease infinite;}
+.sw-chip.used .sw-chip-dot{background:rgba(255,255,255,0.2);}
+@keyframes swDotPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.6}}
+
+/* ═══════════════════════════════════════════
+   WHEEL ZONE
+═══════════════════════════════════════════ */
+.sw-wheel-zone{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  position:relative;width:100%;min-height:0;
+  padding:4px 0;
 }
 
-/* ── Outer glow ring ── */
-.qbsw-glow-ring{
-  position:absolute;border-radius:50%;
-  box-shadow:0 0 40px 8px rgba(244,180,0,0.25),0 0 80px 20px rgba(244,180,0,0.1);
-  pointer-events:none;
+/* Outer decorative ring with tick marks */
+.sw-ring-outer{
+  position:absolute;border-radius:50%;pointer-events:none;
+  border:2px solid rgba(244,180,0,0.15);
+  box-shadow:
+    0 0 0 1px rgba(244,180,0,0.06),
+    inset 0 0 0 1px rgba(244,180,0,0.06),
+    0 0 50px 10px rgba(244,180,0,0.12),
+    0 0 100px 30px rgba(244,180,0,0.06);
 }
 
-/* ── Canvas wheel ── */
-#qbswCanvas{
-  display:block;border-radius:50%;
-  filter:drop-shadow(0 0 20px rgba(244,180,0,0.3));
-  cursor:pointer;
+/* Pointer */
+.sw-pointer{
+  position:absolute;z-index:20;pointer-events:none;
+  top:0;left:50%;transform:translateX(-50%) translateY(-2px);
+  filter:drop-shadow(0 0 10px rgba(244,180,0,1)) drop-shadow(0 2px 6px rgba(0,0,0,.8));
+}
+
+/* Canvas */
+#swCanvas{
+  display:block;border-radius:50%;position:relative;z-index:3;
   transition:filter .3s;
+  touch-action:none;cursor:pointer;
 }
-#qbswCanvas:hover{filter:drop-shadow(0 0 30px rgba(244,180,0,0.5));}
+.sw-wheel-zone.spinning #swCanvas{
+  filter:drop-shadow(0 0 30px rgba(244,180,0,.5));
+}
 
-/* ── Center button ── */
-.qbsw-center-btn{
-  position:absolute;top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  width:clamp(64px,15%,88px);height:clamp(64px,15%,88px);
-  border-radius:50%;border:none;cursor:pointer;
-  background:radial-gradient(circle at 35% 35%,#ffe566,#F4B400 50%,#B8860B 100%);
-  box-shadow:0 0 0 4px #0a0800,0 0 0 7px rgba(244,180,0,0.4),0 8px 24px rgba(0,0,0,0.6);
+/* Center button */
+.sw-center{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  z-index:15;border-radius:50%;border:none;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:0;z-index:15;
-  transition:transform .12s,box-shadow .12s;
+  cursor:pointer;touch-action:manipulation;
+  background:radial-gradient(circle at 38% 32%,#ffe566 0%,#F4B400 45%,#c8930a 75%,#a07000 100%);
+  transition:transform .1s,filter .1s,box-shadow .1s;
   -webkit-tap-highlight-color:transparent;
 }
-.qbsw-center-btn:active{transform:translate(-50%,-50%) scale(0.93);}
-.qbsw-center-btn:disabled{
-  background:radial-gradient(circle,#444,#222);cursor:not-allowed;
-  box-shadow:0 0 0 4px #0a0800,0 0 0 7px rgba(255,255,255,0.1);
+.sw-center:active{transform:translate(-50%,-50%) scale(0.91)!important;}
+.sw-center:disabled{
+  background:radial-gradient(circle,#3a3a3a,#1a1a1a);cursor:not-allowed;
+  filter:none!important;
 }
-.qbsw-btn-icon{font-size:clamp(18px,4%,26px);line-height:1;}
-.qbsw-btn-text{
-  font-size:clamp(9px,2%,11px);font-weight:900;color:#0a0600;
-  letter-spacing:0.1em;text-transform:uppercase;line-height:1;margin-top:2px;
+.sw-center-icon{line-height:1;display:block;}
+.sw-center-label{
+  font-weight:900;color:#0a0600;letter-spacing:0.08em;text-transform:uppercase;
+  display:block;line-height:1;margin-top:2px;
 }
-.qbsw-center-btn:disabled .qbsw-btn-text{color:#888;}
-.qbsw-center-btn:disabled .qbsw-btn-icon{opacity:0.4;}
+.sw-center:disabled .sw-center-icon,.sw-center:disabled .sw-center-label{opacity:.35;}
 
-/* ── Tick indicator dots ── */
-.qbsw-ticks{
-  position:absolute;inset:-22px;border-radius:50%;pointer-events:none;z-index:18;
+/* "Tap to spin" hint ring animation */
+.sw-hint-ring{
+  position:absolute;top:50%;left:50%;border-radius:50%;
+  border:2px solid rgba(244,180,0,0.4);pointer-events:none;z-index:14;
+  animation:swHintRing 2s ease-out infinite;
+  transform:translate(-50%,-50%) scale(1);
+}
+@keyframes swHintRing{
+  0%{transform:translate(-50%,-50%) scale(1);opacity:.8}
+  100%{transform:translate(-50%,-50%) scale(1.9);opacity:0}
+}
+.sw-hint-ring:nth-child(2){animation-delay:.7s;}
+
+/* Swipe hint */
+.sw-swipe-hint{
+  position:absolute;bottom:8px;left:0;right:0;
+  text-align:center;font-size:10px;color:rgba(255,255,255,.2);
+  letter-spacing:0.06em;pointer-events:none;z-index:5;
 }
 
-/* ── Modal overlay ── */
-.qbsw-modal{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,0.85);
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  display:flex;align-items:center;justify-content:center;
-  z-index:10000;
-  opacity:0;visibility:hidden;
-  transition:opacity .35s,visibility .35s;
+/* ═══════════════════════════════════════════
+   BOTTOM SHEET MODAL
+═══════════════════════════════════════════ */
+.sw-sheet-overlay{
+  position:fixed;inset:0;z-index:10000;
+  background:rgba(0,0,0,0);pointer-events:none;
+  transition:background .35s;
 }
-.qbsw-modal.show{opacity:1;visibility:visible;}
+.sw-sheet-overlay.show{
+  background:rgba(0,0,0,0.75);pointer-events:all;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+.sw-sheet{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(180deg,#111000 0%,#0a0800 100%);
+  border-radius:28px 28px 0 0;
+  border-top:1px solid rgba(244,180,0,0.2);
+  border-left:1px solid rgba(244,180,0,0.08);
+  border-right:1px solid rgba(244,180,0,0.08);
+  padding:0 0 env(safe-area-inset-bottom,20px);
+  transform:translateY(110%);
+  transition:transform .45s cubic-bezier(0.34,1.4,0.64,1);
+  box-shadow:0 -20px 80px rgba(0,0,0,.9),0 -4px 30px rgba(244,180,0,.08);
+  overflow:hidden;
+  max-height:92vh;
+  display:flex;flex-direction:column;
+}
+.sw-sheet-overlay.show .sw-sheet{transform:translateY(0);}
 
-.qbsw-modal-card{
-  background:linear-gradient(145deg,#131000,#1e1600,#131000);
-  border:2px solid rgba(244,180,0,0.4);
-  border-radius:28px;padding:36px 28px;text-align:center;
-  max-width:340px;width:90%;
-  box-shadow:0 0 0 1px rgba(244,180,0,0.1),0 40px 80px rgba(0,0,0,0.8),0 0 60px rgba(244,180,0,0.1);
-  transform:scale(0.8) translateY(20px);
-  transition:transform .35s cubic-bezier(0.34,1.56,0.64,1);
-  position:relative;overflow:hidden;
+/* Handle bar */
+.sw-sheet-handle{
+  width:36px;height:4px;border-radius:2px;
+  background:rgba(255,255,255,0.15);
+  margin:12px auto 0;flex-shrink:0;
 }
-.qbsw-modal.show .qbsw-modal-card{transform:scale(1) translateY(0);}
-.qbsw-modal-card::before{
-  content:'';position:absolute;inset:0;border-radius:inherit;
-  background:radial-gradient(ellipse at 50% 0%,rgba(244,180,0,0.08),transparent 60%);
+
+/* Sheet top glow */
+.sw-sheet-glow{
+  position:absolute;top:-60px;left:50%;transform:translateX(-50%);
+  width:200px;height:120px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(244,180,0,0.25) 0%,transparent 70%);
   pointer-events:none;
 }
 
-.qbsw-modal-emoji{font-size:64px;line-height:1;margin-bottom:12px;display:block;animation:qbswBounce .6s .2s cubic-bezier(0.34,1.56,0.64,1) both;}
-@keyframes qbswBounce{0%{transform:scale(0.3) rotate(-15deg)}100%{transform:scale(1) rotate(0deg)}}
+.sw-sheet-scroll{overflow-y:auto;flex:1;}
 
-.qbsw-modal-tag{
-  font-size:10px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;
-  color:rgba(244,180,0,0.6);margin-bottom:6px;
+/* ── Prize header ── */
+.sw-sheet-hero{
+  text-align:center;padding:20px 24px 16px;position:relative;
 }
-.qbsw-modal-heading{
-  font-size:26px;font-weight:900;
+.sw-sheet-emoji-wrap{
+  width:80px;height:80px;border-radius:24px;
+  margin:0 auto 14px;display:flex;align-items:center;justify-content:center;
+  font-size:44px;line-height:1;
+  position:relative;
+}
+.sw-sheet-emoji-bg{
+  position:absolute;inset:0;border-radius:inherit;
+  animation:swEmojiPop .5s .1s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes swEmojiPop{0%{transform:scale(0.3) rotate(-20deg);opacity:0}100%{transform:scale(1) rotate(0deg);opacity:1}}
+.sw-sheet-emoji{position:relative;z-index:1;animation:swEmojiPop .5s .15s cubic-bezier(0.34,1.56,0.64,1) both;}
+
+.sw-sheet-tag{
+  font-size:10px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;
+  margin-bottom:5px;
+}
+.sw-sheet-heading{
+  font-size:26px;font-weight:900;letter-spacing:-0.4px;line-height:1.1;
   background:linear-gradient(135deg,#FFD700,#F4B400);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   margin-bottom:4px;
 }
-.qbsw-modal-prize{
-  font-size:20px;font-weight:800;color:#fff;margin-bottom:6px;
+.sw-sheet-prize{
+  font-size:17px;font-weight:800;color:#fff;margin-bottom:4px;
 }
-.qbsw-modal-desc{
-  font-size:12px;color:rgba(255,255,255,0.45);line-height:1.5;margin-bottom:20px;
+.sw-sheet-desc{
+  font-size:12px;color:rgba(255,255,255,0.38);line-height:1.55;
 }
 
-/* Coupon box */
-.qbsw-coupon{
-  background:rgba(244,180,0,0.08);border:1.5px dashed rgba(244,180,0,0.35);
-  border-radius:12px;padding:12px 16px;margin-bottom:20px;
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
+/* ── Voucher card ── */
+.sw-voucher{
+  margin:12px 20px;border-radius:20px;overflow:hidden;
+  position:relative;
 }
-.qbsw-coupon-label{font-size:10px;color:rgba(244,180,0,0.6);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
-.qbsw-coupon-code{font-size:20px;font-weight:900;color:#F4B400;letter-spacing:0.08em;font-family:monospace;}
-.qbsw-coupon-copy{
-  background:rgba(244,180,0,0.15);border:1px solid rgba(244,180,0,0.3);
-  border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;
-  color:#F4B400;cursor:pointer;white-space:nowrap;
-  transition:background .15s;
+.sw-voucher-inner{
+  background:linear-gradient(135deg,rgba(244,180,0,0.12),rgba(244,180,0,0.05));
+  border:1.5px dashed rgba(244,180,0,0.4);
+  border-radius:20px;padding:16px 18px;
+  display:flex;align-items:center;gap:12px;
+  position:relative;
 }
-.qbsw-coupon-copy:hover{background:rgba(244,180,0,0.25);}
-.qbsw-coupon-copy.copied{color:#4ade80;border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.1);}
+/* Notch effect */
+.sw-voucher-inner::before,.sw-voucher-inner::after{
+  content:'';position:absolute;width:20px;height:20px;border-radius:50%;
+  background:#0a0800;top:50%;transform:translateY(-50%);
+}
+.sw-voucher-inner::before{left:-10px;}
+.sw-voucher-inner::after{right:-10px;}
 
-.qbsw-modal-cta{
-  display:block;width:100%;padding:14px;border-radius:14px;border:none;
-  background:linear-gradient(135deg,#F4B400,#e0a000);
-  color:#0a0600;font-size:15px;font-weight:900;cursor:pointer;
+.sw-voucher-left{flex:1;min-width:0;}
+.sw-voucher-label{
+  font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+  color:rgba(244,180,0,0.55);margin-bottom:4px;
+}
+.sw-voucher-code{
+  font-size:24px;font-weight:900;color:#F4B400;
+  font-family:'SF Mono',Menlo,monospace;letter-spacing:0.06em;
+  line-height:1;
+}
+.sw-voucher-valid{
+  font-size:10px;color:rgba(255,255,255,0.3);margin-top:3px;
+}
+.sw-copy-btn{
+  flex-shrink:0;padding:10px 16px;border-radius:12px;
+  background:rgba(244,180,0,0.15);border:1.5px solid rgba(244,180,0,0.3);
+  font-size:12px;font-weight:800;color:#F4B400;cursor:pointer;
+  transition:all .15s;touch-action:manipulation;white-space:nowrap;
+}
+.sw-copy-btn.done{
+  background:rgba(74,222,128,0.1);border-color:rgba(74,222,128,0.35);color:#4ade80;
+}
+
+/* ── Stats row ── */
+.sw-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:8px;margin:0 20px 16px;
+}
+.sw-stat-card{
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
+  border-radius:14px;padding:11px 8px;text-align:center;
+}
+.sw-stat-val{
+  font-size:16px;font-weight:900;color:#F4B400;line-height:1;margin-bottom:2px;
+}
+.sw-stat-lbl{font-size:9px;color:rgba(255,255,255,0.3);font-weight:600;letter-spacing:0.05em;}
+
+/* ── Action buttons ── */
+.sw-actions{padding:0 20px 8px;display:flex;flex-direction:column;gap:10px;}
+.sw-btn-primary{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:16px;border-radius:16px;border:none;
+  background:linear-gradient(135deg,#F4B400 0%,#e8a800 100%);
+  color:#0a0600;font-size:16px;font-weight:900;cursor:pointer;
   letter-spacing:0.02em;
-  box-shadow:0 4px 20px rgba(244,180,0,0.3);
+  box-shadow:0 4px 24px rgba(244,180,0,0.35),0 1px 0 rgba(255,255,255,0.2) inset;
   transition:transform .1s,box-shadow .1s;
+  text-decoration:none;touch-action:manipulation;
+}
+.sw-btn-primary:active{transform:scale(0.97);box-shadow:0 2px 12px rgba(244,180,0,0.2);}
+.sw-btn-secondary{
+  display:flex;align-items:center;justify-content:center;
+  padding:13px;border-radius:14px;border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.04);
+  color:rgba(255,255,255,0.45);font-size:13px;font-weight:700;cursor:pointer;
+  transition:all .15s;touch-action:manipulation;
   text-decoration:none;
 }
-.qbsw-modal-cta:active{transform:scale(0.97);box-shadow:0 2px 10px rgba(244,180,0,0.2);}
+.sw-btn-secondary:active{background:rgba(255,255,255,0.08);}
 
-.qbsw-modal-spin-again{
-  display:block;margin-top:12px;font-size:12px;color:rgba(255,255,255,0.35);
-  cursor:pointer;text-decoration:underline;background:none;border:none;
-  transition:color .15s;
+/* ── Win history pill row ── */
+.sw-history{
+  padding:4px 20px 16px;
 }
-.qbsw-modal-spin-again:hover{color:rgba(255,255,255,0.65);}
+.sw-history-label{
+  font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  color:rgba(255,255,255,0.2);margin-bottom:8px;
+}
+.sw-history-row{display:flex;gap:6px;flex-wrap:wrap;}
+.sw-history-pill{
+  display:flex;align-items:center;gap:4px;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  border-radius:99px;padding:4px 10px;
+  font-size:10px;color:rgba(255,255,255,0.35);font-weight:600;
+}
 
-/* ── Confetti canvas ── */
-#qbswConfetti{
-  position:fixed;inset:0;pointer-events:none;z-index:11000;
+/* ── Try Again variant ── */
+.sw-sheet-overlay.tryagain .sw-sheet{
+  background:linear-gradient(180deg,#0d0d0d 0%,#080808 100%);
+  border-top-color:rgba(255,255,255,0.08);
 }
-
-/* ── Try Again modal variant ── */
-.qbsw-modal-card.tryagain{
-  background:linear-gradient(145deg,#0d0d0d,#1a1a1a,#0d0d0d);
-  border-color:rgba(255,255,255,0.1);
-}
-.qbsw-modal-card.tryagain .qbsw-modal-heading{
-  background:linear-gradient(135deg,#888,#aaa);
+.sw-sheet-overlay.tryagain .sw-sheet-heading{
+  background:linear-gradient(135deg,#aaa,#777);
   -webkit-background-clip:text;background-clip:text;
 }
-
-/* ── Bottom hint ── */
-.qbsw-hint{
-  position:absolute;bottom:20px;left:0;right:0;text-align:center;
-  font-size:11px;color:rgba(255,255,255,0.2);letter-spacing:0.05em;
+.sw-sheet-overlay.tryagain .sw-btn-primary{
+  background:linear-gradient(135deg,#444,#333);color:#fff;
+  box-shadow:none;
 }
 
-/* Mobile tweaks */
-@media(max-height:700px){
-  .qbsw-header{margin-bottom:8px;}
-  .qbsw-title{font-size:20px;}
+/* ═══════════════════════════════════════════
+   CONFETTI
+═══════════════════════════════════════════ */
+#swConfetti{position:fixed;inset:0;pointer-events:none;z-index:11000;}
+
+/* ═══════════════════════════════════════════
+   PREV WINS STRIP (bottom of wheel zone)
+═══════════════════════════════════════════ */
+.sw-prev-wins{
+  display:flex;align-items:center;gap:6px;
+  padding:0 16px 8px;flex-shrink:0;
+  overflow-x:auto;scrollbar-width:none;position:relative;z-index:5;
+}
+.sw-prev-wins::-webkit-scrollbar{display:none;}
+.sw-prev-label{
+  font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  color:rgba(255,255,255,0.18);white-space:nowrap;flex-shrink:0;
+}
+.sw-prev-pill{
+  display:flex;align-items:center;gap:3px;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
+  border-radius:99px;padding:3px 9px;white-space:nowrap;
+  font-size:10px;color:rgba(255,255,255,0.3);font-weight:600;flex-shrink:0;
 }
 </style>
 
-<!-- Stars -->
-<div class="qbsw-root" id="qbswRoot">
-  <div class="qbsw-stars" id="qbswStars"></div>
+<!-- Root -->
+<div class="sw" id="swRoot">
+  <div class="sw-bg"><div class="sw-bg-pulse"></div></div>
+  <div id="swStars"></div>
 
   <!-- Header -->
-  <div class="qbsw-header">
-    <div class="qbsw-logo">⚡ QuickBee</div>
-    <div class="qbsw-title">Spin &amp; Win!</div>
-    <div class="qbsw-sub">One spin a day · Real prizes · Instant reward</div>
-    <div class="qbsw-spins-left" id="qbswSpinsLeft">🎯 1 Spin Available Today</div>
+  <div class="sw-header">
+    <div class="sw-header-brand">
+      <span class="sw-header-bee">🐝</span>
+      <span class="sw-header-name">QuickBee</span>
+    </div>
+    <span class="sw-header-badge">Spin & Win</span>
   </div>
 
-  <!-- Wheel -->
-  <div class="qbsw-wheel-zone" id="qbswZone">
-    <!-- Gold glow ring (sized by JS) -->
-    <div class="qbsw-glow-ring" id="qbswGlowRing"></div>
+  <!-- Title -->
+  <div class="sw-title-block">
+    <div class="sw-title">🎰 Lucky Wheel</div>
+    <div class="sw-subtitle">Real prizes · Instant coupon · Delivered to you</div>
+    <div class="sw-chip available" id="swChip">
+      <span class="sw-chip-dot"></span>
+      <span id="swChipText">1 Free Spin Available!</span>
+    </div>
+  </div>
 
-    <!-- Pointer arrow -->
-    <div class="qbsw-pointer">
-      <svg width="28" height="36" viewBox="0 0 28 36">
-        <polygon points="14,36 0,0 28,0" fill="#F4B400"/>
-        <polygon points="14,30 4,4 24,4" fill="#FFD700" opacity="0.5"/>
+  <!-- Wheel Zone -->
+  <div class="sw-wheel-zone" id="swZone">
+    <div class="sw-ring-outer" id="swRingOuter"></div>
+    <!-- Pointer -->
+    <div class="sw-pointer" id="swPointer">
+      <svg width="32" height="42" viewBox="0 0 32 42" fill="none">
+        <path d="M16 42 L0 8 Q16 0 32 8 Z" fill="#F4B400"/>
+        <path d="M16 36 L5 12 Q16 6 27 12 Z" fill="#FFD700" opacity="0.6"/>
+        <circle cx="16" cy="6" r="4" fill="#FFD700"/>
       </svg>
     </div>
-
-    <!-- Canvas wheel -->
-    <canvas id="qbswCanvas"></canvas>
-
-    <!-- Center spin button -->
-    <button class="qbsw-center-btn" id="qbswBtn" aria-label="Spin the wheel">
-      <span class="qbsw-btn-icon">🎰</span>
-      <span class="qbsw-btn-text">SPIN</span>
+    <!-- Canvas -->
+    <canvas id="swCanvas" aria-label="Spin the wheel"></canvas>
+    <!-- Hint rings -->
+    <div class="sw-hint-ring" id="swHintRing1"></div>
+    <div class="sw-hint-ring" id="swHintRing2"></div>
+    <!-- Center button -->
+    <button class="sw-center" id="swBtn" aria-label="Spin">
+      <span class="sw-center-icon" id="swBtnIcon">🎰</span>
+      <span class="sw-center-label" id="swBtnLabel">SPIN</span>
     </button>
+    <div class="sw-swipe-hint">Tap wheel or button to spin</div>
   </div>
 
-  <div class="qbsw-hint">Tap the center button or the wheel to spin</div>
+  <!-- Previous wins strip -->
+  <div class="sw-prev-wins" id="swPrevWins">
+    <span class="sw-prev-label">Recent Wins</span>
+  </div>
 </div>
 
-<!-- Result Modal -->
-<div class="qbsw-modal" id="qbswModal">
-  <div class="qbsw-modal-card" id="qbswModalCard">
-    <span class="qbsw-modal-emoji" id="qbswModalEmoji">🎉</span>
-    <div class="qbsw-modal-tag" id="qbswModalTag">You Won!</div>
-    <div class="qbsw-modal-heading" id="qbswModalHeading">Congratulations!</div>
-    <div class="qbsw-modal-prize" id="qbswModalPrize">Free Delivery</div>
-    <div class="qbsw-modal-desc" id="qbswModalDesc">Use your coupon code at checkout</div>
-    <div class="qbsw-coupon" id="qbswCoupon">
-      <div>
-        <div class="qbsw-coupon-label">Coupon Code</div>
-        <div class="qbsw-coupon-code" id="qbswCouponCode">FREE28</div>
+<!-- Bottom Sheet Modal -->
+<div class="sw-sheet-overlay" id="swOverlay">
+  <div class="sw-sheet" id="swSheet">
+    <div class="sw-sheet-glow" id="swSheetGlow"></div>
+    <div class="sw-sheet-handle"></div>
+    <div class="sw-sheet-scroll">
+      <!-- Hero -->
+      <div class="sw-sheet-hero">
+        <div class="sw-sheet-emoji-wrap">
+          <div class="sw-sheet-emoji-bg" id="swEmojiBg"></div>
+          <span class="sw-sheet-emoji" id="swSheetEmoji">🎁</span>
+        </div>
+        <div class="sw-sheet-tag" id="swSheetTag" style="color:#F4B400">🎉 You Won!</div>
+        <div class="sw-sheet-heading" id="swSheetHeading">Congratulations!</div>
+        <div class="sw-sheet-prize" id="swSheetPrize">Free Delivery</div>
+        <div class="sw-sheet-desc" id="swSheetDesc">Use your code at checkout</div>
       </div>
-      <button class="qbsw-coupon-copy" id="qbswCopyBtn">Copy</button>
+
+      <!-- Voucher -->
+      <div class="sw-voucher" id="swVoucherWrap">
+        <div class="sw-voucher-inner">
+          <div class="sw-voucher-left">
+            <div class="sw-voucher-label">Your Coupon Code</div>
+            <div class="sw-voucher-code" id="swVoucherCode">FREE28</div>
+            <div class="sw-voucher-valid">Valid for 24 hours · One use only</div>
+          </div>
+          <button class="sw-copy-btn" id="swCopyBtn">Copy</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="sw-stats" id="swStats">
+        <div class="sw-stat-card">
+          <div class="sw-stat-val" id="swStatSpins">1</div>
+          <div class="sw-stat-lbl">Total Spins</div>
+        </div>
+        <div class="sw-stat-card">
+          <div class="sw-stat-val" id="swStatWins">0</div>
+          <div class="sw-stat-lbl">Wins</div>
+        </div>
+        <div class="sw-stat-card">
+          <div class="sw-stat-val" id="swStatSaved">Rs 0</div>
+          <div class="sw-stat-lbl">Saved</div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="sw-actions">
+        <button class="sw-btn-primary" id="swCtaBtn" type="button">
+          <span id="swCtaIcon">🎁</span><span id="swCtaText">Claim Reward &amp; Checkout →</span>
+        </button>
+        <button class="sw-btn-secondary" id="swCloseBtn">Close</button>
+      </div>
+      <!-- History in sheet -->
+      <div class="sw-history" id="swHistoryBlock" style="display:none">
+        <div class="sw-history-label">Your Win History</div>
+        <div class="sw-history-row" id="swHistoryRow"></div>
+      </div>
     </div>
-    <a class="qbsw-modal-cta" href="/collections/all" id="qbswCta">Shop Now &amp; Claim →</a>
-    <button class="qbsw-modal-spin-again" id="qbswSpinAgainBtn">Close</button>
   </div>
 </div>
 
 <!-- Confetti canvas -->
-<canvas id="qbswConfetti"></canvas>
+<canvas id="swConfetti"></canvas>
 
 <script>
 (function(){
 'use strict';
 
-/* ─────────────────────────────────────────
-   SEGMENT DATA
-───────────────────────────────────────── */
-var SEGMENTS = [
+/* ═══════════════════════════════════════════
+   PRIZE DATA — 12 segments
+═══════════════════════════════════════════ */
+var SEG = [
   {
-    label:'FREE\nDelivery', emoji:'🎁',
-    outerColor:'#0D5C2E', innerColor:'#1a8f48',
-    code:'FREE28', cta:'/collections/all',
-    desc:'Apply FREE28 at checkout — free delivery on your next order!',
-    type:'win', weight:15
+    label:'FREE\nDelivery',emoji:'🎁',
+    c1:'#0D5C2E',c2:'#1a8f48',
+    code:'FREE28',
+    prize:'FREE Delivery',
+    desc:'Enter FREE28 at checkout. Free delivery on your next order — any amount, any time!',
+    cta:'/collections/all',ctaTxt:'Claim Free Delivery →',
+    saved:50,type:'win',wt:12
   },
   {
-    label:'Chicken\nBiryani', emoji:'🍛',
-    outerColor:'#7A1515', innerColor:'#b82020',
-    code:'BIRYANI50', cta:'/collections/typical-taste',
-    desc:'50% off on Chicken Biryani. Valid today only!',
-    type:'win', weight:10
+    label:'Chicken\nBiryani',emoji:'🍛',
+    c1:'#6B1010',c2:'#a82020',
+    code:'BIRYANI50',
+    prize:'50% Off Biryani',
+    desc:'Use BIRYANI50 for 50% off Chicken Biryani from Typical Taste. Hot & fresh in 20 mins.',
+    cta:'/collections/typical-taste',ctaTxt:'Order Biryani Now →',
+    saved:150,type:'win',wt:9
   },
   {
-    label:'Leg Piece\nx2', emoji:'🍗',
-    outerColor:'#3D1278', innerColor:'#6a1fd4',
-    code:'LEGPIECE', cta:'/collections/typical-taste',
-    desc:'Get 2 Leg Pieces FREE with your next food order!',
-    type:'win', weight:10
+    label:'Leg Piece\nx2 FREE',emoji:'🍗',
+    c1:'#3A0F6E',c2:'#6420b8',
+    code:'LEGPIECE2',
+    prize:'2 Free Leg Pieces',
+    desc:'LEGPIECE2 gives you 2 FREE chicken leg pieces with any food order. Add it at checkout!',
+    cta:'/collections/typical-taste',ctaTxt:'Order Food Now →',
+    saved:120,type:'win',wt:9
   },
   {
-    label:'Tuborg\n650ml', emoji:'🍺',
-    outerColor:'#0B3D6B', innerColor:'#1565c0',
-    code:'TUBORG20', cta:'/collections/beer',
-    desc:'Rs 20 off on Tuborg 650ml. Ice cold, delivered fast.',
-    type:'win', weight:12
+    label:'Tuborg\n650ml',emoji:'🍺',
+    c1:'#073060',c2:'#0f52a0',
+    code:'TUBORG30',
+    prize:'Rs 30 Off Tuborg 650ml',
+    desc:'Rs 30 off on Tuborg 650ml. Nepal\'s favourite gold — ice cold, delivered in minutes.',
+    cta:'/collections/beer',ctaTxt:'Order Tuborg Now →',
+    saved:30,type:'win',wt:11
   },
   {
-    label:'Gorkha\n650ml', emoji:'🏔️',
-    outerColor:'#5C3200', innerColor:'#964f00',
-    code:'GORKHA20', cta:'/collections/beer',
-    desc:'Rs 20 off on Gorkha 650ml. Nepal\'s pride, delivered.',
-    type:'win', weight:12
+    label:'Gorkha\n650ml',emoji:'🏔️',
+    c1:'#4A2600',c2:'#7a4200',
+    code:'GORKHA30',
+    prize:'Rs 30 Off Gorkha 650ml',
+    desc:'Rs 30 off Gorkha Premium Lager 650ml. Brewed in Nepal, delivered to your door.',
+    cta:'/collections/beer',ctaTxt:'Order Gorkha Now →',
+    saved:30,type:'win',wt:11
   },
   {
-    label:'JD Shot\n50ml', emoji:'🥃',
-    outerColor:'#1A4A3A', innerColor:'#2d7a60',
-    code:'JDSHOT', cta:'/collections/whiskey',
-    desc:'Free JD Shot with your next spirits order!',
-    type:'win', weight:8
+    label:'Try\nAgain',emoji:'😅',
+    c1:'#141414',c2:'#222',
+    code:null,prize:'Better Luck Tomorrow',
+    desc:'No prize this time! Come back tomorrow for another free spin. Good things are coming!',
+    cta:'/collections/all',ctaTxt:'Shop Anyway →',
+    saved:0,type:'lose',wt:20
   },
   {
-    label:'Jager\nShot', emoji:'🦌',
-    outerColor:'#4A0D2E', innerColor:'#7a1550',
-    code:'JAGER', cta:'/collections/all',
-    desc:'Free Jagermeister Shot with your next order!',
-    type:'win', weight:8
+    label:'Rs 100\nOff Beer',emoji:'🍻',
+    c1:'#0A3530',c2:'#176055',
+    code:'BEER100',
+    prize:'Rs 100 Off Beer Order',
+    desc:'Rs 100 off on any beer order above Rs 500. Use BEER100 at checkout — stacks on top of deals!',
+    cta:'/collections/beer',ctaTxt:'Shop Beer Now →',
+    saved:100,type:'win',wt:8
   },
   {
-    label:'Try\nAgain', emoji:'😅',
-    outerColor:'#1a1a1a', innerColor:'#2e2e2e',
-    code:null, cta:null,
-    desc:'No luck this time! Come back tomorrow for another spin.',
-    type:'lose', weight:25
+    label:'Whiskey\n10% Off',emoji:'🥃',
+    c1:'#3D2000',c2:'#6b3800',
+    code:'WHISKEY10',
+    prize:'10% Off All Whiskey',
+    desc:'10% off your entire whiskey order. Jack Daniels, Monkey Shoulder, Old Monk — all included.',
+    cta:'/collections/whiskey',ctaTxt:'Shop Whiskey →',
+    saved:200,type:'win',wt:7
+  },
+  {
+    label:'Vodka\n15% Off',emoji:'🍸',
+    c1:'#450A30',c2:'#7a1255',
+    code:'VODKA15',
+    prize:'15% Off All Vodka',
+    desc:'15% off on all vodka — Smirnoff, Absolut, Grey Goose. Use VODKA15 at checkout.',
+    cta:'/collections/vodka',ctaTxt:'Shop Vodka →',
+    saved:180,type:'win',wt:7
+  },
+  {
+    label:'Try\nAgain',emoji:'🔄',
+    c1:'#181818',c2:'#252525',
+    code:null,prize:'Not Today!',
+    desc:'Almost! You were so close. Come back tomorrow — your luck is about to change!',
+    cta:'/collections/all',ctaTxt:'Browse Deals →',
+    saved:0,type:'lose',wt:22
+  },
+  {
+    label:'Rs 150\nOff Order',emoji:'🏆',
+    c1:'#0A2E0A',c2:'#165016',
+    code:'QB150WIN',
+    prize:'Rs 150 Off Any Order',
+    desc:'Rs 150 off any order above Rs 800. One of our biggest rewards — congratulations! 🎉',
+    cta:'/collections/all',ctaTxt:'Claim Rs 150 Off →',
+    saved:150,type:'win',wt:4
+  },
+  {
+    label:'Beer Combo\n20% Off',emoji:'🎊',
+    c1:'#2A0A40',c2:'#4a1570',
+    code:'BEERCOMBO20',
+    prize:'20% Off Beer Combos',
+    desc:'20% off all beer combo packs. Party sorted! Use BEERCOMBO20 — delivered in 20 mins.',
+    cta:'/collections/beer-combos-1',ctaTxt:'Shop Beer Combos →',
+    saved:250,type:'win',wt:8
   }
 ];
 
-var NUM = SEGMENTS.length;
-var SPIN_DURATION = 5500; /* ms */
-var LS_KEY = 'qbsw_last_spin';
+var N = SEG.length; /* 12 */
+var LS_KEY     = 'qbsw_last';
+var LS_HISTORY = 'qbsw_history';
+var LS_STATS   = 'qbsw_stats';
 
-/* ─────────────────────────────────────────
-   DOM refs
-───────────────────────────────────────── */
-var canvas    = document.getElementById('qbswCanvas');
-var ctx       = canvas.getContext('2d');
-var btn       = document.getElementById('qbswBtn');
-var modal     = document.getElementById('qbswModal');
-var modalCard = document.getElementById('qbswModalCard');
-var confetti  = document.getElementById('qbswConfetti');
-var cctx      = confetti.getContext('2d');
-var zone      = document.getElementById('qbswZone');
-var glow      = document.getElementById('qbswGlowRing');
-var spinsEl   = document.getElementById('qbswSpinsLeft');
+/* ═══════════════════════════════════════════
+   DOM
+═══════════════════════════════════════════ */
+var canvas   = document.getElementById('swCanvas');
+var ctx      = canvas.getContext('2d');
+var btn      = document.getElementById('swBtn');
+var zone     = document.getElementById('swZone');
+var overlay  = document.getElementById('swOverlay');
+var confetti = document.getElementById('swConfetti');
+var cctx     = confetti.getContext('2d');
+var hint1    = document.getElementById('swHintRing1');
+var hint2    = document.getElementById('swHintRing2');
 
-/* ─────────────────────────────────────────
-   SIZING
-───────────────────────────────────────── */
-var SIZE, R, CX, CY;
+/* ═══════════════════════════════════════════
+   SIZING — fills screen perfectly on mobile
+═══════════════════════════════════════════ */
+var SIZE=0,R=0,CX=0,CY=0,CENTER_R=0;
+
 function resize(){
-  var vw = window.innerWidth, vh = window.innerHeight;
-  var headerH = document.querySelector('.qbsw-header').offsetHeight;
-  var available = Math.min(vw - 32, vh - headerH - 120);
-  SIZE = Math.max(240, Math.min(available, 440));
-  R = SIZE / 2;
-  CX = R; CY = R;
-  canvas.width  = SIZE;
-  canvas.height = SIZE;
-  canvas.style.width  = SIZE + 'px';
-  canvas.style.height = SIZE + 'px';
-  glow.style.width  = (SIZE + 44) + 'px';
-  glow.style.height = (SIZE + 44) + 'px';
-  glow.style.left = '-22px';
-  glow.style.top  = '-22px';
+  var vw=window.innerWidth,vh=window.innerHeight;
+  var headerH=document.querySelector('.sw-header').offsetHeight||60;
+  var titleH =document.querySelector('.sw-title-block').offsetHeight||80;
+  var prevH  =document.getElementById('swPrevWins').offsetHeight||30;
+  var avail  =Math.min(vw-24, vh-headerH-titleH-prevH-40);
+  SIZE=Math.max(220,Math.min(avail,520));
+  R=SIZE/2; CX=R; CY=R;
+  CENTER_R=R*0.175;
+
+  canvas.width=canvas.height=SIZE;
+  canvas.style.width=canvas.style.height=SIZE+'px';
+
+  var or=document.getElementById('swRingOuter');
+  var outer=SIZE+40;
+  or.style.cssText='width:'+outer+'px;height:'+outer+'px;'+
+    'left:'+(-20)+'px;top:'+(-20)+'px;';
+
+  /* Position hint rings */
+  var hr=CENTER_R+12;
+  [hint1,hint2].forEach(function(h){
+    h.style.width=h.style.height=(hr*2)+'px';
+    h.style.marginLeft=h.style.marginTop=(-hr)+'px';
+  });
+
+  /* Size center button */
+  var cb=document.getElementById('swBtn');
+  var cs=CENTER_R*2;
+  cb.style.width=cb.style.height=cs+'px';
+  cb.style.boxShadow='0 0 0 '+(R*0.022)+'px #080600,'+
+    '0 0 0 '+(R*0.042)+'px rgba(244,180,0,0.35),'+
+    '0 6px 20px rgba(0,0,0,.7)';
+  document.getElementById('swBtnIcon').style.fontSize=(cs*0.35)+'px';
+  document.getElementById('swBtnLabel').style.fontSize=(cs*0.17)+'px';
+
+  /* Pointer position */
+  var ptr=document.getElementById('swPointer');
+  ptr.style.top=(-SIZE/2-14)+'px';
+
   drawWheel(currentAngle);
 }
-window.addEventListener('resize', resize);
 
-/* ─────────────────────────────────────────
+/* ═══════════════════════════════════════════
    DRAW WHEEL
-───────────────────────────────────────── */
-var currentAngle = 0; /* radians, total accumulated */
+═══════════════════════════════════════════ */
+var currentAngle=0;
 
 function drawWheel(angle){
   ctx.clearRect(0,0,SIZE,SIZE);
-  var sliceAngle = (Math.PI * 2) / NUM;
+  var slice=(Math.PI*2)/N;
 
-  SEGMENTS.forEach(function(seg, i){
-    var startA = angle + sliceAngle * i - Math.PI/2;
-    var endA   = startA + sliceAngle;
-    var midA   = startA + sliceAngle / 2;
+  /* Draw segments */
+  SEG.forEach(function(s,i){
+    var a0=angle+slice*i-Math.PI/2;
+    var a1=a0+slice;
+    var mid=a0+slice/2;
 
-    /* Gradient fill */
-    var grd = ctx.createRadialGradient(CX,CY,R*0.1,CX,CY,R*0.98);
-    grd.addColorStop(0, seg.innerColor);
-    grd.addColorStop(1, seg.outerColor);
-
+    /* Segment fill */
+    var grd=ctx.createRadialGradient(CX,CY,R*0.08,CX,CY,R*0.97);
+    grd.addColorStop(0,s.c2);
+    grd.addColorStop(1,s.c1);
     ctx.beginPath();
-    ctx.moveTo(CX, CY);
-    ctx.arc(CX, CY, R - 5, startA, endA);
+    ctx.moveTo(CX,CY);
+    ctx.arc(CX,CY,R-7,a0,a1);
     ctx.closePath();
-    ctx.fillStyle = grd;
+    ctx.fillStyle=grd;
     ctx.fill();
 
-    /* Divider lines */
+    /* Subtle lighter edge at arc */
     ctx.beginPath();
-    ctx.moveTo(CX, CY);
-    ctx.arc(CX, CY, R - 5, startA, endA);
+    ctx.moveTo(CX,CY);
+    ctx.arc(CX,CY,R-7,a0,a1);
     ctx.closePath();
-    ctx.strokeStyle = 'rgba(244,180,0,0.4)';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle='rgba(255,255,255,0.06)';
+    ctx.lineWidth=1;
     ctx.stroke();
+
+    /* Gold separator lines */
+    ctx.save();
+    ctx.translate(CX,CY);
+    ctx.rotate(a0);
+    ctx.beginPath();
+    ctx.moveTo(CENTER_R+4,0);
+    ctx.lineTo(R-8,0);
+    ctx.strokeStyle='rgba(244,180,0,0.35)';
+    ctx.lineWidth=1.2;
+    ctx.stroke();
+    ctx.restore();
 
     /* Text */
     ctx.save();
-    ctx.translate(CX, CY);
-    ctx.rotate(midA);
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    /* Shadow */
-    ctx.shadowColor = 'rgba(0,0,0,0.8)';
-    ctx.shadowBlur = 4;
+    ctx.translate(CX,CY);
+    ctx.rotate(mid);
 
     /* Emoji */
-    var emojiSize = Math.max(14, R * 0.13);
-    ctx.font = emojiSize + 'px serif';
-    ctx.fillText(seg.emoji, R * 0.62, 0);
+    var emojiSize=Math.max(12,Math.min(R*0.115,20));
+    ctx.font=emojiSize+'px serif';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(s.emoji, R*0.68, 0);
 
-    /* Label lines */
-    ctx.shadowBlur = 3;
-    ctx.fillStyle = '#fff';
-    var lines = seg.label.split('\n');
-    var fontSize = Math.max(9, Math.min(13, R * 0.075));
-    ctx.font = 'bold ' + fontSize + 'px -apple-system,sans-serif';
-    var lineH = fontSize + 2;
-    var textX = R * 0.31;
-    lines.forEach(function(line, li){
-      var offsetY = (li - (lines.length-1)/2) * lineH;
-      ctx.fillText(line, textX, offsetY);
+    /* Label */
+    var fontSize=Math.max(8,Math.min(R*0.072,13));
+    ctx.font='700 '+fontSize+'px -apple-system,sans-serif';
+    ctx.fillStyle='#fff';
+    ctx.shadowColor='rgba(0,0,0,0.9)';
+    ctx.shadowBlur=3;
+    var lines=s.label.split('\n');
+    var lh=fontSize+2.5;
+    var tx=R*0.33;
+    lines.forEach(function(ln,li){
+      ctx.fillText(ln,tx,(li-(lines.length-1)/2)*lh);
     });
-
     ctx.restore();
   });
 
-  /* Outer gold ring */
+  /* Outer ring — thick gold */
   ctx.beginPath();
-  ctx.arc(CX, CY, R - 3, 0, Math.PI*2);
-  ctx.strokeStyle = '#F4B400';
-  ctx.lineWidth = 6;
-  ctx.shadowColor = 'rgba(244,180,0,0.6)';
-  ctx.shadowBlur = 12;
+  ctx.arc(CX,CY,R-4,0,Math.PI*2);
+  ctx.strokeStyle='#F4B400';
+  ctx.lineWidth=7;
+  ctx.shadowColor='rgba(244,180,0,0.7)';
+  ctx.shadowBlur=14;
   ctx.stroke();
-  ctx.shadowBlur = 0;
+  ctx.shadowBlur=0;
 
-  /* Inner hub circle */
-  var hubR = R * 0.13;
-  var hubGrd = ctx.createRadialGradient(CX,CY,0,CX,CY,hubR);
-  hubGrd.addColorStop(0,'#0a0800');
-  hubGrd.addColorStop(1,'#1a1200');
+  /* Outer ring inner accent */
   ctx.beginPath();
-  ctx.arc(CX, CY, hubR, 0, Math.PI*2);
-  ctx.fillStyle = hubGrd;
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(244,180,0,0.5)';
-  ctx.lineWidth = 2;
+  ctx.arc(CX,CY,R-8,0,Math.PI*2);
+  ctx.strokeStyle='rgba(255,255,255,0.12)';
+  ctx.lineWidth=1;
   ctx.stroke();
+
+  /* Tick dots on ring */
+  SEG.forEach(function(_,i){
+    var a=angle+((Math.PI*2)/N)*i-Math.PI/2;
+    var tx=CX+(R-2)*Math.cos(a);
+    var ty=CY+(R-2)*Math.sin(a);
+    ctx.beginPath();
+    ctx.arc(tx,ty,3,0,Math.PI*2);
+    ctx.fillStyle='rgba(0,0,0,0.5)';
+    ctx.fill();
+  });
+
+  /* Center hub */
+  var hubGrd=ctx.createRadialGradient(CX-CENTER_R*0.2,CY-CENTER_R*0.2,0,CX,CY,CENTER_R);
+  hubGrd.addColorStop(0,'#1a1200');
+  hubGrd.addColorStop(1,'#0a0800');
+  ctx.beginPath();
+  ctx.arc(CX,CY,CENTER_R+6,0,Math.PI*2);
+  ctx.fillStyle='#080600';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(CX,CY,CENTER_R+4,0,Math.PI*2);
+  ctx.strokeStyle='rgba(244,180,0,0.6)';
+  ctx.lineWidth=2.5;
+  ctx.shadowColor='rgba(244,180,0,0.4)';
+  ctx.shadowBlur=8;
+  ctx.stroke();
+  ctx.shadowBlur=0;
 }
 
-/* ─────────────────────────────────────────
-   SPIN LOGIC
-───────────────────────────────────────── */
-var isSpinning = false;
-var spinStart, spinFrom, spinTarget, winIndex;
-var audioCtx = null;
+/* ═══════════════════════════════════════════
+   IDLE ROTATION
+═══════════════════════════════════════════ */
+var idleRAF=null;
+var idleSpeed=0.0005;
+function idleRotate(){
+  currentAngle+=idleSpeed;
+  drawWheel(currentAngle);
+  idleRAF=requestAnimationFrame(idleRotate);
+}
+idleRotate();
 
-function getAudioCtx(){
-  if(!audioCtx){
-    try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){}
-  }
+/* ═══════════════════════════════════════════
+   SPIN ENGINE
+═══════════════════════════════════════════ */
+var isSpinning=false;
+var spinStart=null,spinFrom=0,spinTarget=0,winIdx=0;
+var DURATION=6000;
+var lastTickSeg=-1;
+var audioCtx=null;
+
+function getAC(){
+  if(!audioCtx) try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}
   return audioCtx;
 }
-
-function playTick(){
-  var ac = getAudioCtx();
-  if(!ac) return;
+function tick(freq){
+  var ac=getAC(); if(!ac) return;
   try{
-    var osc = ac.createOscillator();
-    var gain = ac.createGain();
-    osc.connect(gain); gain.connect(ac.destination);
-    osc.frequency.value = 880;
-    osc.type = 'sine';
-    gain.gain.setValueAtTime(0.08, ac.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.06);
-    osc.start(ac.currentTime);
-    osc.stop(ac.currentTime + 0.06);
+    var o=ac.createOscillator(),g=ac.createGain();
+    o.connect(g);g.connect(ac.destination);
+    o.frequency.value=freq||700;o.type='sine';
+    g.gain.setValueAtTime(0.1,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.05);
+    o.start();o.stop(ac.currentTime+0.06);
   }catch(e){}
 }
 
-function easeOut(t){ return 1 - Math.pow(1-t, 4); }
+function easeOut(t){return 1-Math.pow(1-t,4);}
 
-var lastTickSegment = -1;
-
-function animateSpin(ts){
-  if(!spinStart) spinStart = ts;
-  var elapsed = ts - spinStart;
-  var progress = Math.min(elapsed / SPIN_DURATION, 1);
-  var eased = easeOut(progress);
-
-  currentAngle = spinFrom + (spinTarget - spinFrom) * eased;
+function animSpin(ts){
+  if(!spinStart) spinStart=ts;
+  var p=Math.min((ts-spinStart)/DURATION,1);
+  var e=easeOut(p);
+  currentAngle=spinFrom+(spinTarget-spinFrom)*e;
   drawWheel(currentAngle);
 
-  /* Tick sound */
-  var sliceAngle = (Math.PI * 2) / NUM;
-  var normalized = ((currentAngle % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
-  var seg = Math.floor(normalized / sliceAngle);
-  if(seg !== lastTickSegment){
-    var speedFactor = 1 - progress;
-    if(speedFactor > 0.08) playTick();
-    lastTickSegment = seg;
+  /* Tick */
+  var slice=(Math.PI*2)/N;
+  var norm=((currentAngle%(Math.PI*2))+(Math.PI*2))%(Math.PI*2);
+  var seg=Math.floor(norm/slice)%N;
+  if(seg!==lastTickSeg){
+    var spd=1-p;
+    if(spd>0.05) tick(600+spd*500);
+    try{if(navigator.vibrate&&spd>0.3) navigator.vibrate(10);}catch(e){}
+    lastTickSeg=seg;
   }
 
-  if(progress < 1){
-    requestAnimationFrame(animateSpin);
-  } else {
-    onSpinEnd();
-  }
-}
-
-function onSpinEnd(){
-  isSpinning = false;
-  /* Save spin date */
-  try{ localStorage.setItem(LS_KEY, new Date().toDateString()); }catch(e){}
-  updateSpinsLeft();
-
-  var seg = SEGMENTS[winIndex];
-  if(seg.type === 'win'){
-    launchConfetti();
-    showModal(seg);
-  } else {
-    showTryAgain(seg);
-  }
+  if(p<1){ requestAnimationFrame(animSpin); }
+  else { onSpinEnd(); }
 }
 
 function spin(){
   if(isSpinning) return;
 
-  /* Check daily limit */
-  var lastSpin = '';
-  try{ lastSpin = localStorage.getItem(LS_KEY)||''; }catch(e){}
-  if(lastSpin === new Date().toDateString()){
-    showAlreadySpun(); return;
-  }
+  /* Daily limit check */
+  var last=''; try{last=localStorage.getItem(LS_KEY)||'';}catch(e){}
+  if(last===new Date().toDateString()){ showAlreadySpun(); return; }
 
-  isSpinning = true;
-  btn.disabled = true;
-  spinStart = null;
-  spinFrom = currentAngle;
+  if(idleRAF){ cancelAnimationFrame(idleRAF); idleRAF=null; }
+  isSpinning=true;
+  btn.disabled=true;
+  document.getElementById('swBtnIcon').textContent='⏳';
+  document.getElementById('swBtnLabel').textContent='...';
+  zone.classList.add('spinning');
+  /* Hide hint rings */
+  hint1.style.display='none'; hint2.style.display='none';
 
-  /* Weighted random pick */
-  winIndex = weightedRandom();
+  spinStart=null;
+  spinFrom=currentAngle;
 
-  /* Calculate target angle so winning segment lands at top pointer */
-  var sliceAngle = (Math.PI * 2) / NUM;
-  /* Pointer is at -PI/2 (top). We want midpoint of winIndex segment to land there. */
-  /* midAngle of segment i = sliceAngle * i + sliceAngle/2 (before rotation offset) */
-  /* After rotation angle, segment midAngle = angle + sliceAngle*i + sliceAngle/2 */
-  /* We want angle + sliceAngle*winIndex + sliceAngle/2 ≡ -PI/2 (mod 2PI) */
-  var targetOffset = -Math.PI/2 - (sliceAngle * winIndex + sliceAngle/2);
-  /* Normalize */
-  targetOffset = ((targetOffset % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
-  /* Add multiple full spins */
-  var fullSpins = 6 + Math.floor(Math.random()*3);
-  spinTarget = spinFrom - (spinFrom % (Math.PI*2)) + (Math.PI*2) * fullSpins + targetOffset;
-  /* Ensure we always spin forward a lot */
-  if(spinTarget - spinFrom < Math.PI*2*4) spinTarget += Math.PI*2*4;
+  winIdx=weightedRandom();
+  var slice=(Math.PI*2)/N;
+  /* Target: winning segment midpoint lands at top pointer (angle=-PI/2) */
+  var segMid=slice*winIdx+slice/2;
+  var target=((( -Math.PI/2-segMid)%(Math.PI*2))+(Math.PI*2))%(Math.PI*2);
+  var spins=7+Math.floor(Math.random()*4);
+  spinTarget=spinFrom-(spinFrom%(Math.PI*2))+Math.PI*2*spins+target;
+  if(spinTarget-spinFrom<Math.PI*2*5) spinTarget+=Math.PI*2*5;
 
-  requestAnimationFrame(animateSpin);
+  requestAnimationFrame(animSpin);
 }
 
 function weightedRandom(){
-  var total = SEGMENTS.reduce(function(s,g){return s+g.weight;},0);
-  var r = Math.random()*total;
-  var acc = 0;
-  for(var i=0;i<SEGMENTS.length;i++){
-    acc += SEGMENTS[i].weight;
-    if(r<=acc) return i;
-  }
-  return SEGMENTS.length-1;
+  var tot=SEG.reduce(function(a,s){return a+s.wt;},0);
+  var r=Math.random()*tot,acc=0;
+  for(var i=0;i<SEG.length;i++){acc+=SEG[i].wt;if(r<=acc)return i;}
+  return SEG.length-1;
 }
 
-/* ─────────────────────────────────────────
-   MODAL
-───────────────────────────────────────── */
-function showModal(seg){
-  modalCard.classList.remove('tryagain');
-  document.getElementById('qbswModalEmoji').textContent = seg.emoji;
-  document.getElementById('qbswModalTag').textContent = '🎉 You Won!';
-  document.getElementById('qbswModalHeading').textContent = 'Congratulations!';
-  document.getElementById('qbswModalPrize').textContent = seg.label.replace('\n',' ');
-  document.getElementById('qbswModalDesc').textContent = seg.desc;
+function onSpinEnd(){
+  isSpinning=false;
+  zone.classList.remove('spinning');
+  var s=SEG[winIdx];
+  /* Save */
+  try{localStorage.setItem(LS_KEY,new Date().toDateString());}catch(e){}
+  saveHistory(s);
+  updateStats(s);
+  updateChip();
+  updatePrevWins();
 
-  var couponDiv = document.getElementById('qbswCoupon');
-  var cta = document.getElementById('qbswCta');
-  if(seg.code){
-    document.getElementById('qbswCouponCode').textContent = seg.code;
-    couponDiv.style.display = 'flex';
-    cta.href = seg.cta || '/collections/all';
-    cta.textContent = 'Shop Now & Claim →';
-    cta.style.display = 'block';
+  /* Vibrate win pattern */
+  try{if(navigator.vibrate) navigator.vibrate(s.type==='win'?[50,30,80,30,120]:[100]);}catch(e){}
+
+  if(s.type==='win'){
+    launchConfetti();
+    showSheet(s,false);
   } else {
-    couponDiv.style.display = 'none';
-    cta.style.display = 'none';
+    showSheet(s,true);
   }
-
-  document.getElementById('qbswSpinAgainBtn').textContent = 'Close';
-  modal.classList.add('show');
 }
 
-function showTryAgain(seg){
-  modalCard.classList.add('tryagain');
-  document.getElementById('qbswModalEmoji').textContent = seg.emoji;
-  document.getElementById('qbswModalTag').textContent = 'Better luck next time';
-  document.getElementById('qbswModalHeading').textContent = 'Try Again Tomorrow!';
-  document.getElementById('qbswModalPrize').textContent = 'No prize this time';
-  document.getElementById('qbswModalDesc').textContent = seg.desc;
-  document.getElementById('qbswCoupon').style.display = 'none';
-  var cta = document.getElementById('qbswCta');
-  cta.style.display = 'block';
-  cta.href = '/collections/all';
-  cta.textContent = 'Shop Anyway →';
-  document.getElementById('qbswSpinAgainBtn').textContent = 'Close';
-  modal.classList.add('show');
+/* ═══════════════════════════════════════════
+   SHEET MODAL
+═══════════════════════════════════════════ */
+function showSheet(s,tryagain){
+  currentWinSeg=s;
+  /* Sheet glow color */
+  var glowColor=tryagain?'rgba(100,100,100,0.15)':('rgba('+hexToRgb(s.c2)+',0.2)');
+  document.getElementById('swSheetGlow').style.background=
+    'radial-gradient(ellipse,'+glowColor+' 0%,transparent 70%)';
+
+  /* Emoji wrap bg */
+  var eb=document.getElementById('swEmojiBg');
+  eb.style.background=tryagain?'rgba(100,100,100,0.15)':
+    'linear-gradient(135deg,'+s.c2+'22,'+s.c1+'44)';
+  eb.style.border=tryagain?'1px solid rgba(255,255,255,0.08)':
+    '1px solid '+s.c2+'66';
+
+  document.getElementById('swSheetEmoji').textContent=s.emoji;
+  document.getElementById('swSheetTag').textContent=tryagain?'😅 Not This Time':'🎉 You Won!';
+  document.getElementById('swSheetTag').style.color=tryagain?'rgba(255,255,255,0.35)':'#F4B400';
+  document.getElementById('swSheetHeading').textContent=tryagain?'Try Again Tomorrow!':'Congratulations!';
+  document.getElementById('swSheetPrize').textContent=s.prize;
+  document.getElementById('swSheetDesc').textContent=s.desc;
+
+  var voucher=document.getElementById('swVoucherWrap');
+  if(s.code){
+    voucher.style.display='block';
+    document.getElementById('swVoucherCode').textContent=s.code;
+  } else {
+    voucher.style.display='none';
+  }
+
+  var ctaBtn=document.getElementById('swCtaBtn');
+  ctaBtn.disabled=false;
+  if(tryagain||!s.code){
+    document.getElementById('swCtaIcon').textContent='🛍️';
+    document.getElementById('swCtaText').textContent='Browse Deals →';
+    ctaBtn.style.background='linear-gradient(135deg,#333,#222)';
+    ctaBtn.style.color='rgba(255,255,255,0.7)';
+    ctaBtn.style.boxShadow='none';
+  } else {
+    document.getElementById('swCtaIcon').textContent='🎁';
+    document.getElementById('swCtaText').textContent='Claim Reward & Checkout →';
+    ctaBtn.style.background='';ctaBtn.style.color='';ctaBtn.style.boxShadow='';
+  }
+
+  /* Stats */
+  var stats=getStats();
+  document.getElementById('swStatSpins').textContent=stats.spins;
+  document.getElementById('swStatWins').textContent=stats.wins;
+  document.getElementById('swStatSaved').textContent='Rs '+stats.saved;
+
+  /* History in sheet */
+  var hist=getHistory();
+  if(hist.length){
+    var hBlock=document.getElementById('swHistoryBlock');
+    hBlock.style.display='block';
+    document.getElementById('swHistoryRow').innerHTML=hist.slice(0,5).map(function(h){
+      return '<span class="sw-history-pill">'+h.emoji+' '+h.prize+'</span>';
+    }).join('');
+  }
+
+  overlay.classList.toggle('tryagain',!!tryagain);
+  overlay.classList.add('show');
 }
 
 function showAlreadySpun(){
-  modalCard.classList.remove('tryagain');
-  document.getElementById('qbswModalEmoji').textContent = '⏰';
-  document.getElementById('qbswModalTag').textContent = 'Come back tomorrow';
-  document.getElementById('qbswModalHeading').textContent = 'Already Spun!';
-  document.getElementById('qbswModalPrize').textContent = 'One spin per day';
-  document.getElementById('qbswModalDesc').textContent = 'You\'ve already used your spin today. Come back tomorrow for another chance to win!';
-  document.getElementById('qbswCoupon').style.display = 'none';
-  var cta = document.getElementById('qbswCta');
-  cta.style.display = 'block';
-  cta.href = '/collections/all';
-  cta.textContent = 'Shop Now →';
-  document.getElementById('qbswSpinAgainBtn').textContent = 'Close';
-  modal.classList.add('show');
+  showSheet({
+    emoji:'⏰',prize:'Come Back Tomorrow',
+    desc:'You\'ve already spun today! Every day at midnight your spin resets. Don\'t miss tomorrow\'s prizes!',
+    code:null,cta:'/collections/all',ctaTxt:'Shop Now →',type:'lose',c1:'#111',c2:'#222'
+  },true);
 }
 
-function closeModal(){
-  modal.classList.remove('show');
+function closeSheet(){
+  overlay.classList.remove('show');
   stopConfetti();
-  if(!isSpinning) btn.disabled = false;
+  /* Re-enable btn if can still spin */
+  var last=''; try{last=localStorage.getItem(LS_KEY)||'';}catch(e){}
+  if(last!==new Date().toDateString()){
+    btn.disabled=false;
+    document.getElementById('swBtnIcon').textContent='🎰';
+    document.getElementById('swBtnLabel').textContent='SPIN';
+    hint1.style.display=''; hint2.style.display='';
+    idleRotate();
+  }
 }
 
-/* ─────────────────────────────────────────
+/* ═══════════════════════════════════════════
    COPY COUPON
-───────────────────────────────────────── */
-document.getElementById('qbswCopyBtn').addEventListener('click', function(){
-  var code = document.getElementById('qbswCouponCode').textContent;
-  var btn2 = this;
-  try{
-    navigator.clipboard.writeText(code).then(function(){
-      btn2.textContent = 'Copied!';
-      btn2.classList.add('copied');
-      setTimeout(function(){ btn2.textContent='Copy'; btn2.classList.remove('copied'); },2000);
-    });
-  }catch(e){
-    /* fallback */
-    var ta = document.createElement('textarea');
-    ta.value = code; ta.style.position='fixed'; ta.style.opacity='0';
-    document.body.appendChild(ta); ta.select();
-    document.execCommand('copy'); document.body.removeChild(ta);
-    btn2.textContent = 'Copied!'; btn2.classList.add('copied');
-    setTimeout(function(){ btn2.textContent='Copy'; btn2.classList.remove('copied'); },2000);
-  }
+═══════════════════════════════════════════ */
+document.getElementById('swCopyBtn').addEventListener('click',function(){
+  var code=document.getElementById('swVoucherCode').textContent;
+  var b=this;
+  var done=function(){b.textContent='✓ Copied!';b.classList.add('done');
+    setTimeout(function(){b.textContent='Copy';b.classList.remove('done');},2200);};
+  if(navigator.clipboard) navigator.clipboard.writeText(code).then(done).catch(function(){fbCopy(code);done();});
+  else{fbCopy(code);done();}
+  try{if(navigator.vibrate)navigator.vibrate(30);}catch(e){}
 });
-
-/* ─────────────────────────────────────────
-   CONFETTI
-───────────────────────────────────────── */
-var confettiParts = [];
-var confettiRAF = null;
-var COLORS = ['#F4B400','#FFD700','#ff6b6b','#4ade80','#60a5fa','#a78bfa','#fb923c','#fff'];
-
-function launchConfetti(){
-  confetti.width  = window.innerWidth;
-  confetti.height = window.innerHeight;
-  confettiParts = [];
-  for(var i=0;i<120;i++){
-    confettiParts.push({
-      x: Math.random()*confetti.width,
-      y: -10 - Math.random()*40,
-      w: 6+Math.random()*8, h: 10+Math.random()*10,
-      color: COLORS[Math.floor(Math.random()*COLORS.length)],
-      vx: -3+Math.random()*6, vy: 2+Math.random()*5,
-      rot: Math.random()*360, rotV: -5+Math.random()*10,
-      life: 1
-    });
-  }
-  if(confettiRAF) cancelAnimationFrame(confettiRAF);
-  animateConfetti();
+function fbCopy(t){
+  var ta=document.createElement('textarea');ta.value=t;
+  ta.style.cssText='position:fixed;opacity:0;top:0;left:0;';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');}catch(e){}
+  document.body.removeChild(ta);
 }
 
-function animateConfetti(){
+/* ═══════════════════════════════════════════
+   CONFETTI
+═══════════════════════════════════════════ */
+var CP=[],cRAF=null;
+var CC=['#F4B400','#FFD700','#ff6b6b','#4ade80','#60a5fa','#f472b6','#fb923c','#fff','#a78bfa'];
+function launchConfetti(){
+  confetti.width=window.innerWidth;confetti.height=window.innerHeight;
+  CP=[];
+  for(var i=0;i<140;i++){
+    CP.push({
+      x:Math.random()*confetti.width,y:-20-Math.random()*60,
+      w:5+Math.random()*9,h:9+Math.random()*12,
+      c:CC[Math.floor(Math.random()*CC.length)],
+      vx:-4+Math.random()*8,vy:1.5+Math.random()*5,
+      rot:Math.random()*360,rv:-6+Math.random()*12,
+      life:1,shape:Math.random()>.5?'rect':'circle'
+    });
+  }
+  if(cRAF)cancelAnimationFrame(cRAF);
+  animConfetti();
+}
+function animConfetti(){
   cctx.clearRect(0,0,confetti.width,confetti.height);
-  var alive = false;
-  confettiParts.forEach(function(p){
-    if(p.y > confetti.height + 20 || p.life<=0) return;
-    alive = true;
-    p.x += p.vx; p.y += p.vy; p.vy += 0.12;
-    p.rot += p.rotV; p.life -= 0.006;
+  var alive=false;
+  CP.forEach(function(p){
+    if(p.y>confetti.height+20||p.life<=0)return;
+    alive=true;
+    p.x+=p.vx;p.y+=p.vy;p.vy+=0.1;p.rot+=p.rv;p.life-=0.005;
     cctx.save();
     cctx.translate(p.x,p.y);
     cctx.rotate(p.rot*Math.PI/180);
-    cctx.globalAlpha = Math.min(1, p.life*3);
-    cctx.fillStyle = p.color;
-    cctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+    cctx.globalAlpha=Math.min(1,p.life*4);
+    cctx.fillStyle=p.c;
+    if(p.shape==='circle'){cctx.beginPath();cctx.arc(0,0,p.w/2,0,Math.PI*2);cctx.fill();}
+    else cctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
     cctx.restore();
   });
-  if(alive) confettiRAF = requestAnimationFrame(animateConfetti);
+  if(alive)cRAF=requestAnimationFrame(animConfetti);
   else stopConfetti();
 }
+function stopConfetti(){if(cRAF){cancelAnimationFrame(cRAF);cRAF=null;}cctx.clearRect(0,0,confetti.width,confetti.height);}
 
-function stopConfetti(){
-  if(confettiRAF){ cancelAnimationFrame(confettiRAF); confettiRAF=null; }
-  cctx.clearRect(0,0,confetti.width,confetti.height);
+/* ═══════════════════════════════════════════
+   HISTORY & STATS
+═══════════════════════════════════════════ */
+function getHistory(){ try{return JSON.parse(localStorage.getItem(LS_HISTORY)||'[]');}catch(e){return[];} }
+function saveHistory(s){
+  if(s.type!=='win')return;
+  var h=getHistory();
+  h.unshift({emoji:s.emoji,prize:s.prize,code:s.code,date:new Date().toLocaleDateString()});
+  if(h.length>20)h=h.slice(0,20);
+  try{localStorage.setItem(LS_HISTORY,JSON.stringify(h));}catch(e){}
+}
+function getStats(){ try{return JSON.parse(localStorage.getItem(LS_STATS)||'{"spins":0,"wins":0,"saved":0}');}catch(e){return{spins:0,wins:0,saved:0};} }
+function updateStats(s){
+  var st=getStats();
+  st.spins++;
+  if(s.type==='win'){st.wins++;st.saved+=(s.saved||0);}
+  try{localStorage.setItem(LS_STATS,JSON.stringify(st));}catch(e){}
+}
+function updateChip(){
+  var last='';try{last=localStorage.getItem(LS_KEY)||'';}catch(e){}
+  var chip=document.getElementById('swChip'),txt=document.getElementById('swChipText');
+  if(last===new Date().toDateString()){
+    chip.className='sw-chip used';
+    txt.textContent='✓ Spin used — Resets at midnight';
+    btn.disabled=true;
+    document.getElementById('swBtnIcon').textContent='🔒';
+    document.getElementById('swBtnLabel').textContent='DONE';
+    hint1.style.display='none';hint2.style.display='none';
+  } else {
+    chip.className='sw-chip available';
+    txt.textContent='1 Free Spin Available!';
+  }
+}
+function updatePrevWins(){
+  var h=getHistory();
+  var pw=document.getElementById('swPrevWins');
+  /* Clear old pills */
+  var pills=pw.querySelectorAll('.sw-prev-pill');
+  pills.forEach(function(p){p.remove();});
+  if(!h.length) return;
+  h.slice(0,4).forEach(function(item){
+    var pill=document.createElement('span');
+    pill.className='sw-prev-pill';
+    pill.textContent=item.emoji+' '+item.prize;
+    pw.appendChild(pill);
+  });
 }
 
-/* ─────────────────────────────────────────
-   STARS background
-───────────────────────────────────────── */
+/* ═══════════════════════════════════════════
+   STARS
+═══════════════════════════════════════════ */
 (function(){
-  var starsDiv = document.getElementById('qbswStars');
-  for(var i=0;i<60;i++){
-    var s=document.createElement('div');
-    s.className='qbsw-star';
-    var size=(Math.random()*2.5+0.5).toFixed(1);
-    s.style.cssText='width:'+size+'px;height:'+size+'px;'
-      +'left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;'
-      +'--d:'+(2+Math.random()*4).toFixed(1)+'s;--delay:'+(Math.random()*4).toFixed(1)+'s;'
-      +'opacity:'+Math.random().toFixed(2)+';';
-    starsDiv.appendChild(s);
+  var root=document.getElementById('swRoot');
+  for(var i=0;i<70;i++){
+    var s=document.createElement('div');s.className='sw-star';
+    var sz=(Math.random()*2.5+0.4).toFixed(1);
+    s.style.cssText='width:'+sz+'px;height:'+sz+'px;top:'+Math.random()*100+'%;'+
+      'left:'+Math.random()*100+'%;--d:'+(2+Math.random()*5).toFixed(1)+'s;'+
+      '--dl:'+(Math.random()*5).toFixed(1)+'s;opacity:'+(Math.random()*.5).toFixed(2)+';';
+    root.appendChild(s);
   }
 })();
 
-/* ─────────────────────────────────────────
-   SPINS LEFT
-───────────────────────────────────────── */
-function updateSpinsLeft(){
-  var last='';
-  try{last=localStorage.getItem(LS_KEY)||'';}catch(e){}
-  var hasSpun = (last===new Date().toDateString());
-  spinsEl.textContent = hasSpun ? '🔒 Used today — Come back tomorrow!' : '🎯 1 Spin Available Today';
-  if(hasSpun) btn.disabled = true;
+/* ═══════════════════════════════════════════
+   HEX HELPER
+═══════════════════════════════════════════ */
+function hexToRgb(hex){
+  var r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return r?parseInt(r[1],16)+','+parseInt(r[2],16)+','+parseInt(r[3],16):'244,180,0';
 }
 
-/* ─────────────────────────────────────────
+/* ═══════════════════════════════════════════
    EVENTS
-───────────────────────────────────────── */
-btn.addEventListener('click', spin);
-canvas.addEventListener('click', spin);
-document.getElementById('qbswSpinAgainBtn').addEventListener('click', closeModal);
-document.getElementById('qbswCta').addEventListener('click', function(){
-  closeModal();
-});
-modal.addEventListener('click', function(e){
-  if(e.target===modal) closeModal();
+═══════════════════════════════════════════ */
+btn.addEventListener('click',spin,{passive:true});
+canvas.addEventListener('click',spin,{passive:true});
+/* Touch swipe on canvas */
+var swipeStartY=0;
+canvas.addEventListener('touchstart',function(e){swipeStartY=e.touches[0].clientY;},{passive:true});
+canvas.addEventListener('touchend',function(e){
+  var dy=swipeStartY-e.changedTouches[0].clientY;
+  if(Math.abs(dy)>30) spin();
+},{passive:true});
+
+document.getElementById('swCloseBtn').addEventListener('click',closeSheet);
+overlay.addEventListener('click',function(e){if(e.target===overlay)closeSheet();});
+
+/* ── Claim & Checkout flow ── */
+var currentWinSeg=null; /* set when sheet opens */
+
+document.getElementById('swCtaBtn').addEventListener('click',function(){
+  if(!currentWinSeg) return;
+  var s=currentWinSeg;
+
+  /* If "Try Again" / no code — just go to collections */
+  if(s.type==='lose'||!s.code){
+    closeSheet();
+    window.location.href='/collections/all';
+    return;
+  }
+
+  /* Start loading state */
+  var btn=document.getElementById('swCtaBtn');
+  btn.disabled=true;
+  document.getElementById('swCtaIcon').textContent='⏳';
+  document.getElementById('swCtaText').textContent='Processing…';
+
+  /* Step 1 — fetch spin-the-wheel product to get variant ID */
+  fetch('/products/spin-the-wheel.js')
+    .then(function(r){return r.json();})
+    .then(function(prod){
+      var variantId=prod.variants[0].id;
+
+      /* Step 2 — add to cart with prize as line item property */
+      return fetch('/cart/add.js',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          items:[{
+            id:variantId,
+            quantity:1,
+            properties:{
+              '🎁 Prize Won':s.prize,
+              '🏷️ Coupon Code':s.code,
+              '📅 Won On':new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}),
+              '_source':'QuickBee Lucky Wheel'
+            }
+          }]
+        })
+      });
+    })
+    .then(function(r){return r.json();})
+    .then(function(){
+      /* Step 3 — update cart note with prize details */
+      var noteExtra='\n\n🎰 LUCKY WHEEL WIN\n'
+        +'  Prize  : '+s.prize+'\n'
+        +'  Code   : '+s.code+'\n'
+        +'  Won On : '+new Date().toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});
+
+      return fetch('/cart/update.js',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({note:noteExtra})
+      });
+    })
+    .then(function(){
+      document.getElementById('swCtaIcon').textContent='✓';
+      document.getElementById('swCtaText').textContent='Redirecting to checkout…';
+      /* Step 4 — go to checkout with discount code pre-applied */
+      setTimeout(function(){
+        window.location.href='/checkout?discount='+encodeURIComponent(s.code);
+      },400);
+    })
+    .catch(function(err){
+      console.error('Spin claim error:',err);
+      /* Fallback: just go to checkout with discount */
+      window.location.href='/checkout?discount='+encodeURIComponent(s.code);
+    });
 });
 
-/* ─────────────────────────────────────────
+/* ═══════════════════════════════════════════
    INIT
-───────────────────────────────────────── */
+═══════════════════════════════════════════ */
 resize();
-updateSpinsLeft();
-/* Initial gentle idle rotation */
-var idleAngle = 0;
-var idleRAF;
-function idleRotate(){
-  if(isSpinning) return;
-  idleAngle += 0.0008;
-  currentAngle = idleAngle;
-  drawWheel(currentAngle);
-  idleRAF = requestAnimationFrame(idleRotate);
-}
-idleRotate();
-
-/* Stop idle on first spin */
-var origSpin = spin;
-btn.addEventListener('click', function(){ if(idleRAF){cancelAnimationFrame(idleRAF);idleRAF=null;} }, true);
-canvas.addEventListener('click', function(){ if(idleRAF){cancelAnimationFrame(idleRAF);idleRAF=null;} }, true);
+updateChip();
+updatePrevWins();
+window.addEventListener('resize',resize,{passive:true});
 
 })();
 </script>
