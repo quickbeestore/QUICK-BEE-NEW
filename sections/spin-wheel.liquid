@@ -1,1323 +1,869 @@
-{% comment %} QuickBee — Spin The Wheel Premium Mobile Edition 2026 {% endcomment %}
+{% comment %} Aila Madira — Lucky Wheel 2026 {% endcomment %}
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{overflow:hidden!important;height:100%;background:#000!important;touch-action:none;}
+html,body{overflow:hidden!important;height:100%;background:#0a0500!important;touch-action:none;}
 #shopify-section-header,.site-header,header[class*="header"],
 #shopify-section-footer,.site-footer,footer[class*="footer"],
 .qb-ticker,.qb-trust-bar,#qbsc-root,.qb-timebox,
 [class*="announcement"],[id*="announcement"]{display:none!important;}
 
-/* ═══════════════════════════════════════════
-   ROOT
-═══════════════════════════════════════════ */
-.sw{
+:root{
+  --gold:#F4B400;--gold2:#FFD700;--gold3:#c8930a;
+  --red:#C0392B;--red2:#e74c3c;
+  --green:#25D366;--green2:#128C7E;
+  --bg:#0a0500;--bg2:#120900;
+  --radius:20px;
+}
+
+/* ── ROOT ── */
+.am{
   position:fixed;inset:0;
-  background:#000;
+  background:var(--bg);
   display:flex;flex-direction:column;align-items:center;
   font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;
   z-index:9999;overflow:hidden;
   user-select:none;-webkit-user-select:none;
 }
 
-/* Animated bg */
-.sw-bg{
+/* ── BG LAYERS ── */
+.am-bg{
   position:absolute;inset:0;pointer-events:none;
   background:
-    radial-gradient(ellipse 80% 50% at 50% -10%,rgba(244,180,0,0.18) 0%,transparent 70%),
-    radial-gradient(ellipse 60% 40% at 50% 110%,rgba(244,180,0,0.08) 0%,transparent 60%),
-    #080600;
+    radial-gradient(ellipse 100% 55% at 50% 0%,rgba(192,57,43,0.22) 0%,transparent 65%),
+    radial-gradient(ellipse 70% 40% at 50% 105%,rgba(244,180,0,0.1) 0%,transparent 60%),
+    #0a0500;
 }
-.sw-bg-pulse{
-  position:absolute;width:300px;height:300px;border-radius:50%;
-  background:radial-gradient(circle,rgba(244,180,0,0.06) 0%,transparent 70%);
-  top:50%;left:50%;transform:translate(-50%,-50%);
-  animation:swPulse 3s ease-in-out infinite;
+.am-bg-orb{
+  position:absolute;border-radius:50%;pointer-events:none;filter:blur(60px);
 }
-@keyframes swPulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.5}50%{transform:translate(-50%,-50%) scale(1.4);opacity:1}}
+.am-bg-orb1{width:280px;height:280px;top:-80px;left:-60px;background:rgba(192,57,43,0.12);animation:orbFloat1 8s ease-in-out infinite;}
+.am-bg-orb2{width:200px;height:200px;bottom:-40px;right:-40px;background:rgba(244,180,0,0.08);animation:orbFloat2 10s ease-in-out infinite;}
+@keyframes orbFloat1{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,20px)}}
+@keyframes orbFloat2{0%,100%{transform:translate(0,0)}50%{transform:translate(-20px,-30px)}}
 
 /* Stars */
-.sw-star{
-  position:absolute;border-radius:50%;background:#fff;pointer-events:none;
-  animation:swTwinkle var(--d) var(--dl) ease-in-out infinite alternate;
-}
-@keyframes swTwinkle{0%{opacity:.05}100%{opacity:.7}}
+.am-star{position:absolute;border-radius:50%;background:#fff;pointer-events:none;animation:twinkle var(--d) var(--dl) ease-in-out infinite alternate;}
+@keyframes twinkle{0%{opacity:.03}100%{opacity:.5}}
 
-/* ═══════════════════════════════════════════
-   HEADER BAR
-═══════════════════════════════════════════ */
-.sw-header{
-  width:100%;padding:env(safe-area-inset-top,12px) 20px 0;
+/* ── HEADER ── */
+.am-header{
+  width:100%;padding-top:calc(env(safe-area-inset-top,0px) + 10px);
+  padding-left:16px;padding-right:16px;padding-bottom:0;
   display:flex;align-items:center;justify-content:space-between;
   position:relative;z-index:5;flex-shrink:0;
-  padding-top:calc(env(safe-area-inset-top,0px) + 12px);
 }
-.sw-header-brand{
-  display:flex;align-items:center;gap:7px;
+.am-logo{display:flex;align-items:center;gap:8px;}
+.am-logo-icon{
+  width:34px;height:34px;border-radius:10px;
+  background:linear-gradient(135deg,var(--red),var(--red2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  box-shadow:0 2px 10px rgba(192,57,43,0.4);
 }
-.sw-header-bee{font-size:22px;line-height:1;}
-.sw-header-name{
-  font-size:16px;font-weight:900;letter-spacing:-0.3px;
-  background:linear-gradient(135deg,#FFD700,#F4B400);
+.am-logo-text{
+  font-size:17px;font-weight:900;letter-spacing:-0.3px;
+  background:linear-gradient(135deg,#fff 0%,var(--gold2) 60%,var(--gold) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }
-.sw-header-badge{
-  font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
-  color:#0a0600;background:#F4B400;border-radius:99px;
-  padding:3px 9px;
+.am-logo-sub{font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:0.08em;text-transform:uppercase;display:block;margin-top:-2px;}
+.am-spins-left{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(244,180,0,0.08);border:1px solid rgba(244,180,0,0.2);
+  border-radius:99px;padding:5px 10px;
 }
+.am-spins-icon{font-size:13px;}
+.am-spins-txt{font-size:11px;font-weight:800;color:var(--gold);letter-spacing:0.03em;}
 
-/* ═══════════════════════════════════════════
-   TITLE SECTION
-═══════════════════════════════════════════ */
-.sw-title-block{
-  text-align:center;flex-shrink:0;
-  padding:10px 20px 6px;position:relative;z-index:5;
+/* ── HERO TEXT ── */
+.am-hero{
+  text-align:center;padding:8px 20px 4px;
+  position:relative;z-index:5;flex-shrink:0;
 }
-.sw-title{
-  font-size:clamp(24px,6vw,34px);font-weight:900;letter-spacing:-0.5px;line-height:1;
-  background:linear-gradient(135deg,#FFFFFF 0%,#FFD700 50%,#F4B400 100%);
+.am-hero-title{
+  font-size:clamp(22px,5.5vw,30px);font-weight:900;letter-spacing:-0.5px;line-height:1.05;
+  color:#fff;
+}
+.am-hero-title span{
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }
-.sw-subtitle{
-  font-size:12px;color:rgba(255,255,255,0.38);margin-top:4px;letter-spacing:0.04em;
-}
+.am-hero-sub{font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px;letter-spacing:0.04em;}
 
-/* ═══════════════════════════════════════════
-   SPIN AVAILABILITY CHIP
-═══════════════════════════════════════════ */
-.sw-chip{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:6px 14px;border-radius:99px;
-  font-size:11px;font-weight:800;letter-spacing:0.04em;
-  margin:4px 0 0;
+/* Spin counter pills */
+.am-dots{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:6px;}
+.am-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.1);
   transition:all .3s;
 }
-.sw-chip.available{
-  background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);color:#4ade80;
-}
-.sw-chip.used{
-  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.35);
-}
-.sw-chip-dot{
-  width:6px;height:6px;border-radius:50%;flex-shrink:0;
-}
-.sw-chip.available .sw-chip-dot{background:#4ade80;animation:swDotPulse 1.2s ease infinite;}
-.sw-chip.used .sw-chip-dot{background:rgba(255,255,255,0.2);}
-@keyframes swDotPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.6}}
+.am-dot.used{background:var(--gold);border-color:var(--gold);box-shadow:0 0 6px rgba(244,180,0,0.6);}
+.am-dot.active{background:var(--red2);border-color:var(--red2);box-shadow:0 0 8px rgba(231,76,60,0.8);animation:dotPulse .8s ease infinite;}
+@keyframes dotPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
 
-/* ═══════════════════════════════════════════
-   WHEEL ZONE
-═══════════════════════════════════════════ */
-.sw-wheel-zone{
+/* ── WHEEL ZONE ── */
+.am-wheel-zone{
   flex:1;display:flex;align-items:center;justify-content:center;
-  position:relative;width:100%;min-height:0;
-  padding:4px 0;
+  position:relative;width:100%;min-height:0;padding:2px 0;
 }
-
-/* Outer decorative ring with tick marks */
-.sw-ring-outer{
+.am-glow-ring{
   position:absolute;border-radius:50%;pointer-events:none;
-  border:2px solid rgba(244,180,0,0.15);
-  box-shadow:
-    0 0 0 1px rgba(244,180,0,0.06),
-    inset 0 0 0 1px rgba(244,180,0,0.06),
-    0 0 50px 10px rgba(244,180,0,0.12),
-    0 0 100px 30px rgba(244,180,0,0.06);
+  box-shadow:0 0 60px 15px rgba(192,57,43,0.15),0 0 120px 40px rgba(244,180,0,0.06);
+  animation:glowPulse 3s ease-in-out infinite;
 }
-
-/* Pointer */
-.sw-pointer{
+@keyframes glowPulse{0%,100%{opacity:.6}50%{opacity:1}}
+.am-pointer{
   position:absolute;z-index:20;pointer-events:none;
-  top:0;left:50%;transform:translateX(-50%) translateY(-2px);
-  filter:drop-shadow(0 0 10px rgba(244,180,0,1)) drop-shadow(0 2px 6px rgba(0,0,0,.8));
+  top:0;left:50%;transform:translateX(-50%) translateY(-4px);
+  filter:drop-shadow(0 0 12px var(--gold)) drop-shadow(0 2px 6px rgba(0,0,0,.8));
 }
-
-/* Canvas */
-#swCanvas{
+#amCanvas{
   display:block;border-radius:50%;position:relative;z-index:3;
-  transition:filter .3s;
   touch-action:none;cursor:pointer;
+  transition:filter .3s;
 }
-.sw-wheel-zone.spinning #swCanvas{
-  filter:drop-shadow(0 0 30px rgba(244,180,0,.5));
-}
-
-/* Center button */
-.sw-center{
+.am-wheel-zone.spinning #amCanvas{filter:drop-shadow(0 0 40px rgba(192,57,43,0.5));}
+.am-center{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   z-index:15;border-radius:50%;border:none;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   cursor:pointer;touch-action:manipulation;
-  background:radial-gradient(circle at 38% 32%,#ffe566 0%,#F4B400 45%,#c8930a 75%,#a07000 100%);
-  transition:transform .1s,filter .1s,box-shadow .1s;
+  background:radial-gradient(circle at 35% 30%,#ff6b5b 0%,var(--red) 40%,#8b1a1a 80%,#5a0d0d 100%);
+  transition:transform .12s,filter .12s,box-shadow .12s;
   -webkit-tap-highlight-color:transparent;
 }
-.sw-center:active{transform:translate(-50%,-50%) scale(0.91)!important;}
-.sw-center:disabled{
-  background:radial-gradient(circle,#3a3a3a,#1a1a1a);cursor:not-allowed;
-  filter:none!important;
+.am-center:active{transform:translate(-50%,-50%) scale(0.9)!important;}
+.am-center:disabled{
+  background:radial-gradient(circle,#2a2a2a,#1a1a1a);cursor:not-allowed;filter:none!important;
 }
-.sw-center-icon{line-height:1;display:block;}
-.sw-center-label{
-  font-weight:900;color:#0a0600;letter-spacing:0.08em;text-transform:uppercase;
+.am-center-icon{line-height:1;display:block;}
+.am-center-label{
+  font-weight:900;color:#fff;letter-spacing:0.08em;text-transform:uppercase;
   display:block;line-height:1;margin-top:2px;
 }
-.sw-center:disabled .sw-center-icon,.sw-center:disabled .sw-center-label{opacity:.35;}
-
-/* "Tap to spin" hint ring animation */
-.sw-hint-ring{
+.am-center:disabled .am-center-icon,.am-center:disabled .am-center-label{opacity:.3;}
+.am-hint-ring{
   position:absolute;top:50%;left:50%;border-radius:50%;
-  border:2px solid rgba(244,180,0,0.4);pointer-events:none;z-index:14;
-  animation:swHintRing 2s ease-out infinite;
-  transform:translate(-50%,-50%) scale(1);
+  border:2px solid rgba(192,57,43,0.4);pointer-events:none;z-index:14;
+  animation:hintRing 2s ease-out infinite;
 }
-@keyframes swHintRing{
-  0%{transform:translate(-50%,-50%) scale(1);opacity:.8}
-  100%{transform:translate(-50%,-50%) scale(1.9);opacity:0}
-}
-.sw-hint-ring:nth-child(2){animation-delay:.7s;}
+@keyframes hintRing{0%{transform:translate(-50%,-50%) scale(1);opacity:.8}100%{transform:translate(-50%,-50%) scale(2);opacity:0}}
+.am-hint-ring:nth-child(2){animation-delay:.8s;}
 
-/* Swipe hint */
-.sw-swipe-hint{
-  position:absolute;bottom:8px;left:0;right:0;
-  text-align:center;font-size:10px;color:rgba(255,255,255,.2);
-  letter-spacing:0.06em;pointer-events:none;z-index:5;
+/* ── BOTTOM WA BAR ── */
+.am-wa-bar{
+  width:100%;padding:8px 16px;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 8px);
+  flex-shrink:0;position:relative;z-index:5;
 }
+.am-wa-btn{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;padding:14px 20px;border-radius:16px;border:none;
+  background:linear-gradient(135deg,#25D366 0%,#128C7E 100%);
+  color:#fff;font-size:14px;font-weight:900;cursor:pointer;
+  text-decoration:none;touch-action:manipulation;
+  box-shadow:0 4px 24px rgba(37,211,102,0.35),0 1px 0 rgba(255,255,255,0.2) inset;
+  letter-spacing:0.02em;
+  transition:transform .1s,box-shadow .1s;
+  position:relative;overflow:hidden;
+}
+.am-wa-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.15) 0%,transparent 60%);
+}
+.am-wa-btn:active{transform:scale(0.97);box-shadow:0 2px 12px rgba(37,211,102,0.2);}
+.am-wa-icon{
+  width:26px;height:26px;flex-shrink:0;
+  background:#fff;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.am-wa-icon svg{width:16px;height:16px;}
+.am-wa-texts{display:flex;flex-direction:column;align-items:flex-start;}
+.am-wa-main{font-size:14px;font-weight:900;line-height:1.1;}
+.am-wa-mini{font-size:10px;font-weight:600;opacity:0.8;letter-spacing:0.04em;}
 
-/* ═══════════════════════════════════════════
-   BOTTOM SHEET MODAL
-═══════════════════════════════════════════ */
-.sw-sheet-overlay{
+/* ── BOTTOM SHEET ── */
+.am-overlay{
   position:fixed;inset:0;z-index:10000;
   background:rgba(0,0,0,0);pointer-events:none;
   transition:background .35s;
 }
-.sw-sheet-overlay.show{
-  background:rgba(0,0,0,0.75);pointer-events:all;
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+.am-overlay.show{
+  background:rgba(0,0,0,0.82);pointer-events:all;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
 }
-.sw-sheet{
+.am-sheet{
   position:absolute;bottom:0;left:0;right:0;
-  background:linear-gradient(180deg,#111000 0%,#0a0800 100%);
+  background:linear-gradient(180deg,#160800 0%,#0d0500 100%);
   border-radius:28px 28px 0 0;
-  border-top:1px solid rgba(244,180,0,0.2);
-  border-left:1px solid rgba(244,180,0,0.08);
-  border-right:1px solid rgba(244,180,0,0.08);
+  border-top:1px solid rgba(192,57,43,0.25);
+  border-left:1px solid rgba(192,57,43,0.08);
+  border-right:1px solid rgba(192,57,43,0.08);
   padding:0 0 env(safe-area-inset-bottom,20px);
   transform:translateY(110%);
   transition:transform .45s cubic-bezier(0.34,1.4,0.64,1);
-  box-shadow:0 -20px 80px rgba(0,0,0,.9),0 -4px 30px rgba(244,180,0,.08);
-  overflow:hidden;
-  max-height:92vh;
-  display:flex;flex-direction:column;
+  box-shadow:0 -20px 80px rgba(0,0,0,.95),0 -4px 30px rgba(192,57,43,.1);
+  overflow:hidden;max-height:88vh;display:flex;flex-direction:column;
 }
-.sw-sheet-overlay.show .sw-sheet{transform:translateY(0);}
+.am-overlay.show .am-sheet{transform:translateY(0);}
+.am-sheet-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,0.12);margin:12px auto 0;flex-shrink:0;}
+.am-sheet-scroll{overflow-y:auto;flex:1;}
 
-/* Handle bar */
-.sw-sheet-handle{
-  width:36px;height:4px;border-radius:2px;
-  background:rgba(255,255,255,0.15);
-  margin:12px auto 0;flex-shrink:0;
+/* Sheet hero */
+.am-sheet-hero{text-align:center;padding:16px 24px 12px;position:relative;}
+.am-sheet-glow{
+  position:absolute;top:-40px;left:50%;transform:translateX(-50%);
+  width:180px;height:100px;border-radius:50%;pointer-events:none;
 }
-
-/* Sheet top glow */
-.sw-sheet-glow{
-  position:absolute;top:-60px;left:50%;transform:translateX(-50%);
-  width:200px;height:120px;border-radius:50%;
-  background:radial-gradient(ellipse,rgba(244,180,0,0.25) 0%,transparent 70%);
-  pointer-events:none;
-}
-
-.sw-sheet-scroll{overflow-y:auto;flex:1;}
-
-/* ── Prize header ── */
-.sw-sheet-hero{
-  text-align:center;padding:20px 24px 16px;position:relative;
-}
-.sw-sheet-emoji-wrap{
-  width:80px;height:80px;border-radius:24px;
-  margin:0 auto 14px;display:flex;align-items:center;justify-content:center;
-  font-size:44px;line-height:1;
+.am-prize-icon-wrap{
+  width:76px;height:76px;border-radius:22px;
+  margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:40px;
   position:relative;
 }
-.sw-sheet-emoji-bg{
+.am-prize-icon-bg{
   position:absolute;inset:0;border-radius:inherit;
-  animation:swEmojiPop .5s .1s cubic-bezier(0.34,1.56,0.64,1) both;
+  animation:iconPop .5s .1s cubic-bezier(0.34,1.56,0.64,1) both;
 }
-@keyframes swEmojiPop{0%{transform:scale(0.3) rotate(-20deg);opacity:0}100%{transform:scale(1) rotate(0deg);opacity:1}}
-.sw-sheet-emoji{position:relative;z-index:1;animation:swEmojiPop .5s .15s cubic-bezier(0.34,1.56,0.64,1) both;}
+@keyframes iconPop{0%{transform:scale(0.2) rotate(-15deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+.am-prize-icon-em{position:relative;z-index:1;animation:iconPop .5s .15s cubic-bezier(0.34,1.56,0.64,1) both;}
+.am-sheet-tag{font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;}
+.am-sheet-title{font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.3px;margin-bottom:4px;}
+.am-sheet-prize{font-size:15px;font-weight:700;color:var(--gold);margin-bottom:6px;}
+.am-sheet-desc{font-size:12px;color:rgba(255,255,255,0.4);line-height:1.5;padding:0 10px;}
 
-.sw-sheet-tag{
-  font-size:10px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;
-  margin-bottom:5px;
+/* Code box */
+.am-code-box{
+  margin:12px 20px;padding:14px 16px;
+  background:rgba(244,180,0,0.06);border:1px solid rgba(244,180,0,0.2);
+  border-radius:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;
 }
-.sw-sheet-heading{
-  font-size:26px;font-weight:900;letter-spacing:-0.4px;line-height:1.1;
-  background:linear-gradient(135deg,#FFD700,#F4B400);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  margin-bottom:4px;
+.am-code-left{}
+.am-code-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);margin-bottom:3px;}
+.am-code-val{font-size:20px;font-weight:900;color:var(--gold);letter-spacing:0.08em;font-variant-numeric:tabular-nums;}
+.am-code-exp{font-size:9px;color:rgba(255,255,255,0.25);margin-top:2px;}
+.am-copy-btn{
+  padding:8px 14px;border-radius:10px;border:1px solid rgba(244,180,0,0.3);
+  background:rgba(244,180,0,0.08);color:var(--gold);font-size:12px;font-weight:800;
+  cursor:pointer;white-space:nowrap;transition:all .15s;
 }
-.sw-sheet-prize{
-  font-size:17px;font-weight:800;color:#fff;margin-bottom:4px;
-}
-.sw-sheet-desc{
-  font-size:12px;color:rgba(255,255,255,0.38);line-height:1.55;
-}
+.am-copy-btn.copied{background:rgba(74,222,128,0.15);border-color:rgba(74,222,128,0.4);color:#4ade80;}
 
-/* ── Voucher card ── */
-.sw-voucher{
-  margin:12px 20px;border-radius:20px;overflow:hidden;
-  position:relative;
+/* Screenshot instruction */
+.am-screenshot-row{
+  margin:0 20px 10px;padding:10px 14px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px;display:flex;align-items:center;gap:10px;
 }
-.sw-voucher-inner{
-  background:linear-gradient(135deg,rgba(244,180,0,0.12),rgba(244,180,0,0.05));
-  border:1.5px dashed rgba(244,180,0,0.4);
-  border-radius:20px;padding:16px 18px;
-  display:flex;align-items:center;gap:12px;
-  position:relative;
-}
-/* Notch effect */
-.sw-voucher-inner::before,.sw-voucher-inner::after{
-  content:'';position:absolute;width:20px;height:20px;border-radius:50%;
-  background:#0a0800;top:50%;transform:translateY(-50%);
-}
-.sw-voucher-inner::before{left:-10px;}
-.sw-voucher-inner::after{right:-10px;}
+.am-screenshot-icon{font-size:22px;flex-shrink:0;}
+.am-screenshot-txt{font-size:11px;color:rgba(255,255,255,0.45);line-height:1.4;}
+.am-screenshot-txt strong{color:rgba(255,255,255,0.7);display:block;font-size:12px;margin-bottom:1px;}
 
-.sw-voucher-left{flex:1;min-width:0;}
-.sw-voucher-label{
-  font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
-  color:rgba(244,180,0,0.55);margin-bottom:4px;
-}
-.sw-voucher-code{
-  font-size:24px;font-weight:900;color:#F4B400;
-  font-family:'SF Mono',Menlo,monospace;letter-spacing:0.06em;
-  line-height:1;
-}
-.sw-voucher-valid{
-  font-size:10px;color:rgba(255,255,255,0.3);margin-top:3px;
-}
-.sw-copy-btn{
-  flex-shrink:0;padding:10px 16px;border-radius:12px;
-  background:rgba(244,180,0,0.15);border:1.5px solid rgba(244,180,0,0.3);
-  font-size:12px;font-weight:800;color:#F4B400;cursor:pointer;
-  transition:all .15s;touch-action:manipulation;white-space:nowrap;
-}
-.sw-copy-btn.done{
-  background:rgba(74,222,128,0.1);border-color:rgba(74,222,128,0.35);color:#4ade80;
-}
-
-/* ── Stats row ── */
-.sw-stats{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:8px;margin:0 20px 16px;
-}
-.sw-stat-card{
-  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
-  border-radius:14px;padding:11px 8px;text-align:center;
-}
-.sw-stat-val{
-  font-size:16px;font-weight:900;color:#F4B400;line-height:1;margin-bottom:2px;
-}
-.sw-stat-lbl{font-size:9px;color:rgba(255,255,255,0.3);font-weight:600;letter-spacing:0.05em;}
-
-/* ── Action buttons ── */
-.sw-actions{padding:0 20px 8px;display:flex;flex-direction:column;gap:10px;}
-.sw-btn-primary{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  padding:16px;border-radius:16px;border:none;
-  background:linear-gradient(135deg,#F4B400 0%,#e8a800 100%);
-  color:#0a0600;font-size:16px;font-weight:900;cursor:pointer;
-  letter-spacing:0.02em;
-  box-shadow:0 4px 24px rgba(244,180,0,0.35),0 1px 0 rgba(255,255,255,0.2) inset;
-  transition:transform .1s,box-shadow .1s;
-  text-decoration:none;touch-action:manipulation;
-}
-.sw-btn-primary:active{transform:scale(0.97);box-shadow:0 2px 12px rgba(244,180,0,0.2);}
-.sw-btn-secondary{
-  display:flex;align-items:center;justify-content:center;
-  padding:13px;border-radius:14px;border:1px solid rgba(255,255,255,0.1);
-  background:rgba(255,255,255,0.04);
-  color:rgba(255,255,255,0.45);font-size:13px;font-weight:700;cursor:pointer;
-  transition:all .15s;touch-action:manipulation;
-  text-decoration:none;
-}
-.sw-btn-secondary:active{background:rgba(255,255,255,0.08);}
-.sw-btn-whatsapp{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  padding:14px;border-radius:14px;border:none;
+/* Sheet actions */
+.am-sheet-actions{padding:0 20px 16px;display:flex;flex-direction:column;gap:10px;}
+.am-btn-wa{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:15px;border-radius:16px;border:none;
   background:linear-gradient(135deg,#25D366,#128C7E);
-  color:#fff;font-size:14px;font-weight:800;cursor:pointer;
+  color:#fff;font-size:15px;font-weight:900;cursor:pointer;
   text-decoration:none;touch-action:manipulation;
-  box-shadow:0 4px 20px rgba(37,211,102,0.35);
+  box-shadow:0 4px 24px rgba(37,211,102,0.4);
   transition:transform .1s,box-shadow .1s;
+  position:relative;overflow:hidden;
 }
-.sw-btn-whatsapp:active{transform:scale(0.97);}
-
-/* ── Win history pill row ── */
-.sw-history{
-  padding:4px 20px 16px;
+.am-btn-wa::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.12) 0%,transparent 60%);}
+.am-btn-wa:active{transform:scale(0.97);}
+.am-btn-wa-icon{
+  width:28px;height:28px;background:#fff;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
 }
-.sw-history-label{
-  font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
-  color:rgba(255,255,255,0.2);margin-bottom:8px;
-}
-.sw-history-row{display:flex;gap:6px;flex-wrap:wrap;}
-.sw-history-pill{
-  display:flex;align-items:center;gap:4px;
-  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
-  border-radius:99px;padding:4px 10px;
-  font-size:10px;color:rgba(255,255,255,0.35);font-weight:600;
+.am-btn-wa-icon svg{width:17px;height:17px;}
+.am-btn-close{
+  padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.35);
+  font-size:13px;font-weight:700;cursor:pointer;
 }
 
-/* ── Try Again variant ── */
-.sw-sheet-overlay.tryagain .sw-sheet{
-  background:linear-gradient(180deg,#0d0d0d 0%,#080808 100%);
-  border-top-color:rgba(255,255,255,0.08);
-}
-.sw-sheet-overlay.tryagain .sw-sheet-heading{
-  background:linear-gradient(135deg,#aaa,#777);
-  -webkit-background-clip:text;background-clip:text;
-}
-.sw-sheet-overlay.tryagain .sw-btn-primary{
-  background:linear-gradient(135deg,#444,#333);color:#fff;
-  box-shadow:none;
-}
+/* Lose sheet */
+.am-sheet.lose .am-sheet-hero{opacity:.7;}
 
-/* ═══════════════════════════════════════════
-   CONFETTI
-═══════════════════════════════════════════ */
-#swConfetti{position:fixed;inset:0;pointer-events:none;z-index:11000;}
+/* Confetti */
+#amConfetti{position:fixed;inset:0;pointer-events:none;z-index:11000;}
 
-/* ═══════════════════════════════════════════
-   PREV WINS STRIP (bottom of wheel zone)
-═══════════════════════════════════════════ */
-.sw-prev-wins{
-  display:flex;align-items:center;gap:6px;
-  padding:0 16px 8px;flex-shrink:0;
-  overflow-x:auto;scrollbar-width:none;position:relative;z-index:5;
+/* Recent wins */
+.am-recent{
+  width:100%;padding:6px 16px;flex-shrink:0;
+  display:flex;align-items:center;gap:8px;overflow:hidden;
+  position:relative;z-index:5;
 }
-.sw-prev-wins::-webkit-scrollbar{display:none;}
-.sw-prev-label{
-  font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
-  color:rgba(255,255,255,0.18);white-space:nowrap;flex-shrink:0;
-}
-.sw-prev-pill{
-  display:flex;align-items:center;gap:3px;
-  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
-  border-radius:99px;padding:3px 9px;white-space:nowrap;
-  font-size:10px;color:rgba(255,255,255,0.3);font-weight:600;flex-shrink:0;
+.am-recent-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.2);white-space:nowrap;flex-shrink:0;}
+.am-recent-pills{display:flex;gap:6px;overflow:hidden;}
+.am-recent-pill{
+  font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);
+  border-radius:99px;padding:3px 8px;white-space:nowrap;flex-shrink:0;
 }
 </style>
 
-<!-- Root -->
-<div class="sw" id="swRoot">
-  <div class="sw-bg"><div class="sw-bg-pulse"></div></div>
-  <div id="swStars"></div>
+<!-- ROOT -->
+<div class="am" id="amRoot">
+  <div class="am-bg">
+    <div class="am-bg-orb am-bg-orb1"></div>
+    <div class="am-bg-orb am-bg-orb2"></div>
+  </div>
+  <div id="amStars"></div>
 
-  <!-- Header -->
-  <div class="sw-header">
-    <div class="sw-header-brand">
-      <span class="sw-header-bee">🍶</span>
-      <span class="sw-header-name">Aila Madira</span>
+  <!-- HEADER -->
+  <div class="am-header">
+    <div class="am-logo">
+      <div class="am-logo-icon">🍶</div>
+      <div>
+        <div class="am-logo-text">Aila Madira</div>
+        <span class="am-logo-sub">Lucky Wheel</span>
+      </div>
     </div>
-    <span class="sw-header-badge">Spin & Win</span>
+    <div class="am-spins-left" id="amSpinsLeft">
+      <span class="am-spins-icon">🎰</span>
+      <span class="am-spins-txt" id="amSpinsTxt">5 spins left</span>
+    </div>
   </div>
 
-  <!-- Title -->
-  <div class="sw-title-block">
-    <div class="sw-title">🎰 Lucky Wheel</div>
-    <div class="sw-subtitle">Spin · Win · Screenshot · Claim on WhatsApp</div>
-    <div class="sw-chip available" id="swChip">
-      <span class="sw-chip-dot"></span>
-      <span id="swChipText">1 Free Spin Available!</span>
+  <!-- HERO -->
+  <div class="am-hero">
+    <div class="am-hero-title">Win <span>Free Food & Drinks</span></div>
+    <div class="am-hero-sub">Spin · Screenshot · Order on WhatsApp · Enjoy!</div>
+    <div class="am-dots" id="amDots">
+      <div class="am-dot" id="amDot0"></div>
+      <div class="am-dot" id="amDot1"></div>
+      <div class="am-dot" id="amDot2"></div>
+      <div class="am-dot" id="amDot3"></div>
+      <div class="am-dot" id="amDot4"></div>
     </div>
   </div>
 
-  <!-- Wheel Zone -->
-  <div class="sw-wheel-zone" id="swZone">
-    <div class="sw-ring-outer" id="swRingOuter"></div>
-    <!-- Pointer -->
-    <div class="sw-pointer" id="swPointer">
-      <svg width="32" height="42" viewBox="0 0 32 42" fill="none">
-        <path d="M16 42 L0 8 Q16 0 32 8 Z" fill="#F4B400"/>
-        <path d="M16 36 L5 12 Q16 6 27 12 Z" fill="#FFD700" opacity="0.6"/>
-        <circle cx="16" cy="6" r="4" fill="#FFD700"/>
+  <!-- WHEEL -->
+  <div class="am-wheel-zone" id="amZone">
+    <div class="am-glow-ring" id="amGlowRing"></div>
+    <div class="am-pointer" id="amPointer">
+      <svg width="28" height="38" viewBox="0 0 28 38" fill="none">
+        <path d="M14 38 L0 7 Q14 0 28 7 Z" fill="#C0392B"/>
+        <path d="M14 32 L4 10 Q14 5 24 10 Z" fill="#e74c3c" opacity="0.6"/>
+        <circle cx="14" cy="5" r="4" fill="#F4B400"/>
       </svg>
     </div>
-    <!-- Canvas -->
-    <canvas id="swCanvas" aria-label="Spin the wheel"></canvas>
-    <!-- Hint rings -->
-    <div class="sw-hint-ring" id="swHintRing1"></div>
-    <div class="sw-hint-ring" id="swHintRing2"></div>
-    <!-- Center button -->
-    <button class="sw-center" id="swBtn" aria-label="Spin">
-      <span class="sw-center-icon" id="swBtnIcon">🎰</span>
-      <span class="sw-center-label" id="swBtnLabel">SPIN</span>
+    <canvas id="amCanvas" aria-label="Spin the wheel"></canvas>
+    <div class="am-hint-ring" id="amHint1"></div>
+    <div class="am-hint-ring" id="amHint2"></div>
+    <button class="am-center" id="amBtn" aria-label="Spin">
+      <span class="am-center-icon" id="amBtnIcon">🎰</span>
+      <span class="am-center-label" id="amBtnLabel">SPIN</span>
     </button>
-    <div class="sw-swipe-hint">Tap wheel or button to spin</div>
   </div>
 
-  <!-- Previous wins strip -->
-  <div class="sw-prev-wins" id="swPrevWins">
-    <span class="sw-prev-label">Recent Wins</span>
+  <!-- RECENT WINS -->
+  <div class="am-recent" id="amRecent">
+    <span class="am-recent-lbl">Recent</span>
+    <div class="am-recent-pills" id="amRecentPills"></div>
+  </div>
+
+  <!-- BOTTOM WA BAR -->
+  <div class="am-wa-bar">
+    <a class="am-wa-btn" href="https://wa.me/9779704015190?text=Hi!%20I%20want%20to%20order%20from%20Aila%20Madira%20%F0%9F%8D%B6" target="_blank">
+      <div class="am-wa-icon">
+        <svg viewBox="0 0 24 24" fill="#25D366" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+      </div>
+      <div class="am-wa-texts">
+        <span class="am-wa-main">Order Now on WhatsApp</span>
+        <span class="am-wa-mini">Fastest delivery · Always fresh</span>
+      </div>
+    </a>
   </div>
 </div>
 
-<!-- Bottom Sheet Modal -->
-<div class="sw-sheet-overlay" id="swOverlay">
-  <div class="sw-sheet" id="swSheet">
-    <div class="sw-sheet-glow" id="swSheetGlow"></div>
-    <div class="sw-sheet-handle"></div>
-    <div class="sw-sheet-scroll">
-      <!-- Hero -->
-      <div class="sw-sheet-hero">
-        <div class="sw-sheet-emoji-wrap">
-          <div class="sw-sheet-emoji-bg" id="swEmojiBg"></div>
-          <span class="sw-sheet-emoji" id="swSheetEmoji">🎁</span>
+<!-- BOTTOM SHEET -->
+<div class="am-overlay" id="amOverlay">
+  <div class="am-sheet" id="amSheet">
+    <div class="am-sheet-handle"></div>
+    <div class="am-sheet-scroll">
+      <div class="am-sheet-hero">
+        <div class="am-sheet-glow" id="amSheetGlow"></div>
+        <div class="am-prize-icon-wrap">
+          <div class="am-prize-icon-bg" id="amPrizeIconBg"></div>
+          <span class="am-prize-icon-em" id="amPrizeEmoji">🎁</span>
         </div>
-        <div class="sw-sheet-tag" id="swSheetTag" style="color:#F4B400">🎉 You Won!</div>
-        <div class="sw-sheet-heading" id="swSheetHeading">Congratulations!</div>
-        <div class="sw-sheet-prize" id="swSheetPrize">Free Delivery</div>
-        <div class="sw-sheet-desc" id="swSheetDesc">Use your code at checkout</div>
+        <div class="am-sheet-tag" id="amSheetTag">🎉 You Won!</div>
+        <div class="am-sheet-title" id="amSheetTitle">Congratulations!</div>
+        <div class="am-sheet-prize" id="amSheetPrize">Free Delivery</div>
+        <div class="am-sheet-desc" id="amSheetDesc">Use your code at checkout</div>
       </div>
 
-      <!-- Voucher -->
-      <div class="sw-voucher" id="swVoucherWrap">
-        <div class="sw-voucher-inner">
-          <div class="sw-voucher-left">
-            <div class="sw-voucher-label">Your Coupon Code</div>
-            <div class="sw-voucher-code" id="swVoucherCode">FREE28</div>
-            <div class="sw-voucher-valid">Valid for 24 hours · One use only</div>
-          </div>
-          <button class="sw-copy-btn" id="swCopyBtn">Copy</button>
+      <!-- Code -->
+      <div class="am-code-box" id="amCodeBox">
+        <div class="am-code-left">
+          <div class="am-code-lbl">Your Coupon Code</div>
+          <div class="am-code-val" id="amCodeVal">FREE28</div>
+          <div class="am-code-exp">Show screenshot · Valid 24hrs · 1 use only</div>
         </div>
+        <button class="am-copy-btn" id="amCopyBtn">Copy</button>
       </div>
 
-      <!-- Stats -->
-      <div class="sw-stats" id="swStats">
-        <div class="sw-stat-card">
-          <div class="sw-stat-val" id="swStatSpins">1</div>
-          <div class="sw-stat-lbl">Total Spins</div>
-        </div>
-        <div class="sw-stat-card">
-          <div class="sw-stat-val" id="swStatWins">0</div>
-          <div class="sw-stat-lbl">Wins</div>
-        </div>
-        <div class="sw-stat-card">
-          <div class="sw-stat-val" id="swStatSaved">Rs 0</div>
-          <div class="sw-stat-lbl">Saved</div>
+      <!-- Screenshot instruction -->
+      <div class="am-screenshot-row" id="amScreenshotRow">
+        <div class="am-screenshot-icon">📸</div>
+        <div class="am-screenshot-txt">
+          <strong>Take a screenshot right now!</strong>
+          Send it on WhatsApp to claim your prize. Our team will confirm and deliver!
         </div>
       </div>
 
       <!-- Actions -->
-      <div class="sw-actions">
-        <button class="sw-btn-primary" id="swCtaBtn" type="button">
-          <span id="swCtaIcon">📸</span><span id="swCtaText">Screenshot &amp; Claim on WhatsApp →</span>
-        </button>
-        <div style="text-align:center;font-size:11px;color:rgba(255,255,255,0.4);margin-top:6px;margin-bottom:2px;">Take a screenshot of this screen, then send it on WhatsApp to claim your prize</div>
-        <a class="sw-btn-whatsapp" id="swWhatsappBtn" href="#" target="_blank">
-          <span>💬</span><span>Open WhatsApp to Claim</span>
+      <div class="am-sheet-actions">
+        <a class="am-btn-wa" id="amClaimWa" href="#" target="_blank">
+          <div class="am-btn-wa-icon">
+            <svg viewBox="0 0 24 24" fill="#25D366" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+          </div>
+          <span>🎁 Claim Prize on WhatsApp</span>
         </a>
-        <button class="sw-btn-secondary" id="swCloseBtn">Close</button>
-      </div>
-      <!-- History in sheet -->
-      <div class="sw-history" id="swHistoryBlock" style="display:none">
-        <div class="sw-history-label">Your Win History</div>
-        <div class="sw-history-row" id="swHistoryRow"></div>
+        <button class="am-btn-close" id="amCloseBtn">Maybe later</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Confetti canvas -->
-<canvas id="swConfetti"></canvas>
+<canvas id="amConfetti"></canvas>
 
 <script>
 (function(){
 'use strict';
 
-/* ═══════════════════════════════════════════
-   PRIZE DATA — 12 segments
-═══════════════════════════════════════════ */
+var WA = '9779704015190';
+var MAX_SPINS = 5;
+var LS_KEY = 'amsw_day';      /* date string */
+var LS_USED = 'amsw_used';    /* spins used today */
+var LS_HIST = 'amsw_hist';
+
+/* ── SEGMENTS: only Pachali Bhairav & Typical Taste food/drinks ── */
 var SEG = [
-  {
-    label:'FREE\nDelivery',emoji:'🎁',
-    c1:'#0D5C2E',c2:'#1a8f48',
-    code:'FREE28',
-    prize:'FREE Delivery',
-    desc:'Enter FREE28 at checkout. Free delivery on your next order — any amount, any time!',
-    cta:'/collections/all',ctaTxt:'Claim Free Delivery →',
-    saved:50,type:'win',wt:12
-  },
-  {
-    label:'Food\n10% Off',emoji:'🍛',
-    c1:'#6B1010',c2:'#a82020',
-    code:'FOOD10',
-    prize:'10% Off All Food',
-    desc:'Use FOOD10 for 10% off all food from Typical Taste. Biryani, momos, and more — delivered hot!',
-    cta:'/collections/typical-taste',ctaTxt:'Order Food Now →',
-    saved:60,type:'win',wt:9
-  },
-  {
-    label:'Leg Piece\n10% Off',emoji:'🍗',
-    c1:'#3A0F6E',c2:'#6420b8',
-    code:'LEGPIECE10',
-    prize:'10% Off Leg Piece',
-    desc:'10% off Chicken Leg Piece from Typical Taste. Crispy, juicy, delivered in minutes. Use LEGPIECE10!',
-    cta:'/collections/typical-taste',ctaTxt:'Order Leg Piece →',
-    saved:40,type:'win',wt:9
-  },
-  {
-    label:'Tuborg\n650ml',emoji:'🍺',
-    c1:'#073060',c2:'#0f52a0',
-    code:'TUBORG30',
-    prize:'Rs 30 Off Tuborg 650ml',
-    desc:'Rs 30 off on Tuborg 650ml. Nepal\'s favourite gold — ice cold, delivered in minutes.',
-    cta:'/collections/beer',ctaTxt:'Order Tuborg Now →',
-    saved:30,type:'win',wt:11
-  },
-  {
-    label:'Gorkha\n650ml',emoji:'🏔️',
-    c1:'#4A2600',c2:'#7a4200',
-    code:'GORKHA30',
-    prize:'Rs 30 Off Gorkha 650ml',
-    desc:'Rs 30 off Gorkha Premium Lager 650ml. Brewed in Nepal, delivered to your door.',
-    cta:'/collections/beer',ctaTxt:'Order Gorkha Now →',
-    saved:30,type:'win',wt:11
-  },
-  {
-    label:'Try\nAgain',emoji:'😅',
-    c1:'#141414',c2:'#222',
-    code:null,prize:'Better Luck Tomorrow',
-    desc:'No prize this time! Come back tomorrow for another free spin. Good things are coming!',
-    cta:'/collections/all',ctaTxt:'Shop Anyway →',
-    saved:0,type:'lose',wt:20
-  },
-  {
-    label:'Rs 100\nOff Beer',emoji:'🍻',
-    c1:'#0A3530',c2:'#176055',
-    code:'BEER100',
-    prize:'Rs 100 Off Beer Order',
-    desc:'Rs 100 off on any beer order above Rs 500. Use BEER100 at checkout — stacks on top of deals!',
-    cta:'/collections/beer',ctaTxt:'Shop Beer Now →',
-    saved:100,type:'win',wt:8
-  },
-  {
-    label:'Whiskey\nRs 150 Off',emoji:'🥃',
-    c1:'#3D2000',c2:'#6b3800',
-    code:'WHISKEY150',
-    prize:'Rs 150 Off Whiskey',
-    desc:'Rs 150 off your whiskey order. Jack Daniels, Monkey Shoulder, Old Monk — all included. Use WHISKEY150!',
-    cta:'/collections/whiskey',ctaTxt:'Shop Whiskey →',
-    saved:150,type:'win',wt:7
-  },
-  {
-    label:'Vodka\nRs 100 Off',emoji:'🍸',
-    c1:'#450A30',c2:'#7a1255',
-    code:'VODKA100',
-    prize:'Rs 100 Off Vodka',
-    desc:'Rs 100 off on all vodka — Smirnoff, Absolut, Grey Goose & more. Use VODKA100 at checkout.',
-    cta:'/collections/vodka',ctaTxt:'Shop Vodka →',
-    saved:100,type:'win',wt:7
-  },
-  {
-    label:'Meow Meow\n10% Off',emoji:'🧋',
-    c1:'#1A0A2E',c2:'#2e1050',
-    code:'MEOW10',
-    prize:'10% Off Meow Meow',
-    desc:'10% off all bubble teas, smoothies & refreshers from Meow Meow! Use MEOW10 at checkout.',
-    cta:'/collections/meow-meow',ctaTxt:'Shop Meow Meow →',
-    saved:30,type:'win',wt:8
-  },
-  {
-    label:'Try\nAgain',emoji:'🔄',
-    c1:'#181818',c2:'#252525',
-    code:null,prize:'Not Today!',
-    desc:'Almost! You were so close. Come back tomorrow — your luck is about to change!',
-    cta:'/collections/all',ctaTxt:'Browse Deals →',
-    saved:0,type:'lose',wt:14
-  },
-  {
-    label:'Rs 150\nOff Order',emoji:'🏆',
-    c1:'#0A2E0A',c2:'#165016',
-    code:'QB150WIN',
-    prize:'Rs 150 Off Any Order',
-    desc:'Rs 150 off any order above Rs 800. One of our biggest rewards — congratulations! 🎉',
-    cta:'/collections/all',ctaTxt:'Claim Rs 150 Off →',
-    saved:150,type:'win',wt:4
-  },
-  {
-    label:'Beer Combo\nRs 200 Off',emoji:'🎊',
-    c1:'#2A0A40',c2:'#4a1570',
-    code:'BEERCOMBO200',
-    prize:'Rs 200 Off Beer Combos',
-    desc:'Rs 200 off all beer combo packs. Party sorted! Use BEERCOMBO200 — delivered in 20 mins.',
-    cta:'/collections/beer-combos-1',ctaTxt:'Shop Beer Combos →',
-    saved:200,type:'win',wt:8
-  },
-  {
-    label:'Cake\n10% Off',emoji:'🎂',
-    c1:'#5C1A00',c2:'#9e3200',
-    code:'CAKE10',
-    prize:'10% Off All Cakes',
-    desc:'10% off all cakes & bakery items! Chocolate, custom cakes & more. Use CAKE10 at checkout.',
-    cta:'/collections/cake',ctaTxt:'Order Cake Now →',
-    saved:60,type:'win',wt:9
-  },
-  {
-    label:'Wine\nRs 100 Off',emoji:'🍷',
-    c1:'#3D0020',c2:'#6b0038',
-    code:'WINE100',
-    prize:'Rs 100 Off Wine',
-    desc:'Rs 100 off on all wines. Red, white, rosé — delivered chilled to your door. Use WINE100!',
-    cta:'/collections/wine',ctaTxt:'Shop Wine →',
-    saved:100,type:'win',wt:7
-  },
-  {
-    label:'Dhido &\nGrills 10%',emoji:'🍖',
-    c1:'#1A1200',c2:'#332400',
-    code:'DHIDO10',
-    prize:'10% Off Dhido & The Grills',
-    desc:'10% off authentic Nepali food from The Dhido & The Grills. Dhido, sekuwa & more. Use DHIDO10!',
-    cta:'/collections/the-dhido-the-grills',ctaTxt:'Order Now →',
-    saved:80,type:'win',wt:8
-  },
-  {
-    label:'Yeti Kafe\n10% Off',emoji:'☕',
-    c1:'#0A1A2E',c2:'#1a3550',
-    code:'YETI10',
-    prize:'10% Off Yeti Kafe',
-    desc:'10% off everything from Yeti Kafe — coffee, snacks, drinks & more. Use YETI10 at checkout!',
-    cta:'/collections/yeti-kafe',ctaTxt:'Shop Yeti Kafe →',
-    saved:50,type:'win',wt:8
-  },
-  {
-    label:'Soft Drinks\nRs 50 Off',emoji:'🥤',
-    c1:'#003020',c2:'#005535',
-    code:'SOFTDRINK50',
-    prize:'Rs 50 Off Soft Drinks',
-    desc:'Rs 50 off soft drinks, energy drinks & more. Coke, Red Bull, Sprite & more. Use SOFTDRINK50!',
-    cta:'/collections/soft-drinks',ctaTxt:'Shop Drinks →',
-    saved:50,type:'win',wt:10
-  },
-  {
-    label:'Taj Food\n10% Off',emoji:'🫕',
-    c1:'#2E1A00',c2:'#503000',
-    code:'TAJ10',
-    prize:'10% Off Traditional Taj',
-    desc:'10% off delicious food from Traditional Taj. Authentic flavours delivered fast. Use TAJ10!',
-    cta:'/collections/traditional-taj',ctaTxt:'Order from Taj →',
-    saved:60,type:'win',wt:8
-  },
-  {
-    label:'Pachali\n10% Off',emoji:'🍱',
-    c1:'#0A2A0A',c2:'#1a4a1a',
-    code:'PACHALI10',
-    prize:'10% Off Pachali Bhaira',
-    desc:'10% off all food from Pachali Bhaira Food Court. Great food, great prices. Use PACHALI10!',
-    cta:'/collections/pachali-bhaira-food-court',ctaTxt:'Order Now →',
-    saved:60,type:'win',wt:8
-  },
-  {
-    label:'Try\nAgain',emoji:'😤',
-    c1:'#111',c2:'#1e1e1e',
-    code:null,prize:'Not This Time!',
-    desc:'So close! Lady luck wasn\'t on your side today — come back tomorrow for another spin!',
-    cta:'/collections/all',ctaTxt:'Browse Anyway →',
-    saved:0,type:'lose',wt:18
-  }
+  /* Typical Taste */
+  {label:'Chicken\nBiryani\n10% Off',emoji:'🍛',c1:'#6B1010',c2:'#a82020',code:'FOOD10',prize:'10% Off Food — Typical Taste',desc:'10% off Chicken Biryani & all food from Typical Taste. Hot, fresh, delivered in 20 mins!',wt:10,type:'win'},
+  {label:'Leg Piece\n10% Off',emoji:'🍗',c1:'#3A0F6E',c2:'#6420b8',code:'LEGPIECE10',prize:'10% Off Leg Piece — Typical Taste',desc:'10% off Chicken Leg Piece from Typical Taste. Crispy & juicy — delivered fast!',wt:9,type:'win'},
+
+  /* Pachali Bhairav */
+  {label:'Samay\nBaji Free',emoji:'🥘',c1:'#7A3B00',c2:'#b85800',code:'SAMAYBAJI',prize:'Free Samay Baji Set',desc:'Get a FREE Samay Baji Set from Pachali Bhaira Food Court with any order above Rs 400!',wt:4,type:'win'},
+  {label:'Buff\nChoila 10%',emoji:'🥩',c1:'#4A0000',c2:'#800000',code:'PACHALI10',prize:'10% Off Pachali Bhaira',desc:'10% off all food from Pachali Bhaira Food Court — Buff Choila, Chatamari, Momo & more!',wt:9,type:'win'},
+  {label:'Aila\nRs 50 Off',emoji:'🍶',c1:'#1A0A3E',c2:'#3a1880',code:'AILA50',prize:'Rs 50 Off Aila — Pachali',desc:'Rs 50 off on Aila 1L from Pachali Bhaira Food Court. The real deal!',wt:8,type:'win'},
+  {label:'Chicken\nMomo 10%',emoji:'🥟',c1:'#003A1A',c2:'#006030',code:'FOOD10',prize:'10% Off Momo — Typical Taste',desc:'10% off Chicken Momo from Typical Taste. Juicy momos, delivered steaming hot!',wt:10,type:'win'},
+  {label:'Buff\nMomo 10%',emoji:'🫕',c1:'#2A1A00',c2:'#4a3000',code:'PACHALI10',prize:'10% Off Buff Momo — Pachali',desc:'10% off Buff Momo & Newari food from Pachali Bhaira Food Court!',wt:9,type:'win'},
+  {label:'Chyang\nRs 30 Off',emoji:'🍺',c1:'#0A2A3E',c2:'#1a4a6e',code:'CHYANG30',prize:'Rs 30 Off Chyang — Pachali',desc:'Rs 30 off on Chyang Tho 1L from Pachali Bhaira Food Court. Traditional Newari brew!',wt:8,type:'win'},
+  {label:'FREE\nDelivery',emoji:'🎁',c1:'#0D5C2E',c2:'#1a8f48',code:'FREE28',prize:'FREE Delivery',desc:'Free delivery on your next order — any amount, any time! Use FREE28 at checkout.',wt:10,type:'win'},
+  {label:'Rs 150\nOff Order',emoji:'🏆',c1:'#2E1A00',c2:'#5a3800',code:'QB150WIN',prize:'Rs 150 Off Any Order',desc:'Rs 150 off any order above Rs 800. Biggest prize on the wheel! Use QB150WIN at checkout.',wt:3,type:'win'},
+
+  /* Try Again — always 1-2 per spin via algorithm */
+  {label:'Try\nAgain',emoji:'😅',c1:'#141414',c2:'#1e1e1e',code:null,prize:'Not This Time!',desc:'So close! Come back and spin again — you have more spins left today!',wt:0,type:'lose'},
+  {label:'Try\nAgain',emoji:'🔄',c1:'#0f0f0f',c2:'#181818',code:null,prize:'Better Luck!',desc:'Almost! Spin again — your prize is waiting. Don\'t give up!',wt:0,type:'lose'},
 ];
 
-var N = SEG.length; /* 22 */
-var LS_KEY     = 'qbsw_last';
-var LS_HISTORY = 'qbsw_history';
-var LS_STATS   = 'qbsw_stats';
+var N = SEG.length;
 
-/* ═══════════════════════════════════════════
-   DOM
-═══════════════════════════════════════════ */
-var canvas   = document.getElementById('swCanvas');
-var ctx      = canvas.getContext('2d');
-var btn      = document.getElementById('swBtn');
-var zone     = document.getElementById('swZone');
-var overlay  = document.getElementById('swOverlay');
-var confetti = document.getElementById('swConfetti');
-var cctx     = confetti.getContext('2d');
-var hint1    = document.getElementById('swHintRing1');
-var hint2    = document.getElementById('swHintRing2');
+/* ── DOM ── */
+var canvas  = document.getElementById('amCanvas');
+var ctx     = canvas.getContext('2d');
+var btn     = document.getElementById('amBtn');
+var zone    = document.getElementById('amZone');
+var overlay = document.getElementById('amOverlay');
+var hint1   = document.getElementById('amHint1');
+var hint2   = document.getElementById('amHint2');
+var confEl  = document.getElementById('amConfetti');
+var cctx    = confEl.getContext('2d');
 
-/* ═══════════════════════════════════════════
-   SIZING — fills screen perfectly on mobile
-═══════════════════════════════════════════ */
-var SIZE=0,R=0,CX=0,CY=0,CENTER_R=0;
+/* ── SPIN STATE ── */
+var SIZE=0,R=0,CX=0,CY=0,CR=0;
+var currentAngle=0,isSpinning=false;
+var spinStart=null,spinFrom=0,spinTarget=0,winIdx=0;
+var DURATION=5500,lastTickSeg=-1,idleRAF=null,audioCtx=null;
+var currentSeg=null;
 
+/* ── STORAGE HELPERS ── */
+function today(){ return new Date().toDateString(); }
+function getUsed(){
+  try{
+    if(localStorage.getItem(LS_KEY)!==today()) return 0;
+    return parseInt(localStorage.getItem(LS_USED)||'0',10);
+  }catch(e){return 0;}
+}
+function setUsed(n){
+  try{localStorage.setItem(LS_KEY,today());localStorage.setItem(LS_USED,String(n));}catch(e){}
+}
+function getHistory(){try{return JSON.parse(localStorage.getItem(LS_HIST)||'[]');}catch(e){return[];}}
+function addHistory(s){
+  var h=getHistory();
+  h.unshift({emoji:s.emoji,prize:s.prize,ts:Date.now()});
+  if(h.length>20)h=h.slice(0,20);
+  try{localStorage.setItem(LS_HIST,JSON.stringify(h));}catch(e){}
+}
+
+/* ── SPIN COUNT UI ── */
+function updateSpinsUI(){
+  var used=getUsed(), left=MAX_SPINS-used;
+  document.getElementById('amSpinsTxt').textContent=left>0?left+' spin'+(left===1?'':'s')+' left':'No spins left';
+  for(var i=0;i<5;i++){
+    var d=document.getElementById('amDot'+i);
+    if(i<used) d.className='am-dot used';
+    else if(i===used&&left>0) d.className='am-dot active';
+    else d.className='am-dot';
+  }
+  if(left===0){
+    btn.disabled=true;
+    document.getElementById('amBtnIcon').textContent='🔒';
+    document.getElementById('amBtnLabel').textContent='DONE';
+    hint1.style.display='none';hint2.style.display='none';
+  }
+}
+
+/* ── WEIGHTED PICK — guarantees Try Again on spin 2 or 3 ── */
+function pickSegment(spinNum){
+  var used=getUsed();
+  /* Force try-again on spin 2 or spin 4 (50% chance each) */
+  var forceLose = (used===1)||(used===3&&Math.random()>0.5);
+  if(forceLose){
+    var loseIdx=[10,11];
+    return loseIdx[Math.floor(Math.random()*2)];
+  }
+  /* Weighted random from win segments (0–9) */
+  var wins=SEG.slice(0,10);
+  var tot=wins.reduce(function(a,s){return a+s.wt;},0);
+  var r=Math.random()*tot,acc=0;
+  for(var i=0;i<wins.length;i++){acc+=wins[i].wt;if(r<=acc)return i;}
+  return 0;
+}
+
+/* ── AUDIO ── */
+function getAC(){if(!audioCtx)try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}return audioCtx;}
+function tick(freq){
+  var ac=getAC();if(!ac)return;
+  try{var o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);
+    o.frequency.value=freq||700;o.type='sine';
+    g.gain.setValueAtTime(0.08,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.04);
+    o.start();o.stop(ac.currentTime+0.05);}catch(e){}
+}
+
+/* ── SIZING ── */
 function resize(){
   var vw=window.innerWidth,vh=window.innerHeight;
-  var headerH=document.querySelector('.sw-header').offsetHeight||60;
-  var titleH =document.querySelector('.sw-title-block').offsetHeight||80;
-  var prevH  =document.getElementById('swPrevWins').offsetHeight||30;
-  var avail  =Math.min(vw-24, vh-headerH-titleH-prevH-40);
-  SIZE=Math.max(220,Math.min(avail,520));
-  R=SIZE/2; CX=R; CY=R;
-  CENTER_R=R*0.175;
+  var hH=document.querySelector('.am-header').offsetHeight||54;
+  var heroH=document.querySelector('.am-hero').offsetHeight||70;
+  var recentH=document.getElementById('amRecent').offsetHeight||24;
+  var waH=document.querySelector('.am-wa-bar').offsetHeight||60;
+  var avail=Math.min(vw-20,vh-hH-heroH-recentH-waH-20);
+  SIZE=Math.max(200,Math.min(avail,480));
+  R=SIZE/2;CX=R;CY=R;CR=R*0.17;
 
   canvas.width=canvas.height=SIZE;
   canvas.style.width=canvas.style.height=SIZE+'px';
+  confEl.width=window.innerWidth;confEl.height=window.innerHeight;
 
-  var or=document.getElementById('swRingOuter');
-  var outer=SIZE+40;
-  or.style.cssText='width:'+outer+'px;height:'+outer+'px;'+
-    'left:'+(-20)+'px;top:'+(-20)+'px;';
+  var gr=document.getElementById('amGlowRing');
+  var go=SIZE+60;
+  gr.style.cssText='width:'+go+'px;height:'+go+'px;';
 
-  /* Position hint rings */
-  var hr=CENTER_R+12;
-  [hint1,hint2].forEach(function(h){
-    h.style.width=h.style.height=(hr*2)+'px';
-    h.style.marginLeft=h.style.marginTop=(-hr)+'px';
-  });
+  var hintR=CR+14;
+  [hint1,hint2].forEach(function(h){h.style.width=h.style.height=(hintR*2)+'px';h.style.marginLeft=h.style.marginTop=(-hintR)+'px';});
 
-  /* Size center button */
-  var cb=document.getElementById('swBtn');
-  var cs=CENTER_R*2;
-  cb.style.width=cb.style.height=cs+'px';
-  cb.style.boxShadow='0 0 0 '+(R*0.022)+'px #080600,'+
-    '0 0 0 '+(R*0.042)+'px rgba(244,180,0,0.35),'+
-    '0 6px 20px rgba(0,0,0,.7)';
-  document.getElementById('swBtnIcon').style.fontSize=(cs*0.35)+'px';
-  document.getElementById('swBtnLabel').style.fontSize=(cs*0.17)+'px';
+  var cs=CR*2;
+  btn.style.width=btn.style.height=cs+'px';
+  btn.style.boxShadow='0 0 0 '+(R*0.02)+'px #0a0500,'+'0 0 0 '+(R*0.04)+'px rgba(192,57,43,0.4),'+'0 6px 20px rgba(0,0,0,.7)';
+  document.getElementById('amBtnIcon').style.fontSize=(cs*0.34)+'px';
+  document.getElementById('amBtnLabel').style.fontSize=(cs*0.16)+'px';
 
-  /* Pointer position */
-  var ptr=document.getElementById('swPointer');
-  ptr.style.top=(-SIZE/2-14)+'px';
+  var ptr=document.getElementById('amPointer');
+  ptr.style.top=(-SIZE/2-12)+'px';
 
   drawWheel(currentAngle);
 }
 
-/* ═══════════════════════════════════════════
-   DRAW WHEEL
-═══════════════════════════════════════════ */
-var currentAngle=0;
-
+/* ── DRAW ── */
 function drawWheel(angle){
   ctx.clearRect(0,0,SIZE,SIZE);
   var slice=(Math.PI*2)/N;
 
-  /* Draw segments */
   SEG.forEach(function(s,i){
     var a0=angle+slice*i-Math.PI/2;
     var a1=a0+slice;
     var mid=a0+slice/2;
 
-    /* Segment fill */
-    var grd=ctx.createRadialGradient(CX,CY,R*0.08,CX,CY,R*0.97);
+    /* Segment */
+    var grd=ctx.createRadialGradient(CX,CY,R*0.06,CX,CY,R*0.96);
     grd.addColorStop(0,s.c2);
     grd.addColorStop(1,s.c1);
-    ctx.beginPath();
-    ctx.moveTo(CX,CY);
-    ctx.arc(CX,CY,R-7,a0,a1);
-    ctx.closePath();
-    ctx.fillStyle=grd;
-    ctx.fill();
+    ctx.beginPath();ctx.moveTo(CX,CY);ctx.arc(CX,CY,R-6,a0,a1);ctx.closePath();
+    ctx.fillStyle=grd;ctx.fill();
 
-    /* Subtle lighter edge at arc */
-    ctx.beginPath();
-    ctx.moveTo(CX,CY);
-    ctx.arc(CX,CY,R-7,a0,a1);
-    ctx.closePath();
-    ctx.strokeStyle='rgba(255,255,255,0.06)';
-    ctx.lineWidth=1;
-    ctx.stroke();
-
-    /* Gold separator lines */
-    ctx.save();
-    ctx.translate(CX,CY);
-    ctx.rotate(a0);
-    ctx.beginPath();
-    ctx.moveTo(CENTER_R+4,0);
-    ctx.lineTo(R-8,0);
-    ctx.strokeStyle='rgba(244,180,0,0.35)';
-    ctx.lineWidth=1.2;
-    ctx.stroke();
+    /* Separator */
+    ctx.save();ctx.translate(CX,CY);ctx.rotate(a0);
+    ctx.beginPath();ctx.moveTo(CR+3,0);ctx.lineTo(R-7,0);
+    ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1;ctx.stroke();
     ctx.restore();
 
     /* Text */
-    ctx.save();
-    ctx.translate(CX,CY);
-    ctx.rotate(mid);
+    ctx.save();ctx.translate(CX,CY);ctx.rotate(mid);
+    var emojiSz=Math.max(10,Math.min(R*0.1,16));
+    ctx.font=emojiSz+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(s.emoji,R*0.72,0);
 
-    /* Emoji */
-    var emojiSize=Math.max(12,Math.min(R*0.115,20));
-    ctx.font=emojiSize+'px serif';
-    ctx.textAlign='center';
-    ctx.textBaseline='middle';
-    ctx.fillText(s.emoji, R*0.68, 0);
-
-    /* Label */
-    var fontSize=Math.max(8,Math.min(R*0.072,13));
-    ctx.font='700 '+fontSize+'px -apple-system,sans-serif';
-    ctx.fillStyle='#fff';
-    ctx.shadowColor='rgba(0,0,0,0.9)';
-    ctx.shadowBlur=3;
+    var fSz=Math.max(6.5,Math.min(R*0.062,10));
+    ctx.font='700 '+fSz+'px -apple-system,sans-serif';
+    ctx.fillStyle='#fff';ctx.shadowColor='rgba(0,0,0,1)';ctx.shadowBlur=4;
     var lines=s.label.split('\n');
-    var lh=fontSize+2.5;
-    var tx=R*0.33;
-    lines.forEach(function(ln,li){
-      ctx.fillText(ln,tx,(li-(lines.length-1)/2)*lh);
-    });
+    var lh=fSz+2;
+    var tx=R*0.38;
+    lines.forEach(function(ln,li){ctx.fillText(ln,tx,(li-(lines.length-1)/2)*lh);});
     ctx.restore();
   });
 
-  /* Outer ring — thick gold */
-  ctx.beginPath();
-  ctx.arc(CX,CY,R-4,0,Math.PI*2);
-  ctx.strokeStyle='#F4B400';
-  ctx.lineWidth=7;
-  ctx.shadowColor='rgba(244,180,0,0.7)';
-  ctx.shadowBlur=14;
-  ctx.stroke();
-  ctx.shadowBlur=0;
+  /* Outer gold ring */
+  ctx.beginPath();ctx.arc(CX,CY,R-3,0,Math.PI*2);
+  ctx.strokeStyle='#C0392B';ctx.lineWidth=6;
+  ctx.shadowColor='rgba(192,57,43,0.8)';ctx.shadowBlur=14;ctx.stroke();
 
-  /* Outer ring inner accent */
-  ctx.beginPath();
-  ctx.arc(CX,CY,R-8,0,Math.PI*2);
-  ctx.strokeStyle='rgba(255,255,255,0.12)';
-  ctx.lineWidth=1;
-  ctx.stroke();
+  /* Gold accent ring */
+  ctx.beginPath();ctx.arc(CX,CY,R-7,0,Math.PI*2);
+  ctx.strokeStyle='rgba(244,180,0,0.4)';ctx.lineWidth=1.5;ctx.shadowBlur=0;ctx.stroke();
 
-  /* Tick dots on ring */
+  /* Tick dots */
   SEG.forEach(function(_,i){
     var a=angle+((Math.PI*2)/N)*i-Math.PI/2;
-    var tx=CX+(R-2)*Math.cos(a);
-    var ty=CY+(R-2)*Math.sin(a);
-    ctx.beginPath();
-    ctx.arc(tx,ty,3,0,Math.PI*2);
-    ctx.fillStyle='rgba(0,0,0,0.5)';
-    ctx.fill();
+    var tx=CX+(R-1)*Math.cos(a),ty=CY+(R-1)*Math.sin(a);
+    ctx.beginPath();ctx.arc(tx,ty,2.5,0,Math.PI*2);
+    ctx.fillStyle='rgba(244,180,0,0.6)';ctx.fill();
   });
 
-  /* Center hub */
-  var hubGrd=ctx.createRadialGradient(CX-CENTER_R*0.2,CY-CENTER_R*0.2,0,CX,CY,CENTER_R);
-  hubGrd.addColorStop(0,'#1a1200');
-  hubGrd.addColorStop(1,'#0a0800');
-  ctx.beginPath();
-  ctx.arc(CX,CY,CENTER_R+6,0,Math.PI*2);
-  ctx.fillStyle='#080600';
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(CX,CY,CENTER_R+4,0,Math.PI*2);
-  ctx.strokeStyle='rgba(244,180,0,0.6)';
-  ctx.lineWidth=2.5;
-  ctx.shadowColor='rgba(244,180,0,0.4)';
-  ctx.shadowBlur=8;
-  ctx.stroke();
-  ctx.shadowBlur=0;
+  /* Hub */
+  var hubG=ctx.createRadialGradient(CX-CR*0.2,CY-CR*0.2,0,CX,CY,CR);
+  hubG.addColorStop(0,'#1e0800');hubG.addColorStop(1,'#0a0500');
+  ctx.beginPath();ctx.arc(CX,CY,CR+5,0,Math.PI*2);ctx.fillStyle='#0a0500';ctx.fill();
+  ctx.beginPath();ctx.arc(CX,CY,CR+3,0,Math.PI*2);
+  ctx.strokeStyle='rgba(192,57,43,0.6)';ctx.lineWidth=2;
+  ctx.shadowColor='rgba(192,57,43,0.4)';ctx.shadowBlur=8;ctx.stroke();ctx.shadowBlur=0;
 }
 
-/* ═══════════════════════════════════════════
-   IDLE ROTATION
-═══════════════════════════════════════════ */
-var idleRAF=null;
-var idleSpeed=0.0005;
-function idleRotate(){
-  currentAngle+=idleSpeed;
-  drawWheel(currentAngle);
-  idleRAF=requestAnimationFrame(idleRotate);
-}
+/* ── IDLE ── */
+var idleSpeed=0.0004;
+function idleRotate(){currentAngle+=idleSpeed;drawWheel(currentAngle);idleRAF=requestAnimationFrame(idleRotate);}
 
-/* ═══════════════════════════════════════════
-   SPIN ENGINE
-═══════════════════════════════════════════ */
-var isSpinning=false;
-var spinStart=null,spinFrom=0,spinTarget=0,winIdx=0;
-var DURATION=6000;
-var lastTickSeg=-1;
-var audioCtx=null;
-
-function getAC(){
-  if(!audioCtx) try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}
-  return audioCtx;
-}
-function tick(freq){
-  var ac=getAC(); if(!ac) return;
-  try{
-    var o=ac.createOscillator(),g=ac.createGain();
-    o.connect(g);g.connect(ac.destination);
-    o.frequency.value=freq||700;o.type='sine';
-    g.gain.setValueAtTime(0.1,ac.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.05);
-    o.start();o.stop(ac.currentTime+0.06);
-  }catch(e){}
-}
-
+/* ── EASE ── */
 function easeOut(t){return 1-Math.pow(1-t,4);}
 
+/* ── SPIN ANIM ── */
 function animSpin(ts){
-  if(!spinStart) spinStart=ts;
+  if(!spinStart)spinStart=ts;
   var p=Math.min((ts-spinStart)/DURATION,1);
-  var e=easeOut(p);
-  currentAngle=spinFrom+(spinTarget-spinFrom)*e;
+  currentAngle=spinFrom+(spinTarget-spinFrom)*easeOut(p);
   drawWheel(currentAngle);
 
-  /* Tick */
   var slice=(Math.PI*2)/N;
   var norm=((currentAngle%(Math.PI*2))+(Math.PI*2))%(Math.PI*2);
   var seg=Math.floor(norm/slice)%N;
   if(seg!==lastTickSeg){
     var spd=1-p;
-    if(spd>0.05) tick(600+spd*500);
-    try{if(navigator.vibrate&&spd>0.3) navigator.vibrate(10);}catch(e){}
+    if(spd>0.05)tick(550+spd*450);
+    try{if(navigator.vibrate&&spd>0.3)navigator.vibrate(8);}catch(e){}
     lastTickSeg=seg;
   }
-
-  if(p<1){ requestAnimationFrame(animSpin); }
-  else { onSpinEnd(); }
+  if(p<1){requestAnimationFrame(animSpin);}else{onSpinEnd();}
 }
 
+/* ── SPIN ── */
 function spin(){
-  if(isSpinning) return;
+  if(isSpinning)return;
+  var used=getUsed();
+  if(used>=MAX_SPINS)return;
 
-  /* Daily limit check */
-  var last=''; try{last=localStorage.getItem(LS_KEY)||'';}catch(e){}
-  if(last===new Date().toDateString()){ showAlreadySpun(); return; }
-
-  if(idleRAF){ cancelAnimationFrame(idleRAF); idleRAF=null; }
-  isSpinning=true;
-  btn.disabled=true;
-  document.getElementById('swBtnIcon').textContent='⏳';
-  document.getElementById('swBtnLabel').textContent='...';
+  if(idleRAF){cancelAnimationFrame(idleRAF);idleRAF=null;}
+  isSpinning=true;btn.disabled=true;
+  document.getElementById('amBtnIcon').textContent='⏳';
+  document.getElementById('amBtnLabel').textContent='…';
   zone.classList.add('spinning');
-  /* Hide hint rings */
-  hint1.style.display='none'; hint2.style.display='none';
+  hint1.style.display='none';hint2.style.display='none';
 
-  spinStart=null;
-  spinFrom=currentAngle;
-
-  winIdx=weightedRandom();
+  spinStart=null;spinFrom=currentAngle;
+  winIdx=pickSegment(used);
   var slice=(Math.PI*2)/N;
-  /* Target: winning segment midpoint lands at top pointer (angle=-PI/2) */
   var segMid=slice*winIdx+slice/2;
-  var target=((( -Math.PI/2-segMid)%(Math.PI*2))+(Math.PI*2))%(Math.PI*2);
-  var spins=7+Math.floor(Math.random()*4);
+  var target=(((-Math.PI/2-segMid)%(Math.PI*2))+(Math.PI*2))%(Math.PI*2);
+  var spins=6+Math.floor(Math.random()*4);
   spinTarget=spinFrom-(spinFrom%(Math.PI*2))+Math.PI*2*spins+target;
-  if(spinTarget-spinFrom<Math.PI*2*5) spinTarget+=Math.PI*2*5;
+  if(spinTarget-spinFrom<Math.PI*2*5)spinTarget+=Math.PI*2*5;
 
   requestAnimationFrame(animSpin);
 }
 
-function weightedRandom(){
-  var tot=SEG.reduce(function(a,s){return a+s.wt;},0);
-  var r=Math.random()*tot,acc=0;
-  for(var i=0;i<SEG.length;i++){acc+=SEG[i].wt;if(r<=acc)return i;}
-  return SEG.length-1;
-}
-
+/* ── SPIN END ── */
 function onSpinEnd(){
-  isSpinning=false;
-  zone.classList.remove('spinning');
+  isSpinning=false;zone.classList.remove('spinning');
   var s=SEG[winIdx];
-  /* Save */
-  try{localStorage.setItem(LS_KEY,new Date().toDateString());}catch(e){}
-  saveHistory(s);
-  updateStats(s);
-  updateChip();
-  updatePrevWins();
+  currentSeg=s;
 
-  /* Vibrate win pattern */
-  try{if(navigator.vibrate) navigator.vibrate(s.type==='win'?[50,30,80,30,120]:[100]);}catch(e){}
+  var used=getUsed();
+  setUsed(used+1);
+  addHistory(s);
+  updateSpinsUI();
+  updateRecent();
 
-  if(s.type==='win'){
-    launchConfetti();
-    showSheet(s,false);
+  try{if(navigator.vibrate)navigator.vibrate(s.type==='win'?[50,30,80,30,120]:[100]);}catch(e){}
+
+  var left=MAX_SPINS-(used+1);
+  if(s.type==='win'){launchConfetti();}
+
+  /* Re-enable btn if spins left */
+  if(left>0&&s.type!=='win'){
+    setTimeout(function(){
+      btn.disabled=false;
+      document.getElementById('amBtnIcon').textContent='🎰';
+      document.getElementById('amBtnLabel').textContent='SPIN';
+      hint1.style.display='';hint2.style.display='';
+      idleRotate();
+    },500);
+    showSheet(s);
   } else {
-    showSheet(s,true);
+    showSheet(s);
   }
 }
 
-/* ═══════════════════════════════════════════
-   SHEET MODAL
-═══════════════════════════════════════════ */
-function showSheet(s,tryagain){
-  currentWinSeg=s;
-  /* Sheet glow color */
-  var glowColor=tryagain?'rgba(100,100,100,0.15)':('rgba('+hexToRgb(s.c2)+',0.2)');
-  document.getElementById('swSheetGlow').style.background=
-    'radial-gradient(ellipse,'+glowColor+' 0%,transparent 70%)';
+/* ── SHEET ── */
+function showSheet(s){
+  currentSeg=s;
+  var win=s.type==='win';
 
-  /* Emoji wrap bg */
-  var eb=document.getElementById('swEmojiBg');
-  eb.style.background=tryagain?'rgba(100,100,100,0.15)':
-    'linear-gradient(135deg,'+s.c2+'22,'+s.c1+'44)';
-  eb.style.border=tryagain?'1px solid rgba(255,255,255,0.08)':
-    '1px solid '+s.c2+'66';
+  /* Glow */
+  document.getElementById('amSheetGlow').style.background=
+    win?'radial-gradient(ellipse,rgba(192,57,43,0.25) 0%,transparent 70%)':
+        'radial-gradient(ellipse,rgba(100,100,100,0.1) 0%,transparent 70%)';
 
-  document.getElementById('swSheetEmoji').textContent=s.emoji;
-  document.getElementById('swSheetTag').textContent=tryagain?'😅 Not This Time':'🎉 You Won!';
-  document.getElementById('swSheetTag').style.color=tryagain?'rgba(255,255,255,0.35)':'#F4B400';
-  document.getElementById('swSheetHeading').textContent=tryagain?'Try Again Tomorrow!':'Congratulations!';
-  document.getElementById('swSheetPrize').textContent=s.prize;
-  document.getElementById('swSheetDesc').textContent=s.desc;
+  /* Icon bg */
+  var ib=document.getElementById('amPrizeIconBg');
+  ib.style.background=win?'linear-gradient(135deg,'+s.c2+'33,'+s.c1+'66)':'rgba(50,50,50,0.3)';
+  ib.style.border=win?'1px solid '+s.c2+'66':'1px solid rgba(255,255,255,0.07)';
 
-  var voucher=document.getElementById('swVoucherWrap');
-  if(s.code){
-    voucher.style.display='block';
-    document.getElementById('swVoucherCode').textContent=s.code;
+  document.getElementById('amPrizeEmoji').textContent=s.emoji;
+  document.getElementById('amSheetTag').textContent=win?'🎉 You Won!':'😅 Try Again!';
+  document.getElementById('amSheetTag').style.color=win?'#F4B400':'rgba(255,255,255,0.3)';
+  document.getElementById('amSheetTitle').textContent=win?'Congratulations!':'Not This Time!';
+  document.getElementById('amSheetPrize').textContent=s.prize;
+  document.getElementById('amSheetDesc').textContent=s.desc;
+
+  var codeBox=document.getElementById('amCodeBox');
+  var screenshotRow=document.getElementById('amScreenshotRow');
+  if(win&&s.code){
+    codeBox.style.display='flex';
+    screenshotRow.style.display='flex';
+    document.getElementById('amCodeVal').textContent=s.code;
   } else {
-    voucher.style.display='none';
+    codeBox.style.display='none';
+    screenshotRow.style.display='none';
   }
 
-  /* Reset WhatsApp button */
-  var waBtn=document.getElementById('swWhatsappBtn');
-  waBtn.style.display='none';
-  waBtn.href=buildWALink(s);
+  /* WA link */
+  var date=new Date().toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});
+  var msg=win?
+    '🎰 I won on the Aila Madira Lucky Wheel!\n\n🏆 Prize: '+s.prize+'\n🏷️ Code: '+s.code+'\n📅 Won: '+date+'\n\nPlease help me claim! (Screenshot attached 📸)':
+    'Hi Aila Madira! I just spun the Lucky Wheel. Can I order food directly? 🍶';
+  document.getElementById('amClaimWa').href='https://wa.me/'+WA+'?text='+encodeURIComponent(msg);
 
-  var ctaBtn=document.getElementById('swCtaBtn');
-  ctaBtn.disabled=false;
-  if(tryagain||!s.code){
-    document.getElementById('swCtaIcon').textContent='💬';
-    document.getElementById('swCtaText').textContent='Chat on WhatsApp →';
-    ctaBtn.style.background='linear-gradient(135deg,#25D366,#128C7E)';
-    ctaBtn.style.color='#fff';
-    ctaBtn.style.boxShadow='0 4px 20px rgba(37,211,102,0.35)';
-  } else {
-    document.getElementById('swCtaIcon').textContent='📸';
-    document.getElementById('swCtaText').textContent='Screenshot & Claim on WhatsApp →';
-    ctaBtn.style.background='';ctaBtn.style.color='';ctaBtn.style.boxShadow='';
-  }
+  var waLabel=document.querySelector('#amClaimWa span');
+  waLabel.textContent=win?'🎁 Claim Prize on WhatsApp':'💬 Order on WhatsApp';
 
-  /* Stats */
-  var stats=getStats();
-  document.getElementById('swStatSpins').textContent=stats.spins;
-  document.getElementById('swStatWins').textContent=stats.wins;
-  document.getElementById('swStatSaved').textContent='Rs '+stats.saved;
-
-  /* History in sheet */
-  var hist=getHistory();
-  if(hist.length){
-    var hBlock=document.getElementById('swHistoryBlock');
-    hBlock.style.display='block';
-    document.getElementById('swHistoryRow').innerHTML=hist.slice(0,5).map(function(h){
-      return '<span class="sw-history-pill">'+h.emoji+' '+h.prize+'</span>';
-    }).join('');
-  }
-
-  overlay.classList.toggle('tryagain',!!tryagain);
   overlay.classList.add('show');
-}
-
-function showAlreadySpun(){
-  showSheet({
-    emoji:'⏰',prize:'Come Back Tomorrow',
-    desc:'You\'ve already spun today! Every day at midnight your spin resets. Don\'t miss tomorrow\'s prizes!',
-    code:null,cta:'/collections/all',ctaTxt:'Shop Now →',type:'lose',c1:'#111',c2:'#222'
-  },true);
+  document.getElementById('amSheet').classList.toggle('lose',!win);
 }
 
 function closeSheet(){
   overlay.classList.remove('show');
-  stopConfetti();
-  /* Re-enable btn if can still spin */
-  var last=''; try{last=localStorage.getItem(LS_KEY)||'';}catch(e){}
-  if(last!==new Date().toDateString()){
-    btn.disabled=false;
-    document.getElementById('swBtnIcon').textContent='🎰';
-    document.getElementById('swBtnLabel').textContent='SPIN';
-    hint1.style.display=''; hint2.style.display='';
-    idleRotate();
+  var used=getUsed(),left=MAX_SPINS-used;
+  if(left>0&&!isSpinning){
+    if(!idleRAF)idleRotate();
   }
 }
 
-/* ═══════════════════════════════════════════
-   COPY COUPON
-═══════════════════════════════════════════ */
-document.getElementById('swCopyBtn').addEventListener('click',function(){
-  var code=document.getElementById('swVoucherCode').textContent;
-  var b=this;
-  var done=function(){b.textContent='✓ Copied!';b.classList.add('done');
-    setTimeout(function(){b.textContent='Copy';b.classList.remove('done');},2200);};
-  if(navigator.clipboard) navigator.clipboard.writeText(code).then(done).catch(function(){fbCopy(code);done();});
-  else{fbCopy(code);done();}
-  try{if(navigator.vibrate)navigator.vibrate(30);}catch(e){}
+/* ── COPY ── */
+document.getElementById('amCopyBtn').addEventListener('click',function(){
+  var code=document.getElementById('amCodeVal').textContent;
+  try{navigator.clipboard.writeText(code).then(function(){});}catch(e){
+    var t=document.createElement('textarea');t.value=code;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);
+  }
+  this.textContent='Copied!';this.className='am-copy-btn copied';
+  var self=this;setTimeout(function(){self.textContent='Copy';self.className='am-copy-btn';},2000);
 });
-function fbCopy(t){
-  var ta=document.createElement('textarea');ta.value=t;
-  ta.style.cssText='position:fixed;opacity:0;top:0;left:0;';
-  document.body.appendChild(ta);ta.select();
-  try{document.execCommand('copy');}catch(e){}
-  document.body.removeChild(ta);
-}
 
-/* ═══════════════════════════════════════════
-   CONFETTI
-═══════════════════════════════════════════ */
-var CP=[],cRAF=null;
-var CC=['#F4B400','#FFD700','#ff6b6b','#4ade80','#60a5fa','#f472b6','#fb923c','#fff','#a78bfa'];
+/* ── CONFETTI ── */
+var confParticles=[];
 function launchConfetti(){
-  confetti.width=window.innerWidth;confetti.height=window.innerHeight;
-  CP=[];
-  for(var i=0;i<140;i++){
-    CP.push({
-      x:Math.random()*confetti.width,y:-20-Math.random()*60,
-      w:5+Math.random()*9,h:9+Math.random()*12,
-      c:CC[Math.floor(Math.random()*CC.length)],
-      vx:-4+Math.random()*8,vy:1.5+Math.random()*5,
-      rot:Math.random()*360,rv:-6+Math.random()*12,
-      life:1,shape:Math.random()>.5?'rect':'circle'
+  confParticles=[];
+  for(var i=0;i<120;i++){
+    confParticles.push({
+      x:Math.random()*confEl.width,y:-10,
+      vx:(Math.random()-0.5)*6,vy:Math.random()*4+2,
+      r:Math.random()*5+3,
+      color:['#C0392B','#F4B400','#FFD700','#25D366','#fff','#e74c3c'][Math.floor(Math.random()*6)],
+      rot:Math.random()*360,vrot:(Math.random()-0.5)*8,
+      life:1
     });
   }
-  if(cRAF)cancelAnimationFrame(cRAF);
   animConfetti();
 }
 function animConfetti(){
-  cctx.clearRect(0,0,confetti.width,confetti.height);
+  cctx.clearRect(0,0,confEl.width,confEl.height);
   var alive=false;
-  CP.forEach(function(p){
-    if(p.y>confetti.height+20||p.life<=0)return;
+  confParticles.forEach(function(p){
+    p.x+=p.vx;p.y+=p.vy;p.vy+=0.12;p.rot+=p.vrot;p.life-=0.012;
+    if(p.life<=0||p.y>confEl.height+20)return;
     alive=true;
-    p.x+=p.vx;p.y+=p.vy;p.vy+=0.1;p.rot+=p.rv;p.life-=0.005;
-    cctx.save();
-    cctx.translate(p.x,p.y);
-    cctx.rotate(p.rot*Math.PI/180);
-    cctx.globalAlpha=Math.min(1,p.life*4);
-    cctx.fillStyle=p.c;
-    if(p.shape==='circle'){cctx.beginPath();cctx.arc(0,0,p.w/2,0,Math.PI*2);cctx.fill();}
-    else cctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+    cctx.save();cctx.globalAlpha=Math.min(p.life,1);
+    cctx.translate(p.x,p.y);cctx.rotate(p.rot*Math.PI/180);
+    cctx.fillStyle=p.color;
+    cctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);
     cctx.restore();
   });
-  if(alive)cRAF=requestAnimationFrame(animConfetti);
-  else stopConfetti();
+  if(alive)requestAnimationFrame(animConfetti);
+  else cctx.clearRect(0,0,confEl.width,confEl.height);
 }
-function stopConfetti(){if(cRAF){cancelAnimationFrame(cRAF);cRAF=null;}cctx.clearRect(0,0,confetti.width,confetti.height);}
 
-/* ═══════════════════════════════════════════
-   HISTORY & STATS
-═══════════════════════════════════════════ */
-function getHistory(){ try{return JSON.parse(localStorage.getItem(LS_HISTORY)||'[]');}catch(e){return[];} }
-function saveHistory(s){
-  if(s.type!=='win')return;
-  var h=getHistory();
-  h.unshift({emoji:s.emoji,prize:s.prize,code:s.code,date:new Date().toLocaleDateString()});
-  if(h.length>20)h=h.slice(0,20);
-  try{localStorage.setItem(LS_HISTORY,JSON.stringify(h));}catch(e){}
-}
-function getStats(){ try{return JSON.parse(localStorage.getItem(LS_STATS)||'{"spins":0,"wins":0,"saved":0}');}catch(e){return{spins:0,wins:0,saved:0};} }
-function updateStats(s){
-  var st=getStats();
-  st.spins++;
-  if(s.type==='win'){st.wins++;st.saved+=(s.saved||0);}
-  try{localStorage.setItem(LS_STATS,JSON.stringify(st));}catch(e){}
-}
-function updateChip(){
-  var last='';try{last=localStorage.getItem(LS_KEY)||'';}catch(e){}
-  var chip=document.getElementById('swChip'),txt=document.getElementById('swChipText');
-  if(last===new Date().toDateString()){
-    chip.className='sw-chip used';
-    txt.textContent='✓ Spin used — Resets at midnight';
-    btn.disabled=true;
-    document.getElementById('swBtnIcon').textContent='🔒';
-    document.getElementById('swBtnLabel').textContent='DONE';
-    hint1.style.display='none';hint2.style.display='none';
-  } else {
-    chip.className='sw-chip available';
-    txt.textContent='1 Free Spin Available!';
-  }
-}
-function updatePrevWins(){
-  var h=getHistory();
-  var pw=document.getElementById('swPrevWins');
-  /* Clear old pills */
-  var pills=pw.querySelectorAll('.sw-prev-pill');
-  pills.forEach(function(p){p.remove();});
-  if(!h.length) return;
+/* ── RECENT ── */
+function updateRecent(){
+  var h=getHistory(),pills=document.getElementById('amRecentPills');
+  pills.innerHTML='';
   h.slice(0,4).forEach(function(item){
-    var pill=document.createElement('span');
-    pill.className='sw-prev-pill';
-    pill.textContent=item.emoji+' '+item.prize;
-    pw.appendChild(pill);
+    var p=document.createElement('span');p.className='am-recent-pill';
+    p.textContent=item.emoji+' '+item.prize;pills.appendChild(p);
   });
 }
 
-/* ═══════════════════════════════════════════
-   STARS
-═══════════════════════════════════════════ */
+/* ── STARS ── */
 (function(){
-  var root=document.getElementById('swRoot');
-  for(var i=0;i<70;i++){
-    var s=document.createElement('div');s.className='sw-star';
-    var sz=(Math.random()*2.5+0.4).toFixed(1);
-    s.style.cssText='width:'+sz+'px;height:'+sz+'px;top:'+Math.random()*100+'%;'+
-      'left:'+Math.random()*100+'%;--d:'+(2+Math.random()*5).toFixed(1)+'s;'+
-      '--dl:'+(Math.random()*5).toFixed(1)+'s;opacity:'+(Math.random()*.5).toFixed(2)+';';
+  var root=document.getElementById('amRoot');
+  for(var i=0;i<55;i++){
+    var s=document.createElement('div');s.className='am-star';
+    var sz=(Math.random()*2+0.4).toFixed(1);
+    s.style.cssText='width:'+sz+'px;height:'+sz+'px;top:'+Math.random()*100+'%;left:'+Math.random()*100+'%;--d:'+(2+Math.random()*5).toFixed(1)+'s;--dl:'+(Math.random()*5).toFixed(1)+'s;';
     root.appendChild(s);
   }
 })();
 
-/* ═══════════════════════════════════════════
-   HEX HELPER
-═══════════════════════════════════════════ */
-function hexToRgb(hex){
-  var r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return r?parseInt(r[1],16)+','+parseInt(r[2],16)+','+parseInt(r[3],16):'244,180,0';
-}
-
-/* ═══════════════════════════════════════════
-   EVENTS
-═══════════════════════════════════════════ */
+/* ── EVENTS ── */
 btn.addEventListener('click',spin,{passive:true});
 canvas.addEventListener('click',spin,{passive:true});
-/* Touch swipe on canvas */
-var swipeStartY=0;
-canvas.addEventListener('touchstart',function(e){swipeStartY=e.touches[0].clientY;},{passive:true});
-canvas.addEventListener('touchend',function(e){
-  var dy=swipeStartY-e.changedTouches[0].clientY;
-  if(Math.abs(dy)>30) spin();
-},{passive:true});
-
-document.getElementById('swCloseBtn').addEventListener('click',closeSheet);
+var swY=0;
+canvas.addEventListener('touchstart',function(e){swY=e.touches[0].clientY;},{passive:true});
+canvas.addEventListener('touchend',function(e){if(Math.abs(swY-e.changedTouches[0].clientY)>25)spin();},{passive:true});
+document.getElementById('amCloseBtn').addEventListener('click',closeSheet);
 overlay.addEventListener('click',function(e){if(e.target===overlay)closeSheet();});
 
-/* ── WhatsApp Claim flow ── */
-var WA_NUMBER = '9779704015190'; /* Nepal +977 */
-var currentWinSeg=null; /* set when sheet opens */
-
-function buildWALink(s){
-  var date=new Date().toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});
-  var msg;
-  if(s.type==='lose'){
-    msg='Hi! I just spun the Aila Madira Lucky Wheel and got "Better Luck Tomorrow". I\'d like to try again tomorrow! 🎰';
-  } else {
-    msg='🎰 I won on the Aila Madira Lucky Wheel!\n\n'
-      +'🏆 Prize: '+s.prize+'\n'
-      +'🏷️ Code: '+s.code+'\n'
-      +'📅 Won on: '+date+'\n\n'
-      +'Please help me claim this prize! (Screenshot attached)';
-  }
-  return 'https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent(msg);
-}
-
-document.getElementById('swCtaBtn').addEventListener('click',function(){
-  if(!currentWinSeg) return;
-  var s=currentWinSeg;
-  if(s.type==='lose'||!s.code){
-    /* Directly open WhatsApp for lose */
-    window.open(buildWALink(s),'_blank');
-    return;
-  }
-  /* Win: show screenshot instruction then reveal WA button */
-  document.getElementById('swCtaIcon').textContent='📸';
-  document.getElementById('swCtaText').textContent='Take a screenshot now, then send below!';
-  var waBtn=document.getElementById('swWhatsappBtn');
-  waBtn.href=buildWALink(s);
-  waBtn.style.display='flex';
-});
-
-/* ═══════════════════════════════════════════
-   INIT
-═══════════════════════════════════════════ */
+/* ── INIT ── */
 resize();
 idleRotate();
-updateChip();
-updatePrevWins();
+updateSpinsUI();
+updateRecent();
 window.addEventListener('resize',resize,{passive:true});
 
 })();
