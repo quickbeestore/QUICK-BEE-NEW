@@ -371,6 +371,102 @@ html,body{overflow:hidden!important;height:100%;background:#050008!important;tou
 /* Confetti */
 #lwConfetti{position:fixed;inset:0;pointer-events:none;z-index:11000;}
 
+/* ── COUNTDOWN TIMER ── */
+.lw-timer{
+  position:fixed;inset:0;z-index:9998;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(3,0,10,0.97);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  pointer-events:none;opacity:0;
+  transition:opacity .5s ease;
+  padding:24px;
+}
+.lw-timer.show{opacity:1;pointer-events:all;}
+.lw-timer-glow{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 50% at 50% 40%,rgba(123,47,255,0.12) 0%,transparent 65%);
+  pointer-events:none;
+}
+.lw-timer-icon{font-size:52px;margin-bottom:16px;animation:timerIconFloat 2s ease-in-out infinite;}
+@keyframes timerIconFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.lw-timer-title{
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(16px,5vw,22px);font-weight:900;color:#fff;
+  text-align:center;letter-spacing:0.04em;margin-bottom:6px;
+}
+.lw-timer-sub{font-size:12px;color:rgba(255,255,255,0.35);text-align:center;margin-bottom:28px;letter-spacing:0.04em;}
+/* Clock face */
+.lw-clock{
+  display:flex;align-items:center;gap:6px;margin-bottom:28px;
+}
+.lw-clock-unit{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.lw-clock-num{
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(36px,11vw,56px);font-weight:900;letter-spacing:0.05em;
+  background:linear-gradient(135deg,var(--neon),var(--neon2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  min-width:2ch;text-align:center;line-height:1;
+  text-shadow:none;
+  position:relative;
+}
+.lw-clock-num::after{
+  content:'';position:absolute;inset:0;
+  background:inherit;filter:blur(12px);opacity:0.3;z-index:-1;
+  -webkit-background-clip:unset;-webkit-text-fill-color:unset;background-clip:unset;
+}
+.lw-clock-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.25);}
+.lw-clock-sep{
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(28px,8vw,42px);font-weight:900;color:var(--neon);
+  margin-bottom:16px;
+  animation:sepBlink 1s ease-in-out infinite;
+}
+@keyframes sepBlink{0%,100%{opacity:1}50%{opacity:0.2}}
+/* Progress ring */
+.lw-timer-progress{position:relative;width:80px;height:80px;margin-bottom:20px;}
+.lw-timer-progress svg{transform:rotate(-90deg);}
+.lw-timer-progress-bg{stroke:rgba(255,255,255,0.06);}
+.lw-timer-progress-fill{
+  stroke:url(#timerGrad);stroke-linecap:round;
+  transition:stroke-dashoffset 1s linear;
+}
+.lw-timer-progress-inner{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+}
+/* Won prizes recap */
+.lw-timer-wins{
+  width:100%;max-width:340px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(0,245,255,0.1);border-radius:18px;
+  padding:14px 16px;margin-bottom:20px;
+}
+.lw-timer-wins-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.25);margin-bottom:10px;text-align:center;}
+.lw-timer-win-row{
+  display:flex;align-items:center;gap:10px;
+  padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.lw-timer-win-row:last-child{border-bottom:none;}
+.lw-timer-win-emoji{font-size:20px;flex-shrink:0;}
+.lw-timer-win-info{flex:1;}
+.lw-timer-win-prize{font-size:12px;font-weight:700;color:#fff;}
+.lw-timer-win-code{
+  font-family:'Orbitron',sans-serif;
+  font-size:10px;color:var(--neon);letter-spacing:0.08em;margin-top:1px;
+}
+/* Claim all WA button */
+.lw-timer-wa{
+  width:100%;max-width:340px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:16px;border-radius:18px;border:none;
+  background:linear-gradient(135deg,var(--wa),var(--wa2));
+  color:#fff;font-size:14px;font-weight:900;cursor:pointer;
+  text-decoration:none;touch-action:manipulation;
+  box-shadow:0 4px 24px rgba(37,211,102,0.35);
+  position:relative;overflow:hidden;
+}
+.lw-timer-wa::before{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:waSheen 2.5s ease-in-out infinite;}
+
 /* Recent wins */
 .lw-recent{
   width:100%;padding:5px 16px 0;flex-shrink:0;
@@ -469,6 +565,54 @@ html,body{overflow:hidden!important;height:100%;background:#050008!important;tou
       </div>
     </a>
   </div>
+</div>
+
+<!-- COUNTDOWN TIMER OVERLAY -->
+<div class="lw-timer" id="lwTimer">
+  <div class="lw-timer-glow"></div>
+  <div class="lw-timer-icon">⏰</div>
+  <div class="lw-timer-title">Come Back in...</div>
+  <div class="lw-timer-sub">Your 5 spins reset at midnight · Free every day!</div>
+  <div class="lw-timer-progress">
+    <svg width="80" height="80" viewBox="0 0 80 80">
+      <defs>
+        <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#00f5ff"/>
+          <stop offset="100%" stop-color="#7b2fff"/>
+        </linearGradient>
+      </defs>
+      <circle class="lw-timer-progress-bg" cx="40" cy="40" r="34" stroke-width="6" fill="none"/>
+      <circle class="lw-timer-progress-fill" id="lwProgressRing" cx="40" cy="40" r="34" stroke-width="6" fill="none"
+        stroke-dasharray="213.6" stroke-dashoffset="0"/>
+    </svg>
+    <div class="lw-timer-progress-inner">🔒</div>
+  </div>
+  <div class="lw-clock">
+    <div class="lw-clock-unit">
+      <div class="lw-clock-num" id="lwTimerH">00</div>
+      <div class="lw-clock-lbl">Hours</div>
+    </div>
+    <div class="lw-clock-sep">:</div>
+    <div class="lw-clock-unit">
+      <div class="lw-clock-num" id="lwTimerM">00</div>
+      <div class="lw-clock-lbl">Mins</div>
+    </div>
+    <div class="lw-clock-sep">:</div>
+    <div class="lw-clock-unit">
+      <div class="lw-clock-num" id="lwTimerS">00</div>
+      <div class="lw-clock-lbl">Secs</div>
+    </div>
+  </div>
+  <div class="lw-timer-wins" id="lwTimerWins" style="display:none">
+    <div class="lw-timer-wins-title">🏆 Today's Prizes Won</div>
+    <div id="lwTimerWinsList"></div>
+  </div>
+  <a class="lw-timer-wa" id="lwTimerWa" href="https://wa.me/9779704015190?text=Hi!" target="_blank">
+    <div class="lw-wa-icon" style="width:24px;height:24px">
+      <svg viewBox="0 0 24 24" fill="#25D366" style="width:14px;height:14px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    </div>
+    <span id="lwTimerWaTxt">💬 Order on WhatsApp While You Wait</span>
+  </a>
 </div>
 
 <!-- SHEET -->
@@ -875,6 +1019,13 @@ function onSpinEnd(){
   }
 
   showSheet(s,left);
+
+  /* Show countdown after sheet is closed if no spins left */
+  if(left===0){
+    setTimeout(function(){
+      if(!overlay.classList.contains('show')) showTimer();
+    },500);
+  }
 }
 
 /* ── SHOW SHEET ── */
@@ -929,6 +1080,9 @@ function showSheet(s,spinsLeft){
 
 function closeSheet(){
   overlay.classList.remove('show');
+  if(getUsed()>=MAX){
+    setTimeout(showTimer,400);
+  }
 }
 
 /* ── SPIN AGAIN from sheet ── */
@@ -1010,12 +1164,88 @@ canvas.addEventListener('touchend',function(e){if(Math.abs(swY-e.changedTouches[
 document.getElementById('lwCloseBtn').addEventListener('click',closeSheet);
 overlay.addEventListener('click',function(e){if(e.target===overlay)closeSheet();});
 
+/* ── COUNTDOWN TIMER ── */
+var timerInterval=null;
+function pad(n){return n<10?'0'+n:String(n);}
+
+function getMidnightMs(){
+  var now=new Date();
+  var midnight=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1,0,0,0,0);
+  return midnight-now;
+}
+
+function updateTimerDisplay(){
+  var ms=getMidnightMs();
+  if(ms<=0){
+    /* Day rolled over — reset */
+    clearInterval(timerInterval);
+    hideTimer();
+    updateUI();
+    if(!idleRAF)idleRotate();
+    return;
+  }
+  var totalSecs=Math.floor(ms/1000);
+  var h=Math.floor(totalSecs/3600);
+  var m=Math.floor((totalSecs%3600)/60);
+  var s=totalSecs%60;
+  document.getElementById('lwTimerH').textContent=pad(h);
+  document.getElementById('lwTimerM').textContent=pad(m);
+  document.getElementById('lwTimerS').textContent=pad(s);
+
+  /* Progress ring — full day = 86400s, shrinks as time passes */
+  var dayMs=24*60*60*1000;
+  var elapsed=dayMs-ms;
+  var pct=elapsed/dayMs; /* 0 at start of day, 1 at end */
+  var circumference=213.6;
+  var offset=circumference*(1-pct);
+  document.getElementById('lwProgressRing').style.strokeDashoffset=offset;
+}
+
+function showTimer(){
+  /* Populate won prizes */
+  var wins=getTodayWins();
+  var winsBlock=document.getElementById('lwTimerWins');
+  var winsList=document.getElementById('lwTimerWinsList');
+  if(wins.length){
+    winsList.innerHTML='';
+    wins.forEach(function(w){
+      var row=document.createElement('div');row.className='lw-timer-win-row';
+      row.innerHTML='<div class="lw-timer-win-emoji">'+w.emoji+'</div><div class="lw-timer-win-info"><div class="lw-timer-win-prize">'+w.prize+'</div><div class="lw-timer-win-code">'+w.code+'</div></div>';
+      winsList.appendChild(row);
+    });
+    winsBlock.style.display='block';
+
+    /* Update WA button with all wins */
+    var msg=buildWAMsg(null);
+    document.getElementById('lwTimerWa').href='https://wa.me/'+WA+'?text='+encodeURIComponent(msg);
+    document.getElementById('lwTimerWaTxt').textContent=wins.length>1?'🎁 Claim All '+wins.length+' Prizes on WhatsApp':'🎁 Claim Prize on WhatsApp';
+  }else{
+    winsBlock.style.display='none';
+    document.getElementById('lwTimerWaTxt').textContent='💬 Order on WhatsApp While You Wait';
+  }
+
+  updateTimerDisplay();
+  document.getElementById('lwTimer').classList.add('show');
+  timerInterval=setInterval(updateTimerDisplay,1000);
+
+  /* Haptic reminder every minute */
+  try{if(navigator.vibrate)navigator.vibrate([30]);}catch(e){}
+}
+
+function hideTimer(){
+  document.getElementById('lwTimer').classList.remove('show');
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
+}
+
 /* ── INIT ── */
 resize();
 idleRotate();
 updateUI();
 updateRecent();
 window.addEventListener('resize',resize,{passive:true});
+
+/* Show timer immediately if spins exhausted */
+if(getUsed()>=MAX){ showTimer(); }
 
 })();
 </script>
