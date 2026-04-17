@@ -1,14 +1,15 @@
 {% comment %}
   qb-cart-note-sync.liquid
-  Syncs ALL QB user data (profile, location, live GPS, delivery prefs) into the Shopify cart note.
-  Runs on every page load + on location/profile changes. The payment page overwrites this with
-  the full detailed note at checkout time, but this ensures data is never missing.
+  Syncs ALL QB user data into the Shopify cart note.
+  Fires on every page load, on location/profile changes, AND intercepts
+  any navigation to /checkout to guarantee note is written first.
 {% endcomment %}
 <script>
 (function () {
   'use strict';
 
   function lsJson(k) { try { var s = localStorage.getItem(k); return s ? JSON.parse(s) : null; } catch(_) { return null; } }
+  function lsStr(k)  { try { return localStorage.getItem(k) || ''; } catch(_) { return ''; } }
 
   function buildNote() {
     var loc     = lsJson('qb_selected_location');
@@ -17,58 +18,112 @@
     var prof    = lsJson('qb_user_profile');
     var zone    = lsJson('qb_zone');
 
-    if (!loc && !liveLoc && !prof) return '';
-
     var parts = [];
 
+    /* ── Customer ── */
     if (prof) {
       var pLine = '👤 Customer: ' + (prof.name || '—');
-      if (prof.phone) pLine += ' · ' + prof.phone;
-      if (prof.email) pLine += ' · ' + prof.email;
+      if (prof.phone) pLine += ' · 📞 ' + prof.phone;
+      if (prof.email) pLine += ' · ✉️ ' + prof.email;
+      if (prof.gender) pLine += ' · ' + prof.gender;
+      if (prof.nationality) pLine += ' · ' + prof.nationality;
       parts.push(pLine);
+      if (prof.deliveryPref) parts.push('🚚 Delivery Pref: ' + prof.deliveryPref);
     }
 
+    /* ── Selected location ── */
     if (loc) {
-      var addr = loc.address || loc.street || loc.location || '';
+      var addr = loc.address || loc.street || loc.location || loc.formatted_address || '';
       var recip = loc.recipient_name || '';
       if (addr)  parts.push('📍 Address: ' + addr);
-      if (recip && recip !== (prof && prof.name)) parts.push('🙋 Recipient: ' + recip);
-      if (loc.landmark_link) parts.push('🔗 Link: ' + loc.landmark_link);
+      if (recip && (!prof || recip !== prof.name)) parts.push('🙋 Recipient: ' + recip);
+      if (loc.landmark) parts.push('🏷 Landmark: ' + loc.landmark);
+      if (loc.landmark_link) parts.push('🔗 Map Link: ' + loc.landmark_link);
       if (loc.latitude && loc.longitude) {
-        parts.push('🗺 Coords: ' + parseFloat(loc.latitude).toFixed(5) + ', ' + parseFloat(loc.longitude).toFixed(5));
-        parts.push('📌 Map: https://www.google.com/maps?q=' + loc.latitude + ',' + loc.longitude);
+        var lat = parseFloat(loc.latitude).toFixed(5);
+        var lng = parseFloat(loc.longitude).toFixed(5);
+        parts.push('🗺 Coords: ' + lat + ', ' + lng);
+        parts.push('📌 Maps: https://maps.google.com/?q=' + lat + ',' + lng);
       }
       if (zone && (zone.name || zone.zone)) parts.push('🏘 Zone: ' + (zone.name || zone.zone));
     }
 
+    /* ── Live GPS ── */
     if (liveLoc && liveLoc.latitude && liveLoc.longitude) {
-      parts.push('📡 Live GPS: ' + liveLoc.latitude + ', ' + liveLoc.longitude);
+      var llat = parseFloat(liveLoc.latitude).toFixed(5);
+      var llng = parseFloat(liveLoc.longitude).toFixed(5);
+      parts.push('📡 Live GPS: ' + llat + ', ' + llng + (liveLoc.accuracy ? ' (±' + Math.round(liveLoc.accuracy) + 'm)' : ''));
+      parts.push('🔴 Live Map: https://maps.google.com/?q=' + llat + ',' + llng);
     }
 
+    /* ── Delivery time ── */
     if (del && del.range) parts.push('⚡ Est. Delivery: ' + del.range);
+
+    /* Always include timestamp */
+    parts.push('🕐 Synced: ' + new Date().toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' }));
 
     return parts.join('\n');
   }
 
-  function syncCartNote() {
+  function syncCartNote(cb) {
     var note = buildNote();
-    if (!note) return;
+    /* Always push — even if no location, push timestamp so Shopify has something */
+    if (!note) note = '🕐 Order placed: ' + new Date().toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' });
     fetch('/cart/update.js', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body:    JSON.stringify({ note: note })
-    }).catch(function () {});
+    })
+    .then(function() { if (typeof cb === 'function') cb(); })
+    .catch(function() { if (typeof cb === 'function') cb(); });
+  }
+
+  /* ── Intercept ALL checkout navigations ── */
+  function interceptCheckout(e) {
+    var target = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+    if (!target) return;
+    var href = target.getAttribute('href') || '';
+    if (href.indexOf('/checkout') !== -1 || href.indexOf('checkout') !== -1) {
+      e.preventDefault();
+      syncCartNote(function() {
+        window.location.href = href;
+      });
+    }
+  }
+
+  /* Intercept form submits to checkout */
+  function interceptForm(e) {
+    var form = e.target;
+    if (!form) return;
+    var action = form.getAttribute('action') || '';
+    if (action.indexOf('/cart') !== -1 || action.indexOf('checkout') !== -1) {
+      e.preventDefault();
+      syncCartNote(function() { form.submit(); });
+    }
+  }
+
+  document.addEventListener('click', interceptCheckout, true);
+  document.addEventListener('submit', interceptForm, true);
+
+  /* ── Fire on page load ── */
+  function init() {
+    syncCartNote();
+    /* Also fire after a short delay to catch async location loads */
+    setTimeout(syncCartNote, 1500);
+    setTimeout(syncCartNote, 4000);
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', syncCartNote);
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    syncCartNote();
+    init();
   }
 
+  /* ── Re-sync on any QB event ── */
   window.addEventListener('locationSelected',    syncCartNote);
   window.addEventListener('qb_location_changed', syncCartNote);
   window.addEventListener('qb_profile_saved',    syncCartNote);
+  window.addEventListener('qb_live_location',    syncCartNote);
 
   window.qbSyncCartNote = syncCartNote;
 })();
