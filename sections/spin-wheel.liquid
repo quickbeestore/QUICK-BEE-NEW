@@ -535,6 +535,7 @@ var MAX=5;
 var LS_KEY='lwsw_day';
 var LS_USED='lwsw_used';
 var LS_HIST='lwsw_hist';
+var LS_TODAY_WINS='lwsw_today_wins';
 
 /* ── SEGMENTS ── */
 var SEG=[
@@ -577,7 +578,44 @@ function today(){return new Date().toDateString();}
 function getUsed(){try{if(localStorage.getItem(LS_KEY)!==today())return 0;return parseInt(localStorage.getItem(LS_USED)||'0',10);}catch(e){return 0;}}
 function setUsed(n){try{localStorage.setItem(LS_KEY,today());localStorage.setItem(LS_USED,String(n));}catch(e){}}
 function getHist(){try{return JSON.parse(localStorage.getItem(LS_HIST)||'[]');}catch(e){return[];}}
-function addHist(s){var h=getHist();h.unshift({emoji:s.emoji,prize:s.prize});if(h.length>20)h=h.slice(0,20);try{localStorage.setItem(LS_HIST,JSON.stringify(h));}catch(e){}}
+function addHist(s){var h=getHist();h.unshift({emoji:s.emoji,prize:s.prize,ts:Date.now()});if(h.length>20)h=h.slice(0,20);try{localStorage.setItem(LS_HIST,JSON.stringify(h));}catch(e){}}
+
+/* Today's wins — resets when day changes */
+function getTodayWins(){
+  try{
+    var raw=JSON.parse(localStorage.getItem(LS_TODAY_WINS)||'{"d":"","w":[]}');
+    if(raw.d!==today())return[];
+    return raw.w||[];
+  }catch(e){return[];}
+}
+function addTodayWin(s){
+  if(s.type!=='win'||!s.code)return;
+  var wins=getTodayWins();
+  wins.push({emoji:s.emoji,prize:s.prize,code:s.code,spin:getUsed()});
+  try{localStorage.setItem(LS_TODAY_WINS,JSON.stringify({d:today(),w:wins}));}catch(e){}
+}
+function buildWAMsg(latestSeg){
+  var wins=getTodayWins();
+  var date=new Date().toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});
+  if(!wins.length){
+    /* lose only */
+    return 'Hi! I want to order from Aila Madira 🍶';
+  }
+  var msg='🎰 Aila Madira Lucky Wheel — Prize Claim!\n';
+  msg+='📅 '+date+'\n\n';
+  if(wins.length===1){
+    msg+='🏆 Prize Won: '+wins[0].emoji+' '+wins[0].prize+'\n';
+    msg+='🏷️ Coupon Code: '+wins[0].code+'\n';
+  }else{
+    msg+='🏆 '+wins.length+' Prizes Won Today!\n\n';
+    wins.forEach(function(w,i){
+      msg+='  '+(i+1)+'. '+w.emoji+' '+w.prize+'\n';
+      msg+='     Code: '+w.code+'\n';
+    });
+  }
+  msg+='\nPlease help me claim! (Screenshot attached 📸)';
+  return msg;
+}
 
 /* ── UI ── */
 function updateUI(){
@@ -817,6 +855,7 @@ function onSpinEnd(){
   var used=getUsed();
   setUsed(used+1);
   addHist(s);
+  addTodayWin(s);
   updateUI();
   updateRecent();
 
@@ -868,13 +907,12 @@ function showSheet(s,spinsLeft){
     screenshot.style.display='none';
   }
 
-  /* WA message */
-  var date=new Date().toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});
-  var msg=win?
-    '🎰 I won on the Aila Madira Lucky Wheel!\n\n🏆 Prize: '+s.prize+'\n🏷️ Code: '+s.code+'\n📅 Won: '+date+'\n\nPlease help me claim! (Screenshot attached 📸)':
-    'Hi! I want to order from Aila Madira 🍶';
+  /* WA message — all today's wins combined */
+  var msg=buildWAMsg(s);
   document.getElementById('lwClaimWa').href='https://wa.me/'+WA+'?text='+encodeURIComponent(msg);
-  document.getElementById('lwClaimTxt').textContent=win?'🎁 Claim Prize on WhatsApp':'💬 Order on WhatsApp';
+  var todayWins=getTodayWins();
+  var claimLabel=win?(todayWins.length>1?'🎁 Claim All '+todayWins.length+' Prizes on WhatsApp':'🎁 Claim Prize on WhatsApp'):'💬 Order on WhatsApp';
+  document.getElementById('lwClaimTxt').textContent=claimLabel;
 
   /* Spin Again button */
   var spinAgainBtn=document.getElementById('lwSpinAgainBtn');
