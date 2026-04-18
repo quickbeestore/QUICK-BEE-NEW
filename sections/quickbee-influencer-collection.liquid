@@ -323,7 +323,7 @@ html:not([data-theme="dark"]) .qi-hero {
 
       <!-- SUBMIT -->
       <div class="qi-submit-area">
-        <button type="button" class="qi-submit" id="qiSubmitBtn" data-vid="{{ product.variants.first.id }}" onclick="alert('QB_CLICK_TEST')" style="pointer-events:all;cursor:pointer;position:relative;z-index:99999">🚀 Submit Application</button>
+        <button type="button" class="qi-submit" id="qiSubmitBtn" data-vid="{{ product.variants.first.id }}" onclick="qiSubmit()" style="pointer-events:all;cursor:pointer;position:relative;z-index:9">🚀 Submit Application</button>
         <p id="qi-platform-err" style="color:#ff6b6b;font-size:13px;display:none;margin-top:8px;">⚠️ Please select at least one social platform.</p>
         <p class="qi-note">By submitting, you agree that QuickBee may contact you at the details provided. Applications are reviewed within 3–5 business days.</p>
       </div>
@@ -368,15 +368,10 @@ function qiSubmit(){
   var BTN = document.getElementById('qiSubmitBtn');
   var platformIcons = _qiIcons;
     try {
-      /* -- Validation -- */
+      /* -- Collect platforms (optional) -- */
       var platforms = [];
       document.querySelectorAll('.qi-chip-input[name="platform"]:checked').forEach(function(cb){ platforms.push(cb.value); });
-      var errEl = document.getElementById('qi-platform-err');
-      if(!platforms.length){
-        if(errEl) errEl.style.display='block';
-        return;
-      }
-      if(errEl) errEl.style.display='none';
+      if(!platforms.length) platforms = ['Not specified'];
 
       /* -- Collect form fields -- */
       var handleLines = '';
