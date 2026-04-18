@@ -171,20 +171,109 @@ html:not([data-theme="dark"]) .qi-hero {
 .qi-handle-ico { font-size: 18px; width: 26px; text-align: center; flex-shrink: 0; }
 .qi-handle-prefix { font-size: 13px; color: var(--qi-muted); white-space: nowrap; }
 
-/* ── Submit ───────────────────────────────────────── */
-.qi-submit-area { text-align: center; padding-top: 8px; }
-.qi-submit {
-  display: inline-flex; align-items: center; gap: 10px;
-  background: linear-gradient(135deg, #F4B400, #f59e0b);
-  color: #000; border: none; padding: 16px 48px;
-  border-radius: 50px; font-size: 15px; font-weight: 800;
-  cursor: pointer; transition: transform 0.15s, box-shadow 0.2s;
-  box-shadow: 0 6px 28px rgba(244,180,0,0.35); letter-spacing: 0.3px;
+/* ── Submit Button — GOD UI ───────────────────────── */
+.qi-proceed-wrap { margin-top: 28px; position: relative; }
+
+.qi-submit-btn {
+  display: block; width: 100%; border: none; cursor: pointer;
+  position: relative; overflow: hidden; border-radius: 20px;
+  padding: 0; font-family: inherit; outline: none;
+  background: linear-gradient(130deg, #ff9500 0%, #F4B400 25%, #ffe566 50%, #F4B400 75%, #ff9500 100%);
+  background-size: 300% 300%;
+  animation: qi-grad-move 4s ease infinite;
+  box-shadow:
+    0 0 0 1.5px rgba(244,180,0,0.4),
+    0 8px 40px rgba(244,180,0,0.55),
+    0 2px 8px rgba(0,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.5);
+  transition: transform 0.18s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s;
 }
-.qi-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(244,180,0,0.5); }
-.qi-submit:active { transform: scale(0.97); }
-.qi-submit:disabled { background: #333; color: #666; cursor: default; transform: none; box-shadow: none; }
-.qi-note { font-size: 11px; color: var(--qi-muted); margin-top: 14px; line-height: 1.6; max-width: 400px; margin-left: auto; margin-right: auto; }
+.qi-submit-btn::before {
+  content: '';
+  position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,0.55) 50%, transparent 65%);
+  background-size: 250% 100%;
+  animation: qi-shimmer 2.8s ease infinite;
+  pointer-events: none;
+}
+.qi-submit-btn::after {
+  content: '';
+  position: absolute; inset: -3px; border-radius: 23px; z-index: -1;
+  background: linear-gradient(130deg, #ff9500, #F4B400, #ffe566, #ff9500);
+  background-size: 300% 300%;
+  animation: qi-grad-move 4s ease infinite;
+  filter: blur(12px);
+  opacity: 0.75;
+}
+@keyframes qi-grad-move {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes qi-shimmer {
+  0%   { background-position: -100% 0; }
+  60%  { background-position: 250% 0; }
+  100% { background-position: 250% 0; }
+}
+.qi-submit-btn:hover:not(:disabled) {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow:
+    0 0 0 2px rgba(244,180,0,0.6),
+    0 20px 56px rgba(244,180,0,0.7),
+    0 6px 20px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.6);
+}
+.qi-submit-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.975);
+  box-shadow: 0 4px 16px rgba(244,180,0,0.4), inset 0 2px 4px rgba(0,0,0,0.1);
+}
+.qi-submit-btn:disabled {
+  cursor: not-allowed; background: #1e1e2e; animation: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3); opacity: 0.85;
+}
+.qi-submit-btn:disabled::before,
+.qi-submit-btn:disabled::after { display: none; }
+
+.qi-btn-inner {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  padding: 22px 32px;
+}
+.qi-btn-rocket {
+  font-size: 26px; line-height: 1;
+  transition: transform 0.35s cubic-bezier(.34,1.56,.64,1);
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+}
+.qi-submit-btn:hover:not(:disabled) .qi-btn-rocket { transform: translateX(4px) rotate(-30deg) scale(1.25); }
+.qi-btn-text-wrap { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
+.qi-btn-label {
+  font-size: 19px; font-weight: 900; color: #0a0005;
+  letter-spacing: 2.5px; text-transform: uppercase; line-height: 1.1;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+}
+.qi-btn-sub {
+  font-size: 10px; font-weight: 700; color: rgba(0,0,0,0.5);
+  letter-spacing: 1.5px; text-transform: uppercase;
+}
+.qi-btn-arrow {
+  font-size: 22px; color: rgba(0,0,0,0.55); font-weight: 900; line-height: 1;
+  transition: transform 0.2s; margin-left: auto;
+}
+.qi-submit-btn:hover:not(:disabled) .qi-btn-arrow { transform: translateX(6px); }
+
+/* glow orb behind button */
+.qi-btn-glow {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: -24px; width: 80%; height: 24px;
+  background: radial-gradient(ellipse 70% 100% at 50% 100%, rgba(244,180,0,0.45), transparent);
+  pointer-events: none; animation: qi-glow-pulse 2.2s ease-in-out infinite;
+}
+@keyframes qi-glow-pulse {
+  0%, 100% { opacity: 0.7; width: 70%; }
+  50%       { opacity: 1;   width: 85%; }
+}
+
+.qi-proceed-note { font-size: 11px; color: var(--qi-muted); margin-top: 14px; text-align: center; line-height: 1.6; }
 </style>
 
 <div class="qi-page">
@@ -322,36 +411,17 @@ html:not([data-theme="dark"]) .qi-hero {
       </div>
 
       <!-- PROCEED -->
-      <style>
-        #qiProceedBtn {
-          display: block; width: 100%; margin: 8px 0 0;
-          padding: 20px 0; border: none; border-radius: 16px; cursor: pointer;
-          font-size: 20px; font-weight: 900; letter-spacing: 3px; color: #111;
-          background: linear-gradient(135deg, #FFD700 0%, #F4B400 50%, #FF9500 100%);
-          box-shadow: 0 6px 32px rgba(244,180,0,0.45), 0 2px 8px rgba(0,0,0,0.18);
-          position: relative; z-index: 9; pointer-events: all;
-          transition: transform 0.15s, box-shadow 0.15s, letter-spacing 0.15s;
-          overflow: hidden;
-        }
-        #qiProceedBtn::before {
-          content: '';
-          position: absolute; inset: 0;
-          background: linear-gradient(120deg, rgba(255,255,255,0.35) 0%, transparent 60%);
-          border-radius: inherit; pointer-events: none;
-        }
-        #qiProceedBtn:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 10px 40px rgba(244,180,0,0.6), 0 4px 12px rgba(0,0,0,0.22);
-          letter-spacing: 4px;
-        }
-        #qiProceedBtn:active:not(:disabled) { transform: translateY(1px); box-shadow: 0 3px 12px rgba(244,180,0,0.35); }
-        #qiProceedBtn:disabled { opacity: 0.7; cursor: not-allowed; }
-        .qi-proceed-wrap { text-align: center; margin-top: 24px; }
-        .qi-proceed-note { font-size: 12px; color: #888; margin-top: 10px; }
-      </style>
       <div class="qi-proceed-wrap">
-        <button type="button" id="qiProceedBtn" data-vid="{{ product.variants.first.id }}" onclick="qiSubmit()">
-          🚀 &nbsp;PROCEED TO CHECKOUT
+        <div class="qi-btn-glow"></div>
+        <button type="button" class="qi-submit-btn" id="qiProceedBtn" data-vid="{{ product.variants.first.id }}" onclick="qiSubmit()">
+          <div class="qi-btn-inner">
+            <span class="qi-btn-rocket">🚀</span>
+            <div class="qi-btn-text-wrap">
+              <span class="qi-btn-label">Submit Application</span>
+              <span class="qi-btn-sub">Join the QuickBee Creator Program</span>
+            </div>
+            <span class="qi-btn-arrow">→</span>
+          </div>
         </button>
         <p class="qi-proceed-note">By submitting, you agree QuickBee may contact you at the details provided.</p>
       </div>
@@ -461,17 +531,23 @@ function qiSubmit(){
 
       /* -- Disable button -- */
       BTN.disabled = true;
-      BTN.innerHTML = '⏳ Submitting…';
+      BTN.innerHTML = '<div class="qi-btn-inner"><span class="qi-btn-rocket">⏳</span><div class="qi-btn-text-wrap"><span class="qi-btn-label">Submitting…</span></div></div>';
 
       /* -- Variant ID from data attribute (Liquid rendered server-side) -- */
       var vid = BTN.dataset.vid;
 
-      /* -- Add product to cart with note, then open sticky cart -- */
+      function resetBtn(){
+        BTN.disabled = false;
+        BTN.innerHTML = '<div class="qi-btn-inner"><span class="qi-btn-rocket">🚀</span><div class="qi-btn-text-wrap"><span class="qi-btn-label">Submit Application</span><span class="qi-btn-sub">Join the QuickBee Creator Program</span></div><span class="qi-btn-arrow">→</span></div>';
+      }
+
+      /* -- Add product to cart, set note, then checkout -- */
       fetch('/cart/add.js', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({id: parseInt(vid, 10), quantity: 1, properties: {Applicant: name, Phone: phone, Email: email}})
       })
+      .then(function(r){ return r.json(); })
       .then(function() {
         return fetch('/cart/update.js', {
           method: 'POST',
@@ -479,26 +555,17 @@ function qiSubmit(){
           body: JSON.stringify({note: note})
         });
       })
-      .then(function() {
-        BTN.innerHTML = '✅ Done!';
-        fetch('/cart.js')
-          .then(function(r){ return r.json(); })
-          .then(function(cart){
-            if(cart && cart.token){
-              window.location.href = 'https://quickbee.store/cart/' + cart.token + '/checkout';
-            } else {
-              window.location.href = '/cart';
-            }
-          })
-          .catch(function(){ window.location.href = '/cart'; });
+      .then(function(){ return fetch('/cart.js'); })
+      .then(function(r){ return r.json(); })
+      .then(function(cart){
+        BTN.innerHTML = '<div class="qi-btn-inner"><span class="qi-btn-rocket">✅</span><div class="qi-btn-text-wrap"><span class="qi-btn-label">Going to Checkout…</span></div></div>';
+        var url = (cart && cart.checkout_url) ? cart.checkout_url : '/checkout';
+        window.location.href = url;
       })
-      .catch(function() {
-        BTN.disabled = false;
-        BTN.innerHTML = '🚀 &nbsp;PROCEED TO CHECKOUT';
-      });
+      .catch(function() { resetBtn(); });
 
     } catch(err) {
-      if(BTN){ BTN.disabled=false; BTN.innerHTML='🚀 Submit Application'; }
+      if(BTN){ resetBtn(); }
     }
 }
 </script>
