@@ -213,7 +213,7 @@ html:not([data-theme="dark"]) .qi-hero {
 
   <!-- FORM -->
   <div class="qi-form-wrap">
-    <form id="qiForm" onsubmit="qiSubmit(event)">
+    <form id="qiForm" onsubmit="return false;">
 
       <!-- PERSONAL -->
       <div class="qi-card">
@@ -323,7 +323,7 @@ html:not([data-theme="dark"]) .qi-hero {
 
       <!-- SUBMIT -->
       <div class="qi-submit-area">
-        <button type="submit" class="qi-submit" id="qiSubmitBtn">🚀 Submit Application</button>
+        <button type="button" class="qi-submit" id="qiSubmitBtn" onclick="qiSubmit(event)">🚀 Submit Application</button>
         <p class="qi-note">By submitting, you agree that QuickBee may contact you at the details provided. Applications are reviewed within 3–5 business days.</p>
       </div>
 
@@ -448,8 +448,6 @@ html:not([data-theme="dark"]) .qi-hero {
 
     var note = noteParts.join('\n');
 
-    btn.disabled = true; btn.innerHTML = '⏳ Submitting…';
-
     // Save application to localStorage
     try {
       var appData = {
@@ -463,15 +461,12 @@ html:not([data-theme="dark"]) .qi-hero {
       localStorage.setItem('qb_influencer_note', note);
     } catch(err) { /* localStorage unavailable */ }
 
-    {% assign qbif_product = all_products['quick-bee-influencer'] %}
-    {% if qbif_product and qbif_product.variants.first %}
-      var variantId = {{ qbif_product.variants.first.id }};
-    {% else %}
-      var variantId = null;
-    {% endif %}
+    var variantId = {{ product.variants.first.id | default: 'null' }};
 
-    function setNoteAndCheckout(){
-      // Set cart note with full application text
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Submitting…';
+
+    function goCheckout(){
       fetch('/cart/update.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -498,10 +493,13 @@ html:not([data-theme="dark"]) .qi-hero {
           }
         })
       })
-      .then(setNoteAndCheckout)
-      .catch(setNoteAndCheckout);
+      .then(goCheckout)
+      .catch(function(){
+        // If add fails, still try to go to checkout with whatever's in cart
+        goCheckout();
+      });
     } else {
-      setNoteAndCheckout();
+      goCheckout();
     }
   };
 })();
