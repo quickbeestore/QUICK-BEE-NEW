@@ -545,9 +545,15 @@ html:not([data-theme]) #qbsc-root {
 .qbsc-view-cart-link:hover { color: var(--sc-text); }
 
 /* ── MINI BAR ── */
-/* Block all transitions until JS marks the bar as ready — prevents FOUC flash on refresh */
+/* Block ALL animations, GPU layers and backdrop filters until JS marks ready.
+   will-change and backdrop-filter force GPU compositor layers which can flash
+   through display:none on some browsers — disable them until the bar is ready. */
 #qbsc-bar:not([data-sc-ready]) {
   transition: none !important;
+  animation: none !important;
+  will-change: auto !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .qbsc-bar {
@@ -1160,26 +1166,31 @@ html:not([data-theme]) #qbsc-root {
 
     if (cached > 0) {
       /* Cart had items last time — reveal bar silently with NO transition/animation */
-      BAR.style.transition = 'none';         /* kill slide-up animation */
-      BAR.style.animation  = 'none';         /* kill any enter animation */
-      BAR.style.opacity    = '1';
-      BAR.style.transform  = 'translateY(0)';
+      BAR.style.transition    = 'none';
+      BAR.style.animation     = 'none';
+      BAR.style.opacity       = '1';
+      BAR.style.transform     = 'translateY(0)';
       BAR.style.pointerEvents = '';
       ROOT.classList.remove('qbsc-hidden');
-      ROOT.style.display   = '';
-      ROOT.dataset.scReady = '1';
-      BAR.dataset.scReady  = '1';
-      /* Re-enable transitions after 2 frames so user-triggered animations still work */
-      requestAnimationFrame(function () {
-        requestAnimationFrame(function () {
-          BAR.style.transition = '';
-          BAR.style.animation  = '';
-        });
-      });
     } else {
-      /* Cart was empty — keep bar hidden */
+      /* Cart empty — bar stays off-screen via qbsc-hidden class */
       ROOT.classList.add('qbsc-hidden');
     }
+
+    /* Always set data-sc-ready synchronously so the CSS display:none guard
+       and GPU-layer-blocking rules are removed before the browser paints.
+       Bar visibility is controlled by qbsc-hidden class + inline styles, not this flag. */
+    ROOT.style.display   = '';
+    ROOT.dataset.scReady = '1';
+    BAR.dataset.scReady  = '1';
+
+    /* Re-enable transitions after 2 frames (only matters for cached > 0 path) */
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        BAR.style.transition = '';
+        BAR.style.animation  = '';
+      });
+    });
 
     loadCart(false, true);
   }

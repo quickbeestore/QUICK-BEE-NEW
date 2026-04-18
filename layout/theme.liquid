@@ -978,14 +978,15 @@
   {%- render 'qb-cart-note-sync' -%}
   {%- render 'qb-sticky-cart' -%}
 
-  <!-- ── QB COOKIE CONSENT ── -->
+  <!-- ── SUPPRESS ALL COOKIE BANNERS ── -->
   <style>
-    /* Suppress third-party banners */
+    /* Block all third-party and custom cookie banners site-wide */
     #CybotCookiebotDialog,.cookiebanner,.cky-consent-container,
     .cky-modal,.osano-cm-window,.termly-display-button,
     #termly-code-snippet-support,.iubenda-cs-container,
     [id*="cookie-banner"],[class*="cookie-banner"],
-    [id*="gdpr"],[class*="gdpr"] { display:none !important; }
+    [id*="gdpr"],[class*="gdpr"],
+    #qb-cookie { display:none !important; }
 
     #qb-cookie {
       position: fixed;
@@ -1102,43 +1103,6 @@
     html:not([data-theme="dark"]) .qb-ck-btn--decline:hover { color: #1a1209; border-color: rgba(180,120,0,0.4); }
   </style>
 
-  <div id="qb-cookie" role="dialog" aria-label="Cookie consent">
-    <div class="qb-ck-card">
-      <span class="qb-ck-emoji" aria-hidden="true">🍪</span>
-      <div class="qb-ck-body">
-        <p class="qb-ck-title">We use cookies</p>
-        <p class="qb-ck-desc">To improve your experience. <a href="/pages/privacy-policy" target="_blank">Privacy policy</a></p>
-      </div>
-      <div class="qb-ck-btns">
-        <button class="qb-ck-btn qb-ck-btn--accept" id="qbCkAccept">Accept</button>
-        <button class="qb-ck-btn qb-ck-btn--decline" id="qbCkDecline">Decline</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-  (function(){
-    var KEY = 'qb_cookie_consent';
-    var el  = document.getElementById('qb-cookie');
-    var path = window.location.pathname;
-    if (!el || localStorage.getItem(KEY)) return;
-    if (path.indexOf('spin-the-wheel') !== -1 || path.indexOf('spin-wheel') !== -1) return;
-    setTimeout(function(){
-      el.classList.add('qb-cookie--ready');
-      requestAnimationFrame(function(){
-        requestAnimationFrame(function(){
-          el.classList.add('qb-cookie--visible');
-        });
-      });
-    }, 1000);
-    function done(v){
-      localStorage.setItem(KEY, v);
-      el.classList.remove('qb-cookie--visible');
-    }
-    document.getElementById('qbCkAccept').addEventListener('click',  function(){ done('accepted'); });
-    document.getElementById('qbCkDecline').addEventListener('click', function(){ done('declined'); });
-  })();
-  </script>
 
   </body>
 </html>
