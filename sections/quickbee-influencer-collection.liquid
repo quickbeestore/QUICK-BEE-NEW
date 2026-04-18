@@ -438,18 +438,15 @@ function qiSubmit(){
       /* -- Variant ID from data attribute (Liquid rendered server-side) -- */
       var vid = BTN.dataset.vid;
 
-      /* -- Set note, then add to cart via GET + go directly to checkout -- */
+      /* -- Save note to localStorage, set flag, then use cart permalink to add item -- */
+      try { localStorage.setItem('qb_inf_note', note); localStorage.setItem('qb_inf_checkout', '1'); } catch(e){}
       fetch('/cart/update.js',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({note:note})
       })
-      .then(function(){
-        window.location.href = '/cart/add?id=' + vid + '&quantity=1&return_to=%2Fcheckout';
-      })
-      .catch(function(){
-        window.location.href = '/cart/add?id=' + vid + '&quantity=1&return_to=%2Fcheckout';
-      });
+      .then(function(){ window.location.href = '/cart/' + vid + ':1'; })
+      .catch(function(){ window.location.href = '/cart/' + vid + ':1'; });
 
     } catch(err) {
       window.location.href='/checkout';
