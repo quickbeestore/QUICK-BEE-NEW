@@ -323,7 +323,7 @@ html:not([data-theme="dark"]) .qi-hero {
 
       <!-- SUBMIT -->
       <div class="qi-submit-area">
-        <button type="button" class="qi-submit" id="qiSubmitBtn" data-vid="{{ product.variants.first.id }}">🚀 Submit Application</button>
+        <button type="button" class="qi-submit" id="qiSubmitBtn" data-vid="{{ product.variants.first.id }}" onclick="qiSubmit()">🚀 Submit Application</button>
         <p id="qi-platform-err" style="color:#ff6b6b;font-size:13px;display:none;margin-top:8px;">⚠️ Please select at least one social platform.</p>
         <p class="qi-note">By submitting, you agree that QuickBee may contact you at the details provided. Applications are reviewed within 3–5 business days.</p>
       </div>
@@ -333,18 +333,17 @@ html:not([data-theme="dark"]) .qi-hero {
 </div>
 
 <script>
-(function(){
-  var platformIcons = {
-    Instagram:{ icon:'📸', prefix:'@' },
-    TikTok:   { icon:'🎵', prefix:'@' },
-    YouTube:  { icon:'▶️',  prefix:''  },
-    Facebook: { icon:'👥', prefix:''  },
-    Twitter:  { icon:'𝕏',  prefix:'@' },
-    Snapchat: { icon:'👻', prefix:'@' }
-  };
+var _qiIcons = {
+  Instagram:{ icon:'📸', prefix:'@' },
+  TikTok:   { icon:'🎵', prefix:'@' },
+  YouTube:  { icon:'▶️',  prefix:''  },
+  Facebook: { icon:'👥', prefix:''  },
+  Twitter:  { icon:'𝕏',  prefix:'@' },
+  Snapchat: { icon:'👻', prefix:'@' }
+};
 
-  /* Toggle handle inputs when platform chips change */
-  window.qiToggleHandles = function(){
+function qiToggleHandles(){
+  var platformIcons = _qiIcons;
     var checked = [];
     document.querySelectorAll('.qi-chip-input[name="platform"]:checked').forEach(function(cb){ checked.push(cb.value); });
     var container   = document.getElementById('qi-handle-rows');
@@ -363,13 +362,11 @@ html:not([data-theme="dark"]) .qi-hero {
         +'</div>';
     });
     container.innerHTML = html;
-  };
+}
 
-  /* Main submit handler */
+function qiSubmit(){
   var BTN = document.getElementById('qiSubmitBtn');
-  if(!BTN) return;
-
-  BTN.addEventListener('click', function(){
+  var platformIcons = _qiIcons;
     try {
       /* -- Validation -- */
       var platforms = [];
@@ -493,8 +490,7 @@ html:not([data-theme="dark"]) .qi-hero {
       }
 
     } catch(err) {
-      BTN.disabled=false; BTN.innerHTML='🚀 Submit Application';
+      if(BTN){ BTN.disabled=false; BTN.innerHTML='🚀 Submit Application'; }
     }
-  });
-})();
+}
 </script>
