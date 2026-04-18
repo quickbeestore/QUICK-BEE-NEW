@@ -323,7 +323,8 @@ html:not([data-theme="dark"]) .qi-hero {
 
       <!-- SUBMIT -->
       <div class="qi-submit-area">
-        <button type="button" class="qi-submit" id="qiSubmitBtn">🚀 Submit Application</button>
+        <button type="button" class="qi-submit" id="qiSubmitBtn" data-vid="{{ product.variants.first.id }}">🚀 Submit Application</button>
+        <p id="qi-platform-err" style="color:#ff6b6b;font-size:13px;display:none;margin-top:8px;">⚠️ Please select at least one social platform.</p>
         <p class="qi-note">By submitting, you agree that QuickBee may contact you at the details provided. Applications are reviewed within 3–5 business days.</p>
       </div>
 
@@ -334,174 +335,148 @@ html:not([data-theme="dark"]) .qi-hero {
 <script>
 (function(){
   var platformIcons = {
-    'Instagram': { icon: '📸', prefix: '@' },
-    'TikTok':    { icon: '🎵', prefix: '@' },
-    'YouTube':   { icon: '▶️', prefix: '' },
-    'Facebook':  { icon: '👥', prefix: '' },
-    'Twitter':   { icon: '𝕏', prefix: '@' },
-    'Snapchat':  { icon: '👻', prefix: '@' }
+    Instagram:{ icon:'📸', prefix:'@' },
+    TikTok:   { icon:'🎵', prefix:'@' },
+    YouTube:  { icon:'▶️',  prefix:''  },
+    Facebook: { icon:'👥', prefix:''  },
+    Twitter:  { icon:'𝕏',  prefix:'@' },
+    Snapchat: { icon:'👻', prefix:'@' }
   };
 
+  /* Toggle handle inputs when platform chips change */
   window.qiToggleHandles = function(){
     var checked = [];
     document.querySelectorAll('.qi-chip-input[name="platform"]:checked').forEach(function(cb){ checked.push(cb.value); });
-    var container = document.getElementById('qi-handle-rows');
+    var container   = document.getElementById('qi-handle-rows');
     var handlesWrap = document.getElementById('qiHandles');
-    if(!checked.length){ handlesWrap.classList.remove('qi-show'); container.innerHTML = ''; return; }
+    if(!checked.length){ handlesWrap.classList.remove('qi-show'); container.innerHTML=''; return; }
     handlesWrap.classList.add('qi-show');
-    var html = '';
+    var html='';
     checked.forEach(function(p){
-      var info = platformIcons[p] || { icon: '🔗', prefix: '' };
-      var existing = document.getElementById('qi-handle-' + p);
+      var info = platformIcons[p]||{icon:'🔗',prefix:''};
+      var existing = document.getElementById('qi-handle-'+p);
       var val = existing ? existing.value : '';
-      html += '<div class="qi-handle-row">' +
-        '<span class="qi-handle-ico">' + info.icon + '</span>' +
-        (info.prefix ? '<span class="qi-handle-prefix">' + info.prefix + '</span>' : '') +
-        '<input type="text" class="qi-input" id="qi-handle-' + p + '" data-platform="' + p + '" placeholder="' + p + ' username" value="' + val + '" style="margin:0">' +
-        '</div>';
+      html += '<div class="qi-handle-row">'
+        +'<span class="qi-handle-ico">'+info.icon+'</span>'
+        +(info.prefix?'<span class="qi-handle-prefix">'+info.prefix+'</span>':'')
+        +'<input type="text" class="qi-input" id="qi-handle-'+p+'" data-platform="'+p+'" placeholder="'+p+' username" value="'+val+'" style="margin:0">'
+        +'</div>';
     });
     container.innerHTML = html;
   };
 
-  function qiSubmit(){
-    var btn = document.getElementById('qiSubmitBtn');
-    var platforms = [];
-    document.querySelectorAll('.qi-chip-input[name="platform"]:checked').forEach(function(cb){ platforms.push(cb.value); });
-    if(!platforms.length){ alert('Please select at least one social platform.'); return; }
+  /* Main submit handler */
+  var BTN = document.getElementById('qiSubmitBtn');
+  if(!BTN) return;
 
-    var handleLines = '';
-    document.querySelectorAll('[id^="qi-handle-"]').forEach(function(inp){
-      var p = inp.dataset.platform;
-      var val = inp.value.trim();
-      if(val){ var info = platformIcons[p] || { icon: '🔗', prefix: '' }; handleLines += '\n' + p + ': ' + info.prefix + val; }
-    });
-
-    var followerRadio = document.querySelector('.qi-chip-input[name="followers"]:checked');
-    var followers = followerRadio ? followerRadio.value : '';
-    var name   = document.getElementById('qi-name').value.trim();
-    var phone  = document.getElementById('qi-phone').value.trim();
-    var email  = document.getElementById('qi-email').value.trim();
-    var city   = document.getElementById('qi-city').value.trim();
-    var niche  = document.getElementById('qi-niche').value;
-    var bio    = document.getElementById('qi-bio').value.trim();
-    var why    = document.getElementById('qi-why').value.trim();
-    var collab = document.getElementById('qi-collab').value || 'Not specified';
-    var rate   = document.getElementById('qi-rate').value.trim() || 'Not specified';
-    var now    = new Date().toLocaleString('en-NP', { timeZone: 'Asia/Kathmandu' });
-
-    /* ── Pull location data from QB location module ── */
-    function lsJson(k){ try{ var s=localStorage.getItem(k); return s?JSON.parse(s):null; }catch(_){return null;} }
-    var loc     = lsJson('qb_selected_location');
-    var liveLoc = lsJson('qb_live_location');
-    var del     = lsJson('qb_delivery_time');
-    var zone    = lsJson('qb_zone');
-
-    var locLines = [];
-    if(loc){
-      var addr = loc.address || loc.street || loc.location || loc.formatted_address || '';
-      if(addr) locLines.push('📍 Delivery Address: ' + addr);
-      if(loc.landmark) locLines.push('🏷 Landmark: ' + loc.landmark);
-      if(loc.landmark_link) locLines.push('🔗 Map Link: ' + loc.landmark_link);
-      if(loc.latitude && loc.longitude){
-        var lat = parseFloat(loc.latitude).toFixed(5);
-        var lng = parseFloat(loc.longitude).toFixed(5);
-        locLines.push('🗺 Coords: ' + lat + ', ' + lng);
-        locLines.push('📌 Maps: https://maps.google.com/?q=' + lat + ',' + lng);
-      }
-      if(zone && (zone.name || zone.zone)) locLines.push('🏘 Zone: ' + (zone.name || zone.zone));
-    }
-    if(liveLoc && liveLoc.latitude && liveLoc.longitude){
-      var llat = parseFloat(liveLoc.latitude).toFixed(5);
-      var llng = parseFloat(liveLoc.longitude).toFixed(5);
-      locLines.push('📡 Live GPS: ' + llat + ', ' + llng + (liveLoc.accuracy ? ' (±' + Math.round(liveLoc.accuracy) + 'm)' : ''));
-      locLines.push('🔴 Live Map: https://maps.google.com/?q=' + llat + ',' + llng);
-    }
-    if(del && del.range) locLines.push('⚡ Est. Delivery: ' + del.range);
-
-    var noteParts = [
-      '━━━ QUICKBEE INFLUENCER APPLICATION ━━━',
-      '',
-      '👤 Name: ' + name,
-      '📞 Phone: ' + phone,
-      '✉️ Email: ' + email,
-      '📍 City: ' + city,
-      '',
-      '📲 Platforms: ' + platforms.join(', '),
-      handleLines.trim() || '(no handles provided)',
-      '',
-      '👥 Followers: ' + followers,
-      '🎯 Niche: ' + niche,
-      '💰 Rate: NPR ' + rate,
-      '',
-      '📝 Bio: ' + bio,
-      '💡 Why QB: ' + why,
-      '🤝 Collab: ' + collab,
-      '',
-      '📅 Applied: ' + now
-    ];
-    if(locLines.length){
-      noteParts.push('');
-      noteParts.push('━━━ LOCATION DATA ━━━');
-      locLines.forEach(function(l){ noteParts.push(l); });
-    }
-
-    var note = noteParts.join('\n');
-
-    // Save application to localStorage
+  BTN.addEventListener('click', function(){
     try {
-      var appData = {
-        name: name, phone: phone, email: email, city: city,
-        platforms: platforms, handles: handleLines.trim(),
-        followers: followers, niche: niche, rate: rate,
-        bio: bio, why: why, collab: collab,
-        submittedAt: now, noteText: note
-      };
-      localStorage.setItem('qb_influencer_application', JSON.stringify(appData));
-      localStorage.setItem('qb_influencer_note', note);
-    } catch(err) { /* localStorage unavailable */ }
+      /* -- Validation -- */
+      var platforms = [];
+      document.querySelectorAll('.qi-chip-input[name="platform"]:checked').forEach(function(cb){ platforms.push(cb.value); });
+      var errEl = document.getElementById('qi-platform-err');
+      if(!platforms.length){
+        if(errEl) errEl.style.display='block';
+        return;
+      }
+      if(errEl) errEl.style.display='none';
 
-    var variantId = {{ product.variants.first.id | default: 'null' }};
-
-    btn.disabled = true;
-    btn.innerHTML = '⏳ Submitting…';
-
-    function goCheckout(){
-      fetch('/cart/update.js', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ note: note })
-      })
-      .then(function(){ window.location.href = '/checkout'; })
-      .catch(function(){ window.location.href = '/checkout'; });
-    }
-
-    if(variantId){
-      fetch('/cart/add.js', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: variantId,
-          quantity: 1,
-          properties: {
-            'Applicant': name,
-            'Phone': phone,
-            'Email': email,
-            'Platforms': platforms.join(', '),
-            'Followers': followers,
-            'Niche': niche
-          }
-        })
-      })
-      .then(goCheckout)
-      .catch(function(){
-        // If add fails, still try to go to checkout with whatever's in cart
-        goCheckout();
+      /* -- Collect form fields -- */
+      var handleLines = '';
+      document.querySelectorAll('[id^="qi-handle-"]').forEach(function(inp){
+        var p = inp.dataset.platform;
+        var v = inp.value.trim();
+        if(v){ var info=platformIcons[p]||{prefix:''}; handleLines+='\n'+p+': '+info.prefix+v; }
       });
-    } else {
-      goCheckout();
-    }
-  }
+      var followerRadio = document.querySelector('.qi-chip-input[name="followers"]:checked');
+      var g = function(id){ var el=document.getElementById(id); return el ? el.value.trim() : ''; };
+      var name      = g('qi-name');
+      var phone     = g('qi-phone');
+      var email     = g('qi-email');
+      var city      = g('qi-city');
+      var niche     = g('qi-niche');
+      var bio       = g('qi-bio');
+      var why       = g('qi-why');
+      var collab    = g('qi-collab') || 'Not specified';
+      var rate      = g('qi-rate')   || 'Not specified';
+      var followers = followerRadio  ? followerRadio.value : 'Not specified';
+      var now       = new Date().toLocaleString('en-NP',{timeZone:'Asia/Kathmandu'});
 
-  document.getElementById('qiSubmitBtn').addEventListener('click', qiSubmit);
+      /* -- Location data -- */
+      function lsJson(k){ try{ var s=localStorage.getItem(k); return s?JSON.parse(s):null; }catch(_){return null;} }
+      var loc=lsJson('qb_selected_location'), liveLoc=lsJson('qb_live_location'),
+          del=lsJson('qb_delivery_time'),     zone=lsJson('qb_zone');
+      var locLines=[];
+      if(loc){
+        var addr=loc.address||loc.street||loc.location||loc.formatted_address||'';
+        if(addr)                          locLines.push('📍 Address: '+addr);
+        if(loc.landmark)                  locLines.push('🏷 Landmark: '+loc.landmark);
+        if(loc.landmark_link)             locLines.push('🔗 Map: '+loc.landmark_link);
+        if(loc.latitude&&loc.longitude){
+          var lat=parseFloat(loc.latitude).toFixed(5), lng=parseFloat(loc.longitude).toFixed(5);
+          locLines.push('📌 Maps: https://maps.google.com/?q='+lat+','+lng);
+        }
+        if(zone&&(zone.name||zone.zone))  locLines.push('🏘 Zone: '+(zone.name||zone.zone));
+      }
+      if(liveLoc&&liveLoc.latitude&&liveLoc.longitude){
+        var llat=parseFloat(liveLoc.latitude).toFixed(5), llng=parseFloat(liveLoc.longitude).toFixed(5);
+        locLines.push('📡 Live GPS: '+llat+','+llng+(liveLoc.accuracy?' (±'+Math.round(liveLoc.accuracy)+'m)':''));
+      }
+      if(del&&del.range) locLines.push('⚡ Delivery: '+del.range);
+
+      /* -- Build note -- */
+      var parts=[
+        '━━━ QUICKBEE CREATOR APPLICATION ━━━','',
+        '👤 Name: '+name,       '📞 Phone: '+phone,
+        '✉️ Email: '+email,      '📍 City: '+city,'',
+        '📲 Platforms: '+platforms.join(', '),
+        handleLines.trim()||'(no handles)','',
+        '👥 Followers: '+followers, '🎯 Niche: '+niche,
+        '💰 Rate: NPR '+rate,'',
+        '📝 Bio: '+bio, '💡 Why QB: '+why, '🤝 Collab: '+collab,'',
+        '📅 Applied: '+now
+      ];
+      if(locLines.length){ parts.push('','━━━ LOCATION ━━━'); locLines.forEach(function(l){parts.push(l);}); }
+      var note = parts.join('\n');
+
+      /* -- Disable button -- */
+      BTN.disabled = true;
+      BTN.innerHTML = '⏳ Submitting…';
+
+      /* -- Variant ID from data attribute (Liquid rendered server-side) -- */
+      var vid = BTN.dataset.vid;
+
+      /* -- Navigate to checkout after setting note -- */
+      function goCheckout(){
+        fetch('/cart/update.js',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({note:note})
+        })
+        .then(function(){ window.location.href='/checkout'; })
+        .catch(function(){ window.location.href='/checkout'; });
+      }
+
+      /* -- Add product to cart, then set note, then checkout -- */
+      if(vid){
+        fetch('/cart/add.js',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            id:parseInt(vid,10), quantity:1,
+            properties:{Name:name,Phone:phone,Email:email,Platforms:platforms.join(', ')}
+          })
+        })
+        .then(goCheckout)
+        .catch(goCheckout);
+      } else {
+        goCheckout();
+      }
+
+    } catch(err) {
+      /* If anything crashes, still try to navigate */
+      window.location.href = '/checkout';
+    }
+  });
 })();
 </script>
