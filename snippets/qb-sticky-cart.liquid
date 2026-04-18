@@ -1009,16 +1009,16 @@ html:not([data-theme]) #qbsc-root {
 
     prevCount = count;
 
-    /* ── Unhide root after first render ─────────────────
-       Clears the server-rendered inline style="display:none" which is
-       the strongest possible guard against flash — inline styles can't
-       be overridden by any CSS.
-       Double-rAF: first frame computes bar's final position/opacity,
-       second frame makes ROOT visible — zero flash regardless of cart state. */
-    if (!ROOT.dataset.scReady) {
+    /* ── Unhide root after first render — ONLY when cart has items ──
+       Never lift display:none for an empty cart. Doing so activates the
+       GPU compositor layer (backdrop-filter + will-change) which flashes
+       a transparent frame on every refresh, even at opacity:0.
+       When items exist, double-rAF ensures bar is at final position
+       before becoming visible → zero flash. */
+    if (!ROOT.dataset.scReady && count > 0) {
       requestAnimationFrame(function () {
         requestAnimationFrame(function () {
-          ROOT.style.display   = '';   /* lift the inline display:none */
+          ROOT.style.display   = '';
           ROOT.dataset.scReady = '1';
           BAR.dataset.scReady  = '1';
         });
@@ -1165,32 +1165,27 @@ html:not([data-theme]) #qbsc-root {
     try { cached = parseInt(localStorage.getItem(LS_KEY) || '0', 10) || 0; } catch(e) {}
 
     if (cached > 0) {
-      /* Cart had items last time — reveal bar silently with NO transition/animation */
+      /* Cart had items last time — reveal bar immediately, no animation */
       BAR.style.transition    = 'none';
       BAR.style.animation     = 'none';
       BAR.style.opacity       = '1';
       BAR.style.transform     = 'translateY(0)';
       BAR.style.pointerEvents = '';
       ROOT.classList.remove('qbsc-hidden');
-    } else {
-      /* Cart empty — bar stays off-screen via qbsc-hidden class */
-      ROOT.classList.add('qbsc-hidden');
-    }
-
-    /* Always set data-sc-ready synchronously so the CSS display:none guard
-       and GPU-layer-blocking rules are removed before the browser paints.
-       Bar visibility is controlled by qbsc-hidden class + inline styles, not this flag. */
-    ROOT.style.display   = '';
-    ROOT.dataset.scReady = '1';
-    BAR.dataset.scReady  = '1';
-
-    /* Re-enable transitions after 2 frames (only matters for cached > 0 path) */
-    requestAnimationFrame(function () {
+      /* Lift display:none and mark ready — bar has items so GPU layer is safe */
+      ROOT.style.display   = '';
+      ROOT.dataset.scReady = '1';
+      BAR.dataset.scReady  = '1';
+      /* Re-enable transitions after 2 frames */
       requestAnimationFrame(function () {
-        BAR.style.transition = '';
-        BAR.style.animation  = '';
+        requestAnimationFrame(function () {
+          BAR.style.transition = '';
+          BAR.style.animation  = '';
+        });
       });
-    });
+    }
+    /* Empty cart: leave display:none + no data-sc-ready intact.
+       applyCart() will set them only when items actually appear. */
 
     loadCart(false, true);
   }
