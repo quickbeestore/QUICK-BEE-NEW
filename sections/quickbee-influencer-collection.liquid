@@ -438,7 +438,7 @@ function qiSubmit(){
       /* -- Variant ID from data attribute (Liquid rendered server-side) -- */
       var vid = BTN.dataset.vid;
 
-      /* -- Add product to cart, set note, then go to checkout (free) or cart (paid) -- */
+      /* -- Add product to cart with note, then open sticky cart -- */
       fetch('/cart/add.js', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -452,7 +452,12 @@ function qiSubmit(){
         });
       })
       .then(function() {
-        BTN.innerHTML = '✅ Application Submitted!';
+        BTN.innerHTML = '✅ Added to Cart!';
+        document.dispatchEvent(new CustomEvent('cart:updated', {bubbles: true}));
+        setTimeout(function() {
+          var bar = document.getElementById('qbsc-bar');
+          if (bar) bar.click();
+        }, 400);
       })
       .catch(function() {
         BTN.disabled = false;
