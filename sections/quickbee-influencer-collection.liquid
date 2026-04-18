@@ -529,43 +529,52 @@ function qiSubmit(){
       if(locLines.length){ parts.push('','━━━ LOCATION ━━━'); locLines.forEach(function(l){parts.push(l);}); }
       var note = parts.join('\n');
 
-      /* -- Disable button -- */
-      BTN.disabled = true;
-      BTN.innerHTML = '<div class="qi-btn-inner"><span class="qi-btn-rocket">⏳</span><div class="qi-btn-text-wrap"><span class="qi-btn-label">Submitting…</span></div></div>';
-
-      /* -- Variant ID from data attribute (Liquid rendered server-side) -- */
+      /* -- Variant ID: Liquid-rendered, fallback to hardcoded -- */
       var vid = BTN.dataset.vid;
+      if(!vid || vid === '' || vid === 'undefined' || vid === '0'){ vid = '46602451386558'; }
 
+      /* -- Button state helpers -- */
       function resetBtn(){
         BTN.disabled = false;
         BTN.innerHTML = '<div class="qi-btn-inner"><span class="qi-btn-rocket">🚀</span><div class="qi-btn-text-wrap"><span class="qi-btn-label">Submit Application</span><span class="qi-btn-sub">Join the QuickBee Creator Program</span></div><span class="qi-btn-arrow">→</span></div>';
       }
+      function showErr(msg){
+        BTN.disabled = false;
+        BTN.innerHTML = '<div class="qi-btn-inner"><span class="qi-btn-rocket">❌</span><div class="qi-btn-text-wrap"><span class="qi-btn-label">' + (msg || 'Error — Try Again') + '</span></div></div>';
+        setTimeout(resetBtn, 3000);
+      }
 
-      /* -- Add product to cart, set note, then checkout -- */
-      fetch('/cart/add.js', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({id: parseInt(vid, 10), quantity: 1, properties: {Applicant: name, Phone: phone, Email: email}})
+      /* -- Disable button -- */
+      BTN.disabled = true;
+      BTN.innerHTML = '<div class="qi-btn-inner"><span class="qi-btn-rocket">⏳</span><div class="qi-btn-text-wrap"><span class="qi-btn-label">Submitting…</span></div></div>';
+
+      /* -- 1. Clear cart -- */
+      fetch('/cart/clear.js', { method: 'POST' })
+      /* -- 2. Add product to cart -- */
+      .then(function(){
+        return fetch('/cart/add.js', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({id: parseInt(vid, 10), quantity: 1, properties: {Applicant: name, Phone: phone, Email: email}})
+        });
       })
       .then(function(r){ return r.json(); })
-      .then(function() {
+      /* -- 3. Set order note -- */
+      .then(function(){
         return fetch('/cart/update.js', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({note: note})
         });
       })
-      .then(function(){ return fetch('/cart.js'); })
-      .then(function(r){ return r.json(); })
-      .then(function(cart){
-        BTN.innerHTML = '<div class="qi-btn-inner"><span class="qi-btn-rocket">✅</span><div class="qi-btn-text-wrap"><span class="qi-btn-label">Going to Checkout…</span></div></div>';
-        var url = (cart && cart.checkout_url) ? cart.checkout_url : '/checkout';
-        window.location.href = url;
+      /* -- 4. Go to checkout -- */
+      .then(function(){
+        window.location.href = '/checkout';
       })
-      .catch(function() { resetBtn(); });
+      .catch(function(err){ showErr(err && err.message ? err.message.slice(0,32) : null); });
 
     } catch(err) {
-      if(BTN){ resetBtn(); }
+      if(BTN){ BTN.disabled=false; BTN.innerHTML='<div class="qi-btn-inner"><span class="qi-btn-rocket">🚀</span><div class="qi-btn-text-wrap"><span class="qi-btn-label">Submit Application</span></div></div>'; }
     }
 }
 </script>
