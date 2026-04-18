@@ -322,9 +322,38 @@ html:not([data-theme="dark"]) .qi-hero {
       </div>
 
       <!-- PROCEED -->
-      <div class="qi-submit-area">
-        <button type="button" id="qiSubmitBtn" data-vid="{{ product.variants.first.id }}" onclick="qiSubmit()" style="display:block;width:100%;padding:18px 0;font-size:18px;font-weight:800;letter-spacing:2px;background:#F4B400;color:#111;border:none;border-radius:14px;cursor:pointer;pointer-events:all;position:relative;z-index:9">PROCEED</button>
-        <p class="qi-note" style="margin-top:12px;">By submitting, you agree that QuickBee may contact you at the details provided.</p>
+      <style>
+        #qiProceedBtn {
+          display: block; width: 100%; margin: 8px 0 0;
+          padding: 20px 0; border: none; border-radius: 16px; cursor: pointer;
+          font-size: 20px; font-weight: 900; letter-spacing: 3px; color: #111;
+          background: linear-gradient(135deg, #FFD700 0%, #F4B400 50%, #FF9500 100%);
+          box-shadow: 0 6px 32px rgba(244,180,0,0.45), 0 2px 8px rgba(0,0,0,0.18);
+          position: relative; z-index: 9; pointer-events: all;
+          transition: transform 0.15s, box-shadow 0.15s, letter-spacing 0.15s;
+          overflow: hidden;
+        }
+        #qiProceedBtn::before {
+          content: '';
+          position: absolute; inset: 0;
+          background: linear-gradient(120deg, rgba(255,255,255,0.35) 0%, transparent 60%);
+          border-radius: inherit; pointer-events: none;
+        }
+        #qiProceedBtn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 40px rgba(244,180,0,0.6), 0 4px 12px rgba(0,0,0,0.22);
+          letter-spacing: 4px;
+        }
+        #qiProceedBtn:active:not(:disabled) { transform: translateY(1px); box-shadow: 0 3px 12px rgba(244,180,0,0.35); }
+        #qiProceedBtn:disabled { opacity: 0.7; cursor: not-allowed; }
+        .qi-proceed-wrap { text-align: center; margin-top: 24px; }
+        .qi-proceed-note { font-size: 12px; color: #888; margin-top: 10px; }
+      </style>
+      <div class="qi-proceed-wrap">
+        <button type="button" id="qiProceedBtn" data-vid="{{ product.variants.first.id }}" onclick="qiSubmit()">
+          🚀 &nbsp;PROCEED TO CHECKOUT
+        </button>
+        <p class="qi-proceed-note">By submitting, you agree QuickBee may contact you at the details provided.</p>
       </div>
 
     </div>
@@ -364,7 +393,7 @@ function qiToggleHandles(){
 }
 
 function qiSubmit(){
-  var BTN = document.getElementById('qiSubmitBtn');
+  var BTN = document.getElementById('qiProceedBtn');
   var platformIcons = _qiIcons;
     try {
       /* -- Collect platforms (optional) -- */
@@ -451,12 +480,12 @@ function qiSubmit(){
         });
       })
       .then(function() {
-        BTN.innerHTML = '⏳ Processing…';
+        BTN.innerHTML = '✅ Done!';
         window.location.href = '/checkout';
       })
       .catch(function() {
         BTN.disabled = false;
-        BTN.innerHTML = 'PROCEED';
+        BTN.innerHTML = '🚀 &nbsp;PROCEED TO CHECKOUT';
       });
 
     } catch(err) {
