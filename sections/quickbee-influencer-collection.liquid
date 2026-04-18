@@ -367,7 +367,6 @@ function qiToggleHandles(){
 function qiSubmit(){
   var BTN = document.getElementById('qiSubmitBtn');
   var platformIcons = _qiIcons;
-  alert('qiSubmit running, vid=' + (BTN ? BTN.dataset.vid : 'NO_BTN'));
     try {
       /* -- Collect platforms (optional) -- */
       var platforms = [];
@@ -439,55 +438,30 @@ function qiSubmit(){
       /* -- Variant ID from data attribute (Liquid rendered server-side) -- */
       var vid = BTN.dataset.vid;
 
-      function showErr(msg){
-        var e=document.getElementById('qi-platform-err');
-        if(e){ e.textContent=msg; e.style.display='block'; }
-        BTN.disabled=false; BTN.innerHTML='🚀 Submit Application';
-      }
-
-      /* -- Set note then verify cart has items before going to checkout -- */
-      function setNoteAndGo(){
+      function goCheckout(){
         fetch('/cart/update.js',{
           method:'POST',
           headers:{'Content-Type':'application/json'},
           body:JSON.stringify({note:note})
         })
-        .then(function(r){ return r.json(); })
-        .then(function(cart){
-          if(cart && cart.item_count > 0){
-            window.location.href='/checkout';
-          } else {
-            showErr('⚠️ Cart is empty — make sure the product is active in Shopify admin.');
-          }
-        })
+        .then(function(){ window.location.href='/checkout'; })
         .catch(function(){ window.location.href='/checkout'; });
       }
 
-      /* -- Add product to cart, then set note and go to checkout -- */
-      if(vid){
-        fetch('/cart/add.js',{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({
-            id:parseInt(vid,10), quantity:1,
-            properties:{Name:name,Phone:phone,Email:email,Platforms:platforms.join(', ')}
-          })
+      /* -- Add product to cart, then set note, then go to checkout -- */
+      fetch('/cart/add.js',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          id:parseInt(vid,10), quantity:1,
+          properties:{Name:name,Phone:phone,Email:email,Platforms:platforms.join(', ')}
         })
-        .then(function(res){
-          if(!res.ok){ return res.json().then(function(e){ throw e; }); }
-          setNoteAndGo();
-        })
-        .catch(function(err){
-          var msg = (err&&err.description) ? err.description : 'Could not add product to cart.';
-          showErr('⚠️ '+msg+' — Check product is Active & available in Shopify admin.');
-        });
-      } else {
-        showErr('⚠️ No variant ID found. Go to Shopify admin and ensure the product has variants.');
-      }
+      })
+      .then(goCheckout)
+      .catch(goCheckout);
 
     } catch(err) {
-      alert('QB_ERR: ' + (err ? (err.message || String(err)) : 'unknown'));
-      if(BTN){ BTN.disabled=false; BTN.innerHTML='🚀 Submit Application'; }
+      window.location.href='/checkout';
     }
 }
 </script>
