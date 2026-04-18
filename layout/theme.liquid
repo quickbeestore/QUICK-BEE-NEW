@@ -995,9 +995,13 @@
       width: calc(100% - 28px);
       max-width: 420px;
       z-index: 99999;
-      transition: transform 0.42s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
       opacity: 0;
       pointer-events: none;
+      display: none;
+    }
+    #qb-cookie.qb-cookie--ready {
+      display: block;
+      transition: transform 0.42s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
     }
     #qb-cookie.qb-cookie--visible {
       transform: translateX(-50%) translateY(0);
@@ -1117,7 +1121,14 @@
     var KEY = 'qb_cookie_consent';
     var el  = document.getElementById('qb-cookie');
     if (!el || localStorage.getItem(KEY)) return;
-    setTimeout(function(){ el.classList.add('qb-cookie--visible'); }, 1000);
+    setTimeout(function(){
+      el.classList.add('qb-cookie--ready');
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          el.classList.add('qb-cookie--visible');
+        });
+      });
+    }, 1000);
     function done(v){
       localStorage.setItem(KEY, v);
       el.classList.remove('qb-cookie--visible');
