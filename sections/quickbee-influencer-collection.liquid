@@ -390,7 +390,36 @@ html:not([data-theme="dark"]) .qi-hero {
     var rate   = document.getElementById('qi-rate').value.trim() || 'Not specified';
     var now    = new Date().toLocaleString('en-NP', { timeZone: 'Asia/Kathmandu' });
 
-    var note = [
+    /* ── Pull location data from QB location module ── */
+    function lsJson(k){ try{ var s=localStorage.getItem(k); return s?JSON.parse(s):null; }catch(_){return null;} }
+    var loc     = lsJson('qb_selected_location');
+    var liveLoc = lsJson('qb_live_location');
+    var del     = lsJson('qb_delivery_time');
+    var zone    = lsJson('qb_zone');
+
+    var locLines = [];
+    if(loc){
+      var addr = loc.address || loc.street || loc.location || loc.formatted_address || '';
+      if(addr) locLines.push('📍 Delivery Address: ' + addr);
+      if(loc.landmark) locLines.push('🏷 Landmark: ' + loc.landmark);
+      if(loc.landmark_link) locLines.push('🔗 Map Link: ' + loc.landmark_link);
+      if(loc.latitude && loc.longitude){
+        var lat = parseFloat(loc.latitude).toFixed(5);
+        var lng = parseFloat(loc.longitude).toFixed(5);
+        locLines.push('🗺 Coords: ' + lat + ', ' + lng);
+        locLines.push('📌 Maps: https://maps.google.com/?q=' + lat + ',' + lng);
+      }
+      if(zone && (zone.name || zone.zone)) locLines.push('🏘 Zone: ' + (zone.name || zone.zone));
+    }
+    if(liveLoc && liveLoc.latitude && liveLoc.longitude){
+      var llat = parseFloat(liveLoc.latitude).toFixed(5);
+      var llng = parseFloat(liveLoc.longitude).toFixed(5);
+      locLines.push('📡 Live GPS: ' + llat + ', ' + llng + (liveLoc.accuracy ? ' (±' + Math.round(liveLoc.accuracy) + 'm)' : ''));
+      locLines.push('🔴 Live Map: https://maps.google.com/?q=' + llat + ',' + llng);
+    }
+    if(del && del.range) locLines.push('⚡ Est. Delivery: ' + del.range);
+
+    var noteParts = [
       '━━━ QUICKBEE INFLUENCER APPLICATION ━━━',
       '',
       '👤 Name: ' + name,
@@ -410,7 +439,14 @@ html:not([data-theme="dark"]) .qi-hero {
       '🤝 Collab: ' + collab,
       '',
       '📅 Applied: ' + now
-    ].join('\n');
+    ];
+    if(locLines.length){
+      noteParts.push('');
+      noteParts.push('━━━ LOCATION DATA ━━━');
+      locLines.forEach(function(l){ noteParts.push(l); });
+    }
+
+    var note = noteParts.join('\n');
 
     btn.disabled = true; btn.innerHTML = '⏳ Submitting…';
 
@@ -441,8 +477,8 @@ html:not([data-theme="dark"]) .qi-hero {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ note: note })
       })
-      .then(function(){ window.location.href = '/cart'; })
-      .catch(function(){ window.location.href = '/cart'; });
+      .then(function(){ window.location.href = '/checkout'; })
+      .catch(function(){ window.location.href = '/checkout'; });
     }
 
     if(variantId){
