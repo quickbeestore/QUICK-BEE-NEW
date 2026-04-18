@@ -481,7 +481,16 @@ function qiSubmit(){
       })
       .then(function() {
         BTN.innerHTML = '✅ Done!';
-        window.location.href = '/checkout';
+        fetch('/cart.js')
+          .then(function(r){ return r.json(); })
+          .then(function(cart){
+            if(cart && cart.token){
+              window.location.href = 'https://quickbee.store/cart/' + cart.token + '/checkout';
+            } else {
+              window.location.href = '/cart';
+            }
+          })
+          .catch(function(){ window.location.href = '/cart'; });
       })
       .catch(function() {
         BTN.disabled = false;
