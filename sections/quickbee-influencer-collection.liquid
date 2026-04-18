@@ -438,15 +438,28 @@ function qiSubmit(){
       /* -- Variant ID from data attribute (Liquid rendered server-side) -- */
       var vid = BTN.dataset.vid;
 
-      /* -- Save note to localStorage, set flag, then use cart permalink to add item -- */
-      try { localStorage.setItem('qb_inf_note', note); localStorage.setItem('qb_inf_checkout', '1'); } catch(e){}
-      fetch('/cart/update.js',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({note:note})
+      /* -- Add product to cart, set note, then go to checkout (free) or cart (paid) -- */
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({id: parseInt(vid, 10), quantity: 1, properties: {Applicant: name, Phone: phone, Email: email}})
       })
-      .then(function(){ window.location.href = '/cart/' + vid + ':1'; })
-      .catch(function(){ window.location.href = '/cart/' + vid + ':1'; });
+      .then(function() {
+        return fetch('/cart/update.js', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({note: note})
+        });
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(cart) {
+        if (cart && cart.total_price === 0) {
+          window.location.href = '/checkout';
+        } else {
+          window.location.href = '/cart';
+        }
+      })
+      .catch(function() { window.location.href = '/cart'; });
 
     } catch(err) {
       window.location.href='/checkout';
