@@ -471,6 +471,91 @@ html:not([data-theme="dark"]) .qb-combo-price {
 
 <style>
 /* ═══════════════════════════════════
+   PROMO BANNER CAROUSEL
+═══════════════════════════════════ */
+.qb-banners-section {
+  padding: 12px 0 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Mobile: full-width single-slide snap scroll */
+.qb-banners-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  gap: 10px;
+  padding: 0 16px 12px;
+}
+.qb-banners-track::-webkit-scrollbar { display: none; }
+
+.qb-banner-slide {
+  flex: 0 0 calc(75vw);
+  max-width: 320px;
+  scroll-snap-align: center;
+  border-radius: 16px;
+  overflow: hidden;
+  display: block;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+  transition: transform 0.2s ease;
+}
+.qb-banner-slide:active { transform: scale(0.97); }
+.qb-banner-slide img {
+  width: 100%;
+  height: auto;
+  display: block;
+  aspect-ratio: 4/5;
+  object-fit: cover;
+}
+
+/* Tablet: show 2 at a time */
+@media(min-width: 600px) {
+  .qb-banner-slide { flex: 0 0 calc(46vw); max-width: 360px; }
+}
+
+/* Desktop: show 3 at a time */
+@media(min-width: 960px) {
+  .qb-banners-track {
+    padding: 0 32px 16px;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+  .qb-banner-slide {
+    flex: 0 0 calc(30% - 8px);
+    max-width: 340px;
+    scroll-snap-align: unset;
+  }
+  .qb-banner-slide:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.45); }
+  .qb-banners-dots { display: none; }
+}
+
+/* Dots */
+.qb-banners-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding-bottom: 4px;
+}
+.qb-banners-dots .qb-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.qb-banners-dots .qb-dot.active {
+  background: #F4B400;
+  width: 18px;
+  border-radius: 3px;
+}
+html:not([data-theme="dark"]) .qb-banners-dots .qb-dot { background: rgba(0,0,0,0.15); }
+html:not([data-theme="dark"]) .qb-banners-dots .qb-dot.active { background: #E6A800; }
+
+/* ═══════════════════════════════════
    LARGE PROMO BANNERS
 ═══════════════════════════════════ */
 .qb-large-banner-wrap {
@@ -3726,6 +3811,42 @@ html:not([data-theme="dark"]) .qb-trust-lbl { color: #888; }
 
 
   <!-- ══════════════════════════════════════════
+       🖼️ PROMO BANNER CAROUSEL
+  ══════════════════════════════════════════ -->
+  <section class="qb-banners-section">
+    <div class="qb-banners-track" id="qbBannersTrack">
+      <a href="/collections/all" class="qb-banner-slide">
+        <img src="{{ 'qb-banner-1.png' | asset_url }}" alt="15-Minute Delivery Across Kathmandu" loading="lazy">
+      </a>
+      <a href="/pages/flash-deals" class="qb-banner-slide">
+        <img src="{{ 'qb-banner-2.png' | asset_url }}" alt="Up to 80% Off Ending Soon" loading="lazy">
+      </a>
+      <a href="/collections/all" class="qb-banner-slide">
+        <img src="{{ 'qb-banner-3.png' | asset_url }}" alt="Before You Think It Arrives" loading="lazy">
+      </a>
+      <a href="/collections/typical-taste" class="qb-banner-slide">
+        <img src="{{ 'qb-banner-4.png' | asset_url }}" alt="Sip Bite Enjoy" loading="lazy">
+      </a>
+      <a href="/collections/beer" class="qb-banner-slide">
+        <img src="{{ 'qb-banner-5.png' | asset_url }}" alt="Flash Sale Up to 80% Off" loading="lazy">
+      </a>
+      <a href="/collections/all" class="qb-banner-slide">
+        <img src="{{ 'qb-banner-6.png' | asset_url }}" alt="Everything You Need One Place" loading="lazy">
+      </a>
+      <a href="/collections/bouquets" class="qb-banner-slide">
+        <img src="{{ 'qb-banner-7.png' | asset_url }}" alt="Send Love Instantly" loading="lazy">
+      </a>
+      <a href="/collections/typical-taste" class="qb-banner-slide">
+        <img src="{{ 'qb-banner-8.png' | asset_url }}" alt="Craving Something" loading="lazy">
+      </a>
+      <a href="/collections/yeti-kafe" class="qb-banner-slide">
+        <img src="{{ 'qb-banner-9.png' | asset_url }}" alt="Sip Bite Enjoy Boba" loading="lazy">
+      </a>
+    </div>
+    <div class="qb-banners-dots" id="qbBannersDots"></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
        📦 CATEGORY GRID
   ══════════════════════════════════════════ -->
   <section class="qb-catgrid-section">
@@ -5813,6 +5934,69 @@ function qbNotifySubmit(event) {
         try { localStorage.setItem(LS_KEY, '1'); } catch(e) {}
       }, 350);
     });
+  }
+})();
+</script>
+
+<script>
+/* ── Banner Carousel ── */
+(function() {
+  function initBannerCarousel() {
+    const track = document.getElementById('qbBannersTrack');
+    const dotsWrap = document.getElementById('qbBannersDots');
+    if (!track || !dotsWrap) return;
+
+    const slides = track.querySelectorAll('.qb-banner-slide');
+    const total = slides.length;
+    if (total === 0) return;
+
+    // Build dots
+    slides.forEach(function(_, i) {
+      const d = document.createElement('span');
+      d.className = 'qb-dot' + (i === 0 ? ' active' : '');
+      d.addEventListener('click', function() { goTo(i); });
+      dotsWrap.appendChild(d);
+    });
+
+    function getDots() { return dotsWrap.querySelectorAll('.qb-dot'); }
+
+    function goTo(idx) {
+      slides[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      getDots().forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+    }
+
+    // Update dots on scroll
+    let scrollTimer;
+    track.addEventListener('scroll', function() {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(function() {
+        let closest = 0, minDist = Infinity;
+        slides.forEach(function(s, i) {
+          const rect = s.getBoundingClientRect();
+          const trackRect = track.getBoundingClientRect();
+          const dist = Math.abs(rect.left + rect.width/2 - (trackRect.left + trackRect.width/2));
+          if (dist < minDist) { minDist = dist; closest = i; }
+        });
+        getDots().forEach(function(d, i) { d.classList.toggle('active', i === closest); });
+      }, 80);
+    }, { passive: true });
+
+    // Auto-advance (mobile only)
+    let current = 0;
+    const interval = setInterval(function() {
+      if (window.innerWidth >= 960) return;
+      current = (current + 1) % total;
+      goTo(current);
+    }, 3500);
+
+    // Pause on touch
+    track.addEventListener('touchstart', function() { clearInterval(interval); }, { passive: true });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBannerCarousel);
+  } else {
+    initBannerCarousel();
   }
 })();
 </script>
