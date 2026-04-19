@@ -228,6 +228,44 @@ html[data-theme="dark"] .c49-root {
   margin-bottom: 6px;
 }
 .c49-success-timer { font-size: 13px; color: var(--c49-text2); margin-bottom: 24px; }
+/* ── COUNTDOWN TIMER ── */
+.c49-countdown-wrap {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-bottom: 22px;
+}
+.c49-countdown-label {
+  font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.45);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.c49-countdown {
+  display: flex; gap: 6px; align-items: center;
+}
+.c49-cd-block {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px; padding: 8px 10px;
+  text-align: center; min-width: 48px;
+}
+.c49-cd-num {
+  font-size: 22px; font-weight: 900; color: #F4B400;
+  line-height: 1; letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.c49-cd-unit {
+  font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.4);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px;
+}
+.c49-cd-sep { font-size: 20px; font-weight: 900; color: rgba(244,180,0,0.5); margin-top: -6px; }
+
+/* ── LOCKED STATE ── */
+.c49-locked {
+  display: none;
+  text-align: center; padding: 60px 20px;
+  max-width: 400px; margin: 0 auto;
+}
+.c49-locked-icon { font-size: 56px; margin-bottom: 16px; }
+.c49-locked-title { font-size: 24px; font-weight: 900; color: var(--c49-text); margin-bottom: 8px; }
+.c49-locked-sub { font-size: 14px; color: var(--c49-text2); line-height: 1.6; }
 </style>
 
 <div class="c49-root">
@@ -238,9 +276,22 @@ html[data-theme="dark"] .c49-root {
   <div class="c49-hero">
     <div class="c49-hero-dots"></div>
     <div class="c49-hero-inner">
-      <div class="c49-badge"><span class="c49-badge-dot"></span>Limited Offer</div>
+      <div class="c49-badge"><span class="c49-badge-dot"></span>Limited — Ends Soon</div>
       <div class="c49-amount">Rs 49</div>
       <div class="c49-amount-label">Free Welcome Bonus</div>
+
+      <!-- Countdown -->
+      <div class="c49-countdown-wrap">
+        <span class="c49-countdown-label">Offer ends in</span>
+        <div class="c49-countdown">
+          <div class="c49-cd-block"><div class="c49-cd-num" id="c49H">--</div><div class="c49-cd-unit">hrs</div></div>
+          <div class="c49-cd-sep">:</div>
+          <div class="c49-cd-block"><div class="c49-cd-num" id="c49M">--</div><div class="c49-cd-unit">min</div></div>
+          <div class="c49-cd-sep">:</div>
+          <div class="c49-cd-block"><div class="c49-cd-num" id="c49S">--</div><div class="c49-cd-unit">sec</div></div>
+        </div>
+      </div>
+
       <h1 class="c49-hero-title">Create an account.<br>Get Rs 49 instantly.</h1>
       <p class="c49-hero-sub">Sign up on QuickBee and receive Rs 49 directly in your QuickPay wallet — use it on your very first order.</p>
 
@@ -316,7 +367,66 @@ html[data-theme="dark"] .c49-root {
     <div class="c49-trust-item"><span>🚫</span><span>No minimum order</span></div>
   </div>
 
+  <!-- ══ LOCKED STATE ══ -->
+  <div class="c49-locked" id="c49Locked">
+    <div class="c49-locked-icon">🔒</div>
+    <div class="c49-locked-title">Offer Expired</div>
+    <div class="c49-locked-sub">This promotion has ended. Stay tuned for the next one — follow us for more exclusive offers!</div>
+  </div>
+
 </div>
+
+<script>
+/* ── Countdown: 69 hours from first visit ── */
+(function() {
+  const EXPIRY_KEY = 'qb_49_expiry';
+  const DURATION   = 69 * 60 * 60 * 1000; // 69 hours in ms
+
+  let expiry = parseInt(localStorage.getItem(EXPIRY_KEY) || '0');
+  if (!expiry || expiry < Date.now()) {
+    expiry = Date.now() + DURATION;
+    localStorage.setItem(EXPIRY_KEY, expiry);
+  }
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function tick() {
+    const diff = expiry - Date.now();
+    if (diff <= 0) {
+      // Lock everything
+      document.getElementById('c49H').textContent = '00';
+      document.getElementById('c49M').textContent = '00';
+      document.getElementById('c49S').textContent = '00';
+      lockPage();
+      return;
+    }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    const hEl = document.getElementById('c49H');
+    const mEl = document.getElementById('c49M');
+    const sEl = document.getElementById('c49S');
+    if (hEl) hEl.textContent = pad(h);
+    if (mEl) mEl.textContent = pad(m);
+    if (sEl) sEl.textContent = pad(s);
+    setTimeout(tick, 1000);
+  }
+
+  function lockPage() {
+    // Hide hero content, steps, trust, show locked
+    const hero = document.querySelector('.c49-hero');
+    const steps = document.getElementById('c49StepsSection');
+    const trust = document.querySelector('.c49-trust');
+    const locked = document.getElementById('c49Locked');
+    if (hero) hero.style.display = 'none';
+    if (steps) steps.style.display = 'none';
+    if (trust) trust.style.display = 'none';
+    if (locked) locked.style.display = 'block';
+  }
+
+  tick();
+})();
+</script>
 
 {%- if customer -%}
 <script>
