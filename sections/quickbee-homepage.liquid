@@ -5961,7 +5961,9 @@ function qbNotifySubmit(event) {
     function getDots() { return dotsWrap.querySelectorAll('.qb-dot'); }
 
     function goTo(idx) {
-      slides[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      // Scroll only within the track — never jumps the page
+      const slideWidth = slides[0].offsetWidth + parseInt(getComputedStyle(track).gap || 10);
+      track.scrollTo({ left: idx * slideWidth, behavior: 'smooth' });
       getDots().forEach(function(d, i) { d.classList.toggle('active', i === idx); });
     }
 
@@ -5970,27 +5972,23 @@ function qbNotifySubmit(event) {
     track.addEventListener('scroll', function() {
       clearTimeout(scrollTimer);
       scrollTimer = setTimeout(function() {
-        let closest = 0, minDist = Infinity;
-        slides.forEach(function(s, i) {
-          const rect = s.getBoundingClientRect();
-          const trackRect = track.getBoundingClientRect();
-          const dist = Math.abs(rect.left + rect.width/2 - (trackRect.left + trackRect.width/2));
-          if (dist < minDist) { minDist = dist; closest = i; }
-        });
-        getDots().forEach(function(d, i) { d.classList.toggle('active', i === closest); });
+        const slideWidth = slides[0].offsetWidth + parseInt(getComputedStyle(track).gap || 10);
+        const closest = Math.round(track.scrollLeft / slideWidth);
+        getDots().forEach(function(d, i) { d.classList.toggle('active', i === Math.min(closest, total - 1)); });
       }, 80);
     }, { passive: true });
 
-    // Auto-advance (mobile only)
+    // Auto-advance (mobile only) — stops forever once user touches
     let current = 0;
+    let autoPlay = true;
     const interval = setInterval(function() {
-      if (window.innerWidth >= 960) return;
+      if (!autoPlay || window.innerWidth >= 960) return;
       current = (current + 1) % total;
       goTo(current);
     }, 3500);
 
-    // Pause on touch
-    track.addEventListener('touchstart', function() { clearInterval(interval); }, { passive: true });
+    // Stop auto-play permanently on touch
+    track.addEventListener('touchstart', function() { autoPlay = false; }, { passive: true });
   }
 
   if (document.readyState === 'loading') {
