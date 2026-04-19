@@ -237,27 +237,27 @@ html:not([data-theme="dark"]) .qi-hero {
 .qi-btn-inner {
   position: relative; z-index: 2;
   display: flex; align-items: center; justify-content: center; gap: 14px;
-  padding: 22px 32px;
+  padding: 22px 32px; width: 100%; box-sizing: border-box;
 }
 .qi-btn-rocket {
-  font-size: 26px; line-height: 1;
+  font-size: 26px; line-height: 1; flex-shrink: 0;
   transition: transform 0.35s cubic-bezier(.34,1.56,.64,1);
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
 }
 .qi-submit-btn:hover:not(:disabled) .qi-btn-rocket { transform: translateX(4px) rotate(-30deg) scale(1.25); }
-.qi-btn-text-wrap { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
+.qi-btn-text-wrap { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; flex: 1; }
 .qi-btn-label {
-  font-size: 19px; font-weight: 900; color: #0a0005;
+  display: block; font-size: 19px; font-weight: 900; color: #0a0005;
   letter-spacing: 2.5px; text-transform: uppercase; line-height: 1.1;
   text-shadow: 0 1px 0 rgba(255,255,255,0.4);
 }
 .qi-btn-sub {
-  font-size: 10px; font-weight: 700; color: rgba(0,0,0,0.5);
+  display: block; font-size: 10px; font-weight: 700; color: rgba(0,0,0,0.5);
   letter-spacing: 1.5px; text-transform: uppercase;
 }
 .qi-btn-arrow {
   font-size: 22px; color: rgba(0,0,0,0.55); font-weight: 900; line-height: 1;
-  transition: transform 0.2s; margin-left: auto;
+  transition: transform 0.2s; flex-shrink: 0;
 }
 .qi-submit-btn:hover:not(:disabled) .qi-btn-arrow { transform: translateX(6px); }
 
@@ -414,14 +414,14 @@ html:not([data-theme="dark"]) .qi-hero {
       <div class="qi-proceed-wrap">
         <div class="qi-btn-glow"></div>
         <button type="button" class="qi-submit-btn" id="qiProceedBtn" data-vid="{{ product.variants.first.id }}" onclick="qiSubmit()">
-          <div class="qi-btn-inner">
+          <span class="qi-btn-inner">
             <span class="qi-btn-rocket">🚀</span>
-            <div class="qi-btn-text-wrap">
+            <span class="qi-btn-text-wrap">
               <span class="qi-btn-label">Submit Application</span>
               <span class="qi-btn-sub">Join the QuickBee Creator Program</span>
-            </div>
+            </span>
             <span class="qi-btn-arrow">→</span>
-          </div>
+          </span>
         </button>
         <p class="qi-proceed-note">By submitting, you agree QuickBee may contact you at the details provided.</p>
       </div>
@@ -536,17 +536,17 @@ function qiSubmit(){
       /* -- Button state helpers -- */
       function resetBtn(){
         BTN.disabled = false;
-        BTN.innerHTML = '<div class="qi-btn-inner"><span class="qi-btn-rocket">🚀</span><div class="qi-btn-text-wrap"><span class="qi-btn-label">Submit Application</span><span class="qi-btn-sub">Join the QuickBee Creator Program</span></div><span class="qi-btn-arrow">→</span></div>';
+        BTN.innerHTML = '<span class="qi-btn-inner"><span class="qi-btn-rocket">🚀</span><span class="qi-btn-text-wrap"><span class="qi-btn-label">Submit Application</span><span class="qi-btn-sub">Join the QuickBee Creator Program</span></span><span class="qi-btn-arrow">→</span></span>';
       }
       function showErr(msg){
         BTN.disabled = false;
-        BTN.innerHTML = '<div class="qi-btn-inner"><span class="qi-btn-rocket">❌</span><div class="qi-btn-text-wrap"><span class="qi-btn-label">' + (msg || 'Error — Try Again') + '</span></div></div>';
+        BTN.innerHTML = '<span class="qi-btn-inner"><span class="qi-btn-rocket">❌</span><span class="qi-btn-text-wrap"><span class="qi-btn-label">' + (msg || 'Error — Try Again') + '</span></span></span>';
         setTimeout(resetBtn, 3000);
       }
 
       /* -- Disable button -- */
       BTN.disabled = true;
-      BTN.innerHTML = '<div class="qi-btn-inner"><span class="qi-btn-rocket">⏳</span><div class="qi-btn-text-wrap"><span class="qi-btn-label">Submitting…</span></div></div>';
+      BTN.innerHTML = '<span class="qi-btn-inner"><span class="qi-btn-rocket">⏳</span><span class="qi-btn-text-wrap"><span class="qi-btn-label">Submitting…</span></span></span>';
 
       /* -- Suppress sticky cart from opening — we're going straight to checkout -- */
       window.__qbSkipCartOpen = true;
@@ -577,7 +577,7 @@ function qiSubmit(){
       .catch(function(err){ showErr(err && err.message ? err.message.slice(0,32) : null); });
 
     } catch(err) {
-      if(BTN){ BTN.disabled=false; BTN.innerHTML='<div class="qi-btn-inner"><span class="qi-btn-rocket">🚀</span><div class="qi-btn-text-wrap"><span class="qi-btn-label">Submit Application</span></div></div>'; }
+      if(BTN){ BTN.disabled=false; BTN.innerHTML='<span class="qi-btn-inner"><span class="qi-btn-rocket">🚀</span><span class="qi-btn-text-wrap"><span class="qi-btn-label">Submit Application</span></span></span>'; }
     }
 }
 </script>
