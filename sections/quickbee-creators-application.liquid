@@ -1,0 +1,723 @@
+{% comment %} QuickBee Creator Application {% endcomment %}
+
+<style>
+/* ═══════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════ */
+html:not([data-theme="dark"]) .cr-root {
+  --cr-bg:          #F4F6FB;
+  --cr-card:        #FFFFFF;
+  --cr-text:        #0D0F1A;
+  --cr-text2:       #4A5068;
+  --cr-text3:       #8890A8;
+  --cr-border:      rgba(0,0,0,0.08);
+  --cr-gold:        #E6A800;
+  --cr-gold2:       #F4B400;
+  --cr-gold-bg:     rgba(244,180,0,0.10);
+  --cr-gold-glow:   rgba(244,180,0,0.20);
+  --cr-shadow:      0 4px 20px rgba(0,0,0,0.08);
+  --cr-shadow-lg:   0 12px 48px rgba(0,0,0,0.14);
+  --cr-inp-bg:      #F8F9FC;
+  --cr-inp-border:  #DDE0EC;
+  --cr-inp-text:    #0D0F1A;
+  --cr-placeholder: #9BA3B8;
+}
+html[data-theme="dark"] .cr-root {
+  --cr-bg:          #0C0D14;
+  --cr-card:        #181A28;
+  --cr-text:        #EEF0FF;
+  --cr-text2:       #8890B8;
+  --cr-text3:       #50546A;
+  --cr-border:      rgba(255,255,255,0.07);
+  --cr-gold:        #F4B400;
+  --cr-gold2:       #FFD040;
+  --cr-gold-bg:     rgba(244,180,0,0.08);
+  --cr-gold-glow:   rgba(244,180,0,0.15);
+  --cr-shadow:      0 4px 24px rgba(0,0,0,0.4);
+  --cr-shadow-lg:   0 12px 56px rgba(0,0,0,0.6);
+  --cr-inp-bg:      #10111C;
+  --cr-inp-border:  rgba(255,255,255,0.1);
+  --cr-inp-text:    #EEF0FF;
+  --cr-placeholder: #454860;
+}
+
+/* ═══════════════════════════════════════
+   BASE
+═══════════════════════════════════════ */
+.cr-root {
+  background: var(--cr-bg);
+  color: var(--cr-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  padding-bottom: 100px;
+}
+.cr-root *, .cr-root *::before, .cr-root *::after { box-sizing: border-box; }
+
+/* ═══════════════════════════════════════
+   HERO
+═══════════════════════════════════════ */
+.cr-hero {
+  position: relative;
+  background: linear-gradient(160deg, #08000F 0%, #160030 60%, #0A0018 100%);
+  overflow: hidden;
+}
+.cr-hero-glow-1 {
+  position: absolute; top: -100px; right: -60px;
+  width: 480px; height: 480px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(244,180,0,0.13) 0%, transparent 65%);
+  pointer-events: none;
+}
+.cr-hero-glow-2 {
+  position: absolute; bottom: -80px; left: -60px;
+  width: 360px; height: 360px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(160,80,255,0.12) 0%, transparent 65%);
+  pointer-events: none;
+}
+.cr-hero-dots {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.cr-hero-inner {
+  position: relative; z-index: 2;
+  max-width: 700px; margin: 0 auto;
+  padding: 56px 24px 40px;
+  text-align: center;
+}
+.cr-hero-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(244,180,0,0.15);
+  border: 1px solid rgba(244,180,0,0.35);
+  color: #F4B400;
+  font-size: 11px; font-weight: 800;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 6px 16px; border-radius: 999px;
+  margin-bottom: 22px;
+  animation: cr-fade-up 0.5s ease both;
+}
+.cr-badge-dot {
+  width: 6px; height: 6px; background: #F4B400;
+  border-radius: 50%; box-shadow: 0 0 6px rgba(244,180,0,0.7);
+  animation: cr-pulse 1.8s ease-in-out infinite;
+}
+@keyframes cr-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.5)} }
+@keyframes cr-fade-up { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+.cr-hero-h1 {
+  font-size: clamp(32px, 7vw, 62px);
+  font-weight: 900; color: #fff;
+  line-height: 1.06; margin: 0 0 12px;
+  letter-spacing: -0.03em;
+  animation: cr-fade-up 0.55s 0.1s ease both;
+}
+.cr-gold-word {
+  background: linear-gradient(120deg, #F4B400, #FFD860, #F4B400);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.cr-hero-sub {
+  font-size: 15px; color: rgba(255,255,255,0.6);
+  line-height: 1.7; max-width: 420px; margin: 0 auto 32px;
+  animation: cr-fade-up 0.6s 0.18s ease both;
+}
+.cr-hero-stats {
+  display: flex; align-items: stretch; justify-content: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-radius: 20px; overflow: hidden;
+  max-width: 440px; margin: 0 auto;
+  animation: cr-fade-up 0.65s 0.25s ease both;
+}
+.cr-hero-stat { flex: 1; padding: 18px 12px; text-align: center; position: relative; }
+.cr-hero-stat + .cr-hero-stat::before {
+  content: ''; position: absolute; left: 0; top: 20%; height: 60%;
+  width: 1px; background: rgba(255,255,255,0.1);
+}
+.cr-stat-num { font-size: 21px; font-weight: 900; color: #F4B400; line-height: 1; margin-bottom: 4px; letter-spacing: -0.02em; }
+.cr-stat-lbl { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.08em; }
+.cr-hero-wave { display: block; width: 100%; line-height: 0; margin-top: -1px; }
+
+/* ═══════════════════════════════════════
+   HOW EARNING WORKS
+═══════════════════════════════════════ */
+.cr-how {
+  max-width: 700px; margin: 0 auto;
+  padding: 36px 16px 0;
+}
+.cr-section-label {
+  font-size: 10px; font-weight: 900; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--cr-gold); margin-bottom: 6px;
+}
+.cr-section-h2 {
+  font-size: 22px; font-weight: 900; color: var(--cr-text);
+  margin: 0 0 20px; letter-spacing: -0.02em;
+}
+.cr-earn-cards {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+@media(max-width: 480px) { .cr-earn-cards { grid-template-columns: 1fr; } }
+.cr-earn-card {
+  background: var(--cr-card); border: 1px solid var(--cr-border);
+  border-radius: 18px; padding: 20px 18px;
+  box-shadow: var(--cr-shadow); position: relative; overflow: hidden;
+}
+.cr-earn-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #E6A800, #F4B400);
+}
+.cr-earn-icon { font-size: 28px; margin-bottom: 10px; }
+.cr-earn-title { font-size: 15px; font-weight: 800; color: var(--cr-text); margin-bottom: 5px; }
+.cr-earn-desc { font-size: 12px; color: var(--cr-text3); line-height: 1.55; }
+
+/* ═══════════════════════════════════════
+   STEPS
+═══════════════════════════════════════ */
+.cr-steps { max-width: 700px; margin: 0 auto; padding: 36px 16px 0; }
+.cr-steps-list { display: flex; flex-direction: column; gap: 0; position: relative; }
+.cr-steps-list::before {
+  content: ''; position: absolute;
+  left: 19px; top: 38px; bottom: 38px; width: 2px;
+  background: linear-gradient(to bottom, var(--cr-gold), transparent);
+}
+.cr-step { display: flex; gap: 18px; align-items: flex-start; padding: 14px 0; position: relative; z-index: 1; }
+.cr-step-num {
+  width: 40px; height: 40px; min-width: 40px;
+  background: linear-gradient(135deg, #E6A800, #F4B400); color: #000;
+  font-size: 14px; font-weight: 900; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(244,180,0,0.35);
+}
+.cr-step-title { font-size: 15px; font-weight: 800; color: var(--cr-text); margin-bottom: 3px; }
+.cr-step-desc { font-size: 13px; color: var(--cr-text2); line-height: 1.5; }
+
+/* ═══════════════════════════════════════
+   FORM AREA
+═══════════════════════════════════════ */
+.cr-form-area { max-width: 700px; margin: 28px auto 0; padding: 0 16px; }
+.cr-form { display: flex; flex-direction: column; gap: 14px; }
+
+.cr-card {
+  background: var(--cr-card); border: 1px solid var(--cr-border);
+  border-radius: 20px; padding: 24px 20px 22px; box-shadow: var(--cr-shadow);
+}
+.cr-card-head { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+.cr-card-icon {
+  width: 42px; height: 42px; min-width: 42px;
+  background: linear-gradient(135deg, #E6A800, #F4B400);
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  font-size: 20px; box-shadow: 0 4px 14px rgba(244,180,0,0.3);
+}
+.cr-card-title { font-size: 16px; font-weight: 800; color: var(--cr-text); line-height: 1.2; }
+.cr-card-sub { font-size: 12px; color: var(--cr-text3); margin-top: 2px; }
+
+.cr-fields { display: flex; flex-direction: column; gap: 14px; }
+.cr-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width: 400px) { .cr-row { grid-template-columns: 1fr; } }
+
+.cr-field label {
+  display: block; font-size: 11px; font-weight: 800;
+  color: var(--cr-text3); text-transform: uppercase; letter-spacing: 0.1em;
+  margin-bottom: 7px;
+}
+.cr-req { color: var(--cr-gold); }
+
+.cr-field input[type="text"],
+.cr-field input[type="tel"],
+.cr-field input[type="email"],
+.cr-field select,
+.cr-field textarea {
+  width: 100%; padding: 13px 15px;
+  border: 1.5px solid var(--cr-inp-border);
+  border-radius: 12px; font-size: 15px;
+  background: var(--cr-inp-bg); color: var(--cr-inp-text);
+  -webkit-text-fill-color: var(--cr-inp-text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none; font-family: inherit; outline: none;
+}
+.cr-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
+}
+.cr-field input::placeholder, .cr-field textarea::placeholder {
+  color: var(--cr-placeholder); -webkit-text-fill-color: var(--cr-placeholder);
+}
+.cr-field input:focus, .cr-field select:focus, .cr-field textarea:focus {
+  border-color: var(--cr-gold); box-shadow: 0 0 0 4px var(--cr-gold-glow);
+}
+.cr-field textarea { resize: vertical; min-height: 88px; line-height: 1.6; }
+
+/* Chips */
+.cr-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.cr-chip-input { position: absolute; opacity: 0; pointer-events: none; }
+.cr-chip-lbl {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--cr-inp-bg); border: 1.5px solid var(--cr-inp-border);
+  border-radius: 999px; padding: 9px 16px; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.18s; user-select: none; color: var(--cr-text2);
+}
+.cr-chip-lbl:hover { border-color: var(--cr-gold); color: var(--cr-gold); }
+.cr-chip-input:checked + .cr-chip-lbl {
+  background: var(--cr-gold-bg); border-color: var(--cr-gold); color: var(--cr-gold);
+}
+.cr-range-lbl {
+  display: block; background: var(--cr-inp-bg); border: 1.5px solid var(--cr-inp-border);
+  border-radius: 10px; padding: 10px 14px; font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: all 0.18s; user-select: none; color: var(--cr-text2);
+}
+.cr-range-lbl:hover { border-color: var(--cr-gold); color: var(--cr-gold); }
+.cr-chip-input:checked + .cr-range-lbl {
+  background: var(--cr-gold-bg); border-color: var(--cr-gold); color: var(--cr-gold);
+}
+
+/* Handles */
+.cr-handles { display: none; margin-top: 16px; }
+.cr-handles.cr-show { display: block; }
+.cr-handle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.cr-handle-ico { font-size: 18px; width: 26px; text-align: center; flex-shrink: 0; }
+.cr-handle-prefix { font-size: 13px; color: var(--cr-text3); white-space: nowrap; }
+.cr-handle-input {
+  flex: 1; padding: 11px 13px;
+  border: 1.5px solid var(--cr-inp-border); border-radius: 10px;
+  font-size: 14px; background: var(--cr-inp-bg); color: var(--cr-inp-text);
+  font-family: inherit; outline: none;
+  transition: border-color 0.2s;
+}
+.cr-handle-input:focus { border-color: var(--cr-gold); }
+
+/* ═══════════════════════════════════════
+   SUBMIT
+═══════════════════════════════════════ */
+.cr-submit-wrap { text-align: center; margin-top: 8px; }
+.cr-submit-btn {
+  width: 100%;
+  background: linear-gradient(120deg, #D49500, #F4B400, #D49500);
+  background-size: 200%;
+  color: #0D0F1A;
+  border: none; border-radius: 14px;
+  padding: 16px 24px;
+  font-size: 16px; font-weight: 900;
+  cursor: pointer; letter-spacing: 0.02em;
+  transition: all 0.25s; font-family: inherit;
+  box-shadow: 0 6px 24px rgba(244,180,0,0.35);
+}
+.cr-submit-btn:hover {
+  background-position: right;
+  box-shadow: 0 8px 32px rgba(244,180,0,0.5);
+  transform: translateY(-2px);
+}
+.cr-submit-btn:active { transform: scale(0.98); }
+.cr-submit-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+.cr-submit-note { font-size: 11px; color: var(--cr-text3); margin-top: 12px; line-height: 1.5; }
+
+@keyframes cr-spin { to { transform: rotate(360deg); } }
+.cr-submit-btn.loading { opacity: 0.8; pointer-events: none; }
+.cr-submit-btn.loading::after {
+  content: ''; display: inline-block;
+  width: 14px; height: 14px;
+  border: 2.5px solid rgba(0,0,0,0.3); border-top-color: #000;
+  border-radius: 50%; animation: cr-spin 0.7s linear infinite;
+  margin-left: 10px; vertical-align: middle;
+}
+</style>
+
+<div class="cr-root">
+
+  <!-- ══════ HERO ══════ -->
+  <div class="cr-hero">
+    <div class="cr-hero-glow-1"></div>
+    <div class="cr-hero-glow-2"></div>
+    <div class="cr-hero-dots"></div>
+    <div class="cr-hero-inner">
+      <div class="cr-hero-badge">
+        <span class="cr-badge-dot"></span>
+        ✨ QuickBee Creator Program — Apply Now
+      </div>
+      <h1 class="cr-hero-h1">
+        Share Your Code.<br>
+        <span class="cr-gold-word">Get Paid Every Order.</span>
+      </h1>
+      <p class="cr-hero-sub">Get your own QuickBee referral code. Every time someone orders using your code, you earn — no followers minimum, no catch.</p>
+      <div class="cr-hero-stats">
+        <div class="cr-hero-stat">
+          <div class="cr-stat-num">Your Code</div>
+          <div class="cr-stat-lbl">Unique to you</div>
+        </div>
+        <div class="cr-hero-stat">
+          <div class="cr-stat-num">Per Order</div>
+          <div class="cr-stat-lbl">You earn each time</div>
+        </div>
+        <div class="cr-hero-stat">
+          <div class="cr-stat-num">Weekly</div>
+          <div class="cr-stat-lbl">Payout</div>
+        </div>
+      </div>
+    </div>
+    <svg class="cr-hero-wave" viewBox="0 0 1440 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="height:48px;">
+      <path d="M0,30 C320,0 720,48 1080,24 C1280,12 1380,40 1440,32 L1440,48 L0,48 Z" fill="var(--cr-bg)"/>
+    </svg>
+  </div>
+
+  <!-- ══════ HOW EARNING WORKS ══════ -->
+  <div class="cr-how">
+    <div class="cr-section-label">How You Earn</div>
+    <div class="cr-section-h2">Your referral code does the work</div>
+    <div class="cr-earn-cards">
+      <div class="cr-earn-card">
+        <div class="cr-earn-icon">🔖</div>
+        <div class="cr-earn-title">You Get a Code</div>
+        <div class="cr-earn-desc">After approval, QuickBee gives you a unique promo code tied to your name.</div>
+      </div>
+      <div class="cr-earn-card">
+        <div class="cr-earn-icon">📣</div>
+        <div class="cr-earn-title">You Share It</div>
+        <div class="cr-earn-desc">Post on stories, reels, WhatsApp — wherever your audience is. No minimum reach needed.</div>
+      </div>
+      <div class="cr-earn-card">
+        <div class="cr-earn-icon">🛒</div>
+        <div class="cr-earn-title">People Order</div>
+        <div class="cr-earn-desc">When someone places an order using your code, QuickBee tracks it automatically.</div>
+      </div>
+      <div class="cr-earn-card">
+        <div class="cr-earn-icon">💸</div>
+        <div class="cr-earn-title">You Get Paid</div>
+        <div class="cr-earn-desc">Earnings are tallied weekly and sent directly to your eSewa or bank account.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ STEPS ══════ -->
+  <div class="cr-steps">
+    <div class="cr-section-label">How It Works</div>
+    <div class="cr-section-h2">Start earning in 3 steps</div>
+    <div class="cr-steps-list">
+      <div class="cr-step">
+        <div class="cr-step-num">01</div>
+        <div>
+          <div class="cr-step-title">Apply Below</div>
+          <div class="cr-step-desc">Fill the form — takes under 2 minutes. Share your platforms and content style.</div>
+        </div>
+      </div>
+      <div class="cr-step">
+        <div class="cr-step-num">02</div>
+        <div>
+          <div class="cr-step-title">Get Your Code Within 24 Hours</div>
+          <div class="cr-step-desc">We'll review your profile and WhatsApp you a custom referral code once approved.</div>
+        </div>
+      </div>
+      <div class="cr-step">
+        <div class="cr-step-num">03</div>
+        <div>
+          <div class="cr-step-title">Share & Earn</div>
+          <div class="cr-step-desc">Start sharing. Every valid order through your code puts money in your pocket — weekly.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ FORM ══════ -->
+  <div class="cr-form-area">
+    <form id="CrAppForm" class="cr-form" novalidate>
+      <input type="hidden" id="CrVariantId" value="{{ product.variants.first.id }}">
+
+      <!-- Personal Info -->
+      <div class="cr-card">
+        <div class="cr-card-head">
+          <div class="cr-card-icon">👤</div>
+          <div>
+            <div class="cr-card-title">Personal Info</div>
+            <div class="cr-card-sub">So we can reach you with your code</div>
+          </div>
+        </div>
+        <div class="cr-fields">
+          <div class="cr-field">
+            <label for="CrName">Full Name <span class="cr-req">*</span></label>
+            <input type="text" id="CrName" placeholder="Your full name" required>
+          </div>
+          <div class="cr-row">
+            <div class="cr-field">
+              <label for="CrPhone">WhatsApp Number <span class="cr-req">*</span></label>
+              <input type="tel" id="CrPhone" placeholder="98XXXXXXXX" required>
+            </div>
+            <div class="cr-field">
+              <label for="CrEmail">Email</label>
+              <input type="email" id="CrEmail" placeholder="you@email.com">
+            </div>
+          </div>
+          <div class="cr-field">
+            <label for="CrCity">City / Area <span class="cr-req">*</span></label>
+            <input type="text" id="CrCity" placeholder="e.g. Thamel, Pokhara, Lalitpur" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Social Platforms -->
+      <div class="cr-card">
+        <div class="cr-card-head">
+          <div class="cr-card-icon" style="background:linear-gradient(135deg,#833AB4,#E1306C);">📲</div>
+          <div>
+            <div class="cr-card-title">Your Platforms</div>
+            <div class="cr-card-sub">Where do you create content or have an audience?</div>
+          </div>
+        </div>
+        <div class="cr-fields">
+          <div class="cr-field">
+            <label>Active On <span class="cr-req">*</span></label>
+            <div class="cr-chips">
+              <label><input type="checkbox" class="cr-chip-input" name="platform" value="Instagram" onchange="crToggleHandles()"><span class="cr-chip-lbl">📸 Instagram</span></label>
+              <label><input type="checkbox" class="cr-chip-input" name="platform" value="TikTok" onchange="crToggleHandles()"><span class="cr-chip-lbl">🎵 TikTok</span></label>
+              <label><input type="checkbox" class="cr-chip-input" name="platform" value="YouTube" onchange="crToggleHandles()"><span class="cr-chip-lbl">▶️ YouTube</span></label>
+              <label><input type="checkbox" class="cr-chip-input" name="platform" value="Facebook" onchange="crToggleHandles()"><span class="cr-chip-lbl">👥 Facebook</span></label>
+              <label><input type="checkbox" class="cr-chip-input" name="platform" value="WhatsApp Groups" onchange="crToggleHandles()"><span class="cr-chip-lbl">💬 WhatsApp</span></label>
+              <label><input type="checkbox" class="cr-chip-input" name="platform" value="Twitter" onchange="crToggleHandles()"><span class="cr-chip-lbl">𝕏 Twitter</span></label>
+              <label><input type="checkbox" class="cr-chip-input" name="platform" value="Snapchat" onchange="crToggleHandles()"><span class="cr-chip-lbl">👻 Snapchat</span></label>
+            </div>
+          </div>
+          <div class="cr-handles" id="crHandles">
+            <label style="display:block;font-size:11px;font-weight:800;color:var(--cr-text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Your Handles / Links</label>
+            <div id="cr-handle-rows"></div>
+          </div>
+          <div class="cr-field">
+            <label>Total Followers / Reach <span class="cr-req">*</span></label>
+            <div class="cr-chips">
+              <label><input type="radio" class="cr-chip-input" name="followers" value="Under 500" required><span class="cr-range-lbl">Under 500</span></label>
+              <label><input type="radio" class="cr-chip-input" name="followers" value="500 – 2K"><span class="cr-range-lbl">500 – 2K</span></label>
+              <label><input type="radio" class="cr-chip-input" name="followers" value="2K – 10K"><span class="cr-range-lbl">2K – 10K</span></label>
+              <label><input type="radio" class="cr-chip-input" name="followers" value="10K – 50K"><span class="cr-range-lbl">10K – 50K</span></label>
+              <label><input type="radio" class="cr-chip-input" name="followers" value="50K+"><span class="cr-range-lbl">50K+</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Style -->
+      <div class="cr-card">
+        <div class="cr-card-head">
+          <div class="cr-card-icon" style="background:linear-gradient(135deg,#4A6FFF,#7B5EA7);">🎬</div>
+          <div>
+            <div class="cr-card-title">Your Content</div>
+            <div class="cr-card-sub">Help us understand what you create</div>
+          </div>
+        </div>
+        <div class="cr-fields">
+          <div class="cr-row">
+            <div class="cr-field">
+              <label for="CrNiche">Content Niche <span class="cr-req">*</span></label>
+              <select id="CrNiche" required>
+                <option value="" disabled selected>Select niche</option>
+                <option>Food & Restaurant Reviews</option>
+                <option>Lifestyle & Vlogs</option>
+                <option>Travel & Adventure</option>
+                <option>Fashion & Beauty</option>
+                <option>Fitness & Health</option>
+                <option>Tech & Gaming</option>
+                <option>Entertainment & Comedy</option>
+                <option>Student / Campus Life</option>
+                <option>Business & Finance</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="cr-field">
+              <label for="CrCollab">Collab Type</label>
+              <select id="CrCollab">
+                <option value="" disabled selected>Select type</option>
+                <option>Referral Code Only</option>
+                <option>Story / Reel Mentions</option>
+                <option>Dedicated Review Post</option>
+                <option>Brand Ambassador</option>
+                <option>All of the above</option>
+              </select>
+            </div>
+          </div>
+          <div class="cr-field">
+            <label for="CrBio">Tell us about yourself <span class="cr-req">*</span></label>
+            <textarea id="CrBio" placeholder="Who are you? What kind of content do you make? Who's your audience?…" required></textarea>
+          </div>
+          <div class="cr-field">
+            <label for="CrWhy">Why do you want to partner with QuickBee? <span class="cr-req">*</span></label>
+            <textarea id="CrWhy" placeholder="What excites you about QuickBee? How will you promote it?…" required style="min-height:76px"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="cr-submit-wrap">
+        <button type="submit" class="cr-submit-btn" id="CrSubmitBtn">
+          <span id="CrSubmitText">Send My Application 🚀</span>
+        </button>
+        <p class="cr-submit-note">By applying you agree to QuickBee's creator terms. Your data will never be shared with third parties.</p>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+
+<script>
+var _crIcons = {
+  Instagram:       { icon: '📸', prefix: '@' },
+  TikTok:          { icon: '🎵', prefix: '@' },
+  YouTube:         { icon: '▶️',  prefix: ''  },
+  Facebook:        { icon: '👥', prefix: ''  },
+  'WhatsApp Groups': { icon: '💬', prefix: '' },
+  Twitter:         { icon: '𝕏',  prefix: '@' },
+  Snapchat:        { icon: '👻', prefix: '@' }
+};
+
+function crToggleHandles() {
+  var checked = [];
+  document.querySelectorAll('.cr-chip-input[name="platform"]:checked').forEach(function(cb) { checked.push(cb.value); });
+  var container = document.getElementById('cr-handle-rows');
+  var wrap = document.getElementById('crHandles');
+  if (!checked.length) { wrap.classList.remove('cr-show'); container.innerHTML = ''; return; }
+  wrap.classList.add('cr-show');
+  var html = '';
+  checked.forEach(function(p) {
+    var info = _crIcons[p] || { icon: '🔗', prefix: '' };
+    var existing = document.getElementById('cr-handle-' + p.replace(/\s/g, '_'));
+    var val = existing ? existing.value : '';
+    html += '<div class="cr-handle-row">'
+      + '<span class="cr-handle-ico">' + info.icon + '</span>'
+      + (info.prefix ? '<span class="cr-handle-prefix">' + info.prefix + '</span>' : '')
+      + '<input type="text" class="cr-handle-input" id="cr-handle-' + p.replace(/\s/g, '_') + '" data-platform="' + p + '" placeholder="' + p + ' username" value="' + val + '">'
+      + '</div>';
+  });
+  container.innerHTML = html;
+}
+
+(function () {
+  document.addEventListener('DOMContentLoaded', function () {
+    var form    = document.getElementById('CrAppForm');
+    var btn     = document.getElementById('CrSubmitBtn');
+    var btnText = document.getElementById('CrSubmitText');
+    if (!form || !btn) return;
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      var name  = document.getElementById('CrName').value.trim();
+      var phone = document.getElementById('CrPhone').value.trim();
+      var city  = document.getElementById('CrCity').value.trim();
+      var bio   = document.getElementById('CrBio').value.trim();
+      var why   = document.getElementById('CrWhy').value.trim();
+
+      if (!name || !phone || !city || !bio || !why) {
+        alert('Please fill in your name, WhatsApp number, city, bio and why QuickBee.');
+        return;
+      }
+
+      btnText.textContent = 'Processing…';
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      /* Collect platforms */
+      var platforms = [];
+      document.querySelectorAll('.cr-chip-input[name="platform"]:checked').forEach(function(cb) { platforms.push(cb.value); });
+      if (!platforms.length) platforms = ['Not specified'];
+
+      /* Collect handles */
+      var handleLines = '';
+      document.querySelectorAll('.cr-handle-input').forEach(function(inp) {
+        var p = inp.dataset.platform;
+        var v = inp.value.trim();
+        if (v) { var info = _crIcons[p] || { prefix: '' }; handleLines += '\n' + p + ': ' + info.prefix + v; }
+      });
+
+      var followerEl = document.querySelector('.cr-chip-input[name="followers"]:checked');
+      var g = function(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; };
+      var email     = g('CrEmail')  || 'Not provided';
+      var niche     = g('CrNiche')  || 'Not specified';
+      var collab    = g('CrCollab') || 'Not specified';
+      var followers = followerEl ? followerEl.value : 'Not specified';
+      var now       = new Date().toLocaleString('en-NP', { timeZone: 'Asia/Kathmandu' });
+
+      /* Location from localStorage */
+      function lsJson(k) { try { var s = localStorage.getItem(k); return s ? JSON.parse(s) : null; } catch(_) { return null; } }
+      var loc = lsJson('qb_selected_location'), liveLoc = lsJson('qb_live_location'), zone = lsJson('qb_zone');
+      var locLines = [];
+      if (loc) {
+        var addr = loc.address || loc.street || loc.location || loc.formatted_address || '';
+        if (addr) locLines.push('📍 Address: ' + addr);
+        if (loc.landmark) locLines.push('🏷 Landmark: ' + loc.landmark);
+        if (loc.latitude && loc.longitude) {
+          locLines.push('📌 Maps: https://maps.google.com/?q=' + parseFloat(loc.latitude).toFixed(5) + ',' + parseFloat(loc.longitude).toFixed(5));
+        }
+        if (zone && (zone.name || zone.zone)) locLines.push('🏘 Zone: ' + (zone.name || zone.zone));
+      }
+      if (liveLoc && liveLoc.latitude && liveLoc.longitude) {
+        locLines.push('📡 GPS: ' + parseFloat(liveLoc.latitude).toFixed(5) + ',' + parseFloat(liveLoc.longitude).toFixed(5));
+      }
+
+      /* Build note */
+      var note = '✨ QUICKBEE CREATOR APPLICATION\n──────────────────────────────\n';
+      note += '👤 Name: ' + name + '\n';
+      note += '📞 WhatsApp: ' + phone + '\n';
+      note += '✉️ Email: ' + email + '\n';
+      note += '📍 City: ' + city + '\n\n';
+      note += '📲 Platforms: ' + platforms.join(', ') + '\n';
+      if (handleLines) note += handleLines + '\n';
+      note += '\n👥 Followers: ' + followers + '\n';
+      note += '🎯 Niche: ' + niche + '\n';
+      note += '🤝 Collab: ' + collab + '\n\n';
+      note += '📝 Bio: ' + bio + '\n';
+      note += '💡 Why QB: ' + why + '\n\n';
+      if (locLines.length) { note += '── LOCATION ──\n'; locLines.forEach(function(l) { note += l + '\n'; }); note += '\n'; }
+      note += '📅 Applied: ' + now;
+
+      /* Line item properties */
+      var props = {};
+      props['👤 Name']      = name;
+      props['📞 WhatsApp']  = phone;
+      props['📲 Platforms'] = platforms.join(', ');
+      props['👥 Followers'] = followers;
+      props['🎯 Niche']     = niche;
+      props['📍 City']      = city;
+
+      var variantId = parseInt(document.getElementById('CrVariantId').value, 10);
+      if (!variantId || isNaN(variantId)) variantId = 46602451386558;
+
+      /* Suppress sticky cart */
+      window.__qbSkipCartOpen = true;
+
+      /* Step 1: Clear cart */
+      fetch('/cart/clear.js', { method: 'POST' })
+        .then(function () {
+          /* Step 2: Add product */
+          return fetch('/cart/add.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: variantId, quantity: 1, properties: props })
+          });
+        })
+        .then(function (r) { return r.json(); })
+        .then(function () {
+          /* Step 3: Set note */
+          return fetch('/cart/update.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ note: note })
+          });
+        })
+        .then(function () {
+          /* Step 4: Checkout */
+          window.location.href = '/checkout';
+        })
+        .catch(function (err) {
+          console.error('[QB Creator]', err);
+          btnText.textContent = 'Send My Application 🚀';
+          btn.classList.remove('loading');
+          btn.disabled = false;
+          alert('Something went wrong. Please check your connection and try again.');
+        });
+    });
+  });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Creator Application Page",
+  "settings": [],
+  "presets": [{ "name": "Creator Application Page" }]
+}
+{% endschema %}
