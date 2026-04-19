@@ -3777,20 +3777,6 @@ html:not([data-theme="dark"]) .qb-trust-lbl { color: #888; }
 <div class="qb-hp">
 
   <!-- ══════════════════════════════════════════
-       👋 WELCOME BACK
-  ══════════════════════════════════════════ -->
-  <div class="qb-welcome-bar">
-    <span class="qb-welcome-wave">👋</span>
-    <span class="qb-welcome-text">
-      {%- if customer -%}
-        Welcome back, <strong>{{ customer.first_name }}</strong>! 🐝
-      {%- else -%}
-        Welcome back! 🐝
-      {%- endif -%}
-    </span>
-  </div>
-
-  <!-- ══════════════════════════════════════════
        🔴 LIVE ORDER TICKER (position 2)
   ══════════════════════════════════════════ -->
   <div class="qb-ticker qb-ticker--top" id="qbTicker" aria-live="polite" aria-atomic="true">
@@ -5925,15 +5911,15 @@ function qbNotifySubmit(event) {
     };
     var msg = greetingMap[lastSection] || 'Welcome back! 🐝';
 
-    // Inject returning visitor greeting under hero
-    var heroEl = document.querySelector('.qb-hero');
-    if (heroEl && heroEl.nextSibling) {
+    // Inject returning visitor greeting at very top (before ticker)
+    var tickerEl = document.getElementById('qbTicker');
+    if (tickerEl) {
       var banner = document.createElement('div');
       banner.className = 'qb-return-banner';
       banner.innerHTML = '<span class="qb-return-icon">👋</span>'
         + '<span>' + msg + '</span>'
         + '<span class="qb-return-count">Visit #' + visits + '</span>';
-      heroEl.parentNode.insertBefore(banner, heroEl.nextSibling);
+      tickerEl.parentNode.insertBefore(banner, tickerEl);
     }
   }
 })();
