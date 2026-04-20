@@ -1717,4 +1717,76 @@ body.dark-theme .qb-location-guide-dismiss:hover { background: #fff; }
   }
 
 })();
+
+/* ══════════════════════════════════════════
+   SILENT BACKGROUND LOCATION REFRESH — every 5 mins
+   Only runs when user previously granted GPS (mode === 'auto' / _auto)
+   No UI shown. Just silently updates localStorage + header display.
+══════════════════════════════════════════ */
+(function () {
+  var INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+
+  function buildAddr(place) {
+    var a = place.address || {};
+    var parts = [
+      a.road || a.pedestrian || a.footway || '',
+      a.suburb || a.neighbourhood || a.quarter || '',
+      a.city || a.town || a.village || a.county || ''
+    ].filter(Boolean);
+    return parts.join(', ') || place.display_name || '';
+  }
+
+  function silentRefresh() {
+    // Only refresh if user originally used GPS
+    var raw = null;
+    try { raw = JSON.parse(localStorage.getItem('qb_selected_location') || 'null'); } catch(e) {}
+    if (!raw || raw.type === 'other') return; // manual / someone-else — don't touch
+    if (!navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        var lat = pos.coords.latitude;
+        var lng = pos.coords.longitude;
+
+        fetch(
+          'https://nominatim.openstreetmap.org/reverse?format=jsonv2' +
+          '&lat=' + encodeURIComponent(lat) +
+          '&lon=' + encodeURIComponent(lng) +
+          '&addressdetails=1'
+        )
+        .then(function (r) { return r.json(); })
+        .then(function (place) {
+          var addr = buildAddr(place) || ('Lat ' + lat.toFixed(4) + ', Lng ' + lng.toFixed(4));
+          var updated = Object.assign({}, raw, {
+            latitude:  lat,
+            longitude: lng,
+            address:   addr,
+            street:    addr,
+            location:  addr,
+            _auto:     true,
+            timestamp: new Date().toISOString()
+          });
+          try { localStorage.setItem('qb_selected_location', JSON.stringify(updated)); } catch(e) {}
+          window.QB_SELECTED_LOCATION = updated;
+
+          // Update header label silently if present
+          var headerEl = document.querySelector('[data-qb-location-label], .qb-loc-text, .qb-header-location-text, #qbLocationText');
+          if (headerEl) {
+            var short = addr.split(',')[0].trim();
+            if (short) headerEl.textContent = short;
+          }
+        })
+        .catch(function () { /* network fail — keep old value */ });
+      },
+      function () { /* permission denied or error — do nothing */ },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+    );
+  }
+
+  // Start after 5 mins, repeat every 5 mins
+  setTimeout(function () {
+    silentRefresh();
+    setInterval(silentRefresh, INTERVAL_MS);
+  }, INTERVAL_MS);
+})();
 </script>
