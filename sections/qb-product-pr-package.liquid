@@ -1,0 +1,843 @@
+{% comment %}
+  sections/qb-product-pr-package.liquid
+  PR Package Delivery — Influencer Scheduling Template
+  Date + Time + Address autofill from location picker → order note → checkout
+{% endcomment %}
+
+<style>
+/* ═══════════════════════════════════════════
+   QB PR PACKAGE — INFLUENCER EDITION
+═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+
+.pr-root {
+  min-height: 100vh;
+  background: #060608;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #f0f0f0;
+  padding-bottom: 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Ambient background ── */
+.pr-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.pr-bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: pr-orb-float 8s ease-in-out infinite alternate;
+}
+.pr-bg-orb-1 {
+  width: 500px; height: 500px;
+  top: -100px; left: -100px;
+  background: radial-gradient(circle, rgba(244,180,0,0.12) 0%, transparent 70%);
+  animation-delay: 0s;
+}
+.pr-bg-orb-2 {
+  width: 400px; height: 400px;
+  bottom: 10%; right: -80px;
+  background: radial-gradient(circle, rgba(120,60,200,0.1) 0%, transparent 70%);
+  animation-delay: -4s;
+}
+.pr-bg-orb-3 {
+  width: 300px; height: 300px;
+  top: 40%; left: 50%;
+  background: radial-gradient(circle, rgba(244,100,0,0.07) 0%, transparent 70%);
+  animation-delay: -2s;
+}
+@keyframes pr-orb-float {
+  from { transform: translateY(0) scale(1); }
+  to   { transform: translateY(-30px) scale(1.08); }
+}
+
+/* Grid noise overlay */
+.pr-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 40px
+  ), repeating-linear-gradient(
+    90deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 40px
+  );
+}
+
+.pr-wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 540px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ── HERO ── */
+.pr-hero {
+  padding: 40px 0 32px;
+  text-align: center;
+}
+.pr-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(244,180,0,0.12);
+  border: 1px solid rgba(244,180,0,0.3);
+  border-radius: 30px;
+  padding: 6px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #F4B400;
+  margin-bottom: 20px;
+}
+.pr-hero-badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #F4B400;
+  animation: pr-pulse 1.5s ease-in-out infinite;
+}
+@keyframes pr-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(244,180,0,0.6); }
+  50%      { box-shadow: 0 0 0 6px rgba(244,180,0,0); }
+}
+.pr-hero-title {
+  font-size: clamp(28px, 7vw, 42px);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+  background: linear-gradient(135deg, #fff 0%, #F4B400 50%, #fff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.pr-hero-sub {
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.6;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+/* ── PRODUCT CARD ── */
+.pr-product-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(10px);
+}
+.pr-product-img {
+  width: 64px; height: 64px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: rgba(244,180,0,0.1);
+  border: 1px solid rgba(244,180,0,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+.pr-product-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.pr-product-tag {
+  display: inline-block;
+  background: rgba(244,180,0,0.15);
+  color: #F4B400;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+/* ── FORM CARD ── */
+.pr-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 24px;
+  padding: 24px;
+  margin-bottom: 16px;
+  backdrop-filter: blur(12px);
+  transition: border-color 0.3s;
+}
+.pr-card:focus-within {
+  border-color: rgba(244,180,0,0.25);
+}
+.pr-card-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pr-card-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+}
+
+/* ── DATE PICKER ── */
+.pr-date-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.pr-date-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 10px 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  -webkit-tap-highlight-color: transparent;
+}
+.pr-date-btn:active { transform: scale(0.94); }
+.pr-date-btn.selected {
+  background: rgba(244,180,0,0.15);
+  border-color: #F4B400;
+  box-shadow: 0 0 16px rgba(244,180,0,0.2);
+}
+.pr-date-day {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+.pr-date-num {
+  font-size: 20px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+}
+.pr-date-month {
+  font-size: 10px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 2px;
+}
+.pr-date-btn.selected .pr-date-day,
+.pr-date-btn.selected .pr-date-month { color: rgba(244,180,0,0.7); }
+.pr-date-btn.selected .pr-date-num   { color: #F4B400; }
+
+/* Custom date input */
+.pr-custom-date-wrap {
+  margin-top: 8px;
+}
+.pr-custom-date-label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 6px;
+  display: block;
+}
+.pr-input {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.pr-input:focus { border-color: rgba(244,180,0,0.5); }
+.pr-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+  cursor: pointer;
+}
+input[type="date"].pr-input,
+input[type="time"].pr-input {
+  color-scheme: dark;
+}
+
+/* ── TIME SLOTS ── */
+.pr-time-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.pr-time-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 12px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  -webkit-tap-highlight-color: transparent;
+}
+.pr-time-btn:active { transform: scale(0.94); }
+.pr-time-btn.selected {
+  background: rgba(244,180,0,0.15);
+  border-color: #F4B400;
+  box-shadow: 0 0 14px rgba(244,180,0,0.18);
+}
+.pr-time-icon  { font-size: 18px; margin-bottom: 4px; }
+.pr-time-range {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+.pr-time-label {
+  font-size: 10px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 2px;
+}
+.pr-time-btn.selected .pr-time-range { color: #F4B400; }
+.pr-time-btn.selected .pr-time-label { color: rgba(244,180,0,0.6); }
+
+/* ── ADDRESS ── */
+.pr-addr-autofill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(244,180,0,0.07);
+  border: 1.5px dashed rgba(244,180,0,0.3);
+  border-radius: 14px;
+  padding: 12px 16px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.pr-addr-autofill:active { transform: scale(0.98); }
+.pr-addr-autofill:hover { border-color: rgba(244,180,0,0.6); background: rgba(244,180,0,0.1); }
+.pr-addr-autofill-icon { font-size: 20px; flex-shrink: 0; }
+.pr-addr-autofill-text { flex: 1; }
+.pr-addr-autofill-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #F4B400;
+}
+.pr-addr-autofill-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 1px;
+}
+.pr-addr-autofill-arrow {
+  font-size: 16px;
+  color: rgba(244,180,0,0.6);
+}
+.pr-addr-filled {
+  background: rgba(34,197,94,0.08);
+  border-color: rgba(34,197,94,0.3);
+}
+.pr-addr-filled .pr-addr-autofill-title { color: #22c55e; }
+
+.pr-textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #fff;
+  outline: none;
+  resize: none;
+  min-height: 80px;
+  font-family: inherit;
+  line-height: 1.5;
+  transition: border-color 0.2s;
+}
+.pr-textarea:focus { border-color: rgba(244,180,0,0.5); }
+.pr-textarea::placeholder { color: rgba(255,255,255,0.25); }
+
+/* ── NOTE ── */
+.pr-note-input {
+  min-height: 60px;
+}
+
+/* ── SUMMARY PREVIEW ── */
+.pr-summary {
+  background: rgba(244,180,0,0.06);
+  border: 1px solid rgba(244,180,0,0.15);
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  display: none;
+}
+.pr-summary.visible { display: block; }
+.pr-summary-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(244,180,0,0.6);
+  margin-bottom: 10px;
+}
+.pr-summary-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 6px;
+}
+.pr-summary-row:last-child { margin-bottom: 0; }
+.pr-summary-icon { flex-shrink: 0; }
+.pr-summary-val  { font-weight: 600; color: #fff; }
+
+/* ── SUBMIT BUTTON ── */
+.pr-submit-wrap {
+  position: sticky;
+  bottom: 16px;
+  z-index: 10;
+  padding-top: 8px;
+}
+.pr-submit {
+  width: 100%;
+  padding: 17px 24px;
+  background: linear-gradient(135deg, #F4B400 0%, #ff8c00 100%);
+  border: none;
+  border-radius: 18px;
+  font-size: 16px;
+  font-weight: 900;
+  color: #000;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow:
+    0 0 0 1px rgba(244,180,0,0.3),
+    0 8px 32px rgba(244,180,0,0.35),
+    0 2px 0 rgba(255,255,255,0.15) inset;
+  transition: transform 0.15s, box-shadow 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+.pr-submit::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: pr-sheen 3s ease-in-out infinite;
+}
+@keyframes pr-sheen { 0% { left: -100%; } 60%,100% { left: 150%; } }
+.pr-submit:hover:not(:disabled)  { transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(244,180,0,0.4), 0 12px 40px rgba(244,180,0,0.5); }
+.pr-submit:active:not(:disabled) { transform: scale(0.98); }
+.pr-submit:disabled { opacity: 0.45; cursor: not-allowed; }
+.pr-submit-icon { font-size: 20px; }
+
+/* ── ERROR / STATUS ── */
+.pr-error {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #f87171;
+  margin-bottom: 12px;
+  display: none;
+}
+.pr-error.visible { display: block; }
+
+/* ── LOADING OVERLAY ── */
+.pr-loading {
+  position: fixed;
+  inset: 0;
+  background: rgba(6,6,8,0.85);
+  backdrop-filter: blur(6px);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  gap: 16px;
+}
+.pr-loading.visible { display: flex; }
+.pr-spinner {
+  width: 48px; height: 48px;
+  border: 3px solid rgba(244,180,0,0.2);
+  border-top-color: #F4B400;
+  border-radius: 50%;
+  animation: pr-spin 0.8s linear infinite;
+}
+@keyframes pr-spin { to { transform: rotate(360deg); } }
+.pr-loading-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+}
+
+@media (min-width: 640px) {
+  .pr-wrap { padding: 0 24px; }
+  .pr-date-grid { grid-template-columns: repeat(7, 1fr); }
+  .pr-time-grid { grid-template-columns: repeat(4, 1fr); }
+}
+</style>
+
+<div class="pr-root">
+  <!-- Ambient BG -->
+  <div class="pr-bg">
+    <div class="pr-bg-orb pr-bg-orb-1"></div>
+    <div class="pr-bg-orb pr-bg-orb-2"></div>
+    <div class="pr-bg-orb pr-bg-orb-3"></div>
+  </div>
+
+  <div class="pr-wrap">
+
+    <!-- Hero -->
+    <div class="pr-hero">
+      <div class="pr-hero-badge">
+        <span class="pr-hero-badge-dot"></span>
+        Influencer Program
+      </div>
+      <h1 class="pr-hero-title">Schedule Your<br>PR Package</h1>
+      <p class="pr-hero-sub">Pick your preferred delivery date & time. We'll make sure it arrives perfectly.</p>
+    </div>
+
+    <!-- Product info -->
+    <div class="pr-product-card">
+      <div class="pr-product-img">
+        {%- if product.featured_image -%}
+          <img src="{{ product.featured_image | img_url: '120x120', crop: 'center' }}" alt="{{ product.title }}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">
+        {%- else -%}
+          🎁
+        {%- endif -%}
+      </div>
+      <div>
+        <div class="pr-product-name">{{ product.title }}</div>
+        <span class="pr-product-tag">⚡ PR Package</span>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div class="pr-error" id="prError"></div>
+
+    <!-- DATE SELECTION -->
+    <div class="pr-card">
+      <div class="pr-card-title">📅 Preferred Delivery Date</div>
+      <div class="pr-date-grid" id="prDateGrid"></div>
+      <div class="pr-custom-date-wrap">
+        <label class="pr-custom-date-label">Or pick a custom date</label>
+        <input type="date" class="pr-input" id="prCustomDate">
+      </div>
+    </div>
+
+    <!-- TIME SLOTS -->
+    <div class="pr-card">
+      <div class="pr-card-title">🕐 Preferred Time Slot</div>
+      <div class="pr-time-grid" id="prTimeGrid">
+        <div class="pr-time-btn" data-slot="9:00 AM – 12:00 PM">
+          <div class="pr-time-icon">🌅</div>
+          <div class="pr-time-range">9AM–12PM</div>
+          <div class="pr-time-label">Morning</div>
+        </div>
+        <div class="pr-time-btn" data-slot="12:00 PM – 3:00 PM">
+          <div class="pr-time-icon">☀️</div>
+          <div class="pr-time-range">12PM–3PM</div>
+          <div class="pr-time-label">Afternoon</div>
+        </div>
+        <div class="pr-time-btn" data-slot="3:00 PM – 6:00 PM">
+          <div class="pr-time-icon">🌤️</div>
+          <div class="pr-time-range">3PM–6PM</div>
+          <div class="pr-time-label">Evening</div>
+        </div>
+        <div class="pr-time-btn" data-slot="6:00 PM – 9:00 PM">
+          <div class="pr-time-icon">🌆</div>
+          <div class="pr-time-range">6PM–9PM</div>
+          <div class="pr-time-label">Night</div>
+        </div>
+        <div class="pr-time-btn" data-slot="Anytime (Flexible)">
+          <div class="pr-time-icon">🎯</div>
+          <div class="pr-time-range">Flexible</div>
+          <div class="pr-time-label">Anytime</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADDRESS -->
+    <div class="pr-card">
+      <div class="pr-card-title">📍 Delivery Address</div>
+      <div class="pr-addr-autofill" id="prAutofill" onclick="prAutofillAddress()">
+        <span class="pr-addr-autofill-icon">📌</span>
+        <div class="pr-addr-autofill-text">
+          <div class="pr-addr-autofill-title" id="prAutofillTitle">Use My Saved Location</div>
+          <div class="pr-addr-autofill-sub" id="prAutofillSub">Tap to auto-fill from location picker</div>
+        </div>
+        <span class="pr-addr-autofill-arrow">→</span>
+      </div>
+      <textarea
+        class="pr-textarea"
+        id="prAddress"
+        placeholder="Full delivery address (building, street, landmark)…"
+        rows="3"
+      ></textarea>
+    </div>
+
+    <!-- NOTE TO TEAM -->
+    <div class="pr-card">
+      <div class="pr-card-title">💬 Note to QuickBee Team</div>
+      <textarea
+        class="pr-textarea pr-note-input"
+        id="prNote"
+        placeholder="Any special instructions? Gate code, specific person to hand to, fragile items…"
+        rows="3"
+      ></textarea>
+    </div>
+
+    <!-- SUMMARY PREVIEW -->
+    <div class="pr-summary" id="prSummary">
+      <div class="pr-summary-title">📋 Order Summary</div>
+      <div class="pr-summary-row"><span class="pr-summary-icon">📅</span><span>Date: <span class="pr-summary-val" id="prSumDate">—</span></span></div>
+      <div class="pr-summary-row"><span class="pr-summary-icon">🕐</span><span>Time: <span class="pr-summary-val" id="prSumTime">—</span></span></div>
+      <div class="pr-summary-row"><span class="pr-summary-icon">📍</span><span>Address: <span class="pr-summary-val" id="prSumAddr">—</span></span></div>
+    </div>
+
+    <!-- SUBMIT -->
+    <div class="pr-submit-wrap">
+      <button class="pr-submit" id="prSubmitBtn" disabled onclick="prSubmit()">
+        <span class="pr-submit-icon">🚀</span>
+        Schedule PR Delivery
+      </button>
+    </div>
+
+  </div><!-- /wrap -->
+</div><!-- /root -->
+
+<!-- Loading overlay -->
+<div class="pr-loading" id="prLoading">
+  <div class="pr-spinner"></div>
+  <div class="pr-loading-text">Scheduling your delivery…</div>
+</div>
+
+<script>
+(function () {
+
+  /* ── State ── */
+  var selectedDate = '';
+  var selectedSlot = '';
+  var VARIANT_ID   = {{ product.variants.first.id }};
+  var PRODUCT_HANDLE = '{{ product.handle }}';
+
+  /* ── DOM refs ── */
+  var elError   = document.getElementById('prError');
+  var elSummary = document.getElementById('prSummary');
+  var elBtn     = document.getElementById('prSubmitBtn');
+  var elSumDate = document.getElementById('prSumDate');
+  var elSumTime = document.getElementById('prSumTime');
+  var elSumAddr = document.getElementById('prSumAddr');
+  var elAddress = document.getElementById('prAddress');
+  var elNote    = document.getElementById('prNote');
+  var elCustom  = document.getElementById('prCustomDate');
+
+  /* ── Build next 7 date tiles ── */
+  (function buildDates() {
+    var grid  = document.getElementById('prDateGrid');
+    var days  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var months= ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var now   = new Date();
+
+    for (var i = 0; i < 7; i++) {
+      var d   = new Date(now);
+      d.setDate(now.getDate() + i);
+      var btn = document.createElement('div');
+      btn.className = 'pr-date-btn';
+
+      var label = i === 0 ? 'Today' : i === 1 ? 'Tmrw' : days[d.getDay()];
+      var dateStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      var displayStr = days[d.getDay()] + ', ' + d.getDate() + ' ' + months[d.getMonth()];
+
+      btn.innerHTML =
+        '<div class="pr-date-day">' + label + '</div>' +
+        '<div class="pr-date-num">' + d.getDate() + '</div>' +
+        '<div class="pr-date-month">' + months[d.getMonth()] + '</div>';
+
+      btn.dataset.date    = dateStr;
+      btn.dataset.display = displayStr;
+      btn.addEventListener('click', function () { selectDate(this); });
+      grid.appendChild(btn);
+    }
+
+    /* Set min date on custom picker */
+    var today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+    elCustom.min = today;
+  })();
+
+  /* Custom date change */
+  elCustom.addEventListener('change', function () {
+    if (!this.value) return;
+    /* Deselect quick tiles */
+    document.querySelectorAll('.pr-date-btn').forEach(function(b){ b.classList.remove('selected'); });
+    var d = new Date(this.value + 'T00:00:00');
+    var days  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var months= ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    selectedDate = days[d.getDay()] + ', ' + d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+    updateSummary();
+  });
+
+  function selectDate(btn) {
+    document.querySelectorAll('.pr-date-btn').forEach(function(b){ b.classList.remove('selected'); });
+    btn.classList.add('selected');
+    selectedDate = btn.dataset.display;
+    elCustom.value = '';
+    updateSummary();
+  }
+
+  /* ── Time slots ── */
+  document.querySelectorAll('.pr-time-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.pr-time-btn').forEach(function(b){ b.classList.remove('selected'); });
+      btn.classList.add('selected');
+      selectedSlot = btn.dataset.slot;
+      updateSummary();
+    });
+  });
+
+  /* ── Address live update ── */
+  elAddress.addEventListener('input', updateSummary);
+
+  /* ── Autofill from location picker ── */
+  window.prAutofillAddress = function () {
+    var raw = null;
+    try { raw = JSON.parse(localStorage.getItem('qb_selected_location') || 'null'); } catch(e) {}
+    if (!raw) {
+      try { raw = JSON.parse(localStorage.getItem('qb_location_detail') || 'null'); } catch(e) {}
+    }
+    var addr = '';
+    if (raw) {
+      addr = raw.address || raw.street || raw.location || '';
+    }
+    if (!addr) {
+      showError('No saved location found. Please set your location first using the location picker.');
+      return;
+    }
+    elAddress.value = addr;
+    var el = document.getElementById('prAutofill');
+    el.classList.add('pr-addr-filled');
+    document.getElementById('prAutofillTitle').textContent = '✅ Location Applied';
+    document.getElementById('prAutofillSub').textContent   = addr.length > 48 ? addr.substring(0,48)+'…' : addr;
+    hideError();
+    updateSummary();
+  };
+
+  /* ── Summary + button state ── */
+  function updateSummary() {
+    var addr = elAddress.value.trim();
+    var ready = selectedDate && selectedSlot && addr;
+
+    if (selectedDate) elSumDate.textContent = selectedDate;
+    if (selectedSlot) elSumTime.textContent = selectedSlot;
+    if (addr)         elSumAddr.textContent = addr.length > 50 ? addr.substring(0,50)+'…' : addr;
+
+    elSummary.classList.toggle('visible', !!(selectedDate || selectedSlot || addr));
+    elBtn.disabled = !ready;
+  }
+
+  /* ── Error helpers ── */
+  function showError(msg) {
+    elError.textContent = msg;
+    elError.classList.add('visible');
+    elError.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  function hideError() { elError.classList.remove('visible'); }
+
+  /* ── SUBMIT → cart → checkout ── */
+  window.prSubmit = function () {
+    hideError();
+    var addr = elAddress.value.trim();
+    var note = elNote.value.trim();
+
+    if (!selectedDate) { showError('Please select a delivery date.'); return; }
+    if (!selectedSlot) { showError('Please select a preferred time slot.'); return; }
+    if (!addr)         { showError('Please enter your delivery address.'); return; }
+
+    /* Build order note */
+    var orderNote =
+      '🎁 PR PACKAGE DELIVERY REQUEST\n' +
+      '━━━━━━━━━━━━━━━━━━━━━━━━\n' +
+      '📅 Date: ' + selectedDate + '\n' +
+      '🕐 Time: ' + selectedSlot + '\n' +
+      '📍 Address: ' + addr + '\n' +
+      (note ? '💬 Note: ' + note + '\n' : '') +
+      '━━━━━━━━━━━━━━━━━━━━━━━━\n' +
+      'Product: {{ product.title }}';
+
+    /* Cart item properties */
+    var properties = {
+      'Delivery Date': selectedDate,
+      'Time Slot':     selectedSlot,
+      'Address':       addr
+    };
+    if (note) properties['Special Instructions'] = note;
+
+    var loading = document.getElementById('prLoading');
+    loading.classList.add('visible');
+    elBtn.disabled = true;
+
+    /* 1. Clear cart */
+    fetch('/cart/clear.js', { method: 'POST' })
+    .then(function () {
+      /* 2. Add product */
+      return fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id:         VARIANT_ID,
+          quantity:   1,
+          properties: properties
+        })
+      });
+    })
+    .then(function (r) { return r.json(); })
+    .then(function () {
+      /* 3. Set cart note */
+      return fetch('/cart/update.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note: orderNote })
+      });
+    })
+    .then(function () {
+      /* 4. Go to checkout */
+      window.location.href = '/checkout';
+    })
+    .catch(function (err) {
+      loading.classList.remove('visible');
+      elBtn.disabled = false;
+      showError('Something went wrong. Please try again.');
+      console.error('[PR] submit error', err);
+    });
+  };
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "PR Package",
+  "settings": [],
+  "presets": [{ "name": "PR Package" }]
+}
+{% endschema %}
