@@ -1176,6 +1176,13 @@ html:not([data-theme]) #qbsc-root {
       ROOT.style.display   = '';
       ROOT.dataset.scReady = '1';
       BAR.dataset.scReady  = '1';
+      /* Pre-fill count + price from cache so bar never shows empty while fetch is in flight */
+      if (EL_BAR_DOT)   EL_BAR_DOT.textContent   = cached > 99 ? '99+' : cached;
+      if (EL_BAR_ITEMS) EL_BAR_ITEMS.textContent  = cached + (cached === 1 ? ' item' : ' items');
+      try {
+        var snap = JSON.parse(localStorage.getItem('qb_cart_snapshot') || 'null');
+        if (snap && snap.total && EL_BAR_PRICE) EL_BAR_PRICE.textContent = fmt(snap.total * 100);
+      } catch(e) {}
       /* Re-enable transitions after 2 frames */
       requestAnimationFrame(function () {
         requestAnimationFrame(function () {
