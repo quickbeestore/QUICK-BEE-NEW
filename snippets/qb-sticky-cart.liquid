@@ -906,8 +906,12 @@ html:not([data-theme]) #qbsc-root {
     var count = cart.item_count || 0;
     var total = cart.total_price || 0;
 
-    /* Persist count so next page load can skip animation */
-    try { localStorage.setItem(LS_KEY, count); } catch(e) {}
+    /* Persist count so next page load can skip animation.
+       When empty, clear the key so the bar never pre-shows on next refresh. */
+    try {
+      if (count > 0) { localStorage.setItem(LS_KEY, count); }
+      else           { localStorage.removeItem(LS_KEY); }
+    } catch(e) {}
 
     /* ── Order history snapshot ──
        While cart has items, keep a fresh snapshot so we can record the order
