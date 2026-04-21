@@ -130,13 +130,11 @@
 }
 
 .tt-hero-logo {
-  width: clamp(120px, 28vw, 200px);
+  width: clamp(140px, 32vw, 240px);
   height: auto;
   margin: 0 auto 28px;
   display: block;
-  filter:
-    drop-shadow(0 0 30px rgba(212,160,23,0.7))
-    drop-shadow(0 0 60px rgba(212,160,23,0.35));
+  mix-blend-mode: screen;
   animation: ttLogoPulse 3s ease-in-out infinite;
 }
 @keyframes ttLogoPulse {
@@ -709,111 +707,217 @@
   </div>
 
   <!-- ══════════════════════════════════════════
-       PRODUCT GRID
+       CATEGORIZED PRODUCT GRID
   ══════════════════════════════════════════ -->
-  <div class="tt-grid-outer" id="tt-products">
-    <div class="tt-grid">
+  <div id="tt-products">
 
-      {%- if collection.products.size > 0 -%}
-        {%- for product in collection.products -%}
+  {%- if collection.products.size > 0 -%}
 
-          {%- assign is_sold_out = false -%}
-          {%- unless product.available -%}
-            {%- assign is_sold_out = true -%}
+    {%- comment -%} Define category order + labels {%- endcomment -%}
+    {%- assign cat_keys   = 'biryani,combo,chicken,lollipop,snacks,drinks,other' | split: ',' -%}
+    {%- assign cat_labels = '🍛 Biryani,🎁 Combo Deals,🍗 Chicken,🍖 Lollipop & BBQ,🍟 Snacks,🥤 Drinks,🍽️ More Items' | split: ',' -%}
+
+    {%- for ci in (0..6) -%}
+      {%- assign cat_key   = cat_keys[ci] -%}
+      {%- assign cat_label = cat_labels[ci] -%}
+
+      {%- comment -%} Collect products for this category {%- endcomment -%}
+      {%- assign cat_products = '' -%}
+      {%- assign cat_count = 0 -%}
+
+      {%- for product in collection.products -%}
+        {%- assign matched = false -%}
+
+        {%- if cat_key == 'biryani' -%}
+          {%- if product.tags contains 'biryani' or product.title contains 'Biryani' or product.title contains 'biryani' or product.type contains 'Biryani' -%}
+            {%- assign matched = true -%}
+          {%- endif -%}
+        {%- elsif cat_key == 'combo' -%}
+          {%- if product.tags contains 'combo' or product.title contains 'Combo' or product.title contains 'combo' or product.type contains 'Combo' -%}
+            {%- assign matched = true -%}
+          {%- endif -%}
+        {%- elsif cat_key == 'chicken' -%}
+          {%- if product.tags contains 'chicken' or product.title contains 'Chicken' or product.title contains 'chicken' or product.type contains 'Chicken' -%}
+            {%- if product.tags contains 'lollipop' or product.title contains 'Lollipop' or product.title contains 'lollipop' -%}
+              {%- assign matched = false -%}
+            {%- else -%}
+              {%- assign matched = true -%}
+            {%- endif -%}
+          {%- endif -%}
+        {%- elsif cat_key == 'lollipop' -%}
+          {%- if product.tags contains 'lollipop' or product.title contains 'Lollipop' or product.title contains 'lollipop' or product.tags contains 'bbq' or product.title contains 'BBQ' -%}
+            {%- assign matched = true -%}
+          {%- endif -%}
+        {%- elsif cat_key == 'snacks' -%}
+          {%- if product.tags contains 'snacks' or product.tags contains 'snack' or product.tags contains 'starter' or product.type contains 'Snack' -%}
+            {%- assign matched = true -%}
+          {%- endif -%}
+        {%- elsif cat_key == 'drinks' -%}
+          {%- if product.tags contains 'drink' or product.tags contains 'drinks' or product.tags contains 'beverage' or product.type contains 'Drink' -%}
+            {%- assign matched = true -%}
+          {%- endif -%}
+        {%- elsif cat_key == 'other' -%}
+          {%- assign already = false -%}
+          {%- for ck in cat_keys -%}
+            {%- if ck == 'other' -%}{%- continue -%}{%- endif -%}
+            {%- if product.tags contains ck or product.title contains ck -%}
+              {%- assign already = true -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {%- if product.tags contains 'biryani' or product.title contains 'Biryani' or product.title contains 'biryani' -%}{%- assign already = true -%}{%- endif -%}
+          {%- if product.tags contains 'combo' or product.title contains 'Combo' -%}{%- assign already = true -%}{%- endif -%}
+          {%- if product.tags contains 'chicken' or product.title contains 'Chicken' -%}{%- assign already = true -%}{%- endif -%}
+          {%- if product.tags contains 'lollipop' or product.title contains 'Lollipop' or product.tags contains 'bbq' -%}{%- assign already = true -%}{%- endif -%}
+          {%- if product.tags contains 'snack' or product.tags contains 'snacks' or product.tags contains 'starter' -%}{%- assign already = true -%}{%- endif -%}
+          {%- if product.tags contains 'drink' or product.tags contains 'drinks' or product.tags contains 'beverage' -%}{%- assign already = true -%}{%- endif -%}
+          {%- unless already -%}
+            {%- assign matched = true -%}
           {%- endunless -%}
+        {%- endif -%}
 
-          {%- assign has_discount = false -%}
-          {%- assign save_pct = 0 -%}
-          {%- if product.compare_at_price > product.price -%}
-            {%- assign has_discount = true -%}
-            {%- assign save_amt = product.compare_at_price | minus: product.price -%}
-            {%- assign save_pct = save_amt | times: 100 | divided_by: product.compare_at_price -%}
-          {%- endif -%}
+        {%- if matched -%}
+          {%- assign cat_count = cat_count | plus: 1 -%}
+        {%- endif -%}
+      {%- endfor -%}
 
-          {%- assign badge = '' -%}
-          {%- if product.tags contains 'best-seller' -%}
-            {%- assign badge = 'best' -%}
-          {%- elsif product.tags contains 'hot' -%}
-            {%- assign badge = 'hot' -%}
-          {%- elsif product.tags contains 'new' -%}
-            {%- assign badge = 'new' -%}
-          {%- elsif forloop.index <= 2 -%}
-            {%- assign badge = 'best' -%}
-          {%- endif -%}
+      {%- if cat_count > 0 -%}
 
-          <div class="tt-card{% if is_sold_out %} tt-sold-out{% endif %}"
-               data-product-id="{{ product.id }}"
-               data-variant-id="{{ product.first_available_variant.id }}"
-               onclick="ttGoTo('{{ product.url }}')"
-               role="article">
-
-            <!-- Image -->
-            <div class="tt-card-img-wrap">
-              {%- if badge == 'best' -%}
-                <div class="tt-badge tt-badge--best">⭐ Best Seller</div>
-              {%- elsif badge == 'hot' -%}
-                <div class="tt-badge tt-badge--hot">🔥 Hot Pick</div>
-              {%- elsif badge == 'new' -%}
-                <div class="tt-badge tt-badge--new">✨ New</div>
-              {%- endif -%}
-
-              <div class="tt-sold-overlay">Sold Out</div>
-              <div class="tt-card-fire" aria-hidden="true"></div>
-              <div class="tt-card-steam" aria-hidden="true"></div>
-
-              {%- if product.featured_image -%}
-                <img
-                  src="{{ product.featured_image | img_url: '600x600', crop: 'center' }}"
-                  alt="{{ product.title | escape }}"
-                  loading="lazy"
-                  decoding="async"
-                >
-              {%- else -%}
-                <div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:64px;color:rgba(212,160,23,0.2);">🍛</div>
-              {%- endif -%}
-
-              <div class="tt-delivery-badge">⚡ 18-22 mins</div>
-            </div>
-
-            <!-- Body -->
-            <div class="tt-card-body">
-              <div class="tt-card-name">{{ product.title }}</div>
-
-              <div class="tt-card-price-row">
-                <span class="tt-card-price">Rs {{ product.price | divided_by: 100 }}</span>
-                {%- if has_discount -%}
-                  <span class="tt-card-compare">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
-                  <span class="tt-card-save">{{ save_pct }}% OFF</span>
-                {%- endif -%}
-              </div>
-
-              {%- if is_sold_out == false -%}
-                <div class="tt-card-urgency">🔥 Selling Fast</div>
-                <button
-                  class="tt-add-btn"
-                  onclick="ttAddCart(event, '{{ product.first_available_variant.id }}')"
-                  data-variant="{{ product.first_available_variant.id }}"
-                  aria-label="Add {{ product.title | escape }} to cart"
-                >
-                  🛒 Add to Cart
-                </button>
-              {%- else -%}
-                <button class="tt-add-btn" disabled>Sold Out</button>
-              {%- endif -%}
-            </div>
-
+        <div class="tt-cat-section">
+          <div class="tt-section-label" style="padding-top:36px;padding-bottom:20px;">
+            <div class="tt-section-label-line"></div>
+            <span class="tt-section-label-pill">{{ cat_label }}</span>
+            <div class="tt-section-label-line tt-section-label-line--rtl"></div>
           </div>
 
-        {%- endfor -%}
-      {%- else -%}
-        <div class="tt-empty">
-          <div class="tt-empty-icon">🍛</div>
-          <div class="tt-empty-text">Menu Coming Soon</div>
-          <div class="tt-empty-sub">Check back shortly — new dishes are being added.</div>
-        </div>
-      {%- endif -%}
+          <div class="tt-grid-outer">
+            <div class="tt-grid">
 
+              {%- for product in collection.products -%}
+                {%- assign matched = false -%}
+
+                {%- if cat_key == 'biryani' -%}
+                  {%- if product.tags contains 'biryani' or product.title contains 'Biryani' or product.title contains 'biryani' or product.type contains 'Biryani' -%}
+                    {%- assign matched = true -%}
+                  {%- endif -%}
+                {%- elsif cat_key == 'combo' -%}
+                  {%- if product.tags contains 'combo' or product.title contains 'Combo' or product.title contains 'combo' or product.type contains 'Combo' -%}
+                    {%- assign matched = true -%}
+                  {%- endif -%}
+                {%- elsif cat_key == 'chicken' -%}
+                  {%- if product.tags contains 'chicken' or product.title contains 'Chicken' or product.title contains 'chicken' or product.type contains 'Chicken' -%}
+                    {%- if product.tags contains 'lollipop' or product.title contains 'Lollipop' or product.title contains 'lollipop' -%}
+                      {%- assign matched = false -%}
+                    {%- else -%}
+                      {%- assign matched = true -%}
+                    {%- endif -%}
+                  {%- endif -%}
+                {%- elsif cat_key == 'lollipop' -%}
+                  {%- if product.tags contains 'lollipop' or product.title contains 'Lollipop' or product.title contains 'lollipop' or product.tags contains 'bbq' or product.title contains 'BBQ' -%}
+                    {%- assign matched = true -%}
+                  {%- endif -%}
+                {%- elsif cat_key == 'snacks' -%}
+                  {%- if product.tags contains 'snacks' or product.tags contains 'snack' or product.tags contains 'starter' or product.type contains 'Snack' -%}
+                    {%- assign matched = true -%}
+                  {%- endif -%}
+                {%- elsif cat_key == 'drinks' -%}
+                  {%- if product.tags contains 'drink' or product.tags contains 'drinks' or product.tags contains 'beverage' or product.type contains 'Drink' -%}
+                    {%- assign matched = true -%}
+                  {%- endif -%}
+                {%- elsif cat_key == 'other' -%}
+                  {%- assign already = false -%}
+                  {%- if product.tags contains 'biryani' or product.title contains 'Biryani' or product.title contains 'biryani' -%}{%- assign already = true -%}{%- endif -%}
+                  {%- if product.tags contains 'combo' or product.title contains 'Combo' -%}{%- assign already = true -%}{%- endif -%}
+                  {%- if product.tags contains 'chicken' or product.title contains 'Chicken' -%}{%- assign already = true -%}{%- endif -%}
+                  {%- if product.tags contains 'lollipop' or product.title contains 'Lollipop' or product.tags contains 'bbq' -%}{%- assign already = true -%}{%- endif -%}
+                  {%- if product.tags contains 'snack' or product.tags contains 'snacks' or product.tags contains 'starter' -%}{%- assign already = true -%}{%- endif -%}
+                  {%- if product.tags contains 'drink' or product.tags contains 'drinks' or product.tags contains 'beverage' -%}{%- assign already = true -%}{%- endif -%}
+                  {%- unless already -%}
+                    {%- assign matched = true -%}
+                  {%- endunless -%}
+                {%- endif -%}
+
+                {%- if matched -%}
+                  {%- assign is_sold_out = false -%}
+                  {%- unless product.available -%}{%- assign is_sold_out = true -%}{%- endunless -%}
+
+                  {%- assign has_discount = false -%}
+                  {%- assign save_pct = 0 -%}
+                  {%- if product.compare_at_price > product.price -%}
+                    {%- assign has_discount = true -%}
+                    {%- assign save_amt = product.compare_at_price | minus: product.price -%}
+                    {%- assign save_pct = save_amt | times: 100 | divided_by: product.compare_at_price -%}
+                  {%- endif -%}
+
+                  {%- assign badge = '' -%}
+                  {%- if product.tags contains 'best-seller' -%}{%- assign badge = 'best' -%}
+                  {%- elsif product.tags contains 'hot' -%}{%- assign badge = 'hot' -%}
+                  {%- elsif product.tags contains 'new' -%}{%- assign badge = 'new' -%}
+                  {%- endif -%}
+
+                  <div class="tt-card{% if is_sold_out %} tt-sold-out{% endif %}"
+                       data-product-id="{{ product.id }}"
+                       onclick="ttGoTo('{{ product.url }}')"
+                       role="article">
+
+                    <div class="tt-card-img-wrap">
+                      {%- if badge == 'best' -%}
+                        <div class="tt-badge tt-badge--best">⭐ Best Seller</div>
+                      {%- elsif badge == 'hot' -%}
+                        <div class="tt-badge tt-badge--hot">🔥 Hot Pick</div>
+                      {%- elsif badge == 'new' -%}
+                        <div class="tt-badge tt-badge--new">✨ New</div>
+                      {%- endif -%}
+                      <div class="tt-sold-overlay">Sold Out</div>
+                      <div class="tt-card-fire" aria-hidden="true"></div>
+                      <div class="tt-card-steam" aria-hidden="true"></div>
+                      {%- if product.featured_image -%}
+                        <img src="{{ product.featured_image | img_url: '600x600', crop: 'center' }}" alt="{{ product.title | escape }}" loading="lazy" decoding="async">
+                      {%- else -%}
+                        <div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:64px;color:rgba(212,160,23,0.2);">🍛</div>
+                      {%- endif -%}
+                      <div class="tt-delivery-badge">⚡ 18-22 mins</div>
+                    </div>
+
+                    <div class="tt-card-body">
+                      <div class="tt-card-name">{{ product.title }}</div>
+                      <div class="tt-card-price-row">
+                        <span class="tt-card-price">Rs {{ product.price | divided_by: 100 }}</span>
+                        {%- if has_discount -%}
+                          <span class="tt-card-compare">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
+                          <span class="tt-card-save">{{ save_pct }}% OFF</span>
+                        {%- endif -%}
+                      </div>
+                      {%- if is_sold_out == false -%}
+                        <div class="tt-card-urgency">🔥 Selling Fast</div>
+                        <button class="tt-add-btn" onclick="ttAddCart(event, '{{ product.first_available_variant.id }}')" aria-label="Add {{ product.title | escape }} to cart">
+                          🛒 Add to Cart
+                        </button>
+                      {%- else -%}
+                        <button class="tt-add-btn" disabled>Sold Out</button>
+                      {%- endif -%}
+                    </div>
+
+                  </div>
+                {%- endif -%}
+              {%- endfor -%}
+
+            </div>
+          </div>
+        </div>
+
+      {%- endif -%}
+    {%- endfor -%}
+
+  {%- else -%}
+    <div class="tt-grid-outer">
+      <div class="tt-empty">
+        <div class="tt-empty-icon">🍛</div>
+        <div class="tt-empty-text">Menu Coming Soon</div>
+        <div class="tt-empty-sub">Check back shortly — new dishes are being added.</div>
+      </div>
     </div>
+  {%- endif -%}
+
   </div>
 
   <!-- ══════════════════════════════════════════
@@ -981,8 +1085,13 @@
         showToast('⚠️', data.description || 'Could not add item.');
       } else {
         showToast('✅', data.product_title + ' added!');
-        // Trigger cart drawer if available
-        document.dispatchEvent(new CustomEvent('cart:add', { detail: data }));
+        // Fire cart:update so the theme's cart drawer picks it up
+        document.dispatchEvent(new Event('cart:update', { bubbles: true }));
+        // Directly open the cart drawer
+        var drawer = document.querySelector('cart-drawer-component');
+        if (drawer && typeof drawer.open === 'function') {
+          drawer.open();
+        }
       }
     })
     .catch(function() {
