@@ -36,20 +36,23 @@
 }
 
 /* ═══════════════════════════════════════════════════
-   HERO — always dark (cinematic brand moment)
-   Use explicit dark values here only — it's intentional
+   HERO — theme responsive
 ═══════════════════════════════════════════════════ */
 .tt-hero {
   position: relative;
   min-height: 100svh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   overflow: hidden;
-  /* hero is always dark — brand identity */
+  /* dark theme: dramatic deep red-black */
   background: radial-gradient(ellipse 100% 80% at 50% 40%,
     #2a0a0a 0%, #110508 40%, #080608 100%);
-  color: #f5f0e8; /* always light text on dark hero */
+  color: #f5f0e8;
+}
+/* light theme: warm cream-gold */
+html:not([data-theme="dark"]) .tt-hero {
+  background: radial-gradient(ellipse 100% 80% at 50% 35%,
+    #fff3d6 0%, #f5e6b8 40%, #ede0a8 100%);
+  color: #1a0a00;
 }
 
 #ttParticles {
@@ -59,11 +62,10 @@
 }
 
 .tt-hero-glow {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  pointer-events: none; z-index: 0;
+  position: absolute; border-radius: 50%;
+  filter: blur(80px); pointer-events: none; z-index: 0;
 }
+/* dark glows */
 .tt-hero-glow--center {
   width: 600px; height: 400px;
   background: radial-gradient(ellipse, rgba(139,0,0,0.6), transparent 70%);
@@ -79,10 +81,19 @@
   background: radial-gradient(ellipse, rgba(212,160,23,0.2), transparent 70%);
   top: 20%; right: -5%;
 }
+/* light — softer warm glows */
+html:not([data-theme="dark"]) .tt-hero-glow--center {
+  background: radial-gradient(ellipse, rgba(212,160,23,0.35), transparent 70%);
+}
+html:not([data-theme="dark"]) .tt-hero-glow--left {
+  background: radial-gradient(ellipse, rgba(192,57,43,0.15), transparent 70%);
+}
+html:not([data-theme="dark"]) .tt-hero-glow--right {
+  background: radial-gradient(ellipse, rgba(212,160,23,0.25), transparent 70%);
+}
 
 .tt-float-el {
-  position: absolute;
-  font-size: 48px;
+  position: absolute; font-size: 48px;
   pointer-events: none; z-index: 2;
   filter: drop-shadow(0 0 18px rgba(212,160,23,0.5));
   will-change: transform; user-select: none;
@@ -104,27 +115,25 @@
 }
 
 .tt-steam {
-  position: absolute;
-  bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 100%; height: 280px;
-  pointer-events: none; z-index: 2;
+  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; height: 280px; pointer-events: none; z-index: 2;
   background: linear-gradient(to top, rgba(212,160,23,0.06) 0%, rgba(139,0,0,0.04) 40%, transparent 100%);
 }
 
 .tt-hero-content {
   position: relative; z-index: 10;
-  text-align: center;
-  padding: 40px 20px;
-  max-width: 760px;
+  text-align: center; padding: 40px 20px; max-width: 760px;
 }
 
+/* Logo — dark: screen blend removes black bg; light: multiply blends into cream */
 .tt-hero-logo {
   width: clamp(140px, 32vw, 240px);
-  height: auto;
-  margin: 0 auto 28px;
-  display: block;
+  height: auto; margin: 0 auto 28px; display: block;
   mix-blend-mode: screen;
   animation: ttLogoPulse 3s ease-in-out infinite;
+}
+html:not([data-theme="dark"]) .tt-hero-logo {
+  mix-blend-mode: multiply;
 }
 @keyframes ttLogoPulse {
   0%,100% { filter: drop-shadow(0 0 30px rgba(212,160,23,0.7)) drop-shadow(0 0 60px rgba(212,160,23,0.35)); }
@@ -134,70 +143,74 @@
 .tt-hero-eyebrow {
   display: inline-flex; align-items: center; gap: 7px;
   background: rgba(212,160,23,0.12);
-  border: 1px solid rgba(212,160,23,0.35);
-  border-radius: 100px;
-  padding: 5px 16px;
-  font-size: 10px; font-weight: 800;
-  letter-spacing: 2px; text-transform: uppercase;
-  color: #f0c040;
-  margin-bottom: 16px;
-  animation: ttFadeUp 0.8s var(--tt-ease) both;
+  border: 1px solid rgba(212,160,23,0.4);
+  border-radius: 100px; padding: 5px 16px;
+  font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+  color: #c48a00;
+  margin-bottom: 16px; animation: ttFadeUp 0.8s var(--tt-ease) both;
 }
+[data-theme="dark"] .tt-hero-eyebrow { color: #f0c040; background: rgba(212,160,23,0.12); }
 
 .tt-hero-heading {
   font-size: clamp(32px, 8vw, 72px);
   font-weight: 900; line-height: 1.05;
-  color: #f5f0e8;
-  text-transform: uppercase; letter-spacing: -1.5px;
-  margin-bottom: 16px;
-  text-shadow: 0 4px 40px rgba(0,0,0,0.8);
+  color: #1a0a00;
+  text-transform: uppercase; letter-spacing: -1.5px; margin-bottom: 16px;
+  text-shadow: 0 2px 16px rgba(212,160,23,0.2);
   animation: ttFadeUp 0.9s var(--tt-ease) 0.1s both;
+}
+[data-theme="dark"] .tt-hero-heading {
+  color: #f5f0e8;
+  text-shadow: 0 4px 40px rgba(0,0,0,0.8);
 }
 .tt-hero-heading em {
   font-style: normal;
-  background: linear-gradient(135deg, #ffe082 0%, #d4a017 60%, var(--tt-red2) 100%);
+  background: linear-gradient(135deg, #d4a017 0%, #8b0000 100%);
   -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-  display: block;
+  -webkit-text-fill-color: transparent; display: block;
+}
+[data-theme="dark"] .tt-hero-heading em {
+  background: linear-gradient(135deg, #ffe082 0%, #d4a017 60%, #c0392b 100%);
+  -webkit-background-clip: text; background-clip: text;
 }
 
 .tt-hero-sub {
   font-size: clamp(14px, 3vw, 18px);
-  color: rgba(245,240,232,0.7);
+  color: rgba(26,10,0,0.6);
   line-height: 1.5; margin-bottom: 36px;
   animation: ttFadeUp 1s var(--tt-ease) 0.2s both;
 }
+[data-theme="dark"] .tt-hero-sub { color: rgba(245,240,232,0.7); }
 
 .tt-hero-cta {
   display: inline-flex; align-items: center; gap: 8px;
   background: linear-gradient(135deg, var(--tt-red) 0%, var(--tt-red2) 50%, #e8450a 100%);
-  color: #fff;
-  font-size: 15px; font-weight: 800;
+  color: #fff; font-size: 15px; font-weight: 800;
   letter-spacing: 0.5px; text-transform: uppercase;
   padding: 16px 36px; border-radius: 100px;
   border: none; cursor: pointer; text-decoration: none;
-  box-shadow: 0 0 40px rgba(139,0,0,0.6), 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
+  box-shadow: 0 0 40px rgba(139,0,0,0.35), 0 8px 32px rgba(139,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.15);
   animation: ttFadeUp 1.1s var(--tt-ease) 0.3s both, ttCtaPulse 2.5s ease-in-out 1.5s infinite;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 .tt-hero-cta:hover {
   transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 0 60px rgba(192,57,43,0.8), 0 12px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+  box-shadow: 0 0 60px rgba(192,57,43,0.5), 0 12px 40px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 @keyframes ttCtaPulse {
-  0%,100% { box-shadow: 0 0 40px rgba(139,0,0,0.6), 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15); }
-  50%      { box-shadow: 0 0 70px rgba(192,57,43,0.9), 0 12px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2); }
+  0%,100% { box-shadow: 0 0 40px rgba(139,0,0,0.35), 0 8px 32px rgba(139,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.15); }
+  50%      { box-shadow: 0 0 70px rgba(192,57,43,0.6), 0 12px 40px rgba(139,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2); }
 }
 
 .tt-scroll-hint {
   position: absolute; bottom: 28px; left: 50%;
   transform: translateX(-50%); z-index: 10;
   display: flex; flex-direction: column; align-items: center; gap: 8px;
-  opacity: 0.5; animation: ttFadeUp 1.5s var(--tt-ease) 1s both;
+  opacity: 0.4; animation: ttFadeUp 1.5s var(--tt-ease) 1s both;
 }
 .tt-scroll-hint-line {
   width: 1px; height: 48px;
-  background: linear-gradient(to bottom, #d4a017, transparent);
+  background: linear-gradient(to bottom, var(--tt-gold), transparent);
   animation: ttScrollLine 1.8s ease-in-out infinite;
 }
 @keyframes ttScrollLine { 0%,100%{opacity:0.3;transform:scaleY(1)} 50%{opacity:1;transform:scaleY(1.3)} }
@@ -857,21 +870,25 @@
           continue;
         }
 
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         ctx.save();
-        ctx.globalAlpha = p.alpha * 0.75;
+        ctx.globalAlpha = p.alpha * (isDark ? 0.75 : 0.45);
         if (p.type === 'ember') {
-          // orange-red ember
           var grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2);
-          grad.addColorStop(0, 'hsl(' + p.hue + ',100%,80%)');
-          grad.addColorStop(0.5, 'hsl(' + p.hue + ',90%,55%)');
+          // dark: bright orange-red; light: warm amber
+          var hue = isDark ? p.hue : (p.hue + 10);
+          var lMax = isDark ? 80 : 55;
+          var lMid = isDark ? 55 : 40;
+          grad.addColorStop(0, 'hsl(' + hue + ',100%,' + lMax + '%)');
+          grad.addColorStop(0.5, 'hsl(' + hue + ',90%,' + lMid + '%)');
           grad.addColorStop(1, 'transparent');
           ctx.fillStyle = grad;
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.size * 2, 0, Math.PI * 2);
           ctx.fill();
         } else {
-          // gold dust
-          ctx.fillStyle = 'hsl(' + p.hue + ',80%,70%)';
+          var gL = isDark ? 70 : 45;
+          ctx.fillStyle = 'hsl(' + p.hue + ',80%,' + gL + '%)';
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
           ctx.fill();
