@@ -6,29 +6,29 @@
 
 <style>
 /* ═══════════════════════════════════════════════════
-   ROOT VARIABLES
+   BRAND CONSTANTS (never change per theme)
+   Everything that adapts to light/dark uses --theme-* vars
 ═══════════════════════════════════════════════════ */
-:root {
-  --tt-black:   #080608;
-  --tt-dark:    #0e0b0f;
-  --tt-card:    #130f14;
-  --tt-red:     #8b0000;
-  --tt-red2:    #c0392b;
-  --tt-crimson: #6b1010;
-  --tt-gold:    #d4a017;
-  --tt-gold2:   #f0c040;
-  --tt-gold3:   #ffe082;
-  --tt-text:    #f5f0e8;
-  --tt-muted:   rgba(245,240,232,0.55);
-  --tt-border:  rgba(212,160,23,0.18);
-  --tt-glow:    rgba(212,160,23,0.35);
-  --tt-ease:    cubic-bezier(0.4, 0, 0.2, 1);
+.tt-wrap {
+  --tt-red:   #8b0000;
+  --tt-red2:  #c0392b;
+  --tt-gold:  var(--theme-gold, #d4a017);
+  --tt-gold2: color-mix(in srgb, var(--theme-gold, #d4a017) 80%, #fff 20%);
+  --tt-gold3: color-mix(in srgb, var(--theme-gold, #d4a017) 60%, #fff 40%);
+  --tt-ease:  cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* map theme surface tokens */
+  --tt-bg:      var(--theme-bg-primary);
+  --tt-card-bg: var(--theme-bg-secondary);
+  --tt-text:    var(--theme-text-main);
+  --tt-muted:   var(--theme-text-muted);
+  --tt-border:  var(--theme-border);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 .tt-wrap {
-  background: var(--tt-black);
+  background: var(--tt-bg);
   color: var(--tt-text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   overflow-x: hidden;
@@ -36,7 +36,8 @@
 }
 
 /* ═══════════════════════════════════════════════════
-   HERO — FULLSCREEN CINEMATIC
+   HERO — always dark (cinematic brand moment)
+   Use explicit dark values here only — it's intentional
 ═══════════════════════════════════════════════════ */
 .tt-hero {
   position: relative;
@@ -45,26 +46,23 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  /* hero is always dark — brand identity */
   background: radial-gradient(ellipse 100% 80% at 50% 40%,
     #2a0a0a 0%, #110508 40%, #080608 100%);
+  color: #f5f0e8; /* always light text on dark hero */
 }
 
-/* Canvas for particles */
 #ttParticles {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   width: 100%; height: 100%;
-  pointer-events: none;
-  z-index: 1;
+  pointer-events: none; z-index: 1;
 }
 
-/* Deep red radial glows */
 .tt-hero-glow {
   position: absolute;
   border-radius: 50%;
   filter: blur(80px);
-  pointer-events: none;
-  z-index: 0;
+  pointer-events: none; z-index: 0;
 }
 .tt-hero-glow--center {
   width: 600px; height: 400px;
@@ -82,15 +80,12 @@
   top: 20%; right: -5%;
 }
 
-/* Floating food elements */
 .tt-float-el {
   position: absolute;
   font-size: 48px;
-  pointer-events: none;
-  z-index: 2;
+  pointer-events: none; z-index: 2;
   filter: drop-shadow(0 0 18px rgba(212,160,23,0.5));
-  will-change: transform;
-  user-select: none;
+  will-change: transform; user-select: none;
 }
 .tt-float-el:nth-child(1)  { top: 12%; left: 8%;  font-size: 52px; animation: ttFloat1 6s ease-in-out infinite; }
 .tt-float-el:nth-child(2)  { top: 25%; right: 9%; font-size: 44px; animation: ttFloat2 7s ease-in-out infinite 1s; }
@@ -108,22 +103,16 @@
   50%      { transform: translateY(-18px) rotate(-5deg) scale(1.06); }
 }
 
-/* Steam lines */
 .tt-steam {
   position: absolute;
   bottom: 0; left: 50%; transform: translateX(-50%);
   width: 100%; height: 280px;
   pointer-events: none; z-index: 2;
-  background: linear-gradient(to top,
-    rgba(212,160,23,0.06) 0%,
-    rgba(139,0,0,0.04) 40%,
-    transparent 100%);
+  background: linear-gradient(to top, rgba(212,160,23,0.06) 0%, rgba(139,0,0,0.04) 40%, transparent 100%);
 }
 
-/* Hero content */
 .tt-hero-content {
-  position: relative;
-  z-index: 10;
+  position: relative; z-index: 10;
   text-align: center;
   padding: 40px 20px;
   max-width: 760px;
@@ -150,25 +139,23 @@
   padding: 5px 16px;
   font-size: 10px; font-weight: 800;
   letter-spacing: 2px; text-transform: uppercase;
-  color: var(--tt-gold2);
+  color: #f0c040;
   margin-bottom: 16px;
   animation: ttFadeUp 0.8s var(--tt-ease) both;
 }
 
 .tt-hero-heading {
   font-size: clamp(32px, 8vw, 72px);
-  font-weight: 900;
-  line-height: 1.05;
-  color: var(--tt-text);
-  text-transform: uppercase;
-  letter-spacing: -1.5px;
+  font-weight: 900; line-height: 1.05;
+  color: #f5f0e8;
+  text-transform: uppercase; letter-spacing: -1.5px;
   margin-bottom: 16px;
   text-shadow: 0 4px 40px rgba(0,0,0,0.8);
   animation: ttFadeUp 0.9s var(--tt-ease) 0.1s both;
 }
 .tt-hero-heading em {
   font-style: normal;
-  background: linear-gradient(135deg, var(--tt-gold3) 0%, var(--tt-gold) 60%, var(--tt-red2) 100%);
+  background: linear-gradient(135deg, #ffe082 0%, #d4a017 60%, var(--tt-red2) 100%);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
   display: block;
@@ -176,9 +163,8 @@
 
 .tt-hero-sub {
   font-size: clamp(14px, 3vw, 18px);
-  color: var(--tt-muted);
-  line-height: 1.5;
-  margin-bottom: 36px;
+  color: rgba(245,240,232,0.7);
+  line-height: 1.5; margin-bottom: 36px;
   animation: ttFadeUp 1s var(--tt-ease) 0.2s both;
 }
 
@@ -188,176 +174,127 @@
   color: #fff;
   font-size: 15px; font-weight: 800;
   letter-spacing: 0.5px; text-transform: uppercase;
-  padding: 16px 36px;
-  border-radius: 100px;
-  border: none; cursor: pointer;
-  text-decoration: none;
-  box-shadow:
-    0 0 40px rgba(139,0,0,0.6),
-    0 8px 32px rgba(0,0,0,0.5),
-    inset 0 1px 0 rgba(255,255,255,0.15);
+  padding: 16px 36px; border-radius: 100px;
+  border: none; cursor: pointer; text-decoration: none;
+  box-shadow: 0 0 40px rgba(139,0,0,0.6), 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
   animation: ttFadeUp 1.1s var(--tt-ease) 0.3s both, ttCtaPulse 2.5s ease-in-out 1.5s infinite;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 .tt-hero-cta:hover {
   transform: translateY(-2px) scale(1.03);
-  box-shadow:
-    0 0 60px rgba(192,57,43,0.8),
-    0 12px 40px rgba(0,0,0,0.5),
-    inset 0 1px 0 rgba(255,255,255,0.2);
+  box-shadow: 0 0 60px rgba(192,57,43,0.8), 0 12px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 @keyframes ttCtaPulse {
   0%,100% { box-shadow: 0 0 40px rgba(139,0,0,0.6), 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15); }
   50%      { box-shadow: 0 0 70px rgba(192,57,43,0.9), 0 12px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2); }
 }
 
-/* Scroll hint */
 .tt-scroll-hint {
-  position: absolute;
-  bottom: 28px; left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
+  position: absolute; bottom: 28px; left: 50%;
+  transform: translateX(-50%); z-index: 10;
   display: flex; flex-direction: column; align-items: center; gap: 8px;
-  opacity: 0.5;
-  animation: ttFadeUp 1.5s var(--tt-ease) 1s both;
+  opacity: 0.5; animation: ttFadeUp 1.5s var(--tt-ease) 1s both;
 }
 .tt-scroll-hint-line {
   width: 1px; height: 48px;
-  background: linear-gradient(to bottom, var(--tt-gold), transparent);
+  background: linear-gradient(to bottom, #d4a017, transparent);
   animation: ttScrollLine 1.8s ease-in-out infinite;
 }
-@keyframes ttScrollLine { 0%,100%{opacity:0.3; transform:scaleY(1)} 50%{opacity:1; transform:scaleY(1.3)} }
-
+@keyframes ttScrollLine { 0%,100%{opacity:0.3;transform:scaleY(1)} 50%{opacity:1;transform:scaleY(1.3)} }
 @keyframes ttFadeUp {
   from { opacity:0; transform: translateY(24px); }
   to   { opacity:1; transform: translateY(0); }
 }
 
 /* ═══════════════════════════════════════════════════
-   DIVIDER / SECTION LABEL
+   BELOW-HERO — fully theme responsive
 ═══════════════════════════════════════════════════ */
 .tt-section-label {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+  display: flex; align-items: center; gap: 14px;
   padding: 52px 20px 28px;
-  max-width: 1280px;
-  margin: 0 auto;
+  max-width: 1280px; margin: 0 auto;
 }
 .tt-section-label-line {
   flex: 1; height: 1px;
-  background: linear-gradient(to right, rgba(212,160,23,0.4), transparent);
+  background: linear-gradient(to right, color-mix(in srgb, var(--tt-gold) 40%, transparent), transparent);
 }
 .tt-section-label-line--rtl {
-  background: linear-gradient(to left, rgba(212,160,23,0.4), transparent);
+  background: linear-gradient(to left, color-mix(in srgb, var(--tt-gold) 40%, transparent), transparent);
 }
 .tt-section-label-pill {
   font-size: 10px; font-weight: 800;
   letter-spacing: 2.5px; text-transform: uppercase;
   color: var(--tt-gold2);
-  background: rgba(212,160,23,0.1);
-  border: 1px solid var(--tt-border);
-  padding: 5px 14px;
-  border-radius: 100px;
-  white-space: nowrap;
+  background: color-mix(in srgb, var(--tt-gold) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tt-gold) 25%, transparent);
+  padding: 5px 14px; border-radius: 100px; white-space: nowrap;
 }
 
 /* ═══════════════════════════════════════════════════
    PRODUCT GRID
 ═══════════════════════════════════════════════════ */
-.tt-grid-outer {
-  padding: 0 16px 80px;
-  max-width: 1280px;
-  margin: 0 auto;
-}
-
+.tt-grid-outer { padding: 0 16px 80px; max-width: 1280px; margin: 0 auto; }
 .tt-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 }
-@media(min-width: 640px) {
-  .tt-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
-}
-@media(min-width: 1024px) {
-  .tt-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; }
-}
+@media(min-width: 640px)  { .tt-grid { gap: 20px; } }
+@media(min-width: 1024px) { .tt-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; } }
 
-/* Card */
+/* Card — uses theme tokens */
 .tt-card {
   position: relative;
-  background: var(--tt-card);
-  border: 1px solid rgba(212,160,23,0.12);
-  border-radius: 18px;
-  overflow: hidden;
+  background: var(--tt-card-bg);
+  border: 1px solid color-mix(in srgb, var(--tt-gold) 15%, var(--tt-border));
+  border-radius: 18px; overflow: hidden;
   display: flex; flex-direction: column;
   transition: transform 0.3s var(--tt-ease), border-color 0.3s, box-shadow 0.3s;
-  cursor: pointer;
-  text-decoration: none;
+  cursor: pointer; text-decoration: none;
   color: var(--tt-text);
 }
 .tt-card::before {
-  content: '';
-  position: absolute; inset: 0; z-index: 0;
-  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(139,0,0,0.12), transparent 60%);
-  opacity: 0;
-  transition: opacity 0.4s;
-  pointer-events: none;
+  content: ''; position: absolute; inset: 0; z-index: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(139,0,0,0.08), transparent 60%);
+  opacity: 0; transition: opacity 0.4s; pointer-events: none;
 }
 .tt-card:hover {
   transform: translateY(-6px);
-  border-color: rgba(212,160,23,0.55);
+  border-color: color-mix(in srgb, var(--tt-gold) 55%, transparent);
   box-shadow:
-    0 0 0 1px rgba(212,160,23,0.2),
-    0 12px 48px rgba(139,0,0,0.4),
-    0 4px 16px rgba(0,0,0,0.6);
+    0 0 0 1px color-mix(in srgb, var(--tt-gold) 20%, transparent),
+    0 12px 48px rgba(139,0,0,0.25),
+    0 4px 16px rgba(0,0,0,0.15);
 }
 .tt-card:hover::before { opacity: 1; }
 
-/* Image wrap */
 .tt-card-img-wrap {
-  position: relative;
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-  background: #18111a;
+  position: relative; aspect-ratio: 1 / 1; overflow: hidden;
+  background: var(--theme-bg-deep, var(--tt-card-bg));
   flex-shrink: 0;
 }
 .tt-card-img-wrap img {
   width: 100%; height: 100%;
-  object-fit: cover;
-  object-position: center;
+  object-fit: cover; object-position: center;
   transition: transform 0.5s var(--tt-ease);
 }
-.tt-card:hover .tt-card-img-wrap img {
-  transform: scale(1.1);
-}
+.tt-card:hover .tt-card-img-wrap img { transform: scale(1.1); }
 
-/* Fire glow behind image on hover */
 .tt-card-fire {
   position: absolute; inset: 0; z-index: 1;
-  background: radial-gradient(ellipse 100% 50% at 50% 100%,
-    rgba(192,57,43,0.5) 0%, transparent 65%);
-  opacity: 0;
-  transition: opacity 0.4s;
-  pointer-events: none;
+  background: radial-gradient(ellipse 100% 50% at 50% 100%, rgba(192,57,43,0.4) 0%, transparent 65%);
+  opacity: 0; transition: opacity 0.4s; pointer-events: none;
 }
 .tt-card:hover .tt-card-fire { opacity: 1; }
 
-/* Steam overlay on hover */
 .tt-card-steam {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  height: 60%;
-  background: linear-gradient(to top,
-    rgba(212,160,23,0.06) 0%,
-    transparent 100%);
-  z-index: 2;
-  opacity: 0;
-  transition: opacity 0.5s;
-  pointer-events: none;
+  position: absolute; bottom: 0; left: 0; right: 0; height: 60%;
+  background: linear-gradient(to top, color-mix(in srgb, var(--tt-gold) 6%, transparent) 0%, transparent 100%);
+  z-index: 2; opacity: 0; transition: opacity 0.5s; pointer-events: none;
 }
 .tt-card:hover .tt-card-steam { opacity: 1; }
 
-/* Badge */
+/* Badges */
 .tt-badge {
   position: absolute; top: 12px; left: 12px; z-index: 5;
   font-size: 9px; font-weight: 900;
@@ -367,35 +304,33 @@
 .tt-badge--best {
   background: linear-gradient(135deg, var(--tt-gold) 0%, var(--tt-gold2) 100%);
   color: #1a0a00;
-  box-shadow: 0 0 16px rgba(212,160,23,0.6);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--tt-gold) 60%, transparent);
   animation: ttBadgePulse 2s ease-in-out infinite;
 }
 .tt-badge--hot {
-  background: linear-gradient(135deg, var(--tt-red) 0%, var(--tt-red2) 100%);
+  background: linear-gradient(135deg, var(--tt-red), var(--tt-red2));
   color: #fff;
   box-shadow: 0 0 12px rgba(192,57,43,0.6);
 }
 .tt-badge--new {
-  background: rgba(212,160,23,0.15);
-  border: 1px solid rgba(212,160,23,0.4);
+  background: color-mix(in srgb, var(--tt-gold) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tt-gold) 40%, transparent);
   color: var(--tt-gold2);
 }
 @keyframes ttBadgePulse {
-  0%,100% { box-shadow: 0 0 12px rgba(212,160,23,0.5); }
-  50%      { box-shadow: 0 0 28px rgba(212,160,23,0.9); }
+  0%,100% { box-shadow: 0 0 12px color-mix(in srgb, var(--tt-gold) 50%, transparent); }
+  50%      { box-shadow: 0 0 28px color-mix(in srgb, var(--tt-gold) 90%, transparent); }
 }
 
-/* Delivery badge */
 .tt-delivery-badge {
   position: absolute; bottom: 10px; right: 10px; z-index: 5;
-  background: rgba(8,6,8,0.82);
+  background: color-mix(in srgb, var(--tt-bg) 85%, transparent);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(212,160,23,0.25);
+  border: 1px solid color-mix(in srgb, var(--tt-gold) 25%, transparent);
   border-radius: 8px;
   font-size: 9px; font-weight: 800;
   color: var(--tt-gold2);
-  padding: 4px 9px;
-  letter-spacing: 0.5px;
+  padding: 4px 9px; letter-spacing: 0.5px;
 }
 
 /* Card body */
@@ -404,230 +339,150 @@
   display: flex; flex-direction: column; flex: 1;
   position: relative; z-index: 3;
 }
-
 .tt-card-name {
-  font-size: clamp(13px, 2.5vw, 15px);
-  font-weight: 700;
-  line-height: 1.3;
-  color: var(--tt-text);
-  margin-bottom: 8px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  font-size: clamp(13px, 2.5vw, 15px); font-weight: 700; line-height: 1.3;
+  color: var(--tt-text); margin-bottom: 8px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
-
 .tt-card-price-row {
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
+  display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;
 }
 .tt-card-price {
-  font-size: clamp(16px, 3vw, 20px);
-  font-weight: 900;
+  font-size: clamp(16px, 3vw, 20px); font-weight: 900;
   color: var(--tt-gold2);
-  text-shadow: 0 0 20px rgba(212,160,23,0.4);
 }
 .tt-card-compare {
-  font-size: 12px;
-  color: var(--tt-muted);
-  text-decoration: line-through;
+  font-size: 12px; color: var(--tt-muted); text-decoration: line-through;
 }
 .tt-card-save {
   font-size: 10px; font-weight: 800;
   color: #fff; background: var(--tt-red2);
   padding: 2px 7px; border-radius: 100px;
 }
-
-/* Urgency */
 .tt-card-urgency {
   font-size: 10px; font-weight: 800;
-  color: var(--tt-red2);
-  letter-spacing: 0.5px;
+  color: var(--tt-red2); letter-spacing: 0.5px;
   margin-bottom: 12px;
   display: flex; align-items: center; gap: 4px;
   animation: ttUrgencyBlink 1.8s ease-in-out infinite;
 }
-@keyframes ttUrgencyBlink {
-  0%,100% { opacity:1; } 50% { opacity:0.6; }
-}
+@keyframes ttUrgencyBlink { 0%,100%{opacity:1} 50%{opacity:0.6} }
 
-/* Add to cart button */
 .tt-add-btn {
   display: flex; align-items: center; justify-content: center; gap: 6px;
-  width: 100%;
-  padding: 11px 16px;
-  background: linear-gradient(135deg, rgba(139,0,0,0.9), rgba(192,57,43,0.9));
-  border: 1px solid rgba(212,160,23,0.2);
+  width: 100%; padding: 11px 16px;
+  background: linear-gradient(135deg, rgba(139,0,0,0.85), rgba(192,57,43,0.85));
+  border: 1px solid color-mix(in srgb, var(--tt-gold) 20%, transparent);
   border-radius: 10px;
   font-size: 12px; font-weight: 800;
   text-transform: uppercase; letter-spacing: 0.8px;
-  color: #fff;
-  cursor: pointer;
+  color: #fff; cursor: pointer;
   transition: all 0.2s var(--tt-ease);
-  margin-top: auto;
-  position: relative; overflow: hidden;
+  margin-top: auto; position: relative; overflow: hidden;
 }
 .tt-add-btn::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
-  transform: translateX(-100%);
-  transition: transform 0.4s;
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transform: translateX(-100%); transition: transform 0.4s;
 }
 .tt-add-btn:hover::after { transform: translateX(100%); }
 .tt-add-btn:hover {
   background: linear-gradient(135deg, var(--tt-red), var(--tt-red2));
-  border-color: rgba(212,160,23,0.5);
-  box-shadow: 0 4px 20px rgba(192,57,43,0.5);
+  border-color: color-mix(in srgb, var(--tt-gold) 50%, transparent);
+  box-shadow: 0 4px 20px rgba(192,57,43,0.4);
 }
 .tt-add-btn:active { transform: scale(0.97); }
-.tt-add-btn[data-loading] {
-  pointer-events: none; opacity: 0.7;
-}
+.tt-add-btn[data-loading] { pointer-events: none; opacity: 0.7; }
 
-/* Sold out */
 .tt-sold-out .tt-add-btn {
-  background: rgba(255,255,255,0.05);
-  border-color: rgba(255,255,255,0.08);
-  color: var(--tt-muted);
-  cursor: not-allowed;
+  background: color-mix(in srgb, var(--tt-border) 30%, transparent);
+  border-color: var(--tt-border);
+  color: var(--tt-muted); cursor: not-allowed;
 }
-.tt-card-img-wrap .tt-sold-overlay {
-  display: none;
-}
+.tt-card-img-wrap .tt-sold-overlay { display: none; }
 .tt-sold-out .tt-sold-overlay {
-  display: flex;
-  position: absolute; inset: 0; z-index: 4;
+  display: flex; position: absolute; inset: 0; z-index: 4;
   align-items: center; justify-content: center;
-  background: rgba(8,6,8,0.7);
+  background: color-mix(in srgb, var(--tt-bg) 70%, transparent);
   backdrop-filter: blur(2px);
   font-size: 11px; font-weight: 800;
   text-transform: uppercase; letter-spacing: 2px;
-  color: rgba(245,240,232,0.5);
+  color: var(--tt-muted);
 }
 
-/* No products */
 .tt-empty {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 80px 20px;
+  grid-column: 1/-1; text-align: center; padding: 80px 20px;
   color: var(--tt-muted);
 }
 .tt-empty-icon { font-size: 64px; margin-bottom: 16px; }
-.tt-empty-text { font-size: 18px; font-weight: 700; }
+.tt-empty-text { font-size: 18px; font-weight: 700; color: var(--tt-text); }
 .tt-empty-sub  { font-size: 14px; margin-top: 8px; }
 
-/* ═══════════════════════════════════════════════════
-   COLLECTION INFO BAR
-═══════════════════════════════════════════════════ */
+/* Info bar */
 .tt-info-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 0 20px 24px;
-  max-width: 1280px;
-  margin: 0 auto;
-  flex-wrap: wrap;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 0 20px 24px;
+  max-width: 1280px; margin: 0 auto; flex-wrap: wrap;
 }
-.tt-info-count {
-  font-size: 12px;
-  color: var(--tt-muted);
-  font-weight: 600;
-}
+.tt-info-count { font-size: 12px; color: var(--tt-muted); font-weight: 600; }
 .tt-info-count strong { color: var(--tt-gold2); }
 
-/* ═══════════════════════════════════════════════════
-   STICKY ORDER BAR (mobile)
-═══════════════════════════════════════════════════ */
+/* Sticky bar — uses theme tokens */
 .tt-sticky-bar {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  z-index: 999;
-  background: linear-gradient(to top, rgba(8,6,8,0.97) 0%, rgba(8,6,8,0.92) 100%);
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 999;
+  background: color-mix(in srgb, var(--tt-bg) 94%, transparent);
   backdrop-filter: blur(16px);
-  border-top: 1px solid rgba(212,160,23,0.2);
+  border-top: 1px solid color-mix(in srgb, var(--tt-gold) 20%, var(--tt-border));
   padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
   display: flex; align-items: center; gap: 12px;
-  transform: translateY(100%);
-  transition: transform 0.35s var(--tt-ease);
+  transform: translateY(100%); transition: transform 0.35s var(--tt-ease);
 }
 .tt-sticky-bar.visible { transform: translateY(0); }
-
 .tt-sticky-logo {
-  width: 40px; height: 40px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 8px rgba(212,160,23,0.5));
+  width: 40px; height: 40px; object-fit: contain;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--tt-gold) 50%, transparent));
   flex-shrink: 0;
 }
-.tt-sticky-text {
-  flex: 1; min-width: 0;
-}
-.tt-sticky-title {
-  font-size: 12px; font-weight: 800;
-  color: var(--tt-text); line-height: 1.2;
-}
-.tt-sticky-sub {
-  font-size: 10px;
-  color: var(--tt-gold2);
-  font-weight: 600;
-}
+.tt-sticky-text { flex: 1; min-width: 0; }
+.tt-sticky-title { font-size: 12px; font-weight: 800; color: var(--tt-text); line-height: 1.2; }
+.tt-sticky-sub   { font-size: 10px; font-weight: 600; color: var(--tt-gold2); }
 .tt-sticky-cta {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 11px 20px;
   background: linear-gradient(135deg, var(--tt-red), var(--tt-red2));
-  color: #fff;
-  font-size: 12px; font-weight: 900;
+  color: #fff; font-size: 12px; font-weight: 900;
   text-transform: uppercase; letter-spacing: 0.5px;
-  border: none; border-radius: 100px;
-  cursor: pointer;
-  white-space: nowrap;
-  box-shadow: 0 0 24px rgba(139,0,0,0.5);
-  text-decoration: none;
+  border: none; border-radius: 100px; cursor: pointer;
+  white-space: nowrap; text-decoration: none;
+  box-shadow: 0 0 24px rgba(139,0,0,0.4);
   animation: ttCtaPulse 2.5s ease-in-out infinite;
 }
 .tt-sticky-cta:hover { opacity: 0.9; }
 
-/* ═══════════════════════════════════════════════════
-   TOAST NOTIFICATION
-═══════════════════════════════════════════════════ */
+/* Toast */
 .tt-toast {
-  position: fixed;
-  bottom: 90px; left: 50%;
+  position: fixed; bottom: 90px; left: 50%;
   transform: translateX(-50%) translateY(20px);
-  background: linear-gradient(135deg, rgba(19,15,20,0.97), rgba(30,20,10,0.97));
-  border: 1px solid rgba(212,160,23,0.4);
-  border-radius: 12px;
-  padding: 12px 20px;
+  background: var(--tt-card-bg);
+  border: 1px solid color-mix(in srgb, var(--tt-gold) 40%, var(--tt-border));
+  border-radius: 12px; padding: 12px 20px;
   display: flex; align-items: center; gap: 10px;
-  font-size: 13px; font-weight: 700;
-  color: var(--tt-text);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-  opacity: 0;
-  transition: opacity 0.3s, transform 0.3s;
-  z-index: 9999;
-  pointer-events: none;
-  white-space: nowrap;
-  max-width: calc(100vw - 40px);
+  font-size: 13px; font-weight: 700; color: var(--tt-text);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  opacity: 0; transition: opacity 0.3s, transform 0.3s;
+  z-index: 9999; pointer-events: none;
+  white-space: nowrap; max-width: calc(100vw - 40px);
 }
-.tt-toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
+.tt-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .tt-toast-icon { font-size: 20px; }
 .tt-toast-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 
-/* ═══════════════════════════════════════════════════
-   RESPONSIVE TWEAKS
-═══════════════════════════════════════════════════ */
 @media(min-width: 768px) {
   .tt-sticky-bar { display: none; }
   .tt-float-el:nth-child(1) { font-size: 72px; }
   .tt-float-el:nth-child(2) { font-size: 64px; }
   .tt-float-el:nth-child(3) { font-size: 80px; }
 }
-
 @media(max-width: 380px) {
   .tt-float-el { font-size: 32px !important; }
   .tt-card-body { padding: 10px 10px 12px; }
