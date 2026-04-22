@@ -1,0 +1,856 @@
+<style>
+:root {
+  --qbw-black:   #0a0a0a;
+  --qbw-bg:      #111114;
+  --qbw-bg2:     #18181c;
+  --qbw-bg3:     #1f1f24;
+  --qbw-border:  rgba(255,255,255,0.07);
+  --qbw-gold:    #c9a84c;
+  --qbw-gold2:   #e8c870;
+  --qbw-text:    #f0ece4;
+  --qbw-muted:   #8a8680;
+  --qbw-dim:     #5a5654;
+  --qbw-red:     #c0392b;
+  --qbw-ease:    cubic-bezier(.4,0,.2,1);
+  --qbw-radius:  10px;
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.qbw {
+  background: var(--qbw-bg);
+  color: var(--qbw-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ── HERO ── */
+.qbw-hero {
+  background: linear-gradient(135deg, #0a0a0a 0%, #111114 50%, #16140f 100%);
+  border-bottom: 1px solid var(--qbw-border);
+  padding: 48px 20px 44px;
+  position: relative;
+  overflow: hidden;
+}
+.qbw-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 120% at 80% 50%, rgba(201,168,76,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.qbw-hero-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.qbw-hero-left { flex: 1; min-width: 260px; }
+.qbw-hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--qbw-gold);
+  background: rgba(201,168,76,0.08);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 100px;
+  padding: 5px 12px;
+  margin-bottom: 16px;
+}
+.qbw-hero-eyebrow::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--qbw-gold);
+  animation: qbwPulse 2s ease-in-out infinite;
+}
+@keyframes qbwPulse {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.qbw-hero-title {
+  font-size: clamp(22px, 4vw, 36px);
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--qbw-text);
+  letter-spacing: -0.5px;
+  margin-bottom: 10px;
+}
+.qbw-hero-title span { color: var(--qbw-gold); }
+.qbw-hero-sub {
+  font-size: 15px;
+  color: var(--qbw-muted);
+  margin-bottom: 6px;
+}
+.qbw-hero-note {
+  font-size: 11px;
+  color: var(--qbw-dim);
+  display: flex; align-items: center; gap: 5px;
+  margin-bottom: 24px;
+}
+.qbw-hero-note::before {
+  content: '🔒';
+  font-size: 10px;
+}
+.qbw-hero-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, var(--qbw-gold) 0%, var(--qbw-gold2) 100%);
+  color: #0a0a0a;
+  font-size: 13px; font-weight: 900; letter-spacing: 0.3px;
+  padding: 13px 24px;
+  border-radius: var(--qbw-radius);
+  text-decoration: none;
+  border: none; cursor: pointer;
+  transition: transform .18s var(--qbw-ease), box-shadow .18s var(--qbw-ease);
+  box-shadow: 0 4px 20px rgba(201,168,76,0.25);
+}
+.qbw-hero-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(201,168,76,0.35);
+}
+.qbw-hero-stats {
+  display: flex; gap: 28px; flex-wrap: wrap;
+}
+.qbw-hero-stat-item { text-align: center; }
+.qbw-hero-stat-val {
+  font-size: 24px; font-weight: 900;
+  color: var(--qbw-gold);
+  line-height: 1;
+}
+.qbw-hero-stat-label {
+  font-size: 10px; color: var(--qbw-muted); margin-top: 3px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+/* ── FILTERS ── */
+.qbw-filters-wrap {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(17,17,20,0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--qbw-border);
+}
+.qbw-filters {
+  max-width: 1200px; margin: 0 auto;
+  display: flex; overflow-x: auto; gap: 0;
+  padding: 0 16px;
+  scrollbar-width: none;
+}
+.qbw-filters::-webkit-scrollbar { display: none; }
+.qbw-filter-btn {
+  flex-shrink: 0;
+  padding: 13px 16px;
+  font-size: 12px; font-weight: 700;
+  color: var(--qbw-muted);
+  background: none; border: none; cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color .18s, border-color .18s;
+  letter-spacing: 0.2px;
+}
+.qbw-filter-btn:hover { color: var(--qbw-text); }
+.qbw-filter-btn.active {
+  color: var(--qbw-gold);
+  border-bottom-color: var(--qbw-gold);
+}
+
+/* ── PRODUCTS SECTION ── */
+.qbw-products-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+.qbw-products-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap; gap: 10px;
+}
+.qbw-products-count {
+  font-size: 12px; color: var(--qbw-muted);
+  letter-spacing: 0.3px;
+}
+.qbw-products-count strong { color: var(--qbw-text); }
+.qbw-products-sort {
+  font-size: 11px; color: var(--qbw-muted);
+  background: var(--qbw-bg2);
+  border: 1px solid var(--qbw-border);
+  border-radius: 6px;
+  padding: 7px 10px;
+  cursor: pointer;
+  color: var(--qbw-muted);
+}
+
+/* ── PRODUCT GRID ── */
+.qbw-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+@media (max-width: 480px) {
+  .qbw-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+}
+
+/* ── PRODUCT CARD ── */
+.qbw-card {
+  background: var(--qbw-bg2);
+  border: 1px solid var(--qbw-border);
+  border-radius: var(--qbw-radius);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: border-color .2s var(--qbw-ease), box-shadow .2s var(--qbw-ease), transform .2s var(--qbw-ease);
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+.qbw-card:hover {
+  border-color: rgba(201,168,76,0.3);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(201,168,76,0.1);
+  transform: translateY(-2px);
+}
+.qbw-card-img-wrap {
+  position: relative;
+  aspect-ratio: 4/3;
+  background: var(--qbw-bg3);
+  overflow: hidden;
+}
+.qbw-card-img-wrap img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  object-position: center;
+  padding: 12px;
+  display: block;
+  transition: transform .3s var(--qbw-ease);
+}
+.qbw-card:hover .qbw-card-img-wrap img { transform: scale(1.04); }
+.qbw-card-img-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px; opacity: 0.2;
+}
+.qbw-card-badge {
+  position: absolute; top: 8px; left: 8px;
+  font-size: 8px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 100px;
+}
+.qbw-card-badge--demand {
+  background: rgba(201,168,76,0.15);
+  border: 1px solid rgba(201,168,76,0.35);
+  color: var(--qbw-gold2);
+}
+.qbw-card-badge--best {
+  background: rgba(201,168,76,0.9);
+  color: #0a0a0a;
+}
+.qbw-card-badge--new {
+  background: rgba(22,163,74,0.15);
+  border: 1px solid rgba(22,163,74,0.3);
+  color: #4ade80;
+}
+.qbw-card-tag {
+  position: absolute; top: 8px; right: 8px;
+  font-size: 8px; font-weight: 700;
+  background: var(--qbw-bg);
+  border: 1px solid var(--qbw-border);
+  color: var(--qbw-dim);
+  padding: 2px 7px; border-radius: 4px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.qbw-card-body {
+  padding: 14px 14px 16px;
+  flex: 1; display: flex; flex-direction: column; gap: 10px;
+}
+.qbw-card-type {
+  font-size: 9px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--qbw-dim);
+}
+.qbw-card-name {
+  font-size: 13px; font-weight: 700; line-height: 1.35;
+  color: var(--qbw-text);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.qbw-card-price {
+  display: flex; align-items: center; gap: 8px;
+  flex-wrap: wrap;
+}
+.qbw-card-price-locked {
+  font-size: 10px; font-weight: 700;
+  color: var(--qbw-muted);
+  display: flex; align-items: center; gap: 5px;
+}
+.qbw-card-price-locked::before {
+  content: '🔒';
+  font-size: 9px;
+}
+.qbw-card-price-real {
+  font-size: 15px; font-weight: 900;
+  color: var(--qbw-gold);
+}
+.qbw-card-price-compare {
+  font-size: 11px; color: var(--qbw-dim); text-decoration: line-through;
+}
+.qbw-card-cta {
+  margin-top: auto;
+  display: flex; gap: 7px;
+}
+.qbw-card-btn {
+  flex: 1;
+  padding: 9px 10px;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.3px;
+  border-radius: 7px;
+  border: none; cursor: pointer;
+  text-align: center; text-decoration: none;
+  transition: background .15s, color .15s, border-color .15s;
+  display: inline-block;
+}
+.qbw-card-btn--primary {
+  background: var(--qbw-gold);
+  color: #0a0a0a;
+}
+.qbw-card-btn--primary:hover { background: var(--qbw-gold2); }
+.qbw-card-btn--ghost {
+  background: transparent;
+  border: 1.5px solid var(--qbw-border);
+  color: var(--qbw-muted);
+}
+.qbw-card-btn--ghost:hover {
+  border-color: var(--qbw-gold);
+  color: var(--qbw-gold);
+}
+.qbw-card-sold-overlay {
+  position: absolute; inset: 0;
+  background: rgba(10,10,10,0.6);
+  display: flex; align-items: center; justify-content: center;
+}
+.qbw-card-sold-tag {
+  font-size: 10px; font-weight: 900; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--qbw-muted);
+  border: 1px solid var(--qbw-border);
+  padding: 5px 14px; border-radius: 4px;
+  background: var(--qbw-bg);
+}
+
+/* ── NOTICE STRIP ── */
+.qbw-notice {
+  background: linear-gradient(90deg, rgba(201,168,76,0.06) 0%, rgba(201,168,76,0.02) 100%);
+  border-top: 1px solid rgba(201,168,76,0.12);
+  border-bottom: 1px solid rgba(201,168,76,0.12);
+  padding: 20px 20px;
+}
+.qbw-notice-inner {
+  max-width: 960px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 14px;
+}
+.qbw-notice-text {
+  font-size: 13px; color: var(--qbw-muted);
+  display: flex; align-items: center; gap: 8px;
+}
+.qbw-notice-text::before {
+  content: 'ℹ';
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: rgba(201,168,76,0.1);
+  color: var(--qbw-gold);
+  font-size: 11px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.qbw-notice-btn {
+  font-size: 11px; font-weight: 800;
+  color: var(--qbw-gold);
+  background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 7px;
+  padding: 8px 16px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .15s;
+}
+.qbw-notice-btn:hover { background: rgba(201,168,76,0.18); }
+
+/* ── PAGINATION ── */
+.qbw-pagination {
+  max-width: 1200px; margin: 0 auto;
+  padding: 8px 16px 32px;
+  display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+}
+.qbw-page-btn {
+  min-width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 7px;
+  font-size: 13px; font-weight: 700;
+  text-decoration: none;
+  transition: background .15s, color .15s, border-color .15s;
+  border: 1px solid var(--qbw-border);
+  color: var(--qbw-muted);
+  background: var(--qbw-bg2);
+}
+.qbw-page-btn:hover, .qbw-page-btn--active {
+  background: var(--qbw-gold);
+  color: #0a0a0a;
+  border-color: var(--qbw-gold);
+}
+.qbw-page-btn--disabled {
+  opacity: 0.3; pointer-events: none;
+}
+
+/* ── BENEFITS ── */
+.qbw-benefits {
+  background: var(--qbw-bg2);
+  border-top: 1px solid var(--qbw-border);
+  padding: 56px 20px;
+}
+.qbw-benefits-inner { max-width: 960px; margin: 0 auto; }
+.qbw-section-label {
+  font-size: 10px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--qbw-gold);
+  margin-bottom: 8px;
+}
+.qbw-section-title {
+  font-size: clamp(20px, 3.5vw, 30px);
+  font-weight: 900; line-height: 1.15;
+  color: var(--qbw-text);
+  margin-bottom: 36px;
+  letter-spacing: -0.3px;
+}
+.qbw-benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.qbw-benefit-card {
+  background: var(--qbw-bg);
+  border: 1px solid var(--qbw-border);
+  border-radius: var(--qbw-radius);
+  padding: 22px 20px;
+  transition: border-color .2s;
+}
+.qbw-benefit-card:hover { border-color: rgba(201,168,76,0.25); }
+.qbw-benefit-icon {
+  font-size: 22px; margin-bottom: 12px;
+  display: block;
+}
+.qbw-benefit-title {
+  font-size: 13px; font-weight: 800;
+  color: var(--qbw-text);
+  margin-bottom: 6px;
+}
+.qbw-benefit-desc {
+  font-size: 12px; color: var(--qbw-muted); line-height: 1.5;
+}
+
+/* ── CTA STRIP ── */
+.qbw-cta-strip {
+  background: linear-gradient(135deg, #0f0d08 0%, #16130a 100%);
+  border-top: 1px solid rgba(201,168,76,0.12);
+  border-bottom: 1px solid rgba(201,168,76,0.12);
+  padding: 48px 20px;
+  text-align: center;
+}
+.qbw-cta-strip-inner { max-width: 640px; margin: 0 auto; }
+.qbw-cta-strip-title {
+  font-size: clamp(18px, 3vw, 26px);
+  font-weight: 900; color: var(--qbw-text);
+  margin-bottom: 10px;
+  letter-spacing: -0.3px;
+}
+.qbw-cta-strip-sub {
+  font-size: 13px; color: var(--qbw-muted);
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+.qbw-cta-strip-btns {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+}
+.qbw-cta-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 13px 26px;
+  border-radius: var(--qbw-radius);
+  font-size: 13px; font-weight: 900; letter-spacing: 0.2px;
+  text-decoration: none;
+  transition: transform .18s, box-shadow .18s;
+  cursor: pointer; border: none;
+}
+.qbw-cta-btn:hover { transform: translateY(-1px); }
+.qbw-cta-btn--gold {
+  background: linear-gradient(135deg, var(--qbw-gold) 0%, var(--qbw-gold2) 100%);
+  color: #0a0a0a;
+  box-shadow: 0 4px 20px rgba(201,168,76,0.25);
+}
+.qbw-cta-btn--gold:hover { box-shadow: 0 8px 28px rgba(201,168,76,0.35); }
+.qbw-cta-btn--outline {
+  background: transparent;
+  border: 1.5px solid rgba(201,168,76,0.35);
+  color: var(--qbw-gold);
+}
+.qbw-cta-btn--outline:hover { border-color: var(--qbw-gold); background: rgba(201,168,76,0.06); }
+
+/* ── CLOSING CONVERSION ── */
+.qbw-closing {
+  background: #000;
+  padding: 72px 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.qbw-closing::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 100%, rgba(201,168,76,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.qbw-closing-inner { max-width: 580px; margin: 0 auto; position: relative; }
+.qbw-closing-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 9px; font-weight: 900; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--qbw-gold);
+  margin-bottom: 18px;
+}
+.qbw-closing-title {
+  font-size: clamp(24px, 5vw, 42px);
+  font-weight: 900; line-height: 1.1;
+  color: var(--qbw-text);
+  letter-spacing: -0.5px;
+  margin-bottom: 18px;
+}
+.qbw-closing-title span { color: var(--qbw-gold); }
+.qbw-closing-primary {
+  font-size: 15px; color: var(--qbw-muted); line-height: 1.65;
+  margin-bottom: 12px;
+}
+.qbw-closing-secondary {
+  font-size: 12px; color: var(--qbw-dim); line-height: 1.6;
+  margin-bottom: 36px;
+}
+.qbw-closing-btns {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.qbw-closing-footnote {
+  font-size: 10px; color: var(--qbw-dim);
+  letter-spacing: 0.3px;
+}
+
+/* ── FOOTER STRIP ── */
+.qbw-footer {
+  background: var(--qbw-black);
+  border-top: 1px solid var(--qbw-border);
+  padding: 24px 20px;
+}
+.qbw-footer-inner {
+  max-width: 960px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px;
+}
+.qbw-footer-brand {
+  font-size: 15px; font-weight: 900;
+  color: var(--qbw-gold);
+  letter-spacing: -0.3px;
+}
+.qbw-footer-brand span { color: var(--qbw-text); }
+.qbw-footer-note {
+  font-size: 10px; color: var(--qbw-dim);
+  letter-spacing: 0.3px;
+}
+.qbw-footer-qr {
+  width: 44px; height: 44px;
+  background: var(--qbw-bg2);
+  border: 1px solid var(--qbw-border);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; color: var(--qbw-dim); text-align: center;
+  line-height: 1.3;
+}
+
+/* ── EMPTY STATE ── */
+.qbw-empty {
+  text-align: center; padding: 80px 20px;
+  color: var(--qbw-muted);
+}
+.qbw-empty-icon { font-size: 48px; margin-bottom: 14px; opacity: 0.4; }
+.qbw-empty-title { font-size: 16px; font-weight: 800; color: var(--qbw-text); margin-bottom: 6px; }
+.qbw-empty-sub { font-size: 12px; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  .qbw-hero { padding: 36px 16px 32px; }
+  .qbw-hero-stats { display: none; }
+  .qbw-benefits-grid { grid-template-columns: 1fr 1fr; }
+  .qbw-notice-inner { flex-direction: column; align-items: flex-start; }
+}
+</style>
+
+<div class="qbw">
+
+  <!-- 1. HERO -->
+  <div class="qbw-hero">
+    <div class="qbw-hero-inner">
+      <div class="qbw-hero-left">
+        <div class="qbw-hero-eyebrow">B2B Wholesale Supply</div>
+        <h1 class="qbw-hero-title">Wholesale Supply for<br><span>Licensed Businesses</span></h1>
+        <p class="qbw-hero-sub">Liquor, Cigarettes, Hookah &amp; More</p>
+        <p class="qbw-hero-note">Access available for verified businesses</p>
+        <a href="/products/vendor-registration" class="qbw-hero-cta">Register Your Business →</a>
+      </div>
+      <div class="qbw-hero-stats">
+        <div class="qbw-hero-stat-item">
+          <div class="qbw-hero-stat-val">500+</div>
+          <div class="qbw-hero-stat-label">SKUs</div>
+        </div>
+        <div class="qbw-hero-stat-item">
+          <div class="qbw-hero-stat-val">200+</div>
+          <div class="qbw-hero-stat-label">Partners</div>
+        </div>
+        <div class="qbw-hero-stat-item">
+          <div class="qbw-hero-stat-val">24hr</div>
+          <div class="qbw-hero-stat-label">Dispatch</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. CATEGORY FILTERS -->
+  <div class="qbw-filters-wrap">
+    <div class="qbw-filters" id="qbwFilters">
+      <button class="qbw-filter-btn active" data-filter="all">All Products</button>
+      <button class="qbw-filter-btn" data-filter="liquor">🥃 Liquor</button>
+      <button class="qbw-filter-btn" data-filter="cigarettes">🚬 Cigarettes</button>
+      <button class="qbw-filter-btn" data-filter="hookah-flavors">💨 Hookah Flavors</button>
+      <button class="qbw-filter-btn" data-filter="hookah-equipment">🪄 Hookah Equipment</button>
+      <button class="qbw-filter-btn" data-filter="rolling-papers">📜 Rolling Papers</button>
+      <button class="qbw-filter-btn" data-filter="accessories">🛍 Accessories</button>
+    </div>
+  </div>
+
+  <!-- 3. PRODUCTS -->
+  <div class="qbw-products-wrap">
+    <div class="qbw-products-header">
+      <div class="qbw-products-count">
+        Showing <strong>{{ collection.products_count }}</strong> products
+      </div>
+    </div>
+
+    {%- if collection.products.size > 0 -%}
+    <div class="qbw-grid" id="qbwGrid">
+      {%- for p in collection.products -%}
+        {%- assign is_sold = false -%}
+        {%- unless p.available -%}{%- assign is_sold = true -%}{%- endunless -%}
+
+        {%- assign badge_type = '' -%}
+        {%- if p.tags contains 'high-demand' or p.tags contains 'demand' -%}{%- assign badge_type = 'demand' -%}
+        {%- elsif p.tags contains 'best-seller' or p.tags contains 'bestseller' -%}{%- assign badge_type = 'best' -%}
+        {%- elsif p.tags contains 'new' -%}{%- assign badge_type = 'new' -%}
+        {%- endif -%}
+
+        {%- assign prod_cat = '' -%}
+        {%- if p.tags contains 'liquor' or p.type == 'Liquor' -%}{%- assign prod_cat = 'liquor' -%}
+        {%- elsif p.tags contains 'cigarettes' or p.type == 'Cigarettes' -%}{%- assign prod_cat = 'cigarettes' -%}
+        {%- elsif p.tags contains 'hookah-flavors' or p.type == 'Hookah Flavors' -%}{%- assign prod_cat = 'hookah-flavors' -%}
+        {%- elsif p.tags contains 'hookah-equipment' or p.type == 'Hookah Equipment' -%}{%- assign prod_cat = 'hookah-equipment' -%}
+        {%- elsif p.tags contains 'rolling-papers' or p.type == 'Rolling Papers' -%}{%- assign prod_cat = 'rolling-papers' -%}
+        {%- elsif p.tags contains 'accessories' or p.type == 'Accessories' -%}{%- assign prod_cat = 'accessories' -%}
+        {%- endif -%}
+
+        <a href="{{ p.url }}" class="qbw-card" data-cat="{{ prod_cat }}">
+          <div class="qbw-card-img-wrap">
+            {%- if p.featured_image -%}
+              <img src="{{ p.featured_image | img_url: '400x400', crop: 'center' }}" alt="{{ p.title | escape }}" loading="lazy" width="400" height="400">
+            {%- else -%}
+              <div class="qbw-card-img-placeholder">📦</div>
+            {%- endif -%}
+
+            {%- if badge_type == 'demand' -%}
+              <span class="qbw-card-badge qbw-card-badge--demand">High Demand</span>
+            {%- elsif badge_type == 'best' -%}
+              <span class="qbw-card-badge qbw-card-badge--best">Best Seller</span>
+            {%- elsif badge_type == 'new' -%}
+              <span class="qbw-card-badge qbw-card-badge--new">New</span>
+            {%- endif -%}
+
+            {%- if prod_cat != blank -%}
+              <span class="qbw-card-tag">{{ p.type }}</span>
+            {%- endif -%}
+
+            {%- if is_sold -%}
+              <div class="qbw-card-sold-overlay">
+                <span class="qbw-card-sold-tag">Out of Stock</span>
+              </div>
+            {%- endif -%}
+          </div>
+
+          <div class="qbw-card-body">
+            {%- if p.type != blank -%}
+              <div class="qbw-card-type">{{ p.type }}</div>
+            {%- endif -%}
+            <div class="qbw-card-name">{{ p.title }}</div>
+
+            <div class="qbw-card-price">
+              {%- if customer and customer.tags contains 'wholesale-approved' -%}
+                <span class="qbw-card-price-real">Rs {{ p.price | divided_by: 100 }}</span>
+                {%- if p.compare_at_price > p.price -%}
+                  <span class="qbw-card-price-compare">Rs {{ p.compare_at_price | divided_by: 100 }}</span>
+                {%- endif -%}
+              {%- else -%}
+                <span class="qbw-card-price-locked">Wholesale Pricing Available</span>
+              {%- endif -%}
+            </div>
+
+            <div class="qbw-card-cta">
+              {%- if is_sold -%}
+                <span class="qbw-card-btn qbw-card-btn--ghost" style="text-align:center;">Out of Stock</span>
+              {%- else -%}
+                <span class="qbw-card-btn qbw-card-btn--primary">View Product</span>
+                {%- unless customer and customer.tags contains 'wholesale-approved' -%}
+                  <span class="qbw-card-btn qbw-card-btn--ghost">Request Price</span>
+                {%- endunless -%}
+              {%- endif -%}
+            </div>
+          </div>
+        </a>
+      {%- endfor -%}
+    </div>
+
+    <!-- NOTICE STRIP (mid-page, after products) -->
+    <div style="margin-top:32px;">
+      <div class="qbw-notice">
+        <div class="qbw-notice-inner">
+          <span class="qbw-notice-text">Wholesale pricing and bulk supply available for licensed businesses only.</span>
+          <a href="/products/vendor-registration" class="qbw-notice-btn">Register to Access →</a>
+        </div>
+      </div>
+    </div>
+
+    {%- else -%}
+    <div class="qbw-empty">
+      <div class="qbw-empty-icon">📦</div>
+      <div class="qbw-empty-title">No products available</div>
+      <div class="qbw-empty-sub">Check back soon or contact our sales team.</div>
+    </div>
+    {%- endif -%}
+  </div>
+
+  <!-- PAGINATION -->
+  {%- if paginate.pages > 1 -%}
+  <div class="qbw-pagination">
+    {%- if paginate.previous -%}
+      <a href="{{ paginate.previous.url }}" class="qbw-page-btn">‹</a>
+    {%- else -%}
+      <span class="qbw-page-btn qbw-page-btn--disabled">‹</span>
+    {%- endif -%}
+    {%- for part in paginate.parts -%}
+      {%- if part.is_link -%}
+        <a href="{{ part.url }}" class="qbw-page-btn">{{ part.title }}</a>
+      {%- elsif part.title == paginate.current_page -%}
+        <span class="qbw-page-btn qbw-page-btn--active">{{ part.title }}</span>
+      {%- else -%}
+        <span class="qbw-page-btn qbw-page-btn--disabled">{{ part.title }}</span>
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if paginate.next -%}
+      <a href="{{ paginate.next.url }}" class="qbw-page-btn">›</a>
+    {%- else -%}
+      <span class="qbw-page-btn qbw-page-btn--disabled">›</span>
+    {%- endif -%}
+  </div>
+  {%- endif -%}
+
+  <!-- 5. BENEFITS -->
+  <div class="qbw-benefits">
+    <div class="qbw-benefits-inner">
+      <div class="qbw-section-label">Why QuickBee</div>
+      <div class="qbw-section-title">Why Businesses Choose QuickBee</div>
+      <div class="qbw-benefits-grid">
+        <div class="qbw-benefit-card">
+          <span class="qbw-benefit-icon">📊</span>
+          <div class="qbw-benefit-title">Better Margins</div>
+          <div class="qbw-benefit-desc">Wholesale pricing designed to improve your profit margins on every order.</div>
+        </div>
+        <div class="qbw-benefit-card">
+          <span class="qbw-benefit-icon">📦</span>
+          <div class="qbw-benefit-title">Reliable Supply</div>
+          <div class="qbw-benefit-desc">Consistent stock availability so your business never runs short.</div>
+        </div>
+        <div class="qbw-benefit-card">
+          <span class="qbw-benefit-icon">⚡</span>
+          <div class="qbw-benefit-title">Fast Delivery</div>
+          <div class="qbw-benefit-desc">24-hour dispatch with reliable delivery to your business location.</div>
+        </div>
+        <div class="qbw-benefit-card">
+          <span class="qbw-benefit-icon">💳</span>
+          <div class="qbw-benefit-title">Easy Payments</div>
+          <div class="qbw-benefit-desc">Flexible payment terms and easy checkout through QuickPay.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. CTA STRIP -->
+  <div class="qbw-cta-strip">
+    <div class="qbw-cta-strip-inner">
+      <div class="qbw-cta-strip-title">Get Access to Wholesale Inventory</div>
+      <div class="qbw-cta-strip-sub">Join hundreds of restaurants, bars, hotels and shops already supplying through QuickBee.</div>
+      <div class="qbw-cta-strip-btns">
+        <a href="/products/vendor-registration" class="qbw-cta-btn qbw-cta-btn--gold">Register Your Business</a>
+        <a href="mailto:contact@quickbee.store" class="qbw-cta-btn qbw-cta-btn--outline">Contact Sales</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLOSING CONVERSION -->
+  <div class="qbw-closing">
+    <div class="qbw-closing-inner">
+      <div class="qbw-closing-eyebrow">Get Started Today</div>
+      <h2 class="qbw-closing-title">Ready to Start<br><span>Selling?</span></h2>
+      <p class="qbw-closing-primary">Register your business to access wholesale pricing and reliable supply through QuickBee.</p>
+      <p class="qbw-closing-secondary">Don't have a liquor license yet? We can guide you through the process and help you get started.</p>
+      <div class="qbw-closing-btns">
+        <a href="/products/vendor-registration" class="qbw-cta-btn qbw-cta-btn--gold">Register Your Business</a>
+        <a href="mailto:contact@quickbee.store" class="qbw-cta-btn qbw-cta-btn--outline">Contact for Licensing Help</a>
+      </div>
+      <div class="qbw-closing-footnote">Wholesale access available for licensed businesses only.</div>
+    </div>
+  </div>
+
+  <!-- 7. FOOTER STRIP -->
+  <div class="qbw-footer">
+    <div class="qbw-footer-inner">
+      <div>
+        <div class="qbw-footer-brand">Quick<span>Bee</span>.store</div>
+        <div class="qbw-footer-note" style="margin-top:4px;">Only for licensed businesses</div>
+      </div>
+      <div class="qbw-footer-qr">QR<br>Code</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var btns = document.querySelectorAll('.qbw-filter-btn');
+  var cards = document.querySelectorAll('.qbw-card');
+  btns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      btns.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      var f = btn.getAttribute('data-filter');
+      cards.forEach(function(c){
+        if(f === 'all' || c.getAttribute('data-cat') === f){
+          c.style.display = '';
+        } else {
+          c.style.display = 'none';
+        }
+      });
+    });
+  });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Wholesale",
+  "settings": [],
+  "presets": [{ "name": "QB Wholesale" }]
+}
+{% endschema %}
