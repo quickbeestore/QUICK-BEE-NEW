@@ -128,19 +128,17 @@
 .qbw-price-retail{font-size:8px;color:var(--dim);margin-bottom:2px}
 .qbw-price-unlock{font-size:8px;color:var(--dim);margin-top:1px}
 
-/* ── IMAGE STRIP (auto-scroll, image-only) ── */
-.qbw-istrip-outer{overflow:hidden;padding:4px 0 20px;cursor:grab}
+/* ── IMAGE STRIP (JS-driven RAF scroll, pauses on interaction) ── */
+.qbw-istrip-outer{overflow-x:scroll;overflow-y:visible;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:4px 0 20px;cursor:grab;-webkit-tap-highlight-color:transparent;user-select:none}
+.qbw-istrip-outer::-webkit-scrollbar{display:none}
 .qbw-istrip-outer:active{cursor:grabbing}
-.qbw-istrip-track{display:flex;gap:10px;width:max-content;animation:qbwIStrip var(--qbw-strip-dur,24s) linear infinite}
-@keyframes qbwIStrip{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.qbw-istrip-item{flex:0 0 auto;display:block;text-decoration:none;position:relative}
-.qbw-istrip-item img{width:var(--qbw-iw,150px);height:var(--qbw-iw,150px);object-fit:contain;object-position:center;background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:10px;display:block;transition:border-color .25s,transform .28s var(--ease)}
-.qbw-istrip-item:hover img,.qbw-istrip-item:active img{border-color:rgba(212,168,67,.5);transform:scale(1.05)}
-.qbw-istrip-item-lbl{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);border-radius:0 0 14px 14px;padding:18px 8px 6px;font-size:9px;font-weight:700;color:rgba(255,255,255,.85);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s}
+.qbw-istrip-track{display:flex;gap:10px;width:max-content}
+.qbw-istrip-item{flex:0 0 auto;display:block;text-decoration:none;position:relative;-webkit-tap-highlight-color:transparent}
+.qbw-istrip-item img{width:148px;height:148px;object-fit:contain;object-position:center;background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:10px;display:block;transition:border-color .3s,transform .3s var(--ease);pointer-events:none}
+.qbw-istrip-item:active img{border-color:rgba(212,168,67,.55);transform:scale(0.95)}
+.qbw-istrip-item-lbl{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.88),transparent);border-radius:0 0 14px 14px;padding:22px 8px 7px;font-size:9px;font-weight:700;color:rgba(255,255,255,.9);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .22s}
 .qbw-istrip-item:hover .qbw-istrip-item-lbl{opacity:1}
-@media(max-width:600px){
-  .qbw-istrip-item img{width:var(--qbw-iw-m,130px)!important;height:var(--qbw-iw-m,130px)!important}
-}
+@media(max-width:600px){.qbw-istrip-item img{width:128px;height:128px}}
 
 /* ── LARGE HERO CARD (featured) ── */
 .qbw-hero-card{flex-shrink:0;width:250px;background:var(--bg2);border:1px solid var(--bd);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;text-decoration:none;color:inherit;scroll-snap-align:start;transition:border-color .22s,box-shadow .22s,transform .22s;position:relative}
@@ -563,24 +561,22 @@ function card(p, big){
     +'</div></a>';
 }
 
-/* ── Image-only auto-scroll strip ── */
+/* ── Image-only auto-scroll strip (JS RAF driven) ── */
 function makeImageStrip(id, products){
   if(!products.length) return '';
   var items = products.slice(0,20);
-  while(items.length < 8) items = items.concat(items); // ensure enough for seamless loop
-  var dur = Math.max(18, Math.round(items.length * 1.6)) + 's';
+  while(items.length < 8) items = items.concat(items);
   var build = function(list){
     return list.map(function(p){
       var img = p.img
         ? '<img src="'+p.img+'" alt="'+escHtml(p.title)+'" loading="lazy">'
         : '<img src="" alt="" style="background:var(--bg3)">';
-      return '<a href="'+p.url+'" class="qbw-istrip-item">'+img
+      return '<a href="'+p.url+'" class="qbw-istrip-item" data-url="'+escHtml(p.url)+'">'+img
         +'<div class="qbw-istrip-item-lbl">'+escHtml(p.title.substring(0,32))+'</div></a>';
     }).join('');
   };
-  // duplicate for seamless infinite loop
-  var inner = build(items) + build(items);
-  return '<div class="qbw-istrip-outer"><div class="qbw-istrip-track" style="--qbw-strip-dur:'+dur+'">'+inner+'</div></div>';
+  var inner = build(items) + build(items); // duplicate for seamless loop
+  return '<div class="qbw-istrip-outer" data-strip="1"><div class="qbw-istrip-track">'+inner+'</div></div>';
 }
 
 function escHtml(s){
@@ -778,6 +774,68 @@ if(other.length){
 }
 
 sections.innerHTML = html;
+
+/* ── Image strip RAF controller ── */
+(function(){
+  var strips = [];
+  var pageScrolled = false;
+  var pageScrollTimer = null;
+
+  /* Page scroll → pause all strips */
+  window.addEventListener('scroll', function(){
+    pageScrolled = true;
+    clearTimeout(pageScrollTimer);
+    pageScrollTimer = setTimeout(function(){ pageScrolled = false; }, 700);
+  }, { passive: true });
+
+  document.querySelectorAll('.qbw-istrip-outer[data-strip]').forEach(function(outer){
+    var track = outer.querySelector('.qbw-istrip-track');
+    if(!track) return;
+
+    var halfW = 0;
+    function calcHalf(){ halfW = track.scrollWidth / 2; }
+    calcHalf();
+    window.addEventListener('resize', calcHalf, { passive: true });
+
+    var userTouching = false;
+    var resumeTimer = null;
+    var SPEED = 0.38; /* px per frame ~23px/s at 60fps — slow and comfortable */
+
+    function pause(){ userTouching = true; clearTimeout(resumeTimer); }
+    function resume(delay){
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(function(){ userTouching = false; }, delay || 700);
+    }
+
+    /* Touch */
+    outer.addEventListener('touchstart', pause, { passive: true });
+    outer.addEventListener('touchend',   function(){ resume(750); }, { passive: true });
+    outer.addEventListener('touchcancel',function(){ resume(300); }, { passive: true });
+
+    /* Mouse drag */
+    outer.addEventListener('mousedown', pause);
+    outer.addEventListener('mouseup',   function(){ resume(500); });
+    outer.addEventListener('mouseleave',function(){ if(userTouching) resume(300); });
+
+    /* Click: prevent navigation during drag (scrolled > 6px = drag) */
+    var dragStartX = 0;
+    outer.addEventListener('mousedown', function(e){ dragStartX = e.clientX; });
+    outer.addEventListener('click', function(e){
+      if(Math.abs(e.clientX - dragStartX) > 6) e.preventDefault();
+    }, true);
+
+    /* RAF loop */
+    (function step(){
+      if(!pageScrolled && !userTouching && halfW > 0){
+        outer.scrollLeft += SPEED;
+        if(outer.scrollLeft >= halfW) outer.scrollLeft -= halfW;
+      }
+      requestAnimationFrame(step);
+    })();
+
+    strips.push(outer);
+  });
+})();
 
 /* ── Build category nav + sticky ── */
 var navHtml = '<button class="qbw-catnav-btn active" data-target="qbw-sec-featured" onclick="qbwNavClick(this)"><span>⭐</span><span>Featured</span></button>';
