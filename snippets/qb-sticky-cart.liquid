@@ -16,6 +16,9 @@
   <!-- Backdrop (shown when panel is open) -->
   <div id="qbsc-backdrop" class="qbsc-backdrop" role="presentation"></div>
 
+  <!-- "Added!" toast -->
+  <div id="qbsc-toast" class="qbsc-toast" aria-live="polite" aria-atomic="true"></div>
+
   <!-- Expandable cart panel (bottom sheet) -->
   <div id="qbsc-panel" class="qbsc-panel" role="dialog" aria-modal="true" aria-label="Cart items" aria-hidden="true">
     <!-- Drag handle -->
@@ -310,24 +313,37 @@ html:not([data-theme]) #qbsc-root {
 }
 
 .qbsc-item {
-  display: flex;
+  display: grid;
+  grid-template-columns: 68px 1fr auto;
   align-items: center;
   gap: 12px;
-  padding: 12px 20px;
+  padding: 14px 18px;
   border-bottom: 1px solid var(--sc-item-sep);
-  animation: qbscItemIn 0.3s var(--sc-ease) both;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  animation: qbscItemIn 0.38s var(--sc-spring) both;
+  position: relative;
+}
+
+.qbsc-item::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 16px;
+  bottom: 16px;
+  width: 3px;
+  background: linear-gradient(to bottom, var(--sc-gold), transparent);
+  border-radius: 0 3px 3px 0;
+  opacity: 0.6;
 }
 
 @keyframes qbscItemIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateX(-10px) scale(0.97); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
 }
 
 .qbsc-item.qbsc-removing {
-  transition: opacity 0.25s var(--sc-ease), transform 0.25s var(--sc-ease), max-height 0.3s var(--sc-ease), padding 0.3s;
+  transition: opacity 0.25s var(--sc-ease), transform 0.25s var(--sc-ease), max-height 0.32s var(--sc-ease), padding 0.3s;
   opacity: 0;
-  transform: translateX(-16px);
+  transform: translateX(-20px) scale(0.95);
   max-height: 0 !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
@@ -335,80 +351,94 @@ html:not([data-theme]) #qbsc-root {
 }
 
 .qbsc-item-img {
-  width: 58px;
-  height: 58px;
+  width: 68px;
+  height: 68px;
   border-radius: 14px;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
+  padding: 6px;
   flex-shrink: 0;
   background: var(--sc-bg2);
   border: 1px solid var(--sc-border);
+  display: block;
 }
 
 .qbsc-item-img-ph {
-  width: 58px;
-  height: 58px;
+  width: 68px;
+  height: 68px;
   border-radius: 14px;
   background: var(--sc-bg2);
   border: 1px solid var(--sc-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  font-size: 26px;
   flex-shrink: 0;
 }
 
 .qbsc-item-body {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .qbsc-item-name {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--sc-text);
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
   line-height: 1.35;
-  margin-bottom: 2px;
 }
 
 .qbsc-item-variant {
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--sc-text2);
-  margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .qbsc-item-price {
-  font-size: 13.5px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 900;
   color: var(--sc-gold);
+  margin-top: 2px;
+  letter-spacing: -0.3px;
 }
 
 .qbsc-item-qty {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   flex-shrink: 0;
+}
+
+.qbsc-qty-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
   background: var(--sc-bg2);
-  border-radius: 24px;
+  border-radius: 20px;
   padding: 2px;
   border: 1px solid var(--sc-border);
 }
 
 .qbsc-qty-btn {
-  width: 28px !important;
-  height: 28px !important;
+  width: 26px !important;
+  height: 26px !important;
   min-height: unset !important;
   max-width: none !important;
   border-radius: 50% !important;
   border: none !important;
   background: transparent !important;
   color: var(--sc-text) !important;
-  font-size: 18px !important;
+  font-size: 17px !important;
   font-weight: 700 !important;
   cursor: pointer !important;
   display: flex !important;
@@ -416,7 +446,7 @@ html:not([data-theme]) #qbsc-root {
   justify-content: center !important;
   padding: 0 !important;
   line-height: 1 !important;
-  transition: all 0.15s !important;
+  transition: background 0.15s, transform 0.1s !important;
   -webkit-tap-highlight-color: transparent !important;
   flex-shrink: 0 !important;
 }
@@ -424,27 +454,97 @@ html:not([data-theme]) #qbsc-root {
 .qbsc-qty-btn:active {
   background: var(--sc-gold) !important;
   color: #000 !important;
-  transform: scale(0.88) !important;
+  transform: scale(0.85) !important;
 }
 
 .qbsc-qty-num {
-  width: 28px;
+  width: 26px;
   text-align: center;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
   color: var(--sc-text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  transition: transform 0.15s var(--sc-spring);
 }
 
 .qbsc-qty-num.qbsc-bump {
-  animation: qbscBump 0.25s var(--sc-spring);
+  animation: qbscBump 0.28s var(--sc-spring);
 }
 
 @keyframes qbscBump {
   0%   { transform: scale(1); }
-  50%  { transform: scale(1.4); }
+  50%  { transform: scale(1.45); }
   100% { transform: scale(1); }
+}
+
+/* ── TOAST ── */
+.qbsc-toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  bottom: calc(var(--sc-bar-bottom, 85px) + 68px);
+  z-index: 10003;
+  background: #1a1a1a;
+  border: 1.5px solid rgba(244, 180, 0, 0.5);
+  border-radius: 14px;
+  padding: 10px 16px 10px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(244,180,0,0.12);
+  white-space: nowrap;
+  max-width: calc(100vw - 32px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.22s ease, transform 0.28s var(--sc-spring);
+  will-change: opacity, transform;
+}
+.qbsc-toast.qbsc-toast-show {
+  opacity: 1;
+}
+.qbsc-toast-img {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  object-fit: contain;
+  object-position: center;
+  background: #252525;
+  flex-shrink: 0;
+  display: block;
+  padding: 3px;
+}
+.qbsc-toast-img-ph {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: #252525;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.qbsc-toast-body {}
+.qbsc-toast-title {
+  font-size: 12px;
+  font-weight: 900;
+  color: #F4B400;
+  letter-spacing: 0.3px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.qbsc-toast-name {
+  font-size: 11px;
+  color: #ccc;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+  display: block;
+  margin-top: 1px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+@media (min-width: 640px) {
+  .qbsc-toast {
+    bottom: calc(var(--sc-bar-bottom, 24px) + 68px);
+  }
 }
 
 /* Empty state */
@@ -818,6 +918,8 @@ html:not([data-theme]) #qbsc-root {
   var EL_BAR_DOT  = document.getElementById('qbsc-bar-dot');
   var EL_BAR_ITEMS= document.getElementById('qbsc-bar-items');
   var EL_BAR_PRICE= document.getElementById('qbsc-bar-price');
+  var EL_TOAST = document.getElementById('qbsc-toast');
+  var _toastTimer = null;
 
   if (!ROOT || !BAR) return;
 
@@ -880,9 +982,11 @@ html:not([data-theme]) #qbsc-root {
             '<div class="qbsc-item-price">' + fmt(it.final_line_price) + '</div>' +
           '</div>' +
           '<div class="qbsc-item-qty">' +
-            '<button class="qbsc-qty-btn" data-act="dec" data-key="' + escAttr(it.key) + '" data-qty="' + it.quantity + '" aria-label="Remove one">−</button>' +
-            '<span class="qbsc-qty-num">' + it.quantity + '</span>' +
-            '<button class="qbsc-qty-btn" data-act="inc" data-key="' + escAttr(it.key) + '" data-qty="' + it.quantity + '" aria-label="Add one">+</button>' +
+            '<div class="qbsc-qty-stepper">' +
+              '<button class="qbsc-qty-btn" data-act="dec" data-key="' + escAttr(it.key) + '" data-qty="' + it.quantity + '" aria-label="Remove one">−</button>' +
+              '<span class="qbsc-qty-num">' + it.quantity + '</span>' +
+              '<button class="qbsc-qty-btn" data-act="inc" data-key="' + escAttr(it.key) + '" data-qty="' + it.quantity + '" aria-label="Add one">+</button>' +
+            '</div>' +
           '</div>' +
         '</div>';
     }
@@ -962,6 +1066,21 @@ html:not([data-theme]) #qbsc-root {
         void EL_SUBTOTAL.offsetWidth;
         EL_SUBTOTAL.classList.add('qbsc-price-bump');
         setTimeout(function () { EL_SUBTOTAL.classList.remove('qbsc-price-bump'); }, 350);
+      }
+    }
+
+    /* ── Toast on new add ── */
+    if (isNewAdd && count > prevCount && prevCount >= 0 && EL_TOAST) {
+      var newItem = (cart.items || [])[0]; /* most recently added is typically first */
+      if (newItem) {
+        var tImg = newItem.featured_image && newItem.featured_image.url
+          ? '<img class="qbsc-toast-img" src="' + newItem.featured_image.url.replace(/(\.\w+)(\?|$)/, '_80x80$1$2') + '" alt="">'
+          : '<div class="qbsc-toast-img-ph">🛍</div>';
+        var tName = String(newItem.product_title || '').substring(0, 38) + (String(newItem.product_title || '').length > 38 ? '…' : '');
+        EL_TOAST.innerHTML = tImg + '<div class="qbsc-toast-body"><div class="qbsc-toast-title">✓ Added to cart</div><span class="qbsc-toast-name">' + tName + '</span></div>';
+        if (_toastTimer) clearTimeout(_toastTimer);
+        EL_TOAST.classList.add('qbsc-toast-show');
+        _toastTimer = setTimeout(function() { EL_TOAST.classList.remove('qbsc-toast-show'); }, 2600);
       }
     }
 
