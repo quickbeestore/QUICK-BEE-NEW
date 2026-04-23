@@ -1,0 +1,96 @@
+{%- liquid
+  assign is_sold = false
+  unless product.available
+    assign is_sold = true
+  endunless
+
+  assign has_saving = false
+  assign save_amount = 0
+  assign save_pct = 0
+  if product.compare_at_price > product.price and product.compare_at_price > 0
+    assign has_saving = true
+    assign save_amount = product.compare_at_price | minus: product.price
+    assign save_pct = save_amount | times: 100 | divided_by: product.compare_at_price
+  endif
+
+  assign badge = ''
+  if product.tags contains 'high-demand' or product.tags contains 'demand'
+    assign badge = 'demand'
+  elsif product.tags contains 'best-seller' or product.tags contains 'bestseller'
+    assign badge = 'best'
+  elsif product.tags contains 'new'
+    assign badge = 'new'
+  endif
+-%}
+<a href="{{ product.url }}" class="qbw-card">
+  <div class="qbw-card-img">
+    {%- if product.featured_image -%}
+      <img src="{{ product.featured_image | img_url: '400x400', crop: 'center' }}"
+           alt="{{ product.title | escape }}"
+           loading="lazy" width="400" height="400">
+    {%- else -%}
+      <div class="qbw-card-img-empty">📦</div>
+    {%- endif -%}
+
+    {%- if has_saving -%}
+      <div class="qbw-save">
+        SAVE {{ save_pct }}%
+        <small>Rs {{ save_amount | divided_by: 100 }} OFF</small>
+      </div>
+    {%- endif -%}
+
+    {%- if product.type != blank -%}
+      <span class="qbw-chip">{{ product.type }}</span>
+    {%- endif -%}
+
+    {%- if badge == 'demand' -%}
+      <span class="qbw-demand qbw-demand--hot">⚡ High Demand</span>
+    {%- elsif badge == 'best' -%}
+      <span class="qbw-demand qbw-demand--best">⭐ Best Seller</span>
+    {%- elsif badge == 'new' -%}
+      <span class="qbw-demand qbw-demand--new">🆕 New</span>
+    {%- endif -%}
+
+    {%- if is_sold -%}
+      <div class="qbw-sold-mask"><span class="qbw-sold-tag">Out of Stock</span></div>
+    {%- endif -%}
+  </div>
+
+  <div class="qbw-card-body">
+    {%- if product.type != blank -%}
+      <div class="qbw-card-type">{{ product.type }}</div>
+    {%- endif -%}
+    <div class="qbw-card-name">{{ product.title }}</div>
+
+    <div class="qbw-price-box">
+      {%- if customer and customer.tags contains 'wholesale-approved' -%}
+        <div class="qbw-price-row">
+          <span class="qbw-price-now">Rs {{ product.price | divided_by: 100 }}</span>
+          {%- if has_saving -%}
+            <span class="qbw-price-was">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
+          {%- endif -%}
+        </div>
+        {%- if has_saving -%}
+          <div class="qbw-price-save">↓ Save Rs {{ save_amount | divided_by: 100 }} ({{ save_pct }}%)</div>
+        {%- endif -%}
+      {%- else -%}
+        {%- if has_saving -%}
+          <div class="qbw-price-retail">Retail: Rs {{ product.compare_at_price | divided_by: 100 }}</div>
+          <div class="qbw-price-save">↓ You save Rs {{ save_amount | divided_by: 100 }} ({{ save_pct }}%)</div>
+          <div class="qbw-price-unlock">Register to unlock wholesale price</div>
+        {%- else -%}
+          <div class="qbw-price-locked">Wholesale Pricing Available</div>
+        {%- endif -%}
+      {%- endif -%}
+    </div>
+
+    <div class="qbw-card-btns">
+      {%- if is_sold -%}
+        <span class="qbw-cbtn-g" style="flex:1;text-align:center;">Out of Stock</span>
+      {%- else -%}
+        <a href="{{ product.url }}" class="qbw-cbtn-p">View Product</a>
+        <a href="/products/vendor-registration" class="qbw-cbtn-g">Get Price</a>
+      {%- endif -%}
+    </div>
+  </div>
+</a>
