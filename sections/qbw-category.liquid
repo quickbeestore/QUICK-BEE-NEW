@@ -1,0 +1,463 @@
+{%- paginate collection.products by 1000 -%}
+{%- assign cat = section.settings.category -%}
+<style>
+.qbwc *,.qbwc *::before,.qbwc *::after{box-sizing:border-box;margin:0;padding:0}
+.qbwc{--bg:#0a0a0c;--bg2:#111114;--bg3:#17171b;--bd:rgba(255,255,255,.06);--bd2:rgba(255,255,255,.11);--gold:#d4a843;--gold2:#f0c55a;--gold3:#ffd97d;--grn:#22c55e;--txt:#f0ece4;--sub:#8c8880;--dim:#4e4c49;--ease:cubic-bezier(.4,0,.2,1);background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+
+/* STICKY SUB-NAV */
+.qbwc-nav{position:sticky;top:0;z-index:200;background:rgba(10,10,12,.97);backdrop-filter:blur(18px);border-bottom:1px solid var(--bd2)}
+.qbwc-nav-inner{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 12px;gap:2px}
+.qbwc-nav-inner::-webkit-scrollbar{display:none}
+.qbwc-nav-btn{flex-shrink:0;padding:11px 13px;font-size:11.5px;font-weight:700;color:var(--dim);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:color .12s,border-color .12s;-webkit-tap-highlight-color:transparent}
+.qbwc-nav-btn:hover{color:var(--txt)}
+.qbwc-nav-btn.on{color:var(--gold2);border-bottom-color:var(--gold)}
+
+/* TOP BAR */
+.qbwc-top{padding:14px 16px;max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--bd)}
+.qbwc-top-left h1{font-size:18px;font-weight:900;letter-spacing:-.3px;color:var(--txt)}
+.qbwc-top-left p{font-size:11px;color:var(--sub);margin-top:2px}
+.qbwc-btn-gold{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(--gold),var(--gold2) 55%,var(--gold3));color:#06040a;font-size:11.5px;font-weight:900;padding:9px 16px;border-radius:8px;text-decoration:none;border:none;cursor:pointer}
+.qbwc-btn-out{display:inline-flex;align-items:center;gap:5px;background:transparent;border:1.5px solid rgba(212,168,67,.22);color:var(--gold2);font-size:11.5px;font-weight:800;padding:8px 14px;border-radius:8px;text-decoration:none}
+
+/* SECTION */
+.qbwc-sec{padding:28px 0 0}
+.qbwc-sec-head{max-width:1100px;margin:0 auto;padding:0 16px 8px;display:flex;align-items:baseline;justify-content:space-between}
+.qbwc-sec-eye{font-size:8px;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);opacity:.65;margin-bottom:2px}
+.qbwc-sec-name{font-size:17px;font-weight:900;letter-spacing:-.25px;color:var(--txt);line-height:1.1}
+.qbwc-sec-cnt{font-size:9.5px;color:var(--dim);margin-top:2px}
+.qbwc-rule{height:1px;padding:0 16px;max-width:1100px;margin:0 auto}
+.qbwc-rule-inner{height:1px;background:linear-gradient(90deg,rgba(212,168,67,.18),transparent)}
+
+/* SLIDER */
+.qbwc-slider{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:8px 16px 20px;scroll-snap-type:x mandatory}
+.qbwc-slider::-webkit-scrollbar{display:none}
+.qbwc-row{display:flex;gap:9px;width:max-content}
+
+/* 2-ROW GRID SLIDER */
+.qbwc-s2wrap{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:8px 16px 20px}
+.qbwc-s2wrap::-webkit-scrollbar{display:none}
+.qbwc-s2{display:grid;grid-auto-flow:column;grid-template-rows:1fr 1fr;gap:9px;width:max-content}
+.qbwc-s2 .qbwc-card{width:152px;min-width:140px;flex:none}
+
+/* CARD */
+.qbwc-card{flex:0 0 calc(44vw - 16px);max-width:188px;min-width:130px;background:var(--bg2);border:1px solid var(--bd);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;text-decoration:none;color:inherit;scroll-snap-align:start;transition:border-color .18s,transform .16s;position:relative}
+@media(min-width:480px){.qbwc-card{flex:0 0 164px;max-width:164px}}
+@media(min-width:700px){.qbwc-card{flex:0 0 180px;max-width:180px}}
+.qbwc-card:active{transform:scale(.96)}
+.qbwc-card:hover{border-color:rgba(212,168,67,.38)}
+.qbwc-card-img{position:relative;aspect-ratio:1/1;background:linear-gradient(160deg,var(--bg3),#0b0b0d);overflow:hidden}
+.qbwc-card-img img{width:100%;height:100%;object-fit:contain;padding:10px;display:block;transition:transform .32s var(--ease)}
+.qbwc-card:hover .qbwc-card-img img{transform:scale(1.05)}
+.qbwc-card-fade{position:absolute;bottom:0;left:0;right:0;height:28px;background:linear-gradient(to top,var(--bg2),transparent);pointer-events:none}
+.qbwc-card-empty{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;opacity:.07}
+.qbwc-b-save{position:absolute;top:7px;left:7px;background:linear-gradient(135deg,#14532d,#16a34a);color:#fff;font-size:7.5px;font-weight:900;padding:2px 6px;border-radius:14px}
+.qbwc-b-tag{position:absolute;bottom:7px;left:7px;font-size:7px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;padding:2px 6px;border-radius:4px}
+.qbwc-b-best{background:rgba(212,168,67,.9);color:#0a0700}
+.qbwc-b-hot{background:rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.28);color:#f87171}
+.qbwc-b-new{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.28);color:#4ade80}
+.qbwc-sold{position:absolute;inset:0;background:rgba(6,6,8,.68);display:flex;align-items:center;justify-content:center}
+.qbwc-sold span{font-size:8.5px;font-weight:900;letter-spacing:1.2px;text-transform:uppercase;color:var(--sub);border:1px solid var(--bd2);padding:4px 10px;border-radius:4px;background:var(--bg)}
+.qbwc-card-body{padding:9px 10px 11px;flex:1;display:flex;flex-direction:column}
+.qbwc-card-type{font-size:7px;font-weight:900;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);opacity:.5;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qbwc-card-name{font-size:11px;font-weight:700;line-height:1.35;color:var(--txt);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:1;margin-bottom:7px}
+.qbwc-price{margin-top:auto}
+.qbwc-price-row{display:flex;align-items:baseline;gap:5px;flex-wrap:wrap;margin-bottom:1px}
+.qbwc-now{font-size:14px;font-weight:900;color:var(--gold2);letter-spacing:-.3px;line-height:1}
+.qbwc-was{font-size:9px;color:var(--dim);text-decoration:line-through}
+.qbwc-save{font-size:8px;font-weight:800;color:var(--grn)}
+
+/* GRID (2-4 items) */
+.qbwc-grid{display:grid;gap:9px;padding:8px 16px 20px;max-width:1100px;margin:0 auto}
+.qbwc-grid--2{grid-template-columns:repeat(2,1fr)}
+.qbwc-grid--3{grid-template-columns:repeat(3,1fr)}
+.qbwc-grid--4{grid-template-columns:repeat(2,1fr)}
+@media(min-width:600px){.qbwc-grid--4{grid-template-columns:repeat(4,1fr)}}
+
+/* HERO */
+.qbwc-hero{max-width:1100px;margin:8px 16px 20px;border-radius:14px;overflow:hidden;background:var(--bg2);border:1px solid var(--bd);display:flex;align-items:stretch;text-decoration:none;color:inherit;transition:border-color .18s}
+.qbwc-hero:hover{border-color:rgba(212,168,67,.4)}
+.qbwc-hero-img{flex:0 0 42%;max-width:200px;aspect-ratio:1/1;background:linear-gradient(160deg,var(--bg3),#0b0b0d);overflow:hidden}
+.qbwc-hero-img img{width:100%;height:100%;object-fit:contain;padding:16px;display:block}
+.qbwc-hero-img-empty{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:42px;opacity:.07}
+.qbwc-hero-body{flex:1;padding:18px 16px;display:flex;flex-direction:column;justify-content:center}
+.qbwc-hero-eye{font-size:8px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--gold);opacity:.65;margin-bottom:5px}
+.qbwc-hero-name{font-size:16px;font-weight:900;color:var(--txt);line-height:1.3;margin-bottom:8px}
+.qbwc-hero-badge{display:inline-flex;background:linear-gradient(135deg,#14532d,#16a34a);color:#fff;font-size:9px;font-weight:900;padding:3px 9px;border-radius:14px;margin-bottom:10px;width:fit-content}
+.qbwc-hero-now{font-size:20px;font-weight:900;color:var(--gold2);letter-spacing:-.4px}
+.qbwc-hero-was{font-size:11px;color:var(--dim);text-decoration:line-through;margin-left:6px}
+
+/* EMPTY */
+.qbwc-empty{text-align:center;padding:48px 16px;color:var(--sub);font-size:13px}
+
+/* FOOTER */
+.qbwc-foot{padding:32px 16px;background:var(--bg2);border-top:1px solid var(--bd);text-align:center;margin-top:32px}
+.qbwc-foot-ttl{font-size:19px;font-weight:900;color:var(--txt);margin-bottom:7px}
+.qbwc-foot-sub{font-size:12px;color:var(--sub);margin-bottom:18px;line-height:1.6}
+.qbwc-foot-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+/* BACK BREADCRUMB */
+.qbwc-bread{padding:10px 16px;font-size:11px;color:var(--sub);display:flex;align-items:center;gap:6px;max-width:1100px;margin:0 auto}
+.qbwc-bread a{color:var(--gold2);text-decoration:none}
+.qbwc-bread a:hover{text-decoration:underline}
+</style>
+
+<!-- DATA -->
+<div id="qbwcData" style="display:none" aria-hidden="true">
+  {%- for p in collection.products -%}
+    <div class="qbwcp"
+      data-url="{{ p.url }}"
+      data-title="{{ p.title | escape }}"
+      data-type="{{ p.type | escape | downcase }}"
+      data-tags="{{ p.tags | join: ',' | escape | downcase }}"
+      data-img="{%- if p.featured_image -%}{{ p.featured_image | img_url: '400x400', crop: 'center' }}{%- endif -%}"
+      data-price="{{ p.price }}"
+      data-compare="{{ p.compare_at_price | default: 0 }}"
+      data-avail="{{ p.available }}"
+      data-vendor="{{ p.vendor | escape }}"
+    ></div>
+  {%- endfor -%}
+</div>
+
+<div class="qbwc">
+
+<!-- BREADCRUMB -->
+<div class="qbwc-bread">
+  <a href="/collections/quickbee-wholesale">← All Categories</a>
+  <span>›</span>
+  <span>{{ collection.title }}</span>
+</div>
+
+<!-- TOP BAR -->
+<div class="qbwc-top">
+  <div class="qbwc-top-left">
+    <h1>{{ collection.title }}</h1>
+    <p id="qbwcCount">Loading...</p>
+  </div>
+  <div style="display:flex;gap:8px">
+    <a href="/products/vendor-registration" class="qbwc-btn-gold">Register →</a>
+    <a href="/pages/contact-support" class="qbwc-btn-out">Contact</a>
+  </div>
+</div>
+
+<!-- SUB-NAV -->
+<div class="qbwc-nav"><div class="qbwc-nav-inner" id="qbwcNav"></div></div>
+
+<!-- CONTENT -->
+<div id="qbwcContent"></div>
+
+<!-- FOOTER -->
+<div class="qbwc-foot">
+  <div class="qbwc-foot-ttl">Unlock Wholesale Pricing</div>
+  <div class="qbwc-foot-sub">Register your business · up to 40% savings · 24hr delivery</div>
+  <div class="qbwc-foot-btns">
+    <a href="/products/vendor-registration" class="qbwc-btn-gold" style="font-size:13px;padding:11px 20px">Register Your Business →</a>
+    <a href="/collections/quickbee-wholesale" class="qbwc-btn-out" style="font-size:13px;padding:10px 18px">← All Categories</a>
+  </div>
+</div>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+var CAT = {{ section.settings.category | json }};
+
+/* INGEST */
+var ALL=[];
+document.querySelectorAll('#qbwcData .qbwcp').forEach(function(n){
+  var cmp=parseInt(n.dataset.compare)||0,prc=parseInt(n.dataset.price)||0,sv=cmp>prc&&cmp>0;
+  ALL.push({url:n.dataset.url,title:n.dataset.title,type:(n.dataset.type||'').toLowerCase(),tags:(n.dataset.tags||'').toLowerCase(),img:n.dataset.img||'',price:prc,cmp:cmp,avail:n.dataset.avail==='true',vendor:(n.dataset.vendor||''),sv:sv,svPct:sv?Math.round((cmp-prc)*100/cmp):0,svAmt:sv?Math.round((cmp-prc)/100):0});
+});
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function hay(p){return p.type+' '+p.tags+' '+p.title.toLowerCase()+' '+p.vendor.toLowerCase();}
+function has(p,kws){return kws.some(function(k){return hay(p).indexOf(k)>-1;});}
+function bySave(a){return a.slice().sort(function(x,y){return y.svPct-x.svPct;});}
+function deduper(pool){
+  var r=pool.slice();
+  return function(fn){var o=r.filter(fn||function(){return true;});o.forEach(function(p){var i=r.indexOf(p);if(i>-1)r.splice(i,1);});return o;};
+}
+
+/* PRICE */
+function priceHtml(p,big){
+  if(!p.price) return '';
+  var sz=big?'font-size:17px':'';
+  if(p.sv) return '<div class="qbwc-price"><div class="qbwc-price-row"><span class="qbwc-now" style="'+sz+'">Rs '+Math.round(p.price/100)+'</span><span class="qbwc-was">Rs '+Math.round(p.cmp/100)+'</span></div><div class="qbwc-save">Save Rs '+p.svAmt+' ('+p.svPct+'%)</div></div>';
+  return '<div class="qbwc-price"><div class="qbwc-price-row"><span class="qbwc-now" style="'+sz+'">Rs '+Math.round(p.price/100)+'</span></div></div>';
+}
+function badge(p){
+  var b1=p.sv?'<div class="qbwc-b-save">−'+p.svPct+'%</div>':'';
+  var t=p.tags;
+  var b2=(t.indexOf('best-seller')>-1||t.indexOf('bestseller')>-1)?'<span class="qbwc-b-tag qbwc-b-best">⭐ Best</span>':(t.indexOf('high-demand')>-1||t.indexOf('demand')>-1)?'<span class="qbwc-b-tag qbwc-b-hot">🔥 Hot</span>':(/(?:^|,)\s*new\s*(?:,|$)/.test(t))?'<span class="qbwc-b-tag qbwc-b-new">✦ New</span>':'';
+  return b1+b2;
+}
+function sold(p){return p.avail?'':'<div class="qbwc-sold"><span>Out of Stock</span></div>';}
+function img(p,cls){return p.img?'<img src="'+p.img+'" alt="'+esc(p.title)+'" loading="lazy" width="400" height="400">':'<div class="'+cls+'">📦</div>';}
+
+function cardHtml(p){
+  return '<a href="'+p.url+'" class="qbwc-card">'
+    +'<div class="qbwc-card-img">'+img(p,'qbwc-card-empty')+'<div class="qbwc-card-fade"></div>'+badge(p)+sold(p)+'</div>'
+    +'<div class="qbwc-card-body">'+(p.type?'<div class="qbwc-card-type">'+esc(p.type)+'</div>':'')+'<div class="qbwc-card-name">'+esc(p.title)+'</div>'+priceHtml(p,false)+'</div></a>';
+}
+function secWrap(id,eye,name,cnt,inner){
+  if(!cnt) return '';
+  return '<div class="qbwc-sec" id="cs-'+id+'">'
+    +'<div class="qbwc-sec-head"><div><div class="qbwc-sec-eye">'+eye+'</div><div class="qbwc-sec-name">'+name+'</div><div class="qbwc-sec-cnt">'+cnt+' product'+(cnt!==1?'s':'')+'</div></div></div>'
+    +'<div class="qbwc-rule"><div class="qbwc-rule-inner"></div></div>'+inner+'</div>';
+}
+function renderSec(id,eye,name,prods){
+  if(!prods||!prods.length) return '';
+  var n=prods.length;
+  if(n===1){
+    var p=prods[0];
+    var imgEl=p.img?'<img src="'+p.img+'" alt="'+esc(p.title)+'" loading="lazy" width="400" height="400">':'<div class="qbwc-hero-img-empty">📦</div>';
+    var inner='<a href="'+p.url+'" class="qbwc-hero"><div class="qbwc-hero-img">'+imgEl+'</div><div class="qbwc-hero-body"><div class="qbwc-hero-eye">'+eye+'</div><div class="qbwc-hero-name">'+esc(p.title)+'</div>'+(p.sv?'<div class="qbwc-hero-badge">−'+p.svPct+'% · Rs '+p.svAmt+' off</div>':'')+priceHtml(p,true)+'</div></a>';
+    return secWrap(id,eye,name,1,inner);
+  }
+  if(n<=4){
+    var cls=n===2?'qbwc-grid--2':n===3?'qbwc-grid--3':'qbwc-grid--4';
+    return secWrap(id,eye,name,n,'<div class="qbwc-grid '+cls+'" style="max-width:1100px;margin:0 auto">'+prods.map(cardHtml).join('')+'</div>');
+  }
+  if(n<=12){
+    return secWrap(id,eye,name,n,'<div class="qbwc-s2wrap"><div class="qbwc-s2">'+prods.map(cardHtml).join('')+'</div></div>');
+  }
+  return secWrap(id,eye,name,n,'<div class="qbwc-slider"><div class="qbwc-row">'+prods.map(cardHtml).join('')+'</div></div>');
+}
+
+/* ═══ CATEGORY DEFINITIONS ═══ */
+var USED={};
+function claim(fn){var o=ALL.filter(function(p){return !USED[p.url]&&fn(p);});o.forEach(function(p){USED[p.url]=true;});return o;}
+
+var sections=[];
+
+if(CAT==='whisky'){
+  var W=claim(function(p){
+    var h=hay(p);return(h.indexOf('whisky')>-1||h.indexOf('whiskey')>-1)&&!has(p,['chocolate','praline','cake','candy']);
+  });
+  var c=deduper(W);
+  sections=[
+    {id:'w-dom',eye:'DOMESTIC',name:'Domestic Whisky',prods:c(function(p){return has(p,['khukuri','old durbar','8848','himalayan whisky','nepal whisky','yeti whisky','kumari whisky','ruslan whisky']);})},
+    {id:'w-malt',eye:'SINGLE MALT',name:'Single Malt Scotch',prods:c(function(p){return has(p,['single malt','glenfiddich','macallan','laphroaig','glenmorangie','balvenie','talisker','ardbeg','bowmore','lagavulin','singleton','highland park','dalmore','glenlivet','dalwhinnie','cardhu']);})},
+    {id:'w-bour',eye:'BOURBON / AMERICAN',name:'American & Bourbon',prods:c(function(p){return has(p,['bourbon','jack daniel','jim beam','maker','wild turkey','knob creek','bulleit','woodford','buffalo trace','four roses','evan williams','heaven hill']);})},
+    {id:'w-prem',eye:'PREMIUM SCOTCH',name:'Premium Scotch',prods:c(function(p){return has(p,['chivas','ballantine','dewar','famous grouse','grants','william peel','johnnie walker','j&b','black & white','haig','passport','cutty sark','teacher']);})},
+    {id:'w-reg',eye:'REGULAR',name:'Regular Whisky',prods:c(function(p){return has(p,['black label','red label','old tavern','bagpiper','vat 69','blenders','antiquity','royal stag','imperial blue','signature','dsp','officers','100 pipers','black dog','old smuggler','mcdowell','director special','seagram','peter scot']);})},
+    {id:'w-oth',eye:'OTHER',name:'More Whisky',prods:c()}
+  ];
+}
+else if(CAT==='vodka'){
+  var V=claim(function(p){return hay(p).indexOf('vodka')>-1&&!has(p,['chocolate','praline','cake']);});
+  var c=deduper(V);
+  sections=[
+    {id:'v-dom',eye:'DOMESTIC',name:'Domestic Vodka',prods:c(function(p){return has(p,['ruslan','khukuri','kumari vodka','himalayan vodka','nepal vodka']);})},
+    {id:'v-imp',eye:'IMPORTED',name:'Imported Vodka',prods:c(function(p){return has(p,['absolut','grey goose','belvedere','smirnoff','ciroc','tito','ketel one','stolichnaya','stoli','finlandia','russian standard','skyy','pinnacle','burnett']);})},
+    {id:'v-oth',eye:'OTHER',name:'More Vodka',prods:c()}
+  ];
+}
+else if(CAT==='beer'){
+  var B=claim(function(p){return has(p,['beer','lager','pilsner','ale','stout','porter','weiss','weizen']);});
+  var c=deduper(B);
+  sections=[
+    {id:'be-dom',eye:'DOMESTIC',name:'Domestic Beer',prods:c(function(p){return has(p,['gorkha','everest beer','nepal ice','star beer','yak beer','sherpa','tuborg nepal','carlsberg nepal','arna','barasinghe','nepal lager','golden eagle']);})},
+    {id:'be-imp',eye:'IMPORTED',name:'Imported Beer',prods:c(function(p){return has(p,['heineken','corona extra','corona light','corona beer','budweiser','stella artois','asahi','kirin','kingfisher','leffe','tiger beer','chang beer','san miguel','hoegaarden','erdinger','paulaner','1664','becks','fosters','sapporo','peroni','modelo','skol']);})},
+    {id:'be-craft',eye:'CRAFT',name:'Craft Beer',prods:c(function(p){return has(p,['craft','ipa ','pale ale','wheat beer','dark beer','porter ','stout ','session ale','amber ale','kolsch','wheat']);})},
+    {id:'be-na',eye:'NON-ALCOHOLIC',name:'Non-Alcoholic Beer',prods:c(function(p){return has(p,['non alcoholic','non-alcoholic','alcohol free','0.0%','zero beer']);})},
+    {id:'be-oth',eye:'OTHER',name:'More Beer',prods:c()}
+  ];
+}
+else if(CAT==='brandy'){
+  var B=claim(function(p){return has(p,['brandy','cognac'])&&!has(p,['whisky','whiskey','vodka','beer','wine',' rum ',' gin ','tequila','liqueur']);});
+  var c=deduper(B);
+  sections=[
+    {id:'b-vsop',eye:'VSOP COGNAC',name:'VSOP Cognac',prods:c(function(p){return has(p,['vsop']);})},
+    {id:'b-nap',eye:'NAPOLEON',name:'Napoleon Cognac',prods:c(function(p){return has(p,['napoleon']);})},
+    {id:'b-xo',eye:'XO COGNAC',name:'XO Cognac',prods:c(function(p){return has(p,[' xo ','extra old']);})},
+    {id:'b-vs',eye:'VS / REGULAR',name:'VS Cognac & Brandy',prods:c(function(p){return has(p,[' vs ','very special','three star']);})},
+    {id:'b-dom',eye:'DOMESTIC',name:'Domestic Brandy',prods:c(function(p){return has(p,['marpha','mustang','himalayan brandy','nepal brandy','ruslan brandy','diamond']);})},
+    {id:'b-oth',eye:'OTHER',name:'More Brandy',prods:c()}
+  ];
+}
+else if(CAT==='gin'){
+  var G=claim(function(p){return /\bgin\b/.test(hay(p));});
+  var c=deduper(G);
+  sections=[
+    {id:'g-dom',eye:'DOMESTIC',name:'Domestic Gin',prods:c(function(p){return has(p,['himalayan gin','nepal gin','khukuri gin','ruslan gin']);})},
+    {id:'g-imp',eye:'IMPORTED',name:'Imported Gin',prods:c(function(p){return has(p,['tanqueray','hendrick','bombay','beefeater','gordon','monkey 47','roku','malfy','sipsmith','whitley','aviation','martin miller','bulldog','brockmans','oxley']);})},
+    {id:'g-oth',eye:'OTHER',name:'More Gin',prods:c()}
+  ];
+}
+else if(CAT==='rum'){
+  var R=claim(function(p){return /\brum\b/.test(hay(p))&&!has(p,['chocolate','praline','cake']);});
+  var c=deduper(R);
+  sections=[
+    {id:'r-dom',eye:'DOMESTIC',name:'Domestic Rum',prods:c(function(p){return has(p,['khukuri rum','old cask','nepal rum','himalayan rum','kumari rum','ruslan rum']);})},
+    {id:'r-imp',eye:'IMPORTED',name:'Imported Rum',prods:c(function(p){return has(p,['bacardi','captain morgan','havana','kraken','malibu','mount gay','diplomatico','zacapa','angostura rum','appleton','flor de cana','sailor jerry','myers','plantation','gosling','el dorado']);})},
+    {id:'r-oth',eye:'OTHER',name:'More Rum',prods:c()}
+  ];
+}
+else if(CAT==='tequila'){
+  var T=claim(function(p){return has(p,['tequila','mezcal']);});
+  var c=deduper(T);
+  sections=[
+    {id:'teq-bln',eye:'BLANCO / SILVER',name:'Tequila Blanco',prods:c(function(p){return has(p,['blanco','silver','plata']);})},
+    {id:'teq-rep',eye:'REPOSADO',name:'Tequila Reposado',prods:c(function(p){return has(p,['reposado']);})},
+    {id:'teq-anj',eye:'AÑEJO',name:'Tequila Añejo',prods:c(function(p){return has(p,['anejo','añejo']);})},
+    {id:'teq-mez',eye:'MEZCAL',name:'Mezcal',prods:c(function(p){return has(p,['mezcal']);})},
+    {id:'teq-oth',eye:'OTHER',name:'More Tequila',prods:c()}
+  ];
+}
+else if(CAT==='liqueur'){
+  var L=claim(function(p){return has(p,['liqueur','kahlua','baileys','aperol','cointreau','triple sec','campari','amaretto','disaronno','frangelico','midori','sambuca','jagermeister','schnapps','drambuie','limoncello','grand marnier','curacao','st germain','benedictine','chartreuse','tia maria','passoa'])&&!has(p,['chocolate box','praline box']);});
+  var c=deduper(L);
+  sections=[
+    {id:'liq-cre',eye:'CREAM LIQUEUR',name:'Cream Liqueur',prods:c(function(p){return has(p,['cream liqueur','baileys','advocaat','irish cream','mozart','carol']);})},
+    {id:'liq-bit',eye:'BITTER & AMARO',name:'Bitter & Amaro',prods:c(function(p){return has(p,['aperol','campari','amaro','cynar','fernet','bitters']);})},
+    {id:'liq-frt',eye:'FRUIT LIQUEUR',name:'Fruit Liqueur',prods:c(function(p){return has(p,['triple sec','cointreau','curacao','passoa','midori','peach','melon','berry','raspberry','strawberry liqueur','limoncello','archers']);})},
+    {id:'liq-oth',eye:'OTHER LIQUEUR',name:'Other Liqueur',prods:c()}
+  ];
+}
+else if(CAT==='wine'){
+  var W=claim(function(p){return hay(p).indexOf('wine')>-1&&!has(p,['wine opener','wine cork','wine pump','wine rack','energy drink']);});
+  var c=deduper(W);
+  sections=[
+    {id:'wi-chmp',eye:'CHAMPAGNE',name:'Champagne',prods:c(function(p){return has(p,['champagne','moet','veuve','bollinger','dom perignon','krug','mumm','taittinger','perrier jouet','roederer']);})},
+    {id:'wi-pros',eye:'PROSECCO',name:'Prosecco',prods:c(function(p){return has(p,['prosecco','spumante','valdobbiadene']);})},
+    {id:'wi-spk',eye:'SPARKLING',name:'Sparkling Wine',prods:c(function(p){return has(p,['sparkling wine','cava','frizzante','lambrusco','cremant','asti','sekt']);})},
+    {id:'wi-red',eye:'RED WINE',name:'Red Wine',prods:c(function(p){return has(p,['red wine','cabernet','merlot','shiraz','syrah','pinot noir','malbec','sangiovese','tempranillo','chianti','barolo','rioja','bordeaux','carmenere','zinfandel']);})},
+    {id:'wi-wht',eye:'WHITE WINE',name:'White Wine',prods:c(function(p){return has(p,['white wine','sauvignon blanc','chardonnay','pinot grigio','riesling','viognier','chenin','moscato','torrontes','gruner']);})},
+    {id:'wi-ros',eye:'ROSÉ',name:'Rosé',prods:c(function(p){return has(p,['rosé','rose wine','blush']);})},
+    {id:'wi-dom',eye:'DOMESTIC',name:'Domestic Wine',prods:c(function(p){return has(p,['marpha','mustang wine','nepal wine','himalayan wine']);})},
+    {id:'wi-oth',eye:'OTHER',name:'More Wine',prods:c()}
+  ];
+}
+else if(CAT==='mixers'){
+  sections=[
+    {id:'mx-syr',eye:'SYRUPS & PUREES',name:'Bar Syrups & Purees',prods:claim(function(p){return has(p,['syrup','monin','torani','grenadine','falernum','orgeat','gomme','puree ','fruit puree','flavoured sauce']);})},
+    {id:'mx-ice',eye:'ICE',name:'Ice Products',prods:claim(function(p){return has(p,['ice cube','ice block','ice bag','cocktail ice','crushed ice','crystal ice','gourmet ice','party ice']);})},
+    {id:'mx-tool',eye:'BAR ACCESSORIES',name:'Bar Accessories & Tools',prods:claim(function(p){return has(p,['shaker','jigger','muddler','strainer','bar spoon','mixing glass','bar set','bottle opener','corkscrew','wine opener','pump for','ice bucket','pourers']);})},
+    {id:'mx-sup',eye:'ENERGY & SUPPLEMENTS',name:'Energy & Supplements',prods:claim(function(p){return has(p,['energy shot','energy shots','supplement','electrolyte','recovery','yarchagumba','energy drink']);})},
+    {id:'mx-soda',eye:'SODAS & TONICS',name:'Sodas & Tonics',prods:claim(function(p){return has(p,['soda water','tonic water','ginger beer','club soda','sparkling water','schweppes','fever tree','fever-tree','q mixers']);})},
+    {id:'mx-flo',eye:'FLORAL',name:'Floral Mixers',prods:claim(function(p){return has(p,['elderflower','hibiscus','lavender','rose water','butterfly pea','floral mixer']);})}
+  ];
+}
+else if(CAT==='hookah'){
+  var HK=claim(function(p){return has(p,['hookah','shisha','kalyan']);});
+  var c=deduper(HK);
+  sections=[
+    {id:'hk-fl',eye:'FLAVORS',name:'Hookah Flavors',prods:c(function(p){return has(p,['flavor','flavour','molasses','al fakher','starbuzz','fumari','adalya','mazaya','tangiers','afzal','nakhla','social smoke','haze']);})},
+    {id:'hk-coal',eye:'CHARCOAL',name:'Charcoal & Coal',prods:c(function(p){return has(p,['charcoal','coal','coconut coal','quick light','natural coal']);})},
+    {id:'hk-eq',eye:'EQUIPMENT',name:'Hookah Equipment',prods:c(function(p){return has(p,['hookah pipe','bowl','hose','setup','base','equipment','mouthpiece','tray','wind cover']);})},
+    {id:'hk-oth',eye:'OTHER',name:'More Hookah',prods:c()}
+  ];
+}
+else if(CAT==='tobacco'){
+  var CIG=claim(function(p){return has(p,['cigarette','cigars','marlboro','winston','gold flake','surya','shikhar','camel','parliament','dunhill','benson','lucky strike','newport','kent','pall mall']);});
+  var ROLL=claim(function(p){return has(p,['rolling paper','raw paper','ocb','rizla','juicy jay','zig zag','blunt wrap','hemp paper','rolling wrap']);});
+  var c=deduper(CIG);
+  sections=[
+    {id:'cig-dom',eye:'DOMESTIC',name:'Domestic Cigarettes',prods:c(function(p){return has(p,['surya','shikhar','khukuri cigarette','yak ','nepal cigarette']);})},
+    {id:'cig-imp',eye:'IMPORTED',name:'International Brands',prods:c(function(p){return has(p,['marlboro','winston','camel','parliament','dunhill','benson','lucky strike','newport','kent','pall mall']);})},
+    {id:'cig-oth',eye:'OTHER',name:'More Cigarettes',prods:c()},
+    {id:'rolling',eye:'ROLLING PAPERS',name:'Rolling Papers & Wraps',prods:ROLL}
+  ];
+}
+else if(CAT==='soju'){
+  sections=[{id:'soju',eye:'KOREAN SOJU',name:'Soju',prods:claim(function(p){return has(p,['soju','jinro','chum churum','chamisul','good day','charm soju']);})}];
+}
+else if(CAT==='rtd'){
+  sections=[{id:'rtd',eye:'READY TO DRINK',name:'Ready to Drink',prods:claim(function(p){return has(p,['ready to drink','rtd','premixed','pre-mixed','smirnoff ice','breezer','hard seltzer','white claw']);})}];
+}
+else if(CAT==='japanese'){
+  sections=[
+    {id:'sake',eye:'SAKE',name:'Sake',prods:claim(function(p){return has(p,['sake','nihonshu','junmai','daiginjo','ginjo','dewazakura','hakutsuru','gekkeikan','ozeki']);})},
+    {id:'shochu',eye:'SHOCHU',name:'Shochu',prods:claim(function(p){return has(p,['shochu','iichiko']);})},
+    {id:'umeshu',eye:'UMESHU',name:'Umeshu & Plum Wine',prods:claim(function(p){return has(p,['umeshu','plum wine','choya']);})}
+  ];
+}
+else {
+  /* fallback: show all */
+  sections=[{id:'all',eye:'ALL PRODUCTS',name:'All Products',prods:ALL}];
+}
+
+/* RENDER */
+var H='',totalCount=0;
+sections.forEach(function(s){
+  if(!s.prods||!s.prods.length) return;
+  totalCount+=s.prods.length;
+  H+=renderSec(s.id,s.eye,s.name,s.prods);
+});
+
+if(!H) H='<div class="qbwc-empty">No products found in this category yet.</div>';
+document.getElementById('qbwcContent').innerHTML=H;
+document.getElementById('qbwcCount').textContent=totalCount+' products';
+
+/* SUB-NAV */
+var navHtml='';
+sections.forEach(function(s){
+  if(!s.prods||!s.prods.length) return;
+  var el=document.getElementById('cs-'+s.id);
+  if(el) navHtml+='<button class="qbwc-nav-btn" data-id="cs-'+s.id+'" onclick="qbwcNav(this)">'+s.eye+'</button>';
+});
+document.getElementById('qbwcNav').innerHTML=navHtml;
+
+/* NAV SCROLL */
+function off(){
+  var n=document.querySelector('.qbwc-nav');
+  var h=document.querySelector('sticky-header,#shopify-section-quickbee-header');
+  return (n?n.offsetHeight:44)+(h?h.offsetHeight:56)+8;
+}
+window.qbwcNav=function(btn){
+  document.querySelectorAll('.qbwc-nav-btn').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  var el=document.getElementById(btn.getAttribute('data-id'));
+  if(el) window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-off(),behavior:'smooth'});
+  btn.scrollIntoView({inline:'center',behavior:'smooth',block:'nearest'});
+};
+if(window.IntersectionObserver){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting) return;
+      var id=e.target.id;
+      document.querySelectorAll('.qbwc-nav-btn').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-id')===id);});
+      var a=document.querySelector('.qbwc-nav-btn.on');
+      if(a) a.scrollIntoView({inline:'nearest',behavior:'smooth',block:'nearest'});
+    });
+  },{threshold:0.2,rootMargin:'-50px 0px -55% 0px'});
+  document.querySelectorAll('[id^="cs-"]').forEach(function(s){io.observe(s);});
+}
+
+})();
+</script>
+
+{%- endpaginate -%}
+
+{% schema %}
+{
+  "name": "QBW Category",
+  "settings": [
+    {
+      "type": "select",
+      "id": "category",
+      "label": "Category",
+      "options": [
+        {"value":"whisky","label":"Whisky"},
+        {"value":"vodka","label":"Vodka"},
+        {"value":"beer","label":"Beer"},
+        {"value":"brandy","label":"Brandy & Cognac"},
+        {"value":"gin","label":"Gin"},
+        {"value":"rum","label":"Rum"},
+        {"value":"tequila","label":"Tequila & Mezcal"},
+        {"value":"liqueur","label":"Liqueur"},
+        {"value":"wine","label":"Wine"},
+        {"value":"mixers","label":"Mixers & Bar Tools"},
+        {"value":"hookah","label":"Hookah"},
+        {"value":"tobacco","label":"Tobacco"},
+        {"value":"soju","label":"Soju"},
+        {"value":"rtd","label":"RTD"},
+        {"value":"japanese","label":"Japanese Liquor"}
+      ],
+      "default": "whisky"
+    }
+  ],
+  "presets": [{"name":"QBW Category"}]
+}
+{% endschema %}
