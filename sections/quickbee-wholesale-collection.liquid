@@ -469,298 +469,291 @@ function globalClaim(arr){
 
 var H = '';
 
-/* ── FLASH DEALS (independent — doesn't affect category sections) ── */
-var FLASH = bySave(ALL.filter(function(p){return p.sv&&p.svPct>=10;})).slice(0,24);
-H += sec('flash','🔥 FLASH DEALS','Flash Deals — Best Savings',FLASH);
+/* ══════════════════════════════════════════════
+   CATEGORY LOGIC
+   - Flash Deals: independent (products can also appear in their category)
+   - All other categories: strict global dedup via USED{}
+   - Detection: ONLY keyword matching on hay() = type+tags+title+vendor
+   - No isType() guards — Shopify product type is generic "LIQUOR" for all spirits
+   ══════════════════════════════════════════════ */
 
-/* ══ WHISKY ══
-   Strict filter: must have whisky/whiskey keyword but exclude
-   products whose type is clearly liqueur/beer/etc. */
+/* FLASH — independent, no USED marking */
+var FLASH=bySave(ALL.filter(function(p){return p.sv&&p.svPct>=10;})).slice(0,24);
+H+=sec('flash','🔥 FLASH DEALS','Flash Deals — Best Savings',FLASH);
+
+/* helper: claim from ALL where not yet used + matching fn */
+function claim(fn){
+  var out=ALL.filter(function(p){return !USED[p.url]&&fn(p);});
+  out.forEach(function(p){USED[p.url]=true;});
+  return out;
+}
+
+/* ══ WHISKY ══ */
 (function(){
-  var pool = ALL.filter(function(p){
-    if(USED[p.url]) return false;
+  /* pull all whisky first */
+  var W=claim(function(p){
     var h=hay(p);
-    if(h.indexOf('whisky')<0 && h.indexOf('whiskey')<0) return false;
-    // exclude mismatches (e.g. "Whisky Liqueur Chocolates", Drambuie etc.)
-    if(isType(p,['liqueur','beer','wine','vodka','gin','rum','brandy','cognac'])) return false;
-    if(hits(p,['chocolate','praline','truffle','candy','dessert','cream liqueur','whisky liqueur'])) return false;
+    /* must contain whisky/whiskey */
+    if(h.indexOf('whisky')<0&&h.indexOf('whiskey')<0) return false;
+    /* exclude products where whisky is incidental (chocolates, liqueur chocolates) */
+    if(hits(p,['whisky liqueur chocolate','liqueur chocolate','chocolate box','praline'])) return false;
     return true;
   });
-  if(!pool.length) return;
-  var c=deduper(pool);
-  var W_REG  = c(function(p){return hits(p,['regular whisky','black label','red label','old tavern','bagpiper','teachers','vat 69','blenders','antiquity','royal stag','imperial blue','signature','dsp black','officers','100 pipers','something special','black dog','old smuggler']);});
-  var W_PREM = c(function(p){return hits(p,['premium','gold label','blue label','double black','platinum','chivas','ballantine','dewar','famous grouse','grants','william peel','johnnie walker','passport scotch','the glenlivet']);});
-  var W_BOUR = c(function(p){return hits(p,['bourbon','american whiskey','jack daniel','jim beam','maker','wild turkey','knob creek','bulleit','woodford','buffalo trace']);});
-  var W_MALT = c(function(p){return hits(p,['single malt','glenfiddich','macallan','laphroaig','glenmorangie','balvenie','talisker','ardbeg','bowmore','lagavulin','singleton','highland park','dalmore','oban','auchentoshan']);});
-  var W_DOM  = c(function(p){return hits(p,['khukuri','old durbar','kumari','8848','coronation','himalayan whisky','nepal whisky','yeti whisky','ruslan']);});
-  var W_OTH  = c(); // remaining whisky
-  pool.forEach(function(p){USED[p.url]=true;});
-  H += grp('🥃','Whisky','Regular · Premium · Bourbon · Single Malt · Domestic');
-  H += sec('w-reg','WHISKY · REGULAR','Regular Whisky',globalClaim(W_REG));
-  H += sec('w-prem','WHISKY · PREMIUM','Premium Whisky',globalClaim(W_PREM));
-  H += sec('w-bour','WHISKY · BOURBON','American &amp; Bourbon Whiskey',globalClaim(W_BOUR));
-  H += sec('w-malt','WHISKY · SINGLE MALT','Single Malt Scotch',globalClaim(W_MALT));
-  H += sec('w-dom','WHISKY · DOMESTIC','Domestic Whisky',globalClaim(W_DOM));
-  if(W_OTH.length) H += sec('w-oth','WHISKY · OTHER','More Whisky',globalClaim(W_OTH));
+  if(!W.length) return;
+  /* now sub-sort within W using deduper so subcategories don't overlap */
+  var c=deduper(W);
+  var W_REG =c(function(p){return hits(p,['regular whisky','black label','red label','old tavern','bagpiper','teachers','vat 69','blenders','antiquity','royal stag','imperial blue','signature','dsp black','officers','100 pipers','black dog','old smuggler','mcdownells','director']);});
+  var W_PREM=c(function(p){return hits(p,['premium whisky','gold label','blue label','double black','platinum','chivas','ballantine','dewar','famous grouse','grants','william peel','johnnie walker','passport scotch','black &amp; white','j&amp;b','haig']);});
+  var W_BOUR=c(function(p){return hits(p,['bourbon','american whiskey','jack daniel','jim beam','maker','wild turkey','knob creek','bulleit','woodford','buffalo trace']);});
+  var W_MALT=c(function(p){return hits(p,['single malt','glenfiddich','macallan','laphroaig','glenmorangie','balvenie','talisker','ardbeg','bowmore','lagavulin','singleton','highland park','dalmore','oban','auchentoshan','glenlivet']);});
+  var W_DOM =c(function(p){return hits(p,['khukuri whisky','old durbar','8848','coronation','himalayan whisky','nepal whisky','yeti whisky','kumari whisky']);});
+  var W_OTH =c();
+  H+=grp('🥃','Whisky','Regular · Premium · Bourbon · Single Malt · Domestic');
+  H+=sec('w-reg','WHISKY · REGULAR','Regular Whisky',W_REG);
+  H+=sec('w-prem','WHISKY · PREMIUM','Premium Whisky',W_PREM);
+  H+=sec('w-bour','WHISKY · BOURBON','American &amp; Bourbon',W_BOUR);
+  H+=sec('w-malt','WHISKY · SINGLE MALT','Single Malt Scotch',W_MALT);
+  H+=sec('w-dom','WHISKY · DOMESTIC','Domestic Whisky',W_DOM);
+  if(W_OTH.length) H+=sec('w-oth','WHISKY · OTHER','More Whisky',W_OTH);
 })();
 
 /* ══ VODKA ══ */
 (function(){
-  var pool=ALL.filter(function(p){
-    if(USED[p.url]) return false;
-    return isType(p,['vodka'])||(hay(p).indexOf('vodka')>-1&&!isType(p,['whisky','whiskey','beer','wine','gin','rum','liqueur','brandy']));
-  });
-  if(!pool.length) return;
-  var c=deduper(pool);
-  var V_IMP=c(function(p){return hits(p,['absolut','grey goose','belvedere','smirnoff','ciroc','tito','ketel','stolichnaya','stoli','finlandia','russian standard','skyy','imported']);});
-  var V_DOM=c(function(p){return hits(p,['domestic','nepal','ruslan','khukuri','himalayan','kumari']);});
+  var V=claim(function(p){return hay(p).indexOf('vodka')>-1;});
+  if(!V.length) return;
+  var c=deduper(V);
+  var V_IMP=c(function(p){return hits(p,['absolut','grey goose','belvedere','smirnoff','ciroc','tito','ketel','stolichnaya','stoli','finlandia','russian standard','skyy','imported vodka']);});
+  var V_DOM=c(function(p){return hits(p,['ruslan','khukuri vodka','himalayan vodka','kumari vodka','nepal vodka','domestic vodka']);});
   var V_OTH=c();
-  pool.forEach(function(p){USED[p.url]=true;});
-  H += grp('🧊','Vodka','Imported · Domestic');
-  H += sec('v-imp','VODKA · IMPORTED','Imported Vodka',globalClaim(V_IMP));
-  H += sec('v-dom','VODKA · DOMESTIC','Domestic Vodka',globalClaim(V_DOM));
-  if(V_OTH.length) H += sec('v-oth','VODKA · OTHER','More Vodka',globalClaim(V_OTH));
+  H+=grp('🧊','Vodka','Imported · Domestic');
+  H+=sec('v-imp','VODKA · IMPORTED','Imported Vodka',V_IMP);
+  H+=sec('v-dom','VODKA · DOMESTIC','Domestic Vodka',V_DOM);
+  if(V_OTH.length) H+=sec('v-oth','VODKA · OTHER','More Vodka',V_OTH);
 })();
 
 /* ══ BEER ══ */
 (function(){
-  var pool=ALL.filter(function(p){
-    if(USED[p.url]) return false;
-    return isType(p,['beer','lager','ale','stout','pilsner'])||
-      (hits(p,['beer','lager','ale','stout','pilsner'])&&!isType(p,['whisky','vodka','wine','gin','rum','liqueur','brandy']));
-  });
-  if(!pool.length) return;
-  var c=deduper(pool);
-  var BE_DOM   =c(function(p){return hits(p,['everest','gorkha','nepal ice','star beer','tuborg nepal','carlsberg nepal','yak beer','nepal beer']);});
-  var BE_IMP   =c(function(p){return hits(p,['heineken','corona','budweiser','stella','asahi','kirin','kingfisher','leffe','tiger','chang','san miguel','hoegaarden','erdinger','paulaner']);});
-  var BE_CRAFT =c(function(p){return hits(p,['craft','ipa','pale ale','wheat beer','porter','stout']);});
-  var BE_BULK  =c(function(p){return hits(p,['case','bulk','6 pack','12 pack','24 pack','carton','slab']);});
-  var BE_NA    =c(function(p){return hits(p,['non alcoholic','non-alcoholic','alcohol free','0%','zero beer','0.0']);});
-  var BE_OTH   =c();
-  pool.forEach(function(p){USED[p.url]=true;});
-  H += grp('🍺','Beer','Domestic · Imported · Craft · Bulk · Non-Alcoholic');
-  H += sec('be-dom','BEER · DOMESTIC','Domestic Beer',globalClaim(BE_DOM));
-  H += sec('be-imp','BEER · IMPORTED','Imported Beer',globalClaim(BE_IMP));
-  H += sec('be-craft','BEER · CRAFT','Craft Beer',globalClaim(BE_CRAFT));
-  H += sec('be-bulk','BEER · BULK','Bulk Cases',globalClaim(BE_BULK));
-  H += sec('be-na','BEER · NA','Non-Alcoholic Beer',globalClaim(BE_NA));
-  if(BE_OTH.length) H += sec('be-oth','BEER · OTHER','More Beer',globalClaim(BE_OTH));
+  var B=claim(function(p){return hits(p,['beer','lager','pilsner','ale','stout','porter','weiss','weizen','bock']);});
+  if(!B.length) return;
+  var c=deduper(B);
+  var BE_DOM  =c(function(p){return hits(p,['everest beer','gorkha beer','nepal ice','star beer','tuborg nepal','carlsberg nepal','yak beer','nepal beer','sherpa beer']);});
+  var BE_IMP  =c(function(p){return hits(p,['heineken','corona','budweiser','stella','asahi','kirin','kingfisher','leffe','tiger beer','chang','san miguel','hoegaarden','erdinger','paulaner','1664','beck','carlsberg can','foster']);});
+  var BE_CRAFT=c(function(p){return hits(p,['craft beer','ipa','pale ale','wheat beer','dark beer','porter','stout']);});
+  var BE_BULK =c(function(p){return hits(p,['case of','24 pack','12 pack','carton beer','slab','bulk beer']);});
+  var BE_NA   =c(function(p){return hits(p,['non alcoholic','non-alcoholic','alcohol free','0%','zero beer','0.0%']);});
+  var BE_OTH  =c();
+  H+=grp('🍺','Beer','Domestic · Imported · Craft · Bulk · Non-Alcoholic');
+  H+=sec('be-dom','BEER · DOMESTIC','Domestic Beer',BE_DOM);
+  H+=sec('be-imp','BEER · IMPORTED','Imported Beer',BE_IMP);
+  H+=sec('be-craft','BEER · CRAFT','Craft Beer',BE_CRAFT);
+  H+=sec('be-bulk','BEER · BULK','Bulk Cases',BE_BULK);
+  H+=sec('be-na','BEER · NA','Non-Alcoholic Beer',BE_NA);
+  if(BE_OTH.length) H+=sec('be-oth','BEER · OTHER','More Beer',BE_OTH);
 })();
 
 /* ══ BRANDY & COGNAC ══ */
 (function(){
-  var pool=ALL.filter(function(p){
-    if(USED[p.url]) return false;
-    return (isType(p,['brandy','cognac'])||hits(p,['brandy','cognac']))&&
-      !isType(p,['whisky','beer','wine','vodka','gin','rum','liqueur']);
-  });
-  if(!pool.length) return;
-  var c=deduper(pool);
-  var B_VS   =c(function(p){return hits(p,[' vs ',' vs ','very special']);});
-  var B_VSOP =c(function(p){return hits(p,['vsop']);});
-  var B_NAP  =c(function(p){return hits(p,['napoleon']);});
-  var B_XO   =c(function(p){return hits(p,[' xo ','extra old']);});
-  var B_DOM  =c(function(p){return hits(p,['marpha','mustang','nepal brandy','himalayan brandy','domestic brandy']);});
-  var B_OTH  =c();
-  pool.forEach(function(p){USED[p.url]=true;});
-  H += grp('🍇','Brandy &amp; Cognac','VS · VSOP · Napoleon · XO · Domestic');
-  H += sec('b-vs','COGNAC · VS','VS Cognac',globalClaim(B_VS));
-  H += sec('b-vsop','COGNAC · VSOP','VSOP Cognac',globalClaim(B_VSOP));
-  H += sec('b-nap','COGNAC · NAPOLEON','Napoleon Cognac',globalClaim(B_NAP));
-  H += sec('b-xo','COGNAC · XO','XO Cognac',globalClaim(B_XO));
-  H += sec('b-dom','BRANDY · DOMESTIC','Domestic Brandy',globalClaim(B_DOM));
-  if(B_OTH.length) H += sec('b-oth','BRANDY · OTHER','More Brandy',globalClaim(B_OTH));
+  var B=claim(function(p){return hits(p,['brandy','cognac']) && !hits(p,['whisky','whiskey','vodka','gin ',' rum ','liqueur','beer','wine']);});
+  if(!B.length) return;
+  var c=deduper(B);
+  var B_VS  =c(function(p){return hits(p,[' vs brandy','vs cognac','very special','three star']);});
+  var B_VSOP=c(function(p){return hits(p,['vsop']);});
+  var B_NAP =c(function(p){return hits(p,['napoleon']);});
+  var B_XO  =c(function(p){return hits(p,[' xo ','xo cognac','extra old']);});
+  var B_DOM =c(function(p){return hits(p,['marpha brandy','mustang brandy','nepal brandy','himalayan brandy','domestic brandy']);});
+  var B_OTH =c();
+  H+=grp('🍇','Brandy &amp; Cognac','VS · VSOP · Napoleon · XO · Domestic');
+  H+=sec('b-vs','COGNAC · VS','VS Cognac',B_VS);
+  H+=sec('b-vsop','COGNAC · VSOP','VSOP Cognac',B_VSOP);
+  H+=sec('b-nap','COGNAC · NAPOLEON','Napoleon Cognac',B_NAP);
+  H+=sec('b-xo','COGNAC · XO','XO Cognac',B_XO);
+  H+=sec('b-dom','BRANDY · DOMESTIC','Domestic Brandy',B_DOM);
+  if(B_OTH.length) H+=sec('b-oth','BRANDY · OTHER','More Brandy',B_OTH);
 })();
 
-H += cta('Licensed Businesses Only','Unlock Full Wholesale Pricing','Register your business · up to 40% savings on every order.');
+H+=cta('Licensed Businesses Only','Unlock Full Wholesale Pricing','Register your business · up to 40% savings on every order.');
 
 /* ══ GIN ══ */
 (function(){
-  var pool=ALL.filter(function(p){
-    if(USED[p.url]) return false;
-    return isType(p,['gin'])||(hay(p).indexOf(' gin')>-1&&!isType(p,['whisky','beer','wine','vodka','rum','liqueur','brandy']));
+  var G=claim(function(p){
+    var h=hay(p);
+    /* must have "gin" as a word (not as part of "ginger") */
+    return /\bgin\b/.test(h);
   });
-  if(!pool.length) return;
-  var c=deduper(pool);
-  var G_IMP=c(function(p){return hits(p,['tanqueray','hendrick','bombay','beefeater','gordon','monkey 47','roku','malfy','sipsmith','whitley','imported']);});
-  var G_DOM=c(function(p){return hits(p,['domestic','nepal','himalayan','khukuri']);});
+  if(!G.length) return;
+  var c=deduper(G);
+  var G_IMP=c(function(p){return hits(p,['tanqueray','hendrick','bombay sapphire','beefeater','gordon','monkey 47','roku','malfy','sipsmith','whitley','aviation','roku','imported gin']);});
+  var G_DOM=c(function(p){return hits(p,['himalayan gin','nepal gin','khukuri gin','domestic gin']);});
   var G_OTH=c();
-  pool.forEach(function(p){USED[p.url]=true;});
-  H += grp('🌿','Gin','Imported · Domestic');
-  H += sec('g-imp','GIN · IMPORTED','Imported Gin',globalClaim(G_IMP));
-  H += sec('g-dom','GIN · DOMESTIC','Domestic Gin',globalClaim(G_DOM));
-  if(G_OTH.length) H += sec('g-oth','GIN · OTHER','More Gin',globalClaim(G_OTH));
+  H+=grp('🌿','Gin','Imported · Domestic');
+  H+=sec('g-imp','GIN · IMPORTED','Imported Gin',G_IMP);
+  H+=sec('g-dom','GIN · DOMESTIC','Domestic Gin',G_DOM);
+  if(G_OTH.length) H+=sec('g-oth','GIN · OTHER','More Gin',G_OTH);
 })();
 
 /* ══ RUM ══ */
 (function(){
-  var pool=ALL.filter(function(p){
-    if(USED[p.url]) return false;
-    return isType(p,['rum'])||(hay(p).indexOf('rum')>-1&&!isType(p,['whisky','beer','wine','vodka','gin','liqueur','brandy']));
+  var R=claim(function(p){
+    var h=hay(p);
+    return /\brum\b/.test(h) && !hits(p,['whisky','vodka','beer','wine','gin ']);
   });
-  if(!pool.length) return;
-  var c=deduper(pool);
-  var R_IMP=c(function(p){return hits(p,['bacardi','captain morgan','havana','kraken','malibu','mount gay','diplomatico','zacapa','angostura','appleton','flor de cana','imported']);});
-  var R_DOM=c(function(p){return hits(p,['khukuri rum','himalayan','kumari','old cask','nepal rum','domestic']);});
+  if(!R.length) return;
+  var c=deduper(R);
+  var R_IMP=c(function(p){return hits(p,['bacardi','captain morgan','havana club','kraken','malibu','mount gay','diplomatico','zacapa','angostura','appleton','flor de cana','imported rum']);});
+  var R_DOM=c(function(p){return hits(p,['khukuri rum','old cask rum','nepal rum','himalayan rum','domestic rum','kumari rum']);});
   var R_OTH=c();
-  pool.forEach(function(p){USED[p.url]=true;});
-  H += grp('🍹','Rum','Imported · Domestic');
-  H += sec('r-imp','RUM · IMPORTED','Imported Rum',globalClaim(R_IMP));
-  H += sec('r-dom','RUM · DOMESTIC','Domestic Rum',globalClaim(R_DOM));
-  if(R_OTH.length) H += sec('r-oth','RUM · OTHER','More Rum',globalClaim(R_OTH));
+  H+=grp('🍹','Rum','Imported · Domestic');
+  H+=sec('r-imp','RUM · IMPORTED','Imported Rum',R_IMP);
+  H+=sec('r-dom','RUM · DOMESTIC','Domestic Rum',R_DOM);
+  if(R_OTH.length) H+=sec('r-oth','RUM · OTHER','More Rum',R_OTH);
 })();
 
 /* ══ TEQUILA ══ */
 (function(){
-  var pool=ALL.filter(function(p){
-    if(USED[p.url]) return false;
-    return isType(p,['tequila','mezcal'])||hits(p,['tequila','mezcal']);
-  });
-  if(!pool.length) return;
-  var c=deduper(pool);
+  var T=claim(function(p){return hits(p,['tequila','mezcal']);});
+  if(!T.length) return;
+  var c=deduper(T);
   var T_BLN=c(function(p){return hits(p,['blanco','silver','plata']);});
   var T_REP=c(function(p){return hits(p,['reposado']);});
   var T_ANJ=c(function(p){return hits(p,['anejo','añejo','extra anejo']);});
   var T_OTH=c();
-  pool.forEach(function(p){USED[p.url]=true;});
-  H += grp('🌵','Tequila &amp; Mezcal','Blanco · Reposado · Añejo');
-  H += sec('teq-bln','TEQUILA · BLANCO','Tequila Blanco',globalClaim(T_BLN));
-  H += sec('teq-rep','TEQUILA · REPOSADO','Tequila Reposado',globalClaim(T_REP));
-  H += sec('teq-anj','TEQUILA · AÑEJO','Tequila Añejo',globalClaim(T_ANJ));
-  if(T_OTH.length) H += sec('teq-oth','TEQUILA · OTHER','More Tequila',globalClaim(T_OTH));
+  H+=grp('🌵','Tequila &amp; Mezcal','Blanco · Reposado · Añejo');
+  H+=sec('teq-bln','TEQUILA · BLANCO','Tequila Blanco',T_BLN);
+  H+=sec('teq-rep','TEQUILA · REPOSADO','Tequila Reposado',T_REP);
+  H+=sec('teq-anj','TEQUILA · AÑEJO','Tequila Añejo',T_ANJ);
+  if(T_OTH.length) H+=sec('teq-oth','TEQUILA · OTHER','More Tequila',T_OTH);
 })();
 
 /* ══ LIQUEUR ══ */
 (function(){
-  var pool=ALL.filter(function(p){
-    if(USED[p.url]) return false;
-    return isType(p,['liqueur'])||hits(p,['liqueur','kahlua','baileys','aperol','cointreau','triple sec','campari','amaretto','disaronno','frangelico','midori','sambuca','jagermeister','schnapps','drambuie','limoncello','grand marnier','curacao','st germain','benedictine','chartreuse','baileys','tia maria']);
-  });
-  if(!pool.length) return;
-  var c=deduper(pool);
-  var L_CRE=c(function(p){return hits(p,['cream','baileys','advocaat','irish cream']);});
-  var L_BIT=c(function(p){return hits(p,['bitter','aperol','campari','amaro','cynar','fernet']);});
+  var L=claim(function(p){return hits(p,['liqueur','kahlua','baileys irish','aperol','cointreau','triple sec','campari','amaretto','disaronno','frangelico','midori','sambuca','jagermeister','schnapps','drambuie','limoncello','grand marnier','curacao','st germain','benedictine','chartreuse','tia maria']);});
+  if(!L.length) return;
+  var c=deduper(L);
+  var L_CRE=c(function(p){return hits(p,['cream liqueur','baileys','advocaat','irish cream','mozart chocolate cream']);});
+  var L_BIT=c(function(p){return hits(p,['aperol','campari','amaro','cynar','fernet','angostura bitters','peychaud']);});
   var L_OTH=c();
-  pool.forEach(function(p){USED[p.url]=true;});
-  H += grp('🍸','Liqueur','Cream · Bitter · Other');
-  H += sec('liq-cre','LIQUEUR · CREAM','Cream Liqueur',globalClaim(L_CRE));
-  H += sec('liq-bit','LIQUEUR · BITTER','Bitter &amp; Amaro',globalClaim(L_BIT));
-  if(L_OTH.length) H += sec('liq','LIQUEUR','Liqueur',globalClaim(L_OTH));
+  H+=grp('🍸','Liqueur','Cream · Bitter · Other');
+  H+=sec('liq-cre','LIQUEUR · CREAM','Cream Liqueur',L_CRE);
+  H+=sec('liq-bit','LIQUEUR · BITTER','Bitter &amp; Amaro',L_BIT);
+  if(L_OTH.length) H+=sec('liq','LIQUEUR','Liqueur',L_OTH);
 })();
 
-/* ══ RTD & SOJU ══ */
+/* ══ SOJU ══ */
 (function(){
-  var RTD =ALL.filter(function(p){return !USED[p.url]&&hits(p,['ready to drink','rtd','premixed','pre-mixed','smirnoff ice','bacardi breezer','hard seltzer','breezer']);});
-  var SOJU=ALL.filter(function(p){return !USED[p.url]&&hits(p,['soju','jinro','chum churum','chamisul']);});
-  if(!RTD.length&&!SOJU.length) return;
-  H += grp('🥤','RTD &amp; Soju','Ready to Drink · Korean Soju');
-  H += sec('rtd','READY TO DRINK','Ready to Drink',globalClaim(RTD));
-  H += sec('soju','🇰🇷 SOJU','Soju — Korean',globalClaim(SOJU));
+  var S=claim(function(p){return hits(p,['soju','jinro','chum churum','chamisul','good day soju']);});
+  if(!S.length) return;
+  H+=grp('🇰🇷','Soju','Korean Soju');
+  H+=sec('soju','SOJU','Soju — Korean',S);
+})();
+
+/* ══ RTD ══ */
+(function(){
+  var R=claim(function(p){return hits(p,['ready to drink','rtd','premixed','pre-mixed','smirnoff ice','bacardi breezer','hard seltzer','breezer']);});
+  if(!R.length) return;
+  H+=grp('🥤','Ready to Drink','Premixed · Hard Seltzers · Breezers');
+  H+=sec('rtd','READY TO DRINK','Ready to Drink',R);
 })();
 
 /* ══ JAPANESE LIQUOR ══ */
 (function(){
-  var SAKE  =ALL.filter(function(p){return !USED[p.url]&&hits(p,['sake','nihonshu','junmai','daiginjo','ginjo']);});
-  var SHOCH =ALL.filter(function(p){return !USED[p.url]&&hits(p,['shochu','iichiko']);});
-  var UMESH =ALL.filter(function(p){return !USED[p.url]&&hits(p,['umeshu','plum wine','choya']);});
-  var WINES =ALL.filter(function(p){return !USED[p.url]&&hits(p,['japanese wine','koshu']);});
-  if(!SAKE.length&&!SHOCH.length&&!UMESH.length&&!WINES.length) return;
-  H += grp('🍶','Japanese Liquor','Sake · Shochu · Umeshu · Wines');
-  H += sec('sake','SAKE','Sake',globalClaim(SAKE));
-  H += sec('shochu','SHOCHU','Shochu',globalClaim(SHOCH));
-  H += sec('umeshu','UMESHU','Umeshu',globalClaim(UMESH));
-  H += sec('jpwine','JP WINE','Japanese Wine',globalClaim(WINES));
+  var SAKE =claim(function(p){return hits(p,['sake','nihonshu','junmai','daiginjo','ginjo','dewazakura','hakutsuru','gekkeikan','ozeki']);});
+  var SHOCH=claim(function(p){return hits(p,['shochu','iichiko']);});
+  var UMESH=claim(function(p){return hits(p,['umeshu','plum wine','choya']);});
+  if(!SAKE.length&&!SHOCH.length&&!UMESH.length) return;
+  H+=grp('🍶','Japanese Liquor','Sake · Shochu · Umeshu');
+  H+=sec('sake','SAKE','Sake',SAKE);
+  H+=sec('shochu','SHOCHU','Shochu',SHOCH);
+  H+=sec('umeshu','UMESHU','Umeshu',UMESH);
 })();
 
 /* ══ WINE ══ */
 (function(){
-  var pool=ALL.filter(function(p){
-    if(USED[p.url]) return false;
-    return isType(p,['wine'])||(hay(p).indexOf('wine')>-1&&!hits(p,['whisky','beer','vodka','gin','rum','brandy','liqueur','tequila','soju']));
+  var W=claim(function(p){
+    var h=hay(p);
+    return h.indexOf('wine')>-1 && !hits(p,['energy shot','energy drink','wine opener','wine cork','wine pump']);
   });
-  if(!pool.length) return;
-  var c=deduper(pool);
-  var W_CHMP=c(function(p){return hits(p,['champagne','moet','veuve','bollinger','dom perignon','krug','mumm','taittinger','perrier jouet']);});
+  if(!W.length) return;
+  var c=deduper(W);
+  var W_CHMP=c(function(p){return hits(p,['champagne','moet','veuve clicquot','bollinger','dom perignon','krug','mumm','taittinger','perrier jouet']);});
   var W_PROS=c(function(p){return hits(p,['prosecco','spumante','valdobbiadene']);});
-  var W_SPK =c(function(p){return hits(p,['sparkling','cava','frizzante','lambrusco','cremant','asti']);});
+  var W_SPK =c(function(p){return hits(p,['sparkling wine','cava','frizzante','lambrusco','cremant','asti']);});
   var W_RED =c(function(p){return hits(p,['red wine','cabernet','merlot','shiraz','syrah','pinot noir','malbec','sangiovese','tempranillo','chianti','barolo','rioja','bordeaux']);});
-  var W_WHT =c(function(p){return hits(p,['white wine','sauvignon blanc','chardonnay','pinot grigio','riesling','viognier','chenin']);});
-  var W_ROS =c(function(p){return hits(p,['rose wine','rosé','blush']);});
-  var W_DOM =c(function(p){return hits(p,['marpha','mustang wine','nepal wine','himalayan wine']);});
+  var W_WHT =c(function(p){return hits(p,['white wine','sauvignon blanc','chardonnay','pinot grigio','riesling','viognier','chenin blanc']);});
+  var W_ROS =c(function(p){return hits(p,['rosé wine','rose wine','blush wine']);});
+  var W_DOM =c(function(p){return hits(p,['marpha wine','mustang wine','nepal wine','himalayan wine']);});
   var W_OTH =c();
-  pool.forEach(function(p){USED[p.url]=true;});
-  H += grp('🍷','Wine','Red · White · Rosé · Sparkling · Champagne · Domestic');
-  H += sec('wi-chmp','CHAMPAGNE','Champagne',globalClaim(W_CHMP));
-  H += sec('wi-pros','PROSECCO','Prosecco',globalClaim(W_PROS));
-  H += sec('wi-spk','WINE · SPARKLING','Sparkling Wine',globalClaim(W_SPK));
-  H += sec('wi-red','WINE · RED','Red Wine',globalClaim(W_RED));
-  H += sec('wi-wht','WINE · WHITE','White Wine',globalClaim(W_WHT));
-  H += sec('wi-ros','WINE · ROSÉ','Rosé',globalClaim(W_ROS));
-  H += sec('wi-dom','WINE · DOMESTIC','Domestic Wine',globalClaim(W_DOM));
-  if(W_OTH.length) H += sec('wi-oth','WINE · OTHER','More Wine',globalClaim(W_OTH));
+  H+=grp('🍷','Wine','Red · White · Rosé · Sparkling · Champagne · Domestic');
+  H+=sec('wi-chmp','CHAMPAGNE','Champagne',W_CHMP);
+  H+=sec('wi-pros','PROSECCO','Prosecco',W_PROS);
+  H+=sec('wi-spk','WINE · SPARKLING','Sparkling Wine',W_SPK);
+  H+=sec('wi-red','WINE · RED','Red Wine',W_RED);
+  H+=sec('wi-wht','WINE · WHITE','White Wine',W_WHT);
+  H+=sec('wi-ros','WINE · ROSÉ','Rosé',W_ROS);
+  H+=sec('wi-dom','WINE · DOMESTIC','Domestic Wine',W_DOM);
+  if(W_OTH.length) H+=sec('wi-oth','WINE · OTHER','More Wine',W_OTH);
 })();
 
-H += cta('Business Pricing','Up to 40% Savings Per Case','Dedicated account manager · credit terms · 24hr delivery.');
+H+=cta('Business Pricing','Up to 40% Savings Per Case','Dedicated account manager · credit terms · 24hr delivery.');
 
-/* ══ MIXERS & BAR ══ */
+/* ══ BAR MIXERS & TOOLS ══ */
 (function(){
-  var MX_SYR =ALL.filter(function(p){return !USED[p.url]&&hits(p,['syrup','monin','torani','grenadine','falernum','orgeat','gomme','puree','fruit puree']);});
-  var MX_ICE =ALL.filter(function(p){return !USED[p.url]&&hits(p,['ice cube','ice block','ice bag','cocktail ice','crushed ice','crystal ice','gourmet ice']);});
-  var MX_TOOL=ALL.filter(function(p){return !USED[p.url]&&hits(p,['shaker','jigger','muddler','strainer','bar spoon','bar tool','mixing glass','bar set','wine opener','wine cork','bottle opener','corkscrew']);});
-  var MX_FLO =ALL.filter(function(p){return !USED[p.url]&&hits(p,['floral','elderflower','hibiscus','lavender syrup','rose water','butterfly pea']);});
-  var MX_SUP =ALL.filter(function(p){return !USED[p.url]&&hits(p,['supplement','energy mix','electrolyte','recovery mix','energy shot']);});
-  var MX_SODA=ALL.filter(function(p){return !USED[p.url]&&hits(p,['soda water','tonic water','ginger beer','club soda','sparkling water','schweppes','fever tree']);});
+  var MX_SYR =claim(function(p){return hits(p,['syrup','monin','torani','grenadine','falernum','orgeat','gomme','puree','fruit puree','sauce 15ml','sauce 1']);});
+  var MX_ICE =claim(function(p){return hits(p,['ice cube','ice block','ice bag','cocktail ice','crushed ice','crystal ice','gourmet ice','party ice']);});
+  var MX_TOOL=claim(function(p){return hits(p,['shaker','jigger','muddler','strainer','bar spoon','bar tool','mixing glass','bar set','wine opener','wine cork','bottle opener','corkscrew','pump for']);});
+  var MX_FLO =claim(function(p){return hits(p,['floral','elderflower','hibiscus','lavender syrup','rose water','butterfly pea']);});
+  var MX_SUP =claim(function(p){return hits(p,['supplement','energy mix','electrolyte','recovery mix','energy shot','energy shots']);});
+  var MX_SODA=claim(function(p){return hits(p,['soda water','tonic water','ginger beer','club soda','sparkling water','schweppes','fever tree','fever-tree']);});
   var any=MX_SYR.length||MX_ICE.length||MX_TOOL.length||MX_FLO.length||MX_SUP.length||MX_SODA.length;
   if(!any) return;
-  H += grp('🍸','Bar Mixers &amp; Tools','Syrups · Ice · Bar Accessories · Flowers · Supplements');
-  H += sec('mx-syr','SYRUPS','Bar Syrups',globalClaim(MX_SYR));
-  H += sec('mx-ice','ICE','Ice Products',globalClaim(MX_ICE));
-  H += sec('mx-tool','BAR ACCESSORIES','Bar Accessories',globalClaim(MX_TOOL));
-  H += sec('mx-flo','FLOWERS / FLORAL','Floral Mixers',globalClaim(MX_FLO));
-  H += sec('mx-sup','SUPPLEMENTS','Supplements',globalClaim(MX_SUP));
-  H += sec('mx-soda','SODAS &amp; TONICS','Sodas &amp; Tonics',globalClaim(MX_SODA));
+  H+=grp('🍸','Bar Mixers &amp; Tools','Syrups · Ice · Bar Accessories · Supplements · Sodas');
+  H+=sec('mx-syr','SYRUPS','Bar Syrups &amp; Purees',MX_SYR);
+  H+=sec('mx-ice','ICE','Ice Products',MX_ICE);
+  H+=sec('mx-tool','BAR ACCESSORIES','Bar Accessories',MX_TOOL);
+  H+=sec('mx-flo','FLORAL','Floral Mixers',MX_FLO);
+  H+=sec('mx-sup','SUPPLEMENTS','Supplements',MX_SUP);
+  H+=sec('mx-soda','SODAS &amp; TONICS','Sodas &amp; Tonics',MX_SODA);
 })();
 
 /* ══ HOOKAH ══ */
 (function(){
-  var pool=ALL.filter(function(p){return !USED[p.url]&&hits(p,['hookah','shisha','kalyan']);});
-  if(!pool.length) return;
-  var c=deduper(pool);
-  var HK_FL  =c(function(p){return hits(p,['flavor','flavour','molasses','al fakher','starbuzz','fumari','adalya','mazaya','tangiers','afzal']);});
-  var HK_COAL=c(function(p){return hits(p,['charcoal','coal','coconut coal','quick light']);});
-  var HK_EQ  =c(function(p){return hits(p,['pipe','bowl','hose','setup','base','equipment']);});
+  var HK=claim(function(p){return hits(p,['hookah','shisha','kalyan']);});
+  if(!HK.length) return;
+  var c=deduper(HK);
+  var HK_FL  =c(function(p){return hits(p,['hookah flavor','hookah flavour','hookah tobacco','molasses','al fakher','starbuzz','fumari','adalya','mazaya','tangiers','afzal']);});
+  var HK_COAL=c(function(p){return hits(p,['charcoal','coal','coconut coal','quick light coal']);});
+  var HK_EQ  =c(function(p){return hits(p,['hookah pipe','hookah bowl','hookah hose','hookah setup','hookah base','hookah equipment']);});
   var HK_OTH =c();
-  pool.forEach(function(p){USED[p.url]=true;});
-  H += grp('💨','Hookah','Flavors · Charcoal · Equipment');
-  H += sec('hk-fl','HOOKAH · FLAVORS','Hookah Flavors',globalClaim(HK_FL));
-  H += sec('hk-coal','HOOKAH · CHARCOAL','Charcoal &amp; Coal',globalClaim(HK_COAL));
-  H += sec('hk-eq','HOOKAH · EQUIPMENT','Hookah Equipment',globalClaim(HK_EQ));
-  if(HK_OTH.length) H += sec('hk-oth','HOOKAH · OTHER','More Hookah',globalClaim(HK_OTH));
+  H+=grp('💨','Hookah','Flavors · Charcoal · Equipment');
+  H+=sec('hk-fl','HOOKAH · FLAVORS','Hookah Flavors',HK_FL);
+  H+=sec('hk-coal','HOOKAH · CHARCOAL','Charcoal &amp; Coal',HK_COAL);
+  H+=sec('hk-eq','HOOKAH · EQUIPMENT','Hookah Equipment',HK_EQ);
+  if(HK_OTH.length) H+=sec('hk-oth','HOOKAH · OTHER','More Hookah',HK_OTH);
 })();
 
 /* ══ TOBACCO ══ */
 (function(){
-  var pool=ALL.filter(function(p){return !USED[p.url]&&hits(p,['cigarette','cigar','marlboro','winston','gold flake','surya','shikhar','camel','parliament','dunhill','benson','lucky strike']);});
-  var ROLL =ALL.filter(function(p){return !USED[p.url]&&hits(p,['rolling paper','raw paper','ocb','rizla','juicy jay','zig zag','blunt wrap','hemp paper']);});
-  if(!pool.length&&!ROLL.length) return;
-  var c=deduper(pool);
-  var CIG_DOM=c(function(p){return hits(p,['surya','shikhar','yak','nepal','domestic']);});
-  var CIG_IMP=c(function(p){return hits(p,['marlboro','winston','camel','parliament','dunhill','benson','lucky strike']);});
-  var CIG_OTH=c();
-  pool.forEach(function(p){USED[p.url]=true;});
-  H += grp('🚬','Tobacco &amp; Smoking','Cigarettes · Rolling Papers');
-  H += sec('cig-dom','CIGARETTES · DOMESTIC','Domestic Cigarettes',globalClaim(CIG_DOM));
-  H += sec('cig-imp','CIGARETTES · IMPORTED','International Brands',globalClaim(CIG_IMP));
-  if(CIG_OTH.length) H += sec('cig-oth','CIGARETTES · OTHER','More Tobacco',globalClaim(CIG_OTH));
-  H += sec('rolling','ROLLING PAPERS','Rolling Papers &amp; Wraps',globalClaim(ROLL));
+  var CIG=claim(function(p){return hits(p,['cigarette','cigar ','cigars','marlboro','winston','gold flake','surya','shikhar','camel','parliament','dunhill','benson','lucky strike']);});
+  var ROLL=claim(function(p){return hits(p,['rolling paper','raw paper','ocb rolling','rizla','juicy jay','zig zag','blunt wrap','hemp paper','rolling wrap']);});
+  if(!CIG.length&&!ROLL.length) return;
+  H+=grp('🚬','Tobacco &amp; Smoking','Cigarettes · Rolling Papers');
+  if(CIG.length){
+    var c=deduper(CIG);
+    var CIG_DOM=c(function(p){return hits(p,['surya','shikhar','nepal cigarette','yak cigarette']);});
+    var CIG_IMP=c(function(p){return hits(p,['marlboro','winston','camel','parliament','dunhill','benson','lucky strike']);});
+    var CIG_OTH=c();
+    H+=sec('cig-dom','CIGARETTES · DOMESTIC','Domestic Cigarettes',CIG_DOM);
+    H+=sec('cig-imp','CIGARETTES · IMPORTED','International Brands',CIG_IMP);
+    if(CIG_OTH.length) H+=sec('cig-oth','CIGARETTES · OTHER','More Cigarettes',CIG_OTH);
+  }
+  H+=sec('rolling','ROLLING PAPERS','Rolling Papers &amp; Wraps',ROLL);
 })();
 
-/* ══ CATCH-ALL (anything not yet shown) ══ */
+/* ══ CATCH-ALL ══ */
 (function(){
   var REST=ALL.filter(function(p){return !USED[p.url];});
   if(!REST.length) return;
-  H += grp('🛍️','Other Products','Everything Else');
-  H += sec('access','MORE PRODUCTS','Other Products',globalClaim(REST));
+  H+=grp('🛍️','Other Products','Everything Else');
+  H+=sec('access','MORE PRODUCTS','Other Products',REST);
 })();
 
 document.getElementById('qbwContent').innerHTML = H;
