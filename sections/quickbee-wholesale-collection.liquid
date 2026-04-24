@@ -194,24 +194,14 @@
 <!-- STICKY CATEGORY NAV (built by JS) -->
 <div class="qbw-nav"><div class="qbw-nav-inner" id="qbwNav"></div></div>
 
-<!-- INTRO (compact) -->
-<div class="qbw-intro">
-  <div class="qbw-intro-row">
-    <div class="qbw-intro-left">
-      <div class="qbw-intro-title">QuickBee Wholesale</div>
-      <div class="qbw-intro-sub">{{ collection.products_count }}+ products · 42 categories · licensed businesses only</div>
-    </div>
-    <a href="/products/vendor-registration" class="qbw-btn-gold" style="flex-shrink:0">Register →</a>
+<!-- INTRO (minimal) -->
+<div style="padding:14px 16px;max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--c-bd)">
+  <div>
+    <div style="font-size:15px;font-weight:900;color:var(--c-txt);letter-spacing:-.3px">QuickBee Wholesale <span style="font-size:11px;color:var(--c-sub);font-weight:500">— {{ collection.products_count }}+ products · 42 categories</span></div>
   </div>
-</div>
-
-<!-- STATS (compact inline) -->
-<div class="qbw-stats">
-  <div class="qbw-stats-inner">
-    <div class="qbw-stat"><div class="qbw-stat-val">40%</div><div class="qbw-stat-lbl">Avg savings</div></div>
-    <div class="qbw-stat"><div class="qbw-stat-val" id="qbwSkuStat">{{ collection.products_count }}+</div><div class="qbw-stat-lbl">SKUs</div></div>
-    <div class="qbw-stat"><div class="qbw-stat-val">24hr</div><div class="qbw-stat-lbl">Dispatch</div></div>
-    <div class="qbw-stat"><div class="qbw-stat-val">200+</div><div class="qbw-stat-lbl">Businesses</div></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <a href="/products/vendor-registration" class="qbw-btn-gold" style="font-size:11.5px;padding:9px 16px">Register Business →</a>
+    <a href="/pages/contact-support" class="qbw-btn-outline" style="font-size:11.5px;padding:8px 14px">Contact Sales</a>
   </div>
 </div>
 
@@ -237,16 +227,15 @@
   </div>
 
   <!-- Closing CTA -->
-  <div class="qbw-close">
-    <div class="qbw-close-inner">
-      <div class="qbw-close-tag">Start Saving Today</div>
-      <h2 class="qbw-close-h2">Ready to Cut Costs &amp;<br><em>Grow Your Margins?</em></h2>
-      <p class="qbw-close-p">Register your business to unlock wholesale pricing. Up to 40% savings on every order, 24hr delivery, dedicated account manager.</p>
-      <div class="qbw-close-btns">
-        <a href="/products/vendor-registration" class="qbw-btn-gold" style="font-size:13.5px;padding:13px 24px">Register Your Business →</a>
-        <a href="mailto:contact@quickbee.store" class="qbw-btn-outline" style="font-size:13.5px;padding:12px 22px">Talk to Sales</a>
+  <div style="padding:36px 16px;background:var(--c-bg2);border-top:1px solid var(--c-bd);text-align:center">
+    <div style="max-width:480px;margin:0 auto">
+      <div style="font-size:20px;font-weight:900;color:var(--c-txt);margin-bottom:8px;letter-spacing:-.3px">Unlock Wholesale Pricing</div>
+      <div style="font-size:12px;color:var(--c-sub);margin-bottom:18px;line-height:1.6">Register your business to access up to 40% below retail. 24hr delivery across Kathmandu Valley.</div>
+      <div style="display:flex;gap:9px;justify-content:center;flex-wrap:wrap">
+        <a href="/products/vendor-registration" class="qbw-btn-gold" style="font-size:13px;padding:12px 22px">Register Your Business →</a>
+        <a href="/pages/contact-support" class="qbw-btn-outline" style="font-size:13px;padding:11px 20px">Contact Sales</a>
       </div>
-      <div class="qbw-close-note">Wholesale access for licensed businesses only · Nepal</div>
+      <div style="font-size:9px;color:var(--c-dim);margin-top:12px">🔒 Licensed businesses only · Nepal</div>
     </div>
   </div>
 
@@ -281,24 +270,25 @@ document.querySelectorAll('#qbwData .qbwp').forEach(function(n){
 /* ─── UTILITIES ─── */
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-/* match any keyword against product's combined text */
+/* match any keyword against type + tags + title + vendor — NO deduplication between categories */
 function hit(p, kws){
   var h = p.type + ' ' + p.tags + ' ' + p.title.toLowerCase() + ' ' + p.vendor.toLowerCase();
   return kws.some(function(k){ return h.indexOf(k) > -1; });
 }
-
-/* deduplication — each product in ONE section only */
-var used = Object.create(null);
-function take(fn){
-  var out = ALL.filter(function(p){ return !used[p.url] && fn(p); });
-  out.forEach(function(p){ used[p.url] = true; });
-  return out;
-}
-function kw(words){ return take(function(p){ return hit(p, words); }); }
+function filter(fn){ return ALL.filter(fn); }
+function kw(words){ return filter(function(p){ return hit(p, words); }); }
 
 /* sort helpers */
 function byPop(a){ return a.slice().sort(function(x,y){ return (y.sv-x.sv)||(y.svPct-x.svPct); }); }
 function bySave(a){ return a.slice().sort(function(x,y){ return y.svPct-x.svPct; }); }
+
+/* curated sections use tags only (deduplication only here, so same product doesn't repeat in flash+best etc.) */
+var _usedCurated = {};
+function takeCurated(fn){
+  var out = ALL.filter(function(p){ return !_usedCurated[p.url] && fn(p); });
+  out.forEach(function(p){ _usedCurated[p.url]=true; });
+  return out;
+}
 
 /* ─── PRICE BLOCK ─── */
 function priceHtml(p){
@@ -378,84 +368,122 @@ function ctaBanner(tag, title, sub){
    Order = priority shown to user
    ════════════════════════════════════════════════ */
 
-/* ── CURATED (tag-based) ── */
-var FLASH    = bySave(take(function(p){ return p.sv && p.svPct >= 15; })).slice(0, 30);
-var BEST     = take(function(p){ return p.tags.indexOf('best-seller')>-1 || p.tags.indexOf('bestseller')>-1; });
-var NEW      = take(function(p){ return /(?:^|,)new(?:,|$)/.test(p.tags); });
-var PARTY    = kw(['party','celebration','event','cocktail','champagne','prosecco','shot','mixer','soda','tonic','function','wedding']);
-var DEMAND   = take(function(p){ return p.tags.indexOf('high-demand')>-1 || p.tags.indexOf('demand')>-1; });
+/* ════════════════════════════════════════
+   CATEGORIES — match product type OR tags OR title
+   No deduplication: products can appear in multiple relevant sliders
+   ════════════════════════════════════════ */
 
-/* ── WHISKY (5 sub-cats) ── */
-var WH_REG   = kw(['whisky-regular','regular-whisky','whisky regular','black label','red label','old tavern','bagpiper','dsp black','signature','teachers','vat 69','blenders pride','antiquity','royal stag','imperial blue','8pm whisky']);
-var WH_PREM  = kw(['whisky-premium','premium whisky','premium-whisky','gold label','blue label','double black','platinum label','chivas','ballantines','dewar','famous grouse','grants','william peel','black & white','passport scotch','johnnie walker black','johnnie walker red','johnnie walker']);
-var WH_BOUR  = kw(['bourbon','american whiskey','jack daniel','jim beam','maker\'s mark','wild turkey','knob creek','bulleit','four roses','woodford','old forester','buffalo trace','evan williams','elijah craig']);
-var WH_MALT  = kw(['single malt','single-malt','glenfiddich','macallan','laphroaig','glenlivet','glenmorangie','balvenie','dalmore','oban','highland park','talisker','ardbeg','bowmore','lagavulin','singleton','craigellachie','aberlour','cardhu']);
-var WH_DOM   = kw(['domestic whisky','nepal whisky','khukuri whisky','himalayan whisky','8848 whisky','ruslan whisky','kumari whisky','old durbar','coronation whisky','yeti whisky']);
+/* ── CURATED (deduplicated so same product doesn't repeat in flash+best) ── */
+var FLASH    = bySave(takeCurated(function(p){ return p.sv && p.svPct >= 10; })).slice(0, 40);
+var BEST     = takeCurated(function(p){ return p.tags.indexOf('best-seller')>-1||p.tags.indexOf('bestseller')>-1; });
+var NEW      = takeCurated(function(p){ return /(?:^|,)\s*new\s*(?:,|$)/.test(p.tags); });
+var DEMAND   = takeCurated(function(p){ return p.tags.indexOf('high-demand')>-1||p.tags.indexOf('demand')>-1; });
 
-/* ── VODKA (2) ── */
-var VOD_DOM  = kw(['domestic vodka','nepal vodka','ruslan vodka','khukuri vodka','himalayan vodka','kumari vodka']);
-var VOD_IMP  = kw(['imported vodka','absolut','grey goose','belvedere','smirnoff','ciroc','tito','ketel one','stolichnaya','stoli','finlandia','russian standard','skyy']);
+/* ── WHISKY — single word "whisky" or "whiskey" catches all, then sub-divide by tag ── */
+var ALL_WHISKY = kw(['whisky','whiskey']);
+var WH_REG   = ALL_WHISKY.filter(function(p){ return hit(p,['whisky-regular','regular','black label','red label','old tavern','bagpiper','dsp black','teachers','vat 69','blenders','antiquity','royal stag','imperial blue','8pm']); });
+var WH_PREM  = ALL_WHISKY.filter(function(p){ return hit(p,['whisky-premium','premium','gold label','blue label','double black','platinum','chivas','ballantine','dewar','famous grouse','grants','william peel','johnnie walker','glenfarclas']); });
+var WH_BOUR  = ALL_WHISKY.filter(function(p){ return hit(p,['bourbon','american whiskey','jack daniel','jim beam','maker','wild turkey','knob creek','bulleit','four roses','woodford','buffalo trace']); });
+var WH_MALT  = ALL_WHISKY.filter(function(p){ return hit(p,['single malt','malt','glenfiddich','macallan','laphroaig','glenlivet','glenmorangie','balvenie','dalmore','highland park','talisker','ardbeg','bowmore','lagavulin','singleton']); });
+var WH_DOM   = ALL_WHISKY.filter(function(p){ return hit(p,['domestic','nepal','khukuri','himalayan','8848','ruslan','kumari','old durbar','coronation','yeti']); });
+/* fallback: any whisky not in sub-cats */
+var WH_OTHER = ALL_WHISKY.filter(function(p){
+  return !WH_REG.includes(p)&&!WH_PREM.includes(p)&&!WH_BOUR.includes(p)&&!WH_MALT.includes(p)&&!WH_DOM.includes(p);
+});
 
-/* ── GIN (2) ── */
-var GIN_DOM  = kw(['domestic gin','nepal gin','himalayan gin','khukuri gin','local gin']);
-var GIN_IMP  = kw(['imported gin','tanqueray','hendricks','hendrick\'s','bombay sapphire','beefeater','gordon\'s','monkey 47','roku gin','malfy','aviation gin','sipsmith','whitley neill']);
+/* ── VODKA ── */
+var ALL_VODKA = kw(['vodka']);
+var VOD_DOM  = ALL_VODKA.filter(function(p){ return hit(p,['domestic','nepal','ruslan','khukuri','himalayan','kumari','local']); });
+var VOD_IMP  = ALL_VODKA.filter(function(p){ return hit(p,['imported','absolut','grey goose','belvedere','smirnoff','ciroc','tito','ketel','stolichnaya','stoli','finlandia','russian standard','skyy']); });
+var VOD_OTHER= ALL_VODKA.filter(function(p){ return !VOD_DOM.includes(p)&&!VOD_IMP.includes(p); });
 
-/* ── RUM (2) ── */
-var RUM_DOM  = kw(['domestic rum','nepal rum','khukuri rum','himalayan rum','kumari rum','old cask rum','local rum']);
-var RUM_IMP  = kw(['imported rum','bacardi','captain morgan','havana club','kraken','malibu','mount gay','diplomatico','ron zacapa','angostura','appleton','flor de cana','plantation rum']);
+/* ── GIN ── */
+var ALL_GIN  = kw(['gin']);
+var GIN_DOM  = ALL_GIN.filter(function(p){ return hit(p,['domestic','nepal','himalayan','khukuri','local']); });
+var GIN_IMP  = ALL_GIN.filter(function(p){ return hit(p,['imported','tanqueray','hendricks','bombay','beefeater','gordon','monkey 47','roku','malfy','sipsmith','whitley']); });
+var GIN_OTHER= ALL_GIN.filter(function(p){ return !GIN_DOM.includes(p)&&!GIN_IMP.includes(p); });
 
-/* ── TEQUILA (1) ── */
-var TEQUILA  = kw(['tequila','mezcal','jose cuervo','patron','don julio','1800 tequila','olmeca','espolon','casamigos','herradura','el jimador']);
+/* ── RUM ── */
+var ALL_RUM  = kw(['rum']);
+var RUM_DOM  = ALL_RUM.filter(function(p){ return hit(p,['domestic','nepal','khukuri','himalayan','kumari','old cask','local']); });
+var RUM_IMP  = ALL_RUM.filter(function(p){ return hit(p,['imported','bacardi','captain morgan','havana','kraken','malibu','mount gay','diplomatico','zacapa','angostura','appleton','flor de cana']); });
+var RUM_OTHER= ALL_RUM.filter(function(p){ return !RUM_DOM.includes(p)&&!RUM_IMP.includes(p); });
 
-/* ── BRANDY / COGNAC (5) ── */
-var BR_VS    = kw(['vs cognac','vs brandy','very special','hennessy vs','remy martin vs','martell vs','courvoisier vs']);
-var BR_VSOP  = kw(['vsop','vsop cognac','vsop brandy','hennessy vsop','remy vsop','martell vsop','courvoisier vsop','camus vsop']);
-var BR_NAP   = kw(['napoleon cognac','napoleon brandy','napoleon brandy','bisquit napoleon','raynal napoleon','polignac napoleon']);
-var BR_XO    = kw(['xo cognac','xo brandy','extra old','hennessy xo','remy xo','martell xo','courvoisier xo','camus xo','hine xo']);
-var BR_DOM   = kw(['domestic brandy','nepal brandy','himalayan brandy','marpha brandy','mustang brandy']);
+/* ── TEQUILA ── */
+var TEQUILA  = kw(['tequila','mezcal']);
 
-/* ── LIQUEUR / RTD / SOJU (3) ── */
-var LIQUEUR  = kw(['liqueur','kahlua','baileys','aperol','cointreau','triple sec','campari','amaretto','disaronno','frangelico','midori','sambuca','jagermeister','schnapps','drambuie','limoncello','grand marnier','blue curacao','st germain']);
-var RTD      = kw(['ready to drink','rtd','premixed','pre-mixed','smirnoff ice','bacardi breezer','hard seltzer','vodka mix','rum mix','long island','mojito mix','gin and tonic can']);
-var SOJU     = kw(['soju','jinro','chum churum','chamisul','good day','soon hari','soju grape','soju strawberry','korean spirit','hite soju']);
+/* ── BRANDY / COGNAC ── */
+var ALL_BRANDY = kw(['brandy','cognac']);
+var BR_VS    = ALL_BRANDY.filter(function(p){ return hit(p,[' vs ','vs cognac','very special']); });
+var BR_VSOP  = ALL_BRANDY.filter(function(p){ return hit(p,['vsop']); });
+var BR_XO    = ALL_BRANDY.filter(function(p){ return hit(p,[' xo ','xo cognac','extra old']); });
+var BR_NAP   = ALL_BRANDY.filter(function(p){ return hit(p,['napoleon']); });
+var BR_DOM   = ALL_BRANDY.filter(function(p){ return hit(p,['domestic','nepal','himalayan','marpha','mustang']); });
+var BR_OTHER = ALL_BRANDY.filter(function(p){
+  return !BR_VS.includes(p)&&!BR_VSOP.includes(p)&&!BR_XO.includes(p)&&!BR_NAP.includes(p)&&!BR_DOM.includes(p);
+});
 
-/* ── JAPANESE (4) ── */
-var SAKE     = kw(['sake','nihonshu','junmai','daiginjo','ginjo','nigori sake','japanese rice wine','ozeki','gekkeikan']);
-var SHOCHU   = kw(['shochu','iichiko','mugi shochu','imo shochu','kome shochu','japanese shochu']);
-var UMESHU   = kw(['umeshu','plum wine','choya','japanese plum','ume liqueur']);
-var JP_WINE  = kw(['japanese wine','japan wine','koshu wine','yamanashi wine']);
+/* ── LIQUEUR ── */
+var LIQUEUR  = kw(['liqueur','kahlua','baileys','aperol','cointreau','triple sec','campari','amaretto','disaronno','frangelico','midori','sambuca','jagermeister','schnapps','drambuie','limoncello','grand marnier','curacao','st germain']);
 
-/* ── WINE (8) ── */
-var WINE_RED = kw(['red wine','cabernet sauvignon','merlot','shiraz','syrah','pinot noir','malbec','zinfandel','sangiovese','tempranillo','chianti','barolo','rioja','bordeaux','grenache']);
-var WINE_WHT = kw(['white wine','sauvignon blanc','chardonnay','pinot grigio','riesling','gewurztraminer','viognier','chenin blanc','pinot gris']);
-var WINE_ROS = kw(['rose wine','rosé wine','rosé','blush wine','white zinfandel','provence rose']);
-var WINE_SPK = kw(['sparkling wine','cava','frizzante','lambrusco','cremant','asti spumante','petillant']);
-var PROSECCO = kw(['prosecco','valdobbiadene','glera','prosecco doc']);
-var CHAMPAGNE= kw(['champagne','moet','veuve clicquot','bollinger','perrier jouet','dom perignon','krug','laurent perrier','pol roger','mumm','piper heidsieck','taittinger']);
-var WINE_FLV = kw(['flavoured wine','flavored wine','fruit wine','strawberry wine','elderflower wine','peach wine','mango wine','sangria','mulled wine','berry wine']);
-var WINE_DOM = kw(['domestic wine','nepal wine','himalayan wine','marpha wine','mustang wine','local wine nepal']);
+/* ── RTD ── */
+var RTD      = kw(['ready to drink','rtd','premixed','pre-mixed','smirnoff ice','bacardi breezer','hard seltzer','breezer']);
 
-/* ── BEER (4) ── */
-var BEER_DOM = kw(['domestic beer','nepal beer','everest beer','gorkha beer','nepal ice beer','star beer','tuborg nepal','carlsberg nepal','yak beer','nepal premium beer']);
-var BEER_IMP = kw(['imported beer','heineken','corona beer','budweiser','stella artois','asahi beer','kirin beer','kingfisher beer','leffe','tiger beer','chang beer','san miguel','hoegaarden','erdinger','paulaner','weihenstephaner']);
-var BEER_CS  = kw(['beer case','case beer','bulk beer','6 pack beer','12 pack beer','24 pack beer','carton beer','slab beer']);
-var BEER_NA  = kw(['non alcoholic beer','non-alcoholic beer','alcohol free beer','0% beer','zero beer','heineken 0.0','corona cero','budweiser zero','clausthaler']);
+/* ── SOJU ── */
+var SOJU     = kw(['soju','jinro','chum churum','chamisul']);
 
-/* ── BAR MIXERS (5) ── */
-var MIX_SYR  = kw(['syrup','monin','torani','simple syrup','caramel syrup','vanilla syrup','hazelnut syrup','sugar syrup','grenadine','falernum','orgeat','gomme syrup','agave syrup']);
-var MIX_ICE  = kw(['ice cube','ice block','ice bag','cocktail ice','crushed ice','clear ice','party ice','bagged ice']);
-var MIX_BAR  = kw(['bar accessory','bar accessories','shaker','jigger','muddler','strainer','bar spoon','cocktail tool','bar tool','mixing glass','pourer','bottle opener','corkscrew','bar set']);
-var MIX_FLO  = kw(['flower mixer','floral mixer','elderflower mixer','rose mixer','hibiscus','lavender syrup','violet syrup','rose water','butterfly pea','floral infusion']);
-var MIX_SUP  = kw(['supplement mix','booster mix','energy mix','bar supplement','electrolyte mix','recovery mix','vitamin mix','pre-workout mix']);
+/* ── SAKE / JAPANESE ── */
+var SAKE     = kw(['sake','nihonshu','junmai','daiginjo']);
+var SHOCHU   = kw(['shochu','iichiko']);
+var UMESHU   = kw(['umeshu','plum wine','choya']);
+var JP_WINE  = kw(['japanese wine','koshu']);
 
-/* ── HOOKAH (2) ── */
-var HOOK_FL  = kw(['hookah-flavor','hookah flavor','shisha','molasses hookah','al fakher','starbuzz','fumari','adalya','mazaya','tangiers','afzal','social smoke','haze tobacco','darkside hookah']);
-var HOOK_EQ  = kw(['hookah-equipment','hookah equipment','hookah pipe','kalyan','shisha pipe','hookah bowl','hookah hose','hookah charcoal','charcoal','coconut coal','hookah setup','hookah base','mya hookah','khalil mamoon']);
+/* ── WINE ── */
+var ALL_WINE = kw(['wine']);
+var CHAMPAGNE= ALL_WINE.filter(function(p){ return hit(p,['champagne','moet','veuve','bollinger','perrier jouet','dom perignon','krug','laurent','pol roger','mumm','piper','taittinger']); });
+var PROSECCO = ALL_WINE.filter(function(p){ return hit(p,['prosecco','valdobbiadene','spumante']); });
+var WINE_SPK = ALL_WINE.filter(function(p){ return hit(p,['sparkling','cava','frizzante','lambrusco','cremant','asti']); });
+var WINE_RED = ALL_WINE.filter(function(p){ return hit(p,['red wine','red-wine','cabernet','merlot','shiraz','syrah','pinot noir','malbec','sangiovese','tempranillo','chianti','barolo','rioja','bordeaux']); });
+var WINE_WHT = ALL_WINE.filter(function(p){ return hit(p,['white wine','white-wine','sauvignon blanc','chardonnay','pinot grigio','riesling','viognier','chenin']); });
+var WINE_ROS = ALL_WINE.filter(function(p){ return hit(p,['rose wine','rosé','rose-wine','blush']); });
+var WINE_FLV = ALL_WINE.filter(function(p){ return hit(p,['flavoured','flavored','fruit wine','sangria','mulled']); });
+var WINE_DOM = ALL_WINE.filter(function(p){ return hit(p,['domestic','nepal','himalayan','marpha','mustang']); });
+var WINE_OTH = ALL_WINE.filter(function(p){
+  return !CHAMPAGNE.includes(p)&&!PROSECCO.includes(p)&&!WINE_SPK.includes(p)&&
+         !WINE_RED.includes(p)&&!WINE_WHT.includes(p)&&!WINE_ROS.includes(p)&&
+         !WINE_FLV.includes(p)&&!WINE_DOM.includes(p);
+});
 
-/* ── TOBACCO (3) ── */
-var CIGS     = kw(['cigarette','tobacco','cigar','marlboro','winston','gold flake','surya','shikhar','yak cigarette','camel','parliament','dunhill','555','benson','virginia slim','menthol cigarette','lucky strike','newport','pall mall']);
-var ROLLING  = kw(['rolling paper','raw paper','ocb rolling','rizla','juicy jay','zig zag','blunt wrap','hemp paper','king size rolling','filter tip','rolling filter','hemp wrap']);
-var ACCESS   = take(function(p){ return !used[p.url]; }); /* catch-all */
+/* ── BEER ── */
+var ALL_BEER = kw(['beer','lager','ale','stout']);
+var BEER_DOM = ALL_BEER.filter(function(p){ return hit(p,['domestic','nepal','everest','gorkha','nepal ice','star beer','tuborg nepal','carlsberg nepal','yak beer']); });
+var BEER_IMP = ALL_BEER.filter(function(p){ return hit(p,['imported','heineken','corona','budweiser','stella','asahi','kirin','kingfisher','leffe','tiger','chang','san miguel','hoegaarden','erdinger','paulaner']); });
+var BEER_CS  = ALL_BEER.filter(function(p){ return hit(p,['case','bulk','6 pack','12 pack','24 pack','carton','slab']); });
+var BEER_NA  = ALL_BEER.filter(function(p){ return hit(p,['non alcoholic','non-alcoholic','alcohol free','0%','zero beer','0.0']); });
+var BEER_OTH = ALL_BEER.filter(function(p){
+  return !BEER_DOM.includes(p)&&!BEER_IMP.includes(p)&&!BEER_CS.includes(p)&&!BEER_NA.includes(p);
+});
+
+/* ── MIXERS / BAR ── */
+var MIX_SYR  = kw(['syrup','monin','torani','grenadine','falernum','orgeat','gomme']);
+var MIX_ICE  = kw(['ice cube','ice block','ice bag','cocktail ice','crushed ice','party ice']);
+var MIX_BAR  = kw(['shaker','jigger','muddler','strainer','bar spoon','bar tool','mixing glass','pourer','bar set','bar accessory']);
+var MIX_FLO  = kw(['floral mixer','elderflower','hibiscus','lavender syrup','rose water','butterfly pea']);
+var MIX_SUP  = kw(['supplement','energy mix','electrolyte','recovery mix']);
+
+/* ── HOOKAH ── */
+var ALL_HOOKAH = kw(['hookah','shisha','kalyan']);
+var HOOK_FL  = ALL_HOOKAH.filter(function(p){ return hit(p,['flavor','flavour','tobacco','molasses','al fakher','starbuzz','fumari','adalya','mazaya','tangiers','afzal']); });
+var HOOK_EQ  = ALL_HOOKAH.filter(function(p){ return hit(p,['pipe','bowl','hose','charcoal','coal','setup','base','equipment','mouthpiece']); });
+var HOOK_OTH = ALL_HOOKAH.filter(function(p){ return !HOOK_FL.includes(p)&&!HOOK_EQ.includes(p); });
+
+/* ── CIGARETTES / TOBACCO ── */
+var CIGS     = kw(['cigarette','cigar','tobacco','marlboro','winston','gold flake','surya','shikhar','camel','parliament','dunhill','benson','menthol','lucky strike','newport']);
+var ROLLING  = kw(['rolling paper','raw paper','ocb','rizla','juicy jay','zig zag','blunt wrap','hemp paper','rolling filter','hemp wrap']);
+
+/* ── CATCH-ALL: anything not fitting above ── */
+var _allCovered = [].concat(FLASH,BEST,NEW,DEMAND,ALL_WHISKY,ALL_VODKA,ALL_GIN,ALL_RUM,TEQUILA,ALL_BRANDY,LIQUEUR,RTD,SOJU,SAKE,SHOCHU,UMESHU,JP_WINE,ALL_WINE,ALL_BEER,MIX_SYR,MIX_ICE,MIX_BAR,MIX_FLO,MIX_SUP,ALL_HOOKAH,CIGS,ROLLING);
+var ACCESS   = ALL.filter(function(p){ return !_allCovered.includes(p); });
 
 /* ════════════════════════════════════════
    BUILD HTML
@@ -463,120 +491,143 @@ var ACCESS   = take(function(p){ return !used[p.url]; }); /* catch-all */
 var html = '';
 
 /* CURATED */
-html += section('flash',   '🔥 FLASH DEALS',   'Flash Deals',      FLASH);
-html += section('best',    '⭐ BEST SELLERS',   'Best Sellers',     BEST);
-html += section('new',     '✦ NEW ARRIVALS',    'Just Arrived',     NEW);
-html += section('party',   '🎉 PARTY & EVENTS', 'Party Picks',      PARTY);
-html += section('demand',  '⚡ HIGH DEMAND',    'Moving Fast',      DEMAND);
+html += section('flash',  '🔥 FLASH DEALS',  'Flash Deals — Best Savings', FLASH);
+html += section('best',   '⭐ BEST SELLERS',  'Best Sellers',               BEST);
+html += section('new',    '✦ NEW ARRIVALS',   'Just Arrived',               NEW);
+html += section('demand', '⚡ HIGH DEMAND',   'Moving Fast',                DEMAND);
+
+/* ALL PRODUCTS slider (overview) */
+html += section('all', '🛒 ALL PRODUCTS', 'All Wholesale Products', ALL);
 
 /* WHISKY */
-if(WH_REG.length||WH_PREM.length||WH_BOUR.length||WH_MALT.length||WH_DOM.length){
+if(ALL_WHISKY.length){
   html += group('🥃','Whisky','Regular · Premium · Bourbon · Single Malt · Domestic');
-  html += section('wh-reg',  'WHISKY · REGULAR',    'Regular Whisky',        WH_REG);
-  html += section('wh-prem', 'WHISKY · PREMIUM',    'Premium Whisky',        WH_PREM);
+  html += section('wh-all',  'WHISKY · ALL',        'All Whisky',                ALL_WHISKY);
+  html += section('wh-reg',  'WHISKY · REGULAR',    'Regular Whisky',            WH_REG);
+  html += section('wh-prem', 'WHISKY · PREMIUM',    'Premium Whisky',            WH_PREM);
   html += section('wh-bour', 'WHISKY · BOURBON',    'American Whiskey &amp; Bourbon', WH_BOUR);
-  html += section('wh-malt', 'WHISKY · SINGLE MALT','Single Malt Scotch',    WH_MALT);
-  html += section('wh-dom',  'WHISKY · DOMESTIC',   'Domestic Whisky — Nepal', WH_DOM);
+  html += section('wh-malt', 'WHISKY · SINGLE MALT','Single Malt Scotch',        WH_MALT);
+  html += section('wh-dom',  'WHISKY · DOMESTIC',   'Domestic Whisky — Nepal',   WH_DOM);
+  html += section('wh-oth',  'WHISKY · OTHER',      'More Whisky',               WH_OTHER);
 }
 
 /* VODKA */
-if(VOD_DOM.length||VOD_IMP.length){
+if(ALL_VODKA.length){
   html += group('🧊','Vodka','Domestic Nepal · International Imports');
-  html += section('vod-dom', 'VODKA · DOMESTIC', 'Vodka — Domestic', VOD_DOM);
-  html += section('vod-imp', 'VODKA · IMPORTED', 'Vodka — Imported', VOD_IMP);
+  html += section('vod-all', 'VODKA · ALL',      'All Vodka',         ALL_VODKA);
+  html += section('vod-dom', 'VODKA · DOMESTIC', 'Vodka — Domestic',  VOD_DOM);
+  html += section('vod-imp', 'VODKA · IMPORTED', 'Vodka — Imported',  VOD_IMP);
+  html += section('vod-oth', 'VODKA · OTHER',    'More Vodka',         VOD_OTHER);
 }
 
 /* GIN */
-if(GIN_DOM.length||GIN_IMP.length){
+if(ALL_GIN.length){
   html += group('🌿','Gin','Domestic · International Craft &amp; Classic');
-  html += section('gin-dom', 'GIN · DOMESTIC', 'Gin — Domestic', GIN_DOM);
+  html += section('gin-all', 'GIN · ALL',      'All Gin',         ALL_GIN);
+  html += section('gin-dom', 'GIN · DOMESTIC', 'Gin — Domestic',  GIN_DOM);
   html += section('gin-imp', 'GIN · IMPORTED', 'Gin — Imported',  GIN_IMP);
+  html += section('gin-oth', 'GIN · OTHER',    'More Gin',        GIN_OTHER);
 }
 
 /* RUM */
-if(RUM_DOM.length||RUM_IMP.length){
+if(ALL_RUM.length){
   html += group('🍹','Rum','Domestic Nepal · International');
-  html += section('rum-dom', 'RUM · DOMESTIC', 'Rum — Domestic', RUM_DOM);
-  html += section('rum-imp', 'RUM · IMPORTED', 'Rum — Imported', RUM_IMP);
+  html += section('rum-all', 'RUM · ALL',      'All Rum',         ALL_RUM);
+  html += section('rum-dom', 'RUM · DOMESTIC', 'Rum — Domestic',  RUM_DOM);
+  html += section('rum-imp', 'RUM · IMPORTED', 'Rum — Imported',  RUM_IMP);
+  html += section('rum-oth', 'RUM · OTHER',    'More Rum',        RUM_OTHER);
 }
 
 /* TEQUILA */
 html += section('teq', '🌵 TEQUILA', 'Tequila &amp; Mezcal', TEQUILA);
 
 /* BRANDY */
-if(BR_VS.length||BR_VSOP.length||BR_NAP.length||BR_XO.length||BR_DOM.length){
+if(ALL_BRANDY.length){
   html += group('🍇','Brandy &amp; Cognac','VS · VSOP · Napoleon · XO · Domestic');
-  html += section('br-vs',   'COGNAC · VS',       'Brandy — VS',       BR_VS);
-  html += section('br-vsop', 'COGNAC · VSOP',     'Brandy — VSOP',     BR_VSOP);
-  html += section('br-nap',  'COGNAC · NAPOLEON', 'Brandy — Napoleon', BR_NAP);
-  html += section('br-xo',   'COGNAC · XO',       'Brandy — XO',       BR_XO);
-  html += section('br-dom',  'BRANDY · DOMESTIC', 'Brandy — Domestic', BR_DOM);
+  html += section('br-all',  'BRANDY · ALL',      'All Brandy &amp; Cognac', ALL_BRANDY);
+  html += section('br-vs',   'COGNAC · VS',        'VS Cognac',              BR_VS);
+  html += section('br-vsop', 'COGNAC · VSOP',      'VSOP Cognac',            BR_VSOP);
+  html += section('br-nap',  'COGNAC · NAPOLEON',  'Napoleon Cognac',        BR_NAP);
+  html += section('br-xo',   'COGNAC · XO',        'XO Cognac',              BR_XO);
+  html += section('br-dom',  'BRANDY · DOMESTIC',  'Domestic Brandy',        BR_DOM);
+  html += section('br-oth',  'BRANDY · OTHER',     'More Brandy',            BR_OTHER);
 }
 
-html += ctaBanner('Licensed Businesses Only','Unlock Full Wholesale Pricing','Register your business and save up to 40% on every order.');
+html += ctaBanner('Licensed Businesses Only','Unlock Full Wholesale Pricing','Register your business · up to 40% savings on every order.');
 
 /* LIQUEUR / RTD / SOJU */
 if(LIQUEUR.length||RTD.length||SOJU.length){
-  html += group('🍹','Liqueur, RTD &amp; Soju','Kahlua · Baileys · Aperol · Pre-Mixed · Korean Soju');
-  html += section('liq',  'LIQUEUR',         'Liqueur',               LIQUEUR);
-  html += section('rtd',  'READY TO DRINK',  'Ready to Drink',        RTD);
-  html += section('soju', '🇰🇷 SOJU',         'Soju — Korean Spirit',  SOJU);
+  html += group('🍹','Liqueur, RTD &amp; Soju','Kahlua · Baileys · Aperol · Pre-Mixed · Soju');
+  html += section('liq',  'LIQUEUR',        'Liqueur',            LIQUEUR);
+  html += section('rtd',  'READY TO DRINK', 'Ready to Drink',     RTD);
+  html += section('soju', 'SOJU',           'Soju — Korean',      SOJU);
 }
 
 /* JAPANESE */
 if(SAKE.length||SHOCHU.length||UMESHU.length||JP_WINE.length){
-  html += group('🍶','Japanese Spirits &amp; Wine','Sake · Shochu · Umeshu · Japanese Wine');
-  html += section('sake',    'SAKE',    'Sake — Japanese Rice Wine', SAKE);
-  html += section('shochu',  'SHOCHU',  'Shochu',                    SHOCHU);
-  html += section('umeshu',  'UMESHU',  'Umeshu — Plum Wine',        UMESHU);
-  html += section('jp-wine', 'JP WINE', 'Japanese Wine',             JP_WINE);
+  html += group('🍶','Japanese','Sake · Shochu · Umeshu · Wine');
+  html += section('sake',    'SAKE',    'Sake',           SAKE);
+  html += section('shochu',  'SHOCHU',  'Shochu',         SHOCHU);
+  html += section('umeshu',  'UMESHU',  'Umeshu',         UMESHU);
+  html += section('jp-wine', 'JP WINE', 'Japanese Wine',  JP_WINE);
 }
 
 /* WINE */
-if(WINE_RED.length||WINE_WHT.length||WINE_ROS.length||WINE_SPK.length||PROSECCO.length||CHAMPAGNE.length||WINE_FLV.length||WINE_DOM.length){
-  html += group('🍷','Wine — Full Range','Red · White · Rosé · Sparkling · Prosecco · Champagne · Domestic');
-  html += section('wine-red',  'WINE · RED',       'Red Wine',         WINE_RED);
-  html += section('wine-wht',  'WINE · WHITE',     'White Wine',       WINE_WHT);
-  html += section('wine-ros',  'WINE · ROSÉ',      'Rosé Wine',        WINE_ROS);
-  html += section('wine-spk',  'WINE · SPARKLING', 'Sparkling Wine',   WINE_SPK);
-  html += section('prosecco',  'PROSECCO',         'Prosecco',         PROSECCO);
-  html += section('champ',     'CHAMPAGNE',        'Champagne',        CHAMPAGNE);
-  html += section('wine-flv',  'WINE · FLAVOURED', 'Flavoured Wine',   WINE_FLV);
-  html += section('wine-dom',  'WINE · DOMESTIC',  'Wine — Nepal',     WINE_DOM);
+if(ALL_WINE.length){
+  html += group('🍷','Wine — Full Range','Red · White · Rosé · Sparkling · Prosecco · Champagne');
+  html += section('wine-all',  'WINE · ALL',       'All Wine',      ALL_WINE);
+  html += section('champ',     'CHAMPAGNE',        'Champagne',     CHAMPAGNE);
+  html += section('prosecco',  'PROSECCO',         'Prosecco',      PROSECCO);
+  html += section('wine-spk',  'WINE · SPARKLING', 'Sparkling',     WINE_SPK);
+  html += section('wine-red',  'WINE · RED',       'Red Wine',      WINE_RED);
+  html += section('wine-wht',  'WINE · WHITE',     'White Wine',    WINE_WHT);
+  html += section('wine-ros',  'WINE · ROSÉ',      'Rosé',          WINE_ROS);
+  html += section('wine-flv',  'WINE · FLAVOURED', 'Flavoured Wine',WINE_FLV);
+  html += section('wine-dom',  'WINE · DOMESTIC',  'Wine — Nepal',  WINE_DOM);
+  html += section('wine-oth',  'WINE · OTHER',     'More Wine',     WINE_OTH);
 }
 
-html += ctaBanner('Verified Business Pricing','Up to 40% Savings per Case','Dedicated account manager · credit terms · 24hr delivery.');
+html += ctaBanner('Business Pricing','Up to 40% Savings Per Case','Credit terms · account manager · 24hr delivery.');
 
 /* BEER */
-if(BEER_DOM.length||BEER_IMP.length||BEER_CS.length||BEER_NA.length){
-  html += group('🍺','Beer — All Types','Domestic · Imported · Bulk Cases · Non-Alcoholic');
-  html += section('beer-dom', 'BEER · DOMESTIC',      'Domestic Beer — Nepal',   BEER_DOM);
-  html += section('beer-imp', 'BEER · IMPORTED',      'Imported Beer',           BEER_IMP);
-  html += section('beer-cs',  'BEER · BULK CASES',    'Beer — Case Orders',      BEER_CS);
-  html += section('beer-na',  'BEER · NON-ALCOHOLIC', 'Non-Alcoholic Beer',      BEER_NA);
+if(ALL_BEER.length){
+  html += group('🍺','Beer — All Types','Domestic · Imported · Bulk · Non-Alcoholic');
+  html += section('beer-all', 'BEER · ALL',          'All Beer',              ALL_BEER);
+  html += section('beer-dom', 'BEER · DOMESTIC',     'Domestic Beer — Nepal', BEER_DOM);
+  html += section('beer-imp', 'BEER · IMPORTED',     'Imported Beer',         BEER_IMP);
+  html += section('beer-cs',  'BEER · BULK CASES',   'Bulk Case Orders',      BEER_CS);
+  html += section('beer-na',  'BEER · NON-ALCOHOLIC','Non-Alcoholic',         BEER_NA);
+  html += section('beer-oth', 'BEER · OTHER',        'More Beer',             BEER_OTH);
 }
 
 /* BAR MIXERS */
 if(MIX_SYR.length||MIX_ICE.length||MIX_BAR.length||MIX_FLO.length||MIX_SUP.length){
-  html += group('🍸','Bar Mixers &amp; Accessories','Syrups · Ice · Bar Tools · Floral · Supplements');
-  html += section('mix-syr', 'MIXERS · SYRUPS',      'Bar Syrups',          MIX_SYR);
-  html += section('mix-ice', 'MIXERS · ICE',         'Ice Products',        MIX_ICE);
-  html += section('mix-bar', 'MIXERS · BAR TOOLS',   'Bar Tools',           MIX_BAR);
-  html += section('mix-flo', 'MIXERS · FLORAL',      'Floral Infusions',    MIX_FLO);
-  html += section('mix-sup', 'MIXERS · SUPPLEMENTS', 'Supplements',         MIX_SUP);
+  html += group('🍸','Bar Mixers &amp; Tools','Syrups · Ice · Bar Tools · Floral · Supplements');
+  html += section('mix-syr', 'SYRUPS',       'Bar Syrups',     MIX_SYR);
+  html += section('mix-ice', 'ICE',          'Ice Products',   MIX_ICE);
+  html += section('mix-bar', 'BAR TOOLS',    'Bar Tools',      MIX_BAR);
+  html += section('mix-flo', 'FLORAL',       'Floral Mixers',  MIX_FLO);
+  html += section('mix-sup', 'SUPPLEMENTS',  'Supplements',    MIX_SUP);
 }
 
 /* HOOKAH */
-if(HOOK_FL.length||HOOK_EQ.length){
-  html += group('💨','Hookah — Complete Range','200+ Flavors · Pipes · Bowls · Charcoal · Full Setups');
-  html += section('hook-fl', 'HOOKAH · FLAVORS',   'Hookah Flavors',    HOOK_FL);
-  html += section('hook-eq', 'HOOKAH · EQUIPMENT', 'Hookah Equipment',  HOOK_EQ);
+if(ALL_HOOKAH.length){
+  html += group('💨','Hookah — Complete Range','Flavors · Pipes · Bowls · Charcoal');
+  html += section('hook-all', 'HOOKAH · ALL',       'All Hookah',        ALL_HOOKAH);
+  html += section('hook-fl',  'HOOKAH · FLAVORS',   'Hookah Flavors',    HOOK_FL);
+  html += section('hook-eq',  'HOOKAH · EQUIPMENT', 'Hookah Equipment',  HOOK_EQ);
+  html += section('hook-oth', 'HOOKAH · OTHER',     'More Hookah',       HOOK_OTH);
 }
 
-/* TOBACCO + ACCESSORIES */
-html += section('cigs',    '🚬 CIGARETTES', 'Cigarettes &amp; Tobacco', CIGS);
-html += section('rolling', '📜 ROLLING',    'Rolling Papers',           ROLLING);
-html += section('access',  '🛍️ ACCESSORIES','Smoking Accessories',      ACCESS);
+/* TOBACCO */
+if(CIGS.length||ROLLING.length){
+  html += group('🚬','Tobacco &amp; Smoking','Cigarettes · Rolling Papers');
+  html += section('cigs',    'CIGARETTES', 'Cigarettes &amp; Tobacco', CIGS);
+  html += section('rolling', 'ROLLING',    'Rolling Papers',           ROLLING);
+}
+
+/* CATCH-ALL */
+html += section('access', '🛍️ MORE', 'Other Products', ACCESS);
 
 /* ── RENDER ── */
 document.getElementById('qbwSections').innerHTML = html;
