@@ -1098,16 +1098,19 @@ html:not([data-theme]) #qbsc-root {
       var wasHidden = ROOT.classList.contains('qbsc-hidden');
 
       if (isInit) {
-        /* ── Page load / refresh — NO animation, just silently appear ── */
-        BAR.style.transition = 'none';
-        BAR.style.animation  = 'none';
-        BAR.classList.remove('qbsc-enter', 'qbsc-pulse');
-        BAR.style.opacity    = '1';
-        BAR.style.transform  = 'translateY(0)';
+        /* ── Page load / refresh — set final position before revealing ── */
+        var isDesktop = window.innerWidth >= 640;
+        BAR.style.transition    = 'none';
+        BAR.style.animation     = 'none';
+        BAR.style.opacity       = '0'; /* keep invisible until fully positioned */
+        BAR.style.transform     = isDesktop ? 'translateX(-50%) translateY(0)' : 'translateY(0)';
         BAR.style.pointerEvents = '';
+        BAR.classList.remove('qbsc-enter', 'qbsc-pulse');
         ROOT.classList.remove('qbsc-hidden');
+        /* Reveal only after two frames — guarantees position is painted */
         requestAnimationFrame(function(){
           requestAnimationFrame(function(){
+            BAR.style.opacity    = '1';
             BAR.style.transition = '';
             BAR.style.animation  = '';
           });
@@ -1133,19 +1136,14 @@ html:not([data-theme]) #qbsc-root {
     prevCount = count;
 
     /* ── Unhide root after first render — ONLY when cart has items ──
-       Never lift display:none for an empty cart. Doing so activates the
-       GPU compositor layer (backdrop-filter + will-change) which flashes
-       a transparent frame on every refresh, even at opacity:0.
-       When items exist, double-rAF ensures bar is at final position
-       before becoming visible → zero flash. */
+       display:none → '' is done here. The bar is already at opacity:0
+       from the isInit branch above, so no flash frame occurs.
+       We mark ready immediately so the double-rAF opacity restore above
+       can fire without racing against another applyCart call. */
     if (!ROOT.dataset.scReady && count > 0) {
-      requestAnimationFrame(function () {
-        requestAnimationFrame(function () {
-          ROOT.style.display   = '';
-          ROOT.dataset.scReady = '1';
-          BAR.dataset.scReady  = '1';
-        });
-      });
+      ROOT.dataset.scReady = '1';
+      BAR.dataset.scReady  = '1';
+      ROOT.style.display   = '';
     }
   }
 
@@ -1156,16 +1154,7 @@ html:not([data-theme]) #qbsc-root {
     fetchCart()
       .then(function (cart) { applyCart(cart, !!isNewAdd, !!isInit); })
       .catch(function () {
-        /* Even on error, unhide root so UI isn't stuck invisible */
-        if (!ROOT.dataset.scReady) {
-          requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-              ROOT.style.display   = '';
-              ROOT.dataset.scReady = '1';
-              BAR.dataset.scReady  = '1';
-            });
-          });
-        }
+        /* On fetch error, leave bar hidden — don't flash an empty/broken bar */
       })
       .then(function () { isFetching = false; });
   }
