@@ -21,11 +21,29 @@
 
 /* ── STICKY NAV ── */
 .qbw-nav{position:sticky;top:0;z-index:200;background:rgba(10,10,12,.97);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--bd2)}
-.qbw-nav-track{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 12px}
+.qbw-nav-track{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 8px;gap:2px;align-items:stretch}
 .qbw-nav-track::-webkit-scrollbar{display:none}
-.qbw-nav-btn{flex-shrink:0;padding:10px 11px;font-size:11px;font-weight:700;color:var(--dim);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .12s,border-color .12s;-webkit-tap-highlight-color:transparent}
+
+/* flat nav btn (no children) */
+.qbw-nav-btn{flex-shrink:0;padding:10px 11px;font-size:11px;font-weight:700;color:var(--dim);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .12s,border-color .12s;-webkit-tap-highlight-color:transparent;position:relative}
 .qbw-nav-btn:hover{color:var(--txt)}
 .qbw-nav-btn.on{color:var(--gold2);border-bottom-color:var(--gold)}
+
+/* dropdown group */
+.qbw-nav-grp{position:relative;flex-shrink:0;display:flex;align-items:stretch}
+.qbw-nav-grp-btn{display:flex;align-items:center;gap:4px;padding:10px 11px;font-size:11px;font-weight:700;color:var(--dim);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .12s,border-color .12s;-webkit-tap-highlight-color:transparent}
+.qbw-nav-grp-btn:hover,.qbw-nav-grp.open .qbw-nav-grp-btn{color:var(--gold2)}
+.qbw-nav-grp.on .qbw-nav-grp-btn{border-bottom:2px solid var(--gold);color:var(--gold2)}
+.qbw-nav-grp-btn .arrow{font-size:7px;opacity:.55;transition:transform .18s}
+.qbw-nav-grp.open .qbw-nav-grp-btn .arrow{transform:rotate(180deg);opacity:1}
+
+/* dropdown panel */
+.qbw-nav-drop{display:none;position:absolute;top:100%;left:0;min-width:190px;background:rgba(14,14,17,.98);border:1px solid var(--bd2);border-top:2px solid var(--gold);border-radius:0 0 10px 10px;box-shadow:0 14px 40px rgba(0,0,0,.7);z-index:300;overflow:hidden}
+.qbw-nav-grp.open .qbw-nav-drop{display:block}
+.qbw-nav-drop-item{display:block;padding:9px 16px;font-size:11.5px;font-weight:600;color:var(--sub);background:none;border:none;width:100%;text-align:left;cursor:pointer;white-space:nowrap;transition:background .12s,color .12s;border-bottom:1px solid rgba(255,255,255,.04)}
+.qbw-nav-drop-item:last-child{border-bottom:none}
+.qbw-nav-drop-item:hover{background:rgba(212,168,67,.07);color:var(--gold2)}
+.qbw-nav-drop-item.on{color:var(--gold2);background:rgba(212,168,67,.05)}
 
 /* ── TOP BAR ── */
 .qbw-topbar{padding:12px 16px;max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--bd)}
@@ -313,13 +331,9 @@ function byPop(a){ return a.slice().sort(function(x,y){
 /* ─── PRICE ─── */
 function priceHtml(p, big){
   var sz = big ? 'font-size:17px' : '';
-  {%- if customer and customer.tags contains 'wholesale-approved' -%}
+  if(p.price <= 0) return '';
   if(p.sv) return '<div class="qbw-price"><div class="qbw-price-row"><span class="qbw-price-now" style="'+sz+'">Rs '+Math.round(p.price/100)+'</span><span class="qbw-price-was">Rs '+Math.round(p.cmp/100)+'</span></div><div class="qbw-price-save">Save Rs '+p.svAmt+' ('+p.svPct+'%)</div></div>';
   return '<div class="qbw-price"><div class="qbw-price-row"><span class="qbw-price-now" style="'+sz+'">Rs '+Math.round(p.price/100)+'</span></div></div>';
-  {%- else -%}
-  if(p.sv) return '<div class="qbw-price"><div class="qbw-price-retail">Retail Rs '+Math.round(p.cmp/100)+'</div><div class="qbw-price-save">↓ Save '+p.svPct+'%</div><div class="qbw-price-hint">🔒 Register to unlock</div></div>';
-  return '<div class="qbw-price"><div class="qbw-price-locked">Wholesale Price</div></div>';
-  {%- endif -%}
 }
 
 /* ─── BADGE ─── */
@@ -392,8 +406,8 @@ function duo(id, eye, name, prods){
     var bd = p.sv?'<div class="qbw-duo-b-save">−'+p.svPct+'%</div>':'';
     var imgEl = p.img?'<img src="'+p.img+'" alt="'+esc(p.title)+'" loading="lazy" width="400" height="400">':'<div class="qbw-duo-empty">📦</div>';
     var pr = p.sv
-      ? '<div class="qbw-duo-price-now">Rs '+Math.round({%- if customer and customer.tags contains 'wholesale-approved' -%}p.price{%- else -%}p.cmp{%- endif -%}/100)+'</div>'
-      : '<div class="qbw-duo-price-locked">Wholesale Price</div>';
+      ? '<div class="qbw-duo-price-now">Rs '+Math.round(p.price/100)+'</div><div style="font-size:9px;color:var(--dim);text-decoration:line-through">Rs '+Math.round(p.cmp/100)+'</div>'
+      : (p.price>0 ? '<div class="qbw-duo-price-now">Rs '+Math.round(p.price/100)+'</div>' : '');
     return '<a href="'+p.url+'" class="qbw-duo-card">'
       +'<div class="qbw-duo-img">'+imgEl+'<div class="qbw-duo-fade"></div>'+bd+soldMask(p)+'</div>'
       +'<div class="qbw-duo-body">'+(p.type?'<div class="qbw-duo-type">'+esc(p.type)+'</div>':'')
@@ -730,29 +744,98 @@ if(ACCESS.length){
 
 document.getElementById('qbwContent').innerHTML = H;
 
-/* ─── STICKY NAV ─── */
-var navDefs = [
-  ['s-flash','🔥 Deals'],['s-best','⭐ Best'],['s-new','✦ New'],['s-demand','⚡ Hot'],
-  ['s-w-all','🥃 Whisky'],['s-w-reg','Regular'],['s-w-prem','Premium'],['s-w-bour','Bourbon'],['s-w-malt','Malt'],['s-w-dom','Dom Whisky'],['s-w-oth','Other'],
-  ['s-v-all','🧊 Vodka'],['s-v-dom','Dom Vodka'],['s-v-imp','Imported'],['s-v-oth','Other'],
-  ['s-g-all','🌿 Gin'],['s-g-dom','Dom Gin'],['s-g-imp','Imported'],
-  ['s-r-all','🍹 Rum'],['s-r-dom','Dom Rum'],['s-r-imp','Imported'],
-  ['s-teq','🌵 Tequila'],['s-teq-bln','Blanco'],['s-teq-rep','Reposado'],['s-teq-anj','Añejo'],
-  ['s-b-all','🍇 Brandy'],['s-b-vs','VS'],['s-b-vsop','VSOP'],['s-b-nap','Napoleon'],['s-b-xo','XO'],['s-b-dom','Dom Brandy'],
-  ['s-liq','🍹 Liqueur'],['s-rtd','RTD'],['s-soju','🇰🇷 Soju'],
-  ['s-sake','🍶 Sake'],['s-shochu','Shochu'],['s-umeshu','Umeshu'],
-  ['s-wi-all','🍷 Wine'],['s-wi-chmp','Champagne'],['s-wi-pros','Prosecco'],['s-wi-spk','Sparkling'],['s-wi-red','Red'],['s-wi-wht','White'],['s-wi-ros','Rosé'],['s-wi-flv','Flavoured'],['s-wi-dom','Dom Wine'],
-  ['s-be-all','🍺 Beer'],['s-be-dom','Dom Beer'],['s-be-imp','Imported'],['s-be-craft','Craft'],['s-be-cs','Bulk'],['s-be-na','NA Beer'],
-  ['s-mx-syr','🍯 Syrups'],['s-mx-soda','Sodas'],['s-mx-ice','Ice'],['s-mx-tool','Bar Tools'],
-  ['s-hk-all','💨 Hookah'],['s-hk-fl','Flavors'],['s-hk-eq','Equipment'],['s-hk-coal','Charcoal'],
-  ['s-cig','🚬 Cigs'],['s-cig-dom','Dom Cigs'],['s-cig-imp','Imported'],['s-rolling','Rolling'],
-  ['s-access','🛍️ More']
+/* ─── STICKY NAV (dropdown groups) ─── */
+var navGroups = [
+  { id:'s-flash', label:'🔥 Deals', children:[] },
+  { id:'s-best',  label:'⭐ Best',  children:[] },
+  { id:'s-new',   label:'✦ New',   children:[] },
+  { id:'s-demand',label:'⚡ Hot',  children:[] },
+  { id:'s-w-all', label:'🥃 Whisky ▾', children:[
+    ['s-w-reg','Regular Whisky'],['s-w-prem','Premium Whisky'],
+    ['s-w-bour','American &amp; Bourbon'],['s-w-malt','Single Malt'],
+    ['s-w-dom','Domestic Whisky'],['s-w-oth','Other Whisky']
+  ]},
+  { id:'s-v-all', label:'🧊 Vodka ▾', children:[
+    ['s-v-imp','Imported Vodka'],['s-v-dom','Domestic Vodka'],['s-v-oth','Other Vodka']
+  ]},
+  { id:'s-be-all', label:'🍺 Beer ▾', children:[
+    ['s-be-dom','Domestic Beer'],['s-be-imp','Imported Beer'],
+    ['s-be-craft','Craft Beer'],['s-be-cs','Bulk Cases'],
+    ['s-be-na','Non-Alcoholic'],['s-be-oth','Other Beer']
+  ]},
+  { id:'s-b-all', label:'🍇 Brandy ▾', children:[
+    ['s-b-vs','VS Cognac'],['s-b-vsop','VSOP Cognac'],
+    ['s-b-nap','Napoleon Cognac'],['s-b-xo','XO Cognac'],
+    ['s-b-dom','Domestic Brandy'],['s-b-oth','Other Brandy']
+  ]},
+  { id:'s-g-all', label:'🌿 Gin ▾', children:[
+    ['s-g-imp','Imported Gin'],['s-g-dom','Domestic Gin'],['s-g-oth','Other Gin']
+  ]},
+  { id:'s-r-all', label:'🍹 Rum ▾', children:[
+    ['s-r-imp','Imported Rum'],['s-r-dom','Domestic Rum'],['s-r-oth','Other Rum']
+  ]},
+  { id:'s-liq', label:'🍸 Liqueur ▾', children:[
+    ['s-liq-cre','Cream Liqueur'],['s-liq-bit','Bitter &amp; Amaro'],['s-liq-oth','Other Liqueur']
+  ]},
+  { id:'s-teq', label:'🌵 Tequila ▾', children:[
+    ['s-teq-bln','Blanco'],['s-teq-rep','Reposado'],['s-teq-anj','Añejo'],['s-teq-oth','Other']
+  ]},
+  { id:'s-sake', label:'🍶 Japanese ▾', children:[
+    ['s-sake','Sake'],['s-shochu','Shochu'],['s-umeshu','Umeshu'],['s-jpwine','Japanese Wine']
+  ]},
+  { id:'s-wi-all', label:'🍷 Wine ▾', children:[
+    ['s-wi-chmp','Champagne'],['s-wi-pros','Prosecco'],['s-wi-spk','Sparkling'],
+    ['s-wi-red','Red Wine'],['s-wi-wht','White Wine'],['s-wi-ros','Rosé'],
+    ['s-wi-flv','Flavoured'],['s-wi-dom','Domestic Wine'],['s-wi-oth','Other Wine']
+  ]},
+  { id:'s-rtd', label:'🥤 RTD / Soju ▾', children:[
+    ['s-rtd','Ready to Drink'],['s-soju','Korean Soju']
+  ]},
+  { id:'s-mx-syr', label:'🍸 Mixers ▾', children:[
+    ['s-mx-syr','Syrups'],['s-mx-ice','Ice'],['s-mx-tool','Bar Accessories'],
+    ['s-mx-flo','Flowers / Floral'],['s-mx-sup','Supplements'],['s-mx-soda','Sodas &amp; Tonics']
+  ]},
+  { id:'s-hk-all', label:'💨 Hookah ▾', children:[
+    ['s-hk-fl','Flavors'],['s-hk-eq','Equipment'],['s-hk-coal','Charcoal'],['s-hk-oth','Other']
+  ]},
+  { id:'s-cig', label:'🚬 Tobacco ▾', children:[
+    ['s-cig-dom','Domestic Cigs'],['s-cig-imp','Imported Cigs'],
+    ['s-cig-men','Menthol'],['s-cig-pre','Premium'],['s-rolling','Rolling Papers']
+  ]},
+  { id:'s-access', label:'🛍️ More', children:[] }
 ];
+
 var navHtml = '';
-navDefs.forEach(function(d){
-  if(document.getElementById(d[0])) navHtml += '<button class="qbw-nav-btn" data-id="'+d[0]+'" onclick="qbwNav(this)">'+d[1]+'</button>';
+navGroups.forEach(function(g){
+  var mainExists = !!document.getElementById(g.id);
+  if(!mainExists && !g.children.length) return;
+  var validChildren = g.children.filter(function(c){ return !!document.getElementById(c[0]); });
+  if(!mainExists && !validChildren.length) return;
+  var targetId = mainExists ? g.id : (validChildren.length ? validChildren[0][0] : null);
+  if(!targetId) return;
+
+  if(!validChildren.length){
+    // flat button
+    navHtml += '<button class="qbw-nav-btn" data-id="'+targetId+'" onclick="qbwNav(this)">'+g.label+'</button>';
+  } else {
+    // dropdown group
+    var drops = validChildren.map(function(c){
+      return '<button class="qbw-nav-drop-item" data-id="'+c[0]+'" onclick="qbwNavDrop(this)">'+c[1]+'</button>';
+    }).join('');
+    navHtml += '<div class="qbw-nav-grp" data-main="'+targetId+'">'
+      +'<button class="qbw-nav-grp-btn" onclick="qbwNavGrp(this)">'+g.label.replace(' ▾','')+'<span class="arrow">▾</span></button>'
+      +'<div class="qbw-nav-drop">'+drops+'</div>'
+      +'</div>';
+  }
 });
 document.getElementById('qbwNav').innerHTML = navHtml;
+
+/* close dropdowns when clicking outside */
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.qbw-nav-grp')) {
+    document.querySelectorAll('.qbw-nav-grp.open').forEach(function(g){ g.classList.remove('open'); });
+  }
+});
 
 /* ─── SCROLL OFFSET ─── */
 function off(){
@@ -762,12 +845,40 @@ function off(){
 }
 
 /* ─── NAV CLICK ─── */
+function scrollToSection(id){
+  var el = document.getElementById(id);
+  if(el) window.scrollTo({ top: el.getBoundingClientRect().top+window.scrollY-off(), behavior:'smooth' });
+}
 window.qbwNav = function(btn){
   document.querySelectorAll('.qbw-nav-btn').forEach(function(b){ b.classList.remove('on'); });
+  document.querySelectorAll('.qbw-nav-grp').forEach(function(g){ g.classList.remove('on'); });
   btn.classList.add('on');
-  var el = document.getElementById(btn.getAttribute('data-id'));
-  if(el) window.scrollTo({ top: el.getBoundingClientRect().top+window.scrollY-off(), behavior:'smooth' });
+  scrollToSection(btn.getAttribute('data-id'));
   btn.scrollIntoView({ inline:'center', behavior:'smooth', block:'nearest' });
+};
+window.qbwNavGrp = function(btn){
+  var grp = btn.closest('.qbw-nav-grp');
+  var wasOpen = grp.classList.contains('open');
+  document.querySelectorAll('.qbw-nav-grp.open').forEach(function(g){ g.classList.remove('open'); });
+  if(!wasOpen){
+    grp.classList.add('open');
+  } else {
+    // if already open and click again, navigate to main section
+    var mainId = grp.getAttribute('data-main');
+    document.querySelectorAll('.qbw-nav-btn').forEach(function(b){ b.classList.remove('on'); });
+    document.querySelectorAll('.qbw-nav-grp').forEach(function(g){ g.classList.remove('on'); });
+    grp.classList.add('on');
+    scrollToSection(mainId);
+  }
+};
+window.qbwNavDrop = function(btn){
+  document.querySelectorAll('.qbw-nav-grp.open').forEach(function(g){ g.classList.remove('open'); });
+  document.querySelectorAll('.qbw-nav-grp').forEach(function(g){ g.classList.remove('on'); });
+  document.querySelectorAll('.qbw-nav-drop-item').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  var grp = btn.closest('.qbw-nav-grp');
+  if(grp) grp.classList.add('on');
+  scrollToSection(btn.getAttribute('data-id'));
 };
 
 /* ─── AUTO-HIGHLIGHT ─── */
@@ -776,8 +887,16 @@ if(window.IntersectionObserver){
     entries.forEach(function(e){
       if(!e.isIntersecting) return;
       var id = e.target.id;
+      // flat buttons
       document.querySelectorAll('.qbw-nav-btn').forEach(function(b){ b.classList.toggle('on',b.getAttribute('data-id')===id); });
-      var act = document.querySelector('.qbw-nav-btn.on');
+      // dropdown items
+      document.querySelectorAll('.qbw-nav-drop-item').forEach(function(b){ b.classList.toggle('on',b.getAttribute('data-id')===id); });
+      // parent group on state
+      document.querySelectorAll('.qbw-nav-grp').forEach(function(g){
+        var hasActive = g.querySelector('.qbw-nav-drop-item.on');
+        g.classList.toggle('on', !!hasActive || g.getAttribute('data-main')===id);
+      });
+      var act = document.querySelector('.qbw-nav-btn.on,.qbw-nav-grp.on .qbw-nav-grp-btn');
       if(act) act.scrollIntoView({ inline:'nearest', behavior:'smooth', block:'nearest' });
     });
   },{ threshold:0.2, rootMargin:'-50px 0px -55% 0px' });
