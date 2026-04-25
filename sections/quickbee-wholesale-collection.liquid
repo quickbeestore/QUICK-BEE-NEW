@@ -200,31 +200,31 @@
   padding:4px 12px;font-size:11px;font-weight:700;
   color:var(--gold);text-transform:uppercase;letter-spacing:.6px;margin-bottom:16px;
 }
-/* BUNDLES */
-.qb-bundles-grid{display:grid;grid-template-columns:repeat(1,1fr);gap:16px}
-@media(min-width:640px){.qb-bundles-grid{grid-template-columns:repeat(2,1fr)}}
-@media(min-width:1024px){.qb-bundles-grid{grid-template-columns:repeat(4,1fr)}}
-.qb-bundle-card{
-  background:linear-gradient(135deg,var(--bg2),var(--bg3));
+/* PARENT GROUP HEADER */
+.qb-group{margin-top:56px}
+.qb-group-head{
+  display:flex;align-items:center;gap:12px;
+  padding:16px 20px;
+  background:linear-gradient(135deg,rgba(212,168,67,0.08),rgba(212,168,67,0.03));
   border:1px solid var(--border2);border-radius:var(--radius);
-  padding:20px;position:relative;overflow:hidden;
-  transition:transform .25s,box-shadow .25s;
+  margin-bottom:8px;
 }
-.qb-bundle-card::before{
-  content:'';position:absolute;top:-40px;right:-40px;
-  width:120px;height:120px;
-  background:radial-gradient(circle,rgba(212,168,67,0.1),transparent 70%);
-  pointer-events:none;
+.qb-group-icon{font-size:28px}
+.qb-group-name{font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.3px}
+.qb-group-count{
+  margin-left:auto;font-size:12px;color:var(--muted);
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:20px;padding:3px 12px;
 }
-.qb-bundle-card:hover{transform:translateY(-4px);box-shadow:var(--glow)}
-.qb-bundle-icon{font-size:32px;margin-bottom:10px}
-.qb-bundle-name{font-size:16px;font-weight:800;color:#fff;margin-bottom:4px}
-.qb-bundle-desc{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.5}
-.qb-bundle-items{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-.qb-bundle-item-tag{font-size:10px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:4px;padding:2px 7px;color:var(--muted)}
-.qb-bundle-save{font-size:12px;font-weight:700;background:var(--red);color:#fff;border-radius:4px;padding:2px 6px;margin-bottom:14px;display:inline-block}
-.qb-bundle-cta{width:100%;padding:10px;background:var(--gold);color:#000;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
-.qb-bundle-cta:hover{background:var(--gold2)}
+.qb-subcat-label{
+  font-size:13px;font-weight:700;color:var(--gold);
+  text-transform:uppercase;letter-spacing:.5px;
+  margin:20px 0 10px;
+  display:flex;align-items:center;gap:8px;
+}
+.qb-subcat-label::after{
+  content:'';flex:1;height:1px;background:var(--border);
+}
 /* QUICK ORDER SHEET */
 #qb-order-sheet{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:48px}
 .qb-sheet-head{background:var(--bg3);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
@@ -265,12 +265,6 @@
 .qb-sheet-grand span{color:var(--gold)}
 .qb-sheet-add-all{padding:10px 24px;background:var(--gold);color:#000;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
 .qb-sheet-add-all:hover{background:var(--gold2)}
-/* FILTER VIEW */
-#qb-filter-view{display:none;animation:qbFadeIn .3s ease}
-#qb-filter-view.active{display:block}
-#qb-filter-view .qb-grid{margin-top:16px}
-.qb-loadmore{display:block;margin:20px auto 0;padding:10px 28px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;cursor:pointer;transition:all .2s}
-.qb-loadmore:hover{border-color:var(--gold);color:var(--gold)}
 /* TOAST */
 #qb-toast{
   position:fixed;bottom:24px;right:24px;z-index:9999;
@@ -309,24 +303,6 @@
     <div id="qb-sec-featured" class="qb-section" style="display:none">
       <div class="qb-feat-label">⭐ Featured &amp; Best Sellers</div>
       <div class="qb-feat-grid" id="qb-feat-grid"></div>
-    </div>
-
-    <div id="qb-sec-bundles" class="qb-section">
-      <div class="qb-section-head">
-        <div class="qb-section-title">
-          <span class="qb-sec-icon">🎁</span>
-          <span class="qb-sec-label">Smart Bundles</span>
-        </div>
-      </div>
-      <div class="qb-bundles-grid" id="qb-bundles-grid"></div>
-    </div>
-
-    <div id="qb-filter-view">
-      <div class="qb-section-head" style="margin-top:32px">
-        <div class="qb-section-title" id="qb-filter-title"></div>
-      </div>
-      <div class="qb-grid" id="qb-filter-grid"></div>
-      <button class="qb-loadmore" id="qb-filter-more" style="display:none">Load More</button>
     </div>
 
     <div id="qb-sections"></div>
@@ -381,23 +357,92 @@ function hasTag(p,t){return p.tags.indexOf(t)>-1;}
 function hasAnyTag(p,ts){return ts.some(function(t){return p.tags.indexOf(t)>-1;});}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-/* --- 3. CATEGORY ENGINE --- */
-var IGNORE=new Set(['sale','new','bestseller','high-demand','featured','limited','domestic','imported',
-  'craft','premium','regular','popular','trending','recommended','wholesale','retail','all','others',
-  'misc','bundle','clearance','special','in-stock','out-of-stock']);
-var CAT_MAP={};
+/* --- 3. FIXED CATEGORY TREE --- */
+// Tags are lowercased in Liquid. Structure mirrors exact Shopify tags.
+var CATEGORY_TREE=[
+  {id:'whisky',label:'Whisky',icon:'🥃',subcats:[
+    {tag:'whisky - regular',label:'Regular'},
+    {tag:'whisky - premium',label:'Premium'},
+    {tag:'whisky - american & bourbon',label:'American & Bourbon'},
+    {tag:'whisky - single malt',label:'Single Malt'},
+    {tag:'whisky - domestic',label:'Domestic'}
+  ]},
+  {id:'vodka',label:'Vodka',icon:'🍸',subcats:[
+    {tag:'vodka - domestic',label:'Domestic'},
+    {tag:'vodka - imported',label:'Imported'}
+  ]},
+  {id:'beer',label:'Beer',icon:'🍺',subcats:[
+    {tag:'beer - domestic',label:'Domestic'},
+    {tag:'beer - imported',label:'Imported'},
+    {tag:'beer - case',label:'Case'},
+    {tag:'beer - non alcoholic',label:'Non Alcoholic'}
+  ]},
+  {id:'gin',label:'Gin',icon:'🍸',subcats:[
+    {tag:'gin - domestic',label:'Domestic'},
+    {tag:'gin - imported',label:'Imported'}
+  ]},
+  {id:'rum',label:'Rum',icon:'🍹',subcats:[
+    {tag:'rum - domestic',label:'Domestic'},
+    {tag:'rum - imported',label:'Imported'}
+  ]},
+  {id:'tequila',label:'Tequila',icon:'🌵',subcats:[
+    {tag:'tequila',label:'Tequila'}
+  ]},
+  {id:'liqueur',label:'Liqueur',icon:'🍹',subcats:[
+    {tag:'liqueur',label:'Liqueur'},
+    {tag:'liqueur - ready to drink',label:'Ready To Drink'},
+    {tag:'liqueur - soju',label:'Soju'}
+  ]},
+  {id:'wine',label:'Wine',icon:'🍷',subcats:[
+    {tag:'wine - red',label:'Red'},
+    {tag:'wine - white',label:'White'},
+    {tag:'wine - rose',label:'Rosé'},
+    {tag:'wine - sparkling',label:'Sparkling'},
+    {tag:'wine - prosecco',label:'Prosecco'},
+    {tag:'wine - champagne',label:'Champagne'},
+    {tag:'wine - flavoured',label:'Flavoured'},
+    {tag:'wine - domestic',label:'Domestic'}
+  ]},
+  {id:'brandy',label:'Brandy',icon:'🥃',subcats:[
+    {tag:'brandy - vs cognac',label:'VS Cognac'},
+    {tag:'brandy - vsop cognac',label:'VSOP Cognac'},
+    {tag:'brandy - napoleon cognac',label:'Napoleon Cognac'},
+    {tag:'brandy - xo cognac',label:'XO Cognac'},
+    {tag:'brandy - domestic',label:'Domestic'}
+  ]},
+  {id:'japanese',label:'Japanese Liquor',icon:'🍶',subcats:[
+    {tag:'japanese liquor - sake',label:'Sake'},
+    {tag:'japanese liquor - shochu',label:'Shochu'},
+    {tag:'japanese liquor - umeshu',label:'Umeshu'},
+    {tag:'japanese liquor - wines',label:'Wines'}
+  ]},
+  {id:'mixers',label:'Mixers',icon:'🧃',subcats:[
+    {tag:'mixers - syrup',label:'Syrup'},
+    {tag:'mixers - ice cube',label:'Ice Cube'},
+    {tag:'mixers - bar accessories',label:'Bar Accessories'},
+    {tag:'mixers - supplements',label:'Supplements'}
+  ]},
+  {id:'accessories',label:'Accessories',icon:'🛒',subcats:[
+    {tag:'accessories',label:'Accessories'}
+  ]}
+];
+
+// Build tag→products map from ALL products
+var TAG_MAP={};
 ALL.forEach(function(p){
-  var assigned=false;
-  for(var i=0;i<p.tags.length;i++){
-    var t=p.tags[i];
-    if(!IGNORE.has(t)&&t.length>1){
-      if(!CAT_MAP[t])CAT_MAP[t]=[];
-      CAT_MAP[t].push(p);assigned=true;break;
-    }
-  }
-  if(!assigned){if(!CAT_MAP['other'])CAT_MAP['other']=[];CAT_MAP['other'].push(p);}
+  p.tags.forEach(function(t){
+    if(!TAG_MAP[t])TAG_MAP[t]=[];
+    TAG_MAP[t].push(p);
+  });
 });
-var CATS=Object.keys(CAT_MAP).sort(function(a,b){return CAT_MAP[b].length-CAT_MAP[a].length;});
+
+// Build parent totals for stats
+var totalCats=0;
+CATEGORY_TREE.forEach(function(grp){
+  grp.subcats.forEach(function(sc){
+    if(TAG_MAP[sc.tag]&&TAG_MAP[sc.tag].length)totalCats++;
+  });
+});
 
 /* --- 4. FEATURED --- */
 var FEATURED=ALL.filter(function(p){return hasAnyTag(p,['bestseller','high-demand','featured']);}).slice(0,24);
@@ -408,7 +453,7 @@ if(FEATURED.length<12){
 
 /* --- 5. STATS --- */
 document.getElementById('qb-stat-products').textContent=ALL.length.toLocaleString();
-document.getElementById('qb-stat-cats').textContent=CATS.length;
+document.getElementById('qb-stat-cats').textContent=totalCats;
 var vendors=new Set(ALL.map(function(p){return p.vendor;}));
 document.getElementById('qb-stat-brands').textContent=vendors.size;
 
@@ -449,32 +494,43 @@ function skelCard(){
 }
 
 /* --- 7. SECTION BUILDER --- */
-var CAT_ICONS={whisky:'🥃',whiskey:'🥃',bourbon:'🥃',scotch:'🥃',vodka:'🍸',gin:'🍸',
-  rum:'🍹',tequila:'🌵',beer:'🍺',lager:'🍺',ale:'🍺',stout:'🍺',wine:'🍷',
-  champagne:'🥂',prosecco:'🥂',brandy:'🥃',cognac:'🥃',liqueur:'🍹',soju:'🥂',
-  sake:'🍶',mixer:'🧃',soda:'🧃',juice:'🧃',tobacco:'🚬',hookah:'💨',rtd:'🥤',default:'🍶'};
-function catIcon(n){return CAT_ICONS[n]||CAT_ICONS.default;}
-
-function buildSection(id,icon,label,products){
+function buildSubcatSlider(tag,label,products){
   if(!products||!products.length)return '';
+  var sid='sl-'+tag.replace(/[^a-z0-9]/g,'-');
   var n=products.length;
   var inner='';
   if(n>=4){
-    var cards=products.map(buildCard).join('');
     inner='<div class="qb-slider-wrap">'
-      +'<button class="qb-arr qb-arr-l" data-target="'+id+'">‹</button>'
-      +'<div class="qb-slider" id="sl-'+id+'">'+cards+'</div>'
-      +'<button class="qb-arr qb-arr-r" data-target="'+id+'">›</button>'
+      +'<button class="qb-arr qb-arr-l" data-target="'+esc(sid)+'">‹</button>'
+      +'<div class="qb-slider" id="'+esc(sid)+'">'+products.map(buildCard).join('')+'</div>'
+      +'<button class="qb-arr qb-arr-r" data-target="'+esc(sid)+'">›</button>'
       +'</div>';
   }else{
     inner='<div class="qb-grid">'+products.map(buildCard).join('')+'</div>';
   }
-  return '<div class="qb-section" id="sec-'+id+'">'
-    +'<div class="qb-section-head"><div class="qb-section-title">'
-    +'<span class="qb-sec-icon">'+icon+'</span>'
-    +'<span class="qb-sec-label">'+esc(label)+'</span>'
-    +'<span class="qb-sec-count">'+n+'</span>'
-    +'</div></div>'+inner+'</div>';
+  return '<div class="qb-subcat-label">'+esc(label)+' <span style="font-size:11px;color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0">('+n+')</span></div>'
+    +inner;
+}
+
+function buildGroupSection(grp){
+  var parts=[];
+  var total=0;
+  grp.subcats.forEach(function(sc){
+    var prods=TAG_MAP[sc.tag]||[];
+    if(prods.length){
+      parts.push(buildSubcatSlider(sc.tag,sc.label,prods));
+      total+=prods.length;
+    }
+  });
+  if(!parts.length)return '';
+  return '<div class="qb-group" id="grp-'+grp.id+'">'
+    +'<div class="qb-group-head">'
+    +'<span class="qb-group-icon">'+grp.icon+'</span>'
+    +'<span class="qb-group-name">'+esc(grp.label)+'</span>'
+    +'<span class="qb-group-count">'+total+' products</span>'
+    +'</div>'
+    +parts.join('')
+    +'</div>';
 }
 
 /* --- 8. FEATURED RENDER --- */
@@ -486,41 +542,17 @@ function buildSection(id,icon,label,products){
   grid.innerHTML=FEATURED.map(buildCard).join('');
 })();
 
-/* --- 9. BUNDLES RENDER --- */
-(function(){
-  var BUNDLES=[
-    {icon:'🍸',name:'Bar Starter Pack',desc:'Essential spirits to stock your home or professional bar',tags:['vodka','gin','rum','whisky'],savings:15},
-    {icon:'🍹',name:'Cocktail Pack',desc:'Premium mixers and spirits for craft cocktail creation',tags:['vodka','liqueur','mixer','soda'],savings:12},
-    {icon:'🍺',name:'Weekend Beer Pack',desc:'Curated selection of domestic and imported beers',tags:['beer','lager','ale','craft'],savings:10},
-    {icon:'🥃',name:'Premium Lounge Pack',desc:'Top-shelf whisky and cognac for premium service',tags:['whisky','cognac','brandy','scotch'],savings:18}
-  ];
-  var grid=document.getElementById('qb-bundles-grid');
-  var html='';
-  BUNDLES.forEach(function(b){
-    var tagHtml=b.tags.map(function(t){
-      return '<span class="qb-bundle-item-tag">'+esc(t.charAt(0).toUpperCase()+t.slice(1))+'</span>';
-    }).join('');
-    html+='<div class="qb-bundle-card">'
-      +'<div class="qb-bundle-icon">'+b.icon+'</div>'
-      +'<div class="qb-bundle-name">'+esc(b.name)+'</div>'
-      +'<div class="qb-bundle-desc">'+esc(b.desc)+'</div>'
-      +'<div class="qb-bundle-items">'+tagHtml+'</div>'
-      +'<span class="qb-bundle-save">Save '+b.savings+'%</span>'
-      +'<button class="qb-bundle-cta" data-bundle="'+esc(b.name)+'" data-tags="'+esc(b.tags.join(','))+'">Add Bundle to Cart</button>'
-      +'</div>';
-  });
-  grid.innerHTML=html;
-})();
-
-/* --- 10. CAT BAR BUILD --- */
+/* --- 9. CAT BAR BUILD (parent groups only) --- */
 (function(){
   var bar=document.getElementById('qb-cat-bar');
-  CATS.forEach(function(cat){
+  CATEGORY_TREE.forEach(function(grp){
+    var total=0;
+    grp.subcats.forEach(function(sc){total+=(TAG_MAP[sc.tag]||[]).length;});
+    if(!total)return;
     var btn=document.createElement('button');
     btn.className='qb-cat-pill';
-    btn.dataset.cat=cat;
-    var label=cat.charAt(0).toUpperCase()+cat.slice(1);
-    btn.innerHTML=catIcon(cat)+' '+esc(label)+' <span class="qb-pill-count">'+CAT_MAP[cat].length+'</span>';
+    btn.dataset.cat=grp.id;
+    btn.innerHTML=grp.icon+' '+esc(grp.label)+' <span class="qb-pill-count">'+total+'</span>';
     bar.appendChild(btn);
   });
 })();
@@ -528,13 +560,12 @@ function buildSection(id,icon,label,products){
 /* --- 11. SECTIONS RENDER (with skeleton) --- */
 (function(){
   var container=document.getElementById('qb-sections');
-  // Show skeleton
+  // Skeleton
   var skelDiv=document.createElement('div');
   skelDiv.id='qb-skel-sec';
   var sh='';
   for(var s=0;s<3;s++){
-    sh+='<div class="qb-section"><div style="height:24px;width:180px;background:var(--bg3);border-radius:6px;margin-bottom:16px;position:relative;overflow:hidden">'
-      +'<div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.04),transparent);animation:qbShimmer 1.5s infinite"></div></div>'
+    sh+='<div class="qb-group"><div class="qb-group-head" style="opacity:.3"><div style="width:160px;height:22px;background:var(--bg3);border-radius:6px"></div></div>'
       +'<div class="qb-grid">';
     for(var k=0;k<10;k++)sh+=skelCard();
     sh+='</div></div>';
@@ -545,16 +576,13 @@ function buildSection(id,icon,label,products){
   requestAnimationFrame(function(){
     setTimeout(function(){
       var html='';
-      CATS.forEach(function(cat){
-        html+=buildSection(cat,catIcon(cat),cat.charAt(0).toUpperCase()+cat.slice(1),CAT_MAP[cat]);
-      });
+      CATEGORY_TREE.forEach(function(grp){html+=buildGroupSection(grp);});
       var realDiv=document.createElement('div');
       realDiv.id='qb-real-sec';
       realDiv.innerHTML=html;
       var old=document.getElementById('qb-skel-sec');
       if(old)container.replaceChild(realDiv,old);
-      // Start scroll spy
-      realDiv.querySelectorAll('.qb-section[id^="sec-"]').forEach(function(el){
+      realDiv.querySelectorAll('.qb-group[id^="grp-"]').forEach(function(el){
         spyObs.observe(el);
       });
     },80);
@@ -609,49 +637,19 @@ document.getElementById('qb-sheet-add-all').addEventListener('click',function(){
   addMultiple(items,'Order added to cart ✓');
 });
 
-/* --- 13. CATEGORY FILTER --- */
-var filterOffset=0;
-var FILTER_PAGE=24;
-
-function showFilter(cat){
-  var fv=document.getElementById('qb-filter-view');
-  var rs=document.getElementById('qb-real-sec');
-  var bs=document.getElementById('qb-sec-bundles');
-  var fs=document.getElementById('qb-sec-featured');
-  if(cat==='all'){
-    fv.classList.remove('active');
-    if(rs)rs.style.display='';
-    if(bs)bs.style.display='';
-    if(fs&&FEATURED.length)fs.style.display='';
+/* --- 13. CATEGORY NAV — scroll to group section --- */
+function showFilter(catId){
+  if(catId==='all'){
+    window.scrollTo({top:0,behavior:'smooth'});
     return;
   }
-  if(rs)rs.style.display='none';
-  if(bs)bs.style.display='none';
-  if(fs)fs.style.display='none';
-  fv.classList.add('active');
-  filterOffset=0;
-  var products=CAT_MAP[cat]||[];
-  var label=cat.charAt(0).toUpperCase()+cat.slice(1);
-  document.getElementById('qb-filter-title').innerHTML=
-    '<span class="qb-sec-icon">'+catIcon(cat)+'</span>'
-    +'<span class="qb-sec-label">'+esc(label)+'</span>'
-    +'<span class="qb-sec-count">'+products.length+'</span>';
-  var grid=document.getElementById('qb-filter-grid');
-  grid.innerHTML=products.slice(0,FILTER_PAGE).map(buildCard).join('');
-  filterOffset=Math.min(FILTER_PAGE,products.length);
-  var moreBtn=document.getElementById('qb-filter-more');
-  if(products.length>FILTER_PAGE){
-    moreBtn.style.display='block';
-    moreBtn.onclick=function(){
-      var chunk=products.slice(filterOffset,filterOffset+FILTER_PAGE);
-      var tmp=document.createElement('div');
-      tmp.innerHTML=chunk.map(buildCard).join('');
-      while(tmp.firstChild)grid.appendChild(tmp.firstChild);
-      filterOffset+=chunk.length;
-      if(filterOffset>=products.length)moreBtn.style.display='none';
-    };
-  }else{moreBtn.style.display='none';}
-  fv.scrollIntoView({behavior:'smooth',block:'start'});
+  // scroll to the group section
+  var el=document.getElementById('grp-'+catId);
+  if(el){
+    var offset=60; // sticky bar height
+    var top=el.getBoundingClientRect().top+window.pageYOffset-offset;
+    window.scrollTo({top:top,behavior:'smooth'});
+  }
 }
 
 document.getElementById('qb-cat-bar').addEventListener('click',function(e){
@@ -732,26 +730,14 @@ document.addEventListener('click',function(e){
   addToCart(variantId,qty,btn,title);
 });
 
-document.addEventListener('click',function(e){
-  var btn=e.target.closest('.qb-bundle-cta');
-  if(!btn)return;
-  var tags=btn.dataset.tags?btn.dataset.tags.split(','):[];
-  var items=[];
-  tags.forEach(function(tag){var pool=CAT_MAP[tag];if(pool&&pool.length)items.push({id:parseInt(pool[0].variant),quantity:1});});
-  if(!items.length){showToast('No products found for this bundle','error');return;}
-  btn.textContent='Adding…';btn.disabled=true;
-  addMultiple(items,btn.dataset.bundle+' added!');
-  setTimeout(function(){btn.textContent='Add Bundle to Cart';btn.disabled=false;},2200);
-});
-
 /* --- 17. SCROLL SPY --- */
 var spyObs=new IntersectionObserver(function(entries){
   entries.forEach(function(entry){
     if(!entry.isIntersecting)return;
-    var cat=entry.target.id.replace('sec-','');
-    document.querySelectorAll('.qb-cat-pill').forEach(function(p){p.classList.toggle('active',p.dataset.cat===cat);});
+    var grpId=entry.target.id.replace('grp-','');
+    document.querySelectorAll('.qb-cat-pill').forEach(function(p){p.classList.toggle('active',p.dataset.cat===grpId);});
   });
-},{threshold:0.2});
+},{rootMargin:'-10% 0px -70% 0px'});
 
 }());
 </script>
