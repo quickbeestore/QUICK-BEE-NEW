@@ -879,55 +879,58 @@ html:not([data-theme="dark"]) .qbsr-time-badge {
       <div class="qbsr-grid-wrap">
         <ul class="qbsr-grid" id="qbsrGrid">
           {%- for product in product_results -%}
-            {%- assign sale = false -%}
-            {%- if product.compare_at_price > product.price -%}
-              {%- assign sale = true -%}
-              {%- assign discount = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price -%}
-            {%- endif -%}
+            {%- assign p_title = product.title | downcase -%}
+            {%- unless p_title contains 'syrup' or p_title contains 'monin' or p_title contains 'pump' or p_title contains 'sauce' or p_title contains 'chocolate' or p_title contains 'energy shot' -%}
+              {%- assign sale = false -%}
+              {%- if product.compare_at_price > product.price -%}
+                {%- assign sale = true -%}
+                {%- assign discount = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price -%}
+              {%- endif -%}
 
-            <li class="qbsr-card">
-              <a href="{{ product.url }}" class="qbsr-card-link">
-                <div class="qbsr-img-wrap">
-                  {%- if product.featured_image -%}
-                    <img
-                      src="{{ product.featured_image | image_url: width: 480 }}"
-                      alt="{{ product.featured_image.alt | default: product.title | escape }}"
-                      class="qbsr-img"
-                      loading="lazy"
-                      width="480"
-                      height="480"
-                    >
-                  {%- else -%}
-                    <div class="qbsr-no-img">🐝</div>
-                  {%- endif -%}
-
-                  {%- if sale -%}
-                    <span class="qbsr-sale-badge">{{ discount }}% OFF</span>
-                  {%- endif -%}
-                  <span class="qbsr-time-badge qbsr-time-sync">⚡ 20 mins</span>
-                </div>
-
-                <div class="qbsr-card-body">
-                  <h3 class="qbsr-card-name">{{ product.title }}</h3>
-                  <div class="qbsr-price-row">
-                    <span class="qbsr-price">Rs {{ product.price | money_without_currency }}</span>
-                    {%- if sale -%}
-                      <span class="qbsr-compare">Rs {{ product.compare_at_price | money_without_currency }}</span>
+              <li class="qbsr-card">
+                <a href="{{ product.url }}" class="qbsr-card-link">
+                  <div class="qbsr-img-wrap">
+                    {%- if product.featured_image -%}
+                      <img
+                        src="{{ product.featured_image | image_url: width: 480 }}"
+                        alt="{{ product.featured_image.alt | default: product.title | escape }}"
+                        class="qbsr-img"
+                        loading="lazy"
+                        width="480"
+                        height="480"
+                      >
+                    {%- else -%}
+                      <div class="qbsr-no-img">🐝</div>
                     {%- endif -%}
-                  </div>
-                </div>
-              </a>
 
-              <button
-                class="qbsr-add-btn"
-                data-variant="{{ product.first_available_variant.id }}"
-                data-name="{{ product.title | escape }}"
-                aria-label="Add {{ product.title | escape }} to cart"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                ADD
-              </button>
-            </li>
+                    {%- if sale -%}
+                      <span class="qbsr-sale-badge">{{ discount }}% OFF</span>
+                    {%- endif -%}
+                    <span class="qbsr-time-badge qbsr-time-sync">⚡ 20 mins</span>
+                  </div>
+
+                  <div class="qbsr-card-body">
+                    <h3 class="qbsr-card-name">{{ product.title }}</h3>
+                    <div class="qbsr-price-row">
+                      <span class="qbsr-price">Rs {{ product.price | money_without_currency }}</span>
+                      {%- if sale -%}
+                        <span class="qbsr-compare">Rs {{ product.compare_at_price | money_without_currency }}</span>
+                      {%- endif -%}
+                    </div>
+                  </div>
+                </a>
+
+                <button
+                  class="qbsr-add-btn"
+                  data-variant="{{ product.first_available_variant.id }}"
+                  data-name="{{ product.title | escape }}"
+                  aria-label="Add {{ product.title | escape }} to cart"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  ADD
+                </button>
+              </li>
+            {%- endunless -%}
           {%- endfor -%}
         </ul>
       </div>
