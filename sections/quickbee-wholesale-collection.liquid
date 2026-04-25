@@ -596,32 +596,34 @@ function startApp(){
 if(pageStubs.length===0){
   startApp();
 }else{
-  /* show progress bar while fetching remaining pages */
   var loadWrap=document.getElementById('qb-load-wrap');
   var loadBar=document.getElementById('qb-load-bar');
   var loadTxt=document.getElementById('qb-load-txt');
   if(loadWrap)loadWrap.style.display='flex';
   var pending=pageStubs.length;
+
+  function onPageDone(){
+    pending--;
+    var pct=Math.round((pageStubs.length-pending)/pageStubs.length*100);
+    if(loadBar)loadBar.style.width=pct+'%';
+    if(loadTxt)loadTxt.textContent='Loading… '+ALL.length+' products';
+    if(pending===0){
+      setTimeout(function(){
+        if(loadWrap)loadWrap.style.display='none';
+        startApp();
+      },200);
+    }
+  }
+
   pageStubs.forEach(function(stub){
     fetch(stub.dataset.url)
       .then(function(r){return r.text();})
       .then(function(html){
         var doc=new DOMParser().parseFromString(html,'text/html');
         doc.querySelectorAll('#qb-data-root .qb-data').forEach(function(n){ALL.push(parseNode(n));});
+        onPageDone();
       })
-      .catch(function(){/* ignore failed page */})
-      .finally(function(){
-        pending--;
-        var pct=Math.round((pageStubs.length-pending)/pageStubs.length*100);
-        if(loadBar)loadBar.style.width=pct+'%';
-        if(loadTxt)loadTxt.textContent='Loading products… '+ALL.length+' loaded';
-        if(pending===0){
-          setTimeout(function(){
-            if(loadWrap)loadWrap.style.display='none';
-            startApp();
-          },200);
-        }
-      });
+      .catch(function(){onPageDone();});
   });
 }
 
@@ -633,6 +635,15 @@ function hasAnyTag(p,ts){return ts.some(function(t){return p.tags.indexOf(t)>-1;
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 function initApp(){
+
+/* --- SCROLL SPY (declared first — used in sections render) --- */
+var spyObs=new IntersectionObserver(function(entries){
+  entries.forEach(function(entry){
+    if(!entry.isIntersecting)return;
+    var grpId=entry.target.id.replace('grp-','');
+    document.querySelectorAll('.qb-cat-pill').forEach(function(p){p.classList.toggle('active',p.dataset.cat===grpId);});
+  });
+},{rootMargin:'-10% 0px -70% 0px'});
 
 /* --- 3. FIXED CATEGORY TREE --- */
 // Tags are lowercased in Liquid. Structure mirrors exact Shopify tags.
@@ -723,9 +734,6 @@ CATEGORY_TREE.forEach(function(grp){
 
 /* --- 4. FEATURED (only tagged products) --- */
 var FEATURED=ALL.filter(function(p){return hasAnyTag(p,['bestseller','high-demand','featured']);}).slice(0,24);
-
-/* Initial sheet render now that ALL is complete */
-renderSheet(ALL.slice(0,60));
 
 /* --- 5. STATS + BRANDS MARQUEE --- */
 document.getElementById('qb-stat-products').textContent=ALL.length.toLocaleString();
@@ -925,7 +933,7 @@ function renderSheet(products){
   if(sheetCountEl)sheetCountEl.textContent=products.length+' items';
   calcSheetTotal();
 }
-// Will be called after all products loaded — renderSheet(ALL.slice(0,60)) runs inside initApp after ALL is populated
+renderSheet(ALL.slice(0,60));
 
 function calcSheetTotal(){
   var total=0;var count=0;
@@ -1057,15 +1065,6 @@ document.addEventListener('click',function(e){
   if(wrap){var qi=wrap.querySelector('.qb-qty-val');if(qi)qty=Math.max(1,parseInt(qi.value)||1);}
   addToCart(variantId,qty,btn,title);
 });
-
-/* --- 17. SCROLL SPY --- */
-var spyObs=new IntersectionObserver(function(entries){
-  entries.forEach(function(entry){
-    if(!entry.isIntersecting)return;
-    var grpId=entry.target.id.replace('grp-','');
-    document.querySelectorAll('.qb-cat-pill').forEach(function(p){p.classList.toggle('active',p.dataset.cat===grpId);});
-  });
-},{rootMargin:'-10% 0px -70% 0px'});
 
 } /* end initApp */
 
