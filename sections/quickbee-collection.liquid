@@ -540,41 +540,44 @@
 
       <div class="qb-collection-grid">
         {% for product in collection.products %}
-          {%- assign has_discount = false -%}
-          {%- assign discount_pct = 0 -%}
-          {%- if product.compare_at_price > product.price -%}
-            {%- assign has_discount = true -%}
-            {%- assign savings = product.compare_at_price | minus: product.price -%}
-            {%- assign discount_pct = savings | times: 100 | divided_by: product.compare_at_price -%}
-          {%- endif -%}
-          <a href="{{ product.url }}" class="qb-product">
-            <div class="qb-product-img">
-              {%- if has_discount -%}
-                <div class="qb-off-badge">{{ discount_pct }}% OFF</div>
-              {%- endif -%}
-              {% if product.featured_image %}
-                <img src="{{ product.featured_image | image_url: width: 600 }}" alt="{{ product.title }}">
-              {% else %}
-                📦
-              {% endif %}
-            </div>
-            <div class="product-info-wrapper">
-              <div class="qb-product-delivery">⚡ 18-25 mins</div>
-              <div class="qb-product-title">{{ product.title }}</div>
-
-              <div class="price-action-row">
-                <div class="qb-price-column">
-                  <div class="qb-product-pricing">
-                    <span class="qb-product-price">Rs {{ product.price | divided_by: 100 }}</span>
-                    {%- if has_discount -%}
-                      <span class="qb-product-original-price">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
-                    {%- endif -%}
-                  </div>
-                </div>
-                <button class="qb-product-btn" onclick="event.preventDefault(); fetch('/cart/add.js',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:[{id:{{ product.variants.first.id }},quantity:1}]})}).then(()=>{this.textContent='✓';this.style.background='#22c55e';this.style.borderColor='#22c55e';this.style.color='#fff';setTimeout(()=>{this.textContent='+ Add';this.style.background='';this.style.borderColor='';this.style.color='';},1500)})">+ Add</button>
+          {%- assign p_title = product.title | downcase -%}
+          {%- unless p_title contains 'syrup' or p_title contains 'monin' or p_title contains 'pump' or p_title contains 'sauce' or p_title contains 'chocolate' or p_title contains 'energy shot' -%}
+            {%- assign has_discount = false -%}
+            {%- assign discount_pct = 0 -%}
+            {%- if product.compare_at_price > product.price -%}
+              {%- assign has_discount = true -%}
+              {%- assign savings = product.compare_at_price | minus: product.price -%}
+              {%- assign discount_pct = savings | times: 100 | divided_by: product.compare_at_price -%}
+            {%- endif -%}
+            <a href="{{ product.url }}" class="qb-product">
+              <div class="qb-product-img">
+                {%- if has_discount -%}
+                  <div class="qb-off-badge">{{ discount_pct }}% OFF</div>
+                {%- endif -%}
+                {% if product.featured_image %}
+                  <img src="{{ product.featured_image | image_url: width: 600 }}" alt="{{ product.title }}">
+                {% else %}
+                  📦
+                {% endif %}
               </div>
-            </div>
-          </a>
+              <div class="product-info-wrapper">
+                <div class="qb-product-delivery">⚡ 18-25 mins</div>
+                <div class="qb-product-title">{{ product.title }}</div>
+
+                <div class="price-action-row">
+                  <div class="qb-price-column">
+                    <div class="qb-product-pricing">
+                      <span class="qb-product-price">Rs {{ product.price | divided_by: 100 }}</span>
+                      {%- if has_discount -%}
+                        <span class="qb-product-original-price">Rs {{ product.compare_at_price | divided_by: 100 }}</span>
+                      {%- endif -%}
+                    </div>
+                  </div>
+                  <button class="qb-product-btn" onclick="event.preventDefault(); fetch('/cart/add.js',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:[{id:{{ product.variants.first.id }},quantity:1}]})}).then(()=>{this.textContent='✓';this.style.background='#22c55e';this.style.borderColor='#22c55e';this.style.color='#fff';setTimeout(()=>{this.textContent='+ Add';this.style.background='';this.style.borderColor='';this.style.color='';},1500)})">+ Add</button>
+                </div>
+              </div>
+            </a>
+          {%- endunless -%}
         {% endfor %}
       </div>
 
