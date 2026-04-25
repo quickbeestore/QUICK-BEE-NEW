@@ -1,38 +1,63 @@
 {% paginate collection.products by 24 %}
 
-<div style="padding:20px">
+<div class="qb-container">
 
-  <h1 style="color:white">QuickBee Wholesale</h1>
+  <h1 class="qb-title">QuickBee Wholesale</h1>
 
-  <div style="
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:20px;
-  ">
+  {% assign last_category = "" %}
 
-    {% for product in collection.products %}
+  {% for product in collection.products %}
 
-      <div style="background:#111;padding:10px;border-radius:10px">
+    {% assign category = "Other" %}
 
-        <a href="{{ product.url }}" style="text-decoration:none;color:white">
-
-          <img 
-            src="{{ product.featured_image | img_url: '400x' }}" 
-            style="width:100%;height:200px;object-fit:contain"
-          >
-
-          <p>{{ product.title }}</p>
-          <p>{{ product.price | money }}</p>
-
-        </a>
-
-      </div>
-
+    {% for tag in product.tags %}
+      {% if tag contains "category:" %}
+        {% assign category = tag | remove: "category:" | capitalize %}
+      {% endif %}
     {% endfor %}
 
-  </div>
+    {% if category != last_category %}
+      <h2 class="qb-category">{{ category }}</h2>
+      <div class="qb-grid">
+    {% endif %}
 
-  <div style="margin-top:30px;color:white">
+    <div class="qb-card">
+      <a href="{{ product.url }}">
+
+        <div class="qb-img">
+          <img src="{{ product.featured_image | img_url: '500x' }}">
+          <div class="qb-glow"></div>
+        </div>
+
+        <div class="qb-info">
+          <h3>{{ product.title }}</h3>
+          <p class="qb-price">{{ product.price | money }}</p>
+        </div>
+
+      </a>
+    </div>
+
+    {% assign next_index = forloop.index0 | plus: 1 %}
+    {% assign next_product = collection.products[next_index] %}
+
+    {% assign next_category = "" %}
+    {% if next_product %}
+      {% for tag in next_product.tags %}
+        {% if tag contains "category:" %}
+          {% assign next_category = tag | remove: "category:" | capitalize %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
+    {% if category != next_category %}
+      </div>
+    {% endif %}
+
+    {% assign last_category = category %}
+
+  {% endfor %}
+
+  <div class="qb-pagination">
     {{ paginate | default_pagination }}
   </div>
 
