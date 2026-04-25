@@ -1,18 +1,41 @@
 {% paginate collection.products by 24 %}
-<div id="qb-root"></div>
-<div class="qb-pagination">
-  {{ paginate | default_pagination }}
-</div>
-{% endpaginate %}
 
-{% schema %}
-{
-  "name": "QB Wholesale Collection",
-  "settings": [],
-  "presets": [
-    {
-      "name": "QB Wholesale Collection"
-    }
-  ]
-}
-{% endschema %}
+<div style="padding:20px">
+
+  <h1 style="color:white">QuickBee Wholesale</h1>
+
+  <div style="
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+  ">
+
+    {% for product in collection.products %}
+
+      <div style="background:#111;padding:10px;border-radius:10px">
+
+        <a href="{{ product.url }}" style="text-decoration:none;color:white">
+
+          <img 
+            src="{{ product.featured_image | img_url: '400x' }}" 
+            style="width:100%;height:200px;object-fit:contain"
+          >
+
+          <p>{{ product.title }}</p>
+          <p>{{ product.price | money }}</p>
+
+        </a>
+
+      </div>
+
+    {% endfor %}
+
+  </div>
+
+  <div style="margin-top:30px;color:white">
+    {{ paginate | default_pagination }}
+  </div>
+
+</div>
+
+{% endpaginate %}
