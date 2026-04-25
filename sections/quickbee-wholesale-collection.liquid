@@ -213,6 +213,11 @@
 .qbw-s2{display:grid;grid-auto-flow:column;grid-template-rows:1fr 1fr;gap:9px;width:max-content}
 .qbw-s2 .qbw-card{width:148px;min-width:130px;max-width:148px;flex:none}
 @media(min-width:480px){.qbw-s2 .qbw-card{width:160px;max-width:160px}}
+.qbw-footer{padding:40px 16px 60px;display:flex;justify-content:center}
+.qb-pagination{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center}
+.qb-pagination a, .qb-pagination span{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:36px;padding:0 12px;font-size:12px;font-weight:700;border-radius:8px;text-decoration:none;transition:all .15s var(--ease);background:var(--bg2);color:var(--sub);border:1px solid var(--bd)}
+.qb-pagination a:hover{background:var(--bg4);color:var(--gold2);border-color:var(--gold)}
+.qb-pagination .active{background:var(--gold);color:#000;border-color:var(--gold)}
 </style>
 
 <!-- DATA LAYER -->
@@ -874,20 +879,24 @@ window.qbwFaq=function(el){
 </script>
 
 {%- if paginate.pages > 1 -%}
-  <div class="qbw-pagination">
-    {%- if paginate.previous -%}
-      <a href="{{ paginate.previous.url }}" class="qbw-page-btn">← Prev</a>
-    {%- endif -%}
-    {%- for part in paginate.parts -%}
-      {%- if part.is_link -%}
-        <a href="{{ part.url }}" class="qbw-page-btn">{{ part.title }}</a>
-      {%- else -%}
-        <span class="qbw-page-btn {% if part.title == paginate.current_page %}active{% endif %}">{{ part.title }}</span>
+  <div class="qbw-footer">
+    <div class="qb-pagination">
+      {%- if paginate.previous -%}
+        <a href="{{ paginate.previous.url }}">Prev</a>
       {%- endif -%}
-    {%- endfor -%}
-    {%- if paginate.next -%}
-      <a href="{{ paginate.next.url }}" class="qbw-page-btn">Next →</a>
-    {%- endif -%}
+
+      {%- for part in paginate.parts -%}
+        {%- if part.is_link -%}
+          <a href="{{ part.url }}">{{ part.title }}</a>
+        {%- else -%}
+          <span class="{% if part.title == paginate.current_page %}active{% else %}dec{% endif %}">{{ part.title }}</span>
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- if paginate.next -%}
+        <a href="{{ paginate.next.url }}">Next</a>
+      {%- endif -%}
+    </div>
   </div>
 {%- endif -%}
 
