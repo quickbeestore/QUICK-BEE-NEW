@@ -26,6 +26,7 @@
 {%- endpaginate -%}
 
 <style>
+html{scroll-behavior:smooth}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0d0d0f;
@@ -158,6 +159,7 @@
   position:relative;overflow:hidden;
   min-height:76px;
   text-align:center;
+  text-decoration:none;color:inherit;
 }
 .qb-tile::before{
   content:'';position:absolute;inset:0;opacity:0;
@@ -317,7 +319,7 @@
   color:var(--gold);text-transform:uppercase;letter-spacing:.6px;margin-bottom:16px;
 }
 /* PARENT GROUP HEADER */
-.qb-group{margin-top:56px}
+.qb-group{margin-top:56px;scroll-margin-top:130px}
 .qb-group-head{
   display:flex;align-items:center;gap:12px;
   padding:16px 20px;
@@ -546,21 +548,43 @@
 .qb-contact-note{font-size:12px;color:var(--muted)}
 /* MOBILE OVERRIDES */
 @media(max-width:639px){
+  #qb-wholesale-root{overflow-x:hidden}
   #qb-main{padding:0 10px}
-  .qb-group{margin-top:36px}
+  .qb-group{margin-top:36px;scroll-margin-top:130px}
   .qb-group-head{padding:12px 14px}
   .qb-group-name{font-size:18px}
   .qb-group-count{font-size:11px;padding:2px 8px}
-  .qb-slider>.qb-card{flex:0 0 152px}
-  .qb-card-price{font-size:16px}
-  .qb-card-title{font-size:12px}
+  .qb-slider>.qb-card{flex:0 0 150px}
+  .qb-card-img-wrap{aspect-ratio:1/1}
+  .qb-card-price{font-size:15px}
+  .qb-card-title{font-size:11px}
   .qb-subcat-label{font-size:11px;margin:16px 0 8px}
   .qb-section-title{font-size:17px}
   .qb-feat-label{font-size:10px}
   #qb-sec-featured .qb-feat-grid{grid-template-columns:repeat(2,1fr)}
-  #qb-order-sheet{border-radius:12px}
+  #qb-order-sheet{border-radius:12px;margin:0 -2px}
   .qb-sheet-footer{flex-direction:column;align-items:stretch;gap:10px}
   .qb-sheet-add-all{text-align:center}
+  .qb-sheet-name{font-size:12px}
+  .qb-sheet-img{width:44px;height:44px}
+  .qb-sheet-controls{gap:4px}
+  .qb-sheet-stepper{gap:0}
+  .qb-hero-ctas{flex-direction:column;align-items:stretch;padding:0 8px}
+  .qb-hero-cta-primary,.qb-hero-cta-secondary{max-width:100%;flex:auto}
+  .qb-hero-stat strong{font-size:18px}
+  #qb-cat-tiles{padding:12px 10px}
+  #qb-cat-tiles-grid{gap:6px}
+  .qb-tile{min-height:70px;padding:10px 4px 8px}
+  .qb-tile-icon{font-size:20px}
+  .qb-tile-name{font-size:9px}
+  /* info sections */
+  .qb-why-grid{grid-template-columns:1fr!important}
+  .qb-how-steps{grid-template-columns:1fr!important}
+  .qb-reg-form{grid-template-columns:1fr!important}
+}
+@media(min-width:640px) and (max-width:1023px){
+  .qb-sheet-controls{gap:6px}
+  .qb-why-grid{grid-template-columns:repeat(2,1fr)!important}
 }
 /* LOAD PROGRESS */
 #qb-load-wrap{
@@ -1139,33 +1163,19 @@ function buildGroupSection(grp){
   var tilesGrid=document.getElementById('qb-cat-tiles-grid');
   var bar=document.getElementById('qb-cat-bar');
 
-  function scrollToGroup(id){
-    // Try immediately; if section not rendered yet, wait for it
-    function attempt(tries){
-      var el=document.getElementById('grp-'+id);
-      if(el){
-        var top=el.getBoundingClientRect().top+window.pageYOffset-56;
-        window.scrollTo({top:top,behavior:'smooth'});
-      } else if(tries>0){
-        setTimeout(function(){attempt(tries-1);},120);
-      }
-    }
-    attempt(10);
-  }
-
   CATEGORY_TREE.forEach(function(grp){
     var total=0;
     grp.subcats.forEach(function(sc){total+=(TAG_MAP[sc.tag]||[]).length;});
     if(!total)return;
     // Tile
     if(tilesGrid){
-      var tile=document.createElement('div');
+      var tile=document.createElement('a');
+      tile.href='#grp-'+grp.id;
       tile.className='qb-tile t-'+grp.id;
       tile.dataset.cat=grp.id;
       tile.innerHTML='<span class="qb-tile-icon">'+grp.icon+'</span>'
         +'<span class="qb-tile-name">'+esc(grp.label)+'</span>'
         +'<span class="qb-tile-count">'+total+'</span>';
-      tile.addEventListener('click',function(){scrollToGroup(grp.id);});
       tilesGrid.appendChild(tile);
     }
     // Sticky pill
@@ -1330,16 +1340,9 @@ document.getElementById('qb-sheet-add-all').addEventListener('click',function(){
 /* --- 13. CATEGORY NAV — scroll to group section --- */
 function showFilter(catId){
   if(catId==='all'){window.scrollTo({top:0,behavior:'smooth'});return;}
-  function attempt(tries){
-    var el=document.getElementById('grp-'+catId);
-    if(el){
-      var top=el.getBoundingClientRect().top+window.pageYOffset-56;
-      window.scrollTo({top:top,behavior:'smooth'});
-    } else if(tries>0){
-      setTimeout(function(){attempt(tries-1);},120);
-    }
-  }
-  attempt(10);
+  // Use hash navigation — works regardless of scroll container
+  window.location.hash='';
+  setTimeout(function(){window.location.hash='grp-'+catId;},10);
 }
 
 document.getElementById('qb-cat-bar').addEventListener('click',function(e){
