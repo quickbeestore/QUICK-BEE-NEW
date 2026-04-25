@@ -1,72 +1,18 @@
-{% paginate collection.products by 1000 %}
-
-{% assign categories = "" %}
-
-{% for product in collection.products %}
-  {% for tag in product.tags %}
-    {% if tag contains "category:" %}
-      {% unless categories contains tag %}
-        {% assign categories = categories | append: tag | append: "," %}
-      {% endunless %}
-    {% endif %}
-  {% endfor %}
-{% endfor %}
-
-{% assign categories_array = categories | split: "," %}
-
-<div class="qb-container">
-
-  <h1 class="qb-title">QuickBee Wholesale</h1>
-
-  {% for cat in categories_array %}
-
-    {% if cat != "" %}
-
-      {% assign cat_name = cat | remove: "category:" %}
-
-      <section class="qb-section">
-
-        <div class="qb-section-header">
-          <h2>{{ cat_name | capitalize }}</h2>
-          <span>{{ cat }}</span>
-        </div>
-
-        <div class="qb-grid">
-
-          {% for product in collection.products %}
-
-            {% if product.tags contains cat %}
-
-              <div class="qb-card">
-
-                <a href="{{ product.url }}" class="qb-card-inner">
-
-                  <div class="qb-img-wrap">
-                    <img src="{{ product.featured_image | img_url: '500x' }}">
-                    <div class="qb-glow"></div>
-                  </div>
-
-                  <div class="qb-info">
-                    <h3>{{ product.title }}</h3>
-                    <p class="qb-price">{{ product.price | money }}</p>
-                  </div>
-
-                </a>
-
-              </div>
-
-            {% endif %}
-
-          {% endfor %}
-
-        </div>
-
-      </section>
-
-    {% endif %}
-
-  {% endfor %}
-
+{% paginate collection.products by 24 %}
+<div id="qb-root"></div>
+<div class="qb-pagination">
+  {{ paginate | default_pagination }}
 </div>
-
 {% endpaginate %}
+
+{% schema %}
+{
+  "name": "QB Wholesale Collection",
+  "settings": [],
+  "presets": [
+    {
+      "name": "QB Wholesale Collection"
+    }
+  ]
+}
+{% endschema %}
