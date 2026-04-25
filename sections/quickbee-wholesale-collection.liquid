@@ -1,18 +1,74 @@
 {% paginate collection.products by 24 %}
-<div id="qb-root"></div>
-<div class="qb-pagination">
-  {{ paginate | default_pagination }}
+
+<div class="qb-container">
+
+  <h2 class="qb-title">QuickBee Wholesale</h2>
+  <p class="qb-sub">All Products • Bulk Pricing • Fast Delivery</p>
+
+  <div class="qb-grid">
+    {% for product in collection.products %}
+
+      {% assign t = product.title | downcase %}
+
+      {% unless t contains 'syrup'
+        or t contains 'monin'
+        or t contains 'pump'
+        or t contains 'sauce'
+        or t contains 'chocolate'
+        or t contains 'energy' %}
+
+        <div class="qb-card">
+          <a href="{{ product.url }}">
+            <img src="{{ product.featured_image | img_url: '400x' }}" loading="lazy">
+            <h3>{{ product.title }}</h3>
+            <p>{{ product.price | money }}</p>
+          </a>
+        </div>
+
+      {% endunless %}
+
+    {% endfor %}
+  </div>
+
+  <div class="qb-pagination">
+    {{ paginate | default_pagination }}
+  </div>
+
 </div>
+
 {% endpaginate %}
 
-{% schema %}
-{
-  "name": "QB Wholesale Collection",
-  "settings": [],
-  "presets": [
-    {
-      "name": "QB Wholesale Collection"
-    }
-  ]
+<style>
+.qb-container { padding: 40px 20px; }
+.qb-title { font-size: 28px; color: #fff; }
+.qb-sub { color: #aaa; margin-bottom: 20px; }
+
+.qb-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
 }
-{% endschema %}
+
+.qb-card {
+  background: #111;
+  border-radius: 12px;
+  padding: 12px;
+  transition: 0.3s;
+}
+
+.qb-card:hover { transform: translateY(-4px); }
+
+.qb-card img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.qb-card h3 { font-size: 14px; color: #fff; }
+.qb-card p { color: #f4c542; }
+
+@media (max-width: 768px) {
+  .qb-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+</style>
