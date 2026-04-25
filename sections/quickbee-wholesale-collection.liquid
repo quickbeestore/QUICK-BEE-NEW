@@ -1,4 +1,4 @@
-{%- paginate collection.products by 1000 -%}
+{%- paginate collection.products by 24 -%}
 <style>
 .qbw *,.qbw *::before,.qbw *::after{box-sizing:border-box;margin:0;padding:0}
 .qbw{
@@ -403,14 +403,13 @@ function layout2Row(id,eye,name,prods){
 /* LAYOUT: standard grid (2-4 products) */
 function layoutGrid(id,eye,name,prods){
   var n=prods.length;
-  var cls=n===2?'qbw-grid--2':n===3?'qbw-grid--3':'qbw-grid--4';
   var cards=prods.map(function(p){
     return '<a href="'+p.url+'" class="qbw-gcard">'
       +'<div class="qbw-gcard-img">'+imgTag(p,'qbw-gcard-empty')+'<div class="qbw-gcard-fade"></div>'+badge(p)+soldMask(p)+'</div>'
-      +'<div class="qbw-gcard-body">'+(p.type?'<div class="qbw-gcard-type">'+esc(p.type)+'</div>':'')
+      +'<div class="qbw-gcard-body">'+(p.type?'<div class="qbw-card-type">'+esc(p.type)+'</div>':'')
       +'<div class="qbw-gcard-name">'+esc(p.title)+'</div>'+priceHtml(p,false)+'</div></a>';
   }).join('');
-  return secWrap(id,eye,name,n,'<div class="qbw-grid '+cls+'">'+cards+'</div>');
+  return secWrap(id,eye,name,n,'<div class="qbw-grid qbw-grid--4">'+cards+'</div>');
 }
 
 /* LAYOUT: hero single */
@@ -446,12 +445,7 @@ function layoutDuo(id,eye,name,prods){
 /* Smart layout: picks layout based on count */
 function sec(id,eye,name,prods){
   if(!prods||!prods.length) return '';
-  var n=prods.length;
-  if(n===1) return layoutHero(id,eye,name,prods[0]);
-  if(n===2) return layoutDuo(id,eye,name,prods);
-  if(n<=4)  return layoutGrid(id,eye,name,prods);
-  if(n<=12) return layout2Row(id,eye,name,prods);
-  return layoutSlider(id,eye,name,prods);
+  return layoutGrid(id,eye,name,prods);
 }
 
 /* ══════════════════════════════
@@ -767,17 +761,10 @@ H+=cta('Business Pricing','Up to 40% Savings Per Case','Dedicated account manage
 
 /* ══ CATCH-ALL — everything not matched above ══ */
 (function(){
-  var REST=ALL.filter(function(p){return !USED[p.url];});
-  if(!REST.length) return;
-  /* Try to sub-sort REST into logical groups */
-  var c=deduper(REST);
-  var FOOD  =c(function(p){return hits(p,['chocolate','praline','snack','chip','nuts','biscuit','wafer','cake','candy','sweet','cookie','cracker']);});
-  var ACCESS=c(function(p){return hits(p,['glass','cup','bottle','jug','decanter','tray','opener','corkscrew','coaster','napkin','label','sticker']);});
-  var OTHER =c();
-  H+=grp('🛍️','Other Products','Food &amp; Snacks · Accessories · More');
-  H+=sec('rest-food','FOOD &amp; SNACKS','Food &amp; Snacks',FOOD);
-  H+=sec('rest-acc','ACCESSORIES','Accessories',ACCESS);
-  if(OTHER.length) H+=sec('access','OTHER PRODUCTS','Other Products',OTHER);
+  var UNCATEGORIZED = claim(function(p){ return true; });
+  if(!UNCATEGORIZED.length) return;
+  H+=grp('🛍️','Other Products','Miscellaneous Items');
+  H+=sec('s-uncat','Other Products',UNCATEGORIZED);
 })();
 
 document.getElementById('qbwContent').innerHTML = H;
@@ -885,6 +872,24 @@ window.qbwFaq=function(el){
 
 })();
 </script>
+
+{%- if paginate.pages > 1 -%}
+  <div class="qbw-pagination">
+    {%- if paginate.previous -%}
+      <a href="{{ paginate.previous.url }}" class="qbw-page-btn">← Prev</a>
+    {%- endif -%}
+    {%- for part in paginate.parts -%}
+      {%- if part.is_link -%}
+        <a href="{{ part.url }}" class="qbw-page-btn">{{ part.title }}</a>
+      {%- else -%}
+        <span class="qbw-page-btn {% if part.title == paginate.current_page %}active{% endif %}">{{ part.title }}</span>
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if paginate.next -%}
+      <a href="{{ paginate.next.url }}" class="qbw-page-btn">Next →</a>
+    {%- endif -%}
+  </div>
+{%- endif -%}
 
 {%- endpaginate -%}
 
