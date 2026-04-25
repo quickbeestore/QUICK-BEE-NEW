@@ -1,74 +1,72 @@
-{% paginate collection.products by 24 %}
+{% paginate collection.products by 1000 %}
+
+{% assign categories = "" %}
+
+{% for product in collection.products %}
+  {% for tag in product.tags %}
+    {% if tag contains "category:" %}
+      {% unless categories contains tag %}
+        {% assign categories = categories | append: tag | append: "," %}
+      {% endunless %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+
+{% assign categories_array = categories | split: "," %}
 
 <div class="qb-container">
 
-  <h2 class="qb-title">QuickBee Wholesale</h2>
-  <p class="qb-sub">All Products • Bulk Pricing • Fast Delivery</p>
+  <h1 class="qb-title">QuickBee Wholesale</h1>
 
-  <div class="qb-grid">
-    {% for product in collection.products %}
+  {% for cat in categories_array %}
 
-      {% assign t = product.title | downcase %}
+    {% if cat != "" %}
 
-      {% unless t contains 'syrup'
-        or t contains 'monin'
-        or t contains 'pump'
-        or t contains 'sauce'
-        or t contains 'chocolate'
-        or t contains 'energy' %}
+      {% assign cat_name = cat | remove: "category:" %}
 
-        <div class="qb-card">
-          <a href="{{ product.url }}">
-            <img src="{{ product.featured_image | img_url: '400x' }}" loading="lazy">
-            <h3>{{ product.title }}</h3>
-            <p>{{ product.price | money }}</p>
-          </a>
+      <section class="qb-section">
+
+        <div class="qb-section-header">
+          <h2>{{ cat_name | capitalize }}</h2>
+          <span>{{ cat }}</span>
         </div>
 
-      {% endunless %}
+        <div class="qb-grid">
 
-    {% endfor %}
-  </div>
+          {% for product in collection.products %}
 
-  <div class="qb-pagination">
-    {{ paginate | default_pagination }}
-  </div>
+            {% if product.tags contains cat %}
+
+              <div class="qb-card">
+
+                <a href="{{ product.url }}" class="qb-card-inner">
+
+                  <div class="qb-img-wrap">
+                    <img src="{{ product.featured_image | img_url: '500x' }}">
+                    <div class="qb-glow"></div>
+                  </div>
+
+                  <div class="qb-info">
+                    <h3>{{ product.title }}</h3>
+                    <p class="qb-price">{{ product.price | money }}</p>
+                  </div>
+
+                </a>
+
+              </div>
+
+            {% endif %}
+
+          {% endfor %}
+
+        </div>
+
+      </section>
+
+    {% endif %}
+
+  {% endfor %}
 
 </div>
 
 {% endpaginate %}
-
-<style>
-.qb-container { padding: 40px 20px; }
-.qb-title { font-size: 28px; color: #fff; }
-.qb-sub { color: #aaa; margin-bottom: 20px; }
-
-.qb-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-}
-
-.qb-card {
-  background: #111;
-  border-radius: 12px;
-  padding: 12px;
-  transition: 0.3s;
-}
-
-.qb-card:hover { transform: translateY(-4px); }
-
-.qb-card img {
-  width: 100%;
-  border-radius: 8px;
-}
-
-.qb-card h3 { font-size: 14px; color: #fff; }
-.qb-card p { color: #f4c542; }
-
-@media (max-width: 768px) {
-  .qb-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-</style>
