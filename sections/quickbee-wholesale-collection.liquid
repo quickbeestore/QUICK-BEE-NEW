@@ -189,27 +189,33 @@ html{scroll-behavior:smooth}
 }
 /* STICKY NAV BAR — hidden until tiles scroll out of view */
 #qb-cat-bar{
-  position:sticky;top:0;z-index:100;
+  position:sticky;top:0;z-index:400;
   background:rgba(13,13,15,0.97);
-  backdrop-filter:blur(12px);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   border-bottom:1px solid var(--border);
-  padding:0 16px;overflow-x:auto;scrollbar-width:none;
+  padding:0 12px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
   white-space:nowrap;display:none;align-items:center;gap:4px;height:46px;
   transition:opacity .25s;
 }
 #qb-cat-bar.qb-bar-show{display:flex}
 #qb-cat-bar::-webkit-scrollbar{display:none}
 .qb-cat-pill{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:5px 12px;border-radius:20px;
+  display:inline-flex;align-items:center;gap:4px;
+  padding:5px 11px;border-radius:20px;
   border:1px solid var(--border);background:transparent;
   color:var(--muted);font-size:12px;font-weight:500;
   cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;
+  -webkit-tap-highlight-color:transparent;
 }
 .qb-cat-pill:hover{border-color:var(--gold);color:var(--gold)}
 .qb-cat-pill.active{background:var(--gold);border-color:var(--gold);color:#000;font-weight:700}
 .qb-cat-pill .qb-pill-count{font-size:9px;background:rgba(0,0,0,0.2);border-radius:8px;padding:1px 5px}
 .qb-cat-pill.active .qb-pill-count{background:rgba(0,0,0,0.25)}
+@media(max-width:639px){
+  #qb-cat-bar{padding:0 8px;gap:3px;height:42px}
+  .qb-cat-pill{padding:4px 9px;font-size:11px}
+  .qb-cat-pill .qb-pill-count{font-size:8px;padding:1px 4px}
+}
 /* MAIN */
 #qb-main{padding:0 16px;max-width:1600px;margin:0 auto}
 /* SECTIONS */
@@ -625,8 +631,8 @@ html{scroll-behavior:smooth}
 
   <!-- HERO -->
   <div id="qb-hero">
-    <div id="qb-hero-badge">🐝 QuickBee Wholesale</div>
-    <h1>Nepal's #1<br><span>Liquor Wholesale</span></h1>
+    <div id="qb-hero-badge">🐝 QuickBee LiquorLand</div>
+    <h1>Nepal's #1<br><span>LiquorLand</span></h1>
     <p>Trade pricing on 800+ products. Order in bulk, save more.</p>
     <div class="qb-hero-stats">
       <div class="qb-hero-stat"><strong id="qb-stat-products">—</strong><span>Products</span></div>
@@ -691,7 +697,7 @@ html{scroll-behavior:smooth}
       <div class="qb-info-section">
         <div class="qb-info-head">
           <div class="qb-info-badge">🏆 Why Choose Us</div>
-          <h2 class="qb-info-title">Nepal's Most Trusted<br><span>Liquor Wholesale Partner</span></h2>
+          <h2 class="qb-info-title">Nepal's Most Trusted<br><span>LiquorLand</span></h2>
         </div>
         <div class="qb-why-grid">
           <div class="qb-why-card">
@@ -816,7 +822,7 @@ html{scroll-behavior:smooth}
       <!-- CONTACT FOOTER -->
       <div class="qb-contact-section">
         <div class="qb-contact-logo">🐝</div>
-        <h3 class="qb-contact-title">QuickBee Wholesale</h3>
+        <h3 class="qb-contact-title">QuickBee LiquorLand</h3>
         <p class="qb-contact-sub">Nepal's #1 B2B Liquor Platform</p>
         <a href="mailto:contact@quickbee.store" class="qb-contact-email">contact@quickbee.store</a>
         <p class="qb-contact-note">Monday – Saturday · 9AM – 7PM · Kathmandu, Nepal</p>
@@ -1186,15 +1192,25 @@ function buildGroupSection(grp){
     bar.appendChild(btn);
   });
 
-  // Hide sticky bar until tiles scroll out of view
+  // Show sticky bar once tiles scroll out of view — with scroll fallback for mobile
   var tilesSection=document.getElementById('qb-cat-tiles');
   if(tilesSection){
-    var tileWatcher=new IntersectionObserver(function(entries){
-      entries.forEach(function(entry){
-        bar.classList.toggle('qb-bar-show',!entry.isIntersecting);
-      });
-    },{threshold:0});
-    tileWatcher.observe(tilesSection);
+    function updateBar(){
+      var rect=tilesSection.getBoundingClientRect();
+      bar.classList.toggle('qb-bar-show', rect.bottom < 10);
+    }
+    // IntersectionObserver (desktop)
+    if(window.IntersectionObserver){
+      var tileWatcher=new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          bar.classList.toggle('qb-bar-show',!entry.isIntersecting);
+        });
+      },{threshold:0});
+      tileWatcher.observe(tilesSection);
+    }
+    // Scroll listener fallback (mobile / Shopify app)
+    window.addEventListener('scroll',updateBar,{passive:true});
+    document.addEventListener('scroll',updateBar,{passive:true});
   }
 })();
 
