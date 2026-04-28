@@ -1,967 +1,941 @@
-{%- comment -%} QuickBEE Search Results — Premium Cinematic Design {%- endcomment -%}
+{%- comment -%} QuickBEE Search Results — God-Mode Redesign {%- endcomment -%}
 
 <style>
-/* ══════════════════════════════════════════════════
-   QB SEARCH RESULTS — PREMIUM REDESIGN
-   ══════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════
+   QUICKBEE SEARCH — FULL GOD MODE
+   ═══════════════════════════════════════════════ */
+.search-page__header,.shopify-section-search-header,#shopify-section-search{display:none!important}
 
-/* Hide default Shopify search header */
-.search-page__header,
-.shopify-section-search-header,
-#shopify-section-search { display: none !important; }
-
-/* ── Root Variables (Dark) ── */
+/* ── CSS Variables ── */
 .qbsr-page {
-  --sr-bg:        #080808;
-  --sr-surface:   #111111;
-  --sr-card:      #161616;
-  --sr-card2:     #1c1c1c;
-  --sr-border:    rgba(255,255,255,0.06);
-  --sr-border2:   rgba(255,255,255,0.10);
-  --sr-text:      #f2f2f2;
-  --sr-text2:     #aaaaaa;
-  --sr-muted:     #666666;
-  --sr-muted2:    #444444;
-  --sr-accent:    #F4B400;
-  --sr-accent-bg: rgba(244,180,0,0.08);
-  --sr-accent-bd: rgba(244,180,0,0.22);
-  --sr-magenta:   #E91E8C;
-  --sr-green:     #00D26A;
-  --sr-red:       #ef4444;
-  --sr-radius:    14px;
-  --sr-img-bg:    #1e1e1e;
+  --g: #F4B400;
+  --gb: rgba(244,180,0,0.10);
+  --gbd: rgba(244,180,0,0.22);
+  --mg: #E91E8C;
+  --ng: #00D26A;
+  --bg0: #060606;
+  --bg1: #101010;
+  --bg2: #161616;
+  --bg3: #1e1e1e;
+  --bd:  rgba(255,255,255,0.06);
+  --bd2: rgba(255,255,255,0.10);
+  --t1:  #f2f2f2;
+  --t2:  #888;
+  --t3:  #444;
+  --r: 14px;
 }
 
-/* Light Mode — clean white, no beige */
-html:not([data-theme="dark"]) .qbsr-page,
-[data-theme="light"] .qbsr-page {
-  --sr-bg:        #F0F0F0;
-  --sr-surface:   #FFFFFF;
-  --sr-card:      #FFFFFF;
-  --sr-card2:     #F5F5F5;
-  --sr-border:    rgba(0,0,0,0.07);
-  --sr-border2:   rgba(0,0,0,0.12);
-  --sr-text:      #111111;
-  --sr-text2:     #444444;
-  --sr-muted:     #888888;
-  --sr-muted2:    #AAAAAA;
-  --sr-accent-bg: rgba(244,180,0,0.06);
-  --sr-accent-bd: rgba(244,180,0,0.24);
-  --sr-img-bg:    #ECECEC;
+html:not([data-theme="dark"]) .qbsr-page {
+  --bg0: #EBEBEB;
+  --bg1: #F5F5F5;
+  --bg2: #FFFFFF;
+  --bg3: #F0F0F0;
+  --bd:  rgba(0,0,0,0.07);
+  --bd2: rgba(0,0,0,0.12);
+  --t1:  #111;
+  --t2:  #555;
+  --t3:  #999;
+  --g:   #C48A00;
+  --gb:  rgba(196,138,0,0.06);
+  --gbd: rgba(196,138,0,0.20);
 }
 
-/* ── Base ── */
+*{box-sizing:border-box;margin:0;padding:0}
+
 .qbsr-page {
-  background: var(--sr-bg);
-  color: var(--sr-text);
+  background: var(--bg0);
+  color: var(--t1);
   min-height: 100vh;
-  padding-bottom: 120px;
+  padding-bottom: 100px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* ══════════════════════════════════
-   HERO — Always cinematic dark
-   ══════════════════════════════════ */
+/* ═══════════════════════════════════
+   HERO — Always dark + cinematic
+   ═══════════════════════════════════ */
 .qbsr-hero {
-  background: #0c0c0c;
-  padding: 32px 16px 26px;
+  background: #080808;
+  padding: 24px 16px 22px;
   position: relative;
   overflow: hidden;
 }
-
-/* Radial gold glow at bottom */
 .qbsr-hero::before {
   content: '';
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 90% at 50% 120%, rgba(244,180,0,0.18) 0%, transparent 60%),
-    radial-gradient(circle 200px at 88% 20%, rgba(12,200,255,0.06) 0%, transparent 55%);
+    radial-gradient(ellipse 90% 100% at 50% 130%, rgba(244,180,0,0.22) 0%, transparent 55%),
+    radial-gradient(circle 180px at 88% 10%, rgba(12,200,255,0.07) 0%, transparent 55%),
+    radial-gradient(circle 120px at 8% 85%, rgba(233,30,140,0.06) 0%, transparent 50%);
   pointer-events: none;
 }
-
+@keyframes qbsrOrb { 0%,100%{opacity:.7;transform:scale(1)} 50%{opacity:1;transform:scale(1.08)} }
 .qbsr-hero > * { position: relative; z-index: 1; }
 
 .qbsr-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 10px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: rgba(255,255,255,0.32);
-  margin: 0 0 10px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  color: rgba(255,255,255,0.28);
+  margin-bottom: 10px;
 }
-
 .qbsr-hero-eyebrow::before {
   content: '';
   display: inline-block;
-  width: 18px;
-  height: 2px;
-  background: var(--sr-accent);
+  width: 20px; height: 2px;
+  background: #F4B400;
   border-radius: 2px;
 }
 
 .qbsr-hero-title {
-  font-size: clamp(28px, 8vw, 52px);
+  font-size: clamp(32px, 9vw, 60px);
   font-weight: 900;
   letter-spacing: -0.04em;
-  line-height: 1.08;
-  margin: 0 0 18px;
-  color: #ffffff;
+  line-height: 1.05;
+  color: #fff;
+  margin-bottom: 16px;
   word-break: break-word;
 }
-
-.qbsr-query-highlight {
+.qbsr-query-hl {
   background: linear-gradient(90deg, #F4B400 0%, #FFD700 55%, #FFA500 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 28px rgba(244,180,0,0.40));
+  filter: drop-shadow(0 0 24px rgba(244,180,0,0.45));
 }
 
-.qbsr-hero-stats {
+.qbsr-stat-row {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 20px;
 }
-
-.qbsr-stat-pill {
+.qbsr-pill {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 12px;
+  padding: 5px 12px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.02em;
+  white-space: nowrap;
 }
+.qbsr-pill.gold   { background:rgba(244,180,0,0.12);  border:1px solid rgba(244,180,0,0.30); color:#F4B400; }
+.qbsr-pill.pink   { background:rgba(233,30,140,0.12); border:1px solid rgba(233,30,140,0.28); color:#E91E8C; }
+.qbsr-pill.green  { background:rgba(0,210,106,0.10);  border:1px solid rgba(0,210,106,0.22); color:#00D26A; }
+.qbsr-pill.blue   { background:rgba(12,200,255,0.10); border:1px solid rgba(12,200,255,0.22); color:#0CC8FF; }
 
-.qbsr-stat-pill.products {
-  background: rgba(244,180,0,0.12);
-  border: 1px solid rgba(244,180,0,0.28);
-  color: #F4B400;
-}
-
-.qbsr-stat-pill.subs {
-  background: rgba(233,30,140,0.12);
-  border: 1px solid rgba(233,30,140,0.28);
-  color: #E91E8C;
-}
-
-.qbsr-stat-pill.services {
-  background: rgba(0,210,106,0.10);
-  border: 1px solid rgba(0,210,106,0.22);
-  color: #00D26A;
-}
-
-/* ══════════════════════════════════
+/* ═══════════════════════════════════
    FILTER CHIPS
-   ══════════════════════════════════ */
+   ═══════════════════════════════════ */
 .qbsr-filters {
   display: flex;
   gap: 8px;
-  padding: 0 16px 20px;
+  padding: 14px 16px;
   overflow-x: auto;
   scrollbar-width: none;
-  -ms-overflow-style: none;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--bd);
 }
 .qbsr-filters::-webkit-scrollbar { display: none; }
-
 .qbsr-filter {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 8px 16px;
+  gap: 4px;
+  padding: 7px 14px;
   border-radius: 999px;
-  border: 1.5px solid var(--sr-border);
-  background: var(--sr-surface);
-  color: var(--sr-muted);
+  border: 1.5px solid var(--bd);
+  background: var(--bg2);
+  color: var(--t2);
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
   text-decoration: none;
-  transition: border-color 0.18s, color 0.18s, background 0.18s;
   flex-shrink: 0;
+  transition: border-color .18s, color .18s, background .18s;
 }
-
-.qbsr-filter:hover,
-.qbsr-filter.active {
-  border-color: var(--sr-accent);
-  color: var(--sr-accent);
-  background: var(--sr-accent-bg);
+.qbsr-filter.active,
+.qbsr-filter:hover {
+  border-color: rgba(244,180,0,0.45);
+  color: #F4B400;
+  background: rgba(244,180,0,0.06);
 }
+html:not([data-theme="dark"]) .qbsr-filter.active,
+html:not([data-theme="dark"]) .qbsr-filter:hover { color: var(--g); }
 
-/* ══════════════════════════════════
-   SECTION HEADERS
-   ══════════════════════════════════ */
-.qbsr-section {
-  margin-bottom: 32px;
-}
-
-.qbsr-section-head {
+/* ═══════════════════════════════════
+   SECTION HEADER
+   ═══════════════════════════════════ */
+.qbsr-sh {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px 12px;
+  padding: 20px 16px 10px;
 }
-
-.qbsr-section-title {
+.qbsr-sh-left {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 16px;
-  font-weight: 900;
-  letter-spacing: -0.01em;
-  color: var(--sr-text);
-  margin: 0;
 }
-
-.qbsr-section-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.qbsr-sh-ico {
+  width: 30px; height: 30px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
   font-size: 14px;
   flex-shrink: 0;
 }
+.qbsr-sh-ico.gold  { background: rgba(244,180,0,0.12); }
+.qbsr-sh-ico.green { background: rgba(0,210,106,0.10); }
+.qbsr-sh-ico.pink  { background: rgba(233,30,140,0.10); }
+.qbsr-sh-ico.blue  { background: rgba(12,200,255,0.10); }
+.qbsr-sh-ico.spa   { background: rgba(201,168,76,0.12); }
 
-.qbsr-section-icon.gold  { background: rgba(244,180,0,0.15); }
-.qbsr-section-icon.pink  { background: rgba(194,24,91,0.12); }
-.qbsr-section-icon.green { background: rgba(34,197,94,0.12); }
-
-.qbsr-count-chip {
+.qbsr-sh-title {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--t1);
+  letter-spacing: -0.01em;
+}
+.qbsr-sh-ai {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0CC8FF;
+  background: rgba(12,200,255,0.10);
+  border: 1px solid rgba(12,200,255,0.20);
+  padding: 2px 7px;
+  border-radius: 20px;
+}
+.qbsr-sh-badge {
   font-size: 11px;
   font-weight: 800;
   padding: 3px 9px;
   border-radius: 999px;
-  background: var(--sr-card2);
-  color: var(--sr-muted);
+  background: var(--bg3);
+  color: var(--t2);
+}
+.qbsr-sh-link {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--g);
+  text-decoration: none;
 }
 
-/* Divider line */
-.qbsr-divider {
-  height: 1px;
-  background: var(--sr-border);
-  margin: 0 16px 20px;
-  opacity: 0.6;
-}
-
-/* ══════════════════════════════════
-   PRODUCTS GRID
-   ══════════════════════════════════ */
-.qbsr-grid-wrap {
-  padding: 0 10px;
-}
-
+/* ═══════════════════════════════════
+   PRODUCT GRID
+   ═══════════════════════════════════ */
+.qbsr-grid-wrap { padding: 0 10px; }
 .qbsr-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
   list-style: none;
-  margin: 0;
-  padding: 0;
 }
+@media(min-width:480px) { .qbsr-grid { grid-template-columns: repeat(3,1fr); gap: 11px; } }
+@media(min-width:768px) { .qbsr-grid { grid-template-columns: repeat(4,1fr); gap: 13px; } .qbsr-grid-wrap,.qbsr-sh,.qbsr-filters { padding-left: 20px; padding-right: 20px; } }
+@media(min-width:1200px) { .qbsr-grid { grid-template-columns: repeat(5,1fr); } }
 
-@media (min-width: 540px) {
-  .qbsr-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-}
-@media (min-width: 540px) {
-  .qbsr-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-}
-@media (min-width: 900px) {
-  .qbsr-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
-  .qbsr-hero { padding: 40px 24px 32px; }
-  .qbsr-filters { padding: 14px 24px; }
-  .qbsr-section-head { padding: 0 24px 12px; }
-  .qbsr-divider { margin: 0 24px 20px; }
-  .qbsr-grid-wrap { padding: 0 20px; }
-  .qbsr-subs-scroll { padding: 0 20px 8px; }
-  .qbsr-services-wrap { padding: 0 20px; }
-}
-@media (min-width: 1200px) {
-  .qbsr-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-}
-
-/* Product Card */
 .qbsr-card {
-  background: var(--sr-card);
-  border: 1px solid var(--sr-border);
-  border-radius: var(--sr-radius);
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: border-color 0.2s, transform 0.18s, box-shadow 0.2s;
+  transition: border-color .2s, transform .18s, box-shadow .2s;
 }
-
 .qbsr-card:hover {
-  border-color: rgba(244,180,0,0.45);
+  border-color: rgba(244,180,0,0.40);
   transform: translateY(-3px);
-  box-shadow: 0 14px 40px rgba(0,0,0,0.40), 0 0 0 1px rgba(244,180,0,0.08);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.40), 0 0 0 1px rgba(244,180,0,0.08);
 }
-
-html:not([data-theme="dark"]) .qbsr-card {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
+html:not([data-theme="dark"]) .qbsr-card { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 html:not([data-theme="dark"]) .qbsr-card:hover {
-  border-color: rgba(244,180,0,0.35);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.10), 0 0 0 1px rgba(244,180,0,0.12);
+  border-color: rgba(196,138,0,0.35);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.10);
 }
 
 .qbsr-card-link {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  text-decoration: none;
-  color: inherit;
+  flex: 1; display: flex; flex-direction: column;
+  text-decoration: none; color: inherit;
 }
-
-/* Image */
 .qbsr-img-wrap {
-  position: relative;
-  aspect-ratio: 1 / 1;
-  background: var(--sr-img-bg);
+  aspect-ratio: 1/1;
+  background: var(--bg3);
   overflow: hidden;
+  position: relative;
 }
-
 .qbsr-img {
-  width: 100%;
-  height: 100%;
+  width: 100%; height: 100%;
   object-fit: contain;
-  display: block;
   padding: 10px;
-  transition: transform 0.28s ease;
+  transition: transform .28s ease;
 }
-
-.qbsr-card:hover .qbsr-img { transform: scale(1.05); }
-
+.qbsr-card:hover .qbsr-img { transform: scale(1.06); }
 .qbsr-no-img {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
   font-size: 40px;
-  background: var(--sr-surface);
-  color: var(--sr-muted2);
+  background: var(--bg3);
 }
-
-/* Badges on image */
 .qbsr-sale-badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
+  position: absolute; top: 8px; left: 8px;
   padding: 3px 8px;
-  background: var(--sr-red);
+  background: #ef4444;
   color: #fff;
-  font-size: 9px;
-  font-weight: 900;
+  font-size: 9px; font-weight: 900;
   border-radius: 999px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  text-transform: uppercase; letter-spacing: 0.05em;
   z-index: 2;
 }
-
 .qbsr-time-badge {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
+  position: absolute; bottom: 6px; right: 6px;
   padding: 3px 8px;
-  background: rgba(0,0,0,0.65);
+  background: rgba(0,0,0,0.70);
   color: #fff;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 10px; font-weight: 700;
   border-radius: 999px;
-  z-index: 2;
   backdrop-filter: blur(4px);
+  z-index: 2;
 }
-
-html:not([data-theme="dark"]) .qbsr-time-badge {
-  background: rgba(0,0,0,0.55);
-}
-
-/* Card body */
 .qbsr-card-body {
-  padding: 10px 10px 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  padding: 9px 10px 4px;
+  display: flex; flex-direction: column; gap: 3px;
   flex: 1;
 }
-
 .qbsr-card-name {
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.35;
-  color: var(--sr-text);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  min-height: 2.7em;
-  margin: 0;
+  font-size: 12px; font-weight: 700; line-height: 1.35;
+  color: var(--t1);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; min-height: 2.7em; margin: 0;
 }
+.qbsr-price-row { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.qbsr-price { font-size: 14px; font-weight: 900; color: #F4B400; letter-spacing: -0.02em; }
+html:not([data-theme="dark"]) .qbsr-price { color: var(--g); }
+.qbsr-compare { font-size: 10px; color: var(--t2); text-decoration: line-through; }
 
-.qbsr-price-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.qbsr-price {
-  font-size: 15px;
-  font-weight: 900;
-  color: var(--sr-accent);
-  letter-spacing: -0.02em;
-}
-
-html:not([data-theme="dark"]) .qbsr-price { color: #B07A00; }
-
-.qbsr-compare {
-  font-size: 11px;
-  color: var(--sr-muted);
-  text-decoration: line-through;
-}
-
-/* ADD button */
 .qbsr-add-btn {
   margin: 8px 10px 10px;
   width: calc(100% - 20px);
   height: 36px;
-  border: none;
-  border-radius: 10px;
-  background: var(--sr-magenta);
+  border: none; border-radius: 10px;
+  background: #E91E8C;
   color: #fff;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.05em;
+  font-size: 11px; font-weight: 900; letter-spacing: 0.06em;
   cursor: pointer;
-  transition: background 0.18s, transform 0.15s, box-shadow 0.18s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
   flex-shrink: 0;
+  transition: background .18s, transform .15s, box-shadow .18s;
 }
+.qbsr-add-btn:hover { background: #D81B60; transform: scale(1.02); box-shadow: 0 4px 14px rgba(233,30,140,0.35); }
+.qbsr-add-btn.loading { background: var(--bd2); pointer-events: none; color: var(--t2); }
+.qbsr-add-btn.success { background: #00D26A; pointer-events: none; }
+.qbsr-add-btn.error   { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); pointer-events: none; }
 
-.qbsr-add-btn:hover {
-  background: #D81B60;
-  transform: scale(1.02);
-  box-shadow: 0 4px 14px rgba(194,24,91,0.35);
-}
-
-.qbsr-add-btn.loading {
-  background: var(--sr-border);
-  pointer-events: none;
-  color: var(--sr-muted);
-}
-
-.qbsr-add-btn.success {
-  background: var(--sr-green);
-  color: #fff;
-  pointer-events: none;
-}
-
-.qbsr-add-btn.error {
-  background: rgba(239,68,68,0.15);
-  color: var(--sr-red);
-  border: 1px solid rgba(239,68,68,0.3);
-  pointer-events: none;
-}
-
-/* ══════════════════════════════════
-   SUBSCRIPTIONS SECTION
-   ══════════════════════════════════ */
-.qbsr-subs-scroll {
+/* ═══════════════════════════════════
+   QUICKAI TRENDING HORIZONTAL SCROLL
+   ═══════════════════════════════════ */
+.qbsr-ai-section { background: var(--bg1); }
+.qbsr-ai-scroll {
   display: flex;
-  gap: 12px;
-  padding: 0 10px 8px;
+  gap: 10px;
+  padding: 2px 16px 16px;
   overflow-x: auto;
   scrollbar-width: none;
-  -ms-overflow-style: none;
 }
-.qbsr-subs-scroll::-webkit-scrollbar { display: none; }
+.qbsr-ai-scroll::-webkit-scrollbar { display: none; }
 
-.qbsr-sub-card {
+.qbsr-ai-card {
   flex-shrink: 0;
-  width: 220px;
-  background: var(--sr-card);
-  border: 1px solid var(--sr-border);
-  border-radius: var(--sr-radius);
+  width: 130px;
+  background: var(--bg2);
+  border: 1.5px solid var(--bd);
+  border-radius: 14px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.2s, transform 0.18s, box-shadow 0.2s;
+  transition: border-color .2s, transform .18s, box-shadow .2s;
   position: relative;
 }
-
-.qbsr-sub-card:hover {
-  border-color: rgba(194,24,91,0.4);
+.qbsr-ai-card:hover {
+  border-color: rgba(244,180,0,0.40);
   transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(194,24,91,0.12);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.30);
 }
-
-.qbsr-sub-card-img {
-  aspect-ratio: 16/9;
-  background: var(--sr-img-bg);
+.qbsr-ai-card-img {
+  aspect-ratio: 1/1;
+  background: var(--bg3);
   overflow: hidden;
+}
+.qbsr-ai-card-img img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  padding: 8px;
+  transition: transform .28s;
+}
+.qbsr-ai-card:hover .qbsr-ai-card-img img { transform: scale(1.07); }
+.qbsr-ai-card-body { padding: 8px 8px 5px; }
+.qbsr-ai-card-name {
+  font-size: 11px; font-weight: 700; line-height: 1.3;
+  color: var(--t1);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; min-height: 2.6em;
+}
+.qbsr-ai-card-price { font-size: 12px; font-weight: 900; color: #F4B400; margin-top: 3px; }
+html:not([data-theme="dark"]) .qbsr-ai-card-price { color: var(--g); }
+.qbsr-ai-fire {
+  position: absolute; top: 6px; right: 6px;
+  font-size: 13px; filter: drop-shadow(0 0 5px rgba(255,100,0,0.7));
+}
+
+/* ═══════════════════════════════════
+   QUICKAI CATEGORY SHORTCUTS
+   ═══════════════════════════════════ */
+.qbsr-qcat {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 0 14px 14px;
+}
+@media(min-width:480px) { .qbsr-qcat { grid-template-columns: repeat(6, 1fr); } }
+@media(min-width:768px) { .qbsr-qcat { grid-template-columns: repeat(8, 1fr); padding: 0 20px 16px; } }
+
+.qbsr-qcat-item {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  text-decoration: none;
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 10px 4px 8px;
+  transition: border-color .18s, transform .18s, box-shadow .18s;
+}
+.qbsr-qcat-item:hover {
+  border-color: rgba(244,180,0,0.40);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+.qbsr-qcat-ico {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.qbsr-qcat-lbl {
+  font-size: 9px; font-weight: 800;
+  color: var(--t2); text-align: center;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+/* ═══════════════════════════════════
+   SPA PROMOTION BANNER
+   ═══════════════════════════════════ */
+@keyframes qbsrSpaGlow { 0%,100%{opacity:.4;background-position:0% 50%} 50%{opacity:.8;background-position:100% 50%} }
+
+.qbsr-spa-banner {
+  margin: 14px 14px 0;
+  border-radius: 20px;
+  overflow: hidden;
+  background: linear-gradient(145deg, #060e08 0%, #0c1812 40%, #080510 100%);
+  border: 1.5px solid rgba(201,168,76,0.22);
+  padding: 22px 20px;
   position: relative;
-}
-
-.qbsr-sub-card-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.28s ease;
-}
-
-.qbsr-sub-card:hover .qbsr-sub-card-img img { transform: scale(1.04); }
-
-.qbsr-sub-card-no-img {
-  width: 100%;
-  height: 100%;
   display: flex;
+  gap: 16px;
   align-items: center;
-  justify-content: center;
-  font-size: 32px;
-  background: rgba(194,24,91,0.08);
+  text-decoration: none;
+  transition: border-color .3s, box-shadow .3s;
 }
-
-.qbsr-sub-badge {
+.qbsr-spa-banner:hover {
+  border-color: rgba(201,168,76,0.50);
+  box-shadow: 0 0 40px rgba(201,168,76,0.12);
+}
+.qbsr-spa-banner::before {
+  content: '';
   position: absolute;
-  top: 8px;
-  left: 8px;
-  padding: 3px 8px;
-  background: #C2185B;
-  color: #fff;
-  font-size: 9px;
-  font-weight: 900;
-  border-radius: 999px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  z-index: 2;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.8), rgba(0,210,106,0.4), transparent);
+  background-size: 200% 100%;
+  animation: qbsrSpaGlow 3s ease-in-out infinite;
 }
-
-.qbsr-sub-card-body {
-  padding: 10px 12px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1;
-}
-
-.qbsr-sub-name {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--sr-text);
-  line-height: 1.3;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.qbsr-sub-price {
-  font-size: 14px;
-  font-weight: 900;
-  color: #E91E8C;
-  letter-spacing: -0.01em;
-}
-
-.qbsr-sub-cta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  padding: 8px 12px;
-  background: rgba(194,24,91,0.10);
-  border: 1.5px solid rgba(194,24,91,0.25);
-  border-radius: 10px;
-  color: #C2185B;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  transition: background 0.18s, border-color 0.18s;
-  margin-top: auto;
-  text-decoration: none;
-}
-
-.qbsr-sub-card:hover .qbsr-sub-cta {
-  background: rgba(194,24,91,0.18);
-  border-color: rgba(194,24,91,0.5);
-}
-
-/* ══════════════════════════════════
-   SERVICES SECTION
-   ══════════════════════════════════ */
-.qbsr-services-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 0 10px;
-}
-
-@media (min-width: 640px) {
-  .qbsr-services-wrap {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-}
-
-.qbsr-svc-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: var(--sr-card);
-  border: 1px solid var(--sr-border);
-  border-radius: var(--sr-radius);
-  padding: 16px;
-  text-decoration: none;
-  color: inherit;
-  transition: border-color 0.2s, transform 0.18s, box-shadow 0.2s;
-  position: relative;
-  overflow: hidden;
-}
-
-.qbsr-svc-card::before {
+.qbsr-spa-banner::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, transparent 60%, rgba(34,197,94,0.04));
+  background: radial-gradient(ellipse 70% 80% at 80% 50%, rgba(201,168,76,0.06) 0%, transparent 60%);
   pointer-events: none;
 }
 
-.qbsr-svc-card:hover {
-  border-color: rgba(34,197,94,0.35);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(34,197,94,0.10);
-}
-
-.qbsr-svc-icon-wrap {
-  flex-shrink: 0;
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
-  background: rgba(34,197,94,0.10);
-  border: 1px solid rgba(34,197,94,0.18);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-}
-
-.qbsr-svc-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.qbsr-svc-name {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--sr-text);
-  margin: 0 0 3px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.qbsr-svc-desc {
-  font-size: 12px;
-  color: var(--sr-muted);
-  line-height: 1.4;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.qbsr-svc-arrow {
-  flex-shrink: 0;
-  color: var(--sr-muted2);
-  transition: transform 0.2s, color 0.2s;
-}
-
-.qbsr-svc-card:hover .qbsr-svc-arrow {
-  transform: translateX(3px);
-  color: var(--sr-green);
-}
-
-/* ══════════════════════════════════
-   TOAST
-   ══════════════════════════════════ */
-.qbsr-toast {
-  position: fixed;
-  bottom: 92px;
-  left: 50%;
-  transform: translateX(-50%) translateY(10px);
-  background: #111;
-  border: 1px solid var(--sr-border2);
-  color: #fff;
-  padding: 11px 24px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 700;
-  z-index: 9999;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.22s, transform 0.22s;
-  white-space: nowrap;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-}
-
-.qbsr-toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-.qbsr-toast.error { border-color: rgba(239,68,68,0.4); }
-
-/* ══════════════════════════════════
-   EMPTY STATE
-   ══════════════════════════════════ */
-.qbsr-empty {
-  text-align: center;
-  padding: 56px 24px 32px;
-}
-
-.qbsr-empty-icon {
-  font-size: 64px;
-  margin-bottom: 20px;
-  line-height: 1;
-  filter: drop-shadow(0 0 20px rgba(244,180,0,0.25));
-}
-
-.qbsr-empty-title {
-  font-size: clamp(22px, 6vw, 28px);
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  margin: 0 0 10px;
-  color: var(--sr-text);
-}
-
-.qbsr-empty-sub {
-  font-size: 14px;
-  color: var(--sr-muted);
-  line-height: 1.6;
-  max-width: 30ch;
-  margin: 0 auto 28px;
-}
-
-.qbsr-suggestions-label {
-  font-size: 11px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--sr-muted);
-  margin-bottom: 12px;
-}
-
-.qbsr-suggestion-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-}
-
-.qbsr-suggestion-chip {
+.qbsr-spa-left { flex: 1; min-width: 0; position: relative; z-index: 1; }
+.qbsr-spa-badge {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 9px 16px;
-  background: var(--sr-surface);
-  border: 1.5px solid var(--sr-border);
-  border-radius: 999px;
+  background: rgba(0,210,106,0.10);
+  border: 1px solid rgba(0,210,106,0.28);
+  color: #00D26A;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+}
+.qbsr-spa-title {
+  font-size: clamp(18px, 5vw, 26px);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin-bottom: 6px;
+}
+.qbsr-spa-title em {
+  font-style: normal;
+  background: linear-gradient(90deg, #C9A84C, #F4D78A);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.qbsr-spa-sub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.40);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+.qbsr-spa-feats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.qbsr-spa-feat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.55);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.qbsr-spa-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, #C9A84C, #e6c068);
+  color: #000;
   font-size: 13px;
-  font-weight: 700;
-  color: var(--sr-text);
-  text-decoration: none;
-  transition: border-color 0.18s, color 0.18s;
+  font-weight: 900;
+  padding: 10px 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(201,168,76,0.35);
+  transition: box-shadow .2s, transform .2s;
+}
+.qbsr-spa-banner:hover .qbsr-spa-cta {
+  box-shadow: 0 0 32px rgba(201,168,76,0.55);
+  transform: translateY(-1px);
 }
 
-.qbsr-suggestion-chip:hover {
-  border-color: var(--sr-accent);
-  color: var(--sr-accent);
+.qbsr-spa-right {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+@keyframes qbsrSpaFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.qbsr-spa-emojis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.qbsr-spa-emoji-tile {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  background: rgba(201,168,76,0.07);
+  border: 1px solid rgba(201,168,76,0.18);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 0 14px rgba(201,168,76,0.10);
+}
+.qbsr-spa-emoji-tile:nth-child(odd)  { animation: qbsrSpaFloat 4s ease-in-out infinite; }
+.qbsr-spa-emoji-tile:nth-child(even) { animation: qbsrSpaFloat 4s ease-in-out infinite 1.8s; }
+
+/* ═══════════════════════════════════
+   SUBSCRIPTIONS SECTION
+   ═══════════════════════════════════ */
+.qbsr-subs-scroll {
+  display: flex;
+  gap: 12px;
+  padding: 2px 14px 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.qbsr-subs-scroll::-webkit-scrollbar { display: none; }
+.qbsr-sub-card {
+  flex-shrink: 0; width: 200px;
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  text-decoration: none; color: inherit;
+  transition: border-color .2s, transform .18s, box-shadow .2s;
+}
+.qbsr-sub-card:hover {
+  border-color: rgba(233,30,140,0.40);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(233,30,140,0.12);
+}
+.qbsr-sub-img {
+  aspect-ratio: 16/9;
+  background: var(--bg3);
+  overflow: hidden; position: relative;
+}
+.qbsr-sub-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .28s; }
+.qbsr-sub-card:hover .qbsr-sub-img img { transform: scale(1.04); }
+.qbsr-sub-no-img {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  background: rgba(233,30,140,0.06);
+}
+.qbsr-sub-badge {
+  position: absolute; top: 7px; left: 7px;
+  padding: 3px 8px;
+  background: #C2185B; color: #fff;
+  font-size: 9px; font-weight: 900;
+  border-radius: 999px;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  z-index: 2;
+}
+.qbsr-sub-body { padding: 10px 11px 11px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.qbsr-sub-name {
+  font-size: 12px; font-weight: 800; color: var(--t1); line-height: 1.3;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.qbsr-sub-price { font-size: 13px; font-weight: 900; color: #E91E8C; }
+.qbsr-sub-cta {
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  padding: 7px 10px;
+  background: rgba(194,24,91,0.10);
+  border: 1.5px solid rgba(194,24,91,0.25);
+  border-radius: 9px;
+  color: #C2185B;
+  font-size: 10px; font-weight: 900; letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-/* ══════════════════════════════════
-   PAGINATION
-   ══════════════════════════════════ */
-.qbsr-pagination {
+/* ═══════════════════════════════════
+   SERVICES GRID
+   ═══════════════════════════════════ */
+.qbsr-svc-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 0 14px 6px;
+}
+@media(min-width:640px) {
+  .qbsr-svc-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 20px 8px; }
+}
+.qbsr-svc {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
+  padding: 14px 14px;
+  text-decoration: none; color: inherit;
+  transition: border-color .2s, transform .18s, box-shadow .2s;
+  position: relative; overflow: hidden;
+}
+.qbsr-svc::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, transparent 60%, rgba(0,210,106,0.03));
+  pointer-events: none;
+}
+.qbsr-svc:hover {
+  border-color: rgba(0,210,106,0.30);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0,210,106,0.08);
+}
+.qbsr-svc.spa-svc::after { background: linear-gradient(135deg, transparent 60%, rgba(201,168,76,0.04)); }
+.qbsr-svc.spa-svc:hover { border-color: rgba(201,168,76,0.35); box-shadow: 0 8px 22px rgba(201,168,76,0.10); }
+.qbsr-svc-ico {
+  flex-shrink: 0; width: 50px; height: 50px;
+  border-radius: 14px;
+  background: rgba(0,210,106,0.08);
+  border: 1px solid rgba(0,210,106,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.qbsr-svc.spa-svc .qbsr-svc-ico {
+  background: rgba(201,168,76,0.10);
+  border-color: rgba(201,168,76,0.18);
+}
+.qbsr-svc-info { flex: 1; min-width: 0; }
+.qbsr-svc-name {
+  font-size: 13px; font-weight: 800; color: var(--t1);
+  margin-bottom: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.qbsr-svc-desc {
+  font-size: 11px; color: var(--t2); line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.qbsr-svc-badge {
+  flex-shrink: 0;
+  font-size: 9px; font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: rgba(0,210,106,0.10);
+  border: 1px solid rgba(0,210,106,0.22);
+  color: #00D26A;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.qbsr-svc-arrow {
+  flex-shrink: 0; color: var(--t3);
+  transition: transform .2s, color .2s;
+}
+.qbsr-svc:hover .qbsr-svc-arrow { transform: translateX(3px); color: #00D26A; }
+.qbsr-svc.spa-svc:hover .qbsr-svc-arrow { color: #C9A84C; }
+
+/* ═══════════════════════════════════
+   PAGINATION — BIG & PROMINENT
+   ═══════════════════════════════════ */
+.qbsr-pages {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 8px;
-  padding: 28px 16px 0;
+  padding: 24px 16px 8px;
   flex-wrap: wrap;
 }
-
-.qbsr-page-btn {
-  padding: 9px 18px;
-  border-radius: 10px;
-  background: var(--sr-surface);
-  border: 1.5px solid var(--sr-border);
-  color: var(--sr-text);
-  font-size: 13px;
-  font-weight: 700;
+.qbsr-pg-btn {
+  min-width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: var(--bg2);
+  border: 1.5px solid var(--bd);
+  color: var(--t1);
+  font-size: 14px; font-weight: 800;
   text-decoration: none;
-  transition: border-color 0.18s, color 0.18s;
   cursor: pointer;
+  transition: border-color .18s, color .18s, background .18s, box-shadow .18s;
+  white-space: nowrap;
+}
+.qbsr-pg-btn:hover {
+  border-color: rgba(244,180,0,0.45);
+  color: #F4B400;
+  background: rgba(244,180,0,0.06);
+  box-shadow: 0 4px 14px rgba(244,180,0,0.15);
+}
+.qbsr-pg-btn.cur {
+  background: rgba(244,180,0,0.12);
+  border-color: rgba(244,180,0,0.45);
+  color: #F4B400;
+  pointer-events: none;
+}
+.qbsr-pg-btn.nav {
+  background: var(--bg2);
+  font-size: 13px;
+  letter-spacing: -0.01em;
 }
 
-.qbsr-page-btn:hover,
-.qbsr-page-btn.current {
-  border-color: var(--sr-accent);
-  color: var(--sr-accent);
-  background: var(--sr-accent-bg);
+/* ═══════════════════════════════════
+   EMPTY STATE
+   ═══════════════════════════════════ */
+.qbsr-empty {
+  text-align: center;
+  padding: 48px 24px 32px;
+}
+.qbsr-empty-icon {
+  font-size: 64px; line-height: 1; margin-bottom: 20px;
+  filter: drop-shadow(0 0 20px rgba(244,180,0,0.30));
+}
+.qbsr-empty-title {
+  font-size: clamp(22px, 6vw, 30px);
+  font-weight: 900; letter-spacing: -0.03em;
+  color: var(--t1); margin-bottom: 10px;
+}
+.qbsr-empty-sub {
+  font-size: 14px; color: var(--t2); line-height: 1.6;
+  max-width: 30ch; margin: 0 auto 28px;
+}
+.qbsr-empty-label {
+  font-size: 10px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.10em;
+  color: var(--t3); margin-bottom: 12px;
+}
+.qbsr-chips {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+}
+.qbsr-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 9px 16px;
+  background: var(--bg2);
+  border: 1.5px solid var(--bd);
+  border-radius: 999px;
+  font-size: 13px; font-weight: 700;
+  color: var(--t1); text-decoration: none;
+  transition: border-color .18s, color .18s;
+}
+.qbsr-chip:hover { border-color: #F4B400; color: #F4B400; }
+html:not([data-theme="dark"]) .qbsr-chip:hover { color: var(--g); border-color: var(--g); }
+
+/* ═══════════════════════════════════
+   DIVIDER
+   ═══════════════════════════════════ */
+.qbsr-div {
+  height: 1px;
+  background: var(--bd);
+  margin: 8px 16px;
+  opacity: 0.7;
 }
 
-/* ══════════════════════════════════
-   ACCESSIBILITY
-   ══════════════════════════════════ */
-@media (prefers-reduced-motion: reduce) {
-  .qbsr-card, .qbsr-sub-card, .qbsr-svc-card,
-  .qbsr-add-btn, .qbsr-img, .qbsr-sub-card-img img {
-    transition: none !important;
-    transform: none !important;
-  }
+/* ═══════════════════════════════════
+   TOAST
+   ═══════════════════════════════════ */
+.qbsr-toast {
+  position: fixed;
+  bottom: 92px; left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: #111;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #fff;
+  padding: 11px 24px;
+  border-radius: 999px;
+  font-size: 13px; font-weight: 700;
+  z-index: 9999;
+  opacity: 0; pointer-events: none;
+  transition: opacity .22s, transform .22s;
+  white-space: nowrap;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.qbsr-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.qbsr-toast.error { border-color: rgba(239,68,68,0.4); }
+
+@media(prefers-reduced-motion:reduce) {
+  .qbsr-card,.qbsr-ai-card,.qbsr-sub-card,.qbsr-svc,.qbsr-qcat-item,
+  .qbsr-add-btn,.qbsr-img,.qbsr-sub-img img,.qbsr-spa-banner,
+  .qbsr-spa-emoji-tile { transition:none!important; animation:none!important; transform:none!important; }
 }
 </style>
 
+{%- assign product_results = search.results | where: 'object_type', 'product' -%}
+{%- assign sub_collection = collections['subscriptions'] -%}
+{%- assign sub_count = sub_collection.products_count | plus: 0 -%}
+{%- assign trending_col = collections['all'] -%}
+
 <div class="qbsr-page" id="qbsr">
 
-  {%- assign product_results = search.results | where: 'object_type', 'product' -%}
-  {%- assign sub_collection = collections['subscriptions'] -%}
-  {%- assign sub_count = sub_collection.products_count | plus: 0 -%}
-
-  <!-- ══════════════════════════════════
-       HERO
-       ══════════════════════════════════ -->
+  <!-- ═══════════════════════════════
+       HERO — Cinematic dark always
+       ═══════════════════════════════ -->
   <div class="qbsr-hero">
     <p class="qbsr-hero-eyebrow">Search results</p>
     <h1 class="qbsr-hero-title">
       {%- if search.terms != blank -%}
-        "<span class="qbsr-query-highlight">{{ search.terms | escape }}</span>"
+        "<span class="qbsr-query-hl">{{ search.terms | escape }}</span>"
       {%- else -%}
-        Browse everything
+        Browse Everything
       {%- endif -%}
     </h1>
-
-    <div class="qbsr-hero-stats">
+    <div class="qbsr-stat-row">
       {%- if product_results.size > 0 -%}
-        <span class="qbsr-stat-pill products">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="qbsr-pill gold">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
           {{ product_results.size }} product{{ product_results.size | pluralize: '', 's' }}
         </span>
       {%- endif -%}
-      {%- if sub_collection and sub_count > 0 -%}
-        <span class="qbsr-stat-pill subs">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-          {{ sub_collection.products_count }} subscription{{ sub_collection.products_count | pluralize: '', 's' }}
-        </span>
+      {%- if sub_count > 0 -%}
+        <span class="qbsr-pill pink">📦 {{ sub_count }} subscriptions</span>
       {%- endif -%}
-      <span class="qbsr-stat-pill services">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-        Services
-      </span>
+      <span class="qbsr-pill green">🌿 Spa Services</span>
+      <span class="qbsr-pill blue">⚡ 20 min delivery</span>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
+  <!-- ═══════════════════════════════
        FILTER CHIPS
-       ══════════════════════════════════ -->
-  {%- if search.terms != blank or product_results.size > 0 -%}
+       ═══════════════════════════════ -->
   <div class="qbsr-filters" id="qbsrFilters">
-    {%- assign base_q = search.terms | escape -%}
-    <a href="/search?q={{ base_q }}&type=product" class="qbsr-filter active">🛍️ All</a>
-    <a href="/search?q={{ base_q }}&type=product&filter.p.type=Beer" class="qbsr-filter">🍺 Beer</a>
-    <a href="/search?q={{ base_q }}&type=product&filter.p.type=Drinks" class="qbsr-filter">🥤 Drinks</a>
-    <a href="/search?q={{ base_q }}&type=product&filter.p.type=Snacks" class="qbsr-filter">🍟 Snacks</a>
-    <a href="/search?q={{ base_q }}&type=product&filter.p.type=Food" class="qbsr-filter">🍔 Food</a>
-    <a href="/search?q={{ base_q }}&type=product&filter.p.type=Grocery" class="qbsr-filter">🥦 Grocery</a>
-    <a href="/search?q={{ base_q }}&type=product&filter.p.type=Cigarettes" class="qbsr-filter">🚬 Smokes</a>
+    {%- assign bq = search.terms | escape -%}
+    <a href="/search?q={{ bq }}&type=product"                                     class="qbsr-filter active">🛍️ All</a>
+    <a href="/search?q={{ bq }}&type=product&filter.p.type=Beer"                  class="qbsr-filter">🍺 Beer</a>
+    <a href="/search?q={{ bq }}&type=product&filter.p.type=Drinks"                class="qbsr-filter">🥤 Drinks</a>
+    <a href="/search?q={{ bq }}&type=product&filter.p.type=Snacks"                class="qbsr-filter">🍟 Snacks</a>
+    <a href="/search?q={{ bq }}&type=product&filter.p.type=Food"                  class="qbsr-filter">🍔 Food</a>
+    <a href="/search?q={{ bq }}&type=product&filter.p.type=Grocery"               class="qbsr-filter">🥦 Grocery</a>
+    <a href="/search?q={{ bq }}&type=product&filter.p.type=Cigarettes"            class="qbsr-filter">🚬 Smokes</a>
+    <a href="/search?q={{ bq }}&type=product&filter.p.type=Whiskey"               class="qbsr-filter">🥃 Whiskey</a>
+    <a href="/search?q={{ bq }}&type=product&filter.p.type=Vodka"                 class="qbsr-filter">🍸 Vodka</a>
   </div>
-  {%- endif -%}
 
-  {%- if product_results.size > 0 or sub_count > 0 -%}
+  {%- if product_results.size > 0 -%}
 
-    <!-- ══════════════════════════════════
-         PRODUCTS SECTION
-         ══════════════════════════════════ -->
-    {%- if product_results.size > 0 -%}
-    <div class="qbsr-section">
-      <div class="qbsr-section-head">
-        <h2 class="qbsr-section-title">
-          <span class="qbsr-section-icon gold">🛍️</span>
-          Products
-        </h2>
-        <span class="qbsr-count-chip">{{ product_results.size }}</span>
+    <!-- ═══════════════════════════════
+         PRODUCTS
+         ═══════════════════════════════ -->
+    <div style="margin-top:8px;">
+      <div class="qbsr-sh">
+        <div class="qbsr-sh-left">
+          <span class="qbsr-sh-ico gold">🛒</span>
+          <span class="qbsr-sh-title">Products</span>
+        </div>
+        <span class="qbsr-sh-badge">{{ product_results.size }}</span>
       </div>
 
-      {%- paginate search.results by 24 -%}
+      {%- paginate search.results by 20 -%}
       <div class="qbsr-grid-wrap">
         <ul class="qbsr-grid" id="qbsrGrid">
           {%- for product in product_results -%}
-            {%- assign p_title = product.title | downcase -%}
-            {%- unless p_title contains 'syrup' or p_title contains 'monin' or p_title contains 'pump' or p_title contains 'sauce' or p_title contains 'chocolate' or p_title contains 'energy shot' -%}
-              {%- assign sale = false -%}
+            {%- assign pt = product.title | downcase -%}
+            {%- unless pt contains 'syrup' or pt contains 'monin' or pt contains 'pump' -%}
+              {%- assign on_sale = false -%}
               {%- if product.compare_at_price > product.price -%}
-                {%- assign sale = true -%}
-                {%- assign discount = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price -%}
+                {%- assign on_sale = true -%}
+                {%- assign disc = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price -%}
               {%- endif -%}
-
               <li class="qbsr-card">
                 <a href="{{ product.url }}" class="qbsr-card-link">
                   <div class="qbsr-img-wrap">
                     {%- if product.featured_image -%}
-                      <img
-                        src="{{ product.featured_image | image_url: width: 480 }}"
-                        alt="{{ product.featured_image.alt | default: product.title | escape }}"
-                        class="qbsr-img"
-                        loading="lazy"
-                        width="480"
-                        height="480"
-                      >
+                      <img src="{{ product.featured_image | image_url: width: 480 }}" alt="{{ product.title | escape }}" class="qbsr-img" loading="lazy" width="480" height="480">
                     {%- else -%}
                       <div class="qbsr-no-img">🐝</div>
                     {%- endif -%}
-
-                    {%- if sale -%}
-                      <span class="qbsr-sale-badge">{{ discount }}% OFF</span>
-                    {%- endif -%}
+                    {%- if on_sale -%}<span class="qbsr-sale-badge">{{ disc }}% OFF</span>{%- endif -%}
                     <span class="qbsr-time-badge qbsr-time-sync">⚡ 20 mins</span>
                   </div>
-
                   <div class="qbsr-card-body">
                     <h3 class="qbsr-card-name">{{ product.title }}</h3>
                     <div class="qbsr-price-row">
                       <span class="qbsr-price">Rs {{ product.price | money_without_currency }}</span>
-                      {%- if sale -%}
-                        <span class="qbsr-compare">Rs {{ product.compare_at_price | money_without_currency }}</span>
-                      {%- endif -%}
+                      {%- if on_sale -%}<span class="qbsr-compare">Rs {{ product.compare_at_price | money_without_currency }}</span>{%- endif -%}
                     </div>
                   </div>
                 </a>
-
-                <button
-                  class="qbsr-add-btn"
-                  data-variant="{{ product.first_available_variant.id }}"
-                  data-name="{{ product.title | escape }}"
-                  aria-label="Add {{ product.title | escape }} to cart"
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <button class="qbsr-add-btn" data-variant="{{ product.first_available_variant.id }}" data-name="{{ product.title | escape }}">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   ADD
                 </button>
               </li>
@@ -971,240 +945,322 @@ html:not([data-theme="dark"]) .qbsr-price { color: #B07A00; }
       </div>
 
       {%- if paginate.pages > 1 -%}
-      <div class="qbsr-pagination">
+      <div class="qbsr-pages">
         {%- if paginate.previous -%}
-          <a href="{{ paginate.previous.url }}" class="qbsr-page-btn">← Prev</a>
+          <a href="{{ paginate.previous.url }}" class="qbsr-pg-btn nav">← Prev</a>
         {%- endif -%}
         {%- for part in paginate.parts -%}
           {%- if part.is_link -%}
-            <a href="{{ part.url }}" class="qbsr-page-btn">{{ part.title }}</a>
+            <a href="{{ part.url }}" class="qbsr-pg-btn">{{ part.title }}</a>
           {%- else -%}
-            <span class="qbsr-page-btn current">{{ part.title }}</span>
+            <span class="qbsr-pg-btn cur">{{ part.title }}</span>
           {%- endif -%}
         {%- endfor -%}
         {%- if paginate.next -%}
-          <a href="{{ paginate.next.url }}" class="qbsr-page-btn">Next →</a>
+          <a href="{{ paginate.next.url }}" class="qbsr-pg-btn nav">Next →</a>
         {%- endif -%}
       </div>
       {%- endif -%}
       {%- endpaginate -%}
     </div>
-    {%- endif -%}
-
-    <!-- ══════════════════════════════════
-         SUBSCRIPTIONS SECTION
-         ══════════════════════════════════ -->
-    {%- if sub_collection and sub_count > 0 -%}
-    <div class="qbsr-section">
-      <div class="qbsr-divider"></div>
-      <div class="qbsr-section-head">
-        <h2 class="qbsr-section-title">
-          <span class="qbsr-section-icon pink">📦</span>
-          Subscriptions
-        </h2>
-        <span class="qbsr-count-chip">{{ sub_collection.products_count }}</span>
-      </div>
-
-      <div class="qbsr-subs-scroll">
-        {%- for product in sub_collection.products limit: 10 -%}
-          <a href="{{ product.url }}" class="qbsr-sub-card">
-            <div class="qbsr-sub-card-img">
-              {%- if product.featured_image -%}
-                <img
-                  src="{{ product.featured_image | image_url: width: 440 }}"
-                  alt="{{ product.featured_image.alt | default: product.title | escape }}"
-                  loading="lazy"
-                  width="440"
-                  height="248"
-                >
-              {%- else -%}
-                <div class="qbsr-sub-card-no-img">📦</div>
-              {%- endif -%}
-              <span class="qbsr-sub-badge">SUBSCRIBE</span>
-            </div>
-            <div class="qbsr-sub-card-body">
-              <h3 class="qbsr-sub-name">{{ product.title }}</h3>
-              <p class="qbsr-sub-price">From Rs {{ product.price | money_without_currency }}</p>
-              <span class="qbsr-sub-cta">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-                Subscribe & Save
-              </span>
-            </div>
-          </a>
-        {%- endfor -%}
-      </div>
-    </div>
-    {%- endif -%}
 
   {%- else -%}
 
-    <!-- ══════════════════════════════════
+    <!-- ═══════════════════════════════
          EMPTY STATE
-         ══════════════════════════════════ -->
+         ═══════════════════════════════ -->
     <div class="qbsr-empty">
-      <div class="qbsr-empty-icon">🔎</div>
+      <div class="qbsr-empty-icon">🔍</div>
       <h2 class="qbsr-empty-title">
-        {%- if search.terms != blank -%}
-          No results for "{{ search.terms | escape }}"
-        {%- else -%}
-          What are you craving?
-        {%- endif -%}
+        {%- if search.terms != blank -%}No results for "{{ search.terms | escape }}"{%- else -%}What are you craving?{%- endif -%}
       </h2>
       <p class="qbsr-empty-sub">
-        {%- if search.terms != blank -%}
-          Try a shorter word, check spelling, or browse a category below.
-        {%- else -%}
-          Search across groceries, drinks, snacks, beer and more.
-        {%- endif -%}
+        {%- if search.terms != blank -%}Try a shorter word or browse below.{%- else -%}Search across 500+ products delivered in 20 mins.{%- endif -%}
       </p>
-      <p class="qbsr-suggestions-label">Try these</p>
-      <div class="qbsr-suggestion-chips">
-        <a href="/search?q=beer&type=product"           class="qbsr-suggestion-chip">🍺 Beer</a>
-        <a href="/search?q=cold+drinks&type=product"    class="qbsr-suggestion-chip">🥤 Cold Drinks</a>
-        <a href="/search?q=chips&type=product"          class="qbsr-suggestion-chip">🍟 Chips</a>
-        <a href="/search?q=noodles&type=product"        class="qbsr-suggestion-chip">🍜 Noodles</a>
-        <a href="/search?q=vodka&type=product"          class="qbsr-suggestion-chip">🥃 Vodka</a>
-        <a href="/search?q=cigarette&type=product"      class="qbsr-suggestion-chip">🚬 Cigarettes</a>
-        <a href="/search?q=juice&type=product"          class="qbsr-suggestion-chip">🧃 Juice</a>
-        <a href="/search?q=chocolate&type=product"      class="qbsr-suggestion-chip">🍫 Chocolate</a>
+      <p class="qbsr-empty-label">Try these</p>
+      <div class="qbsr-chips">
+        <a href="/search?q=beer&type=product"        class="qbsr-chip">🍺 Beer</a>
+        <a href="/search?q=cold+drinks&type=product" class="qbsr-chip">🥤 Cold Drinks</a>
+        <a href="/search?q=chips&type=product"       class="qbsr-chip">🍟 Chips</a>
+        <a href="/search?q=noodles&type=product"     class="qbsr-chip">🍜 Noodles</a>
+        <a href="/search?q=vodka&type=product"       class="qbsr-chip">🥃 Vodka</a>
+        <a href="/search?q=cigarette&type=product"   class="qbsr-chip">🚬 Smokes</a>
+        <a href="/search?q=juice&type=product"       class="qbsr-chip">🧃 Juice</a>
+        <a href="/search?q=whiskey&type=product"     class="qbsr-chip">🥃 Whiskey</a>
       </div>
     </div>
 
   {%- endif -%}
 
-  <!-- ══════════════════════════════════
-       SERVICES SECTION (always shown)
-       ══════════════════════════════════ -->
-  <div class="qbsr-section" style="margin-top: 8px;">
-    <div class="qbsr-divider"></div>
-    <div class="qbsr-section-head">
-      <h2 class="qbsr-section-title">
-        <span class="qbsr-section-icon green">⚡</span>
-        Our Services
-      </h2>
+  <!-- ═══════════════════════════════
+       QUICKAI — TRENDING PICKS
+       ═══════════════════════════════ -->
+  {%- if trending_col and trending_col.products_count > 0 -%}
+  <div class="qbsr-ai-section" style="margin-top:20px;">
+    <div class="qbsr-sh">
+      <div class="qbsr-sh-left">
+        <span class="qbsr-sh-ico blue">🤖</span>
+        <span class="qbsr-sh-title">Trending Now</span>
+        <span class="qbsr-sh-ai">QuickAI</span>
+      </div>
+      <a href="/collections/all" class="qbsr-sh-link">View All →</a>
     </div>
+    <div class="qbsr-ai-scroll">
+      {%- for product in trending_col.products limit: 14 -%}
+        {%- assign pt2 = product.title | downcase -%}
+        {%- unless pt2 contains 'syrup' or pt2 contains 'pump' -%}
+          <a href="{{ product.url }}" class="qbsr-ai-card">
+            <div class="qbsr-ai-card-img">
+              {%- if product.featured_image -%}
+                <img src="{{ product.featured_image | image_url: width: 300 }}" alt="{{ product.title | escape }}" loading="lazy" width="300" height="300">
+              {%- else -%}
+                <div class="qbsr-no-img" style="height:100%;font-size:28px;">🐝</div>
+              {%- endif -%}
+            </div>
+            <span class="qbsr-ai-fire">🔥</span>
+            <div class="qbsr-ai-card-body">
+              <p class="qbsr-ai-card-name">{{ product.title }}</p>
+              <p class="qbsr-ai-card-price">Rs {{ product.price | money_without_currency }}</p>
+            </div>
+          </a>
+        {%- endunless -%}
+      {%- endfor -%}
+    </div>
+  </div>
+  {%- endif -%}
 
-    <div class="qbsr-services-wrap">
-      <a href="/pages/subscription" class="qbsr-svc-card">
-        <div class="qbsr-svc-icon-wrap">📦</div>
-        <div class="qbsr-svc-info">
-          <p class="qbsr-svc-name">Daily Subscriptions</p>
-          <p class="qbsr-svc-desc">Get fresh products delivered every day — milk, eggs, bread & more.</p>
-        </div>
-        <svg class="qbsr-svc-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>
+  <!-- ═══════════════════════════════
+       QUICKAI — CATEGORY SHORTCUTS
+       ═══════════════════════════════ -->
+  <div style="margin-top:6px;">
+    <div class="qbsr-sh">
+      <div class="qbsr-sh-left">
+        <span class="qbsr-sh-ico gold">⚡</span>
+        <span class="qbsr-sh-title">Quick Categories</span>
+        <span class="qbsr-sh-ai">QuickAI</span>
+      </div>
+    </div>
+    <div class="qbsr-qcat">
+      <a href="/collections/all?sort_by=best-selling" class="qbsr-qcat-item">
+        <div class="qbsr-qcat-ico" style="background:linear-gradient(135deg,#7a5200,#c48c00)">🍺</div>
+        <span class="qbsr-qcat-lbl">Beer</span>
       </a>
-
-      <a href="/pages/party-order" class="qbsr-svc-card">
-        <div class="qbsr-svc-icon-wrap">🎉</div>
-        <div class="qbsr-svc-info">
-          <p class="qbsr-svc-name">Party & Bulk Orders</p>
-          <p class="qbsr-svc-desc">Planning a party? Order in bulk and we'll sort you out fast.</p>
-        </div>
-        <svg class="qbsr-svc-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>
+      <a href="/collections/whiskey" class="qbsr-qcat-item">
+        <div class="qbsr-qcat-ico" style="background:linear-gradient(135deg,#4a1800,#a04800)">🥃</div>
+        <span class="qbsr-qcat-lbl">Whiskey</span>
       </a>
-
-      <a href="/pages/beer-delivery" class="qbsr-svc-card">
-        <div class="qbsr-svc-icon-wrap">🍺</div>
-        <div class="qbsr-svc-info">
-          <p class="qbsr-svc-name">Beer on Demand</p>
-          <p class="qbsr-svc-desc">Cold beer in under 22 minutes. No compromise, no waiting.</p>
-        </div>
-        <svg class="qbsr-svc-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>
+      <a href="/collections/vodka" class="qbsr-qcat-item">
+        <div class="qbsr-qcat-ico" style="background:linear-gradient(135deg,#001a3a,#0055c8)">🍸</div>
+        <span class="qbsr-qcat-lbl">Vodka</span>
       </a>
-
-      <a href="/pages/contact" class="qbsr-svc-card">
-        <div class="qbsr-svc-icon-wrap">💬</div>
-        <div class="qbsr-svc-info">
-          <p class="qbsr-svc-name">Talk to Us</p>
-          <p class="qbsr-svc-desc">Questions, special requests, or feedback — we're always here.</p>
-        </div>
-        <svg class="qbsr-svc-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>
+      <a href="/collections/smokes-more" class="qbsr-qcat-item">
+        <div class="qbsr-qcat-ico" style="background:linear-gradient(135deg,#2a2a2a,#555)">🚬</div>
+        <span class="qbsr-qcat-lbl">Smokes</span>
+      </a>
+      <a href="/search?q=chips&type=product" class="qbsr-qcat-item">
+        <div class="qbsr-qcat-ico" style="background:linear-gradient(135deg,#3a2000,#8a5000)">🍟</div>
+        <span class="qbsr-qcat-lbl">Snacks</span>
+      </a>
+      <a href="/search?q=juice&type=product" class="qbsr-qcat-item">
+        <div class="qbsr-qcat-ico" style="background:linear-gradient(135deg,#002a10,#006a28)">🧃</div>
+        <span class="qbsr-qcat-lbl">Juice</span>
+      </a>
+      <a href="/search?q=noodles&type=product" class="qbsr-qcat-item">
+        <div class="qbsr-qcat-ico" style="background:linear-gradient(135deg,#3a1800,#8a4400)">🍜</div>
+        <span class="qbsr-qcat-lbl">Noodles</span>
+      </a>
+      <a href="/collections/wholesale" class="qbsr-qcat-item">
+        <div class="qbsr-qcat-ico" style="background:linear-gradient(135deg,#1a0a00,#4a2800)">🏢</div>
+        <span class="qbsr-qcat-lbl">Wholesale</span>
       </a>
     </div>
   </div>
 
+  <!-- ═══════════════════════════════
+       SUBSCRIPTIONS
+       ═══════════════════════════════ -->
+  {%- if sub_collection and sub_count > 0 -%}
+  <div class="qbsr-div"></div>
+  <div class="qbsr-sh">
+    <div class="qbsr-sh-left">
+      <span class="qbsr-sh-ico pink">📦</span>
+      <span class="qbsr-sh-title">Daily Subscriptions</span>
+    </div>
+    <span class="qbsr-sh-badge">{{ sub_count }}</span>
+  </div>
+  <div class="qbsr-subs-scroll">
+    {%- for product in sub_collection.products limit: 10 -%}
+      <a href="{{ product.url }}" class="qbsr-sub-card">
+        <div class="qbsr-sub-img">
+          {%- if product.featured_image -%}
+            <img src="{{ product.featured_image | image_url: width: 400 }}" alt="{{ product.title | escape }}" loading="lazy">
+          {%- else -%}
+            <div class="qbsr-sub-no-img">📦</div>
+          {%- endif -%}
+          <span class="qbsr-sub-badge">SUBSCRIBE</span>
+        </div>
+        <div class="qbsr-sub-body">
+          <h3 class="qbsr-sub-name">{{ product.title }}</h3>
+          <p class="qbsr-sub-price">From Rs {{ product.price | money_without_currency }}</p>
+          <span class="qbsr-sub-cta">Subscribe &amp; Save</span>
+        </div>
+      </a>
+    {%- endfor -%}
+  </div>
+  {%- endif -%}
+
+  <!-- ═══════════════════════════════
+       SPA PROMOTION BANNER
+       ═══════════════════════════════ -->
+  <div style="margin-top:20px;">
+    <div class="qbsr-sh">
+      <div class="qbsr-sh-left">
+        <span class="qbsr-sh-ico spa">✨</span>
+        <span class="qbsr-sh-title">Spa & Wellness</span>
+      </div>
+    </div>
+    <a href="/collections/thamel-thai-spa" class="qbsr-spa-banner">
+      <div class="qbsr-spa-left">
+        <div class="qbsr-spa-badge">● OPEN NOW</div>
+        <h2 class="qbsr-spa-title">Thamel Thai Spa<br><em>Book Your Session</em></h2>
+        <p class="qbsr-spa-sub">Premium Thai massage & spa treatments. Professional therapists, calm sanctuary.</p>
+        <div class="qbsr-spa-feats">
+          <span class="qbsr-spa-feat">💆 Thai Massage</span>
+          <span class="qbsr-spa-feat">🧖 Body Scrub</span>
+          <span class="qbsr-spa-feat">🌿 Aromatherapy</span>
+          <span class="qbsr-spa-feat">⚡ Book Instantly</span>
+        </div>
+        <span class="qbsr-spa-cta">
+          Book Now
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </span>
+      </div>
+      <div class="qbsr-spa-right">
+        <div class="qbsr-spa-emojis">
+          <div class="qbsr-spa-emoji-tile">💆</div>
+          <div class="qbsr-spa-emoji-tile">🌸</div>
+          <div class="qbsr-spa-emoji-tile">🕯️</div>
+          <div class="qbsr-spa-emoji-tile">🌿</div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- ═══════════════════════════════
+       SERVICES
+       ═══════════════════════════════ -->
+  <div class="qbsr-div" style="margin-top:20px;"></div>
+  <div class="qbsr-sh">
+    <div class="qbsr-sh-left">
+      <span class="qbsr-sh-ico green">⚡</span>
+      <span class="qbsr-sh-title">Our Services</span>
+    </div>
+  </div>
+  <div class="qbsr-svc-wrap">
+    <a href="/collections/thamel-thai-spa" class="qbsr-svc spa-svc">
+      <div class="qbsr-svc-ico">🧖</div>
+      <div class="qbsr-svc-info">
+        <p class="qbsr-svc-name">Thamel Thai Spa</p>
+        <p class="qbsr-svc-desc">Premium massage & body treatments. Professional therapists in Thamel.</p>
+      </div>
+      <span class="qbsr-svc-badge">OPEN</span>
+      <svg class="qbsr-svc-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>
+    </a>
+
+    <a href="/pages/subscription" class="qbsr-svc">
+      <div class="qbsr-svc-ico">📦</div>
+      <div class="qbsr-svc-info">
+        <p class="qbsr-svc-name">Daily Subscriptions</p>
+        <p class="qbsr-svc-desc">Milk, eggs, bread & more — delivered every day automatically.</p>
+      </div>
+      <svg class="qbsr-svc-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>
+    </a>
+
+    <a href="/collections/wholesale" class="qbsr-svc">
+      <div class="qbsr-svc-ico">🏢</div>
+      <div class="qbsr-svc-info">
+        <p class="qbsr-svc-name">Wholesale B2B</p>
+        <p class="qbsr-svc-desc">Bulk liquor for restaurants & bars. Dedicated account manager.</p>
+      </div>
+      <svg class="qbsr-svc-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>
+    </a>
+
+    <a href="/pages/party-order" class="qbsr-svc">
+      <div class="qbsr-svc-ico">🎉</div>
+      <div class="qbsr-svc-info">
+        <p class="qbsr-svc-name">Party & Bulk Orders</p>
+        <p class="qbsr-svc-desc">Planning a party? Order in bulk and we'll deliver it fast.</p>
+      </div>
+      <svg class="qbsr-svc-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>
+    </a>
+
+    <a href="/pages/beer-delivery" class="qbsr-svc">
+      <div class="qbsr-svc-ico">🍺</div>
+      <div class="qbsr-svc-info">
+        <p class="qbsr-svc-name">Beer on Demand</p>
+        <p class="qbsr-svc-desc">Cold beer under 22 minutes. No compromise, no waiting.</p>
+      </div>
+      <svg class="qbsr-svc-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>
+    </a>
+
+    <a href="/pages/contact" class="qbsr-svc">
+      <div class="qbsr-svc-ico">💬</div>
+      <div class="qbsr-svc-info">
+        <p class="qbsr-svc-name">Talk to Us</p>
+        <p class="qbsr-svc-desc">Questions, special requests or feedback — we're always here.</p>
+      </div>
+      <svg class="qbsr-svc-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>
+    </a>
+  </div>
+
 </div>
 
-<!-- Toast -->
 <div class="qbsr-toast" id="qbsrToast"></div>
 
 <script>
-(function () {
+(function(){
   /* ── Delivery time sync ── */
-  function syncTime() {
-    var range = (window.QB_DELIVERY_TIME && window.QB_DELIVERY_TIME.range) || '20 mins';
-    document.querySelectorAll('.qbsr-time-sync').forEach(function (b) {
-      b.textContent = '⚡ ' + range;
-    });
+  function syncTime(){
+    var r=(window.QB_DELIVERY_TIME&&window.QB_DELIVERY_TIME.range)||'20 mins';
+    document.querySelectorAll('.qbsr-time-sync').forEach(function(b){b.textContent='⚡ '+r;});
   }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', syncTime);
-  } else {
-    syncTime();
-  }
-  window.addEventListener('locationSelected', function () { setTimeout(syncTime, 50); });
+  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',syncTime):syncTime();
+  window.addEventListener('locationSelected',function(){setTimeout(syncTime,50);});
 
   /* ── Toast ── */
-  function showToast(msg, isError) {
-    var t = document.getElementById('qbsrToast');
-    if (!t) return;
-    t.textContent = msg;
-    t.className = 'qbsr-toast show' + (isError ? ' error' : '');
-    clearTimeout(t._timer);
-    t._timer = setTimeout(function () { t.classList.remove('show'); }, 2600);
+  function toast(msg,err){
+    var t=document.getElementById('qbsrToast');
+    if(!t)return;
+    t.textContent=msg;
+    t.className='qbsr-toast show'+(err?' error':'');
+    clearTimeout(t._t);
+    t._t=setTimeout(function(){t.classList.remove('show');},2600);
   }
 
   /* ── Add to cart ── */
-  document.addEventListener('click', function (e) {
-    var btn = e.target.closest('.qbsr-add-btn');
-    if (!btn || btn.classList.contains('loading') || btn.classList.contains('success')) return;
-
-    var variantId = btn.getAttribute('data-variant');
-    var name = btn.getAttribute('data-name') || 'Item';
-    if (!variantId || variantId === 'null' || variantId === '') {
-      showToast('Out of stock', true);
-      return;
-    }
-
+  document.addEventListener('click',function(e){
+    var btn=e.target.closest('.qbsr-add-btn');
+    if(!btn||btn.classList.contains('loading')||btn.classList.contains('success'))return;
+    var vid=btn.getAttribute('data-variant');
+    var name=btn.getAttribute('data-name')||'Item';
+    if(!vid||vid==='null'||vid===''){toast('Out of stock',true);return;}
     btn.classList.add('loading');
-    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
-
-    fetch('/cart/add.js', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-      body: JSON.stringify({ id: parseInt(variantId, 10), quantity: 1 })
-    })
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      if (d.id) {
-        btn.classList.remove('loading');
-        btn.classList.add('success');
-        btn.innerHTML = '✓ Added';
-        showToast('✅ ' + name + ' added!');
+    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
+    fetch('/cart/add.js',{method:'POST',headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},body:JSON.stringify({id:parseInt(vid,10),quantity:1})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.id){
+        btn.classList.remove('loading');btn.classList.add('success');btn.innerHTML='✓ Added';
+        toast('✅ '+name+' added!');
         document.dispatchEvent(new CustomEvent('cart:updated'));
-        fetch('/cart.js')
-          .then(function (r) { return r.json(); })
-          .then(function (c) {
-            var el = document.getElementById('cart-count');
-            if (el) el.textContent = c.item_count;
-          });
-        setTimeout(function () {
-          btn.classList.remove('success');
-          btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> ADD';
-        }, 2200);
-      } else {
-        throw new Error(d.description || 'Failed');
-      }
+        fetch('/cart.js').then(function(r){return r.json();}).then(function(c){var el=document.getElementById('cart-count');if(el)el.textContent=c.item_count;});
+        setTimeout(function(){btn.classList.remove('success');btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> ADD';},2200);
+      } else { throw new Error(d.description||'Failed'); }
     })
-    .catch(function () {
-      btn.classList.remove('loading');
-      btn.classList.add('error');
-      btn.innerHTML = '✗ Error';
-      showToast('Could not add item', true);
-      setTimeout(function () {
-        btn.classList.remove('error');
-        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> ADD';
-      }, 2000);
+    .catch(function(){
+      btn.classList.remove('loading');btn.classList.add('error');btn.innerHTML='✗ Error';
+      toast('Could not add item',true);
+      setTimeout(function(){btn.classList.remove('error');btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> ADD';},2000);
     });
   });
 })();
