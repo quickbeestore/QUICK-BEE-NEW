@@ -1,0 +1,538 @@
+{%- liquid
+  assign p = product
+  assign ptype = p.type | downcase
+  assign first_v = p.variants.first
+
+  if ptype contains 'massage'
+    assign sp_icon = '💆'
+    assign sp_color = '#C9A84C'
+    assign sp_tag = 'Traditional Therapy'
+  elsif ptype contains 'facial'
+    assign sp_icon = '✨'
+    assign sp_color = '#C9A84C'
+    assign sp_tag = 'Skin Treatment'
+  elsif ptype contains 'nail'
+    assign sp_icon = '💅'
+    assign sp_color = '#C9A84C'
+    assign sp_tag = 'Nail Care'
+  elsif ptype contains 'threading' or ptype contains 'hair'
+    assign sp_icon = '✂️'
+    assign sp_color = '#C9A84C'
+    assign sp_tag = 'Hair & Beauty'
+  elsif ptype contains 'vip'
+    assign sp_icon = '👑'
+    assign sp_color = '#E8C97A'
+    assign sp_tag = 'VIP Experience'
+  elsif ptype contains 'spa'
+    assign sp_icon = '🛁'
+    assign sp_color = '#C9A84C'
+    assign sp_tag = 'Spa Package'
+  elsif ptype contains 'scrub' or ptype contains 'body'
+    assign sp_icon = '🧖'
+    assign sp_color = '#C9A84C'
+    assign sp_tag = 'Body Treatment'
+  else
+    assign sp_icon = '🪷'
+    assign sp_color = '#C9A84C'
+    assign sp_tag = 'Wellness'
+  endif
+-%}
+
+<style>
+:root{--sp-green:#0e1a0f;--sp-green2:#162318;--sp-green3:#1c2d20;--sp-gold:#C9A84C;--sp-gold2:#E8C97A;--sp-gold-dim:rgba(201,168,76,.12);--sp-gold-bd:rgba(201,168,76,.28);--sp-text:#f0ede6;--sp-text2:rgba(240,237,230,.55);--sp-text3:rgba(240,237,230,.28);--sp-border:rgba(201,168,76,.14);--sp-card:rgba(255,255,255,.03);--sp-shadow:0 8px 40px rgba(0,0,0,.6)}
+html:not([data-theme="dark"]) .sp-root{--sp-green:#f5f0e8;--sp-green2:#fff;--sp-green3:#f0ebe0;--sp-gold:#8B6914;--sp-gold2:#a07a18;--sp-gold-dim:rgba(139,105,20,.1);--sp-gold-bd:rgba(139,105,20,.25);--sp-text:#1a1610;--sp-text2:rgba(26,22,16,.55);--sp-text3:rgba(26,22,16,.3);--sp-border:rgba(139,105,20,.15);--sp-card:rgba(0,0,0,.025);--sp-shadow:0 4px 24px rgba(26,22,16,.09)}
+*,*::before,*::after{box-sizing:border-box}
+.sp-root{background:var(--sp-green);min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding-bottom:100px;color:var(--sp-text)}
+[data-theme="dark"] .sp-root{background:#080e09}
+
+/* HERO */
+.sp-hero{position:relative;overflow:hidden;padding:40px 20px 32px;text-align:center}
+[data-theme="dark"] .sp-hero{background:linear-gradient(165deg,#08120a,#0a160c)}
+html:not([data-theme="dark"]) .sp-hero{background:linear-gradient(165deg,#fff,#f8f4ec);border-bottom:1px solid var(--sp-border)}
+.sp-hero::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:360px;height:360px;background:radial-gradient(ellipse,rgba(201,168,76,.14) 0%,transparent 70%);pointer-events:none}
+.sp-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--sp-gold-bd),transparent)}
+.sp-hero-vendor{font-size:10.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--sp-gold);opacity:.8;margin-bottom:14px;position:relative;z-index:1}
+.sp-hero-icon{width:72px;height:72px;border-radius:22px;background:var(--sp-gold-dim);border:1.5px solid var(--sp-gold-bd);display:inline-flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:16px;position:relative;z-index:1;box-shadow:0 0 32px rgba(201,168,76,.18)}
+.sp-hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,220,80,.1);border:1px solid rgba(0,220,80,.28);color:#00dc50;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:5px 13px;border-radius:50px;margin-bottom:14px;position:relative;z-index:1}
+.sp-badge-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:spPulse 1.4s ease infinite}
+@keyframes spPulse{0%,100%{opacity:1}50%{opacity:.25}}
+.sp-hero-title{font-size:clamp(22px,6vw,32px);font-weight:900;color:var(--sp-text);letter-spacing:-.5px;line-height:1.15;margin-bottom:10px;position:relative;z-index:1}
+.sp-hero-title em{font-style:normal;color:var(--sp-gold)}
+.sp-hero-desc{font-size:14px;color:var(--sp-text2);line-height:1.6;max-width:340px;margin:0 auto 18px;position:relative;z-index:1}
+.sp-hero-meta{display:flex;align-items:center;justify-content:center;gap:14px;position:relative;z-index:1;flex-wrap:wrap}
+.sp-hero-pill{display:inline-flex;align-items:center;gap:5px;background:var(--sp-gold-dim);border:1px solid var(--sp-gold-bd);color:var(--sp-gold);font-size:11.5px;font-weight:700;padding:6px 13px;border-radius:50px}
+
+/* MARQUEE */
+.sp-marquee{overflow:hidden;border-top:1px solid var(--sp-border);border-bottom:1px solid var(--sp-border);padding:9px 0;background:rgba(201,168,76,.04)}
+.sp-marquee-track{display:flex;gap:0;width:max-content;animation:spMarquee 22s linear infinite}
+.sp-marquee-track:hover{animation-play-state:paused}
+@keyframes spMarquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.sp-marquee-item{white-space:nowrap;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--sp-gold);opacity:.6;padding:0 18px}
+.sp-marquee-dot{color:var(--sp-gold);opacity:.3;padding:0 4px}
+
+/* BODY */
+.sp-body{max-width:580px;margin:0 auto;padding:16px 14px 0;display:flex;flex-direction:column;gap:12px}
+.sp-card{background:var(--sp-card);border:1px solid var(--sp-border);border-radius:22px;overflow:hidden}
+[data-theme="dark"] .sp-card{background:rgba(255,255,255,.026);border-color:rgba(201,168,76,.13)}
+.sp-card-hdr{padding:16px 18px 14px;border-bottom:1px solid var(--sp-border);display:flex;align-items:center;gap:9px}
+.sp-card-hdr-ico{font-size:16px}
+.sp-card-hdr-txt{font-size:13px;font-weight:800;color:var(--sp-text);letter-spacing:.02em}
+
+/* VARIANTS */
+.sp-var-wrap{padding:18px}
+.sp-var-lbl{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:var(--sp-text3);margin-bottom:12px}
+.sp-var-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+@media(min-width:400px){.sp-var-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:560px){.sp-var-grid{grid-template-columns:repeat(3,1fr)}}
+.sp-var-btn{background:rgba(255,255,255,.03);border:1.5px solid var(--sp-border);border-radius:14px;padding:12px 14px;cursor:pointer;font-family:inherit;text-align:left;transition:all .18s;-webkit-tap-highlight-color:transparent;position:relative}
+html:not([data-theme="dark"]) .sp-var-btn{background:rgba(0,0,0,.025)}
+.sp-var-btn:active{transform:scale(.96)}
+.sp-var-btn.sel{border-color:var(--sp-gold);background:var(--sp-gold-dim);box-shadow:0 0 0 3px rgba(201,168,76,.18),0 4px 20px rgba(201,168,76,.12)}
+.sp-var-btn-title{display:block;font-size:12.5px;font-weight:800;color:var(--sp-text);line-height:1.3;margin-bottom:5px}
+.sp-var-btn.sel .sp-var-btn-title{color:var(--sp-gold)}
+.sp-var-btn-price{display:block;font-size:13px;font-weight:900;color:var(--sp-text2)}
+.sp-var-btn.sel .sp-var-btn-price{color:var(--sp-gold)}
+.sp-var-btn-compare{display:block;font-size:10px;font-weight:600;color:var(--sp-text3);text-decoration:line-through;margin-top:2px}
+.sp-var-btn-save{display:inline-block;font-size:9px;font-weight:800;background:rgba(0,200,80,.12);color:#00c850;padding:2px 7px;border-radius:8px;margin-top:3px}
+.sp-var-sel-check{position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;background:var(--sp-gold);display:none;align-items:center;justify-content:center}
+.sp-var-btn.sel .sp-var-sel-check{display:flex}
+.sp-var-sel-check svg{width:10px;height:10px;stroke:#000;stroke-width:3;fill:none}
+
+/* DATE CHIPS */
+.sp-date-wrap{padding:16px 18px 18px}
+.sp-date-scroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.sp-date-scroll::-webkit-scrollbar{display:none}
+.sp-date-chip{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:1px;background:rgba(255,255,255,.03);border:1.5px solid var(--sp-border);border-radius:14px;padding:10px 13px;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;transition:all .18s;min-width:52px}
+html:not([data-theme="dark"]) .sp-date-chip{background:rgba(0,0,0,.02)}
+.sp-date-chip.sel{border-color:var(--sp-gold);background:var(--sp-gold-dim);box-shadow:0 0 0 2px rgba(201,168,76,.2)}
+.sp-date-day{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--sp-text3)}
+.sp-date-num{font-size:17px;font-weight:900;color:var(--sp-text);line-height:1}
+.sp-date-mon{font-size:9px;font-weight:700;color:var(--sp-text3);text-transform:uppercase}
+.sp-date-chip.sel .sp-date-day,.sp-date-chip.sel .sp-date-num,.sp-date-chip.sel .sp-date-mon{color:var(--sp-gold)}
+
+/* TIME SLOTS */
+.sp-time-wrap{padding:0 18px 18px;border-top:1px solid var(--sp-border)}
+.sp-time-lbl{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:var(--sp-text3);padding-top:16px;margin-bottom:11px}
+.sp-time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(min-width:400px){.sp-time-grid{grid-template-columns:repeat(4,1fr)}}
+.sp-time-btn{background:rgba(255,255,255,.03);border:1.5px solid var(--sp-border);border-radius:12px;padding:9px 6px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:800;color:var(--sp-text2);transition:all .18s;-webkit-tap-highlight-color:transparent;text-align:center}
+html:not([data-theme="dark"]) .sp-time-btn{background:rgba(0,0,0,.025)}
+.sp-time-btn.sel{border-color:var(--sp-gold);background:var(--sp-gold-dim);color:var(--sp-gold);box-shadow:0 0 0 2px rgba(201,168,76,.18)}
+.sp-time-btn:active{transform:scale(.94)}
+
+/* DETAILS FORM */
+.sp-form-wrap{padding:0 18px 18px;border-top:1px solid var(--sp-border)}
+.sp-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:16px}
+.sp-field-group{display:flex;flex-direction:column;gap:5px}
+.sp-field-group.full{grid-column:1/-1}
+.sp-field-lbl{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--sp-text3)}
+.sp-field-inp{background:rgba(255,255,255,.05);border:1.5px solid var(--sp-border);border-radius:12px;padding:11px 13px;font-size:13.5px;font-weight:600;color:var(--sp-text);font-family:inherit;outline:none;width:100%;transition:border-color .18s}
+html:not([data-theme="dark"]) .sp-field-inp{background:rgba(0,0,0,.04)}
+.sp-field-inp:focus{border-color:rgba(201,168,76,.5);background:rgba(201,168,76,.04)}
+.sp-field-inp::placeholder{color:var(--sp-text3)}
+.sp-field-inp.err{border-color:#ef4444;animation:spShake .35s}
+@keyframes spShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+textarea.sp-field-inp{resize:none;line-height:1.55}
+
+/* PRICE + CTA */
+.sp-price-block{padding:20px 18px 8px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.sp-price-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--sp-text3);margin-bottom:6px}
+.sp-price-val{font-size:36px;font-weight:900;color:var(--sp-text);line-height:1;letter-spacing:-1px}
+.sp-price-val small{font-size:14px;font-weight:600;color:var(--sp-text2);letter-spacing:0}
+.sp-price-compare{font-size:13px;text-decoration:line-through;color:var(--sp-text3);margin-top:4px}
+.sp-price-save{display:inline-block;font-size:11px;font-weight:800;background:rgba(0,200,80,.1);color:#00c850;padding:3px 9px;border-radius:8px;margin-top:5px}
+.sp-price-right{text-align:right;flex-shrink:0}
+.sp-price-note{font-size:11px;font-weight:700;color:var(--sp-text3)}
+.sp-price-note strong{color:var(--sp-gold);font-size:12px;display:block}
+.sp-book-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:calc(100% - 36px);margin:12px 18px 18px;padding:18px;border-radius:17px;border:none;background:linear-gradient(135deg,#C9A84C,#E8C97A);color:#0e1208;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;transition:all .2s;box-shadow:0 6px 28px rgba(201,168,76,.38);position:relative;overflow:hidden;letter-spacing:.01em}
+.sp-book-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.28) 50%,transparent 60%);background-size:200% 100%;animation:spShimmer 2.8s linear infinite}
+@keyframes spShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.sp-book-btn:active{transform:scale(.97);box-shadow:none}
+.sp-book-btn:disabled{opacity:.6;cursor:not-allowed}
+
+/* HOW IT WORKS */
+.sp-steps{padding:6px 18px 18px;display:flex;flex-direction:column;gap:0}
+.sp-step{display:flex;align-items:flex-start;gap:14px;padding:13px 0;border-bottom:1px solid var(--sp-border)}
+.sp-step:last-child{border-bottom:none}
+.sp-step-num{width:34px;height:34px;border-radius:50%;flex-shrink:0;background:var(--sp-gold-dim);border:1.5px solid var(--sp-gold-bd);color:var(--sp-gold);font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.sp-step-title{font-size:13.5px;font-weight:800;color:var(--sp-text);margin-bottom:2px}
+.sp-step-desc{font-size:12px;color:var(--sp-text2);line-height:1.55}
+
+/* TRUST */
+.sp-trust{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px}
+.sp-trust-item{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.025);border:1px solid var(--sp-border);border-radius:15px;padding:12px}
+html:not([data-theme="dark"]) .sp-trust-item{background:rgba(0,0,0,.025)}
+.sp-trust-ico{font-size:22px;flex-shrink:0}
+.sp-trust-txt{font-size:12px;font-weight:800;color:var(--sp-text)}
+.sp-trust-sub{font-size:10.5px;color:var(--sp-text2);margin-top:1px}
+
+/* FAQ */
+.sp-faq-item{border-bottom:1px solid var(--sp-border)}
+.sp-faq-item:last-child{border-bottom:none}
+.sp-faq-q{width:100%;text-align:left;background:none;border:none;font-family:inherit;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;font-weight:700;color:var(--sp-text);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.sp-faq-chevron{font-size:16px;color:var(--sp-text3);transition:transform .22s;flex-shrink:0}
+.sp-faq-item.open .sp-faq-chevron{transform:rotate(180deg);color:var(--sp-gold)}
+.sp-faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;font-size:13px;color:var(--sp-text2);line-height:1.65}
+.sp-faq-item.open .sp-faq-a{max-height:220px}
+.sp-faq-a-inner{padding:0 18px 14px}
+
+/* TOAST */
+.sp-toast{position:fixed;bottom:calc(82px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(16px);background:#1a1a1a;color:#fff;border:1px solid rgba(255,255,255,.1);border-radius:50px;padding:11px 22px;font-size:13px;font-weight:700;box-shadow:0 8px 32px rgba(0,0,0,.6);z-index:99999;opacity:0;transition:all .28s cubic-bezier(.175,.885,.32,1.275);white-space:nowrap;pointer-events:none}
+.sp-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+
+<div class="sp-root">
+
+  <!-- HERO -->
+  <div class="sp-hero">
+    <div class="sp-hero-vendor">{{ p.vendor }}</div>
+    <div class="sp-hero-icon">{{ sp_icon }}</div><br>
+    <span class="sp-hero-badge"><span class="sp-badge-dot"></span> Available Now</span><br>
+    <h1 class="sp-hero-title">{{ p.title }}</h1>
+    {%- if p.description != blank -%}
+      <p class="sp-hero-desc">{{ p.description | strip_html | truncate: 160 }}</p>
+    {%- endif -%}
+    <div class="sp-hero-meta">
+      <span class="sp-hero-pill">🪷 {{ sp_tag }}</span>
+      <span class="sp-hero-pill">📍 Thamel, Kathmandu</span>
+      {%- if p.variants.size > 1 -%}
+        <span class="sp-hero-pill">⏱ {{ p.variants.size }} options</span>
+      {%- endif -%}
+    </div>
+  </div>
+
+  <!-- MARQUEE -->
+  <div class="sp-marquee" aria-hidden="true">
+    <div class="sp-marquee-track">
+      {%- assign mt = "Thai Massage,Reflexology,Body Scrub,Facial,Nail Care,Steam Sauna,Jacuzzi,Aromatherapy,Hot Stone,VIP Package,Waxing,Threading" | split: "," -%}
+      {%- for _r in (1..2) -%}{%- for mi in mt -%}<span class="sp-marquee-item">{{ mi }}</span><span class="sp-marquee-dot">·</span>{%- endfor -%}{%- endfor -%}
+    </div>
+  </div>
+
+  <div class="sp-body">
+
+    <!-- STEP 1: VARIANT SELECTION -->
+    <div class="sp-card">
+      <div class="sp-card-hdr">
+        <span class="sp-card-hdr-ico">⏱</span>
+        <span class="sp-card-hdr-txt">
+          {%- if p.variants.size > 1 -%}Choose Duration & Package{%- else -%}Service Details{%- endif -%}
+        </span>
+      </div>
+      <div class="sp-var-wrap">
+        <div class="sp-var-lbl">
+          {%- if p.variants.size > 1 -%}Select your preferred option{%- else -%}Service package{%- endif -%}
+        </div>
+        <div class="sp-var-grid" id="spVarGrid">
+          {%- for v in p.variants -%}
+            {%- assign vsave = 0 -%}
+            {%- if v.compare_at_price > v.price -%}
+              {%- assign vsave = v.compare_at_price | minus: v.price | times: 100 | divided_by: v.compare_at_price -%}
+            {%- endif -%}
+            <button type="button" class="sp-var-btn{% if forloop.first %} sel{% endif %}"
+              data-vid="{{ v.id }}"
+              data-price="{{ v.price | divided_by: 100 | floor }}"
+              data-compare="{{ v.compare_at_price | divided_by: 100 | floor }}"
+              data-save="{{ vsave }}"
+              {% unless v.available %}disabled style="opacity:.45"{% endunless %}>
+              <span class="sp-var-btn-title">{{ v.title }}</span>
+              <span class="sp-var-btn-price">Rs {{ v.price | divided_by: 100 | floor | money_without_currency }}</span>
+              {%- if v.compare_at_price > v.price -%}
+                <span class="sp-var-btn-compare">Rs {{ v.compare_at_price | divided_by: 100 | floor | money_without_currency }}</span>
+                <span class="sp-var-btn-save">Save {{ vsave }}%</span>
+              {%- endif -%}
+              <span class="sp-var-sel-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></span>
+            </button>
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: DATE + TIME -->
+    <div class="sp-card">
+      <div class="sp-card-hdr">
+        <span class="sp-card-hdr-ico">📅</span>
+        <span class="sp-card-hdr-txt">Pick a Date & Time</span>
+      </div>
+      <div class="sp-date-wrap">
+        <div class="sp-var-lbl">Select date</div>
+        <div class="sp-date-scroll" id="spDateScroll"></div>
+      </div>
+      <div class="sp-time-wrap">
+        <div class="sp-time-lbl">Select time slot</div>
+        <div class="sp-time-grid" id="spTimeGrid">
+          {%- assign slots = "10:00,11:00,12:00,13:00,14:00,15:00,16:00,17:00,18:00,19:00,20:00" | split: "," -%}
+          {%- for slot in slots -%}
+            <button type="button" class="sp-time-btn{% if forloop.first %} sel{% endif %}" data-slot="{{ slot }}">{{ slot }}</button>
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: GUEST DETAILS -->
+    <div class="sp-card">
+      <div class="sp-card-hdr">
+        <span class="sp-card-hdr-ico">👤</span>
+        <span class="sp-card-hdr-txt">Your Details</span>
+      </div>
+      <div class="sp-form-wrap">
+        <div class="sp-form-grid">
+          <div class="sp-field-group">
+            <label class="sp-field-lbl" for="spName">Full Name *</label>
+            <input type="text" id="spName" class="sp-field-inp" placeholder="e.g. Aarav Sharma" autocomplete="name">
+          </div>
+          <div class="sp-field-group">
+            <label class="sp-field-lbl" for="spPhone">Phone / WhatsApp *</label>
+            <input type="tel" id="spPhone" class="sp-field-inp" placeholder="e.g. 9801234567" autocomplete="tel">
+          </div>
+          <div class="sp-field-group full">
+            <label class="sp-field-lbl" for="spNotes">Special Requests <span style="font-weight:500;opacity:.7">(optional)</span></label>
+            <textarea id="spNotes" class="sp-field-inp" rows="3" placeholder="Allergies, preferences, celebrations…"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRICE + BOOK CTA -->
+    <div class="sp-card">
+      <div class="sp-price-block">
+        <div>
+          <div class="sp-price-lbl">Total</div>
+          <div class="sp-price-val">Rs <span id="spPriceNum">{{ first_v.price | divided_by: 100 | floor | money_without_currency }}</span><small> NPR</small></div>
+          <div id="spCompareRow" style="display:none">
+            <span id="spCompareVal" class="sp-price-compare"></span>
+            <span id="spSaveTag" class="sp-price-save"></span>
+          </div>
+        </div>
+        <div class="sp-price-right">
+          <div class="sp-price-note">Booking confirms<strong>✓ Instant</strong></div>
+        </div>
+      </div>
+
+      <form id="spForm">
+        <input type="hidden" name="id"                            id="spVariantId" value="{{ first_v.id }}">
+        <input type="hidden" name="quantity"                      value="1">
+        <input type="hidden" name="properties[Treatment]"         value="{{ p.title | escape }}">
+        <input type="hidden" name="properties[Vendor]"            value="{{ p.vendor | escape }}">
+        <input type="hidden" name="properties[Booking Date]"      id="spFormDate"  value="">
+        <input type="hidden" name="properties[Time Slot]"         id="spFormSlot"  value="">
+        <input type="hidden" name="properties[Guest Name]"        id="spFormName"  value="">
+        <input type="hidden" name="properties[Phone / WhatsApp]"  id="spFormPhone" value="">
+        <input type="hidden" name="properties[Special Requests]"  id="spFormNotes" value="">
+        <button type="submit" class="sp-book-btn" id="spBookBtn">
+          <span>🪷</span>
+          <span id="spBtnTxt">Book Session →</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="sp-card">
+      <div class="sp-card-hdr"><span class="sp-card-hdr-ico">📖</span><span class="sp-card-hdr-txt">How It Works</span></div>
+      <div class="sp-steps">
+        <div class="sp-step"><div class="sp-step-num">1</div><div><div class="sp-step-title">Choose your treatment & duration</div><div class="sp-step-desc">Pick the service, duration and your preferred date &amp; time.</div></div></div>
+        <div class="sp-step"><div class="sp-step-num">2</div><div><div class="sp-step-title">Confirm with your details</div><div class="sp-step-desc">Enter your name and phone. We'll WhatsApp you to confirm within 30 minutes.</div></div></div>
+        <div class="sp-step"><div class="sp-step-num">3</div><div><div class="sp-step-title">Arrive &amp; relax</div><div class="sp-step-desc">Show up at Thamel at your booked time. Our therapist will be ready for you.</div></div></div>
+        <div class="sp-step"><div class="sp-step-num">4</div><div><div class="sp-step-title">Pay &amp; unwind</div><div class="sp-step-desc">Pay online at checkout or at the spa. No hidden charges — ever.</div></div></div>
+      </div>
+    </div>
+
+    <!-- TRUST -->
+    <div class="sp-card">
+      <div class="sp-trust">
+        <div class="sp-trust-item"><span class="sp-trust-ico">🧘</span><div><div class="sp-trust-txt">Thai Certified</div><div class="sp-trust-sub">Trained therapists</div></div></div>
+        <div class="sp-trust-item"><span class="sp-trust-ico">🌿</span><div><div class="sp-trust-txt">Natural Products</div><div class="sp-trust-sub">Premium herbs & oils</div></div></div>
+        <div class="sp-trust-item"><span class="sp-trust-ico">🔒</span><div><div class="sp-trust-txt">Private Rooms</div><div class="sp-trust-sub">100% confidential</div></div></div>
+        <div class="sp-trust-item"><span class="sp-trust-ico">⭐</span><div><div class="sp-trust-txt">4.9 Rated</div><div class="sp-trust-sub">Verified reviews</div></div></div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="sp-card">
+      <div class="sp-card-hdr"><span class="sp-card-hdr-ico">❓</span><span class="sp-card-hdr-txt">Frequently Asked</span></div>
+      <div id="spFaq">
+        <div class="sp-faq-item"><button class="sp-faq-q" type="button">Where is the spa located? <span class="sp-faq-chevron">⌄</span></button><div class="sp-faq-a"><div class="sp-faq-a-inner">Both Thamel Thai Spa and Thamel Therapy Spa are located in Thamel, Kathmandu. Exact address and directions will be shared upon booking confirmation via WhatsApp.</div></div></div>
+        <div class="sp-faq-item"><button class="sp-faq-q" type="button">Can I reschedule or cancel? <span class="sp-faq-chevron">⌄</span></button><div class="sp-faq-a"><div class="sp-faq-a-inner">Yes. Please contact us at least 2 hours before your appointment on WhatsApp to reschedule at no charge.</div></div></div>
+        <div class="sp-faq-item"><button class="sp-faq-q" type="button">What should I bring? <span class="sp-faq-chevron">⌄</span></button><div class="sp-faq-a"><div class="sp-faq-a-inner">Just yourself! We provide towels, robes and all products. Wear comfortable clothing or arrive ready to change.</div></div></div>
+        <div class="sp-faq-item"><button class="sp-faq-q" type="button">Is this safe during pregnancy? <span class="sp-faq-chevron">⌄</span></button><div class="sp-faq-a"><div class="sp-faq-a-inner">We offer specially designed prenatal treatments. Please mention your pregnancy when booking so we assign the right therapist and techniques.</div></div></div>
+        <div class="sp-faq-item"><button class="sp-faq-q" type="button">Do you have couple packages? <span class="sp-faq-chevron">⌄</span></button><div class="sp-faq-a"><div class="sp-faq-a-inner">Yes! We offer private couple spa packages with dedicated rooms, sauna, jacuzzi and simultaneous treatments. Browse the Spa Packages collection.</div></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="sp-toast" id="spToast"></div>
+
+<script>
+(function(){
+'use strict';
+var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+var varBtns=document.querySelectorAll('.sp-var-btn');
+var varIdInp=document.getElementById('spVariantId');
+var priceNum=document.getElementById('spPriceNum');
+var compareRow=document.getElementById('spCompareRow');
+var compareVal=document.getElementById('spCompareVal');
+var saveTag=document.getElementById('spSaveTag');
+var dateScroll=document.getElementById('spDateScroll');
+var timeGrid=document.getElementById('spTimeGrid');
+var nameInp=document.getElementById('spName');
+var phoneInp=document.getElementById('spPhone');
+var notesInp=document.getElementById('spNotes');
+var formDate=document.getElementById('spFormDate');
+var formSlot=document.getElementById('spFormSlot');
+var formName=document.getElementById('spFormName');
+var formPhone=document.getElementById('spFormPhone');
+var formNotes=document.getElementById('spFormNotes');
+var bookBtn=document.getElementById('spBookBtn');
+var btnTxt=document.getElementById('spBtnTxt');
+var toast=document.getElementById('spToast');
+var form=document.getElementById('spForm');
+var selDate=null, selSlot=null;
+
+/* Build date chips — next 14 days */
+(function(){
+  var today=new Date();
+  for(var i=1;i<=14;i++){
+    var d=new Date(today); d.setDate(today.getDate()+i);
+    var chip=document.createElement('button');
+    chip.type='button'; chip.className='sp-date-chip'+(i===1?' sel':'');
+    chip.setAttribute('data-date',d.toDateString());
+    chip.innerHTML='<span class="sp-date-day">'+DAYS[d.getDay()]+'</span><span class="sp-date-num">'+d.getDate()+'</span><span class="sp-date-mon">'+MONTHS[d.getMonth()]+'</span>';
+    if(i===1){ selDate=d.toDateString(); if(formDate) formDate.value=selDate; }
+    chip.addEventListener('click',function(){
+      dateScroll.querySelectorAll('.sp-date-chip').forEach(function(c){c.classList.remove('sel');});
+      this.classList.add('sel');
+      selDate=this.getAttribute('data-date');
+      if(formDate) formDate.value=selDate;
+    });
+    dateScroll.appendChild(chip);
+  }
+})();
+
+/* Time slot — init first selected */
+var firstSlotBtn=timeGrid?timeGrid.querySelector('.sp-time-btn.sel'):null;
+if(firstSlotBtn){ selSlot=firstSlotBtn.getAttribute('data-slot'); if(formSlot) formSlot.value=selSlot; }
+if(timeGrid){
+  timeGrid.querySelectorAll('.sp-time-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      timeGrid.querySelectorAll('.sp-time-btn').forEach(function(b){b.classList.remove('sel');});
+      this.classList.add('sel');
+      selSlot=this.getAttribute('data-slot');
+      if(formSlot) formSlot.value=selSlot;
+    });
+  });
+}
+
+/* Variant selection */
+function updatePrice(pr,cmp,save){
+  if(priceNum) priceNum.textContent=Number(pr).toLocaleString();
+  if(cmp && parseInt(cmp)>parseInt(pr)){
+    if(compareVal) compareVal.textContent='Was Rs '+Number(cmp).toLocaleString();
+    if(saveTag) saveTag.textContent='Save '+save+'%';
+    if(compareRow) compareRow.style.display='block';
+  } else {
+    if(compareRow) compareRow.style.display='none';
+  }
+}
+varBtns.forEach(function(btn){
+  btn.addEventListener('click',function(){
+    varBtns.forEach(function(b){b.classList.remove('sel');});
+    this.classList.add('sel');
+    if(varIdInp) varIdInp.value=this.getAttribute('data-vid');
+    updatePrice(this.getAttribute('data-price'),this.getAttribute('data-compare'),this.getAttribute('data-save'));
+  });
+});
+/* Init price from first variant */
+var firstBtn=document.querySelector('.sp-var-btn.sel');
+if(firstBtn) updatePrice(firstBtn.getAttribute('data-price'),firstBtn.getAttribute('data-compare'),firstBtn.getAttribute('data-save'));
+
+/* Toast */
+var toastT;
+function showToast(msg,isOk){
+  if(!toast) return;
+  toast.textContent=msg;
+  toast.style.background=isOk?'#1c3a20':'#1a1a1a';
+  toast.style.borderColor=isOk?'rgba(0,200,80,.3)':'rgba(255,255,255,.1)';
+  toast.classList.add('show');
+  clearTimeout(toastT);
+  toastT=setTimeout(function(){toast.classList.remove('show');},2800);
+}
+
+/* Submit */
+if(form){
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var name=nameInp?nameInp.value.trim():'';
+    var phone=phoneInp?phoneInp.value.trim():'';
+    var valid=true;
+    if(!name){ if(nameInp){nameInp.classList.add('err');setTimeout(function(){nameInp.classList.remove('err');},500);} valid=false; }
+    if(!phone){ if(phoneInp){phoneInp.classList.add('err');setTimeout(function(){phoneInp.classList.remove('err');},500);} valid=false; }
+    if(!valid){ showToast('Please fill your name & phone'); return; }
+    if(!varIdInp||!varIdInp.value){ showToast('Please select a package'); return; }
+
+    if(formName) formName.value=name;
+    if(formPhone) formPhone.value=phone;
+    if(formNotes) formNotes.value=notesInp?notesInp.value.trim():'';
+
+    bookBtn.disabled=true;
+    btnTxt.textContent='Booking…';
+
+    fetch('/cart/add.js',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        id:parseInt(varIdInp.value,10),
+        quantity:1,
+        properties:{
+          'Treatment':         '{{ p.title | escape }}',
+          'Vendor':            '{{ p.vendor | escape }}',
+          'Booking Date':      selDate||'',
+          'Time Slot':         selSlot||'',
+          'Guest Name':        name,
+          'Phone / WhatsApp':  phone,
+          'Special Requests':  notesInp?notesInp.value.trim():''
+        }
+      })
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){
+      bookBtn.disabled=false;
+      if(d.status||d.message){
+        showToast('⚠️ '+(d.description||d.message||'Could not book'));
+        btnTxt.textContent='Book Session →';
+      } else {
+        btnTxt.textContent='✓ Booked!';
+        showToast('🪷 Session booked! Proceeding to cart…',true);
+        document.dispatchEvent(new CustomEvent('qb:cart:update',{detail:{count:1}}));
+        setTimeout(function(){window.location.href='/cart';},900);
+      }
+    })
+    .catch(function(){
+      bookBtn.disabled=false;
+      btnTxt.textContent='Book Session →';
+      showToast('⚠️ Connection error — try again');
+    });
+  });
+}
+
+/* FAQ accordion */
+document.querySelectorAll('.sp-faq-q').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var item=btn.closest('.sp-faq-item');
+    var wasOpen=item.classList.contains('open');
+    document.querySelectorAll('.sp-faq-item').forEach(function(i){i.classList.remove('open');});
+    if(!wasOpen) item.classList.add('open');
+  });
+});
+})();
+</script>
+
+{% schema %}
+{
+  "name": "QB Spa Product",
+  "settings": []
+}
+{% endschema %}
