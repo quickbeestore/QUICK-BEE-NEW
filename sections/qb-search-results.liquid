@@ -900,6 +900,17 @@ html:not([data-theme="dark"]) .qbsr-chip:hover { color: var(--g); border-color: 
 }
 </style>
 
+<script>
+/* Ensure search always filters by product type for accurate results */
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  if(params.get('q') && params.get('type') !== 'product'){
+    params.set('type', 'product');
+    window.location.replace(window.location.pathname + '?' + params.toString());
+  }
+})();
+</script>
+
 {%- assign product_results = search.results | where: 'object_type', 'product' -%}
 {%- assign sub_collection = collections['subscriptions'] -%}
 {%- assign sub_count = sub_collection.products_count | plus: 0 -%}
