@@ -1,0 +1,560 @@
+{% comment %}
+  QuickBee — Add to Home Screen Section
+  Shows a banner on the homepage inviting users to install the site as an app.
+  Clicking the button opens a beautiful modal with platform-specific instructions.
+  - Android: triggers native browser "Add to Home Screen" dialog
+  - iOS: step-by-step instructions (Share → Add to Home Screen)
+  Banner is hidden after user installs or dismisses (localStorage flag).
+{% endcomment %}
+
+<!-- Add to Home Screen Banner -->
+<div class="qb-install-banner" id="qb-install-banner" style="display:none;" aria-live="polite">
+  <div class="qb-install-banner__inner">
+    <span class="qb-install-banner__icon" aria-hidden="true">🐝</span>
+    <div class="qb-install-banner__text">
+      <strong>{{ section.settings.banner_title }}</strong>
+      <span>{{ section.settings.banner_subtitle }}</span>
+    </div>
+    <button class="qb-install-banner__btn" id="qb-install-trigger" type="button">
+      {{ section.settings.button_label }}
+    </button>
+    <button class="qb-install-banner__close" id="qb-install-dismiss" type="button" aria-label="Dismiss">✕</button>
+  </div>
+</div>
+
+<!-- Install Modal (shared by banner + any other trigger) -->
+<div class="qb-install-modal-overlay" id="qb-install-modal-overlay" aria-hidden="true" role="dialog" aria-labelledby="qb-install-modal-title">
+  <div class="qb-install-modal">
+    <!-- Close -->
+    <button class="qb-install-modal__close" id="qb-install-modal-close" type="button" aria-label="Close">✕</button>
+
+    <!-- App preview -->
+    <div class="qb-install-modal__app-preview">
+      <div class="qb-install-modal__app-icon">🐝</div>
+      <div>
+        <p class="qb-install-modal__app-name">QuickBee</p>
+        <p class="qb-install-modal__app-url">quickbee.store</p>
+      </div>
+    </div>
+
+    <h2 class="qb-install-modal__title" id="qb-install-modal-title">Add to Home Screen</h2>
+    <p class="qb-install-modal__desc">Get the QuickBee app experience — fast access, offline support &amp; push notifications.</p>
+
+    <!-- Android / Desktop view -->
+    <div id="qb-install-android" class="qb-install-modal__steps">
+      <button class="qb-install-modal__install-btn" id="qb-install-native-btn" type="button">
+        ⬇ Install QuickBee App
+      </button>
+      <p class="qb-install-modal__or">or if the button doesn't appear, tap ⋮ → <em>Add to Home Screen</em> in your browser menu.</p>
+    </div>
+
+    <!-- iOS view -->
+    <div id="qb-install-ios" class="qb-install-modal__steps" style="display:none;">
+      <ol class="qb-install-modal__ios-steps">
+        <li>
+          <span class="qb-install-modal__step-num">1</span>
+          <span>Tap the <strong>Share</strong> button at the bottom of Safari</span>
+          <span class="qb-install-modal__step-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          </span>
+        </li>
+        <li>
+          <span class="qb-install-modal__step-num">2</span>
+          <span>Scroll down and tap <strong>"Add to Home Screen"</strong></span>
+          <span class="qb-install-modal__step-icon" aria-hidden="true">➕</span>
+        </li>
+        <li>
+          <span class="qb-install-modal__step-num">3</span>
+          <span>Tap <strong>"Add"</strong> in the top right corner</span>
+          <span class="qb-install-modal__step-icon" aria-hidden="true">✓</span>
+        </li>
+      </ol>
+      <p class="qb-install-modal__ios-note">💡 This also enables push notifications on iPhone!</p>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  /* ═══════════════════════════════════════════════════
+     Add to Home Screen Banner
+     ═══════════════════════════════════════════════════ */
+  .qb-install-banner {
+    width: 100%;
+    background: linear-gradient(135deg, #1a1200, #2a1f00);
+    border-bottom: 1.5px solid rgba(255, 184, 0, 0.25);
+    padding: 10px 16px;
+    position: relative;
+    z-index: 100;
+    animation: qb-banner-slide-in 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  [data-theme="light"] .qb-install-banner {
+    background: linear-gradient(135deg, #fffbea, #fff3c4);
+    border-bottom-color: rgba(180, 120, 0, 0.2);
+  }
+
+  @keyframes qb-banner-slide-in {
+    from { transform: translateY(-100%); opacity: 0; }
+    to   { transform: translateY(0);     opacity: 1; }
+  }
+
+  .qb-install-banner__inner {
+    max-width: 680px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .qb-install-banner__icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    animation: qb-bee-wiggle 2.5s ease-in-out infinite;
+  }
+
+  .qb-install-banner__text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .qb-install-banner__text strong {
+    font-size: 13px;
+    font-weight: 800;
+    color: #FFB800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .qb-install-banner__text span {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  [data-theme="light"] .qb-install-banner__text strong { color: #b45309; }
+  [data-theme="light"] .qb-install-banner__text span   { color: rgba(0,0,0,0.55); }
+
+  .qb-install-banner__btn {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #FFB800, #FF8C00);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 2px 10px rgba(255,140,0,0.35);
+    transition: transform 0.12s, box-shadow 0.12s;
+  }
+
+  .qb-install-banner__btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(255,140,0,0.45);
+  }
+
+  .qb-install-banner__close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 6px;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+
+  [data-theme="light"] .qb-install-banner__close { color: rgba(0,0,0,0.35); }
+  .qb-install-banner__close:hover { color: #FFB800; }
+
+  /* ═══════════════════════════════════════════════════
+     Install Modal
+     ═══════════════════════════════════════════════════ */
+  .qb-install-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(6px);
+    z-index: 99999;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .qb-install-modal-overlay.qb-install-modal-overlay--open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .qb-install-modal {
+    width: 100%;
+    max-width: 480px;
+    background: var(--color-background, #111);
+    border-radius: 24px 24px 0 0;
+    padding: 24px 24px 40px;
+    position: relative;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.4);
+
+    @media (min-width: 480px) {
+      border-radius: 24px;
+      margin: 16px;
+      transform: scale(0.92) translateY(20px);
+    }
+  }
+
+  .qb-install-modal-overlay--open .qb-install-modal {
+    transform: translateY(0);
+
+    @media (min-width: 480px) {
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  /* Drag handle */
+  .qb-install-modal::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+
+    @media (min-width: 480px) { display: none; }
+  }
+
+  .qb-install-modal__close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: var(--color-foreground, #fff);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+
+  .qb-install-modal__close:hover { background: rgba(255,255,255,0.18); }
+
+  .qb-install-modal__app-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    background: rgba(255,184,0,0.07);
+    border: 1px solid rgba(255,184,0,0.2);
+    border-radius: 14px;
+  }
+
+  .qb-install-modal__app-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #FFB800, #FF8C00);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(255,140,0,0.3);
+  }
+
+  .qb-install-modal__app-name {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--color-foreground, #fff);
+    margin: 0 0 2px;
+  }
+
+  .qb-install-modal__app-url {
+    font-size: 12px;
+    color: var(--color-foreground, #999);
+    opacity: 0.5;
+    margin: 0;
+  }
+
+  .qb-install-modal__title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--color-foreground, #fff);
+    margin: 0 0 8px;
+    line-height: 1.2;
+  }
+
+  .qb-install-modal__desc {
+    font-size: 14px;
+    color: var(--color-foreground, #999);
+    opacity: 0.65;
+    margin: 0 0 22px;
+    line-height: 1.5;
+  }
+
+  /* Android / Desktop install button */
+  .qb-install-modal__install-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #FFB800, #FF8C00);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(255,140,0,0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.2px;
+    margin-bottom: 12px;
+  }
+
+  .qb-install-modal__install-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(255,140,0,0.45);
+  }
+
+  .qb-install-modal__or {
+    font-size: 12px;
+    color: var(--color-foreground, #999);
+    opacity: 0.5;
+    text-align: center;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* iOS steps */
+  .qb-install-modal__ios-steps {
+    list-style: none;
+    margin: 0 0 16px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .qb-install-modal__ios-steps li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--color-foreground, #eee);
+    line-height: 1.4;
+  }
+
+  .qb-install-modal__step-num {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #FFB800, #FF8C00);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .qb-install-modal__step-icon {
+    margin-left: auto;
+    flex-shrink: 0;
+    opacity: 0.7;
+    color: #FFB800;
+  }
+
+  .qb-install-modal__ios-note {
+    font-size: 12px;
+    background: rgba(255,184,0,0.1);
+    border: 1px solid rgba(255,184,0,0.2);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #FFB800;
+    margin: 0;
+    line-height: 1.5;
+  }
+</style>
+
+<script>
+  (function () {
+    var DISMISSED_KEY = 'qb_install_dismissed';
+    var deferredPrompt = null;
+    var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+    var isInStandaloneMode = window.navigator.standalone === true ||
+      window.matchMedia('(display-mode: standalone)').matches;
+
+    // Don't show if already installed or dismissed
+    if (isInStandaloneMode) return;
+
+    var banner  = document.getElementById('qb-install-banner');
+    var overlay = document.getElementById('qb-install-modal-overlay');
+    var nativeBtn = document.getElementById('qb-install-native-btn');
+    var androidSteps = document.getElementById('qb-install-android');
+    var iosSteps     = document.getElementById('qb-install-ios');
+
+    // ── Platform detection ──────────────────────────────
+    if (isIOS) {
+      if (androidSteps) androidSteps.style.display = 'none';
+      if (iosSteps)     iosSteps.style.display = 'block';
+    }
+
+    // ── Capture Android install prompt ──────────────────
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      deferredPrompt = e;
+      showBanner();
+    });
+
+    window.addEventListener('appinstalled', function () {
+      hideBanner();
+      closeModal();
+      localStorage.setItem(DISMISSED_KEY, '1');
+    });
+
+    // ── Show banner (after short delay, if not dismissed) ─
+    function showBanner() {
+      if (localStorage.getItem(DISMISSED_KEY)) return;
+      if (!banner) return;
+      setTimeout(function () {
+        banner.style.display = 'block';
+      }, 1500);
+    }
+
+    function hideBanner() {
+      if (banner) banner.style.display = 'none';
+    }
+
+    // On iOS, show banner automatically after delay
+    if (isIOS) {
+      showBanner();
+    }
+
+    // ── Modal open / close ──────────────────────────────
+    function openModal() {
+      if (!overlay) return;
+      overlay.style.display = 'flex';
+      overlay.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(function () {
+        overlay.classList.add('qb-install-modal-overlay--open');
+      });
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      if (!overlay) return;
+      overlay.classList.remove('qb-install-modal-overlay--open');
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      setTimeout(function () {
+        overlay.style.display = 'none';
+      }, 350);
+    }
+
+    // ── Native install trigger (Android) ────────────────
+    if (nativeBtn) {
+      nativeBtn.addEventListener('click', function () {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then(function (result) {
+            deferredPrompt = null;
+            if (result.outcome === 'accepted') {
+              localStorage.setItem(DISMISSED_KEY, '1');
+              closeModal();
+              hideBanner();
+            }
+          });
+        } else {
+          // No native prompt available — show browser hint
+          nativeBtn.textContent = '⋮ Tap browser menu → Add to Home Screen';
+          nativeBtn.style.background = 'rgba(255,255,255,0.1)';
+          nativeBtn.style.color = 'var(--color-foreground, #fff)';
+          nativeBtn.style.boxShadow = 'none';
+          nativeBtn.disabled = true;
+        }
+      });
+    }
+
+    // ── Wire up triggers ────────────────────────────────
+    var triggerBtn  = document.getElementById('qb-install-trigger');
+    var dismissBtn  = document.getElementById('qb-install-dismiss');
+    var closeBtn    = document.getElementById('qb-install-modal-close');
+
+    if (triggerBtn)  triggerBtn.addEventListener('click', openModal);
+    if (dismissBtn) {
+      dismissBtn.addEventListener('click', function () {
+        hideBanner();
+        localStorage.setItem(DISMISSED_KEY, '1');
+      });
+    }
+    if (closeBtn)   closeBtn.addEventListener('click', closeModal);
+
+    // Close on overlay backdrop click
+    if (overlay) {
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) closeModal();
+      });
+    }
+
+    // Close on Escape
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // Expose global trigger so other elements can open the modal
+    window.qbOpenInstallModal = openModal;
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "QB Install Prompt",
+  "tag": "section",
+  "class": "qb-install-prompt-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "banner_title",
+      "label": "Banner Title",
+      "default": "Add QuickBee to your Home Screen"
+    },
+    {
+      "type": "text",
+      "id": "banner_subtitle",
+      "label": "Banner Subtitle",
+      "default": "Get the app experience — fast access & notifications"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button Label",
+      "default": "Install App"
+    }
+  ],
+  "presets": [
+    {
+      "name": "QB Install Prompt"
+    }
+  ]
+}
+{% endschema %}

@@ -549,6 +549,22 @@
       -webkit-text-fill-color: rgba(255,255,255,0.35) !important;
     }
   </style>
+  <!-- PWA Manifest for Add to Home Screen -->
+  <link rel="manifest" href="{{ 'qb-manifest.json' | asset_url }}">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="QuickBee">
+
+  <!-- QuickBee AI Push Notifications: OneSignal SDK -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <!-- QuickBee AI Push Notifications: Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('{{ 'qb-push-sw.js' | asset_url }}', { scope: '/' })
+        .catch(function(err) { console.warn('QB SW registration failed:', err); });
+    }
+  </script>
   </head>
 
   <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">
@@ -1104,5 +1120,17 @@
   </style>
 
 
+  <!-- QuickBee AI Notifications: OneSignal Init + Bell Logic -->
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: '71a25c37-4f8e-45dc-a7f1-917c5b141187',
+        serviceWorkerParam: { scope: '/' },
+        serviceWorkerPath: '{{ 'qb-push-sw.js' | asset_url }}'
+      });
+    });
+  </script>
+  <script src="{{ 'qb-notifications.js' | asset_url }}" defer></script>
   </body>
 </html>

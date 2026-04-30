@@ -1,0 +1,452 @@
+<div class="qb-notif-page">
+
+  <!-- Hero -->
+  <div class="qb-notif-page__hero">
+    <div class="qb-notif-page__honeycomb" aria-hidden="true">
+      <span class="qb-hc qb-hc--1">🍯</span>
+      <span class="qb-hc qb-hc--2">🌸</span>
+      <span class="qb-hc qb-hc--3">⚡</span>
+    </div>
+    <div class="qb-notif-page__bee-wrap" aria-hidden="true">
+      <span class="qb-notif-page__bee">🐝</span>
+    </div>
+    <h1 class="qb-notif-page__title">QuickBee <span class="qb-notif-page__ai-badge">AI</span> Notifications</h1>
+    <p class="qb-notif-page__subtitle">Get instant alerts for flash deals, new drops &amp; order updates — straight to your device.</p>
+  </div>
+
+  <!-- Subscription card -->
+  <div class="qb-notif-page__card">
+    <div class="qb-notif-page__status-row">
+      <span class="qb-notif-page__status-dot" id="qb-page-status-dot"></span>
+      <span class="qb-notif-page__status-text" id="qb-page-status-text">Checking status…</span>
+    </div>
+    <button class="qb-notif-page__btn" id="qb-page-sub-btn" type="button">
+      🔔 Enable Notifications
+    </button>
+    <p class="qb-notif-page__hint">We only send you things worth knowing. No spam, ever.</p>
+  </div>
+
+  <!-- How it works -->
+  <div class="qb-notif-page__features">
+    <div class="qb-notif-page__feature">
+      <span class="qb-notif-page__feature-icon">⚡</span>
+      <h3>Flash Deals</h3>
+      <p>Be first to grab limited-time offers before they sell out.</p>
+    </div>
+    <div class="qb-notif-page__feature">
+      <span class="qb-notif-page__feature-icon">📦</span>
+      <h3>New Arrivals</h3>
+      <p>Discover freshly added products the moment they land.</p>
+    </div>
+    <div class="qb-notif-page__feature">
+      <span class="qb-notif-page__feature-icon">🛵</span>
+      <h3>Order Updates</h3>
+      <p>Real-time status on your delivery — from prep to door.</p>
+    </div>
+  </div>
+
+  <!-- Recent notifications history -->
+  <div class="qb-notif-page__history">
+    <h2 class="qb-notif-page__history-title">Recent Notifications</h2>
+    <div id="qb-page-history-list" class="qb-notif-page__history-list">
+      <!-- rendered by JS -->
+    </div>
+    <p id="qb-page-history-empty" class="qb-notif-page__history-empty" style="display:none;">
+      No notifications yet — subscribe and be the first to know!
+    </p>
+  </div>
+
+</div>
+
+<style>
+  .qb-notif-page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 40px 16px 80px;
+    font-family: var(--font-body--family, sans-serif);
+  }
+
+  /* Hero */
+  .qb-notif-page__hero {
+    text-align: center;
+    margin-bottom: 32px;
+    position: relative;
+  }
+
+  .qb-notif-page__honeycomb {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    overflow: hidden;
+    height: 120px;
+  }
+
+  .qb-hc {
+    position: absolute;
+    font-size: 28px;
+    opacity: 0.15;
+    animation: qb-float 4s ease-in-out infinite;
+  }
+
+  .qb-hc--1 { left: 8%;  top: 10px; animation-delay: 0s; }
+  .qb-hc--2 { left: 85%; top: 20px; animation-delay: 1.3s; }
+  .qb-hc--3 { left: 50%; top: 5px;  animation-delay: 2.5s; }
+
+  @keyframes qb-float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-10px); }
+  }
+
+  .qb-notif-page__bee-wrap {
+    margin-bottom: 12px;
+  }
+
+  .qb-notif-page__bee {
+    font-size: 56px;
+    display: inline-block;
+    animation: qb-bee-wiggle 2.5s ease-in-out infinite;
+  }
+
+  @keyframes qb-bee-wiggle {
+    0%, 100% { transform: rotate(-6deg) translateY(0); }
+    25%       { transform: rotate(6deg) translateY(-6px); }
+    50%       { transform: rotate(-4deg) translateY(0); }
+    75%       { transform: rotate(4deg) translateY(-4px); }
+  }
+
+  .qb-notif-page__title {
+    font-size: clamp(22px, 5vw, 32px);
+    font-weight: 800;
+    color: var(--color-foreground, #111);
+    margin: 0 0 10px;
+    line-height: 1.2;
+  }
+
+  .qb-notif-page__ai-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #FFB800, #FF8C00);
+    color: #fff;
+    font-size: 0.55em;
+    font-weight: 900;
+    padding: 3px 8px;
+    border-radius: 20px;
+    vertical-align: middle;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-left: 6px;
+  }
+
+  .qb-notif-page__subtitle {
+    font-size: 15px;
+    color: var(--color-foreground, #555);
+    opacity: 0.7;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* Card */
+  .qb-notif-page__card {
+    background: var(--color-background, #fff);
+    border: 1.5px solid rgba(255, 184, 0, 0.35);
+    border-radius: 20px;
+    padding: 28px 24px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(255, 184, 0, 0.12);
+    margin-bottom: 32px;
+  }
+
+  .qb-notif-page__status-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .qb-notif-page__status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ccc;
+    display: inline-block;
+    transition: background 0.3s;
+  }
+
+  .qb-notif-page__status-dot--subscribed { background: #22c55e; box-shadow: 0 0 6px #22c55e88; }
+  .qb-notif-page__status-dot--blocked    { background: #ef4444; }
+  .qb-notif-page__status-dot--default    { background: #f59e0b; }
+
+  .qb-notif-page__status-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-foreground, #333);
+    opacity: 0.8;
+  }
+
+  .qb-notif-page__btn {
+    display: inline-block;
+    width: 100%;
+    max-width: 320px;
+    padding: 16px 28px;
+    background: linear-gradient(135deg, #FFB800, #FF8C00);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    box-shadow: 0 4px 20px rgba(255, 140, 0, 0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .qb-notif-page__btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(255, 140, 0, 0.45);
+  }
+
+  .qb-notif-page__btn:active {
+    transform: translateY(0);
+  }
+
+  .qb-notif-page__btn--unsubscribe {
+    background: var(--color-background, #f3f4f6);
+    color: var(--color-foreground, #333);
+    box-shadow: none;
+    border: 1.5px solid var(--color-border, #e5e7eb);
+  }
+
+  .qb-notif-page__hint {
+    font-size: 12px;
+    color: var(--color-foreground, #999);
+    opacity: 0.55;
+    margin: 12px 0 0;
+  }
+
+  /* Features */
+  .qb-notif-page__features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  @media (max-width: 480px) {
+    .qb-notif-page__features { grid-template-columns: 1fr; gap: 12px; }
+  }
+
+  .qb-notif-page__feature {
+    background: var(--color-background, #fafafa);
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: 16px;
+    padding: 20px 16px;
+    text-align: center;
+  }
+
+  .qb-notif-page__feature-icon {
+    font-size: 28px;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .qb-notif-page__feature h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    color: var(--color-foreground, #111);
+  }
+
+  .qb-notif-page__feature p {
+    font-size: 12px;
+    color: var(--color-foreground, #555);
+    opacity: 0.65;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  /* History */
+  .qb-notif-page__history-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 16px;
+    color: var(--color-foreground, #111);
+  }
+
+  .qb-notif-page__history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .qb-notif-page__history-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--color-background, #fff);
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: 14px;
+    padding: 14px 16px;
+  }
+
+  .qb-notif-page__history-item-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .qb-notif-page__history-item-text {
+    font-size: 14px;
+    color: var(--color-foreground, #333);
+    margin: 0 0 4px;
+    line-height: 1.4;
+  }
+
+  .qb-notif-page__history-item-time {
+    font-size: 11px;
+    color: var(--color-foreground, #999);
+    opacity: 0.55;
+  }
+
+  .qb-notif-page__history-empty {
+    text-align: center;
+    font-size: 14px;
+    color: var(--color-foreground, #999);
+    opacity: 0.6;
+    padding: 24px 0;
+  }
+</style>
+
+<script>
+  (function () {
+    var STORAGE_KEY = 'qb_notifications';
+
+    function getHistory() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { return []; }
+    }
+
+    function timeAgo(ts) {
+      var d = Math.floor((Date.now() - ts) / 1000);
+      if (d < 60) return 'Just now';
+      if (d < 3600) return Math.floor(d / 60) + ' min ago';
+      if (d < 86400) return Math.floor(d / 3600) + ' hr ago';
+      return Math.floor(d / 86400) + 'd ago';
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function renderHistory() {
+      var list      = getHistory();
+      var listEl    = document.getElementById('qb-page-history-list');
+      var emptyEl   = document.getElementById('qb-page-history-empty');
+      if (!listEl) return;
+      if (list.length === 0) {
+        listEl.innerHTML = '';
+        if (emptyEl) emptyEl.style.display = 'block';
+        return;
+      }
+      if (emptyEl) emptyEl.style.display = 'none';
+      listEl.innerHTML = list.map(function(n) {
+        return '<div class="qb-notif-page__history-item">' +
+          '<span class="qb-notif-page__history-item-icon">🐝</span>' +
+          '<div>' +
+            '<p class="qb-notif-page__history-item-text">' + escHtml(n.body || n.title) + '</p>' +
+            '<span class="qb-notif-page__history-item-time">' + timeAgo(n.timestamp) + '</span>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function updateStatus() {
+      var dot  = document.getElementById('qb-page-status-dot');
+      var text = document.getElementById('qb-page-status-text');
+      var btn  = document.getElementById('qb-page-sub-btn');
+      if (!dot || !text || !btn) return;
+
+      if (!('Notification' in window)) {
+        dot.className  = 'qb-notif-page__status-dot';
+        text.textContent = 'Browser does not support notifications';
+        btn.disabled = true;
+        return;
+      }
+
+      var perm = Notification.permission;
+      if (perm === 'denied') {
+        dot.className  = 'qb-notif-page__status-dot qb-notif-page__status-dot--blocked';
+        text.textContent = 'Notifications blocked — enable in browser settings';
+        btn.disabled = true;
+        btn.textContent = '🚫 Blocked by Browser';
+        return;
+      }
+
+      // Check OneSignal subscription state
+      var isSubscribed = false;
+      try {
+        isSubscribed = window.OneSignal &&
+          window.OneSignal.User &&
+          window.OneSignal.User.PushSubscription &&
+          window.OneSignal.User.PushSubscription.optedIn;
+      } catch(e) {}
+
+      if (isSubscribed) {
+        dot.className  = 'qb-notif-page__status-dot qb-notif-page__status-dot--subscribed';
+        text.textContent = 'Subscribed ✓ — You\'re all set!';
+        btn.textContent = '🔕 Unsubscribe';
+        btn.classList.add('qb-notif-page__btn--unsubscribe');
+        btn.dataset.subscribed = '1';
+      } else {
+        dot.className  = 'qb-notif-page__status-dot qb-notif-page__status-dot--default';
+        text.textContent = perm === 'granted' ? 'Permission granted — tap to subscribe' : 'Not subscribed yet';
+        btn.textContent = '🔔 Enable Notifications';
+        btn.classList.remove('qb-notif-page__btn--unsubscribe');
+        btn.dataset.subscribed = '0';
+      }
+    }
+
+    function handlePageSubBtn() {
+      var btn = document.getElementById('qb-page-sub-btn');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        window.OneSignalDeferred.push(function (OneSignal) {
+          var isSubscribed = btn.dataset.subscribed === '1';
+          if (isSubscribed) {
+            OneSignal.User.PushSubscription.optOut();
+          } else {
+            OneSignal.User.PushSubscription.optIn();
+          }
+          setTimeout(updateStatus, 1500);
+        });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      renderHistory();
+      updateStatus();
+      handlePageSubBtn();
+
+      // Update status once OneSignal is ready
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      window.OneSignalDeferred.push(function () {
+        setTimeout(updateStatus, 600);
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "QB Notifications",
+  "tag": "section",
+  "class": "qb-notifications-section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "QB Notifications"
+    }
+  ]
+}
+{% endschema %}
