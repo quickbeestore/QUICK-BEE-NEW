@@ -246,40 +246,67 @@
       aria-controls="qb-notif-panel"
       type="button"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <!-- Animated bell SVG -->
+      <svg class="qb-bell-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
         <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
       </svg>
       <span id="qb-bell-badge" class="qb-bell-badge" style="display:none;" aria-hidden="true"></span>
     </button>
 
-    <!-- Dropdown Panel -->
+    <!-- ─── Redesigned Dropdown Panel ──────────────────── -->
     <div
       id="qb-notif-panel"
-      class="qb-notif-panel color-{{ settings.popover_color_scheme }}"
+      class="qb-notif-panel"
       role="dialog"
-      aria-label="Notifications"
+      aria-label="Notifications panel"
     >
-      <!-- Header -->
+      <!-- Gradient header bar -->
       <div class="qb-notif-panel__head">
-        <span class="qb-notif-panel__title">🔔 Notifications</span>
-        <a href="/pages/notification" class="qb-notif-panel__see-all">See all</a>
+        <div class="qb-notif-panel__head-left">
+          <span class="qb-notif-panel__bee" aria-hidden="true">🐝</span>
+          <div>
+            <p class="qb-notif-panel__title">Notifications</p>
+            <p class="qb-notif-panel__subtitle">QuickBee AI</p>
+          </div>
+        </div>
+        <a href="/pages/notification" class="qb-notif-panel__see-all" aria-label="See all notifications">
+          All
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
       </div>
 
-      <!-- Subscribe button -->
+      <!-- Subscribe / Unsubscribe button -->
       <div class="qb-notif-panel__sub-row">
         <button id="qb-notif-sub-btn" class="qb-notif-panel__sub-btn" type="button">
-          🔔 Enable Notifications
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          Enable Notifications
         </button>
       </div>
 
+      <!-- Divider with label -->
+      <div class="qb-notif-panel__section-label">Recent</div>
+
       <!-- Notification list -->
-      <div class="qb-notif-panel__divider"></div>
       <div id="qb-notif-list" class="qb-notif-panel__list"></div>
+
+      <!-- Empty state -->
       <div id="qb-notif-empty" class="qb-notif-panel__empty">
-        <span>🐝</span>
-        <p>No notifications yet</p>
-        <small>Subscribe to get updates from QuickBee AI</small>
+        <div class="qb-notif-panel__empty-icon" aria-hidden="true">🍯</div>
+        <p class="qb-notif-panel__empty-title">All clear!</p>
+        <p class="qb-notif-panel__empty-sub">Enable notifications to get QuickBee deals &amp; updates.</p>
+      </div>
+
+      <!-- Footer link -->
+      <div class="qb-notif-panel__footer">
+        <a href="/pages/notification" class="qb-notif-panel__footer-link">
+          Manage notification settings →
+        </a>
       </div>
     </div>
   </div>
@@ -877,8 +904,10 @@
   }
 
   /* ═══════════════════════════════════════════════════
-     QuickBee AI Notification Bell & Dropdown
+     QuickBee AI Notification Bell & Dropdown — v2
      ═══════════════════════════════════════════════════ */
+
+  /* Bell button wrapper */
   .qb-bell-wrap {
     position: relative;
     display: flex;
@@ -890,142 +919,286 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     color: var(--color-foreground);
-    transition: color var(--transition-fast, 0.2s);
+    transition: color 0.2s, background 0.2s;
   }
 
   .qb-bell-btn:hover {
     color: #FFB800;
+    background: rgba(255, 184, 0, 0.08);
   }
 
+  .qb-bell-icon {
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  .qb-bell-btn:hover .qb-bell-icon {
+    transform: rotate(15deg);
+  }
+
+  /* Red badge */
   .qb-bell-badge {
     position: absolute;
-    top: 6px;
-    right: 6px;
-    width: 16px;
+    top: 5px;
+    right: 5px;
+    min-width: 16px;
     height: 16px;
-    background: #ef4444;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
     color: #fff;
-    font-size: 9px;
-    font-weight: 800;
-    border-radius: 50%;
+    font-size: 8px;
+    font-weight: 900;
+    border-radius: 8px;
     display: flex !important;
     align-items: center;
     justify-content: center;
     line-height: 1;
+    padding: 0 3px;
     border: 2px solid var(--color-background);
     pointer-events: none;
+    animation: qb-badge-pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
   }
 
-  /* Dropdown */
+  @keyframes qb-badge-pop {
+    from { transform: scale(0); }
+    to   { transform: scale(1); }
+  }
+
+  /* ─── Dropdown Panel ──────────────────────────────── */
   .qb-notif-panel {
     position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    width: 300px;
-    max-width: calc(100vw - 24px);
-    background: var(--color-background);
-    border: 1px solid var(--color-border, rgba(255,255,255,0.1));
-    border-radius: 18px;
-    box-shadow: 0 16px 48px rgba(0,0,0,0.22);
+    top: calc(100% + 10px);
+    right: -4px;
+    width: 320px;
+    max-width: calc(100vw - 20px);
+    background: var(--color-background, #111);
+    border: 1px solid rgba(255, 184, 0, 0.15);
+    border-radius: 20px;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.04),
+      0 20px 60px rgba(0,0,0,0.4),
+      0 4px 16px rgba(0,0,0,0.3);
     z-index: 9999;
     overflow: hidden;
-    transform: translateY(-8px);
+    transform: translateY(-10px) scale(0.97);
+    transform-origin: top right;
     opacity: 0;
     pointer-events: none;
-    transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), opacity 0.18s ease;
+    transition:
+      transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+      opacity 0.18s ease;
+  }
+
+  [data-theme="light"] .qb-notif-panel {
+    background: #fff;
+    border-color: rgba(255, 184, 0, 0.2);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.08);
   }
 
   .qb-notif-panel--open {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     opacity: 1;
     pointer-events: auto;
   }
 
+  /* Panel header with gradient accent */
   .qb-notif-panel__head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 16px 10px;
-    border-bottom: 1px solid var(--color-border, rgba(255,255,255,0.08));
+    padding: 16px 16px 12px;
+    background: linear-gradient(135deg, rgba(255,184,0,0.07) 0%, rgba(255,107,0,0.04) 100%);
+    border-bottom: 1px solid rgba(255,184,0,0.1);
+    position: relative;
+  }
+
+  .qb-notif-panel__head::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #FFB800, #FF6B00, transparent);
+  }
+
+  .qb-notif-panel__head-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .qb-notif-panel__bee {
+    font-size: 22px;
+    display: block;
+    animation: qb-bee-bob 3s ease-in-out infinite;
+  }
+
+  @keyframes qb-bee-bob {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50%       { transform: translateY(-3px) rotate(5deg); }
   }
 
   .qb-notif-panel__title {
     font-size: 14px;
-    font-weight: 700;
-    color: var(--color-foreground);
+    font-weight: 800;
+    color: var(--color-foreground, #fff);
+    margin: 0 0 1px;
+    letter-spacing: -0.2px;
+  }
+
+  .qb-notif-panel__subtitle {
+    font-size: 10px;
+    color: #FFB800;
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    opacity: 0.85;
   }
 
   .qb-notif-panel__see-all {
+    display: flex;
+    align-items: center;
+    gap: 2px;
     font-size: 12px;
+    font-weight: 700;
     color: #FFB800;
     text-decoration: none;
-    font-weight: 600;
+    background: rgba(255,184,0,0.1);
+    border: 1px solid rgba(255,184,0,0.2);
+    border-radius: 20px;
+    padding: 5px 10px;
+    transition: background 0.15s, transform 0.15s;
   }
 
-  .qb-notif-panel__see-all:hover { text-decoration: underline; }
+  .qb-notif-panel__see-all:hover {
+    background: rgba(255,184,0,0.18);
+    transform: translateX(2px);
+  }
 
+  /* Subscribe button row */
   .qb-notif-panel__sub-row {
-    padding: 12px 14px 8px;
+    padding: 12px 14px 4px;
   }
 
   .qb-notif-panel__sub-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
     width: 100%;
     padding: 11px 16px;
-    background: linear-gradient(135deg, #FFB800, #FF8C00);
+    background: linear-gradient(135deg, #FFB800 0%, #FF6B00 100%);
     color: #fff;
     font-size: 13px;
     font-weight: 700;
     border: none;
-    border-radius: 30px;
+    border-radius: 50px;
     cursor: pointer;
-    transition: transform 0.12s, box-shadow 0.12s;
-    box-shadow: 0 3px 12px rgba(255,140,0,0.3);
+    letter-spacing: 0.1px;
+    box-shadow: 0 3px 14px rgba(255,140,0,0.32), inset 0 1px 0 rgba(255,255,255,0.18);
+    transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .qb-notif-panel__sub-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent);
+    pointer-events: none;
   }
 
   .qb-notif-panel__sub-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 5px 16px rgba(255,140,0,0.4);
+    box-shadow: 0 6px 20px rgba(255,140,0,0.42);
   }
 
-  .qb-notif-panel__divider {
-    height: 1px;
-    background: var(--color-border, rgba(255,255,255,0.08));
-    margin: 4px 0;
+  .qb-notif-panel__sub-btn:active {
+    transform: translateY(0);
   }
 
+  /* Section label */
+  .qb-notif-panel__section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--color-foreground, #999);
+    opacity: 0.35;
+    padding: 10px 16px 4px;
+  }
+
+  /* Notification list */
   .qb-notif-panel__list {
-    max-height: 260px;
+    max-height: 240px;
     overflow-y: auto;
-    padding: 6px 0 8px;
+    padding: 4px 0 8px;
     scrollbar-width: thin;
+    scrollbar-color: rgba(255,184,0,0.2) transparent;
   }
 
+  .qb-notif-panel__list::-webkit-scrollbar {
+    width: 3px;
+  }
+  .qb-notif-panel__list::-webkit-scrollbar-thumb {
+    background: rgba(255,184,0,0.3);
+    border-radius: 2px;
+  }
+
+  /* Notification item */
   .qb-notif-item {
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    padding: 10px 16px;
+    padding: 10px 14px;
+    margin: 0 6px;
+    border-radius: 12px;
     transition: background 0.15s;
+    position: relative;
   }
 
-  .qb-notif-item:hover { background: rgba(255,184,0,0.06); }
+  .qb-notif-item:hover {
+    background: rgba(255, 184, 0, 0.06);
+  }
 
-  .qb-notif-item--unread { background: rgba(255,184,0,0.05); }
+  .qb-notif-item--unread {
+    background: rgba(255, 184, 0, 0.05);
+  }
+
+  .qb-notif-item--unread::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 60%;
+    background: linear-gradient(to bottom, #FFB800, #FF6B00);
+    border-radius: 2px;
+  }
 
   .qb-notif-item__icon {
-    font-size: 18px;
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, rgba(255,184,0,0.15), rgba(255,107,0,0.1));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
     flex-shrink: 0;
-    margin-top: 1px;
   }
 
   .qb-notif-item__body { flex: 1; min-width: 0; }
 
   .qb-notif-item__text {
-    font-size: 13px;
-    color: var(--color-foreground);
+    font-size: 12.5px;
+    color: var(--color-foreground, #eee);
     margin: 0 0 3px;
     line-height: 1.4;
     overflow: hidden;
@@ -1035,19 +1208,72 @@
   }
 
   .qb-notif-item__time {
-    font-size: 11px;
-    color: var(--color-foreground);
-    opacity: 0.45;
+    font-size: 10px;
+    color: var(--color-foreground, #999);
+    opacity: 0.4;
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 
+  .qb-notif-item__time::before {
+    content: '●';
+    font-size: 5px;
+    color: #FFB800;
+    opacity: 0.6;
+  }
+
+  /* Empty state */
   .qb-notif-panel__empty {
-    padding: 24px 16px;
+    padding: 28px 16px 16px;
     text-align: center;
-    color: var(--color-foreground);
-    opacity: 0.5;
+    color: var(--color-foreground, #999);
   }
 
-  .qb-notif-panel__empty span { font-size: 28px; display: block; margin-bottom: 6px; }
-  .qb-notif-panel__empty p { font-size: 13px; font-weight: 600; margin: 0 0 4px; }
-  .qb-notif-panel__empty small { font-size: 11px; }
+  .qb-notif-panel__empty-icon {
+    font-size: 32px;
+    display: block;
+    margin-bottom: 8px;
+    opacity: 0.6;
+    animation: qb-bee-bob 3s ease-in-out infinite;
+  }
+
+  .qb-notif-panel__empty-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: var(--color-foreground, #eee);
+    opacity: 0.75;
+  }
+
+  .qb-notif-panel__empty-sub {
+    font-size: 11.5px;
+    margin: 0;
+    opacity: 0.45;
+    line-height: 1.45;
+  }
+
+  /* Footer link */
+  .qb-notif-panel__footer {
+    padding: 8px 14px 12px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    text-align: center;
+  }
+
+  [data-theme="light"] .qb-notif-panel__footer {
+    border-top-color: rgba(0,0,0,0.07);
+  }
+
+  .qb-notif-panel__footer-link {
+    font-size: 11px;
+    color: var(--color-foreground, #999);
+    opacity: 0.4;
+    text-decoration: none;
+    transition: opacity 0.15s, color 0.15s;
+  }
+
+  .qb-notif-panel__footer-link:hover {
+    opacity: 0.8;
+    color: #FFB800;
+  }
 {% endstylesheet %}
