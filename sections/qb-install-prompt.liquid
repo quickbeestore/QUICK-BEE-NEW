@@ -1,551 +1,103 @@
-{% comment %}
-  QuickBee — Add to Home Screen Floating Card
-  Redesigned: beautiful bottom floating card, spring animation, platform-aware.
-  - Android: triggers native "Add to Home Screen" browser dialog
-  - iOS: shows an elegant step-by-step inline instruction card
-  - Dismissed state saved in localStorage forever
-{% endcomment %}
+{% comment %}QuickBee — Simple Add to Home Screen button{% endcomment %}
 
-<!-- ═══════════════════════════════════════════════════════
-     Floating Install Card (slides up from bottom)
-     ═══════════════════════════════════════════════════════ -->
-<div class="qb-add-card" id="qb-add-card" aria-live="polite" aria-label="Install QuickBee App">
-
-  <!-- Close button -->
-  <button class="qb-add-card__close" id="qb-add-card-close" type="button" aria-label="Dismiss">
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M1 1L11 11M11 1L1 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-  </button>
-
-  <!-- App identity row -->
-  <div class="qb-add-card__identity">
-    <div class="qb-add-card__app-icon" aria-hidden="true">🐝</div>
-    <div class="qb-add-card__app-info">
-      <p class="qb-add-card__app-name">QuickBee</p>
-      <p class="qb-add-card__app-domain">quickbee.store</p>
-    </div>
-    <div class="qb-add-card__store-badge" aria-hidden="true">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#FFB800"/>
-      </svg>
-      <span>Free App</span>
-    </div>
-  </div>
-
-  <!-- Headline -->
-  <p class="qb-add-card__headline">{{ section.settings.banner_title }}</p>
-  <p class="qb-add-card__sub">{{ section.settings.banner_subtitle }}</p>
-
-  <!-- Perks row -->
-  <div class="qb-add-card__perks" aria-hidden="true">
-    <span>⚡ Instant access</span>
-    <span>🔔 Push alerts</span>
-    <span>📦 Order tracking</span>
-  </div>
-
-  <!-- CTA — Android native or iOS instructions toggle -->
-  <button class="qb-add-card__cta" id="qb-add-card-cta" type="button">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M12 16L12 8M12 8L8 12M12 8L16 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <rect x="3" y="17" width="18" height="4" rx="2" fill="currentColor" opacity="0.3"/>
+<div class="qb-aths-wrap" id="qb-aths-wrap">
+  <button class="qb-aths-btn" id="qb-aths-btn" type="button">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="5" y="2" width="14" height="20" rx="3" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 8v8M9 13l3 3 3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     {{ section.settings.button_label }}
   </button>
-
-  <!-- iOS step-by-step (hidden by default, shown on iOS) -->
-  <div class="qb-add-card__ios-steps" id="qb-add-card-ios" aria-hidden="true">
-    <div class="qb-add-card__ios-step">
-      <span class="qb-add-card__ios-num">1</span>
-      <span>Tap the <strong>Share</strong> button</span>
-      <svg class="qb-add-card__ios-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M4 12V19C4 19.5304 4.21071 20.0391 4.58579 20.4142C4.96086 20.7893 5.46957 21 6 21H18C18.5304 21 19.0391 20.7893 19.4142 20.4142C19.7893 20.0391 20 19.5304 20 19V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <polyline points="16 6 12 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <line x1="12" y1="2" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
-    <div class="qb-add-card__ios-step">
-      <span class="qb-add-card__ios-num">2</span>
-      <span>Tap <strong>"Add to Home Screen"</strong></span>
-      <span class="qb-add-card__ios-icon" aria-hidden="true">➕</span>
-    </div>
-    <div class="qb-add-card__ios-step">
-      <span class="qb-add-card__ios-num">3</span>
-      <span>Tap <strong>"Add"</strong> to confirm</span>
-      <span class="qb-add-card__ios-icon" aria-hidden="true" style="color:#22c55e;">✓</span>
-    </div>
-  </div>
-
 </div>
 
-<!-- Backdrop (desktop only, tapping closes) -->
-<div class="qb-add-backdrop" id="qb-add-backdrop"></div>
-
 <style>
-  /* ═══════════════════════════════════════════════════
-     Floating Install Card
-     ═══════════════════════════════════════════════════ */
-  .qb-add-card {
-    position: fixed;
-    bottom: 80px;
-    left: 50%;
-    transform: translateX(-50%) translateY(120%);
-    width: calc(100% - 32px);
-    max-width: 400px;
-    background: var(--color-background, #111);
-    border-radius: 24px;
-    padding: 20px 20px 22px;
-    box-shadow:
-      0 0 0 1px rgba(255, 184, 0, 0.2),
-      0 24px 64px rgba(0, 0, 0, 0.5),
-      0 4px 16px rgba(255, 184, 0, 0.08);
-    z-index: 99998;
-    opacity: 0;
-    pointer-events: none;
-    transition:
-      transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
-      opacity 0.3s ease;
-    will-change: transform, opacity;
-    font-family: var(--font-body--family, sans-serif);
-  }
-
-  [data-theme="light"] .qb-add-card {
-    background: #fff;
-    box-shadow:
-      0 0 0 1px rgba(255, 184, 0, 0.25),
-      0 24px 64px rgba(0, 0, 0, 0.15),
-      0 4px 16px rgba(255, 184, 0, 0.12);
-  }
-
-  .qb-add-card.qb-add-card--visible {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  /* Subtle top accent strip */
-  .qb-add-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 20px;
-    right: 20px;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #FFB800, #FF8C00, transparent);
-    border-radius: 0 0 2px 2px;
-  }
-
-  /* Close button */
-  .qb-add-card__close {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    width: 26px;
-    height: 26px;
-    background: rgba(255, 255, 255, 0.08);
-    border: none;
-    border-radius: 50%;
-    color: var(--color-foreground, rgba(255,255,255,0.5));
+  .qb-aths-wrap {
     display: flex;
-    align-items: center;
     justify-content: center;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-    z-index: 2;
-    opacity: 0.6;
+    padding: 20px 16px 8px;
   }
 
-  [data-theme="light"] .qb-add-card__close {
-    background: rgba(0, 0, 0, 0.06);
-    color: rgba(0,0,0,0.45);
-  }
-
-  .qb-add-card__close:hover {
-    background: rgba(255, 184, 0, 0.15);
-    color: #FFB800;
-    opacity: 1;
-  }
-
-  /* Identity row */
-  .qb-add-card__identity {
-    display: flex;
+  .qb-aths-btn {
+    display: inline-flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 14px;
-  }
-
-  .qb-add-card__app-icon {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, #FFB800 0%, #FF6B00 100%);
-    border-radius: 13px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-    flex-shrink: 0;
-    box-shadow: 0 4px 16px rgba(255, 140, 0, 0.4);
-    animation: qb-bee-float 3s ease-in-out infinite;
-  }
-
-  @keyframes qb-bee-float {
-    0%, 100% { transform: translateY(0) rotate(-3deg); }
-    50%       { transform: translateY(-4px) rotate(3deg); }
-  }
-
-  .qb-add-card__app-info {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .qb-add-card__app-name {
-    font-size: 15px;
-    font-weight: 800;
-    color: var(--color-foreground, #fff);
-    margin: 0 0 1px;
-    letter-spacing: -0.2px;
-  }
-
-  .qb-add-card__app-domain {
-    font-size: 11px;
-    color: var(--color-foreground, #999);
-    opacity: 0.45;
-    margin: 0;
-    font-family: monospace;
-  }
-
-  .qb-add-card__store-badge {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background: rgba(255, 184, 0, 0.12);
-    border: 1px solid rgba(255, 184, 0, 0.25);
-    border-radius: 20px;
-    padding: 4px 10px;
-    flex-shrink: 0;
-  }
-
-  .qb-add-card__store-badge span {
-    font-size: 10px;
-    font-weight: 700;
-    color: #FFB800;
-    white-space: nowrap;
-  }
-
-  /* Headline */
-  .qb-add-card__headline {
-    font-size: 17px;
-    font-weight: 800;
-    color: var(--color-foreground, #fff);
-    margin: 0 0 5px;
-    line-height: 1.25;
-    letter-spacing: -0.3px;
-  }
-
-  .qb-add-card__sub {
-    font-size: 13px;
-    color: var(--color-foreground, #aaa);
-    opacity: 0.6;
-    margin: 0 0 14px;
-    line-height: 1.45;
-  }
-
-  /* Perks */
-  .qb-add-card__perks {
-    display: flex;
     gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 16px;
-  }
-
-  .qb-add-card__perks span {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--color-foreground, #ccc);
-    opacity: 0.7;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    padding: 4px 10px;
-    white-space: nowrap;
-  }
-
-  [data-theme="light"] .qb-add-card__perks span {
-    background: rgba(0, 0, 0, 0.04);
-    border-color: rgba(0, 0, 0, 0.08);
-    color: #555;
-    opacity: 1;
-  }
-
-  /* CTA Button */
-  .qb-add-card__cta {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 15px 24px;
-    background: linear-gradient(135deg, #FFB800 0%, #FF6B00 100%);
-    color: #fff;
-    font-size: 15px;
-    font-weight: 800;
-    border: none;
+    padding: 12px 24px;
+    background: transparent;
+    border: 1.5px solid rgba(255, 184, 0, 0.4);
     border-radius: 50px;
-    cursor: pointer;
-    letter-spacing: 0.1px;
-    box-shadow:
-      0 4px 20px rgba(255, 140, 0, 0.4),
-      inset 0 1px 0 rgba(255,255,255,0.2);
-    transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.15s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .qb-add-card__cta::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.12), transparent);
-    pointer-events: none;
-  }
-
-  .qb-add-card__cta:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(255, 140, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.2);
-  }
-
-  .qb-add-card__cta:active {
-    transform: translateY(0px);
-  }
-
-  /* iOS steps (shown on Apple devices) */
-  .qb-add-card__ios-steps {
-    display: none;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(255,255,255,0.07);
-  }
-
-  [data-theme="light"] .qb-add-card__ios-steps {
-    border-top-color: rgba(0,0,0,0.08);
-  }
-
-  .qb-add-card__ios-steps.qb-ios-visible {
-    display: flex;
-  }
-
-  .qb-add-card__ios-step {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    color: var(--color-foreground);
     font-size: 13px;
-    color: var(--color-foreground, #ddd);
-    line-height: 1.35;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, color 0.2s;
+    font-family: var(--font-body--family, sans-serif);
+    opacity: 0.75;
   }
 
-  [data-theme="light"] .qb-add-card__ios-step {
-    color: #333;
-  }
-
-  .qb-add-card__ios-num {
-    flex-shrink: 0;
-    width: 24px;
-    height: 24px;
-    background: linear-gradient(135deg, #FFB800, #FF6B00);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 800;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .qb-add-card__ios-icon {
-    margin-left: auto;
-    flex-shrink: 0;
+  .qb-aths-btn:hover {
+    border-color: #FFB800;
     color: #FFB800;
-    opacity: 0.85;
+    background: rgba(255, 184, 0, 0.06);
+    opacity: 1;
   }
 
-  /* Backdrop (desktop - allows clicking outside to close) */
-  .qb-add-backdrop {
-    display: none;
-  }
-
-  @media (min-width: 640px) {
-    .qb-add-card {
-      bottom: 32px;
-    }
-
-    .qb-add-backdrop {
-      display: block;
-      position: fixed;
-      inset: 0;
-      z-index: 99997;
-      background: transparent;
-      pointer-events: none;
-    }
-
-    .qb-add-backdrop.qb-add-backdrop--active {
-      pointer-events: auto;
-    }
-  }
-
-  @media (max-width: 390px) {
-    .qb-add-card {
-      bottom: 70px;
-      border-radius: 20px;
-      padding: 18px 16px 20px;
-    }
-
-    .qb-add-card__headline { font-size: 15px; }
-    .qb-add-card__cta { font-size: 14px; padding: 13px 20px; }
-    .qb-add-card__perks { display: none; }
+  .qb-aths-btn svg {
+    flex-shrink: 0;
   }
 </style>
 
 <script>
 (function () {
-  var DISMISSED_KEY = 'qb_install_dismissed_v2';
-
-  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
   var isInStandaloneMode =
     window.navigator.standalone === true ||
     window.matchMedia('(display-mode: standalone)').matches;
 
-  /* Already installed or permanently dismissed → bail */
-  if (isInStandaloneMode) return;
-  if (localStorage.getItem(DISMISSED_KEY) === 'permanent') return;
-
+  var wrap = document.getElementById('qb-aths-wrap');
+  var btn  = document.getElementById('qb-aths-btn');
   var deferredPrompt = null;
-  var card     = document.getElementById('qb-add-card');
-  var backdrop = document.getElementById('qb-add-backdrop');
-  var cta      = document.getElementById('qb-add-card-cta');
-  var closeBtn = document.getElementById('qb-add-card-close');
-  var iosSteps = document.getElementById('qb-add-card-ios');
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
 
-  /* ── iOS platform setup ──────────────────────────────── */
-  if (isIOS && iosSteps) {
-    iosSteps.classList.add('qb-ios-visible');
-    iosSteps.removeAttribute('aria-hidden');
-    if (cta) {
-      cta.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 12V19C4 19.5304 4.21071 20.0391 4.58579 20.4142C4.96086 20.7893 5.46957 21 6 21H18C18.5304 21 19.0391 20.7893 19.4142 20.4142C19.7893 20.0391 20 19.5304 20 19V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="16 6 12 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="2" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> How to Add to Home Screen';
-    }
-  }
+  /* Hide if already installed */
+  if (isInStandaloneMode && wrap) { wrap.style.display = 'none'; return; }
 
-  /* ── Capture Android beforeinstallprompt ──────────────── */
   window.addEventListener('beforeinstallprompt', function (e) {
     e.preventDefault();
     deferredPrompt = e;
-    showCard();
   });
 
   window.addEventListener('appinstalled', function () {
-    hideCard();
-    localStorage.setItem(DISMISSED_KEY, 'permanent');
+    if (wrap) wrap.style.display = 'none';
   });
 
-  /* ── Show / hide card ─────────────────────────────────── */
-  function showCard() {
-    if (!card) return;
-    if (localStorage.getItem(DISMISSED_KEY)) return;
-    setTimeout(function () {
-      card.classList.add('qb-add-card--visible');
-      if (backdrop) backdrop.classList.add('qb-add-backdrop--active');
-    }, 2000);
-  }
+  if (!btn) return;
 
-  function hideCard() {
-    if (!card) return;
-    card.classList.remove('qb-add-card--visible');
-    if (backdrop) backdrop.classList.remove('qb-add-backdrop--active');
-  }
-
-  /* On iOS: show automatically (no beforeinstallprompt) */
-  if (isIOS) showCard();
-
-  /* ── CTA click ────────────────────────────────────────── */
-  if (cta) {
-    cta.addEventListener('click', function () {
-      if (isIOS) return; /* instructions already visible */
-
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(function (result) {
-          deferredPrompt = null;
-          if (result.outcome === 'accepted') {
-            localStorage.setItem(DISMISSED_KEY, 'permanent');
-            hideCard();
-          }
-        });
-      } else {
-        /* No native prompt — show manual tip */
-        cta.textContent = '⋮ Tap menu → Add to Home Screen';
-        cta.style.background = 'rgba(255,255,255,0.08)';
-        cta.style.color = 'var(--color-foreground, #fff)';
-        cta.style.boxShadow = 'none';
-        cta.disabled = true;
-      }
-    });
-  }
-
-  /* ── Dismiss ──────────────────────────────────────────── */
-  if (closeBtn) {
-    closeBtn.addEventListener('click', function () {
-      hideCard();
-      /* Use session dismiss — will show again next visit if not installed */
-      sessionStorage.setItem(DISMISSED_KEY, '1');
-      /* Permanent dismiss after 3 dismissals */
-      var count = parseInt(localStorage.getItem('qb_install_dismiss_count') || '0', 10) + 1;
-      localStorage.setItem('qb_install_dismiss_count', count);
-      if (count >= 3) localStorage.setItem(DISMISSED_KEY, 'permanent');
-    });
-  }
-
-  if (backdrop) {
-    backdrop.addEventListener('click', function () {
-      hideCard();
-      sessionStorage.setItem(DISMISSED_KEY, '1');
-    });
-  }
-
-  /* ── Expose global trigger ────────────────────────────── */
-  window.qbOpenInstallCard = showCard;
+  btn.addEventListener('click', function () {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function () { deferredPrompt = null; });
+    } else if (isIOS) {
+      alert('Tap the Share button 📤 then "Add to Home Screen" to install QuickBee.');
+    } else {
+      btn.textContent = 'Open in browser menu → Add to Home Screen';
+      btn.disabled = true;
+    }
+  });
 })();
 </script>
 
 {% schema %}
 {
-  "name": "QB Install Prompt",
+  "name": "QB Install Button",
   "tag": "section",
   "class": "qb-install-prompt-section",
   "settings": [
     {
       "type": "text",
-      "id": "banner_title",
-      "label": "Card Title",
-      "default": "Add QuickBee to your Home Screen"
-    },
-    {
-      "type": "text",
-      "id": "banner_subtitle",
-      "label": "Card Subtitle",
-      "default": "Shop faster with app-like experience — right from your home screen."
-    },
-    {
-      "type": "text",
       "id": "button_label",
       "label": "Button Label",
-      "default": "Add to Home Screen"
+      "default": "Add QuickBee to Home Screen"
     }
   ],
-  "presets": [
-    {
-      "name": "QB Install Prompt"
-    }
-  ]
+  "presets": [{ "name": "QB Install Button" }]
 }
 {% endschema %}

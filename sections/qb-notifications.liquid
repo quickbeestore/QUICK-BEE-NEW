@@ -1,440 +1,437 @@
-<div class="qb-notif-page">
+<div class="qb-np">
 
-  <!-- Hero -->
-  <div class="qb-notif-page__hero">
-    <div class="qb-notif-page__honeycomb" aria-hidden="true">
-      <span class="qb-hc qb-hc--1">🍯</span>
-      <span class="qb-hc qb-hc--2">🌸</span>
-      <span class="qb-hc qb-hc--3">⚡</span>
-    </div>
-    <div class="qb-notif-page__bee-wrap" aria-hidden="true">
-      <span class="qb-notif-page__bee">🐝</span>
-    </div>
-    <h1 class="qb-notif-page__title">QuickBee <span class="qb-notif-page__ai-badge">AI</span> Notifications</h1>
-    <p class="qb-notif-page__subtitle">Get instant alerts for flash deals, new drops &amp; order updates — straight to your device.</p>
-  </div>
+  <!-- ── Header ─────────────────────────────────────── -->
+  <div class="qb-np__header">
+    <div class="qb-np__header-inner">
+      <div class="qb-np__header-top">
+        <div class="qb-np__logo">🐝</div>
+        <div>
+          <h1 class="qb-np__title">Notifications</h1>
+          <p class="qb-np__tagline">QuickBee AI · Deals, drops &amp; updates</p>
+        </div>
+      </div>
 
-  <!-- Subscription card -->
-  <div class="qb-notif-page__card">
-    <div class="qb-notif-page__status-row">
-      <span class="qb-notif-page__status-dot" id="qb-page-status-dot"></span>
-      <span class="qb-notif-page__status-text" id="qb-page-status-text">Checking status…</span>
-    </div>
-    <button class="qb-notif-page__btn" id="qb-page-sub-btn" type="button">
-      🔔 Enable Notifications
-    </button>
-    <p class="qb-notif-page__hint">We only send you things worth knowing. No spam, ever.</p>
-  </div>
-
-  <!-- How it works -->
-  <div class="qb-notif-page__features">
-    <div class="qb-notif-page__feature">
-      <span class="qb-notif-page__feature-icon">⚡</span>
-      <h3>Flash Deals</h3>
-      <p>Be first to grab limited-time offers before they sell out.</p>
-    </div>
-    <div class="qb-notif-page__feature">
-      <span class="qb-notif-page__feature-icon">📦</span>
-      <h3>New Arrivals</h3>
-      <p>Discover freshly added products the moment they land.</p>
-    </div>
-    <div class="qb-notif-page__feature">
-      <span class="qb-notif-page__feature-icon">🛵</span>
-      <h3>Order Updates</h3>
-      <p>Real-time status on your delivery — from prep to door.</p>
+      <!-- Subscribe toggle card -->
+      <div class="qb-np__sub-card" id="qb-np-sub-card">
+        <div class="qb-np__sub-status">
+          <span class="qb-np__sub-dot" id="qb-np-dot"></span>
+          <span class="qb-np__sub-label" id="qb-np-label">Checking…</span>
+        </div>
+        <button class="qb-np__sub-btn" id="qb-np-btn" type="button">Enable</button>
+      </div>
     </div>
   </div>
 
-  <!-- Recent notifications history -->
-  <div class="qb-notif-page__history">
-    <h2 class="qb-notif-page__history-title">Recent Notifications</h2>
-    <div id="qb-page-history-list" class="qb-notif-page__history-list">
-      <!-- rendered by JS -->
+  <!-- ── Body ───────────────────────────────────────── -->
+  <div class="qb-np__body">
+
+    <!-- Notification list -->
+    <div id="qb-np-list" class="qb-np__list"></div>
+
+    <!-- Empty state -->
+    <div id="qb-np-empty" class="qb-np__empty" style="display:none;">
+      <div class="qb-np__empty-icon">🍯</div>
+      <p class="qb-np__empty-title">Nothing yet</p>
+      <p class="qb-np__empty-sub">Enable notifications and be the first to hear about QuickBee deals.</p>
     </div>
-    <p id="qb-page-history-empty" class="qb-notif-page__history-empty" style="display:none;">
-      No notifications yet — subscribe and be the first to know!
-    </p>
+
   </div>
 
 </div>
 
 <style>
-  .qb-notif-page {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 40px 16px 80px;
+  /* ─────────────────────────────────────────────────
+     Notification Page — qb-np
+  ───────────────────────────────────────────────── */
+  .qb-np {
+    min-height: 60vh;
     font-family: var(--font-body--family, sans-serif);
   }
 
-  /* Hero */
-  .qb-notif-page__hero {
-    text-align: center;
-    margin-bottom: 32px;
+  /* Header */
+  .qb-np__header {
+    background: linear-gradient(135deg, rgba(255,184,0,0.08) 0%, rgba(255,107,0,0.04) 100%);
+    border-bottom: 1px solid rgba(255,184,0,0.12);
     position: relative;
-  }
-
-  .qb-notif-page__honeycomb {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    pointer-events: none;
     overflow: hidden;
-    height: 120px;
   }
 
-  .qb-hc {
+  .qb-np__header::before {
+    content: '';
     position: absolute;
-    font-size: 28px;
-    opacity: 0.15;
-    animation: qb-float 4s ease-in-out infinite;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #FFB800, #FF6B00);
   }
 
-  .qb-hc--1 { left: 8%;  top: 10px; animation-delay: 0s; }
-  .qb-hc--2 { left: 85%; top: 20px; animation-delay: 1.3s; }
-  .qb-hc--3 { left: 50%; top: 5px;  animation-delay: 2.5s; }
-
-  @keyframes qb-float {
-    0%, 100% { transform: translateY(0); }
-    50%       { transform: translateY(-10px); }
+  .qb-np__header-inner {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 28px 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
   }
 
-  .qb-notif-page__bee-wrap {
-    margin-bottom: 12px;
-  }
-
-  .qb-notif-page__bee {
-    font-size: 56px;
-    display: inline-block;
-    animation: qb-bee-wiggle 2.5s ease-in-out infinite;
-  }
-
-  @keyframes qb-bee-wiggle {
-    0%, 100% { transform: rotate(-6deg) translateY(0); }
-    25%       { transform: rotate(6deg) translateY(-6px); }
-    50%       { transform: rotate(-4deg) translateY(0); }
-    75%       { transform: rotate(4deg) translateY(-4px); }
-  }
-
-  .qb-notif-page__title {
-    font-size: clamp(22px, 5vw, 32px);
-    font-weight: 800;
-    color: var(--color-foreground, #111);
-    margin: 0 0 10px;
-    line-height: 1.2;
-  }
-
-  .qb-notif-page__ai-badge {
-    display: inline-block;
-    background: linear-gradient(135deg, #FFB800, #FF8C00);
-    color: #fff;
-    font-size: 0.55em;
-    font-weight: 900;
-    padding: 3px 8px;
-    border-radius: 20px;
-    vertical-align: middle;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-left: 6px;
-  }
-
-  .qb-notif-page__subtitle {
-    font-size: 15px;
-    color: var(--color-foreground, #555);
-    opacity: 0.7;
-    margin: 0;
-    line-height: 1.5;
-  }
-
-  /* Card */
-  .qb-notif-page__card {
-    background: var(--color-background, #fff);
-    border: 1.5px solid rgba(255, 184, 0, 0.35);
-    border-radius: 20px;
-    padding: 28px 24px;
-    text-align: center;
-    box-shadow: 0 8px 32px rgba(255, 184, 0, 0.12);
-    margin-bottom: 32px;
-  }
-
-  .qb-notif-page__status-row {
+  .qb-np__header-top {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 20px;
+    gap: 14px;
   }
 
-  .qb-notif-page__status-dot {
-    width: 10px;
-    height: 10px;
+  .qb-np__logo {
+    font-size: 38px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 8px rgba(255,184,0,0.3));
+  }
+
+  .qb-np__title {
+    font-size: clamp(22px, 5vw, 28px);
+    font-weight: 800;
+    color: var(--color-foreground, #111);
+    margin: 0 0 3px;
+    letter-spacing: -0.5px;
+  }
+
+  .qb-np__tagline {
+    font-size: 12px;
+    color: #FFB800;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 0.3px;
+  }
+
+  /* Subscribe card inside header */
+  .qb-np__sub-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--color-background, #fff);
+    border: 1px solid rgba(255,184,0,0.2);
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  .qb-np__sub-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .qb-np__sub-dot {
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    background: #ccc;
-    display: inline-block;
+    background: #d1d5db;
+    flex-shrink: 0;
     transition: background 0.3s;
   }
 
-  .qb-notif-page__status-dot--subscribed { background: #22c55e; box-shadow: 0 0 6px #22c55e88; }
-  .qb-notif-page__status-dot--blocked    { background: #ef4444; }
-  .qb-notif-page__status-dot--default    { background: #f59e0b; }
+  .qb-np__sub-dot--on  { background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.18); }
+  .qb-np__sub-dot--off { background: #f59e0b; }
+  .qb-np__sub-dot--blocked { background: #ef4444; }
 
-  .qb-notif-page__status-text {
-    font-size: 14px;
+  .qb-np__sub-label {
+    font-size: 13px;
     font-weight: 600;
     color: var(--color-foreground, #333);
-    opacity: 0.8;
   }
 
-  .qb-notif-page__btn {
-    display: inline-block;
-    width: 100%;
-    max-width: 320px;
-    padding: 16px 28px;
-    background: linear-gradient(135deg, #FFB800, #FF8C00);
+  .qb-np__sub-btn {
+    flex-shrink: 0;
+    padding: 9px 20px;
+    background: linear-gradient(135deg, #FFB800, #FF6B00);
     color: #fff;
-    font-size: 16px;
-    font-weight: 800;
+    font-size: 13px;
+    font-weight: 700;
     border: none;
     border-radius: 50px;
     cursor: pointer;
-    letter-spacing: 0.3px;
-    box-shadow: 0 4px 20px rgba(255, 140, 0, 0.35);
+    box-shadow: 0 3px 12px rgba(255,140,0,0.3);
     transition: transform 0.15s, box-shadow 0.15s;
+    white-space: nowrap;
   }
 
-  .qb-notif-page__btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(255, 140, 0, 0.45);
+  .qb-np__sub-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 18px rgba(255,140,0,0.4);
   }
 
-  .qb-notif-page__btn:active {
-    transform: translateY(0);
+  .qb-np__sub-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 
-  .qb-notif-page__btn--unsubscribe {
-    background: var(--color-background, #f3f4f6);
+  .qb-np__sub-btn--off {
+    background: transparent;
+    border: 1.5px solid rgba(255,184,0,0.35);
     color: var(--color-foreground, #333);
     box-shadow: none;
-    border: 1.5px solid var(--color-border, #e5e7eb);
   }
 
-  .qb-notif-page__hint {
-    font-size: 12px;
+  /* Body */
+  .qb-np__body {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+  }
+
+  /* Notification list */
+  .qb-np__list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Each notification row */
+  .qb-np__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--color-border, rgba(0,0,0,0.07));
+    position: relative;
+  }
+
+  [data-theme="dark"] .qb-np__item {
+    border-bottom-color: rgba(255,255,255,0.07);
+  }
+
+  .qb-np__item--unread::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, #FFB800, #FF6B00);
+    border-radius: 0 3px 3px 0;
+  }
+
+  .qb-np__item-icon-wrap {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(255,184,0,0.15), rgba(255,107,0,0.08));
+    border: 1px solid rgba(255,184,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .qb-np__item-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .qb-np__item-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-foreground, #111);
+    margin: 0 0 5px;
+    line-height: 1.5;
+  }
+
+  .qb-np__item--unread .qb-np__item-text {
+    font-weight: 700;
+  }
+
+  .qb-np__item-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .qb-np__item-time {
+    font-size: 11px;
     color: var(--color-foreground, #999);
-    opacity: 0.55;
-    margin: 12px 0 0;
+    opacity: 0.5;
   }
 
-  /* Features */
-  .qb-notif-page__features {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 40px;
+  .qb-np__item-new {
+    font-size: 10px;
+    font-weight: 700;
+    color: #FFB800;
+    background: rgba(255,184,0,0.12);
+    border-radius: 20px;
+    padding: 2px 8px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+
+  /* Empty state */
+  .qb-np__empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--color-foreground, #999);
+  }
+
+  .qb-np__empty-icon {
+    font-size: 48px;
+    margin-bottom: 14px;
+    opacity: 0.5;
+  }
+
+  .qb-np__empty-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: var(--color-foreground, #333);
+    opacity: 0.7;
+  }
+
+  .qb-np__empty-sub {
+    font-size: 13px;
+    margin: 0;
+    opacity: 0.45;
+    line-height: 1.5;
+    max-width: 260px;
+    margin: 0 auto;
   }
 
   @media (max-width: 480px) {
-    .qb-notif-page__features { grid-template-columns: 1fr; gap: 12px; }
-  }
-
-  .qb-notif-page__feature {
-    background: var(--color-background, #fafafa);
-    border: 1px solid var(--color-border, #e5e7eb);
-    border-radius: 16px;
-    padding: 20px 16px;
-    text-align: center;
-  }
-
-  .qb-notif-page__feature-icon {
-    font-size: 28px;
-    display: block;
-    margin-bottom: 8px;
-  }
-
-  .qb-notif-page__feature h3 {
-    font-size: 14px;
-    font-weight: 700;
-    margin: 0 0 6px;
-    color: var(--color-foreground, #111);
-  }
-
-  .qb-notif-page__feature p {
-    font-size: 12px;
-    color: var(--color-foreground, #555);
-    opacity: 0.65;
-    margin: 0;
-    line-height: 1.4;
-  }
-
-  /* History */
-  .qb-notif-page__history-title {
-    font-size: 18px;
-    font-weight: 700;
-    margin: 0 0 16px;
-    color: var(--color-foreground, #111);
-  }
-
-  .qb-notif-page__history-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .qb-notif-page__history-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    background: var(--color-background, #fff);
-    border: 1px solid var(--color-border, #e5e7eb);
-    border-radius: 14px;
-    padding: 14px 16px;
-  }
-
-  .qb-notif-page__history-item-icon {
-    font-size: 22px;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .qb-notif-page__history-item-text {
-    font-size: 14px;
-    color: var(--color-foreground, #333);
-    margin: 0 0 4px;
-    line-height: 1.4;
-  }
-
-  .qb-notif-page__history-item-time {
-    font-size: 11px;
-    color: var(--color-foreground, #999);
-    opacity: 0.55;
-  }
-
-  .qb-notif-page__history-empty {
-    text-align: center;
-    font-size: 14px;
-    color: var(--color-foreground, #999);
-    opacity: 0.6;
-    padding: 24px 0;
+    .qb-np__header-inner { padding: 20px 16px 18px; }
+    .qb-np__body { padding: 0 16px 60px; }
   }
 </style>
 
 <script>
-  (function () {
-    var STORAGE_KEY = 'qb_notifications';
+(function () {
+  var STORAGE_KEY = 'qb_notifications';
 
-    function getHistory() {
-      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { return []; }
+  function getHistory() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { return []; }
+  }
+
+  function timeAgo(ts) {
+    var d = Math.floor((Date.now() - ts) / 1000);
+    if (d < 60)    return 'Just now';
+    if (d < 3600)  return Math.floor(d/60) + ' min ago';
+    if (d < 86400) return Math.floor(d/3600) + ' hr ago';
+    var days = Math.floor(d/86400);
+    return days === 1 ? 'Yesterday' : days + ' days ago';
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ── Render notification list ───────────────────── */
+  function render() {
+    var list    = getHistory();
+    var listEl  = document.getElementById('qb-np-list');
+    var emptyEl = document.getElementById('qb-np-empty');
+    if (!listEl) return;
+
+    if (list.length === 0) {
+      listEl.innerHTML = '';
+      if (emptyEl) emptyEl.style.display = 'block';
+      return;
     }
+    if (emptyEl) emptyEl.style.display = 'none';
 
-    function timeAgo(ts) {
-      var d = Math.floor((Date.now() - ts) / 1000);
-      if (d < 60) return 'Just now';
-      if (d < 3600) return Math.floor(d / 60) + ' min ago';
-      if (d < 86400) return Math.floor(d / 3600) + ' hr ago';
-      return Math.floor(d / 86400) + 'd ago';
-    }
-
-    function escHtml(s) {
-      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-
-    function renderHistory() {
-      var list      = getHistory();
-      var listEl    = document.getElementById('qb-page-history-list');
-      var emptyEl   = document.getElementById('qb-page-history-empty');
-      if (!listEl) return;
-      if (list.length === 0) {
-        listEl.innerHTML = '';
-        if (emptyEl) emptyEl.style.display = 'block';
-        return;
-      }
-      if (emptyEl) emptyEl.style.display = 'none';
-      listEl.innerHTML = list.map(function(n) {
-        return '<div class="qb-notif-page__history-item">' +
-          '<span class="qb-notif-page__history-item-icon">🐝</span>' +
-          '<div>' +
-            '<p class="qb-notif-page__history-item-text">' + escHtml(n.body || n.title) + '</p>' +
-            '<span class="qb-notif-page__history-item-time">' + timeAgo(n.timestamp) + '</span>' +
+    listEl.innerHTML = list.map(function(n, i) {
+      var isNew = !n.read || (Date.now() - n.timestamp < 3600000);
+      return (
+        '<div class="qb-np__item' + (n.read ? '' : ' qb-np__item--unread') + '">' +
+          '<div class="qb-np__item-icon-wrap">🐝</div>' +
+          '<div class="qb-np__item-body">' +
+            '<p class="qb-np__item-text">' + esc(n.body || n.title) + '</p>' +
+            '<div class="qb-np__item-meta">' +
+              '<span class="qb-np__item-time">' + timeAgo(n.timestamp) + '</span>' +
+              (isNew && !n.read ? '<span class="qb-np__item-new">New</span>' : '') +
+            '</div>' +
           '</div>' +
-        '</div>';
-      }).join('');
+        '</div>'
+      );
+    }).join('');
+
+    /* Mark all as read */
+    try {
+      var updated = list.map(function(n) { n.read = true; return n; });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch(e) {}
+  }
+
+  /* ── Subscription status ────────────────────────── */
+  function updateStatus() {
+    var dot   = document.getElementById('qb-np-dot');
+    var label = document.getElementById('qb-np-label');
+    var btn   = document.getElementById('qb-np-btn');
+    if (!dot || !label || !btn) return;
+
+    if (!('Notification' in window)) {
+      dot.className = 'qb-np__sub-dot qb-np__sub-dot--blocked';
+      label.textContent = 'Not supported in this browser';
+      btn.disabled = true;
+      return;
     }
 
-    function updateStatus() {
-      var dot  = document.getElementById('qb-page-status-dot');
-      var text = document.getElementById('qb-page-status-text');
-      var btn  = document.getElementById('qb-page-sub-btn');
-      if (!dot || !text || !btn) return;
-
-      if (!('Notification' in window)) {
-        dot.className  = 'qb-notif-page__status-dot';
-        text.textContent = 'Browser does not support notifications';
-        btn.disabled = true;
-        return;
-      }
-
-      var perm = Notification.permission;
-      if (perm === 'denied') {
-        dot.className  = 'qb-notif-page__status-dot qb-notif-page__status-dot--blocked';
-        text.textContent = 'Notifications blocked — enable in browser settings';
-        btn.disabled = true;
-        btn.textContent = '🚫 Blocked by Browser';
-        return;
-      }
-
-      // Check OneSignal subscription state
-      var isSubscribed = false;
-      try {
-        isSubscribed = window.OneSignal &&
-          window.OneSignal.User &&
-          window.OneSignal.User.PushSubscription &&
-          window.OneSignal.User.PushSubscription.optedIn;
-      } catch(e) {}
-
-      if (isSubscribed) {
-        dot.className  = 'qb-notif-page__status-dot qb-notif-page__status-dot--subscribed';
-        text.textContent = 'Subscribed ✓ — You\'re all set!';
-        btn.textContent = '🔕 Unsubscribe';
-        btn.classList.add('qb-notif-page__btn--unsubscribe');
-        btn.dataset.subscribed = '1';
-      } else {
-        dot.className  = 'qb-notif-page__status-dot qb-notif-page__status-dot--default';
-        text.textContent = perm === 'granted' ? 'Permission granted — tap to subscribe' : 'Not subscribed yet';
-        btn.textContent = '🔔 Enable Notifications';
-        btn.classList.remove('qb-notif-page__btn--unsubscribe');
-        btn.dataset.subscribed = '0';
-      }
+    if (Notification.permission === 'denied') {
+      dot.className = 'qb-np__sub-dot qb-np__sub-dot--blocked';
+      label.textContent = 'Blocked — enable in browser settings';
+      btn.textContent = 'Blocked';
+      btn.disabled = true;
+      return;
     }
 
-    function handlePageSubBtn() {
-      var btn = document.getElementById('qb-page-sub-btn');
-      if (!btn) return;
-      btn.addEventListener('click', function () {
-        window.OneSignalDeferred = window.OneSignalDeferred || [];
-        window.OneSignalDeferred.push(function (OneSignal) {
-          var isSubscribed = btn.dataset.subscribed === '1';
-          if (isSubscribed) {
-            OneSignal.User.PushSubscription.optOut();
-          } else {
-            OneSignal.User.PushSubscription.optIn();
-          }
-          setTimeout(updateStatus, 1500);
-        });
-      });
+    var subscribed = false;
+    try {
+      subscribed = !!(window.OneSignal &&
+        window.OneSignal.User &&
+        window.OneSignal.User.PushSubscription &&
+        window.OneSignal.User.PushSubscription.optedIn);
+    } catch(e) {}
+
+    if (subscribed) {
+      dot.className = 'qb-np__sub-dot qb-np__sub-dot--on';
+      label.textContent = 'Notifications enabled';
+      btn.textContent = 'Turn off';
+      btn.classList.add('qb-np__sub-btn--off');
+      btn.dataset.on = '1';
+    } else {
+      dot.className = 'qb-np__sub-dot qb-np__sub-dot--off';
+      label.textContent = Notification.permission === 'granted'
+        ? 'Tap Enable to subscribe'
+        : 'Notifications off';
+      btn.textContent = 'Enable';
+      btn.classList.remove('qb-np__sub-btn--off');
+      btn.dataset.on = '0';
     }
+  }
 
-    document.addEventListener('DOMContentLoaded', function () {
-      renderHistory();
-      updateStatus();
-      handlePageSubBtn();
-
-      // Update status once OneSignal is ready
+  /* ── Button click ───────────────────────────────── */
+  function wireBtn() {
+    var btn = document.getElementById('qb-np-btn');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
       window.OneSignalDeferred = window.OneSignalDeferred || [];
-      window.OneSignalDeferred.push(function () {
-        setTimeout(updateStatus, 600);
+      window.OneSignalDeferred.push(function (OS) {
+        var isOn = btn.dataset.on === '1';
+        if (isOn) {
+          OS.User.PushSubscription.optOut();
+        } else {
+          OS.User.PushSubscription.optIn();
+        }
+        setTimeout(updateStatus, 1500);
       });
     });
-  })();
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    render();
+    updateStatus();
+    wireBtn();
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    window.OneSignalDeferred.push(function () { setTimeout(updateStatus, 800); });
+  });
+})();
 </script>
 
 {% schema %}
@@ -443,10 +440,6 @@
   "tag": "section",
   "class": "qb-notifications-section",
   "settings": [],
-  "presets": [
-    {
-      "name": "QB Notifications"
-    }
-  ]
+  "presets": [{ "name": "QB Notifications" }]
 }
 {% endschema %}
