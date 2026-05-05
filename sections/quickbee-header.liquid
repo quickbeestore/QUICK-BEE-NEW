@@ -1651,13 +1651,21 @@
       html += '<div class="qb-sdrop-label">Results for "' + esc(query) + '"</div>';
       html += '<div class="qb-sdrop-items">';
 
-      products.slice(0, 6).forEach(function(p) {
-        var imgEl = p.featured_image
-          ? '<img class="qb-sdrop-img" src="' + esc(p.featured_image) + '" loading="lazy" alt="">'
+      products.slice(0, 8).forEach(function(p) {
+        var imgUrl = p.image || p.featured_image;
+        var imgEl = imgUrl
+          ? '<img class="qb-sdrop-img" src="' + esc(imgUrl) + '" loading="lazy" alt="">'
           : '<div class="qb-sdrop-img-placeholder">🛍️</div>';
-        var priceEl = p.price
-          ? '<span class="qb-sdrop-price">Rs ' + Math.round(p.price / 100) + '</span>'
-          : '';
+        
+        var price = p.price;
+        var priceEl = '';
+        if (price) {
+          var amount = typeof price === 'number' ? price : parseFloat(price);
+          if (!isNaN(amount)) {
+            priceEl = '<span class="qb-sdrop-price">Rs ' + Math.round(amount / 100) + '</span>';
+          }
+        }
+
         html += '<a href="' + esc(p.url) + '" class="qb-sdrop-item" data-product-query="' + esc(query) + '">'
           + imgEl
           + '<div class="qb-sdrop-body"><div class="qb-sdrop-name">' + esc(p.title) + '</div></div>'
@@ -1695,8 +1703,8 @@
     async function fetchProducts(query) {
       try {
         var url = '/search/suggest.json?q=' + encodeURIComponent(query)
-          + '&resources[type]=product&resources[limit]=6'
-          + '&resources[fields]=title,url,price,featured_image';
+          + '&resources[type]=product&resources[limit]=10'
+          + '&resources[fields]=title,url,price,featured_image,image';
         var res  = await fetch(url);
         var data = await res.json();
         return (data && data.resources && data.resources.results && data.resources.results.products) || [];
@@ -1728,14 +1736,9 @@
       var query = input.value.trim();
       updateClearButton();
       
-      if (!query) {
+      if (query.length < 2) {
         renderHome();
         show();
-        return;
-      }
-
-      if (query.length < 2) {
-        hide();
         return;
       }
 
@@ -1813,12 +1816,7 @@
 
     /* ── focus / input events ──── */
     input.addEventListener('focus', function() {
-      if (input.value.trim().length >= 2) {
-        handleInput();
-      } else if (input.value.trim().length === 0) {
-        renderHome();
-        show();
-      }
+      handleInput();
     });
     input.addEventListener('input', handleInput);
     input.addEventListener('keydown', function(e) {
