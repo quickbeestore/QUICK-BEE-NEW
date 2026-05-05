@@ -1551,10 +1551,10 @@
 
     /* ── show / hide ──── */
     function show() {
-      var rect = form.getBoundingClientRect();
-      dropdown.style.top = rect.bottom + 'px';
+      reposition();
       dropdown.style.display = 'block';
       if (backdrop) {
+        var rect = form.getBoundingClientRect();
         backdrop.style.top = rect.bottom + 'px';
         backdrop.classList.add('open');
       }
@@ -1616,7 +1616,9 @@
             }).join('')
           + '</div>';
       }
-      inner.innerHTML = catChips()
+      inner.innerHTML = 
+          '<div class="qb-sdrop-label">Quick Categories</div>'
+        + catChips()
         + recentBlock()
         + freqBlock
         + '<div class="qb-sdrop-label">🔥 Trending Now</div>'
@@ -1660,9 +1662,11 @@
         var price = p.price;
         var priceEl = '';
         if (price) {
-          var amount = typeof price === 'number' ? price : parseFloat(price);
+          var amount = typeof price === 'number' ? price : parseFloat(String(price).replace(/[^0-9.]/g, ''));
           if (!isNaN(amount)) {
-            priceEl = '<span class="qb-sdrop-price">Rs ' + Math.round(amount / 100) + '</span>';
+            // Shopify JSON usually returns price in cents, but check if it looks like a large number
+            var displayPrice = amount > 50000 ? Math.round(amount / 100) : Math.round(amount);
+            priceEl = '<span class="qb-sdrop-price">Rs ' + displayPrice + '</span>';
           }
         }
 
@@ -1703,8 +1707,7 @@
     async function fetchProducts(query) {
       try {
         var url = '/search/suggest.json?q=' + encodeURIComponent(query)
-          + '&resources[type]=product&resources[limit]=10'
-          + '&resources[fields]=title,url,price,featured_image,image';
+          + '&resources[type]=product&resources[limit]=10';
         var res  = await fetch(url);
         var data = await res.json();
         return (data && data.resources && data.resources.results && data.resources.results.products) || [];
@@ -1838,7 +1841,7 @@
 
     /* ── reposition on scroll / resize ──── */
     function reposition() {
-      if (isOpen) {
+      if (isOpen || document.activeElement === input) {
         var rect = form.getBoundingClientRect();
         dropdown.style.top = rect.bottom + 'px';
         if (backdrop) backdrop.style.top = rect.bottom + 'px';
