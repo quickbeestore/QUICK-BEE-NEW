@@ -267,6 +267,37 @@
     -webkit-text-fill-color: #FFF8EB !important;
   }
 
+  /* ── Search Clear Button ── */
+  .qb-search-clear {
+    all: unset;
+    display: none;
+    width: 24px;
+    height: 24px;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    cursor: pointer;
+    flex-shrink: 0;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .qb-search-clear:hover {
+    background: rgba(0,0,0,0.06);
+    color: #475569;
+  }
+  [data-theme="dark"] .qb-search-clear:hover {
+    background: rgba(255,255,255,0.1);
+    color: #e2e8f0;
+  }
+  .qb-search-clear.visible {
+    display: flex;
+  }
+  .qb-search-clear svg {
+    width: 14px;
+    height: 14px;
+  }
+
   /* ── Search Backdrop ── */
   .qb-search-backdrop {
     display: none;
@@ -1066,6 +1097,9 @@
           </div>
           <input type="hidden" name="type" value="product">
           <input type="text" inputmode="search" name="q" class="qb-search-input" id="qbSearchInput" placeholder="Search groceries, drinks, snacks" autocomplete="off" aria-label="Search products">
+          <button type="button" class="qb-search-clear" id="qbSearchClear" aria-label="Clear search">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
         </form>
 
       </div>
@@ -1429,6 +1463,7 @@
   (function() {
     var form     = document.querySelector('.qb-search-bar-wrap');
     var input    = document.getElementById('qbSearchInput');
+    var clearBtn = document.getElementById('qbSearchClear');
     var dropdown = document.getElementById('qbSearchDropdown');
     var inner    = document.getElementById('qbDropdownInner');
     var backdrop = document.getElementById('qbSearchBackdrop');
@@ -1460,6 +1495,7 @@
 
     var debounce = null;
     var isOpen   = false;
+    var selectedIndex = -1;
 
     /* ── localStorage helpers ──── */
     function getRecent() {
@@ -1523,11 +1559,24 @@
         backdrop.classList.add('open');
       }
       isOpen = true;
+      selectedIndex = -1;
+      updateClearButton();
     }
     function hide() {
       dropdown.style.display = 'none';
       if (backdrop) backdrop.classList.remove('open');
       isOpen = false;
+      selectedIndex = -1;
+    }
+
+    function updateClearButton() {
+      if (clearBtn) {
+        if (input.value.length > 0) {
+          clearBtn.classList.add('visible');
+        } else {
+          clearBtn.classList.remove('visible');
+        }
+      }
     }
 
     /* ── render helpers ──── */
@@ -1543,7 +1592,7 @@
       var list = getRecent();
       if (!list.length) return '';
       var clockSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
-      return '<div class="qb-sdrop-label">Recent</div>'
+      return '<div class="qb-sdrop-label">Recent Searches</div>'
         + '<div class="qb-sdrop-items" id="qbRecentList">'
         + list.map(function(q){
             return '<div class="qb-sdrop-recent-row" data-recent="' + esc(q) + '">'
@@ -1560,7 +1609,7 @@
       var topFreq = getTopFrequent(4);
       var freqBlock = '';
       if (topFreq.length) {
-        freqBlock = '<div class="qb-sdrop-label">⚡ You Often Search</div>'
+        freqBlock = '<div class="qb-sdrop-label">⚡ Frequently Searched</div>'
           + '<div class="qb-sdrop-chips" style="margin-bottom:6px;">'
           + topFreq.map(function(q){
               return '<button type="button" class="qb-sdrop-chip" style="border-color:rgba(244,180,0,0.3);background:rgba(244,180,0,0.07);color:#c98a00;" data-query="' + esc(q) + '">🔁 ' + esc(q) + '</button>';
@@ -1570,7 +1619,7 @@
       inner.innerHTML = catChips()
         + recentBlock()
         + freqBlock
-        + '<div class="qb-sdrop-label">🔥 Popular Right Now</div>'
+        + '<div class="qb-sdrop-label">🔥 Trending Now</div>'
         + '<div class="qb-sdrop-items">'
         + TRENDS.map(function(t){
             return '<button type="button" class="qb-sdrop-item" data-query="' + esc(t.label) + '">'
@@ -1631,7 +1680,7 @@
         + '<div class="qb-sdrop-empty-txt">No results for "' + esc(query) + '"</div>'
         + '<div class="qb-sdrop-empty-sub">Try a different keyword or browse categories</div>'
         + '</div>'
-        + '<div class="qb-sdrop-label">🔥 Popular</div>'
+        + '<div class="qb-sdrop-label">🔥 Popular Picks</div>'
         + '<div class="qb-sdrop-items">'
         + TRENDS.slice(0,3).map(function(t){
             return '<button type="button" class="qb-sdrop-item" data-query="' + esc(t.label) + '">'
@@ -1654,10 +1703,42 @@
       } catch(e) { return []; }
     }
 
+    /* ── Keyboard Navigation ──── */
+    function navigate(direction) {
+      var items = inner.querySelectorAll('.qb-sdrop-item, .qb-sdrop-recent-row, .qb-sdrop-seeall, .qb-sdrop-chip');
+      if (!items.length) return;
+
+      if (selectedIndex >= 0) {
+        items[selectedIndex].classList.remove('active');
+        items[selectedIndex].style.background = '';
+      }
+
+      selectedIndex += direction;
+      if (selectedIndex < 0) selectedIndex = items.length - 1;
+      if (selectedIndex >= items.length) selectedIndex = 0;
+
+      var activeItem = items[selectedIndex];
+      activeItem.classList.add('active');
+      activeItem.style.background = 'rgba(244,180,0,0.1)';
+      activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+
     /* ── on input ──── */
     function handleInput() {
       var query = input.value.trim();
-      if (!query || query.length < 2) { hide(); return; }
+      updateClearButton();
+      
+      if (!query) {
+        renderHome();
+        show();
+        return;
+      }
+
+      if (query.length < 2) {
+        hide();
+        return;
+      }
+
       renderLoading(); show();
       clearTimeout(debounce);
       debounce = setTimeout(async function() {
@@ -1708,9 +1789,21 @@
         removeRecent(dq);
         var row = inner.querySelector('[data-recent="' + CSS.escape(dq) + '"]');
         if (row) row.remove();
+        if (!getRecent().length) renderHome();
         return;
       }
     });
+
+    /* ── clear button click ──── */
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        input.value = '';
+        input.focus();
+        updateClearButton();
+        renderHome();
+      });
+    }
 
     /* ── form submit: save recent ──── */
     form.addEventListener('submit', function() {
@@ -1720,12 +1813,23 @@
 
     /* ── focus / input events ──── */
     input.addEventListener('focus', function() {
-      if (input.value.trim().length >= 2) { handleInput(); }
-      // do NOT show dropdown on empty focus
+      if (input.value.trim().length >= 2) {
+        handleInput();
+      } else if (input.value.trim().length === 0) {
+        renderHome();
+        show();
+      }
     });
     input.addEventListener('input', handleInput);
     input.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') { hide(); input.blur(); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); navigate(1); }
+      if (e.key === 'ArrowUp') { e.preventDefault(); navigate(-1); }
+      if (e.key === 'Enter' && selectedIndex >= 0) {
+        e.preventDefault();
+        var items = inner.querySelectorAll('.qb-sdrop-item, .qb-sdrop-recent-row, .qb-sdrop-seeall, .qb-sdrop-chip');
+        if (items[selectedIndex]) items[selectedIndex].click();
+      }
     });
 
     /* ── close on outside click / backdrop tap ──── */
