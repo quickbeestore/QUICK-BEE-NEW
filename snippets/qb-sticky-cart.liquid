@@ -5,14 +5,24 @@
   - Disappears when cart is empty
   - Respects dark/light theme automatically
   - Shows on all pages except /cart
+  - ZERO-FLASH GUARANTEE: Uses Liquid for initial state + optimized JS hydration.
 {% endcomment %}
 
 {% assign is_payment_page = false %}
 {% if request.path contains '/pages/payment' or request.path contains '/pages/checkout' or template.name == 'cart' %}
   {% assign is_payment_page = true %}
 {% endif %}
+
+{%- assign cart_count = cart.item_count -%}
+{%- assign cart_total = cart.total_price | divided_by: 100 -%}
+
 {% unless is_payment_page %}
-<div id="qbsc-root" class="qbsc-hidden" style="display:none" aria-label="Quick cart">
+<div id="qbsc-root" 
+     class="{% if cart_count == 0 %}qbsc-hidden{% endif %}" 
+     {% if cart_count == 0 %}style="display:none"{% endif %} 
+     aria-label="Quick cart"
+     {% if cart_count > 0 %}data-sc-ready="1"{% endif %}>
+     
   <!-- Backdrop (shown when panel is open) -->
   <div id="qbsc-backdrop" class="qbsc-backdrop" role="presentation"></div>
 
@@ -31,7 +41,7 @@
       <div class="qbsc-panel-title">
         <span class="qbsc-title-icon">🛒</span>
         <span>Your Cart</span>
-        <span class="qbsc-panel-badge" id="qbsc-panel-count">0</span>
+        <span class="qbsc-panel-badge" id="qbsc-panel-count">{{ cart_count }}</span>
       </div>
       <button class="qbsc-close-btn" id="qbsc-close" aria-label="Close cart">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
@@ -51,7 +61,7 @@
     <div class="qbsc-panel-footer" id="qbsc-panel-footer">
       <div class="qbsc-subtotal-row">
         <span class="qbsc-subtotal-lbl">Subtotal</span>
-        <span class="qbsc-subtotal-val" id="qbsc-subtotal">Rs 0</span>
+        <span class="qbsc-subtotal-val" id="qbsc-subtotal">Rs {{ cart_total }}</span>
       </div>
       <a href="/pages/payment" class="qbsc-checkout-btn" id="qbsc-checkout-btn">
         <span>Proceed to Checkout</span>
@@ -64,7 +74,9 @@
   </div>
 
   <!-- Mini cart bar (always visible when cart has items) -->
-  <div id="qbsc-bar" class="qbsc-bar" role="button" tabindex="0" aria-label="Open cart" aria-expanded="false" style="opacity:0;transform:translateY(calc(100% + 12px));pointer-events:none">
+  <div id="qbsc-bar" class="qbsc-bar" role="button" tabindex="0" aria-label="Open cart" aria-expanded="false" 
+       {% if cart_count > 0 %}data-sc-ready="1"{% endif %}
+       style="{% if cart_count > 0 %}opacity:1;transform:translateY(0);pointer-events:all;{% else %}opacity:0;transform:translateY(calc(100% + 12px));pointer-events:none;{% endif %}">
     <div class="qbsc-bar-l">
       <div class="qbsc-bar-bag">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" aria-hidden="true">
@@ -72,15 +84,15 @@
           <line x1="3" y1="6" x2="21" y2="6"/>
           <path d="M16 10a4 4 0 01-8 0"/>
         </svg>
-        <span class="qbsc-bar-dot" id="qbsc-bar-dot">0</span>
+        <span class="qbsc-bar-dot" id="qbsc-bar-dot">{{ cart_count }}</span>
       </div>
       <div class="qbsc-bar-info">
-        <span class="qbsc-bar-items" id="qbsc-bar-items">0 items</span>
+        <span class="qbsc-bar-items" id="qbsc-bar-items">{{ cart_count }} {{ cart_count | pluralize: 'item', 'items' }}</span>
         <span class="qbsc-bar-hint">Tap to view</span>
       </div>
     </div>
     <div class="qbsc-bar-r">
-      <span class="qbsc-bar-price" id="qbsc-bar-price">Rs 0</span>
+      <span class="qbsc-bar-price" id="qbsc-bar-price">Rs {{ cart_total }}</span>
       <div class="qbsc-bar-chevron-wrap" id="qbsc-chevron-wrap">
         <svg class="qbsc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true">
           <polyline points="18 15 12 9 6 15"/>
@@ -150,7 +162,8 @@ html:not([data-theme]) #qbsc-root {
 
 /* ── INVISIBLE UNTIL JS FIRST RENDER — zero flash guarantee ── */
 /* display:none is used instead of visibility:hidden because fixed children
-   with backdrop-filter can still composite/flash through visibility:hidden */
+   with backdrop-filter can still composite/flash through visibility:hidden.
+   IF LIQUID RENDERED IT, WE ALLOW IT INSTANTLY. */
 #qbsc-root:not([data-sc-ready]) {
   display: none !important;
 }
@@ -1100,6 +1113,19 @@ html:not([data-theme]) #qbsc-root {
       if (isInit) {
         /* ── Page load / refresh — set final position before revealing ── */
         var isDesktop = window.innerWidth >= 640;
+        
+        /* If Liquid already rendered it (data-sc-ready="1"), skip the opacity dance 
+           to ensure it "stays strong" without any flicker. */
+        if (ROOT.dataset.scReady === '1') {
+          ROOT.classList.remove('qbsc-hidden');
+          ROOT.style.display = '';
+          BAR.style.opacity = '1';
+          BAR.style.transform = isDesktop ? 'translateX(-50%) translateY(0)' : 'translateY(0)';
+          BAR.style.pointerEvents = 'all';
+          prevCount = count;
+          return;
+        }
+
         BAR.style.transition    = 'none';
         BAR.style.animation     = 'none';
         BAR.style.opacity       = '0'; /* keep invisible until fully positioned */
@@ -1273,9 +1299,6 @@ html:not([data-theme]) #qbsc-root {
 
   /* ── Init ── */
   function init() {
-    var cached = 0;
-    try { cached = parseInt(localStorage.getItem(LS_KEY) || '0', 10) || 0; } catch(e) {}
-
     /* Always wait for the real fetch — never pre-show from cache.
        This prevents the empty "1 item Rs 0" flash on refresh. */
     /* Empty cart: leave display:none + no data-sc-ready intact.
