@@ -1,200 +1,290 @@
 {% comment %}
-  QuickBee — KapadaWash Collection Template v2
-  Text-focused, Categorized, Mobile-First
+  QuickBee — KapadaWash Collection Template v3 (Restored Premium UI + Categorized)
+  Combines the best of v1 (Premium UI) and v2 (Categorization)
 {% endcomment %}
 
 <style>
 /* ═══════════════════════════════════════════════
-   LAUNDRY BOOKING v2 — Categorized & Text Focused
+   LAUNDRY BOOKING v3 — Premium Categorized List
    QuickBee × KapadaWash
 ═══════════════════════════════════════════════ */
 :root {
+  --lb-red:           #C41E3A;
+  --lb-red-dark:      #9b1226;
   --lb-gold:          #F4B400;
-  --lb-gold-dim:      rgba(244,180,0,0.1);
-  --lb-bg:            #f8f9fa;
+  --lb-gold-dim:      rgba(244,180,0,0.12);
+  --lb-bg:            #f4f4f4;
   --lb-card:          #ffffff;
-  --lb-border:        #eef0f2;
-  --lb-text:          #1a1a1a;
-  --lb-muted:         #6c757d;
-  --lb-radius:        12px;
-  --lb-success:       #28a745;
+  --lb-border:        #e8e8e8;
+  --lb-text:          #0d0d0d;
+  --lb-muted:         #777;
+  --lb-radius:        16px;
 }
 [data-theme="dark"] {
-  --lb-bg:            #0f0f0f;
-  --lb-card:          #1a1a1a;
-  --lb-border:        #2a2a2a;
-  --lb-text:          #f8f9fa;
-  --lb-muted:         #adb5bd;
+  --lb-bg:            #0a0a0a;
+  --lb-card:          #141414;
+  --lb-border:        #222;
+  --lb-text:          #f0f0f0;
+  --lb-muted:         #555;
 }
 
 .lb-wrap {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: var(--lb-bg);
   min-height: 100vh;
-  padding-bottom: calc(160px + env(safe-area-inset-bottom));
+  padding-bottom: calc(145px + env(safe-area-inset-bottom));
+  -webkit-tap-highlight-color: transparent;
   color: var(--lb-text);
 }
 .lb-wrap * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── HERO ── */
+/* ── HERO (Restored Premium) ── */
 .lb-hero {
-  background: #111;
-  padding: 40px 20px;
-  text-align: left;
-  border-bottom: 1px solid var(--lb-border);
+  background: linear-gradient(145deg, #0d0d0d 0%, #141414 55%, #1a1000 100%);
+  padding: 36px 20px 52px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.lb-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 90% 70% at 50% 120%, rgba(244,180,0,0.22) 0%, transparent 65%);
+  pointer-events: none;
 }
 .lb-hero-badge {
-  color: var(--lb-gold); font-size: 10px; font-weight: 800;
-  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;
-  display: block;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--lb-gold-dim); border: 1px solid rgba(244,180,0,0.3);
+  color: var(--lb-gold); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  padding: 5px 14px; border-radius: 20px; margin-bottom: 16px;
+  position: relative; z-index: 1;
+}
+.lb-hero-icon {
+  font-size: 58px; display: block; margin-bottom: 12px;
+  position: relative; z-index: 1;
+  animation: lb-float 3.5s ease-in-out infinite;
+}
+@keyframes lb-float {
+  0%,100% { transform: translateY(0) rotate(-4deg); }
+  50%      { transform: translateY(-8px) rotate(4deg); }
 }
 .lb-hero-title {
-  font-size: 28px; font-weight: 900; color: #fff;
-  line-height: 1.1; margin-bottom: 8px;
+  font-size: 26px; font-weight: 900; color: #fff;
+  line-height: 1.15; letter-spacing: -0.5px;
+  position: relative; z-index: 1; margin-bottom: 8px;
 }
+.lb-hero-title span { color: var(--lb-gold); }
 .lb-hero-sub {
-  font-size: 14px; color: rgba(255,255,255,0.6);
-  line-height: 1.4;
+  font-size: 13px; color: rgba(255,255,255,0.55);
+  position: relative; z-index: 1; line-height: 1.5;
 }
 
-/* ── CATEGORY HEADINGS ── */
+/* ── TRUST PILLS ── */
+.lb-trust-row {
+  display: flex; gap: 8px; overflow-x: auto;
+  padding: 14px 16px; scrollbar-width: none;
+}
+.lb-trust-row::-webkit-scrollbar { display: none; }
+.lb-trust-pill {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px;
+  background: var(--lb-card); border: 1px solid var(--lb-border);
+  border-radius: 20px; padding: 6px 12px; font-size: 11px;
+  font-weight: 600; color: var(--lb-text); white-space: nowrap;
+}
+
+/* ── CATEGORY HEADERS ── */
 .lb-cat-header {
-  padding: 24px 16px 12px;
-  font-size: 16px; font-weight: 800; color: var(--lb-text);
-  display: flex; align-items: center; gap: 10px;
-  background: var(--lb-bg);
-  position: sticky; top: 0; z-index: 10;
+  padding: 20px 16px 10px;
+  font-size: 14px; font-weight: 800; color: var(--lb-muted);
+  text-transform: uppercase; letter-spacing: 1px;
+  display: flex; align-items: center; gap: 8px;
 }
 .lb-cat-header::after {
   content: ''; flex: 1; height: 1px; background: var(--lb-border);
 }
 
-/* ── TEXT FOCUSED CARDS ── */
+/* ── SERVICE LIST (Text Focused) ── */
 .lb-services-list {
-  padding: 0 12px;
-  display: flex; flex-direction: column; gap: 8px;
+  padding: 0 16px;
+  display: flex; flex-direction: column; gap: 10px;
 }
 .lb-service-card {
-  display: flex; align-items: flex-start; gap: 12px;
-  background: var(--lb-card);
-  border: 1px solid var(--lb-border);
-  border-radius: var(--lb-radius);
-  padding: 14px;
-  cursor: pointer; transition: all 0.2s ease;
-  user-select: none; -webkit-tap-highlight-color: transparent;
+  display: flex; align-items: center; gap: 12px;
+  background: var(--lb-card); border: 2px solid var(--lb-border);
+  border-radius: var(--lb-radius); padding: 14px;
+  cursor: pointer; transition: border-color 0.2s ease, transform 0.15s ease;
+  user-select: none; position: relative;
 }
 .lb-service-card.selected {
   border-color: var(--lb-gold);
   background: var(--lb-gold-dim);
 }
 
-.lb-svc-main { flex: 1; min-width: 0; }
+.lb-svc-icon-wrap {
+  width: 44px; height: 44px; background: var(--lb-gold-dim);
+  border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; font-size: 20px; flex-shrink: 0;
+}
+.lb-service-card.selected .lb-svc-icon-wrap {
+  background: var(--lb-gold); color: #000;
+}
+
+.lb-svc-info { flex: 1; min-width: 0; }
 .lb-svc-name {
-  font-size: 15px; font-weight: 700; color: var(--lb-text);
+  font-size: 15px; font-weight: 800; color: var(--lb-text);
   margin-bottom: 2px;
 }
-.lb-svc-desc {
-  font-size: 12px; color: var(--lb-muted);
-  line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-}
-.lb-svc-price-row {
-  display: flex; align-items: center; gap: 6px; margin-top: 6px;
-}
-.lb-svc-price {
-  font-size: 14px; font-weight: 800; color: var(--lb-gold);
+.lb-svc-meta {
+  font-size: 11px; color: var(--lb-muted);
+  display: flex; align-items: center; gap: 6px;
 }
 .lb-svc-unit {
-  font-size: 11px; color: var(--lb-muted); font-weight: 500;
+  background: var(--lb-gold-dim); color: var(--lb-gold);
+  padding: 1px 6px; border-radius: 6px;
+  font-weight: 700; font-size: 9px;
 }
 
-/* ── QTY CONTROLS ── */
-.lb-svc-actions {
-  display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
-  min-width: 90px;
+.lb-svc-right {
+  display: flex; flex-direction: column;
+  align-items: flex-end; gap: 6px; flex-shrink: 0;
 }
-.lb-add-icon-btn {
-  width: 32px; height: 32px; border-radius: 8px;
+.lb-svc-price-line {
+  font-size: 15px; font-weight: 900; color: var(--lb-text);
+  line-height: 1;
+}
+
+.lb-svc-add-btn {
+  width: 34px; height: 34px;
   background: var(--lb-gold); color: #000;
+  border: none; border-radius: 50%;
+  font-size: 22px; font-weight: 300; line-height: 1;
   display: flex; align-items: center; justify-content: center;
-  font-size: 20px; font-weight: 300; border: none;
 }
+
 .lb-card-qty {
   display: none; align-items: center;
-  background: var(--lb-card); border: 1.5px solid var(--lb-gold);
-  border-radius: 8px; overflow: hidden;
+  background: rgba(244,180,0,0.1);
+  border: 1.5px solid rgba(244,180,0,0.35);
+  border-radius: 10px; overflow: hidden;
 }
 .lb-service-card.selected .lb-card-qty { display: flex; }
-.lb-service-card.selected .lb-add-icon-btn { display: none; }
+.lb-service-card.selected .lb-svc-add-btn { display: none; }
 
 .lb-qty-btn {
-  width: 30px; height: 32px; background: transparent; border: none;
-  font-size: 18px; color: var(--lb-gold); cursor: pointer;
+  width: 32px; height: 32px; background: transparent; border: none;
+  font-size: 18px; color: #c68a00; font-weight: 700;
 }
+.lb-qty-btn:active { background: rgba(244,180,0,0.1); }
 .lb-qty-val {
-  min-width: 24px; text-align: center; font-size: 14px; font-weight: 800;
+  min-width: 24px; text-align: center; font-size: 14px; font-weight: 900;
 }
 
-/* ── LIVE SUMMARY (Simplified) ── */
-.lb-summary-bar {
+/* ── LIVE ORDER SUMMARY (Restored) ── */
+.lb-live-summary {
+  margin: 16px; border-radius: var(--lb-radius);
+  overflow: hidden; border: 1.5px solid rgba(34,197,94,0.35);
+  background: var(--lb-card);
+}
+.lb-ls-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; background: rgba(34,197,94,0.07);
+  border-bottom: 1px solid rgba(34,197,94,0.2);
+}
+.lb-ls-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; }
+.lb-ls-title {
+  font-size: 12px; font-weight: 800; color: #16a34a;
+  text-transform: uppercase; letter-spacing: 0.5px; flex: 1;
+}
+.lb-ls-count {
+  font-size: 11px; font-weight: 700;
+  background: rgba(34,197,94,0.15); color: #16a34a;
+  padding: 2px 8px; border-radius: 10px;
+}
+.lb-ls-items { padding: 4px 0; }
+.lb-ls-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px; border-bottom: 1px solid var(--lb-border);
+}
+.lb-ls-item:last-child { border-bottom: none; }
+.lb-ls-item-name { flex: 1; font-size: 13px; font-weight: 700; color: var(--lb-text); }
+.lb-ls-item-price { font-size: 14px; font-weight: 900; color: var(--lb-text); }
+
+.lb-ls-total-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px; background: var(--lb-gold-dim);
+  border-top: 1.5px solid rgba(244,180,0,0.25);
+}
+.lb-ls-total-price { font-size: 20px; font-weight: 900; color: var(--lb-text); }
+
+/* ── STICKY CONFIRM BAR (RESTORED) ── */
+.lb-sticky-bar {
   position: fixed; bottom: 0; left: 0; right: 0;
   background: var(--lb-card); border-top: 1px solid var(--lb-border);
   padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-  z-index: 100;
-  box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+  z-index: 999; box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
 }
-.lb-summary-info {
-  display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
-}
-.lb-summary-total {
-  display: flex; flex-direction: column;
-}
-.lb-summary-label { font-size: 11px; color: var(--lb-muted); text-transform: uppercase; font-weight: 700; }
-.lb-summary-val { font-size: 20px; font-weight: 900; color: var(--lb-text); }
+.lb-sticky-inner { display: flex; align-items: center; gap: 14px; }
+.lb-sticky-info { flex: 1; }
+.lb-sticky-total { font-size: 21px; font-weight: 900; color: var(--lb-text); line-height: 1; }
+.lb-sticky-sub { font-size: 11px; color: var(--lb-muted); margin-top: 3px; font-weight: 600; }
 
-.lb-confirm-btn {
-  width: 100%; height: 50px;
-  background: var(--lb-gold); color: #000;
-  border: none; border-radius: 10px;
-  font-size: 16px; font-weight: 800;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
+.lb-add-btn {
+  flex: 2; height: 52px;
+  background: linear-gradient(135deg, #ff1f35 0%, #C41E3A 55%, #9b1226 100%);
+  color: #fff; border: none; border-radius: 14px; font-size: 15px;
+  font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 4px 15px rgba(196,30,58,0.3);
 }
-.lb-confirm-btn:disabled { background: var(--lb-border); color: var(--lb-muted); }
+.lb-add-btn:disabled { background: #d0d0d0; box-shadow: none; color: #777; cursor: not-allowed; }
 
-/* ── CATEGORY NAV (Mobile Scrolling) ── */
+/* ── SUCCESS OVERLAY ── */
+.lb-overlay {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+  display: none; align-items: center; justify-content: center;
+}
+.lb-overlay.show { display: flex; }
+.lb-overlay-card {
+  background: var(--lb-card); padding: 40px 30px; border-radius: 24px; text-align: center;
+  max-width: 280px; width: 90%;
+}
+.lb-overlay-icon { font-size: 60px; display: block; margin-bottom: 15px; }
+
+/* ── CATEGORY NAV ── */
 .lb-cat-nav {
-  display: flex; gap: 8px; overflow-x: auto; padding: 12px 16px;
+  display: flex; gap: 10px; overflow-x: auto; padding: 12px 16px;
   background: var(--lb-card); border-bottom: 1px solid var(--lb-border);
-  scrollbar-width: none;
+  scrollbar-width: none; position: sticky; top: 0; z-index: 100;
 }
 .lb-cat-nav::-webkit-scrollbar { display: none; }
 .lb-cat-pill {
   flex-shrink: 0; padding: 6px 14px; border-radius: 20px;
   background: var(--lb-bg); border: 1px solid var(--lb-border);
   font-size: 12px; font-weight: 700; color: var(--lb-muted);
+  text-decoration: none;
 }
 .lb-cat-pill.active { background: var(--lb-gold); color: #000; border-color: var(--lb-gold); }
 
-/* ── SUCCESS OVERLAY ── */
-.lb-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.8);
-  display: none; align-items: center; justify-content: center; z-index: 1000;
-  backdrop-filter: blur(4px);
-}
-.lb-overlay.show { display: flex; }
-.lb-overlay-card {
-  background: var(--lb-card); padding: 32px; border-radius: 20px; text-align: center;
-  max-width: 80%;
-}
-.lb-overlay-icon { font-size: 48px; margin-bottom: 12px; display: block; }
 </style>
 
 <div class="lb-wrap">
   <!-- HERO -->
-  <header class="lb-hero">
-    <span class="lb-hero-badge">KapadaWash Premium</span>
+  <div class="lb-hero">
+    <div class="lb-hero-badge">🐝 QuickBee × KapadaWash</div>
+    <span class="lb-hero-icon">👕</span>
     <h1 class="lb-hero-title">{{ collection.title }}</h1>
-    <p class="lb-hero-sub">{{ collection.description | strip_html | default: 'Select laundry services below to build your order.' }}</p>
-  </header>
+    <p class="lb-hero-sub">{{ collection.description | strip_html | default: 'Select your services below and checkout in seconds.' }}</p>
+  </div>
+
+  <!-- TRUST PILLS -->
+  <div class="lb-trust-row">
+    <div class="lb-trust-pill">⚡ Same-day pickup</div>
+    <div class="lb-trust-pill">🔒 Insured clothes</div>
+    <div class="lb-trust-pill">✅ Quality guarantee</div>
+    <div class="lb-trust-pill">📍 Live tracking</div>
+  </div>
 
   <!-- CATEGORY NAV -->
   {%- assign types = collection.products | map: 'type' | uniq -%}
@@ -206,7 +296,21 @@
     {% endfor %}
   </div>
 
-  <!-- PRODUCTS BY CATEGORY -->
+  <!-- LIVE SUMMARY (Visible when items added) -->
+  <div class="lb-live-summary" id="lb-summary" style="display:none;">
+    <div class="lb-ls-header">
+      <span class="lb-ls-dot"></span>
+      <span class="lb-ls-title">Current Selection</span>
+      <span class="lb-ls-count" id="lb-ls-count">0 items</span>
+    </div>
+    <div class="lb-ls-items" id="lb-ls-items"></div>
+    <div class="lb-ls-total-row">
+      <span style="font-size:13px; font-weight:800;">Subtotal</span>
+      <span class="lb-ls-total-price" id="lb-ls-total">Rs 0</span>
+    </div>
+  </div>
+
+  <!-- PRODUCT LISTING -->
   <div class="lb-content">
     {% for type in types %}
       {% if type != blank %}
@@ -216,29 +320,33 @@
             {% for product in collection.products %}
               {% if product.type == type %}
                 {%- assign unit = 'pcs' -%}
+                {%- assign icon = '🧺' -%}
                 {%- for tag in product.tags -%}
                   {%- if tag contains 'unit:' -%}{%- assign unit = tag | split: ':' | last -%}{%- endif -%}
+                  {%- if tag contains 'icon:' -%}{%- assign icon = tag | split: ':' | last -%}{%- endif -%}
                 {%- endfor -%}
 
                 <div class="lb-service-card" 
                      data-id="{{ product.first_available_variant.id }}"
                      data-title="{{ product.title | escape }}"
                      data-price="{{ product.price | divided_by: 100 }}"
-                     data-unit="{{ unit }}">
-                  <div class="lb-svc-main">
+                     data-unit="{{ unit }}"
+                     data-icon="{{ icon }}">
+                  <div class="lb-svc-icon-wrap">{{ icon }}</div>
+                  <div class="lb-svc-info">
                     <h3 class="lb-svc-name">{{ product.title }}</h3>
-                    <p class="lb-svc-desc">{{ product.description | strip_html | truncate: 100 }}</p>
-                    <div class="lb-svc-price-row">
-                      <span class="lb-svc-price">Rs {{ product.price | divided_by: 100 }}</span>
-                      <span class="lb-svc-unit">/ {{ unit }}</span>
+                    <div class="lb-svc-meta">
+                      <span class="lb-svc-unit">per {{ unit }}</span>
+                      <span>{{ product.description | strip_html | truncate: 50 }}</span>
                     </div>
                   </div>
-                  <div class="lb-svc-actions">
-                    <button class="lb-add-icon-btn">+</button>
+                  <div class="lb-svc-right">
+                    <div class="lb-svc-price-line">Rs {{ product.price | divided_by: 100 }}</div>
+                    <button class="lb-svc-add-btn">+</button>
                     <div class="lb-card-qty">
-                      <button class="lb-qty-btn minus">−</button>
+                      <button class="lb-qty-btn minus" type="button">−</button>
                       <span class="lb-qty-val">1</span>
-                      <button class="lb-qty-btn plus">+</button>
+                      <button class="lb-qty-btn plus" type="button">+</button>
                     </div>
                   </div>
                 </div>
@@ -250,47 +358,74 @@
     {% endfor %}
   </div>
 
-  <!-- SUMMARY BAR -->
-  <div class="lb-summary-bar">
-    <div class="lb-summary-info">
-      <div class="lb-summary-total">
-        <span class="lb-summary-label">Estimated Total</span>
-        <span class="lb-summary-val" id="lb-total-display">Rs 0</span>
+  <!-- STICKY CONFIRM BAR -->
+  <div class="lb-sticky-bar">
+    <div class="lb-sticky-inner">
+      <div class="lb-sticky-info">
+        <div class="lb-sticky-total" id="sticky-total">Rs 0</div>
+        <div class="lb-sticky-sub" id="sticky-count">Select services</div>
       </div>
-      <div class="lb-summary-count" id="lb-count-display" style="font-size: 12px; font-weight: 700;">0 Services</div>
+      <button class="lb-add-btn" id="confirm-btn" disabled>
+        <span>✅</span> Confirm Order
+      </button>
     </div>
-    <button class="lb-confirm-btn" id="lb-confirm" disabled>
-      <span>🐝</span> Confirm Order
-    </button>
   </div>
 </div>
 
-<div class="lb-overlay" id="lb-success">
+<!-- SUCCESS OVERLAY -->
+<div class="lb-overlay" id="success-overlay">
   <div class="lb-overlay-card">
-    <span class="lb-overlay-icon">✅</span>
-    <h2 style="margin-bottom:8px;">Order Building...</h2>
-    <p style="font-size:14px; color:var(--lb-muted);">Sending items to checkout</p>
+    <span class="lb-overlay-icon">🛵</span>
+    <h2 style="font-weight:900; margin-bottom:10px;">Building Order...</h2>
+    <p style="font-size:13px; color:var(--lb-muted);">Adding items to your bag and preparing checkout</p>
   </div>
 </div>
 
 <script>
 (function() {
   const selections = {};
-  const confirmBtn = document.getElementById('lb-confirm');
-  const totalDisplay = document.getElementById('lb-total-display');
-  const countDisplay = document.getElementById('lb-count-display');
+  const summaryEl = document.getElementById('lb-summary');
+  const itemsContainer = document.getElementById('lb-ls-items');
+  const countBadge = document.getElementById('lb-ls-count');
+  const totalDisplay = document.getElementById('lb-ls-total');
+  const stickyTotal = document.getElementById('sticky-total');
+  const stickyCount = document.getElementById('sticky-count');
+  const confirmBtn = document.getElementById('confirm-btn');
+  const overlay = document.getElementById('success-overlay');
 
-  function updateGlobalUI() {
+  function updateUI() {
+    const keys = Object.keys(selections);
     let total = 0;
-    let count = 0;
-    Object.keys(selections).forEach(id => {
-      total += selections[id].price * selections[id].qty;
-      count++;
+
+    itemsContainer.innerHTML = '';
+    
+    keys.forEach(id => {
+      const s = selections[id];
+      const itemTotal = s.price * s.qty;
+      total += itemTotal;
+
+      const row = document.createElement('div');
+      row.className = 'lb-ls-item';
+      row.innerHTML = `
+        <span style="font-size:16px;">${s.icon}</span>
+        <span class="lb-ls-item-name">${s.title}</span>
+        <span style="font-size:11px; color:var(--lb-muted);">${s.qty} ${s.unit}</span>
+        <span class="lb-ls-item-price">Rs ${itemTotal}</span>
+      `;
+      itemsContainer.appendChild(row);
     });
 
+    if (keys.length > 0) {
+      summaryEl.style.display = 'block';
+    } else {
+      summaryEl.style.display = 'none';
+    }
+
+    countBadge.textContent = keys.length + (keys.length === 1 ? ' item' : ' items');
     totalDisplay.textContent = 'Rs ' + total;
-    countDisplay.textContent = count + (count === 1 ? ' Service' : ' Services');
-    confirmBtn.disabled = count === 0;
+    stickyTotal.textContent = 'Rs ' + total;
+    stickyCount.textContent = keys.length + (keys.length === 1 ? ' Service selected' : ' Services selected');
+    confirmBtn.disabled = keys.length === 0;
   }
 
   document.querySelectorAll('.lb-service-card').forEach(card => {
@@ -298,46 +433,50 @@
     const price = parseInt(card.dataset.price);
     const title = card.dataset.title;
     const unit = card.dataset.unit;
+    const icon = card.dataset.icon;
     const qtyVal = card.querySelector('.lb-qty-val');
 
     card.addEventListener('click', (e) => {
       if (e.target.closest('.lb-card-qty')) return;
       if (!selections[id]) {
-        selections[id] = { id, title, price, unit, qty: 1 };
+        selections[id] = { id, title, price, unit, icon, qty: 1 };
         card.classList.add('selected');
-        updateGlobalUI();
+        updateUI();
       }
     });
 
     card.querySelector('.plus').addEventListener('click', (e) => {
       e.stopPropagation();
+      if (!selections[id]) return;
       selections[id].qty++;
       qtyVal.textContent = selections[id].qty;
-      updateGlobalUI();
+      updateUI();
     });
 
     card.querySelector('.minus').addEventListener('click', (e) => {
       e.stopPropagation();
+      if (!selections[id]) return;
       if (selections[id].qty > 1) {
         selections[id].qty--;
         qtyVal.textContent = selections[id].qty;
       } else {
         delete selections[id];
         card.classList.remove('selected');
+        qtyVal.textContent = '1';
       }
-      updateGlobalUI();
+      updateUI();
     });
   });
 
   confirmBtn.addEventListener('click', () => {
     confirmBtn.disabled = true;
-    confirmBtn.textContent = 'Processing...';
-    document.getElementById('lb-success').classList.add('show');
+    confirmBtn.innerHTML = '<span class="lb-spinner"></span> Processing...';
+    overlay.classList.add('show');
 
     const items = Object.values(selections).map(s => ({
-      id: s.id,
+      id: parseInt(s.id),
       quantity: s.qty,
-      properties: { 'Service': s.title, 'Unit': s.unit }
+      properties: { 'Service': s.title, 'Quantity': s.qty + ' ' + s.unit }
     }));
 
     fetch('/cart/add.js', {
@@ -345,28 +484,31 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ items })
     })
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error('Cart add failed');
+      return res.json();
+    })
     .then(() => {
+      if (typeof window.qbSyncCartNote === 'function') window.qbSyncCartNote();
       window.location.href = '/pages/payment';
     })
     .catch(err => {
-      alert('Error adding to cart. Please try again.');
+      console.error('Cart add error:', err);
+      alert('Error adding services to cart. Please try again.');
       confirmBtn.disabled = false;
-      document.getElementById('lb-success').classList.remove('show');
+      confirmBtn.innerHTML = '<span>✅</span> Confirm Order';
+      overlay.classList.remove('show');
     });
   });
 
-  // Smooth scroll for cat nav
+  // Smooth scroll for nav
   document.querySelectorAll('.lb-cat-pill').forEach(pill => {
     pill.addEventListener('click', (e) => {
       e.preventDefault();
-      const targetId = pill.getAttribute('href').substring(1);
-      const target = document.getElementById(targetId);
+      const target = document.querySelector(pill.getAttribute('href'));
       if (target) {
-        window.scrollTo({
-          top: target.offsetTop - 60,
-          behavior: 'smooth'
-        });
+        const offset = target.offsetTop - 60;
+        window.scrollTo({ top: offset, behavior: 'smooth' });
       }
       document.querySelectorAll('.lb-cat-pill').forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
@@ -377,8 +519,8 @@
 
 {% schema %}
 {
-  "name": "KapadaWash Categorized",
-  "settings": []
+  "name": "KapadaWash Categorized v3",
+  "settings": [],
+  "presets": [{ "name": "KapadaWash Categorized v3" }]
 }
 {% endschema %}
-
