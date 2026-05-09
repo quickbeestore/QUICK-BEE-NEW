@@ -1245,31 +1245,28 @@ html:not([data-theme]) #qbsc-root {
     if (!btn) return;
     e.preventDefault();
 
-    var key = btn.getAttribute('data-key');
+    var itemEl = btn.closest('.qbsc-item');
+    if (!itemEl) return;
+
+    var key = itemEl.getAttribute('data-key');
     var act = btn.getAttribute('data-act');
     var qty = parseInt(btn.getAttribute('data-qty'), 10) || 0;
     var newQty = act === 'inc' ? qty + 1 : qty - 1;
 
+    if (!key) return;
+
     /* Optimistic update */
-    var controls = btn.closest('.qbsc-item-qty');
-    if (controls) {
-      var numEl = controls.querySelector('.qbsc-qty-num');
-      if (numEl) {
-        numEl.textContent = Math.max(0, newQty);
-        bump(numEl);
-      }
-      controls.querySelectorAll('.qbsc-qty-btn').forEach(function (b) { b.setAttribute('data-qty', newQty); });
+    var numEl = itemEl.querySelector('.qbsc-qty-num');
+    if (numEl) {
+      numEl.textContent = Math.max(0, newQty);
+      bump(numEl);
     }
+    itemEl.querySelectorAll('.qbsc-qty-btn').forEach(function (b) { b.setAttribute('data-qty', newQty); });
 
     if (newQty <= 0) {
-      var itemEl = btn.closest('.qbsc-item');
-      if (itemEl) {
-        itemEl.style.maxHeight = itemEl.offsetHeight + 'px';
-        requestAnimationFrame(function () { itemEl.classList.add('qbsc-removing'); });
-        setTimeout(function () { changeQty(key, 0); }, 280);
-      } else {
-        changeQty(key, 0);
-      }
+      itemEl.style.maxHeight = itemEl.offsetHeight + 'px';
+      requestAnimationFrame(function () { itemEl.classList.add('qbsc-removing'); });
+      setTimeout(function () { changeQty(key, 0); }, 280);
     } else {
       changeQty(key, newQty);
     }
