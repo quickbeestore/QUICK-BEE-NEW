@@ -299,6 +299,14 @@
 .lb-summary-btn:active { transform: scale(0.98); }
 .lb-summary-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
 
+.lb-spinner {
+  width: 18px; height: 18px;
+  border: 2.5px solid rgba(255,255,255,0.35); border-top-color: #fff;
+  border-radius: 50%; animation: lb-spin 0.7s linear infinite;
+  display: inline-block; vertical-align: middle;
+}
+@keyframes lb-spin { to { transform: rotate(360deg); } }
+
 </style>
 
 <div class="lb-wrap">
@@ -465,7 +473,53 @@
     if (summaryConfirmBtn) summaryConfirmBtn.disabled = keys.length === 0;
   }
 
-  // ... rest of the click listeners ...
+  // ── CLICK LISTENERS ──
+  document.querySelector('.lb-content').addEventListener('click', function(e) {
+    const card = e.target.closest('.lb-service-card');
+    if (!card) return;
+
+    const id = card.dataset.id;
+    const title = card.dataset.title;
+    const price = parseInt(card.dataset.price);
+    const unit = card.dataset.unit;
+    const icon = card.dataset.icon;
+
+    // 1. Handle Plus/Minus Buttons
+    const qtyBtn = e.target.closest('.lb-qty-btn');
+    if (qtyBtn) {
+      e.stopPropagation();
+      if (!selections[id]) return;
+
+      if (qtyBtn.classList.contains('plus')) {
+        selections[id].qty++;
+      } else {
+        selections[id].qty--;
+        if (selections[id].qty < 1) {
+          delete selections[id];
+          card.classList.remove('selected');
+          card.querySelector('.lb-qty-val').textContent = "1";
+          updateUI();
+          return;
+        }
+      }
+      card.querySelector('.lb-qty-val').textContent = selections[id].qty;
+      updateUI();
+      return;
+    }
+
+    // 2. Handle Card Selection/Add Button
+    if (!selections[id]) {
+      selections[id] = { id, title, price, unit, icon, qty: 1 };
+      card.classList.add('selected');
+      card.querySelector('.lb-qty-val').textContent = "1";
+    } else if (e.target.closest('.lb-svc-add-btn')) {
+      // This is a fallback, usually add-btn is hidden when selected
+      delete selections[id];
+      card.classList.remove('selected');
+    }
+
+    updateUI();
+  });
 
   function handleBooking() {
     const activeBtn = this;
@@ -485,7 +539,10 @@
 
     fetch('/cart/add.js', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
       body: JSON.stringify({ items })
     })
     .then(res => {
